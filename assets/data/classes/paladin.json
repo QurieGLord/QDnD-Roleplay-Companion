@@ -1,0 +1,69 @@
+{
+  "id": "paladin",
+  "name": {
+    "en": "Paladin",
+    "ru": "Паладин"
+  },
+  "description": {
+    "en": "A holy warrior bound to a sacred oath.",
+    "ru": "Святой воин, связанный священной клятвой."
+  },
+  "hitDie": 10,
+  "primaryAbilities": ["strength", "charisma"],
+  "savingThrowProficiencies": ["wisdom", "charisma"],
+  "armorProficiencies": {
+    "light": true,
+    "medium": true,
+    "heavy": true,
+    "shields": true
+  },
+  "weaponProficiencies": {
+    "simple": true,
+    "martial": true,
+    "specific": []
+  },
+  "skillProficiencies": {
+    "choose": 2,
+    "from": ["athletics", "insight", "intimidation", "medicine", "persuasion", "religion"]
+  },
+  "subclasses": [
+    {
+      "id": "oath_of_devotion",
+      "name": {
+        "en": "Oath of Devotion",
+        "ru": "Клятва преданности"
+      },
+      "description": {
+        "en": "Paladins who uphold the loftiest ideals of justice and virtue.",
+        "ru": "Паладины, придерживающиеся высочайших идеалов справедливости и добродетели."
+      }
+    },
+    {
+      "id": "oath_of_conquest",
+      "name": {
+        "en": "Oath of Conquest",
+        "ru": "Клятва покорения"
+      },
+      "description": {
+        "en": "Paladins who seek glory in battle and subjugation of their enemies.",
+        "ru": "Паладины, стремящиеся к славе в битве и покорению врагов."
+      }
+    },
+    {
+      "id": "oath_of_vengeance",
+      "name": {
+        "en": "Oath of Vengeance",
+        "ru": "Клятва мести"
+      },
+      "description": {
+        "en": "Paladins who punish those who commit grievous sins.",
+        "ru": "Паладины, карающие тех, кто совершает тяжкие грехи."
+      }
+    }
+  ],
+  "subclassLevel": 3,
+  "spellcasting": {
+    "ability": "charisma",
+    "type": "half"
+  }
+}

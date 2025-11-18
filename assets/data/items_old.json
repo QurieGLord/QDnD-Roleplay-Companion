@@ -1,0 +1,187 @@
+[
+  {
+    "id": "longsword",
+    "nameEn": "Longsword",
+    "nameRu": "Длинный меч",
+    "descriptionEn": "A versatile martial weapon with a straight blade",
+    "descriptionRu": "Универсальное боевое оружие с прямым клинком",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 3.0,
+    "valueInCopper": 1500,
+    "weaponProperties": {
+      "damageDice": "1d8",
+      "damageType": "DamageType.slashing",
+      "weaponTags": ["versatile", "martial"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": "1d10"
+    }
+  },
+  {
+    "id": "shortsword",
+    "nameEn": "Shortsword",
+    "nameRu": "Короткий меч",
+    "descriptionEn": "A light, finesse martial weapon",
+    "descriptionRu": "Лёгкое фехтовальное боевое оружие",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 2.0,
+    "valueInCopper": 1000,
+    "weaponProperties": {
+      "damageDice": "1d6",
+      "damageType": "DamageType.piercing",
+      "weaponTags": ["finesse", "light", "martial"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "dagger",
+    "nameEn": "Dagger",
+    "nameRu": "Кинжал",
+    "descriptionEn": "A simple finesse weapon, easily concealed",
+    "descriptionRu": "Простое фехтовальное оружие, легко скрываемое",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 1.0,
+    "valueInCopper": 200,
+    "weaponProperties": {
+      "damageDice": "1d4",
+      "damageType": "DamageType.piercing",
+      "weaponTags": ["finesse", "light", "thrown", "simple"],
+      "range": 20,
+      "longRange": 60,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "quarterstaff",
+    "nameEn": "Quarterstaff",
+    "nameRu": "Боевой посох",
+    "descriptionEn": "A versatile simple weapon, a sturdy wooden staff",
+    "descriptionRu": "Универсальное простое оружие, прочный деревянный посох",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 4.0,
+    "valueInCopper": 20,
+    "weaponProperties": {
+      "damageDice": "1d6",
+      "damageType": "DamageType.bludgeoning",
+      "weaponTags": ["versatile", "simple"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": "1d8"
+    }
+  },
+  {
+    "id": "light_crossbow",
+    "nameEn": "Light Crossbow",
+    "nameRu": "Лёгкий арбалет",
+    "descriptionEn": "A simple ranged weapon",
+    "descriptionRu": "Простое дальнобойное оружие",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 5.0,
+    "valueInCopper": 2500,
+    "weaponProperties": {
+      "damageDice": "1d8",
+      "damageType": "DamageType.piercing",
+      "weaponTags": ["ammunition", "loading", "two_handed", "simple"],
+      "range": 80,
+      "longRange": 320,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "leather_armor",
+    "nameEn": "Leather Armor",
+    "nameRu": "Кожаный доспех",
+    "descriptionEn": "Light armor made from tanned and hardened leather",
+    "descriptionRu": "Лёгкий доспех из дублёной и закалённой кожи",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 10.0,
+    "valueInCopper": 1000,
+    "armorProperties": {
+      "baseAC": 11,
+      "armorType": "ArmorType.light",
+      "addDexModifier": "full",
+      "maxDexBonus": null,
+      "strengthRequirement": 0,
+      "stealthDisadvantage": false
+    }
+  },
+  {
+    "id": "chain_mail",
+    "nameEn": "Chain Mail",
+    "nameRu": "Кольчуга",
+    "descriptionEn": "Heavy armor made of interlocking metal rings",
+    "descriptionRu": "Тяжёлый доспех из переплетённых металлических колец",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 55.0,
+    "valueInCopper": 7500,
+    "armorProperties": {
+      "baseAC": 16,
+      "armorType": "ArmorType.heavy",
+      "addDexModifier": "none",
+      "maxDexBonus": null,
+      "strengthRequirement": 13,
+      "stealthDisadvantage": true
+    }
+  },
+  {
+    "id": "shield",
+    "nameEn": "Shield",
+    "nameRu": "Щит",
+    "descriptionEn": "Provides +2 bonus to AC when wielded",
+    "descriptionRu": "Даёт бонус +2 к КД при использовании",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 6.0,
+    "valueInCopper": 1000,
+    "armorProperties": {
+      "baseAC": 2,
+      "armorType": "ArmorType.shield",
+      "addDexModifier": "none",
+      "maxDexBonus": null,
+      "strengthRequirement": 0,
+      "stealthDisadvantage": false
+    }
+  },
+  {
+    "id": "explorers_pack",
+    "nameEn": "Explorer's Pack",
+    "nameRu": "Набор исследователя",
+    "descriptionEn": "Includes backpack, bedroll, 10 torches, 10 days rations, waterskin, 50ft rope",
+    "descriptionRu": "Включает рюкзак, спальник, 10 факелов, провизию на 10 дней, бурдюк, 50 футов верёвки",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 59.0,
+    "valueInCopper": 1000
+  },
+  {
+    "id": "healers_kit",
+    "nameEn": "Healer's Kit",
+    "nameRu": "Набор целителя",
+    "descriptionEn": "Contains bandages, herbs, and splints. Has 10 uses",
+    "descriptionRu": "Содержит бинты, травы и шины. Имеет 10 применений",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 3.0,
+    "valueInCopper": 500
+  },
+  {
+    "id": "thieves_tools",
+    "nameEn": "Thieves' Tools",
+    "nameRu": "Воровские инструменты",
+    "descriptionEn": "Lockpicks, small files, and mirrors for picking locks and disarming traps",
+    "descriptionRu": "Отмычки, маленькие напильники и зеркала для взлома замков и обезвреживания ловушек",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 1.0,
+    "valueInCopper": 2500
+  }
+]

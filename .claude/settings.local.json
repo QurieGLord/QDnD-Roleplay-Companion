@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter pub get:*)",
+      "Bash(flutter pub run build_runner build:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter clean:*)",
+      "Bash(flutter build:*)",
+      "Bash(flutter devices:*)",
+      "Bash(flutter run:*)",
+      "Bash(nc:*)",
+      "Bash(adb uninstall:*)",
+      "Bash(pkill:*)",
+      "Bash(/tmp/flutter_cmd)",
+      "Bash(timeout 5 sh:*)",
+      "Bash(adb devices:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

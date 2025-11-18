@@ -1,0 +1,58 @@
+{
+  "id": "cleric",
+  "name": {
+    "en": "Cleric",
+    "ru": "Жрец"
+  },
+  "description": {
+    "en": "A priestly champion who wields divine magic in service of a higher power.",
+    "ru": "Священный воин, использующий божественную магию в служении высшей силе."
+  },
+  "hitDie": 8,
+  "primaryAbilities": ["wisdom"],
+  "savingThrowProficiencies": ["wisdom", "charisma"],
+  "armorProficiencies": {
+    "light": true,
+    "medium": true,
+    "heavy": false,
+    "shields": true
+  },
+  "weaponProficiencies": {
+    "simple": true,
+    "martial": false,
+    "specific": []
+  },
+  "skillProficiencies": {
+    "choose": 2,
+    "from": ["history", "insight", "medicine", "persuasion", "religion"]
+  },
+  "subclasses": [
+    {
+      "id": "life_domain",
+      "name": {
+        "en": "Life Domain",
+        "ru": "Домен жизни"
+      },
+      "description": {
+        "en": "The Life domain focuses on the vibrant positive energy that sustains all life.",
+        "ru": "Домен жизни сосредотачивается на яркой положительной энергии, поддерживающей всю жизнь."
+      }
+    },
+    {
+      "id": "war_domain",
+      "name": {
+        "en": "War Domain",
+        "ru": "Домен войны"
+      },
+      "description": {
+        "en": "War has many manifestations. It can make heroes of ordinary people and turn the tide of civilization.",
+        "ru": "Война имеет много проявлений. Она может сделать героев из обычных людей и повернуть ход цивилизации."
+      }
+    }
+  ],
+  "subclassLevel": 1,
+  "spellcasting": {
+    "ability": "wisdom",
+    "type": "full"
+  }
+}

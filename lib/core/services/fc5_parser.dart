@@ -1,0 +1,230 @@
+import 'package:xml/xml.dart';
+import '../models/character.dart';
+import '../models/ability_scores.dart';
+import 'package:uuid/uuid.dart';
+
+class FC5Parser {
+  static Character parseXml(String xmlContent) {
+    final document = XmlDocument.parse(xmlContent);
+    print('🔧 FC5Parser: Root element = ${document.rootElement.name}');
+    print('🔧 FC5Parser: Root children count = ${document.rootElement.children.length}');
+
+    // FC5 XML structure can be:
+    // 1. <pc><character>...</character></pc> - single character export
+    // 2. <characters><npc>...</npc>...</characters> - Game Master mode (NPC/monster format)
+    // 3. <compendium><character>...</character></compendium> - multiple characters
+
+    XmlElement? characterNode;
+
+    // Check if root IS named "characters" (GM mode export)
+    if (document.rootElement.name.local == 'characters') {
+      print('🔧 FC5Parser: Root is <characters> - GM mode export detected');
+
+      // GM mode can contain multiple NPCs - take the first one
+      final npcElements = document.rootElement.findElements('npc');
+      if (npcElements.isNotEmpty) {
+        print('🔧 FC5Parser: Found ${npcElements.length} <npc> elements, parsing first one');
+        characterNode = npcElements.first;
+      } else {
+        print('❌ FC5Parser: No <npc> elements found in GM mode export');
+        throw Exception('GM mode export must contain at least one <npc> element');
+      }
+    } else {
+      // Try to find <character> children
+      final characterElements = document.rootElement.findElements('character');
+      print('🔧 FC5Parser: Found ${characterElements.length} <character> elements');
+
+      if (characterElements.isEmpty) {
+        print('❌ FC5Parser: No <character> element found!');
+        print('❌ FC5Parser: Available child elements:');
+        for (var child in document.rootElement.childElements) {
+          print('  - <${child.name}>');
+        }
+        throw Exception('No <character> element found in XML. Root is <${document.rootElement.name}> but expected <character> child elements.');
+      }
+
+      characterNode = characterElements.first;
+    }
+
+    // Parse name
+    final name = characterNode.findElements('name').first.innerText;
+
+    // Parse abilities (comma-separated: STR,DEX,CON,INT,WIS,CHA)
+    final abilitiesText = characterNode.findElements('abilities').first.innerText;
+    final abilitiesList = abilitiesText
+        .split(',')
+        .where((s) => s.isNotEmpty)
+        .map((s) => int.parse(s.trim()))
+        .toList();
+
+    final abilityScores = AbilityScores(
+      strength: abilitiesList.isNotEmpty ? abilitiesList[0] : 10,
+      dexterity: abilitiesList.length > 1 ? abilitiesList[1] : 10,
+      constitution: abilitiesList.length > 2 ? abilitiesList[2] : 10,
+      intelligence: abilitiesList.length > 3 ? abilitiesList[3] : 10,
+      wisdom: abilitiesList.length > 4 ? abilitiesList[4] : 10,
+      charisma: abilitiesList.length > 5 ? abilitiesList[5] : 10,
+    );
+
+    // Parse HP
+    final maxHp = int.parse(characterNode.findElements('hpMax').first.innerText);
+    final currentHp = int.parse(characterNode.findElements('hpCurrent').first.innerText);
+
+    // Parse race
+    final raceNode = characterNode.findElements('race').first;
+    final race = raceNode.findElements('name').first.innerText;
+
+    // Parse appearance from race node
+    String? appearance;
+    try {
+      final age = raceNode.findElements('age').firstOrNull?.innerText;
+      final height = raceNode.findElements('height').firstOrNull?.innerText;
+      final weight = raceNode.findElements('weight').firstOrNull?.innerText;
+      final eyes = raceNode.findElements('eyes').firstOrNull?.innerText;
+      final skin = raceNode.findElements('skin').firstOrNull?.innerText;
+      final hair = raceNode.findElements('hair').firstOrNull?.innerText;
+
+      if (age != null || height != null) {
+        appearance = 'Age: ${age ?? 'Unknown'}\n'
+            'Height: ${height ?? 'Unknown'} cm\n'
+            'Weight: ${weight ?? 'Unknown'} kg\n'
+            'Eyes: ${eyes ?? 'Unknown'}\n'
+            'Skin: ${skin ?? 'Unknown'}\n'
+            'Hair: ${hair ?? 'Unknown'}';
+      }
+    } catch (e) {
+      // Ignore if appearance data not available
+    }
+
+    // Parse background
+    final backgroundNode = characterNode.findElements('background').firstOrNull;
+    final background = backgroundNode?.findElements('name').firstOrNull?.innerText;
+
+    // Parse class
+    final classNode = characterNode.findElements('class').first;
+    final classText = classNode.findElements('name').first.innerText;
+    final level = int.parse(classNode.findElements('level').first.innerText);
+
+    // Extract class name and subclass
+    String characterClass = classText;
+    String? subclass;
+
+    if (classText.contains(':')) {
+      final parts = classText.split(':');
+      characterClass = parts[0].trim();
+      subclass = parts[1].trim();
+    }
+
+    // Parse spell slots
+    // FC5 XML format: <slots>cantrips,1st,2nd,3rd,...9th</slots>
+    // We skip cantrips (index 0) and take levels 1-9
+    List<int> maxSpellSlots = List.filled(9, 0);
+    List<int> currentSpellSlots = List.filled(9, 0);
+
+    try {
+      final slotsText = classNode.findElements('slots').first.innerText;
+      final slotsList = slotsText
+          .split(',')
+          .where((s) => s.isNotEmpty)
+          .map((s) => int.parse(s.trim()))
+          .toList();
+
+      // Skip index 0 (cantrips), copy indices 1-9 as spell levels 1-9
+      for (int i = 1; i < slotsList.length && i <= 9; i++) {
+        maxSpellSlots[i - 1] = slotsList[i];
+      }
+
+      final currentSlotsText = classNode.findElements('slotsCurrent').first.innerText;
+      final currentSlotsList = currentSlotsText
+          .split(',')
+          .where((s) => s.isNotEmpty)
+          .map((s) => int.parse(s.trim()))
+          .toList();
+
+      // Skip index 0 (cantrips), copy indices 1-9 as spell levels 1-9
+      for (int i = 1; i < currentSlotsList.length && i <= 9; i++) {
+        currentSpellSlots[i - 1] = currentSlotsList[i];
+      }
+    } catch (e) {
+      // No spell slots (non-caster or error)
+      maxSpellSlots = List.filled(9, 0);
+      currentSpellSlots = List.filled(9, 0);
+    }
+
+    // Parse proficient skills
+    List<String> proficientSkills = [];
+    try {
+      final proficiencies = classNode.findAllElements('proficiency');
+      for (var prof in proficiencies) {
+        proficientSkills.add(prof.innerText);
+      }
+    } catch (e) {
+      // No proficiencies found
+    }
+
+    // Parse spells - for now, we'll add some default spells for Paladins
+    // FC5 XML format stores spells, but we'll use our own spell IDs
+    List<String> knownSpells = [];
+    List<String> preparedSpells = [];
+    int maxPreparedSpells = 0;
+
+    // Check if Paladin (support both EN and RU)
+    final isPaladin = characterClass.toLowerCase() == 'paladin' ||
+                      characterClass.toLowerCase() == 'паладин';
+
+    if (isPaladin) {
+      // Level 2+ Paladin knows all Paladin spells (can prepare subset)
+      if (level >= 2) {
+        // Add starting Paladin spells from our database
+        knownSpells = [
+          'bless',
+          'cure_wounds',
+          'divine_favor',
+          'shield_of_faith',
+          'command',
+          'detect_magic',
+        ];
+        // Calculate max prepared: CHA modifier + half paladin level
+        maxPreparedSpells = abilityScores.charismaModifier + (level ~/ 2);
+        if (maxPreparedSpells < 1) maxPreparedSpells = 1;
+
+        // Prepare some default spells
+        preparedSpells = knownSpells.take(maxPreparedSpells).toList();
+      }
+    }
+
+    // Calculate AC (simplified - base 10 + DEX modifier)
+    // In reality, would need to parse armor from equipment
+    int baseAc = 10 + abilityScores.dexterityModifier;
+
+    // Calculate speed (default for medium humanoid)
+    int speed = 30;
+
+    return Character(
+      id: const Uuid().v4(),
+      name: name,
+      race: race,
+      characterClass: characterClass,
+      subclass: subclass,
+      level: level,
+      maxHp: maxHp,
+      currentHp: currentHp,
+      abilityScores: abilityScores,
+      background: background,
+      spellSlots: currentSpellSlots,
+      maxSpellSlots: maxSpellSlots,
+      knownSpells: knownSpells,
+      preparedSpells: preparedSpells,
+      maxPreparedSpells: maxPreparedSpells,
+      armorClass: baseAc,
+      speed: speed,
+      initiative: abilityScores.dexterityModifier,
+      proficientSkills: proficientSkills,
+      savingThrowProficiencies: [],
+      appearance: appearance,
+      features: [], // Empty mutable list - will be populated by FeatureService
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
+}

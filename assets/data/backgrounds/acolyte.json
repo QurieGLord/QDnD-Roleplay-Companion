@@ -1,0 +1,42 @@
+{
+  "id": "acolyte",
+  "name": {
+    "en": "Acolyte",
+    "ru": "Прислужник"
+  },
+  "description": {
+    "en": "You have spent your life in the service of a temple to a specific god or pantheon of gods.",
+    "ru": "Вы провели свою жизнь в служении храму, посвящённому конкретному богу или пантеону богов."
+  },
+  "skillProficiencies": ["insight", "religion"],
+  "toolProficiencies": {},
+  "languages": 2,
+  "equipment": {
+    "en": [
+      "A holy symbol",
+      "A prayer book or prayer wheel",
+      "5 sticks of incense",
+      "Vestments",
+      "A set of common clothes",
+      "A belt pouch containing 15 gp"
+    ],
+    "ru": [
+      "Священный символ",
+      "Молитвенная книга или молитвенное колесо",
+      "5 палочек благовоний",
+      "Облачение",
+      "Комплект обычной одежды",
+      "Поясная сумка с 15 зм"
+    ]
+  },
+  "feature": {
+    "name": {
+      "en": "Shelter of the Faithful",
+      "ru": "Приют верующих"
+    },
+    "description": {
+      "en": "As an acolyte, you command the respect of those who share your faith, and you can perform the religious ceremonies of your deity. You and your companions can expect free healing and care at a temple, shrine, or other established presence of your faith.",
+      "ru": "Как прислужник, вы пользуетесь уважением тех, кто разделяет вашу веру, и можете проводить религиозные церемонии вашего божества. Вы и ваши спутники можете рассчитывать на бесплатное исцеление и заботу в храме, святилище или другом учреждении вашей веры."
+    }
+  }
+}
