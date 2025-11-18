@@ -1,204 +1,118 @@
-# QD&D - Quick D&D: Your Roleplay Companion
+<p align="center">
+  <a href="https://github.com/your_username/your_repository">
+    <img src="assets/images/icon.svg" alt="Logo" width="80" height="80">
+  </a>
 
-**Comprehensive D&D 5th Edition companion app для Android/iOS**
+  <h3 align="center">QD&D - Your Digital D&D Companion</h3>
 
-## Статус проекта
+  <p align="center">
+    A comprehensive, offline-first D&D 5th Edition companion app for Android & iOS, built with Flutter.
+    <br />
+    <a href="https://github.com/your_username/your_repository/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/your_username/your_repository/issues">Request Feature</a>
+  </p>
+</p>
 
-- **Версия**: 1.0.0+1
-- **Прогресс**: 25% (Session 1 из 8 завершена)
-- **Текущая сессия**: Session 1 ✅ ЗАВЕРШЕНА
-- **APK**: [build/app/outputs/flutter-apk/app-debug.apk](build/app/outputs/flutter-apk/app-debug.apk) (140MB)
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Status](https://img.shields.io/badge/status-in%20development-green.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-## Быстрый старт
+## About The Project
 
-### Предварительные требования
+QD&D is your ultimate digital companion for Dungeons & Dragons 5th Edition. Designed with a "build once, populate infinitely" philosophy, our data-driven architecture allows for near-infinite expandability. New classes, spells, or items can be added by simply dropping in a JSON file, no code changes required.
 
-- Flutter 3.35.7+
-- Dart 3.9.4+
-- Java OpenJDK 17
-- Android SDK (Build-Tools 35, Platform 36)
+This is more than just a character sheet—it's a complete roleplaying toolkit.
 
-### Установка окружения
+### Key Features:
 
-```bash
-# Установить JAVA_HOME
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
-export PATH=$JAVA_HOME/bin:$PATH
-```
+*   **Universal System:** Supports all 13 official D&D 5e classes and is easily extendable.
+*   **Offline First:** No internet connection? No problem. Your data is always available.
+*   **Bilingual:** Full support for both English and Russian.
+*   **FC5 Compatibility:** Import and export characters from Fight Club 5.
+*   **Material You:** A beautiful, modern interface with 5 color themes.
 
-### Команды разработки
+## Tech Stack
 
-```bash
-# Получить зависимости
-flutter pub get
+*   **Framework:** Flutter 3.35.7
+*   **Language:** Dart 3.9.4
+*   **State Management:** Provider
+*   **Storage:** Hive
+*   **Design:** Material 3 Expressive
 
-# Запустить на устройстве
-flutter run
+## Getting Started
 
-# Собрать debug APK
-flutter build apk --debug
+To get a local copy up and running follow these simple steps.
 
-# Собрать release APK
-flutter build apk --release
+### Prerequisites
 
-# Очистить проект
-flutter clean
-```
+*   Flutter `3.35.7` or newer
+*   Dart `3.9.4` or newer
+*   Java OpenJDK `17`
+*   Android SDK (Build-Tools `35`, Platform `36`)
 
-## Архитектура
+### Installation
 
-### Основная философия
-**"Build once, populate infinitely"** - универсальная, data-driven архитектура, требующая ТОЛЬКО добавления JSON данных для нового контента, БЕЗ изменений кода.
+1.  **Clone the repo**
+    ```sh
+    git clone https://github.com/your_username/your_repository.git
+    ```
+2.  **Set up your environment**
+    ```sh
+    # Example for setting JAVA_HOME
+    export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+    export PATH=$JAVA_HOME/bin:$PATH
+    ```
+3.  **Install dependencies**
+    ```sh
+    flutter pub get
+    ```
 
-### Ключевые возможности
+## Usage
 
-- ✅ Все 13 официальных D&D 5e классов
-- ✅ Universal CharacterFeature system
-- ✅ Bilingual support (Русский + English)
-- ✅ Offline-first с Hive storage
-- ✅ Material 3 Expressive дизайн
-- ✅ FC5 XML import/export
-- ✅ 5 цветовых тем (Monokai по умолчанию)
+*   **Run on a device**
+    ```sh
+    flutter run
+    ```
+*   **Build an APK**
+    ```sh
+    # For debugging
+    flutter build apk --debug
 
-### Технический стек
+    # For release
+    flutter build apk --release
+    ```
 
-- **Framework**: Flutter 3.35.7
-- **Language**: Dart 3.9.4
-- **State Management**: Provider
-- **Storage**: Hive (offline-first)
-- **Design**: Material 3 Expressive
-- **Fonts**: Google Fonts (Inter)
-- **Build System**: Gradle 8.11.1 + AGP 8.9.1
+## Roadmap
 
-## Структура проекта
+**Session 2 Focus: Data Models & Character Creation**
 
-```
-qd_and_d/
-├── lib/
-│   └── main.dart              # Основной код приложения (290 строк)
-├── assets/
-│   ├── data/
-│   │   └── fc5_examples/
-│   │       └── pal_example.xml  # Reference персонаж для тестов
-│   └── images/
-│       └── icon.svg           # Логотип приложения
-├── docs/
-│   ├── ARCHITECTURE.md        # Детальная архитектура
-│   └── DEVELOPMENT_PLAN.md    # План на 8 сессий
-├── android/                   # Android конфигурация
-├── ios/                       # iOS конфигурация
-├── PROJECT_BRIEF.md           # Обзор проекта
-├── SESSION1_SUMMARY.md        # Summary Session 1
-└── environment_report.md      # Audit окружения
-```
+- [ ] Set up Hive for local storage.
+- [ ] Create data models (Character, AbilityScores, Skills).
+- [ ] Implement the character creation flow.
+- [ ] Build the basic character sheet UI.
 
-## Документация
+See the [open issues](https://github.com/your_username/your_repository/issues) for a full list of proposed features (and known issues).
 
-- **[PROJECT_BRIEF.md](PROJECT_BRIEF.md)** - полный обзор проекта и целей
-- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - детальная архитектура системы
-- **[docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md)** - план разработки на 8 сессий
-- **[SESSION1_SUMMARY.md](SESSION1_SUMMARY.md)** - результаты Session 1
-- **[environment_report.md](environment_report.md)** - audit окружения
+## Contributing
 
-## Текущая реализация (Session 1)
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-### UI Компоненты
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 
-1. **SplashScreen**
-   - Fade + scale анимация (1.5s)
-   - Логотип приложения
-   - Плавный переход к character list
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
 
-2. **CharacterListScreen**
-   - Beautiful empty state UI
-   - Floating action button для создания персонажа
-   - Placeholder для будущего списка
+## License
 
-3. **SettingsScreen**
-   - Theme selector (Light/Dark/System)
-   - Language selector (English/Русский)
-   - Material 3 компоненты
+Distributed under the MIT License. See `LICENSE` for more information.
 
-### Цветовая схема (Monokai)
+## Contact
 
-- **Primary**: #FFB3D9 (pink)
-- **Secondary**: #A9DC76 (green)
-- **Surface**: #FCFCFC (light) / #2D2A2E (dark)
-- **Background**: #FAFAFA (light) / #221F22 (dark)
+QurieGLord - tipquri@gmail.com
 
-## Следующие шаги (Session 2)
+Project Link: [https://github.com/your_username/your_repository](https://github.com/your_username/your_repository)
 
-**Фокус**: Data Models & Character Creation
-
-- [ ] Настроить Hive для локального хранилища
-- [ ] Создать data models (Character, AbilityScores, Skills)
-- [ ] Реализовать Character creation flow
-- [ ] Базовый character sheet UI
-- [ ] Ability score input и модификаторы
-
-**Deliverable**: Возможность создать и сохранить персонажа с базовыми характеристиками
-
-## Конфигурация Android
-
-```kotlin
-android {
-    compileSdk = 36
-    ndkVersion = "29.0.14206865"
-
-    defaultConfig {
-        applicationId = "com.qdnd.qd_and_d"
-        minSdk = 24
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-}
-```
-
-## Зависимости
-
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  google_fonts: ^6.2.1
-  flutter_svg: ^2.0.14
-  provider: ^6.1.2
-```
-
-## Установка APK
-
-### Вариант 1: File Manager
-1. Скопировать APK на устройство
-2. Открыть через File Manager
-3. Разрешить установку из неизвестных источников
-
-### Вариант 2: ADB
-```bash
-adb install -r build/app/outputs/flutter-apk/app-debug.apk
-```
-
-### Вариант 3: Flutter
-```bash
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
-flutter install --debug
-```
-
-## Лицензия
-
-Частный проект
-
-## Контакты
-
-- **Автор**: QurieGLord
-- **Email**: tipquri@gmail.com
-- **Проект**: ~/Dev/Flutter/qd_and_d
-
----
-
-**QD&D** - Your ultimate D&D 5e companion 🎲✨
