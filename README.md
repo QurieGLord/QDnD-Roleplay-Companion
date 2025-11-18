@@ -5,9 +5,15 @@
 ## Статус проекта
 
 - **Версия**: 1.0.0+1
+- **Ветка**: `claude` ⚠️ (Claude Code работает здесь)
 - **Прогресс**: 25% (Session 1 из 8 завершена)
 - **Текущая сессия**: Session 1 ✅ ЗАВЕРШЕНА
 - **APK**: [build/app/outputs/flutter-apk/app-debug.apk](build/app/outputs/flutter-apk/app-debug.apk) (140MB)
+
+> **Note**: Проект использует три ветки:
+> - `main` - stable releases
+> - `claude` - разработка с Claude Code (эта ветка)
+> - `gemini` - разработка с Gemini AI
 
 ## Быстрый старт
 
