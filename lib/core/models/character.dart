@@ -131,12 +131,16 @@ class Character extends HiveObject {
     DateTime? createdAt,
     DateTime? updatedAt,
     this.appearance,
-    this.knownSpells = const [],
-    this.preparedSpells = const [],
+    List<String>? knownSpells,
+    List<String>? preparedSpells,
     this.maxPreparedSpells = 0,
-    this.features = const [],
-    this.inventory = const [],
-  })  : createdAt = createdAt ?? DateTime.now(),
+    List<CharacterFeature>? features,
+    List<Item>? inventory,
+  })  : knownSpells = knownSpells ?? [],
+        preparedSpells = preparedSpells ?? [],
+        features = features ?? [],
+        inventory = inventory ?? [],
+        createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
 
   // Calculate proficiency bonus based on level
