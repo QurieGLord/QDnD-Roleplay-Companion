@@ -54,6 +54,9 @@ class Item extends HiveObject {
   @HiveField(15)
   String? iconName; // For UI display
 
+  @HiveField(16)
+  String? customImagePath; // Path to custom image for user-created items
+
   Item({
     required this.id,
     required this.nameEn,
@@ -71,6 +74,7 @@ class Item extends HiveObject {
     this.armorProperties,
     this.isMagical = false,
     this.iconName,
+    this.customImagePath,
   });
 
   String getName(String locale) {
@@ -105,6 +109,7 @@ class Item extends HiveObject {
       'armorProperties': armorProperties?.toJson(),
       'isMagical': isMagical,
       'iconName': iconName,
+      'customImagePath': customImagePath,
     };
   }
 
@@ -136,6 +141,7 @@ class Item extends HiveObject {
           : null,
       isMagical: json['isMagical'] ?? false,
       iconName: json['iconName'],
+      customImagePath: json['customImagePath'],
     );
   }
 }

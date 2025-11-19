@@ -34,7 +34,8 @@ class CharacterCreationState extends ChangeNotifier {
   List<String> selectedSkills = [];
 
   // Step 4: Equipment
-  String? selectedEquipmentPackage; // 'standard', 'alternative', or custom package ID
+  String? selectedEquipmentPackage; // 'standard', 'alternative', or 'custom'
+  List<String> customEquipmentIds = []; // Item IDs for custom equipment selection
 
   // Step 5: Background
   BackgroundData? selectedBackground;
@@ -119,6 +120,27 @@ class CharacterCreationState extends ChangeNotifier {
 
   void updateEquipmentPackage(String? package) {
     selectedEquipmentPackage = package;
+    // Clear custom equipment when switching to standard/alternative
+    if (package != 'custom') {
+      customEquipmentIds.clear();
+    }
+    notifyListeners();
+  }
+
+  void addCustomEquipment(String itemId) {
+    if (!customEquipmentIds.contains(itemId)) {
+      customEquipmentIds.add(itemId);
+      notifyListeners();
+    }
+  }
+
+  void removeCustomEquipment(String itemId) {
+    customEquipmentIds.remove(itemId);
+    notifyListeners();
+  }
+
+  void clearCustomEquipment() {
+    customEquipmentIds.clear();
     notifyListeners();
   }
 
@@ -145,6 +167,7 @@ class CharacterCreationState extends ChangeNotifier {
     };
     selectedSkills.clear();
     selectedEquipmentPackage = null;
+    customEquipmentIds.clear();
     selectedBackground = null;
     notifyListeners();
   }

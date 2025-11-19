@@ -292,7 +292,11 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       );
 
       // 6. Add starting equipment if selected
-      if (_state.selectedEquipmentPackage != null) {
+      if (_state.selectedEquipmentPackage == 'custom') {
+        // Add custom equipment
+        await _addCustomEquipment(character, _state.customEquipmentIds);
+      } else if (_state.selectedEquipmentPackage != null) {
+        // Add standard/alternative package
         await _addStartingEquipment(character, _state.selectedClass!.id, _state.selectedEquipmentPackage!);
       }
 
@@ -361,43 +365,78 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       }
     }
 
-    // Auto-equip first weapon and armor
-    if (character.inventory.isNotEmpty) {
-      // Equip first weapon
-      for (var item in character.inventory) {
-        if (item.type == ItemType.weapon && !item.isEquipped) {
-          item.isEquipped = true;
-          break;
-        }
-      }
+    _autoEquipItems(character);
+  }
 
-      // Equip first armor
-      for (var item in character.inventory) {
-        if (item.type == ItemType.armor && !item.isEquipped) {
-          item.isEquipped = true;
-          // Update character AC based on equipped armor
-          _updateCharacterAC(character);
-          break;
+  /// Add custom equipment from item IDs
+  Future<void> _addCustomEquipment(Character character, List<String> itemIds) async {
+    for (var itemId in itemIds) {
+      try {
+        final item = ItemService.createItemFromTemplate(itemId);
+        if (item != null) {
+          character.inventory.add(item);
         }
+      } catch (e) {
+        print('Failed to add custom equipment item $itemId: $e');
+      }
+    }
+
+    _autoEquipItems(character);
+  }
+
+  /// Auto-equip first weapon and armor from inventory
+  void _autoEquipItems(Character character) {
+    if (character.inventory.isEmpty) return;
+
+    // Equip first weapon
+    for (var item in character.inventory) {
+      if (item.type == ItemType.weapon && !item.isEquipped) {
+        item.isEquipped = true;
+        break;
+      }
+    }
+
+    // Equip first armor
+    for (var item in character.inventory) {
+      if (item.type == ItemType.armor && !item.isEquipped) {
+        item.isEquipped = true;
+        // Update character AC based on equipped armor
+        _updateCharacterAC(character);
+        break;
       }
     }
   }
 
   /// Get equipment item IDs for a specific class and package
   List<String> _getEquipmentForPackage(String classId, String packageId) {
-    // TODO: Load from JSON in future
-    // For now, return basic equipment based on class
+    // Standard vs Alternative packages
+    final isAlternative = packageId == 'alternative';
+
     switch (classId) {
       case 'paladin':
-        return ['chain_mail', 'longsword', 'shield', 'holy_symbol', 'explorers_pack'];
+        return isAlternative
+            ? ['scale_mail', 'longsword', 'javelin', 'holy_symbol', 'priests_pack']
+            : ['chain_mail', 'longsword', 'shield', 'holy_symbol', 'explorers_pack'];
       case 'wizard':
-        return ['quarterstaff', 'dagger', 'component_pouch', 'scholars_pack'];
+        return isAlternative
+            ? ['dagger', 'dagger', 'arcane_focus', 'scholars_pack']
+            : ['quarterstaff', 'dagger', 'component_pouch', 'scholars_pack'];
       case 'fighter':
-        return ['chain_mail', 'longsword', 'shield', 'crossbow_light', 'explorers_pack'];
+        return isAlternative
+            ? ['leather_armor', 'longbow', 'shortsword', 'shortsword', 'dungeons_pack']
+            : ['chain_mail', 'longsword', 'shield', 'crossbow_light', 'explorers_pack'];
       case 'rogue':
-        return ['leather_armor', 'shortsword', 'dagger', 'thieves_tools', 'burglars_pack'];
+        return isAlternative
+            ? ['leather_armor', 'rapier', 'shortbow', 'thieves_tools', 'dungeons_pack']
+            : ['leather_armor', 'shortsword', 'dagger', 'thieves_tools', 'burglars_pack'];
       case 'cleric':
-        return ['chain_mail', 'mace', 'shield', 'holy_symbol', 'priests_pack'];
+        return isAlternative
+            ? ['scale_mail', 'warhammer', 'shield', 'holy_symbol', 'explorers_pack']
+            : ['chain_mail', 'mace', 'shield', 'holy_symbol', 'priests_pack'];
+      case 'ranger':
+        return isAlternative
+            ? ['scale_mail', 'shortsword', 'shortsword', 'longbow', 'dungeons_pack']
+            : ['leather_armor', 'longbow', 'shortsword', 'explorers_pack'];
       default:
         return ['leather_armor', 'dagger', 'explorers_pack'];
     }

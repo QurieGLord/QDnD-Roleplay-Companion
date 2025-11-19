@@ -33,13 +33,14 @@ class ItemAdapter extends TypeAdapter<Item> {
       armorProperties: fields[13] as ArmorProperties?,
       isMagical: fields[14] as bool,
       iconName: fields[15] as String?,
+      customImagePath: fields[16] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Item obj) {
     writer
-      ..writeByte(16)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -71,7 +72,9 @@ class ItemAdapter extends TypeAdapter<Item> {
       ..writeByte(14)
       ..write(obj.isMagical)
       ..writeByte(15)
-      ..write(obj.iconName);
+      ..write(obj.iconName)
+      ..writeByte(16)
+      ..write(obj.customImagePath);
   }
 
   @override

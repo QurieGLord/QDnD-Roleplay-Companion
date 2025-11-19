@@ -44,11 +44,11 @@ class CharacterAdapter extends TypeAdapter<Character> {
       createdAt: fields[24] as DateTime?,
       updatedAt: fields[25] as DateTime?,
       appearance: fields[26] as String?,
-      knownSpells: (fields[27] as List).cast<String>(),
-      preparedSpells: (fields[28] as List).cast<String>(),
+      knownSpells: (fields[27] as List?)?.cast<String>(),
+      preparedSpells: (fields[28] as List?)?.cast<String>(),
       maxPreparedSpells: fields[29] as int,
-      features: (fields[30] as List).cast<CharacterFeature>(),
-      inventory: (fields[31] as List).cast<Item>(),
+      features: (fields[30] as List?)?.cast<CharacterFeature>(),
+      inventory: (fields[31] as List?)?.cast<Item>(),
     );
   }
 
