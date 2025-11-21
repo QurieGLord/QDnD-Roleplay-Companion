@@ -390,6 +390,32 @@ git branch  # Должно быть: * claude
 
 ## История изменений
 
+### 2025-11-21 (QD&D UX Improvements & Bug Fixes)
+- **UX Improvements**:
+  - Добавлена навигация свайпами между вкладками (PageView + PageController)
+  - Убраны текстовые подписи из Navigation Bar (только иконки, размер 26px)
+  - Плавные анимации переключения (300ms, easeInOut)
+- **Исправлена видимость иконок** (commit: f42c81d):
+  - Проблема: Иконки в заголовках блоков Character Sheet и alignment FilterChip не были видны
+  - Причина: `color: primary` на фоне `primaryContainer` даёт низкий контраст
+  - Решение: Использовать `onPrimaryContainer` для иконок на фоне `primaryContainer`
+  - Затронутые файлы:
+    - `overview_tab.dart`: COMBAT STATS и ACTIONS иконки (строки 46, 151)
+    - `stats_tab.dart`: ABILITY SCORES и SAVING THROWS иконки (строки 39, 170)
+    - `expandable_character_card.dart`: Иконка класса персонажа (строка 59)
+    - `basic_info_step.dart`: Checkmark в alignment FilterChip (строка 273)
+- **Обновлён README.md**:
+  - Изменено название на "Q&D (Qurie's D&D)" вместо "Quick D&D"
+  - Добавлены новые фичи в секцию "Навигация" (Swipe Gestures, Icon-only Navigation Bar)
+  - Обновлён прогресс на 87.5% (Session 7 завершена)
+  - README скопирован во все три ветки (main, claude, gemini)
+- **SSH Setup**:
+  - Добавлен текущий SSH ключ на GitHub через `gh ssh-key add`
+  - Успешно запушены все три ветки:
+    - claude → `57d4ad8` (UX improvements)
+    - main → `60434c0` (README update)
+    - gemini → `5d1b1e1` (README update после rebase)
+
 ### 2025-11-21 (QD&D Session 7)
 - **Завершена Session 7 - Combat Tracker & HP Management**:
   - Реализован полноценный Combat Tracker Screen с 5 card components
