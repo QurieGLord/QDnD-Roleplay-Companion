@@ -699,6 +699,11 @@ class _InventoryTabState extends State<InventoryTab> {
     widget.character.inventory[index].isEquipped =
         !widget.character.inventory[index].isEquipped;
 
+    // Recalculate AC if armor/shield
+    if (item.type == ItemType.armor) {
+      widget.character.recalculateAC();
+    }
+
     // Save to database
     widget.character.updatedAt = DateTime.now();
     await widget.character.save();

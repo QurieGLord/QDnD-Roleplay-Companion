@@ -114,20 +114,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                 );
               },
               icon: const Icon(Icons.edit),
-              label: const Text('Create Manually'),
-            ),
-            const SizedBox(height: 12),
-            FilledButton.tonalIcon(
-              onPressed: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Character templates - coming in Session 5!'),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.person_outline),
-              label: const Text('Choose Template'),
+              label: const Text('Create New Character'),
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(

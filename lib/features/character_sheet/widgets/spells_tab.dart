@@ -523,7 +523,10 @@ class _SpellsTabState extends State<SpellsTab> {
                 MaterialPageRoute(
                   builder: (context) => SpellAlmanacScreen(character: widget.character),
                 ),
-              );
+              ).then((_) {
+                // Rebuild UI after returning from Spell Almanac
+                setState(() {});
+              });
             },
             icon: const Icon(Icons.library_books),
             label: const Text('Spell Almanac'),

@@ -261,6 +261,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       final character = Character(
         id: const Uuid().v4(),
         name: _state.name,
+        avatarPath: _state.avatarPath,
         race: _state.selectedRace!.getName(locale),
         characterClass: _state.selectedClass!.getName(locale),
         subclass: _state.selectedSubrace?.getName(locale),
@@ -289,6 +290,19 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
         maxPreparedSpells: maxPreparedSpells,
         features: [],
         inventory: [], // Start with empty inventory
+        personalityTraits: _state.personalityTraits,
+        ideals: _state.ideals,
+        bonds: _state.bonds,
+        flaws: _state.flaws,
+        backstory: _state.backstory,
+        age: _state.age,
+        gender: _state.gender,
+        height: _state.height,
+        weight: _state.weight,
+        eyes: _state.eyes,
+        hair: _state.hair,
+        skin: _state.skin,
+        appearanceDescription: _state.appearanceDescription,
       );
 
       // 6. Add starting equipment if selected

@@ -88,21 +88,40 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
               animation: _cardHeightAnimation,
               builder: (context, child) {
                 final progress = _cardHeightAnimation.value;
-                final cardHeight = 200.0 * progress;
+                final isOnOverviewTab = _currentIndex == 0;
 
                 // Don't render card if nearly collapsed to avoid overflow
                 if (progress < 0.2) {
-                  return SizedBox(height: cardHeight);
+                  return SizedBox(height: 200.0 * progress);
                 }
 
+                // On Overview tab, let card expand naturally
+                if (isOnOverviewTab) {
+                  return Opacity(
+                    opacity: progress,
+                    child: ExpandableCharacterCard(
+                      character: widget.character,
+                      isExpanded: true,
+                      onDicePressed: () {
+                        showDiceRoller(
+                          context,
+                          title: 'Roll d20',
+                          modifier: 0,
+                        );
+                      },
+                    ),
+                  );
+                }
+
+                // On other tabs, clip to fixed height
                 return ClipRect(
                   child: SizedBox(
-                    height: cardHeight,
+                    height: 200.0 * progress,
                     child: Opacity(
                       opacity: progress,
                       child: ExpandableCharacterCard(
                         character: widget.character,
-                        isExpanded: _currentIndex == 0,
+                        isExpanded: false,
                         onDicePressed: () {
                           showDiceRoller(
                             context,
@@ -179,6 +198,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
           elevation: 0,
           height: 64,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+          indicatorShape: const CircleBorder(),
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.home_outlined, size: 26),

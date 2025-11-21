@@ -468,16 +468,9 @@ class _EquipmentStepState extends State<EquipmentStep> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => _ItemCatalogDialog(
-        selectedItems: state.customEquipmentIds,
         locale: locale,
-        onItemToggle: (itemId) {
-          if (state.customEquipmentIds.contains(itemId)) {
-            context.read<CharacterCreationState>().removeCustomEquipment(itemId);
-          } else {
-            context.read<CharacterCreationState>().addCustomEquipment(itemId);
-          }
-        },
       ),
     );
   }
@@ -718,14 +711,10 @@ class _EquipmentStepState extends State<EquipmentStep> {
 // ============================================================================
 
 class _ItemCatalogDialog extends StatefulWidget {
-  final List<String> selectedItems;
   final String locale;
-  final Function(String) onItemToggle;
 
   const _ItemCatalogDialog({
-    required this.selectedItems,
     required this.locale,
-    required this.onItemToggle,
   });
 
   @override
@@ -803,13 +792,18 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
     final theme = Theme.of(context);
     final filteredItems = _getFilteredItems();
 
-    return DraggableScrollableSheet(
+    return Consumer<CharacterCreationState>(
+      builder: (context, state, child) {
+        return DraggableScrollableSheet(
       initialChildSize: 0.8,
       minChildSize: 0.5,
       maxChildSize: 0.95,
       expand: false,
       builder: (context, scrollController) {
-        return Column(
+        return Material(
+          color: theme.colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          child: Column(
           children: [
             // Header
             Container(
@@ -925,8 +919,8 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   widget.locale == 'ru'
-                      ? 'Найдено: ${filteredItems.length} (выбрано: ${widget.selectedItems.length})'
-                      : 'Found: ${filteredItems.length} (selected: ${widget.selectedItems.length})',
+                      ? 'Найдено: ${filteredItems.length} (выбрано: ${state.customEquipmentIds.length})'
+                      : 'Found: ${filteredItems.length} (selected: ${state.customEquipmentIds.length})',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -966,7 +960,7 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                       itemCount: filteredItems.length,
                       itemBuilder: (context, index) {
                         final item = filteredItems[index];
-                        final isSelected = widget.selectedItems.contains(item.id);
+                        final isSelected = state.customEquipmentIds.contains(item.id);
 
                         return Card(
                           margin: const EdgeInsets.only(bottom: 8),
@@ -1000,16 +994,31 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                             ),
                             trailing: Checkbox(
                               value: isSelected,
-                              onChanged: (_) => widget.onItemToggle(item.id),
+                              onChanged: (_) {
+                                if (isSelected) {
+                                  context.read<CharacterCreationState>().removeCustomEquipment(item.id);
+                                } else {
+                                  context.read<CharacterCreationState>().addCustomEquipment(item.id);
+                                }
+                              },
                             ),
-                            onTap: () => widget.onItemToggle(item.id),
+                            onTap: () {
+                              if (isSelected) {
+                                context.read<CharacterCreationState>().removeCustomEquipment(item.id);
+                              } else {
+                                context.read<CharacterCreationState>().addCustomEquipment(item.id);
+                              }
+                            },
                           ),
                         );
                       },
                     ),
             ),
           ],
+          ),
         );
+      },
+    );
       },
     );
   }

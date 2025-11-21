@@ -55,13 +55,21 @@ class CharacterAdapter extends TypeAdapter<Character> {
       concentratingOn: fields[35] as String?,
       hitDice: (fields[36] as List?)?.cast<int>(),
       maxHitDice: fields[37] as int?,
+      age: fields[38] as String?,
+      gender: fields[39] as String?,
+      height: fields[40] as String?,
+      weight: fields[41] as String?,
+      eyes: fields[42] as String?,
+      hair: fields[43] as String?,
+      skin: fields[44] as String?,
+      appearanceDescription: fields[45] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Character obj) {
     writer
-      ..writeByte(38)
+      ..writeByte(46)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -137,7 +145,23 @@ class CharacterAdapter extends TypeAdapter<Character> {
       ..writeByte(36)
       ..write(obj.hitDice)
       ..writeByte(37)
-      ..write(obj.maxHitDice);
+      ..write(obj.maxHitDice)
+      ..writeByte(38)
+      ..write(obj.age)
+      ..writeByte(39)
+      ..write(obj.gender)
+      ..writeByte(40)
+      ..write(obj.height)
+      ..writeByte(41)
+      ..write(obj.weight)
+      ..writeByte(42)
+      ..write(obj.eyes)
+      ..writeByte(43)
+      ..write(obj.hair)
+      ..writeByte(44)
+      ..write(obj.skin)
+      ..writeByte(45)
+      ..write(obj.appearanceDescription);
   }
 
   @override

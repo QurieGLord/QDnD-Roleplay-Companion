@@ -125,6 +125,31 @@ class Character extends HiveObject {
   @HiveField(37)
   int maxHitDice; // Total hit dice (= level)
 
+  // Detailed physical appearance fields
+  @HiveField(38)
+  String? age;
+
+  @HiveField(39)
+  String? gender;
+
+  @HiveField(40)
+  String? height;
+
+  @HiveField(41)
+  String? weight;
+
+  @HiveField(42)
+  String? eyes;
+
+  @HiveField(43)
+  String? hair;
+
+  @HiveField(44)
+  String? skin;
+
+  @HiveField(45)
+  String? appearanceDescription; // Detailed description
+
   Character({
     required this.id,
     required this.name,
@@ -164,6 +189,14 @@ class Character extends HiveObject {
     this.concentratingOn,
     List<int>? hitDice,
     int? maxHitDice,
+    this.age,
+    this.gender,
+    this.height,
+    this.weight,
+    this.eyes,
+    this.hair,
+    this.skin,
+    this.appearanceDescription,
   })  : knownSpells = knownSpells ?? [],
         preparedSpells = preparedSpells ?? [],
         features = features ?? [],
@@ -231,6 +264,14 @@ class Character extends HiveObject {
       'concentratingOn': concentratingOn,
       'hitDice': hitDice,
       'maxHitDice': maxHitDice,
+      'age': age,
+      'gender': gender,
+      'height': height,
+      'weight': weight,
+      'eyes': eyes,
+      'hair': hair,
+      'skin': skin,
+      'appearanceDescription': appearanceDescription,
     };
   }
 
@@ -449,5 +490,52 @@ class Character extends HiveObject {
       updatedAt = DateTime.now();
       save();
     }
+  }
+
+  // Armor Class Calculation
+  void recalculateAC() {
+    int baseAC = 10;
+    int dexMod = abilityScores.dexterityModifier;
+    int totalAC = baseAC;
+
+    // Find equipped armor and shield
+    Item? equippedArmor;
+    Item? equippedShield;
+
+    for (var item in inventory) {
+      if (item.isEquipped && item.type == ItemType.armor && item.armorProperties != null) {
+        if (item.armorProperties!.armorType == ArmorType.shield) {
+          equippedShield = item;
+        } else {
+          equippedArmor = item;
+        }
+      }
+    }
+
+    // Calculate AC from armor
+    if (equippedArmor != null && equippedArmor.armorProperties != null) {
+      final armorProps = equippedArmor.armorProperties!;
+      totalAC = armorProps.baseAC;
+
+      // Add DEX modifier based on armor type
+      if (armorProps.addDexModifier) {
+        if (armorProps.maxDexBonus != null) {
+          totalAC += dexMod.clamp(-10, armorProps.maxDexBonus!);
+        } else {
+          totalAC += dexMod; // Full DEX for light armor
+        }
+      }
+    } else {
+      // No armor = 10 + DEX
+      totalAC = 10 + dexMod;
+    }
+
+    // Add shield bonus
+    if (equippedShield != null && equippedShield.armorProperties != null) {
+      totalAC += equippedShield.armorProperties!.baseAC;
+    }
+
+    armorClass = totalAC;
+    updatedAt = DateTime.now();
   }
 }

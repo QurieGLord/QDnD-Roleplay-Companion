@@ -203,6 +203,7 @@ class OverviewTab extends StatelessWidget {
                           if (confirmed == true && context.mounted) {
                             character.shortRest();
                             await StorageService.saveCharacter(character);
+                            onCharacterUpdated?.call();
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -255,6 +256,7 @@ class OverviewTab extends StatelessWidget {
                           if (confirmed == true && context.mounted) {
                             character.longRest();
                             await StorageService.saveCharacter(character);
+                            onCharacterUpdated?.call();
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
