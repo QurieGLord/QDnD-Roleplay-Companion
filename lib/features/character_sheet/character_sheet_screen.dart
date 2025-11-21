@@ -29,10 +29,13 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
   int _currentIndex = 0;
   late AnimationController _animationController;
   late Animation<double> _cardHeightAnimation;
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: 0);
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
@@ -50,11 +53,20 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
 
   @override
   void dispose() {
+    _pageController.dispose();
     _animationController.dispose();
     super.dispose();
   }
 
   void _onTabChanged(int index) {
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _onPageChanged(int index) {
     setState(() {
       _currentIndex = index;
       if (index == 0) {
@@ -108,10 +120,11 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
             // Navigation Bar (under the card)
             _buildAnimatedNavBar(),
 
-            // Content Area
+            // Content Area with PageView for swipe gestures
             Expanded(
-              child: IndexedStack(
-                index: _currentIndex,
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: _onPageChanged,
                 children: [
                   OverviewTab(
                     character: widget.character,
@@ -165,32 +178,32 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
           backgroundColor: Colors.transparent,
           elevation: 0,
           height: 64,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
           destinations: const [
             NavigationDestination(
-              icon: Icon(Icons.home_outlined, size: 22),
-              selectedIcon: Icon(Icons.home, size: 22),
-              label: 'Overview',
+              icon: Icon(Icons.home_outlined, size: 26),
+              selectedIcon: Icon(Icons.home, size: 26),
+              label: '',
             ),
             NavigationDestination(
-              icon: Icon(Icons.analytics_outlined, size: 22),
-              selectedIcon: Icon(Icons.analytics, size: 22),
-              label: 'Stats',
+              icon: Icon(Icons.analytics_outlined, size: 26),
+              selectedIcon: Icon(Icons.analytics, size: 26),
+              label: '',
             ),
             NavigationDestination(
-              icon: Icon(Icons.auto_fix_high_outlined, size: 22),
-              selectedIcon: Icon(Icons.auto_fix_high, size: 22),
-              label: 'Spells',
+              icon: Icon(Icons.auto_fix_high_outlined, size: 26),
+              selectedIcon: Icon(Icons.auto_fix_high, size: 26),
+              label: '',
             ),
             NavigationDestination(
-              icon: Icon(Icons.backpack_outlined, size: 22),
-              selectedIcon: Icon(Icons.backpack, size: 22),
-              label: 'Inventory',
+              icon: Icon(Icons.backpack_outlined, size: 26),
+              selectedIcon: Icon(Icons.backpack, size: 26),
+              label: '',
             ),
             NavigationDestination(
-              icon: Icon(Icons.book_outlined, size: 22),
-              selectedIcon: Icon(Icons.book, size: 22),
-              label: 'Journal',
+              icon: Icon(Icons.book_outlined, size: 26),
+              selectedIcon: Icon(Icons.book, size: 26),
+              label: '',
             ),
           ],
         ),

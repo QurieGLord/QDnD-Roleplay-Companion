@@ -1,210 +1,272 @@
-# QD&D - Quick D&D: Your Roleplay Companion
+# ⚔️ Q&D: Your Roleplay Companion
 
-**Comprehensive D&D 5th Edition companion app для Android/iOS**
+**Qurie's D&D Character Management for Android & iOS**
 
-## Статус проекта
+<div align="center">
 
-- **Версия**: 1.0.0+1
-- **Ветка**: `claude` ⚠️ (Claude Code работает здесь)
-- **Прогресс**: 25% (Session 1 из 8 завершена)
-- **Текущая сессия**: Session 1 ✅ ЗАВЕРШЕНА
-- **APK**: [build/app/outputs/flutter-apk/app-debug.apk](build/app/outputs/flutter-apk/app-debug.apk) (140MB)
+![Progress](https://img.shields.io/badge/Progress-87.5%25-success)
+![Version](https://img.shields.io/badge/Version-1.0.0-blue)
+![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-green)
+![License](https://img.shields.io/badge/License-Private-red)
 
-> **Note**: Проект использует три ветки:
-> - `main` - stable releases
-> - `claude` - разработка с Claude Code (эта ветка)
-> - `gemini` - разработка с Gemini AI
+*Your comprehensive D&D 5th Edition companion app - manage characters, cast spells, track combat, and more.*
 
-## Быстрый старт
-
-### Предварительные требования
-
-- Flutter 3.35.7+
-- Dart 3.9.4+
-- Java OpenJDK 17
-- Android SDK (Build-Tools 35, Platform 36)
-
-### Установка окружения
-
-```bash
-# Установить JAVA_HOME
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
-export PATH=$JAVA_HOME/bin:$PATH
-```
-
-### Команды разработки
-
-```bash
-# Получить зависимости
-flutter pub get
-
-# Запустить на устройстве
-flutter run
-
-# Собрать debug APK
-flutter build apk --debug
-
-# Собрать release APK
-flutter build apk --release
-
-# Очистить проект
-flutter clean
-```
-
-## Архитектура
-
-### Основная философия
-**"Build once, populate infinitely"** - универсальная, data-driven архитектура, требующая ТОЛЬКО добавления JSON данных для нового контента, БЕЗ изменений кода.
-
-### Ключевые возможности
-
-- ✅ Все 13 официальных D&D 5e классов
-- ✅ Universal CharacterFeature system
-- ✅ Bilingual support (Русский + English)
-- ✅ Offline-first с Hive storage
-- ✅ Material 3 Expressive дизайн
-- ✅ FC5 XML import/export
-- ✅ 5 цветовых тем (Monokai по умолчанию)
-
-### Технический стек
-
-- **Framework**: Flutter 3.35.7
-- **Language**: Dart 3.9.4
-- **State Management**: Provider
-- **Storage**: Hive (offline-first)
-- **Design**: Material 3 Expressive
-- **Fonts**: Google Fonts (Inter)
-- **Build System**: Gradle 8.11.1 + AGP 8.9.1
-
-## Структура проекта
-
-```
-qd_and_d/
-├── lib/
-│   └── main.dart              # Основной код приложения (290 строк)
-├── assets/
-│   ├── data/
-│   │   └── fc5_examples/
-│   │       └── pal_example.xml  # Reference персонаж для тестов
-│   └── images/
-│       └── icon.svg           # Логотип приложения
-├── docs/
-│   ├── ARCHITECTURE.md        # Детальная архитектура
-│   └── DEVELOPMENT_PLAN.md    # План на 8 сессий
-├── android/                   # Android конфигурация
-├── ios/                       # iOS конфигурация
-├── PROJECT_BRIEF.md           # Обзор проекта
-├── SESSION1_SUMMARY.md        # Summary Session 1
-└── environment_report.md      # Audit окружения
-```
-
-## Документация
-
-- **[PROJECT_BRIEF.md](PROJECT_BRIEF.md)** - полный обзор проекта и целей
-- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - детальная архитектура системы
-- **[docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md)** - план разработки на 8 сессий
-- **[SESSION1_SUMMARY.md](SESSION1_SUMMARY.md)** - результаты Session 1
-- **[environment_report.md](environment_report.md)** - audit окружения
-
-## Текущая реализация (Session 1)
-
-### UI Компоненты
-
-1. **SplashScreen**
-   - Fade + scale анимация (1.5s)
-   - Логотип приложения
-   - Плавный переход к character list
-
-2. **CharacterListScreen**
-   - Beautiful empty state UI
-   - Floating action button для создания персонажа
-   - Placeholder для будущего списка
-
-3. **SettingsScreen**
-   - Theme selector (Light/Dark/System)
-   - Language selector (English/Русский)
-   - Material 3 компоненты
-
-### Цветовая схема (Monokai)
-
-- **Primary**: #FFB3D9 (pink)
-- **Secondary**: #A9DC76 (green)
-- **Surface**: #FCFCFC (light) / #2D2A2E (dark)
-- **Background**: #FAFAFA (light) / #221F22 (dark)
-
-## Следующие шаги (Session 2)
-
-**Фокус**: Data Models & Character Creation
-
-- [ ] Настроить Hive для локального хранилища
-- [ ] Создать data models (Character, AbilityScores, Skills)
-- [ ] Реализовать Character creation flow
-- [ ] Базовый character sheet UI
-- [ ] Ability score input и модификаторы
-
-**Deliverable**: Возможность создать и сохранить персонажа с базовыми характеристиками
-
-## Конфигурация Android
-
-```kotlin
-android {
-    compileSdk = 36
-    ndkVersion = "29.0.14206865"
-
-    defaultConfig {
-        applicationId = "com.qdnd.qd_and_d"
-        minSdk = 24
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-}
-```
-
-## Зависимости
-
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  google_fonts: ^6.2.1
-  flutter_svg: ^2.0.14
-  provider: ^6.1.2
-```
-
-## Установка APK
-
-### Вариант 1: File Manager
-1. Скопировать APK на устройство
-2. Открыть через File Manager
-3. Разрешить установку из неизвестных источников
-
-### Вариант 2: ADB
-```bash
-adb install -r build/app/outputs/flutter-apk/app-debug.apk
-```
-
-### Вариант 3: Flutter
-```bash
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
-flutter install --debug
-```
-
-## Лицензия
-
-Частный проект
-
-## Контакты
-
-- **Автор**: QurieGLord
-- **Email**: tipquri@gmail.com
-- **Проект**: ~/Dev/Flutter/qd_and_d
+</div>
 
 ---
 
-**QD&D** - Your ultimate D&D 5e companion 🎲✨
+## 🎲 О приложении
+
+**Q&D (Qurie's D&D)** — это полнофункциональное мобильное приложение для управления персонажами Dungeons & Dragons 5-й редакции. Разработано с нуля для предоставления интуитивного и быстрого доступа ко всем аспектам вашего персонажа прямо во время игры.
+
+### ✨ Ключевые возможности
+
+#### 📋 Управление персонажами
+- **Создание персонажей** — полный пошаговый мастер с 7 шагами
+- **Импорт из Fight Club 5** — поддержка XML формата FC5
+- **Редактирование** — изменение любых параметров персонажа
+- **Множественные персонажи** — управляйте неограниченным количеством героев
+
+#### 🎯 Боевая система
+- **Combat Tracker** — отслеживание боя в реальном времени
+  - Управление HP (урон, лечение, временные HP)
+  - Инициатива и раунды
+  - Таймер боя
+  - История событий (combat log)
+- **Death Saves** — автоматическое отслеживание спасбросков от смерти
+- **Conditions** — управление состояниями персонажа (Blinded, Charmed, и др.)
+
+#### ✨ Магическая система
+- **Spell Almanac** — полный справочник заклинаний
+  - Поиск по имени и школе магии
+  - Фильтрация по уровню и классу
+  - Детальная информация о каждом заклинании
+- **Spell Slots** — управление ячейками заклинаний
+  - Автоматический расчёт доступных слотов
+  - Поддержка Pact Magic (Warlock)
+  - Prepared spells tracking
+- **Spell Casting** — быстрое применение заклинаний в бою
+
+#### 🎒 Инвентарь и экипировка
+- **Каталог предметов** — 55+ предустановленных предметов
+  - Оружие (20 типов)
+  - Броня (12 типов)
+  - Снаряжение (17 типов)
+- **Equipment Packages** — быстрое снаряжение при создании
+- **Custom Items** — создание собственных предметов
+- **Auto-equip** — автоматическое надевание стартовой экипировки
+- **AC Calculation** — автоматический расчёт Armor Class
+
+#### 🎲 Броски костей
+- **Dice Roller** — красивый анимированный интерфейс
+  - Все типы костей (d4, d6, d8, d10, d12, d20, d100)
+  - Advantage/Disadvantage/Normal режимы
+  - Модификаторы
+  - История бросков
+- **Quick Rolls** — быстрые броски прямо из Character Sheet
+
+#### 📊 Статистика и характеристики
+- **Ability Scores** — STR, DEX, CON, INT, WIS, CHA
+- **Skills** — все 18 навыков D&D 5e с автоматическими модификаторами
+- **Saving Throws** — спасброски с профициями
+- **Character Features** — классовые способности и пассивки
+- **Proficiencies** — владение оружием, броней, инструментами
+
+---
+
+## 🎨 Дизайн и UX
+
+### Material 3 Expressive Design
+- **5 цветовых тем** на выбор:
+  - 🌸 **Monokai** (по умолчанию) - розово-зелёная
+  - 🔴 **Red Dragon** - красно-оранжевая
+  - 🔵 **Blue Magic** - сине-фиолетовая
+  - 🟢 **Green Nature** - зелёная
+  - 🟣 **Purple Wizard** - фиолетовая
+- **Light/Dark режимы** — автоматическое переключение по системе
+- **Плавные анимации** — physics-based transitions
+- **Адаптивный интерфейс** — оптимизирован под любые размеры экрана
+
+### Навигация
+- **Swipe Gestures** — перелистывание вкладок свайпом
+- **Icon-only Navigation Bar** — компактный минималистичный дизайн
+- **Floating Action Buttons** — быстрые действия на нужных экранах
+- **Expandable Character Card** — автоматически сворачивается на других вкладках
+
+---
+
+## 🚀 Текущий прогресс
+
+### ✅ Реализовано (87.5%)
+
+**Session 0-7** завершены:
+- ✅ Session 0: Architecture & Planning
+- ✅ Session 1: Foundation & Runnable App
+- ✅ Session 2: Data Models, Storage & FC5 Import
+- ✅ Session 3: Character Sheet Screen (4 tabs)
+- ✅ Session 4: Spell System
+- ✅ Session 5: Character Creation Wizard
+- ✅ Session 6: Inventory & Equipment
+- ✅ Session 7: Combat Tracker & HP Management
+
+### 🔜 В разработке (Session 8)
+
+**Polish & Release** — финальная шлифовка перед релизом:
+- Adventurer's Journal (quests, notes, session history)
+- Full Russian localization (100% coverage)
+- Additional themes (Gruvbox, Catppuccin, Everforest, Nord)
+- FC5 Export functionality
+- Final UI polish & bug fixes
+- Production release preparation
+
+---
+
+## 🛠️ Технологии
+
+### Core Stack
+- **Flutter** 3.35.7 — кроссплатформенный фреймворк
+- **Dart** 3.9.4 — язык программирования
+- **Material 3** — современный дизайн-система от Google
+
+### Key Dependencies
+- **Hive** 2.2.3 — быстрая локальная база данных (offline-first)
+- **Provider** 6.1.1 — state management
+- **XML** 6.5.0 — парсинг FC5 файлов
+- **Google Fonts** 6.1.0 — красивая типографика (Inter)
+
+### Android Configuration
+- **Min SDK**: 24 (Android 7.0+)
+- **Target SDK**: 34 (Android 14)
+- **Compile SDK**: 36 (Android 15)
+
+---
+
+## 📱 Установка
+
+### Требования
+- Android 7.0 (API 24) или выше
+- ~60 MB свободного места
+- Интернет для первой загрузки шрифтов (опционально)
+
+### Скачать APK
+> **Coming Soon** — релиз запланирован после завершения Session 8
+
+---
+
+## 🎮 Поддерживаемые классы
+
+Приложение поддерживает **все 13 официальных классов D&D 5e**:
+- 🗡️ Barbarian
+- 🎵 Bard
+- ⛪ Cleric
+- 🌿 Druid
+- ⚔️ Fighter
+- 🥋 Monk
+- 🛡️ Paladin
+- 🏹 Ranger
+- 🗡️ Rogue
+- ✨ Sorcerer
+- 🔥 Warlock
+- 📚 Wizard
+- 🔧 Artificer *(coming in future updates)*
+
+---
+
+## 🌍 Локализация
+
+### Текущие языки
+- 🇬🇧 **English** — основной язык UI
+- 🇷🇺 **Русский** — partial support (в разработке)
+
+### Запланировано
+- 🇷🇺 **Русский** — full localization в Session 8
+- Возможность переключения языка в настройках
+
+---
+
+## 📸 Скриншоты
+
+> Coming soon — будут добавлены после финальной шлифовки UI в Session 8
+
+---
+
+## 🏗️ Архитектура
+
+### Философия: "Build once, populate infinitely"
+
+Приложение построено на **data-driven архитектуре**:
+- Все данные (классы, расы, заклинания, предметы) хранятся в JSON
+- Добавление нового контента **НЕ требует изменений кода**
+- Универсальная система `CharacterFeature` для всех способностей
+
+### Структура
+```
+lib/
+├── core/                    # Модели, сервисы, константы
+│   ├── models/             # Data models (Character, Spell, Item...)
+│   ├── services/           # Business logic services
+│   └── theme/              # Theme configuration
+├── features/               # Feature modules
+│   ├── character_sheet/    # Main character screen
+│   ├── character_creation/ # Creation wizard
+│   ├── combat/            # Combat tracker
+│   ├── spell_almanac/     # Spell database
+│   └── settings/          # App settings
+└── shared/                # Shared widgets
+
+assets/data/
+├── classes.json           # 13 D&D classes
+├── races.json            # Races data
+├── backgrounds.json      # Backgrounds
+├── items.json           # Equipment catalog
+└── spells/              # Spell database
+```
+
+---
+
+## 🤝 Вклад в проект
+
+> **Private Project** — проект находится в активной разработке и не принимает внешних контрибьютеров на данном этапе.
+
+---
+
+## 📝 Лицензия
+
+Proprietary — все права защищены.
+
+---
+
+## 👨‍💻 Автор
+
+**QurieGLord**
+- Email: tipquri@gmail.com
+- GitHub: [@QurieGLord](https://github.com/QurieGLord)
+
+---
+
+## 🎯 Roadmap
+
+### Ближайшие планы (Session 8)
+- [ ] Adventurer's Journal
+- [ ] Full Russian localization
+- [ ] Additional color themes
+- [ ] FC5 Export functionality
+- [ ] Production release
+
+### Будущие обновления (post-release)
+- [ ] Cloud sync (Firebase)
+- [ ] Party management (несколько персонажей в одной группе)
+- [ ] Dice roll history analytics
+- [ ] Custom homebrew content support
+- [ ] PDF character sheet export
+- [ ] Tablet/landscape mode optimization
+
+---
+
+<div align="center">
+
+**⚔️ Adventure Awaits! ⚔️**
+
+*Создай своего героя и отправляйся в незабываемые приключения*
+
+</div>
