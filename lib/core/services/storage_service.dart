@@ -5,6 +5,9 @@ import '../models/spell.dart';
 import '../models/character_spell.dart';
 import '../models/character_feature.dart';
 import '../models/item.dart';
+import '../models/combat_state.dart';
+import '../models/death_saves.dart';
+import '../models/condition.dart';
 
 class StorageService {
   static const String _characterBoxName = 'characters';
@@ -34,6 +37,13 @@ class StorageService {
     Hive.registerAdapter(DamageTypeAdapter());
     Hive.registerAdapter(ArmorPropertiesAdapter());
     Hive.registerAdapter(ArmorTypeAdapter());
+
+    // Register Combat adapters
+    Hive.registerAdapter(CombatStateAdapter());
+    Hive.registerAdapter(CombatLogEntryAdapter());
+    Hive.registerAdapter(CombatLogTypeAdapter());
+    Hive.registerAdapter(DeathSavesAdapter());
+    Hive.registerAdapter(ConditionTypeAdapter());
 
     // Open boxes
     _characterBox = await Hive.openBox<Character>(_characterBoxName);

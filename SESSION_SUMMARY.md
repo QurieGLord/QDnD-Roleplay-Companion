@@ -1,16 +1,16 @@
 # QD&D - Session Summary (All Sessions)
 
-**Последнее обновление**: 2025-11-19
-**Текущий прогресс**: 75% (Session 6 из 8)
-**Статус**: ✅ **Session 6 завершена успешно**
+**Последнее обновление**: 2025-11-21
+**Текущий прогресс**: 87.5% (Session 7 из 8)
+**Статус**: ✅ **Session 7 завершена успешно**
 
 ---
 
 ## 📊 Общий статус проекта
 
 - **Версия**: 1.0.0+1
-- **Прогресс**: 75% (Session 6 из 8)
-- **Строк кода**: ~12,500 lines (51 Dart файлов)
+- **Прогресс**: 87.5% (Session 7 из 8)
+- **Строк кода**: ~13,200 lines (54 Dart файла)
 - **APK размер**:
   - Debug: ~100 MB
   - Release: ~54 MB
@@ -333,18 +333,57 @@
 
 ---
 
-## 🎯 Session 7: Dice Roller & Combat Tools (PENDING)
+## ✅ Session 7: Combat Tracker & HP Management
 
-**Статус**: ⏳ НЕ НАЧАТА
+**Дата**: 2025-11-21
+**Статус**: ✅ ЗАВЕРШЕНА
+**Прогресс**: 87.5% (7/8)
 
-### Planned Features
-- Physics-based dice roller
-- Advantage/disadvantage
-- Modifiers
-- Damage/healing tracker
-- Conditions management
-- Death saves UI
-- Initiative tracker
+### Deliverable
+✅ **Полностью функциональная боевая система с Combat Tracker**
+- Размер: 54.2MB (release APK)
+- Протестировано: Xiaomi 2210129SG (Android 15)
+
+### Выполненные задачи
+- ✅ **Combat Tracker Screen** - полноценный интерфейс боя
+  - HP Manager Card (damage, heal, temp HP dialogs)
+  - Combat Summary Card (round, initiative, damage/healing stats)
+  - Death Saves Card (successes/failures tracking)
+  - Combat Log (history всех событий боя)
+  - Combat Timer (real-time отсчёт времени)
+- ✅ **Dice Roller Modal** - модальное окно для бросков
+  - Анимированные dice icons (d4, d6, d8, d10, d12, d20, d100)
+  - Advantage/Disadvantage/Normal режимы
+  - Модификаторы (+/-)
+  - История бросков
+  - Animated glow эффекты
+- ✅ **Combat State Management** - управление состоянием боя
+  - Start Combat (roll initiative)
+  - End Combat (reset UI)
+  - Round tracking
+  - Combat log entries
+- ✅ **HP Management** - управление здоровьем
+  - Real-time HP updates (в бою и вне боя)
+  - Damage tracking с temporary HP
+  - Healing tracking
+  - Death saves reset при healing
+- ✅ **Условия и эффекты** - системы управления
+  - Conditions management (Blinded, Charmed, Frightened, etc.)
+  - Death saves tracking (successes/failures)
+  - Concentration tracking
+
+### Исправленные критические баги
+- ✅ **DeathSaves save() Bug**: `DeathSaves.reset()` вызывал `save()` на nested HiveObject, что приводило к exception и прерыванию `heal()` метода
+  - **Решение**: Убрали все `save()` вызовы из nested objects - родительский `Character` управляет persistence
+- ✅ **HP Widget Real-time Update**: Healing не обновлял HP виджет вне боя
+  - **Причина**: Exception в `deathSaves.reset()` прерывал `character.save()`
+- ✅ **Healing Counter**: Healing статистика не обновлялась в Combat Summary
+- ✅ **ValueKey Strategy**: HP bar с `ValueKey` для force rebuild
+
+### Технические детали
+- **Модели**: `combat_state.dart`, `combat_log_entry.dart`, `death_saves.dart` (nested, без save())
+- **UI**: 5 новых card components (HP Manager, Combat Summary, Death Saves, Combat Log, Dice Roller)
+- **State Management**: Timer.periodic, ValueListenableBuilder, ValueKey, Async save()
 
 ---
 

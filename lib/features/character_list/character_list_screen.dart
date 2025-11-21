@@ -60,9 +60,9 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
               final character = characters[index];
               return CharacterCard(
                 character: character,
-                onTap: () {
+                onTap: () async {
                   // Navigate to character sheet
-                  Navigator.push(
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => CharacterSheetScreen(
@@ -70,6 +70,8 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                       ),
                     ),
                   );
+                  // Force rebuild after returning
+                  if (mounted) setState(() {});
                 },
                 onLongPress: () {
                   _showCharacterOptions(context, character);

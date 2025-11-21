@@ -49,13 +49,19 @@ class CharacterAdapter extends TypeAdapter<Character> {
       maxPreparedSpells: fields[29] as int,
       features: (fields[30] as List?)?.cast<CharacterFeature>(),
       inventory: (fields[31] as List?)?.cast<Item>(),
+      combatState: fields[32] as CombatState?,
+      deathSaves: fields[33] as DeathSaves?,
+      activeConditions: (fields[34] as List?)?.cast<ConditionType>(),
+      concentratingOn: fields[35] as String?,
+      hitDice: (fields[36] as List?)?.cast<int>(),
+      maxHitDice: fields[37] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Character obj) {
     writer
-      ..writeByte(32)
+      ..writeByte(38)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -119,7 +125,19 @@ class CharacterAdapter extends TypeAdapter<Character> {
       ..writeByte(30)
       ..write(obj.features)
       ..writeByte(31)
-      ..write(obj.inventory);
+      ..write(obj.inventory)
+      ..writeByte(32)
+      ..write(obj.combatState)
+      ..writeByte(33)
+      ..write(obj.deathSaves)
+      ..writeByte(34)
+      ..write(obj.activeConditions)
+      ..writeByte(35)
+      ..write(obj.concentratingOn)
+      ..writeByte(36)
+      ..write(obj.hitDice)
+      ..writeByte(37)
+      ..write(obj.maxHitDice);
   }
 
   @override

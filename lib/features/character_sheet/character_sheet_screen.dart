@@ -113,7 +113,14 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
               child: IndexedStack(
                 index: _currentIndex,
                 children: [
-                  OverviewTab(character: widget.character),
+                  OverviewTab(
+                    character: widget.character,
+                    onCharacterUpdated: () {
+                      setState(() {
+                        // Force rebuild after combat changes
+                      });
+                    },
+                  ),
                   StatsTab(character: widget.character),
                   SpellsTab(character: widget.character),
                   InventoryTab(character: widget.character),

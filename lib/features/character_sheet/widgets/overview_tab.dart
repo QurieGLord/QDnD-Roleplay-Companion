@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import '../../../core/models/character.dart';
 import '../../../core/services/storage_service.dart';
 import '../../../shared/widgets/dice_roller_modal.dart';
+import '../../combat/combat_tracker_screen.dart';
 
 class OverviewTab extends StatelessWidget {
   final Character character;
+  final VoidCallback? onCharacterUpdated;
 
-  const OverviewTab({super.key, required this.character});
+  const OverviewTab({
+    super.key,
+    required this.character,
+    this.onCharacterUpdated,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -270,12 +276,17 @@ class OverviewTab extends StatelessWidget {
 
                 // Enter Combat Button
                 FilledButton.tonalIcon(
-                  onPressed: () {
-                    // TODO: Combat modal
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Combat tracker - coming in Session 7')),
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CombatTrackerScreen(
+                          character: character,
+                        ),
+                      ),
                     );
+                    // Trigger parent rebuild after returning from combat
+                    onCharacterUpdated?.call();
                   },
                   icon: const Icon(Icons.sports_martial_arts),
                   label: const Text('Enter Combat'),

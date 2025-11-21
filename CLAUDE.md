@@ -55,7 +55,7 @@ git branch
 ### Текущий статус
 - **Версия**: 1.0.0+1
 - **Ветка**: `claude` (работаем здесь!)
-- **Прогресс**: 75% - Session 6 из 8 завершена (Inventory & Equipment)
+- **Прогресс**: 87.5% - Session 7 из 8 завершена (Combat Tracker & HP Management)
 
 ### Основная философия
 
@@ -381,7 +381,37 @@ git branch  # Должно быть: * claude
 
 ---
 
-**Последнее обновление**: 2025-11-19
+**Последнее обновление**: 2025-11-21
 **Ветка**: `claude` ⚠️ (работаем только здесь!)
-**Текущая сессия**: Session 6 завершена
-**Следующий шаг**: Session 7 - Dice Roller & Combat Tools
+**Текущая сессия**: Session 7 завершена
+**Следующий шаг**: Session 8 - Polish & Release
+
+---
+
+## История изменений
+
+### 2025-11-21 (QD&D Session 7)
+- **Завершена Session 7 - Combat Tracker & HP Management**:
+  - Реализован полноценный Combat Tracker Screen с 5 card components
+  - HP Manager Card: damage/heal/temp HP dialogs с real-time updates
+  - Combat Summary Card: round, initiative, damage/healing stats, timer
+  - Death Saves Card: successes/failures tracking
+  - Combat Log Card: история всех событий боя
+  - Переписан Dice Roller Modal: новый UI с animated dice, advantage/disadvantage, modifiers
+- **Исправлен критический баг с healing**:
+  - Проблема: `DeathSaves.reset()` вызывал `save()` на nested HiveObject → exception → `heal()` прерывался
+  - Решение: Убрали все `save()` вызовы из nested objects (DeathSaves, CombatState)
+  - Теперь только родительский Character управляет persistence
+- **Исправлены баги UI**:
+  - HP Widget теперь обновляется в real-time как в бою, так и вне боя
+  - Healing counter корректно обновляется в Combat Summary
+  - ValueKey strategy для force rebuild HP bar
+- **Архитектурные изменения**:
+  - Nested HiveObjects Pattern: вложенные объекты НЕ вызывают save() самостоятельно
+  - Real-time updates через ValueListenableBuilder + Timer.periodic
+  - Async save() с proper await handling
+- **Технические детали**:
+  - 3 новых модели: CombatState, CombatLogEntry, обновлён DeathSaves
+  - 5 новых UI компонентов (540 + 260 + 180 + 140 + 120 + 480 строк)
+  - State management: Timer для real-time, ValueKey для force rebuild
+- **Следующий шаг**: Session 8 - Polish & Release
