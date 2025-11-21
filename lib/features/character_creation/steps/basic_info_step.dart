@@ -270,7 +270,7 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
             );
           },
           selectedColor: theme.colorScheme.primaryContainer,
-          checkmarkColor: theme.colorScheme.primary,
+          checkmarkColor: theme.colorScheme.onPrimaryContainer,
           backgroundColor: theme.colorScheme.surfaceContainerHighest,
           labelStyle: TextStyle(
             color: isSelected

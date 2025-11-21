@@ -36,7 +36,7 @@ class StatsTab extends StatelessWidget {
                       ),
                       child: Icon(
                         Icons.analytics,
-                        color: colorScheme.primary,
+                        color: colorScheme.onPrimaryContainer,
                         size: 20,
                       ),
                     ),
@@ -167,7 +167,7 @@ class StatsTab extends StatelessWidget {
                       ),
                       child: Icon(
                         Icons.shield,
-                        color: colorScheme.primary,
+                        color: colorScheme.onPrimaryContainer,
                         size: 20,
                       ),
                     ),

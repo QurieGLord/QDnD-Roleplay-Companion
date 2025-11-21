@@ -43,7 +43,7 @@ class OverviewTab extends StatelessWidget {
                       ),
                       child: Icon(
                         Icons.sports_martial_arts,
-                        color: colorScheme.primary,
+                        color: colorScheme.onPrimaryContainer,
                         size: 20,
                       ),
                     ),
@@ -148,7 +148,7 @@ class OverviewTab extends StatelessWidget {
                       ),
                       child: Icon(
                         Icons.flash_on,
-                        color: colorScheme.primary,
+                        color: colorScheme.onPrimaryContainer,
                         size: 20,
                       ),
                     ),

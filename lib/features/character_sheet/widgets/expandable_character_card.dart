@@ -56,7 +56,7 @@ class ExpandableCharacterCard extends StatelessWidget {
                     child: Icon(
                       _getClassIcon(character.characterClass),
                       size: 40,
-                      color: colorScheme.primary,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                 ),
