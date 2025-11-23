@@ -438,23 +438,28 @@ class CharacterCreationWizard extends StatefulWidget {
 
 ---
 
-## ⏳ Session 6: Inventory & Equipment
-**Status**: PLANNED
-**Estimated Duration**: 3-4 hours
+## ✅ Session 6: Inventory & Equipment
+**Status**: COMPLETED
+**Actual Duration**: 2 days (2025-11-18 - 2025-11-19)
 
 ### Goals
-- [ ] Equipment slot system (visual)
-- [ ] Item database (weapons, armor, consumables)
-- [ ] Equip/unequip items
-- [ ] Real-time AC calculation
-- [ ] Weight & encumbrance tracking
-- [ ] Custom item creation
+- [x] Equipment slot system (visual)
+- [x] Item database (weapons, armor, consumables)
+- [x] Equip/unequip items
+- [x] Real-time AC calculation
+- [x] Weight & encumbrance tracking
+- [x] Custom item creation
+- [x] Equipment package selection in character creation
+- [x] Item catalog with search and filters
 
 ### Deliverables
-- [ ] Full inventory management
-- [ ] Equipment slots UI
-- [ ] AC updates when armor changes
-- [ ] Item database with search
+- [x] Full inventory management
+- [x] Equipment slots UI
+- [x] AC updates when armor changes
+- [x] Item database with search
+- [x] Equipment package system (Standard/Alternative/Custom)
+- [x] Item catalog dialog
+- [x] Custom equipment selection
 
 ### Technical Tasks
 
@@ -508,6 +513,20 @@ class ACCalculator {
 - ✅ Unequip weapon → attack bonus recalculates
 - ✅ Weight tracks correctly
 - ✅ Custom items can be added with image upload
+- ✅ Equipment packages selectable in character creation
+- ✅ Item catalog searchable and filterable
+- ✅ Multi-select items for custom package
+- ✅ Auto-equip starting equipment
+
+### Completed Implementation
+- ✅ Item model with WeaponProperties and ArmorProperties
+- ✅ ItemService for loading and managing items
+- ✅ Inventory Tab with equipment slots, filters, search
+- ✅ Equipment Step rewritten as StatefulWidget (990 lines)
+- ✅ Item Catalog Dialog with DraggableScrollableSheet
+- ✅ CharacterCreationState extended with custom equipment support
+- ✅ Custom item creation dialog simplified (single-language)
+- ✅ Auto-equip logic in character creation wizard
 
 ---
 

@@ -22,11 +22,20 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
   String _mode = 'standard_array'; // standard_array, point_buy, manual
   String _hpMode = 'max'; // max, average, roll
   int _rolledHP = 0;
+  bool _initialized = false;
 
   @override
   Widget build(BuildContext context) {
     final state = context.watch<CharacterCreationState>();
     final theme = Theme.of(context);
+
+    // Initialize ability scores on first build
+    if (!_initialized && state.selectedClass != null) {
+      _initialized = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _resetScoresForMode(state);
+      });
+    }
 
     return ListView(
       padding: const EdgeInsets.all(24),
@@ -123,33 +132,35 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
           color: theme.colorScheme.errorContainer,
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // HP Display
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        currentHP > 0 ? '$currentHP HP' : '— HP',
-                        style: theme.textTheme.displaySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onErrorContainer,
-                        ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      currentHP > 0 ? '$currentHP HP' : '— HP',
+                      style: theme.textTheme.displaySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onErrorContainer,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Hit Die: d$hitDie | CON Mod: $conModStr',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onErrorContainer.withValues(alpha: 0.8),
-                        ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Hit Die: d$hitDie | CON Mod: $conModStr',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onErrorContainer.withValues(alpha: 0.8),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 12),
 
                 // HP Mode Selector
-                SegmentedButton<String>(
+                SizedBox(
+                  width: double.infinity,
+                  child: SegmentedButton<String>(
                   segments: const [
                     ButtonSegment(value: 'max', label: Text('Max'), icon: Icon(Icons.trending_up, size: 16)),
                     ButtonSegment(value: 'average', label: Text('Avg'), icon: Icon(Icons.functions, size: 16)),
@@ -175,6 +186,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                       return null;
                     }),
                     foregroundColor: WidgetStateProperty.all(theme.colorScheme.onErrorContainer),
+                  ),
                   ),
                 ),
               ],

@@ -1,272 +1,235 @@
-# ⚔️ Q&D: Your Roleplay Companion
-
-**Qurie's D&D Character Management for Android & iOS**
-
 <div align="center">
 
-![Progress](https://img.shields.io/badge/Progress-87.5%25-success)
-![Version](https://img.shields.io/badge/Version-1.0.0-blue)
-![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-green)
-![License](https://img.shields.io/badge/License-Private-red)
+# 🎲 QD&D - Your Roleplay Companion
 
-*Your comprehensive D&D 5th Edition companion app - manage characters, cast spells, track combat, and more.*
+### Your faithful companion in the world of Dungeons & Dragons 5e
+
+*Manage characters. Cast spells. Defeat dragons.*
+
+[![Flutter](https://img.shields.io/badge/Flutter-3.5+-02569B?style=for-the-badge&logo=flutter)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.0+-0175C2?style=for-the-badge&logo=dart)](https://dart.dev)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+
+[Download](https://github.com/QurieGLord/QDnD-Roleplay-Companion/releases) • [Documentation](docs/) • [Report Bug](https://github.com/QurieGLord/QDnD-Roleplay-Companion/issues)
 
 </div>
 
 ---
 
-## 🎲 О приложении
+## 🌟 About
 
-**Q&D (Qurie's D&D)** — это полнофункциональное мобильное приложение для управления персонажами Dungeons & Dragons 5-й редакции. Разработано с нуля для предоставления интуитивного и быстрого доступа ко всем аспектам вашего персонажа прямо во время игры.
+**QD&D** (Your Roleplay Companion) is a mobile app for managing D&D 5th Edition characters, created with love for tabletop role-playing games. Forget paper character sheets and endless tables — everything you need for the game is now in your pocket!
 
-### ✨ Ключевые возможности
-
-#### 📋 Управление персонажами
-- **Создание персонажей** — полный пошаговый мастер с 7 шагами
-- **Импорт из Fight Club 5** — поддержка XML формата FC5
-- **Редактирование** — изменение любых параметров персонажа
-- **Множественные персонажи** — управляйте неограниченным количеством героев
-
-#### 🎯 Боевая система
-- **Combat Tracker** — отслеживание боя в реальном времени
-  - Управление HP (урон, лечение, временные HP)
-  - Инициатива и раунды
-  - Таймер боя
-  - История событий (combat log)
-- **Death Saves** — автоматическое отслеживание спасбросков от смерти
-- **Conditions** — управление состояниями персонажа (Blinded, Charmed, и др.)
-
-#### ✨ Магическая система
-- **Spell Almanac** — полный справочник заклинаний
-  - Поиск по имени и школе магии
-  - Фильтрация по уровню и классу
-  - Детальная информация о каждом заклинании
-- **Spell Slots** — управление ячейками заклинаний
-  - Автоматический расчёт доступных слотов
-  - Поддержка Pact Magic (Warlock)
-  - Prepared spells tracking
-- **Spell Casting** — быстрое применение заклинаний в бою
-
-#### 🎒 Инвентарь и экипировка
-- **Каталог предметов** — 55+ предустановленных предметов
-  - Оружие (20 типов)
-  - Броня (12 типов)
-  - Снаряжение (17 типов)
-- **Equipment Packages** — быстрое снаряжение при создании
-- **Custom Items** — создание собственных предметов
-- **Auto-equip** — автоматическое надевание стартовой экипировки
-- **AC Calculation** — автоматический расчёт Armor Class
-
-#### 🎲 Броски костей
-- **Dice Roller** — красивый анимированный интерфейс
-  - Все типы костей (d4, d6, d8, d10, d12, d20, d100)
-  - Advantage/Disadvantage/Normal режимы
-  - Модификаторы
-  - История бросков
-- **Quick Rolls** — быстрые броски прямо из Character Sheet
-
-#### 📊 Статистика и характеристики
-- **Ability Scores** — STR, DEX, CON, INT, WIS, CHA
-- **Skills** — все 18 навыков D&D 5e с автоматическими модификаторами
-- **Saving Throws** — спасброски с профициями
-- **Character Features** — классовые способности и пассивки
-- **Proficiencies** — владение оружием, броней, инструментами
+Whether you're an experienced adventurer or a beginning hero, QD&D will become your reliable companion at the gaming table. Create characters, manage spells, track inventory, and conduct combat — all in one beautifully designed app.
 
 ---
 
-## 🎨 Дизайн и UX
+## ✨ Key Features
 
-### Material 3 Expressive Design
-- **5 цветовых тем** на выбор:
-  - 🌸 **Monokai** (по умолчанию) - розово-зелёная
-  - 🔴 **Red Dragon** - красно-оранжевая
-  - 🔵 **Blue Magic** - сине-фиолетовая
-  - 🟢 **Green Nature** - зелёная
-  - 🟣 **Purple Wizard** - фиолетовая
-- **Light/Dark режимы** — автоматическое переключение по системе
-- **Плавные анимации** — physics-based transitions
-- **Адаптивный интерфейс** — оптимизирован под любые размеры экрана
+### 🎭 Character Creation
+- **Intuitive step-by-step wizard** — create a hero in 5 minutes
+- **Full customization** — choose race, class, background, and abilities
+- **Three ability score methods** — standard array, point buy, or manual entry
+- **Automatic calculations** — racial bonuses, ability modifiers, armor class — all computed automatically
 
-### Навигация
-- **Swipe Gestures** — перелистывание вкладок свайпом
-- **Icon-only Navigation Bar** — компактный минималистичный дизайн
-- **Floating Action Buttons** — быстрые действия на нужных экранах
-- **Expandable Character Card** — автоматически сворачивается на других вкладках
+### ⚔️ Combat System
+- **Combat Tracker** — full-featured combat tracker with initiative tracking
+- **HP Management** — quick damage/healing buttons, temporary hit points
+- **Death Saves** — death saving throw system (3 successes / 3 failures)
+- **Conditions** — track all 13 D&D conditions (poisoned, stunned, paralyzed, etc.)
+- **Combat Log** — complete battle history in one place
 
----
+### 🔮 Magic and Spells
+- **Spell Database** — convenient search and filtering by level, school, and class
+- **Spell Slots** — visual indicators with tap controls
+- **Spell Preparation** — system for preparation casters (cleric, paladin, wizard)
+- **Concentration** — automatic checks when taking damage
+- **One-tap Casting** — cast spells directly from character sheet
 
-## 🚀 Текущий прогресс
+### 🎒 Inventory and Equipment
+- **Equipment Slots** — weapon, armor, shield in visual slots
+- **Automatic AC Calculation** — equipped armor — AC updated
+- **Weight Tracking** — encumbrance indicator with color coding
+- **Item Database** — weapons, armor, tools, and equipment
+- **Currency** — gold, silver, copper
 
-### ✅ Реализовано (87.5%)
+### 🎲 Dice Rolling
+- **Animated d20** — beautiful roll visualization
+- **Advantage/Disadvantage** — automatic best/worst roll selection system
+- **Modifiers** — all bonuses calculated automatically
+- **Ability Checks** — tap an ability to make a check
+- **Saving Throws** — with proficiency consideration
 
-**Session 0-7** завершены:
-- ✅ Session 0: Architecture & Planning
-- ✅ Session 1: Foundation & Runnable App
-- ✅ Session 2: Data Models, Storage & FC5 Import
-- ✅ Session 3: Character Sheet Screen (4 tabs)
-- ✅ Session 4: Spell System
-- ✅ Session 5: Character Creation Wizard
-- ✅ Session 6: Inventory & Equipment
-- ✅ Session 7: Combat Tracker & HP Management
+### 🌍 Bilingual Support
+- **English / Russian** — full interface localization
+- **Bilingual Data** — spells, classes, races, items
+- **On-the-fly Switching** — follows system settings
 
-### 🔜 В разработке (Session 8)
-
-**Polish & Release** — финальная шлифовка перед релизом:
-- Adventurer's Journal (quests, notes, session history)
-- Full Russian localization (100% coverage)
-- Additional themes (Gruvbox, Catppuccin, Everforest, Nord)
-- FC5 Export functionality
-- Final UI polish & bug fixes
-- Production release preparation
-
----
-
-## 🛠️ Технологии
-
-### Core Stack
-- **Flutter** 3.35.7 — кроссплатформенный фреймворк
-- **Dart** 3.9.4 — язык программирования
-- **Material 3** — современный дизайн-система от Google
-
-### Key Dependencies
-- **Hive** 2.2.3 — быстрая локальная база данных (offline-first)
-- **Provider** 6.1.1 — state management
-- **XML** 6.5.0 — парсинг FC5 файлов
-- **Google Fonts** 6.1.0 — красивая типографика (Inter)
-
-### Android Configuration
-- **Min SDK**: 24 (Android 7.0+)
-- **Target SDK**: 34 (Android 14)
-- **Compile SDK**: 36 (Android 15)
+### 💾 Character Import
+- **Fight Club 5 XML** — import characters from popular app
+- **Progress Saving** — entire hero history in one file
+- **Demo Character** — ready-made paladin Kyrie to explore features
 
 ---
 
-## 📱 Установка
+## 🎯 Why QD&D?
 
-### Требования
-- Android 7.0 (API 24) или выше
-- ~60 MB свободного места
-- Интернет для первой загрузки шрифтов (опционально)
+### For Players
+- ✅ **Quick Access** — all character info in one place
+- ✅ **Game Acceleration** — automatic calculations save time at the table
+- ✅ **No Paper Hassle** — forget erased pencil marks
+- ✅ **Always at Hand** — works offline, no internet required
 
-### Скачать APK
-> **Coming Soon** — релиз запланирован после завершения Session 8
+### For DMs
+- ✅ **Fewer Disputes** — accurate D&D 5e calculations and rules
+- ✅ **Faster Sessions** — players spend less time looking up spells
+- ✅ **Combat Tracker** — track initiative and conditions
 
----
-
-## 🎮 Поддерживаемые классы
-
-Приложение поддерживает **все 13 официальных классов D&D 5e**:
-- 🗡️ Barbarian
-- 🎵 Bard
-- ⛪ Cleric
-- 🌿 Druid
-- ⚔️ Fighter
-- 🥋 Monk
-- 🛡️ Paladin
-- 🏹 Ranger
-- 🗡️ Rogue
-- ✨ Sorcerer
-- 🔥 Warlock
-- 📚 Wizard
-- 🔧 Artificer *(coming in future updates)*
+### For Beginners
+- ✅ **Friendly Interface** — intuitive navigation
+- ✅ **Tooltips** — descriptions of conditions, spells, abilities
+- ✅ **No Tables** — everything calculated automatically
 
 ---
 
-## 🌍 Локализация
+## 📱 Screenshots
 
-### Текущие языки
-- 🇬🇧 **English** — основной язык UI
-- 🇷🇺 **Русский** — partial support (в разработке)
+<div align="center">
 
-### Запланировано
-- 🇷🇺 **Русский** — full localization в Session 8
-- Возможность переключения языка в настройках
+| Character Sheet | Combat Tracker | Spells |
+|:-:|:-:|:-:|
+| ![Character Sheet](docs/screenshots/character_sheet.png) | ![Combat Tracker](docs/screenshots/combat.png) | ![Spells](docs/screenshots/spells.png) |
 
----
+| Character Creation | Inventory | Dice Roller |
+|:-:|:-:|:-:|
+| ![Creation Wizard](docs/screenshots/creation.png) | ![Inventory](docs/screenshots/inventory.png) | ![Dice Roller](docs/screenshots/dice.png) |
 
-## 📸 Скриншоты
-
-> Coming soon — будут добавлены после финальной шлифовки UI в Session 8
+</div>
 
 ---
 
-## 🏗️ Архитектура
+## 🎨 Design Features
 
-### Философия: "Build once, populate infinitely"
-
-Приложение построено на **data-driven архитектуре**:
-- Все данные (классы, расы, заклинания, предметы) хранятся в JSON
-- Добавление нового контента **НЕ требует изменений кода**
-- Универсальная система `CharacterFeature` для всех способностей
-
-### Структура
-```
-lib/
-├── core/                    # Модели, сервисы, константы
-│   ├── models/             # Data models (Character, Spell, Item...)
-│   ├── services/           # Business logic services
-│   └── theme/              # Theme configuration
-├── features/               # Feature modules
-│   ├── character_sheet/    # Main character screen
-│   ├── character_creation/ # Creation wizard
-│   ├── combat/            # Combat tracker
-│   ├── spell_almanac/     # Spell database
-│   └── settings/          # App settings
-└── shared/                # Shared widgets
-
-assets/data/
-├── classes.json           # 13 D&D classes
-├── races.json            # Races data
-├── backgrounds.json      # Backgrounds
-├── items.json           # Equipment catalog
-└── spells/              # Spell database
-```
+- **Material 3 Design** — modern and beautiful interface
+- **Dark/Light Themes** — comfortable for eyes at any time
+- **Color Coding** — spell schools, item rarity, HP level
+- **Smooth Animations** — hero transitions between screens
+- **Adaptive Layout** — perfect on phones and tablets
 
 ---
 
-## 🤝 Вклад в проект
+## 🚀 Getting Started
 
-> **Private Project** — проект находится в активной разработке и не принимает внешних контрибьютеров на данном этапе.
+### Installation
+
+1. **Download APK** from [Releases](https://github.com/QurieGLord/QDnD-Roleplay-Companion/releases)
+2. **Install** on Android device
+3. **Launch** the app
+4. **Meet** demo character Kyrie or create your own hero!
+
+### Creating Your First Character
+
+1. Tap **"+"** on main screen
+2. Follow the step-by-step wizard:
+   - Name and portrait
+   - Race and class
+   - Ability score distribution
+   - Skill selection
+   - Background
+   - Starting equipment
+3. **Done!** Your hero is ready for adventure
 
 ---
 
-## 📝 Лицензия
+## 🛠️ Tech Stack
 
-Proprietary — все права защищены.
+<div align="center">
+
+| Category | Technologies |
+|:-:|:-:|
+| **Framework** | Flutter 3.5+ |
+| **Language** | Dart 3.0+ |
+| **State Management** | Provider |
+| **Local Database** | Hive |
+| **UI/UX** | Material 3 Design |
+| **Fonts** | Google Fonts (Roboto Flex) |
+
+</div>
 
 ---
 
-## 👨‍💻 Автор
+## 🗺️ Roadmap
 
-**QurieGLord**
-- Email: tipquri@gmail.com
-- GitHub: [@QurieGLord](https://github.com/QurieGLord)
+### ✅ Implemented (v1.0)
+- [x] Character creation and editing
+- [x] Spell system with database
+- [x] Combat tracker with conditions
+- [x] Inventory and equipment
+- [x] Fight Club 5 import
+- [x] Animated dice rolling
+- [x] Rest (short/long)
+
+### 🔄 In Development (v1.1)
+- [ ] Adventure journal
+- [ ] Quest system
+- [ ] NPC database
+- [ ] Location notes
+
+### 🔮 Planned (v2.0)
+- [ ] Leveling up
+- [ ] Multiclassing
+- [ ] Feat system
+- [ ] PDF export
+- [ ] Cloud sync
+- [ ] All 13 PHB classes
+- [ ] All PHB races
+- [ ] Complete spell database (468 spells)
 
 ---
 
-## 🎯 Roadmap
+## 📜 License
 
-### Ближайшие планы (Session 8)
-- [ ] Adventurer's Journal
-- [ ] Full Russian localization
-- [ ] Additional color themes
-- [ ] FC5 Export functionality
-- [ ] Production release
+This project is distributed under the MIT License. See [LICENSE](LICENSE) file for details.
 
-### Будущие обновления (post-release)
-- [ ] Cloud sync (Firebase)
-- [ ] Party management (несколько персонажей в одной группе)
-- [ ] Dice roll history analytics
-- [ ] Custom homebrew content support
-- [ ] PDF character sheet export
-- [ ] Tablet/landscape mode optimization
+**Disclaimer:** QD&D is an unofficial fan project. Dungeons & Dragons and all related trademarks are property of Wizards of the Coast LLC. This app is created for educational and non-commercial purposes.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Wizards of the Coast** — for creating the greatest tabletop role-playing game
+- **Fight Club 5** — for inspiration and XML format
+- **D&D Community** — for endless love for the game
+- **Flutter Team** — for amazing framework
+
+---
+
+## 💬 Contact and Support
+
+- **Telegram:** [@justqurii](https://t.me/justqurii)
+- **Issues:** [GitHub Issues](https://github.com/QurieGLord/QDnD-Roleplay-Companion/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/QurieGLord/QDnD-Roleplay-Companion/discussions)
+
+---
+
+## ⭐ Support the Project
+
+If QD&D helped you in your adventures, give it a ⭐ on GitHub!
+
+Found a bug? Have an idea for a new feature? Open an [Issue](https://github.com/QurieGLord/QDnD-Roleplay-Companion/issues) — we welcome any feedback!
 
 ---
 
 <div align="center">
 
-**⚔️ Adventure Awaits! ⚔️**
+### 💝 Made with Love for Players
 
-*Создай своего героя и отправляйся в незабываемые приключения*
+**Developed by [Qurie](https://github.com/QurieGLord) together with [Claude](https://claude.ai)**
+
+*May your d20 always land on natural 20!* 🎲✨
+
+---
+
+**QD&D** • *Your Roleplay Companion* • 2025
 
 </div>

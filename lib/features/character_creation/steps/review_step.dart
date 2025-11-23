@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../character_creation_state.dart';
@@ -31,11 +32,38 @@ class ReviewStep extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                Icon(
-                  Icons.check_circle_outline,
-                  size: 64,
-                  color: theme.colorScheme.onPrimaryContainer,
-                ),
+                // Avatar or default icon
+                if (state.avatarPath != null)
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: theme.colorScheme.onPrimaryContainer,
+                        width: 3,
+                      ),
+                    ),
+                    child: ClipOval(
+                      child: Image.file(
+                        File(state.avatarPath!),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.person,
+                            size: 64,
+                            color: theme.colorScheme.onPrimaryContainer,
+                          );
+                        },
+                      ),
+                    ),
+                  )
+                else
+                  Icon(
+                    Icons.check_circle_outline,
+                    size: 64,
+                    color: theme.colorScheme.onPrimaryContainer,
+                  ),
                 const SizedBox(height: 16),
                 Text(
                   'Character Ready!',

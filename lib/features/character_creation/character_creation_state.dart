@@ -9,6 +9,23 @@ class CharacterCreationState extends ChangeNotifier {
   String? avatarPath;
   String? alignment; // Lawful Good, Neutral, Chaotic Evil, etc.
 
+  // Physical appearance
+  String? age;
+  String? gender;
+  String? height;
+  String? weight;
+  String? eyes;
+  String? hair;
+  String? skin;
+
+  // Personality traits
+  String? personalityTraits;
+  String? ideals;
+  String? bonds;
+  String? flaws;
+  String? appearanceDescription;
+  String? backstory;
+
   // Step 2: Race & Class
   RaceData? selectedRace;
   SubraceData? selectedSubrace;
@@ -34,7 +51,8 @@ class CharacterCreationState extends ChangeNotifier {
   List<String> selectedSkills = [];
 
   // Step 4: Equipment
-  String? selectedEquipmentPackage; // 'standard', 'alternative', or custom package ID
+  String? selectedEquipmentPackage; // 'standard', 'alternative', or 'custom'
+  List<String> customEquipmentIds = []; // Item IDs for custom equipment selection
 
   // Step 5: Background
   BackgroundData? selectedBackground;
@@ -74,6 +92,73 @@ class CharacterCreationState extends ChangeNotifier {
 
   void updateAvatarPath(String? newAvatarPath) {
     avatarPath = newAvatarPath;
+    notifyListeners();
+  }
+
+  // Physical appearance updaters
+  void updateAge(String? value) {
+    age = value;
+    notifyListeners();
+  }
+
+  void updateGender(String? value) {
+    gender = value;
+    notifyListeners();
+  }
+
+  void updateHeight(String? value) {
+    height = value;
+    notifyListeners();
+  }
+
+  void updateWeight(String? value) {
+    weight = value;
+    notifyListeners();
+  }
+
+  void updateEyes(String? value) {
+    eyes = value;
+    notifyListeners();
+  }
+
+  void updateHair(String? value) {
+    hair = value;
+    notifyListeners();
+  }
+
+  void updateSkin(String? value) {
+    skin = value;
+    notifyListeners();
+  }
+
+  // Personality traits updaters
+  void updatePersonalityTraits(String? value) {
+    personalityTraits = value;
+    notifyListeners();
+  }
+
+  void updateIdeals(String? value) {
+    ideals = value;
+    notifyListeners();
+  }
+
+  void updateBonds(String? value) {
+    bonds = value;
+    notifyListeners();
+  }
+
+  void updateFlaws(String? value) {
+    flaws = value;
+    notifyListeners();
+  }
+
+  void updateAppearanceDescription(String? value) {
+    appearanceDescription = value;
+    notifyListeners();
+  }
+
+  void updateBackstory(String? value) {
+    backstory = value;
     notifyListeners();
   }
 
@@ -119,6 +204,27 @@ class CharacterCreationState extends ChangeNotifier {
 
   void updateEquipmentPackage(String? package) {
     selectedEquipmentPackage = package;
+    // Clear custom equipment when switching to standard/alternative
+    if (package != 'custom') {
+      customEquipmentIds.clear();
+    }
+    notifyListeners();
+  }
+
+  void addCustomEquipment(String itemId) {
+    if (!customEquipmentIds.contains(itemId)) {
+      customEquipmentIds.add(itemId);
+      notifyListeners();
+    }
+  }
+
+  void removeCustomEquipment(String itemId) {
+    customEquipmentIds.remove(itemId);
+    notifyListeners();
+  }
+
+  void clearCustomEquipment() {
+    customEquipmentIds.clear();
     notifyListeners();
   }
 
@@ -145,6 +251,7 @@ class CharacterCreationState extends ChangeNotifier {
     };
     selectedSkills.clear();
     selectedEquipmentPackage = null;
+    customEquipmentIds.clear();
     selectedBackground = null;
     notifyListeners();
   }

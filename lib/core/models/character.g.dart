@@ -44,18 +44,32 @@ class CharacterAdapter extends TypeAdapter<Character> {
       createdAt: fields[24] as DateTime?,
       updatedAt: fields[25] as DateTime?,
       appearance: fields[26] as String?,
-      knownSpells: (fields[27] as List).cast<String>(),
-      preparedSpells: (fields[28] as List).cast<String>(),
+      knownSpells: (fields[27] as List?)?.cast<String>(),
+      preparedSpells: (fields[28] as List?)?.cast<String>(),
       maxPreparedSpells: fields[29] as int,
-      features: (fields[30] as List).cast<CharacterFeature>(),
-      inventory: (fields[31] as List).cast<Item>(),
+      features: (fields[30] as List?)?.cast<CharacterFeature>(),
+      inventory: (fields[31] as List?)?.cast<Item>(),
+      combatState: fields[32] as CombatState?,
+      deathSaves: fields[33] as DeathSaves?,
+      activeConditions: (fields[34] as List?)?.cast<ConditionType>(),
+      concentratingOn: fields[35] as String?,
+      hitDice: (fields[36] as List?)?.cast<int>(),
+      maxHitDice: fields[37] as int?,
+      age: fields[38] as String?,
+      gender: fields[39] as String?,
+      height: fields[40] as String?,
+      weight: fields[41] as String?,
+      eyes: fields[42] as String?,
+      hair: fields[43] as String?,
+      skin: fields[44] as String?,
+      appearanceDescription: fields[45] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Character obj) {
     writer
-      ..writeByte(32)
+      ..writeByte(46)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -119,7 +133,35 @@ class CharacterAdapter extends TypeAdapter<Character> {
       ..writeByte(30)
       ..write(obj.features)
       ..writeByte(31)
-      ..write(obj.inventory);
+      ..write(obj.inventory)
+      ..writeByte(32)
+      ..write(obj.combatState)
+      ..writeByte(33)
+      ..write(obj.deathSaves)
+      ..writeByte(34)
+      ..write(obj.activeConditions)
+      ..writeByte(35)
+      ..write(obj.concentratingOn)
+      ..writeByte(36)
+      ..write(obj.hitDice)
+      ..writeByte(37)
+      ..write(obj.maxHitDice)
+      ..writeByte(38)
+      ..write(obj.age)
+      ..writeByte(39)
+      ..write(obj.gender)
+      ..writeByte(40)
+      ..write(obj.height)
+      ..writeByte(41)
+      ..write(obj.weight)
+      ..writeByte(42)
+      ..write(obj.eyes)
+      ..writeByte(43)
+      ..write(obj.hair)
+      ..writeByte(44)
+      ..write(obj.skin)
+      ..writeByte(45)
+      ..write(obj.appearanceDescription);
   }
 
   @override

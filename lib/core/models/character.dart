@@ -1,7 +1,11 @@
 import 'package:hive/hive.dart';
+import 'package:uuid/uuid.dart';
 import 'ability_scores.dart';
 import 'character_feature.dart';
 import 'item.dart';
+import 'combat_state.dart';
+import 'death_saves.dart';
+import 'condition.dart';
 
 part 'character.g.dart';
 
@@ -103,6 +107,49 @@ class Character extends HiveObject {
   @HiveField(31)
   List<Item> inventory; // Character's inventory (weapons, armor, gear, etc.)
 
+  @HiveField(32)
+  CombatState combatState;
+
+  @HiveField(33)
+  DeathSaves deathSaves;
+
+  @HiveField(34)
+  List<ConditionType> activeConditions;
+
+  @HiveField(35)
+  String? concentratingOn; // Spell ID if concentrating
+
+  @HiveField(36)
+  List<int> hitDice; // Remaining hit dice by class level
+
+  @HiveField(37)
+  int maxHitDice; // Total hit dice (= level)
+
+  // Detailed physical appearance fields
+  @HiveField(38)
+  String? age;
+
+  @HiveField(39)
+  String? gender;
+
+  @HiveField(40)
+  String? height;
+
+  @HiveField(41)
+  String? weight;
+
+  @HiveField(42)
+  String? eyes;
+
+  @HiveField(43)
+  String? hair;
+
+  @HiveField(44)
+  String? skin;
+
+  @HiveField(45)
+  String? appearanceDescription; // Detailed description
+
   Character({
     required this.id,
     required this.name,
@@ -131,12 +178,35 @@ class Character extends HiveObject {
     DateTime? createdAt,
     DateTime? updatedAt,
     this.appearance,
-    this.knownSpells = const [],
-    this.preparedSpells = const [],
+    List<String>? knownSpells,
+    List<String>? preparedSpells,
     this.maxPreparedSpells = 0,
-    this.features = const [],
-    this.inventory = const [],
-  })  : createdAt = createdAt ?? DateTime.now(),
+    List<CharacterFeature>? features,
+    List<Item>? inventory,
+    CombatState? combatState,
+    DeathSaves? deathSaves,
+    List<ConditionType>? activeConditions,
+    this.concentratingOn,
+    List<int>? hitDice,
+    int? maxHitDice,
+    this.age,
+    this.gender,
+    this.height,
+    this.weight,
+    this.eyes,
+    this.hair,
+    this.skin,
+    this.appearanceDescription,
+  })  : knownSpells = knownSpells ?? [],
+        preparedSpells = preparedSpells ?? [],
+        features = features ?? [],
+        inventory = inventory ?? [],
+        combatState = combatState ?? CombatState(),
+        deathSaves = deathSaves ?? DeathSaves(),
+        activeConditions = activeConditions ?? [],
+        hitDice = hitDice ?? [level],
+        maxHitDice = maxHitDice ?? level,
+        createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
 
   // Calculate proficiency bonus based on level
@@ -188,6 +258,20 @@ class Character extends HiveObject {
       'maxPreparedSpells': maxPreparedSpells,
       'features': features.map((f) => f.toJson()).toList(),
       'inventory': inventory.map((i) => i.toJson()).toList(),
+      'combatState': combatState.toJson(),
+      'deathSaves': deathSaves.toJson(),
+      'activeConditions': activeConditions.map((c) => c.name).toList(),
+      'concentratingOn': concentratingOn,
+      'hitDice': hitDice,
+      'maxHitDice': maxHitDice,
+      'age': age,
+      'gender': gender,
+      'height': height,
+      'weight': weight,
+      'eyes': eyes,
+      'hair': hair,
+      'skin': skin,
+      'appearanceDescription': appearanceDescription,
     };
   }
 
@@ -232,15 +316,24 @@ class Character extends HiveObject {
       }
     }
 
+    // Restore hit dice (half of max, minimum 1)
+    final toRestore = (maxHitDice / 2).ceil();
+    restoreHitDice(toRestore);
+
+    // Clear death saves
+    deathSaves.reset();
+
+    // Clear conditions (some may persist - for now clear all)
+    activeConditions = [];
+
+    // Break concentration
+    concentratingOn = null;
+
     updatedAt = DateTime.now();
     // Note: Save manually after calling this method
   }
 
   void shortRest() {
-    // Paladin doesn't restore spell slots on short rest
-    // But can use hit dice to heal
-    // TODO: Implement hit dice in future session
-
     // Restore features that recover on short rest
     for (var feature in features) {
       if (feature.resourcePool != null) {
@@ -252,5 +345,197 @@ class Character extends HiveObject {
 
     updatedAt = DateTime.now();
     // Note: Save manually after calling this method
+  }
+
+  // HP Management Methods
+  Future<void> takeDamage(int damage, {String? source}) async {
+    if (temporaryHp > 0) {
+      if (damage <= temporaryHp) {
+        temporaryHp -= damage;
+      } else {
+        final overflow = damage - temporaryHp;
+        temporaryHp = 0;
+        currentHp -= overflow;
+      }
+    } else {
+      currentHp -= damage;
+    }
+
+    if (currentHp < 0) currentHp = 0;
+
+    // Add to combat log
+    if (combatState.isInCombat) {
+      combatState.totalDamageTaken += damage;
+      combatState.addLogEntry(CombatLogEntry(
+        id: const Uuid().v4(),
+        timestamp: DateTime.now(),
+        type: CombatLogType.damage,
+        amount: damage,
+        description: source != null ? 'Damage from $source' : 'Damage taken',
+        round: combatState.currentRound,
+      ));
+    }
+
+    // Check concentration
+    if (concentratingOn != null) {
+      final dc = (damage / 2).floor().clamp(10, 99);
+      if (combatState.isInCombat) {
+        combatState.addLogEntry(CombatLogEntry(
+          id: const Uuid().v4(),
+          timestamp: DateTime.now(),
+          type: CombatLogType.concentrationCheck,
+          amount: dc,
+          description: 'Concentration check required (DC $dc)',
+          round: combatState.currentRound,
+        ));
+      }
+    }
+
+    updatedAt = DateTime.now();
+    await save();
+  }
+
+  Future<void> heal(int healing, {String? source}) async {
+    // Apply healing
+    final newHp = currentHp + healing;
+    currentHp = newHp > maxHp ? maxHp : newHp;
+
+    // Reset death saves if healing from 0 HP
+    if (currentHp > 0 && deathSaves.isActive) {
+      deathSaves.reset();
+    }
+
+    // Add to combat log (same as takeDamage)
+    if (combatState.isInCombat) {
+      combatState.totalHealing += healing;
+      combatState.addLogEntry(CombatLogEntry(
+        id: const Uuid().v4(),
+        timestamp: DateTime.now(),
+        type: CombatLogType.healing,
+        amount: healing,
+        description: source != null ? 'Healed by $source' : 'Healing received',
+        round: combatState.currentRound,
+      ));
+    }
+
+    updatedAt = DateTime.now();
+    await save();
+  }
+
+  void addTemporaryHp(int amount) {
+    // Temp HP doesn't stack, take higher value
+    if (amount > temporaryHp) {
+      temporaryHp = amount;
+      updatedAt = DateTime.now();
+      save();
+    }
+  }
+
+  // Condition Management
+  void addCondition(ConditionType condition) {
+    if (!activeConditions.contains(condition)) {
+      activeConditions = List.from(activeConditions)..add(condition);
+
+      if (combatState.isInCombat) {
+        combatState.addLogEntry(CombatLogEntry(
+          id: const Uuid().v4(),
+          timestamp: DateTime.now(),
+          type: CombatLogType.conditionAdded,
+          description: 'Gained ${condition.displayName}',
+          round: combatState.currentRound,
+        ));
+      }
+
+      updatedAt = DateTime.now();
+      save();
+    }
+  }
+
+  void removeCondition(ConditionType condition) {
+    if (activeConditions.contains(condition)) {
+      activeConditions = List.from(activeConditions)..remove(condition);
+
+      if (combatState.isInCombat) {
+        combatState.addLogEntry(CombatLogEntry(
+          id: const Uuid().v4(),
+          timestamp: DateTime.now(),
+          type: CombatLogType.conditionRemoved,
+          description: 'Removed ${condition.displayName}',
+          round: combatState.currentRound,
+        ));
+      }
+
+      updatedAt = DateTime.now();
+      save();
+    }
+  }
+
+  // Hit Dice Management
+  void spendHitDie() {
+    if (hitDice.isNotEmpty && hitDice.first > 0) {
+      hitDice = List.from(hitDice);
+      hitDice[0]--;
+      updatedAt = DateTime.now();
+      save();
+    }
+  }
+
+  void restoreHitDice(int amount) {
+    final currentTotal = hitDice.fold(0, (sum, dice) => sum + dice);
+    final toRestore = amount.clamp(0, maxHitDice - currentTotal);
+
+    if (toRestore > 0 && hitDice.isNotEmpty) {
+      hitDice = List.from(hitDice);
+      hitDice[0] += toRestore;
+      updatedAt = DateTime.now();
+      save();
+    }
+  }
+
+  // Armor Class Calculation
+  void recalculateAC() {
+    int baseAC = 10;
+    int dexMod = abilityScores.dexterityModifier;
+    int totalAC = baseAC;
+
+    // Find equipped armor and shield
+    Item? equippedArmor;
+    Item? equippedShield;
+
+    for (var item in inventory) {
+      if (item.isEquipped && item.type == ItemType.armor && item.armorProperties != null) {
+        if (item.armorProperties!.armorType == ArmorType.shield) {
+          equippedShield = item;
+        } else {
+          equippedArmor = item;
+        }
+      }
+    }
+
+    // Calculate AC from armor
+    if (equippedArmor != null && equippedArmor.armorProperties != null) {
+      final armorProps = equippedArmor.armorProperties!;
+      totalAC = armorProps.baseAC;
+
+      // Add DEX modifier based on armor type
+      if (armorProps.addDexModifier) {
+        if (armorProps.maxDexBonus != null) {
+          totalAC += dexMod.clamp(-10, armorProps.maxDexBonus!);
+        } else {
+          totalAC += dexMod; // Full DEX for light armor
+        }
+      }
+    } else {
+      // No armor = 10 + DEX
+      totalAC = 10 + dexMod;
+    }
+
+    // Add shield bonus
+    if (equippedShield != null && equippedShield.armorProperties != null) {
+      totalAC += equippedShield.armorProperties!.baseAC;
+    }
+
+    armorClass = totalAC;
+    updatedAt = DateTime.now();
   }
 }

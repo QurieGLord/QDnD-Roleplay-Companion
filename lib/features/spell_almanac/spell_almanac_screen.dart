@@ -230,12 +230,75 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                     color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
+
+                // Add/Remove from Known Spells button (if character provided and eligible)
+                if (widget.character != null && eligibility != null && eligibility.canLearn) ...[
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: () {
+                        _toggleKnownSpell(spell);
+                        Navigator.pop(context);
+                      },
+                      icon: Icon(
+                        widget.character!.knownSpells.contains(spell.id)
+                            ? Icons.remove_circle_outline
+                            : Icons.add_circle_outline,
+                      ),
+                      label: Text(
+                        widget.character!.knownSpells.contains(spell.id)
+                            ? 'Remove from Known Spells'
+                            : 'Add to Known Spells',
+                      ),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: widget.character!.knownSpells.contains(spell.id)
+                            ? colorScheme.error
+                            : colorScheme.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           );
         },
       ),
     );
+  }
+
+  void _toggleKnownSpell(Spell spell) async {
+    if (widget.character == null) return;
+
+    final isKnown = widget.character!.knownSpells.contains(spell.id);
+
+    setState(() {
+      if (isKnown) {
+        widget.character!.knownSpells.remove(spell.id);
+        // Also remove from prepared spells if it was prepared
+        widget.character!.preparedSpells.remove(spell.id);
+      } else {
+        widget.character!.knownSpells.add(spell.id);
+      }
+    });
+
+    // Save to storage
+    await widget.character!.save();
+
+    // Show snackbar
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isKnown
+                ? 'Removed "${spell.nameEn}" from known spells'
+                : 'Added "${spell.nameEn}" to known spells',
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   Widget _buildEligibilityBadge(SpellEligibilityResult eligibility) {

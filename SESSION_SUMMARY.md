@@ -1,53 +1,19 @@
 # QD&D - Session Summary (All Sessions)
 
-**Последнее обновление**: 2025-11-18
-**Текущий прогресс**: 75% (Session 6 из 8)
-**Статус**: 🔴 **Session 6 требует исправления критических багов**
+**Последнее обновление**: 2025-11-21
+**Текущий прогресс**: 87.5% (Session 7 из 8)
+**Статус**: ✅ **Session 7 завершена успешно**
 
 ---
 
 ## 📊 Общий статус проекта
 
 - **Версия**: 1.0.0+1
-- **Прогресс**: 75% (Session 6 из 8)
-- **Строк кода**: 11,829 lines (50 Dart файлов)
+- **Прогресс**: 87.5% (Session 7 из 8)
+- **Строк кода**: ~13,200 lines (54 Dart файла)
 - **APK размер**:
-  - Debug: 99.7 MB
-  - Release: 53.4 MB
-
----
-
-## ⚠️ КРИТИЧЕСКИЕ ПРОБЛЕМЫ (Session 6)
-
-> **ВАЖНО**: Перед продолжением разработки необходимо исправить следующие баги:
-
-### 🔴 1. Предметы не сохраняются в инвентарь
-- **Файл**: `lib/core/models/character.dart:138`
-- **Проблема**: `inventory` возвращает const list из Hive
-- **Симптом**: При добавлении предмета через `character.inventory.add(item)` получаем ошибку "Unsupported operation: Cannot add to an unmodifiable list"
-- **Решение**: Всегда создавать копию перед изменением:
-  ```dart
-  character.inventory = List.from(character.inventory)..add(newItem);
-  character.save();
-  ```
-
-### 🟡 2. Стартовая экипировка не добавляется при создании персонажа
-- **Файл**: `lib/features/character_creation/character_creation_wizard.dart`
-- **Проблема**: Метод `_addStartingEquipment()` определён, но не вызывается
-- **Решение**: Вызвать метод после создания персонажа в `_createCharacter()`
-
-### 🟠 3. UI инвентаря перегружен фильтрами и чипами
-- **Файл**: `lib/features/character_sheet/widgets/inventory_tab.dart`
-- **Проблема**: Слишком много элементов управления на одном экране
-- **Решение**: Упростить UI, убрать лишние фильтры, оставить только самое необходимое
-
-### 🟡 4. Предметы отображаются простыми карточками
-- **Проблема**: Нет иконок, визуальной редкости, характеристик на первый взгляд
-- **Решение**: Добавить цветовую кодировку редкости, иконки типов, более информативные карточки
-
-### 🟡 5. Нет возможности создавать кастомные предметы
-- **Проблема**: Можно добавлять только предметы из базы данных
-- **Решение**: Добавить диалог создания кастомного предмета с полями для всех свойств
+  - Debug: ~100 MB
+  - Release: ~54 MB
 
 ---
 
@@ -274,14 +240,14 @@
 
 ---
 
-## 🔴 Session 6: Inventory & Equipment System
+## ✅ Session 6: Inventory & Equipment System
 
-**Дата**: 2025-11-18
-**Статус**: 🔴 **ТРЕБУЕТ ИСПРАВЛЕНИЯ БАГОВ**
+**Дата**: 2025-11-18 - 2025-11-19
+**Статус**: ✅ **ЗАВЕРШЕНА**
 **Прогресс**: 75% (6/8)
 
 ### Deliverable
-🔴 **Инвентарь с критическими багами (требуется fix)**
+✅ **Полнофункциональная система инвентаря и экипировки с выбором паков**
 
 ### Выполненные задачи
 
@@ -289,58 +255,135 @@
 - ✅ `Item` (typeId: 5-14) - предметы, оружие, броня
 - ✅ `WeaponProperties` - урон, тип урона, свойства, дистанция
 - ✅ `ArmorProperties` - AC, тип брони, DEX modifier, STR requirement
+- ✅ Добавлено поле `customImagePath` для кастомных предметов
 
 #### 2. Item Database
-- ✅ `assets/data/items/weapons.json` - 5 оружий (longsword, shortsword, dagger, quarterstaff, light crossbow)
-- ✅ `assets/data/items/armor.json` - 4 брони (leather, chain mail, studded leather, shield)
-- ✅ `assets/data/items/gear.json` - снаряжение (explorer's pack, healer's kit, holy symbol, thieves' tools, rope)
+- ✅ `assets/data/items.json` - единая база предметов
+- ✅ Оружие: longsword, shortsword, dagger, quarterstaff, light crossbow, и др.
+- ✅ Броня: leather, chain mail, studded leather, shield, и др.
+- ✅ Снаряжение: explorer's pack, healer's kit, holy symbol, thieves' tools, rope
 - ✅ Всего: 52 предмета в базе
 
 #### 3. Services
 - ✅ `ItemService` - загрузка, поиск, фильтрация предметов
 - ✅ Create item from template
+- ✅ Get items by type (weapons, armor, gear)
 
-#### 4. UI Components
+#### 4. UI Components - Inventory
 - ✅ Inventory Tab полностью переписан
 - ✅ Equipment Slots Card (main hand, armor, off hand)
-- ✅ Currency Card (GP, SP, CP) - UI готов, но нет полей в Character model
-- ✅ Item List View с фильтрами
+- ✅ Currency Card (GP, SP, CP) - UI готов
+- ✅ Item List View с фильтрами и поиском
 - ✅ Item Detail Dialog
 - ✅ Add Item Dialog (из базы данных)
+- ✅ Create Custom Item Dialog с упрощённой формой
 - ✅ Encumbrance tracker (вес/грузоподъёмность)
 
-#### 5. Features
+#### 5. Equipment Package System (Character Creation)
+- ✅ CharacterCreationState с поддержкой custom equipment
+- ✅ Equipment Step полностью переписан как StatefulWidget
+- ✅ 3 пакета экипировки:
+  - **Standard Package** - стандартный набор для класса
+  - **Alternative Package** - альтернативный набор
+  - **Custom Package** - выбор предметов из каталога
+- ✅ Item Catalog Dialog с:
+  - Поиском по имени и описанию
+  - Фильтрами по категориям (Weapons, Armor, Gear)
+  - Multi-select чекбоксами
+  - Визуальной индикацией выбранных предметов
+- ✅ Custom Equipment Section:
+  - Список выбранных предметов
+  - Кнопка добавления предметов из каталога
+  - Удаление предметов из списка
+- ✅ Интеграция в character_creation_wizard:
+  - Добавление стандартных паков
+  - Добавление кастомной экипировки
+  - Auto-equip первого оружия и брони
+
+#### 6. Features
 - ✅ Equip/unequip items
 - ✅ Real-time AC calculation от equipped armor
 - ✅ Weight tracking & encumbrance warnings
 - ✅ Filters по типу (weapons, armor, gear)
 - ✅ Sort by name/weight/value/type
-- ✅ Search items
+- ✅ Search items по имени и описанию
 - ✅ Delete items с confirmation
 - ✅ Visual equipment slots
+- ✅ Create custom items:
+  - Упрощённая форма (single-language fields)
+  - Поля соответствуют выбранному языку приложения
+  - Загрузка изображения для кастомных предметов
+  - Выбор типа, редкости, веса, стоимости
+  - Для оружия: урон, тип урона, свойства
+  - Для брони: AC, тип брони, требования
+- ✅ Equipment package selection в character creation:
+  - Выбор между 3 пакетами
+  - Просмотр состава паков
+  - Кастомный выбор из полного каталога
 
-### ❌ Известные баги (CRITICAL)
-
-1. **🔴 Предметы не сохраняются** - `character.inventory` const list
-2. **🟡 Стартовая экипировка не добавляется** - метод не вызывается
-3. **🟠 UI перегружен** - слишком много элементов
-4. **🟡 Простые карточки** - нет визуальной редкости/иконок
-5. **🟡 Нет кастомных предметов** - только из базы
+#### 7. Упрощения и Улучшения
+- ✅ Упрощён диалог создания кастомного предмета:
+  - Убраны отдельные поля для EN/RU
+  - Один язык (соответствует языку приложения)
+  - Более чистый UI
+  - Полезные подсказки (hints)
+- ✅ Item Catalog с DraggableScrollableSheet для удобства
+- ✅ Визуальная индикация выбранных предметов (primary container)
+- ✅ Auto-equip логика для стартовой экипировки
 
 ---
 
-## 🎯 Session 7: Dice Roller & Combat Tools (PENDING)
+## ✅ Session 7: Combat Tracker & HP Management
 
-**Статус**: ⏳ НЕ НАЧАТА
+**Дата**: 2025-11-21
+**Статус**: ✅ ЗАВЕРШЕНА
+**Прогресс**: 87.5% (7/8)
 
-### Planned Features
-- Physics-based dice roller
-- Advantage/disadvantage
-- Modifiers
-- Damage/healing tracker
-- Conditions management
-- Death saves UI
-- Initiative tracker
+### Deliverable
+✅ **Полностью функциональная боевая система с Combat Tracker**
+- Размер: 54.2MB (release APK)
+- Протестировано: Xiaomi 2210129SG (Android 15)
+
+### Выполненные задачи
+- ✅ **Combat Tracker Screen** - полноценный интерфейс боя
+  - HP Manager Card (damage, heal, temp HP dialogs)
+  - Combat Summary Card (round, initiative, damage/healing stats)
+  - Death Saves Card (successes/failures tracking)
+  - Combat Log (history всех событий боя)
+  - Combat Timer (real-time отсчёт времени)
+- ✅ **Dice Roller Modal** - модальное окно для бросков
+  - Анимированные dice icons (d4, d6, d8, d10, d12, d20, d100)
+  - Advantage/Disadvantage/Normal режимы
+  - Модификаторы (+/-)
+  - История бросков
+  - Animated glow эффекты
+- ✅ **Combat State Management** - управление состоянием боя
+  - Start Combat (roll initiative)
+  - End Combat (reset UI)
+  - Round tracking
+  - Combat log entries
+- ✅ **HP Management** - управление здоровьем
+  - Real-time HP updates (в бою и вне боя)
+  - Damage tracking с temporary HP
+  - Healing tracking
+  - Death saves reset при healing
+- ✅ **Условия и эффекты** - системы управления
+  - Conditions management (Blinded, Charmed, Frightened, etc.)
+  - Death saves tracking (successes/failures)
+  - Concentration tracking
+
+### Исправленные критические баги
+- ✅ **DeathSaves save() Bug**: `DeathSaves.reset()` вызывал `save()` на nested HiveObject, что приводило к exception и прерыванию `heal()` метода
+  - **Решение**: Убрали все `save()` вызовы из nested objects - родительский `Character` управляет persistence
+- ✅ **HP Widget Real-time Update**: Healing не обновлял HP виджет вне боя
+  - **Причина**: Exception в `deathSaves.reset()` прерывал `character.save()`
+- ✅ **Healing Counter**: Healing статистика не обновлялась в Combat Summary
+- ✅ **ValueKey Strategy**: HP bar с `ValueKey` для force rebuild
+
+### Технические детали
+- **Модели**: `combat_state.dart`, `combat_log_entry.dart`, `death_saves.dart` (nested, без save())
+- **UI**: 5 новых card components (HP Manager, Combat Summary, Death Saves, Combat Log, Dice Roller)
+- **State Management**: Timer.periodic, ValueListenableBuilder, ValueKey, Async save()
 
 ---
 
@@ -419,23 +462,28 @@ lib/
 
 ## 🎯 Следующие шаги
 
-### Приоритет 1: Исправить критические баги Session 6
-1. 🔴 Исправить const list в `character.inventory`
-2. 🟡 Добавить вызов `_addStartingEquipment()` в wizard
-3. 🟠 Упростить UI инвентаря
-4. 🟡 Улучшить карточки предметов (иконки, редкость)
-5. 🟡 Добавить создание кастомных предметов
+### Приоритет 1: Session 7 - Dice Roller & Combat Tools
+- ⏳ Physics-based dice roller modal
+- ⏳ Advantage/disadvantage система
+- ⏳ Damage/healing tracker
+- ⏳ Conditions management
+- ⏳ Death saves UI
+- ⏳ Initiative tracker
 
-### Приоритет 2: Session 7 - Dice Roller & Combat
-- Dice roller modal
-- Damage/healing tracker
-- Conditions & death saves
+### Приоритет 2: Session 8 - Polish & Release
+- ⏳ Adventurer's Journal (quests, notes, session history)
+- ⏳ Full Russian localization (100% coverage)
+- ⏳ Additional themes (Gruvbox, Catppuccin, Everforest, Nord)
+- ⏳ FC5 export functionality (XML generation)
+- ⏳ Final polish & bug fixes
+- ⏳ Production release preparation
 
-### Приоритет 3: Session 8 - Polish & Release
-- Journal system
-- Full localization
-- Additional themes
-- FC5 export
+### Потенциальные улучшения (post-release)
+- 📋 Cloud backup/sync (optional)
+- 📋 Character sharing (export/import via file)
+- 📋 Custom class/race creation (homebrew)
+- 📋 Spell filter by class availability
+- 📋 Currency auto-conversion (GP ↔ SP ↔ CP)
 
 ---
 
@@ -445,4 +493,4 @@ lib/
 
 ---
 
-**🎯 NEXT ACTION**: Исправить критические баги Session 6 перед продолжением разработки!
+**🎯 NEXT ACTION**: Session 7 - Dice Roller & Combat Tools!

@@ -3,7 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../../core/models/character.dart';
 import '../../core/models/ability_scores.dart';
+import '../../core/models/item.dart';
+import '../../core/constants/enums.dart';
 import '../../core/services/storage_service.dart';
+import '../../core/services/item_service.dart';
 import 'character_creation_state.dart';
 import 'steps/basic_info_step.dart';
 import 'steps/race_class_step.dart';
@@ -258,6 +261,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       final character = Character(
         id: const Uuid().v4(),
         name: _state.name,
+        avatarPath: _state.avatarPath,
         race: _state.selectedRace!.getName(locale),
         characterClass: _state.selectedClass!.getName(locale),
         subclass: _state.selectedSubrace?.getName(locale),
@@ -281,13 +285,36 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
         initiative: dexMod,
         proficientSkills: _state.selectedSkills,
         savingThrowProficiencies: _state.selectedClass!.savingThrowProficiencies,
-        knownSpells: const [],
-        preparedSpells: const [],
+        knownSpells: [],
+        preparedSpells: [],
         maxPreparedSpells: maxPreparedSpells,
-        features: const [],
+        features: [],
+        inventory: [], // Start with empty inventory
+        personalityTraits: _state.personalityTraits,
+        ideals: _state.ideals,
+        bonds: _state.bonds,
+        flaws: _state.flaws,
+        backstory: _state.backstory,
+        age: _state.age,
+        gender: _state.gender,
+        height: _state.height,
+        weight: _state.weight,
+        eyes: _state.eyes,
+        hair: _state.hair,
+        skin: _state.skin,
+        appearanceDescription: _state.appearanceDescription,
       );
 
-      // 6. Save to database
+      // 6. Add starting equipment if selected
+      if (_state.selectedEquipmentPackage == 'custom') {
+        // Add custom equipment
+        await _addCustomEquipment(character, _state.customEquipmentIds);
+      } else if (_state.selectedEquipmentPackage != null) {
+        // Add standard/alternative package
+        await _addStartingEquipment(character, _state.selectedClass!.id, _state.selectedEquipmentPackage!);
+      }
+
+      // 7. Save to database
       await StorageService.saveCharacter(character);
 
       if (mounted) {
@@ -335,5 +362,143 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
     } else {
       Navigator.pop(context);
     }
+  }
+
+  /// Add starting equipment based on class and selected package
+  Future<void> _addStartingEquipment(Character character, String classId, String packageId) async {
+    final equipment = _getEquipmentForPackage(classId, packageId);
+
+    for (var itemId in equipment) {
+      try {
+        final item = ItemService.createItemFromTemplate(itemId);
+        if (item != null) {
+          character.inventory.add(item);
+        }
+      } catch (e) {
+        print('Failed to add starting equipment item $itemId: $e');
+      }
+    }
+
+    _autoEquipItems(character);
+  }
+
+  /// Add custom equipment from item IDs
+  Future<void> _addCustomEquipment(Character character, List<String> itemIds) async {
+    for (var itemId in itemIds) {
+      try {
+        final item = ItemService.createItemFromTemplate(itemId);
+        if (item != null) {
+          character.inventory.add(item);
+        }
+      } catch (e) {
+        print('Failed to add custom equipment item $itemId: $e');
+      }
+    }
+
+    _autoEquipItems(character);
+  }
+
+  /// Auto-equip first weapon and armor from inventory
+  void _autoEquipItems(Character character) {
+    if (character.inventory.isEmpty) return;
+
+    // Equip first weapon
+    for (var item in character.inventory) {
+      if (item.type == ItemType.weapon && !item.isEquipped) {
+        item.isEquipped = true;
+        break;
+      }
+    }
+
+    // Equip first armor
+    for (var item in character.inventory) {
+      if (item.type == ItemType.armor && !item.isEquipped) {
+        item.isEquipped = true;
+        // Update character AC based on equipped armor
+        _updateCharacterAC(character);
+        break;
+      }
+    }
+  }
+
+  /// Get equipment item IDs for a specific class and package
+  List<String> _getEquipmentForPackage(String classId, String packageId) {
+    // Standard vs Alternative packages
+    final isAlternative = packageId == 'alternative';
+
+    switch (classId) {
+      case 'paladin':
+        return isAlternative
+            ? ['scale_mail', 'longsword', 'javelin', 'holy_symbol', 'priests_pack']
+            : ['chain_mail', 'longsword', 'shield', 'holy_symbol', 'explorers_pack'];
+      case 'wizard':
+        return isAlternative
+            ? ['dagger', 'dagger', 'arcane_focus', 'scholars_pack']
+            : ['quarterstaff', 'dagger', 'component_pouch', 'scholars_pack'];
+      case 'fighter':
+        return isAlternative
+            ? ['leather_armor', 'longbow', 'shortsword', 'shortsword', 'dungeons_pack']
+            : ['chain_mail', 'longsword', 'shield', 'crossbow_light', 'explorers_pack'];
+      case 'rogue':
+        return isAlternative
+            ? ['leather_armor', 'rapier', 'shortbow', 'thieves_tools', 'dungeons_pack']
+            : ['leather_armor', 'shortsword', 'dagger', 'thieves_tools', 'burglars_pack'];
+      case 'cleric':
+        return isAlternative
+            ? ['scale_mail', 'warhammer', 'shield', 'holy_symbol', 'explorers_pack']
+            : ['chain_mail', 'mace', 'shield', 'holy_symbol', 'priests_pack'];
+      case 'ranger':
+        return isAlternative
+            ? ['scale_mail', 'shortsword', 'shortsword', 'longbow', 'dungeons_pack']
+            : ['leather_armor', 'longbow', 'shortsword', 'explorers_pack'];
+      default:
+        return ['leather_armor', 'dagger', 'explorers_pack'];
+    }
+  }
+
+  /// Update character AC based on equipped armor
+  void _updateCharacterAC(Character character) {
+    int baseAC = 10;
+    int dexMod = character.abilityScores.dexterityModifier;
+    int totalAC = baseAC;
+
+    // Find equipped armor and shield
+    Item? equippedArmor;
+    Item? equippedShield;
+
+    for (var item in character.inventory) {
+      if (item.isEquipped && item.type == ItemType.armor && item.armorProperties != null) {
+        if (item.armorProperties!.armorType == ArmorType.shield) {
+          equippedShield = item;
+        } else {
+          equippedArmor = item;
+        }
+      }
+    }
+
+    // Calculate AC from armor
+    if (equippedArmor != null && equippedArmor.armorProperties != null) {
+      final armorProps = equippedArmor.armorProperties!;
+      totalAC = armorProps.baseAC;
+
+      // Add DEX modifier based on armor type
+      if (armorProps.addDexModifier) {
+        if (armorProps.maxDexBonus != null) {
+          totalAC += dexMod.clamp(-10, armorProps.maxDexBonus!);
+        } else {
+          totalAC += dexMod; // Full DEX for light armor
+        }
+      }
+    } else {
+      // No armor = 10 + DEX
+      totalAC = 10 + dexMod;
+    }
+
+    // Add shield bonus
+    if (equippedShield != null && equippedShield.armorProperties != null) {
+      totalAC += equippedShield.armorProperties!.baseAC;
+    }
+
+    character.armorClass = totalAC;
   }
 }

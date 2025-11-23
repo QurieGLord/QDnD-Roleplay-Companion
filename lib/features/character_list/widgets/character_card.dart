@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../../core/models/character.dart';
 
@@ -27,26 +28,44 @@ class CharacterCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Avatar with class icon
+              // Avatar with class icon or custom image
               Hero(
                 tag: 'character-avatar-${character.id}',
                 child: Container(
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        colorScheme.primaryContainer,
-                        colorScheme.secondaryContainer,
-                      ],
-                    ),
+                    gradient: character.avatarPath == null
+                        ? LinearGradient(
+                            colors: [
+                              colorScheme.primaryContainer,
+                              colorScheme.secondaryContainer,
+                            ],
+                          )
+                        : null,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
-                    _getClassIcon(character.characterClass),
-                    size: 32,
-                    color: colorScheme.onPrimaryContainer,
-                  ),
+                  child: character.avatarPath != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            File(character.avatarPath!),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              // Fallback to icon if image fails to load
+                              return Icon(
+                                _getClassIcon(character.characterClass),
+                                size: 32,
+                                color: colorScheme.onPrimaryContainer,
+                              );
+                            },
+                          ),
+                        )
+                      : Icon(
+                          _getClassIcon(character.characterClass),
+                          size: 32,
+                          color: colorScheme.onPrimaryContainer,
+                        ),
                 ),
               ),
               const SizedBox(width: 16),
