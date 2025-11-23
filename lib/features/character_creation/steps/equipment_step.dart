@@ -794,16 +794,30 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
 
     return Consumer<CharacterCreationState>(
       builder: (context, state, child) {
-        return DraggableScrollableSheet(
-      initialChildSize: 0.8,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (context, scrollController) {
-        return Material(
-          color: theme.colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          child: Column(
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.5),
+          ),
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.8,
+            minChildSize: 0.5,
+            maxChildSize: 0.95,
+            builder: (context, scrollController) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      spreadRadius: 0,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Column(
           children: [
             // Header
             Container(
@@ -1015,10 +1029,11 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                     ),
             ),
           ],
+                ),
+              );
+            },
           ),
         );
-      },
-    );
       },
     );
   }
