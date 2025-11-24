@@ -63,13 +63,17 @@ class CharacterAdapter extends TypeAdapter<Character> {
       hair: fields[43] as String?,
       skin: fields[44] as String?,
       appearanceDescription: fields[45] as String?,
+      copperPieces: fields[46] as int,
+      silverPieces: fields[47] as int,
+      goldPieces: fields[48] as int,
+      platinumPieces: fields[49] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Character obj) {
     writer
-      ..writeByte(46)
+      ..writeByte(50)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -161,7 +165,15 @@ class CharacterAdapter extends TypeAdapter<Character> {
       ..writeByte(44)
       ..write(obj.skin)
       ..writeByte(45)
-      ..write(obj.appearanceDescription);
+      ..write(obj.appearanceDescription)
+      ..writeByte(46)
+      ..write(obj.copperPieces)
+      ..writeByte(47)
+      ..write(obj.silverPieces)
+      ..writeByte(48)
+      ..write(obj.goldPieces)
+      ..writeByte(49)
+      ..write(obj.platinumPieces);
   }
 
   @override

@@ -253,10 +253,10 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
     );
   }
 
-  void _showAddItemDialog(BuildContext context) {
+  void _showAddItemDialog(BuildContext context) async {
     final locale = Localizations.localeOf(context).languageCode;
 
-    showModalBottomSheet(
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) => _AddItemDialog(
@@ -265,6 +265,9 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
         onAddItem: _showQuantityDialog,
       ),
     );
+
+    // Refresh UI after dialog closes
+    setState(() {});
   }
 
   void _showQuantityDialog(BuildContext context, Item item) {
