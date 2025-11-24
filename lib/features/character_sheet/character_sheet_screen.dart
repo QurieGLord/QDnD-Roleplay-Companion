@@ -372,6 +372,7 @@ class _AddItemDialogState extends State<_AddItemDialog> {
   final _searchController = TextEditingController();
   ItemType? _selectedCategory;
   String _searchQuery = '';
+  final Map<String, int> _selectedItems = {}; // itemId -> quantity
 
   @override
   void dispose() {
@@ -442,6 +443,97 @@ class _AddItemDialogState extends State<_AddItemDialog> {
         locale: widget.locale,
       ),
     );
+  }
+
+  Future<void> _showQuantityDialogForItem(String itemId, String itemName, String itemDesc) async {
+    final quantityController = TextEditingController(
+      text: _selectedItems.containsKey(itemId) ? '${_selectedItems[itemId]}' : '1',
+    );
+
+    final quantity = await showDialog<int>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(itemName),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              itemDesc,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: quantityController,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: widget.locale == 'ru' ? 'Количество' : 'Quantity',
+                border: const OutlineInputBorder(),
+              ),
+              onSubmitted: (value) {
+                final qty = int.tryParse(value) ?? 1;
+                if (qty > 0) {
+                  Navigator.pop(context, qty);
+                }
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(widget.locale == 'ru' ? 'Отмена' : 'Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final qty = int.tryParse(quantityController.text) ?? 1;
+              if (qty > 0) {
+                Navigator.pop(context, qty);
+              }
+            },
+            child: Text(widget.locale == 'ru' ? 'Готово' : 'Done'),
+          ),
+        ],
+      ),
+    );
+
+    if (quantity != null && quantity > 0) {
+      setState(() {
+        _selectedItems[itemId] = quantity;
+      });
+    }
+  }
+
+  void _addSelectedItemsToInventory() {
+    for (var entry in _selectedItems.entries) {
+      final itemId = entry.key;
+      final quantity = entry.value;
+
+      for (int i = 0; i < quantity; i++) {
+        final newItem = ItemService.createItemFromTemplate(itemId);
+        if (newItem != null) {
+          widget.character.inventory.add(newItem);
+        }
+      }
+    }
+
+    widget.character.updatedAt = DateTime.now();
+    widget.character.save();
+
+    // Show feedback
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          widget.locale == 'ru'
+              ? 'Добавлено предметов: ${_selectedItems.length}'
+              : 'Added ${_selectedItems.length} items',
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+
+    Navigator.pop(context);
   }
 
   @override
@@ -618,35 +710,112 @@ class _AddItemDialogState extends State<_AddItemDialog> {
                       itemCount: filteredItems.length,
                       itemBuilder: (context, index) {
                         final item = filteredItems[index];
+                        final isSelected = _selectedItems.containsKey(item.id);
+                        final quantity = isSelected ? _selectedItems[item.id] ?? 1 : 0;
+
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
+                          color: isSelected
+                              ? theme.colorScheme.primaryContainer
+                              : null,
                           child: ListTile(
-                            leading: Icon(
-                              _getItemIcon(item.type),
-                              color: theme.colorScheme.primary,
+                            leading: Badge(
+                              label: Text('$quantity'),
+                              isLabelVisible: isSelected && quantity > 0,
+                              backgroundColor: theme.colorScheme.secondary,
+                              textColor: theme.colorScheme.onSecondary,
+                              child: Icon(
+                                _getItemIcon(item.type),
+                                color: isSelected
+                                    ? theme.colorScheme.onPrimaryContainer
+                                    : theme.colorScheme.primary,
+                              ),
                             ),
-                            title: Text(item.getName(widget.locale)),
+                            title: Text(
+                              item.getName(widget.locale),
+                              style: TextStyle(
+                                color: isSelected
+                                    ? theme.colorScheme.onPrimaryContainer
+                                    : null,
+                              ),
+                            ),
                             subtitle: Text(
                               item.getDescription(widget.locale),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: isSelected
+                                    ? theme.colorScheme.onPrimaryContainer.withOpacity(0.8)
+                                    : null,
+                              ),
                             ),
                             trailing: IconButton(
-                              icon: const Icon(Icons.add_circle),
+                              icon: Icon(
+                                isSelected ? Icons.remove_circle : Icons.add_circle,
+                                color: isSelected
+                                    ? theme.colorScheme.onPrimaryContainer
+                                    : null,
+                              ),
                               onPressed: () {
-                                Navigator.pop(context);
-                                widget.onAddItem(context, item);
+                                if (isSelected) {
+                                  setState(() {
+                                    _selectedItems.remove(item.id);
+                                  });
+                                } else {
+                                  _showQuantityDialogForItem(
+                                    item.id,
+                                    item.getName(widget.locale),
+                                    item.getDescription(widget.locale),
+                                  );
+                                }
                               },
                             ),
                             onTap: () {
-                              Navigator.pop(context);
-                              widget.onAddItem(context, item);
+                              if (isSelected) {
+                                _showQuantityDialogForItem(
+                                  item.id,
+                                  item.getName(widget.locale),
+                                  item.getDescription(widget.locale),
+                                );
+                              } else {
+                                _showQuantityDialogForItem(
+                                  item.id,
+                                  item.getName(widget.locale),
+                                  item.getDescription(widget.locale),
+                                );
+                              }
                             },
                           ),
                         );
                       },
                     ),
             ),
+
+            // Done button at bottom
+            if (_selectedItems.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  border: Border(
+                    top: BorderSide(
+                      color: theme.colorScheme.outlineVariant,
+                      width: 1,
+                    ),
+                  ),
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: FilledButton(
+                    onPressed: _addSelectedItemsToInventory,
+                    child: Text(
+                      widget.locale == 'ru'
+                          ? 'Готово (${_selectedItems.length})'
+                          : 'Done (${_selectedItems.length})',
+                    ),
+                  ),
+                ),
+              ),
           ],
         );
       },
