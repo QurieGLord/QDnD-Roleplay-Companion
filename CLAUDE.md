@@ -390,6 +390,29 @@ git branch  # Должно быть: * claude
 
 ## История изменений
 
+### 2025-11-24 (QD&D Session 6.2 - Inventory UI Enhancements)
+- **Обновлён Item Catalog в главном инвентаре**:
+  - Добавлена система выделения предметов с визуальным feedback
+  - Выбранные предметы подсвечиваются `primaryContainer` цветом
+  - Badge на иконке показывает количество выбранного предмета
+  - Quantity dialog с TextField для указания количества
+  - Кнопка "Done" внизу каталога для batch добавления предметов
+  - Toggle между `add_circle` и `remove_circle` иконками
+- **Добавлено создание custom items в Equipment Step**:
+  - Кнопка "Создать" в header Item Catalog
+  - Полный диалог создания кастомных предметов (как в main inventory)
+  - FilePicker для загрузки изображений
+  - Form fields: Name, Description, Type, Rarity, Weight, Value, Quantity
+  - Integration с `customEquipmentQuantities` в CharacterCreationState
+- **Затронутые файлы**:
+  - `lib/features/character_sheet/character_sheet_screen.dart` - Selection UI и batch add
+  - `lib/features/character_creation/steps/equipment_step.dart` - Custom item dialog
+- **Результаты**:
+  - Feature parity между Character Creation и Main Inventory
+  - Улучшенный UX с визуальной обратной связью
+  - Batch operations для добавления множества предметов
+  - Consistent UI patterns во всём приложении
+
 ### 2025-11-24 (QD&D Session 6.1 - Equipment System Bug Fixes)
 - **Исправлены критические баги Equipment System**:
   - **Проблема 1**: Предметы не отображались в списке custom equipment при создании

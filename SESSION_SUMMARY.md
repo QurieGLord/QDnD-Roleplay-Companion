@@ -383,6 +383,105 @@
 
 ---
 
+## ✅ Session 6.2: Inventory UI Enhancements & Custom Item Creation
+
+**Дата**: 2025-11-24
+**Статус**: ✅ ЗАВЕРШЕНА
+**Тип**: UI Enhancement & Feature Parity
+
+### Выполненные задачи
+
+#### 1. Обновлён Item Catalog в главном инвентаре
+Добавлена та же система выделения предметов, что и в Character Creation:
+
+**character_sheet_screen.dart - _AddItemDialog**:
+- ✅ **Selection State**: `Map<String, int> _selectedItems` для хранения выбранных предметов с количеством
+- ✅ **Visual Highlighting**: Выбранные предметы подсвечиваются `primaryContainer` цветом
+- ✅ **Quantity Badges**: Badge на иконке предмета показывает количество
+- ✅ **Quantity Dialog**: При нажатии на предмет открывается диалог с TextField для указания количества
+- ✅ **Add/Remove Toggle**: Иконка меняется на `add_circle` / `remove_circle` в зависимости от статуса
+- ✅ **Done Button**: Кнопка внизу каталога с счётчиком "Готово (N)" / "Done (N)"
+- ✅ **Batch Add**: При нажатии Done все выбранные предметы добавляются в инвентарь одним действием
+
+**Технические детали**:
+```dart
+// Selection dialog
+Future<void> _showQuantityDialogForItem(itemId, itemName, itemDesc)
+  - TextField с autofocus для ввода количества
+  - Validation: количество > 0
+  - Update _selectedItems[itemId] = quantity
+
+// Batch add to inventory
+void _addSelectedItemsToInventory()
+  - Цикл по _selectedItems.entries
+  - Для каждого предмета создаётся quantity копий через ItemService
+  - character.save() один раз после всех добавлений
+  - SnackBar с количеством добавленных предметов
+```
+
+#### 2. Добавлено создание custom items в Equipment Step
+Скопирована функциональность из inventory_tab в character creation:
+
+**equipment_step.dart - _CreateCustomItemDialog**:
+- ✅ **Header с кнопкой Create**: В Item Catalog появилась кнопка "Создать" / "Create"
+- ✅ **Full Dialog Widget**: Полная копия диалога создания кастомных предметов
+- ✅ **Image Picker**: FilePicker для загрузки изображений (file_picker package)
+- ✅ **Form Fields**:
+  - Name (required) - с validation
+  - Description (multiline)
+  - Type dropdown (Weapon, Armor, Gear, Consumable, Tool, Treasure)
+  - Rarity dropdown (Common, Uncommon, Rare, Very Rare, Legendary)
+  - Weight (decimal number)
+  - Value (copper pieces)
+  - Quantity (integer, min 1)
+- ✅ **Integration**: Создаёт уникальный ID `custom_${UUID}` и добавляет в `customEquipmentQuantities`
+
+**Imports добавлены**:
+```dart
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:uuid/uuid.dart';
+```
+
+### UI/UX улучшения
+
+**Consistency Across App**:
+- ✅ Одинаковый UX в Character Creation и Main Inventory
+- ✅ Visual feedback через цвета и badges
+- ✅ Batch operations для эффективности
+- ✅ Real-time state updates
+
+**Better User Flow**:
+1. Пользователь открывает каталог
+2. Выбирает несколько предметов, указывая количество
+3. Видит визуальное подтверждение (highlighting + badges)
+4. Нажимает "Done" - все предметы добавляются сразу
+5. Получает feedback через SnackBar
+
+### Файлы изменены
+
+1. **character_sheet_screen.dart** (lines 371-537, 683-818):
+   - Добавлена selection логика в `_AddItemDialogState`
+   - Методы `_showQuantityDialogForItem()` и `_addSelectedItemsToInventory()`
+   - Обновлён список предметов с визуальным выделением
+   - Добавлена кнопка "Done" внизу каталога
+
+2. **equipment_step.dart** (lines 1-8, 889-925, 876-884, 1167-1579):
+   - Добавлены imports (dart:io, file_picker, uuid)
+   - Кнопка "Create Custom" в header каталога
+   - Метод `_showCreateCustomItemDialog()` в `_ItemCatalogDialogState`
+   - Полный класс `_CreateCustomItemDialog` и `_CreateCustomItemDialogState`
+
+### Результаты
+
+- ✅ Feature parity между Character Creation и Main Inventory
+- ✅ Улучшенный UX с визуальной обратной связью
+- ✅ Возможность создания custom items на этапе Character Creation
+- ✅ Batch operations для добавления множества предметов
+- ✅ Consistent UI patterns во всём приложении
+
+---
+
 ## ✅ Session 7: Combat Tracker & HP Management
 
 **Дата**: 2025-11-21
