@@ -210,7 +210,7 @@ class _EquipmentStepState extends State<EquipmentStep> {
         const SizedBox(height: 12),
 
         // Selected items list
-        if (state.customEquipmentIds.isEmpty)
+        if (state.customEquipmentQuantities.isEmpty)
           Card(
             color: theme.colorScheme.surfaceContainerHighest,
             child: Padding(
@@ -247,7 +247,9 @@ class _EquipmentStepState extends State<EquipmentStep> {
             ),
           )
         else
-          ...state.customEquipmentIds.map((itemId) {
+          ...state.customEquipmentQuantities.entries.map((entry) {
+            final itemId = entry.key;
+            final quantity = entry.value;
             final item = ItemService.getItemById(itemId);
             if (item == null) return const SizedBox.shrink();
 
@@ -260,7 +262,9 @@ class _EquipmentStepState extends State<EquipmentStep> {
                 ),
                 title: Text(item.getName(locale)),
                 subtitle: Text(
-                  item.getDescription(locale),
+                  locale == 'ru'
+                      ? '${item.getDescription(locale)} • Количество: $quantity'
+                      : '${item.getDescription(locale)} • Quantity: $quantity',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -468,9 +472,87 @@ class _EquipmentStepState extends State<EquipmentStep> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => _ItemCatalogDialog(
+        state: state,
         locale: locale,
+        onAddItem: (String itemId) async {
+          // Show quantity dialog
+          final quantity = await _showQuantityDialog(context, itemId, locale);
+          if (quantity != null && quantity > 0 && context.mounted) {
+            // Add item with quantity
+            state.addCustomEquipment(itemId, quantity: quantity);
+
+            // Show feedback
+            final item = ItemService.getItemById(itemId);
+            if (item != null && context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    locale == 'ru'
+                        ? '${item.getName(locale)} (x$quantity) добавлен'
+                        : '${item.getName(locale)} (x$quantity) added',
+                  ),
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+            }
+          }
+        },
+      ),
+    );
+  }
+
+  Future<int?> _showQuantityDialog(BuildContext context, String itemId, String locale) async {
+    final item = ItemService.getItemById(itemId);
+    if (item == null) return null;
+
+    final quantityController = TextEditingController(text: '1');
+
+    return showDialog<int>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(item.getName(locale)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              item.getDescription(locale),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: quantityController,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: locale == 'ru' ? 'Количество' : 'Quantity',
+                border: const OutlineInputBorder(),
+              ),
+              onSubmitted: (value) {
+                final qty = int.tryParse(value) ?? 1;
+                if (qty > 0) {
+                  Navigator.pop(context, qty);
+                }
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(locale == 'ru' ? 'Отмена' : 'Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final qty = int.tryParse(quantityController.text) ?? 1;
+              if (qty > 0) {
+                Navigator.pop(context, qty);
+              }
+            },
+            child: Text(locale == 'ru' ? 'Добавить' : 'Add'),
+          ),
+        ],
       ),
     );
   }
@@ -711,10 +793,14 @@ class _EquipmentStepState extends State<EquipmentStep> {
 // ============================================================================
 
 class _ItemCatalogDialog extends StatefulWidget {
+  final CharacterCreationState state;
   final String locale;
+  final Function(String) onAddItem;
 
   const _ItemCatalogDialog({
+    required this.state,
     required this.locale,
+    required this.onAddItem,
   });
 
   @override
@@ -792,32 +878,13 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
     final theme = Theme.of(context);
     final filteredItems = _getFilteredItems();
 
-    return Consumer<CharacterCreationState>(
-      builder: (context, state, child) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.5),
-          ),
-          child: DraggableScrollableSheet(
-            initialChildSize: 0.8,
-            minChildSize: 0.5,
-            maxChildSize: 0.95,
-            builder: (context, scrollController) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 10,
-                      spreadRadius: 0,
-                      offset: const Offset(0, -2),
-                    ),
-                  ],
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: Column(
+    return DraggableScrollableSheet(
+      initialChildSize: 0.7,
+      minChildSize: 0.5,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (context, scrollController) {
+        return Column(
           children: [
             // Header
             Container(
@@ -933,8 +1000,8 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   widget.locale == 'ru'
-                      ? 'Найдено: ${filteredItems.length} (выбрано: ${state.customEquipmentIds.length})'
-                      : 'Found: ${filteredItems.length} (selected: ${state.customEquipmentIds.length})',
+                      ? 'Найдено: ${filteredItems.length} (выбрано: ${widget.state.customEquipmentQuantities.length})'
+                      : 'Found: ${filteredItems.length} (selected: ${widget.state.customEquipmentQuantities.length})',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -974,7 +1041,8 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                       itemCount: filteredItems.length,
                       itemBuilder: (context, index) {
                         final item = filteredItems[index];
-                        final isSelected = state.customEquipmentIds.contains(item.id);
+                        final isSelected = widget.state.customEquipmentQuantities.containsKey(item.id);
+                        final quantity = isSelected ? widget.state.customEquipmentQuantities[item.id] ?? 1 : 0;
 
                         return Card(
                           margin: const EdgeInsets.only(bottom: 8),
@@ -982,11 +1050,17 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                               ? theme.colorScheme.primaryContainer
                               : null,
                           child: ListTile(
-                            leading: Icon(
-                              _getItemIcon(item.type),
-                              color: isSelected
-                                  ? theme.colorScheme.onPrimaryContainer
-                                  : theme.colorScheme.primary,
+                            leading: Badge(
+                              label: Text('$quantity'),
+                              isLabelVisible: isSelected && quantity > 0,
+                              backgroundColor: theme.colorScheme.secondary,
+                              textColor: theme.colorScheme.onSecondary,
+                              child: Icon(
+                                _getItemIcon(item.type),
+                                color: isSelected
+                                    ? theme.colorScheme.onPrimaryContainer
+                                    : theme.colorScheme.primary,
+                              ),
                             ),
                             title: Text(
                               item.getName(widget.locale),
@@ -1010,17 +1084,21 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                               value: isSelected,
                               onChanged: (_) {
                                 if (isSelected) {
-                                  context.read<CharacterCreationState>().removeCustomEquipment(item.id);
+                                  setState(() {
+                                    widget.state.removeCustomEquipment(item.id);
+                                  });
                                 } else {
-                                  context.read<CharacterCreationState>().addCustomEquipment(item.id);
+                                  widget.onAddItem(item.id);
                                 }
                               },
                             ),
                             onTap: () {
                               if (isSelected) {
-                                context.read<CharacterCreationState>().removeCustomEquipment(item.id);
+                                setState(() {
+                                  widget.state.removeCustomEquipment(item.id);
+                                });
                               } else {
-                                context.read<CharacterCreationState>().addCustomEquipment(item.id);
+                                widget.onAddItem(item.id);
                               }
                             },
                           ),
@@ -1028,11 +1106,34 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                       },
                     ),
             ),
-          ],
+
+            // Bottom action button
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                border: Border(
+                  top: BorderSide(
+                    color: theme.colorScheme.outlineVariant,
+                    width: 1,
+                  ),
                 ),
-              );
-            },
-          ),
+              ),
+              child: SafeArea(
+                top: false,
+                child: FilledButton(
+                  onPressed: widget.state.customEquipmentQuantities.isEmpty
+                      ? null
+                      : () => Navigator.pop(context),
+                  child: Text(
+                    widget.locale == 'ru'
+                        ? 'Готово (${widget.state.customEquipmentQuantities.length})'
+                        : 'Done (${widget.state.customEquipmentQuantities.length})',
+                  ),
+                ),
+              ),
+            ),
+          ],
         );
       },
     );

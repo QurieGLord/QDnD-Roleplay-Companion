@@ -381,14 +381,35 @@ git branch  # Должно быть: * claude
 
 ---
 
-**Последнее обновление**: 2025-11-21
+**Последнее обновление**: 2025-11-24
 **Ветка**: `claude` ⚠️ (работаем только здесь!)
-**Текущая сессия**: Session 7 завершена
+**Текущая сессия**: Session 6.1 завершена (Bug Fixes)
 **Следующий шаг**: Session 8 - Polish & Release
 
 ---
 
 ## История изменений
+
+### 2025-11-24 (QD&D Session 6.1 - Equipment System Bug Fixes)
+- **Исправлены критические баги Equipment System**:
+  - **Проблема 1**: Предметы не отображались в списке custom equipment при создании
+  - **Проблема 2**: Количество предметов игнорировалось (не сохранялось и не передавалось)
+  - **Проблема 3**: UI не обновлялся после добавления предметов
+- **Изменена структура данных**:
+  - Заменено `List<String> customEquipmentIds` на `Map<String, int> customEquipmentQuantities`
+  - Обновлены методы: `addCustomEquipment(itemId, {quantity})`, `removeCustomEquipment()`, `clearCustomEquipment()`
+- **Обновлён UI**:
+  - Список custom equipment показывает количество в subtitle: "Description • Количество: 3"
+  - Item Catalog отображает Badge с количеством на иконке предмета
+  - Quantity dialog с TextField для ввода количества
+  - "Done" button с счётчиком выбранных предметов
+- **Обновлён character_creation_wizard**:
+  - Метод `_addCustomEquipment()` теперь создаёт N копий предмета (где N = quantity)
+  - Правильная передача количества в финальный инвентарь персонажа
+- **Затронутые файлы**:
+  - `lib/features/character_creation/character_creation_state.dart`
+  - `lib/features/character_creation/steps/equipment_step.dart`
+  - `lib/features/character_creation/character_creation_wizard.dart`
 
 ### 2025-11-21 (QD&D UX Improvements & Bug Fixes)
 - **UX Improvements**:
