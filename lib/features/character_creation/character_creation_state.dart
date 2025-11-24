@@ -52,7 +52,7 @@ class CharacterCreationState extends ChangeNotifier {
 
   // Step 4: Equipment
   String? selectedEquipmentPackage; // 'standard', 'alternative', or 'custom'
-  List<String> customEquipmentIds = []; // Item IDs for custom equipment selection
+  Map<String, int> customEquipmentQuantities = {}; // Item ID -> Quantity for custom equipment
 
   // Step 5: Background
   BackgroundData? selectedBackground;
@@ -206,25 +206,23 @@ class CharacterCreationState extends ChangeNotifier {
     selectedEquipmentPackage = package;
     // Clear custom equipment when switching to standard/alternative
     if (package != 'custom') {
-      customEquipmentIds.clear();
+      customEquipmentQuantities.clear();
     }
     notifyListeners();
   }
 
-  void addCustomEquipment(String itemId) {
-    if (!customEquipmentIds.contains(itemId)) {
-      customEquipmentIds.add(itemId);
-      notifyListeners();
-    }
+  void addCustomEquipment(String itemId, {int quantity = 1}) {
+    customEquipmentQuantities[itemId] = quantity;
+    notifyListeners();
   }
 
   void removeCustomEquipment(String itemId) {
-    customEquipmentIds.remove(itemId);
+    customEquipmentQuantities.remove(itemId);
     notifyListeners();
   }
 
   void clearCustomEquipment() {
-    customEquipmentIds.clear();
+    customEquipmentQuantities.clear();
     notifyListeners();
   }
 
@@ -251,7 +249,7 @@ class CharacterCreationState extends ChangeNotifier {
     };
     selectedSkills.clear();
     selectedEquipmentPackage = null;
-    customEquipmentIds.clear();
+    customEquipmentQuantities.clear();
     selectedBackground = null;
     notifyListeners();
   }

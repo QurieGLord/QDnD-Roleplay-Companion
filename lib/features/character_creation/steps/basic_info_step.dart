@@ -242,27 +242,11 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                     Row(
                       children: [
                         Expanded(
-                          child: TextField(
-                            controller: _ageController,
-                            decoration: const InputDecoration(
-                              labelText: 'Age',
-                              hintText: '25',
-                              border: OutlineInputBorder(),
-                            ),
-                            onChanged: (value) => context.read<CharacterCreationState>().updateAge(value),
-                          ),
+                          child: _buildAgePicker(context, state, theme),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: TextField(
-                            controller: _genderController,
-                            decoration: const InputDecoration(
-                              labelText: 'Gender',
-                              hintText: 'Male',
-                              border: OutlineInputBorder(),
-                            ),
-                            onChanged: (value) => context.read<CharacterCreationState>().updateGender(value),
-                          ),
+                          child: _buildGenderPicker(context, state, theme),
                         ),
                       ],
                     ),
@@ -270,27 +254,11 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                     Row(
                       children: [
                         Expanded(
-                          child: TextField(
-                            controller: _heightController,
-                            decoration: const InputDecoration(
-                              labelText: 'Height',
-                              hintText: '6\'2"',
-                              border: OutlineInputBorder(),
-                            ),
-                            onChanged: (value) => context.read<CharacterCreationState>().updateHeight(value),
-                          ),
+                          child: _buildHeightPicker(context, state, theme),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: TextField(
-                            controller: _weightController,
-                            decoration: const InputDecoration(
-                              labelText: 'Weight',
-                              hintText: '180 lbs',
-                              border: OutlineInputBorder(),
-                            ),
-                            onChanged: (value) => context.read<CharacterCreationState>().updateWeight(value),
-                          ),
+                          child: _buildWeightPicker(context, state, theme),
                         ),
                       ],
                     ),
@@ -298,39 +266,15 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                     Row(
                       children: [
                         Expanded(
-                          child: TextField(
-                            controller: _eyesController,
-                            decoration: const InputDecoration(
-                              labelText: 'Eyes',
-                              hintText: 'Blue',
-                              border: OutlineInputBorder(),
-                            ),
-                            onChanged: (value) => context.read<CharacterCreationState>().updateEyes(value),
-                          ),
+                          child: _buildEyesPicker(context, state, theme),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: TextField(
-                            controller: _hairController,
-                            decoration: const InputDecoration(
-                              labelText: 'Hair',
-                              hintText: 'Brown',
-                              border: OutlineInputBorder(),
-                            ),
-                            onChanged: (value) => context.read<CharacterCreationState>().updateHair(value),
-                          ),
+                          child: _buildHairPicker(context, state, theme),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: TextField(
-                            controller: _skinController,
-                            decoration: const InputDecoration(
-                              labelText: 'Skin',
-                              hintText: 'Fair',
-                              border: OutlineInputBorder(),
-                            ),
-                            onChanged: (value) => context.read<CharacterCreationState>().updateSkin(value),
-                          ),
+                          child: _buildSkinPicker(context, state, theme),
                         ),
                       ],
                     ),
@@ -746,6 +690,676 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
           ],
         ),
       ),
+    );
+  }
+
+  // Age Picker - TextField with keyboard input
+  Widget _buildAgePicker(BuildContext context, CharacterCreationState state, ThemeData theme) {
+    return TextField(
+      controller: _ageController,
+      decoration: InputDecoration(
+        labelText: 'Age',
+        hintText: '25',
+        suffixText: 'years',
+        border: const OutlineInputBorder(),
+        filled: true,
+        fillColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      ),
+      keyboardType: TextInputType.number,
+      onChanged: (value) => context.read<CharacterCreationState>().updateAge(value),
+    );
+  }
+
+  // Gender Picker - uses SegmentedButton
+  Widget _buildGenderPicker(BuildContext context, CharacterCreationState state, ThemeData theme) {
+    final genders = ['M', 'F', 'Other'];
+    final genderLabels = {
+      'M': 'Male',
+      'F': 'Female',
+      'Other': 'Other',
+    };
+    final currentGenderShort = state.gender == 'Male' ? 'M' :
+                                state.gender == 'Female' ? 'F' :
+                                state.gender == 'Other' ? 'Other' : null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Gender',
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<String>(
+            segments: genders.map((gender) {
+              return ButtonSegment<String>(
+                value: gender,
+                label: Text(gender, style: const TextStyle(fontSize: 11)),
+              );
+            }).toList(),
+            selected: currentGenderShort != null ? {currentGenderShort} : {},
+            onSelectionChanged: (Set<String> selection) {
+              if (selection.isNotEmpty) {
+                final fullGender = genderLabels[selection.first]!;
+                context.read<CharacterCreationState>().updateGender(fullGender);
+              }
+            },
+            emptySelectionAllowed: true,
+            showSelectedIcon: false,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Height Picker - uses ScrollPicker in centimeters (50-250 cm)
+  Widget _buildHeightPicker(BuildContext context, CharacterCreationState state, ThemeData theme) {
+    final currentHeight = int.tryParse((state.height ?? '').replaceAll(RegExp(r'[^\d]'), '')) ?? 170;
+
+    return InkWell(
+      onTap: () async {
+        int selectedHeight = currentHeight.clamp(50, 250);
+        final FixedExtentScrollController scrollController = FixedExtentScrollController(
+          initialItem: selectedHeight - 50, // offset by min value
+        );
+
+        await showDialog(
+          context: context,
+          builder: (BuildContext dialogContext) {
+            return StatefulBuilder(
+              builder: (builderContext, setState) {
+                return AlertDialog(
+                  title: const Text('Select Height'),
+                  content: SizedBox(
+                    height: 250,
+                    width: 200,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Number picker wheel
+                        Expanded(
+                          child: ListWheelScrollView.useDelegate(
+                            controller: scrollController,
+                            itemExtent: 50,
+                            perspective: 0.005,
+                            diameterRatio: 1.2,
+                            physics: const FixedExtentScrollPhysics(),
+                            onSelectedItemChanged: (index) {
+                              setState(() {
+                                selectedHeight = index + 50;
+                              });
+                            },
+                            childDelegate: ListWheelChildBuilderDelegate(
+                              childCount: 201, // 50-250
+                              builder: (builderContext, index) {
+                                final value = index + 50;
+                                final isSelected = value == selectedHeight;
+                                return Center(
+                                  child: Text(
+                                    '$value',
+                                    style: theme.textTheme.headlineSmall?.copyWith(
+                                      color: isSelected
+                                          ? theme.colorScheme.primary
+                                          : theme.colorScheme.onSurfaceVariant,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'cm',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: const Text('Cancel'),
+                    ),
+                    FilledButton(
+                      onPressed: () {
+                        context.read<CharacterCreationState>().updateHeight('$selectedHeight cm');
+                        Navigator.pop(dialogContext);
+                      },
+                      child: const Text('Confirm'),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      },
+      child: Container(
+        height: 56,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outline),
+          borderRadius: BorderRadius.circular(4),
+          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Height',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    (state.height?.isEmpty ?? true) ? '—' : state.height!,
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Weight Picker - uses ScrollPicker in kilograms (10-300 kg)
+  Widget _buildWeightPicker(BuildContext context, CharacterCreationState state, ThemeData theme) {
+    final currentWeight = int.tryParse((state.weight ?? '').replaceAll(RegExp(r'[^\d]'), '')) ?? 70;
+
+    return InkWell(
+      onTap: () async {
+        int selectedWeight = currentWeight.clamp(10, 300);
+        final FixedExtentScrollController scrollController = FixedExtentScrollController(
+          initialItem: selectedWeight - 10, // offset by min value
+        );
+
+        await showDialog(
+          context: context,
+          builder: (BuildContext dialogContext) {
+            return StatefulBuilder(
+              builder: (builderContext, setState) {
+                return AlertDialog(
+                  title: const Text('Select Weight'),
+                  content: SizedBox(
+                    height: 250,
+                    width: 200,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Number picker wheel
+                        Expanded(
+                          child: ListWheelScrollView.useDelegate(
+                            controller: scrollController,
+                            itemExtent: 50,
+                            perspective: 0.005,
+                            diameterRatio: 1.2,
+                            physics: const FixedExtentScrollPhysics(),
+                            onSelectedItemChanged: (index) {
+                              setState(() {
+                                selectedWeight = index + 10;
+                              });
+                            },
+                            childDelegate: ListWheelChildBuilderDelegate(
+                              childCount: 291, // 10-300
+                              builder: (builderContext, index) {
+                                final value = index + 10;
+                                final isSelected = value == selectedWeight;
+                                return Center(
+                                  child: Text(
+                                    '$value',
+                                    style: theme.textTheme.headlineSmall?.copyWith(
+                                      color: isSelected
+                                          ? theme.colorScheme.primary
+                                          : theme.colorScheme.onSurfaceVariant,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'kg',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: const Text('Cancel'),
+                    ),
+                    FilledButton(
+                      onPressed: () {
+                        context.read<CharacterCreationState>().updateWeight('$selectedWeight kg');
+                        Navigator.pop(dialogContext);
+                      },
+                      child: const Text('Confirm'),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      },
+      child: Container(
+        height: 56,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outline),
+          borderRadius: BorderRadius.circular(4),
+          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Weight',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    (state.weight?.isEmpty ?? true) ? '—' : state.weight!,
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Eyes Picker - dropdown with presets + Custom option
+  Widget _buildEyesPicker(BuildContext context, CharacterCreationState state, ThemeData theme) {
+    final eyeColors = ['Amber', 'Blue', 'Brown', 'Gray', 'Green', 'Hazel', 'Red', 'Violet', 'Custom'];
+    final eyeColorValues = {
+      'Amber': const Color(0xFFFFBF00),
+      'Blue': const Color(0xFF4169E1),
+      'Brown': const Color(0xFF8B4513),
+      'Gray': const Color(0xFF808080),
+      'Green': const Color(0xFF228B22),
+      'Hazel': const Color(0xFFA0785A),
+      'Red': const Color(0xFFDC143C),
+      'Violet': const Color(0xFF8B00FF),
+      'Custom': Colors.grey,
+    };
+    final currentEyes = (state.eyes?.isNotEmpty ?? false) ? state.eyes : null;
+
+    return InkWell(
+      onTap: () async {
+        final selected = await showDialog<String>(
+          context: context,
+          builder: (BuildContext context) {
+            return SimpleDialog(
+              title: const Text('Select Eye Color'),
+              children: eyeColors.map((color) {
+                return SimpleDialogOption(
+                  onPressed: () async {
+                    if (color == 'Custom') {
+                      Navigator.pop(context);
+                      final customValue = await _showCustomInputDialog(
+                        context,
+                        'Custom Eye Color',
+                        'Enter custom eye color',
+                      );
+                      if (customValue != null && context.mounted) {
+                        context.read<CharacterCreationState>().updateEyes(customValue);
+                      }
+                    } else {
+                      Navigator.pop(context, color);
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      // Color circle indicator
+                      Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: eyeColorValues[color],
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: theme.colorScheme.outline,
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(child: Text(color)),
+                      if (currentEyes == color)
+                        Icon(Icons.check, color: theme.colorScheme.primary, size: 20),
+                    ],
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        );
+        if (selected != null && context.mounted) {
+          context.read<CharacterCreationState>().updateEyes(selected);
+        }
+      },
+      child: Container(
+        height: 56,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outline),
+          borderRadius: BorderRadius.circular(4),
+          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Eyes',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    (state.eyes?.isEmpty ?? true) ? '—' : state.eyes!,
+                    style: theme.textTheme.bodyLarge,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Hair Picker - dropdown with presets + Custom option
+  Widget _buildHairPicker(BuildContext context, CharacterCreationState state, ThemeData theme) {
+    final hairColors = ['Auburn', 'Black', 'Blonde', 'Brown', 'Gray', 'Red', 'White', 'Bald', 'Custom'];
+    final hairColorValues = {
+      'Auburn': const Color(0xFFA52A2A),
+      'Black': const Color(0xFF000000),
+      'Blonde': const Color(0xFFFAF0BE),
+      'Brown': const Color(0xFF654321),
+      'Gray': const Color(0xFF808080),
+      'Red': const Color(0xFFFF0000),
+      'White': const Color(0xFFF5F5F5),
+      'Bald': Colors.transparent,
+      'Custom': Colors.grey,
+    };
+    final currentHair = (state.hair?.isNotEmpty ?? false) ? state.hair : null;
+
+    return InkWell(
+      onTap: () async {
+        final selected = await showDialog<String>(
+          context: context,
+          builder: (BuildContext context) {
+            return SimpleDialog(
+              title: const Text('Select Hair Color'),
+              children: hairColors.map((color) {
+                return SimpleDialogOption(
+                  onPressed: () async {
+                    if (color == 'Custom') {
+                      Navigator.pop(context);
+                      final customValue = await _showCustomInputDialog(
+                        context,
+                        'Custom Hair Color',
+                        'Enter custom hair color',
+                      );
+                      if (customValue != null && context.mounted) {
+                        context.read<CharacterCreationState>().updateHair(customValue);
+                      }
+                    } else {
+                      Navigator.pop(context, color);
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      // Color circle indicator
+                      Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: hairColorValues[color],
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: theme.colorScheme.outline,
+                            width: color == 'White' || color == 'Blonde' ? 1.5 : 1,
+                          ),
+                        ),
+                        child: color == 'Bald'
+                            ? Icon(Icons.block, size: 16, color: theme.colorScheme.error)
+                            : null,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(child: Text(color)),
+                      if (currentHair == color)
+                        Icon(Icons.check, color: theme.colorScheme.primary, size: 20),
+                    ],
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        );
+        if (selected != null && context.mounted) {
+          context.read<CharacterCreationState>().updateHair(selected);
+        }
+      },
+      child: Container(
+        height: 56,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outline),
+          borderRadius: BorderRadius.circular(4),
+          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Hair',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    (state.hair?.isEmpty ?? true) ? '—' : state.hair!,
+                    style: theme.textTheme.bodyLarge,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Skin Picker - dropdown with presets + Custom option
+  Widget _buildSkinPicker(BuildContext context, CharacterCreationState state, ThemeData theme) {
+    final skinTones = ['Pale', 'Fair', 'Light', 'Medium', 'Tan', 'Brown', 'Dark', 'Ebony', 'Custom'];
+    final skinToneValues = {
+      'Pale': const Color(0xFFFFF0E1),
+      'Fair': const Color(0xFFFFE4C4),
+      'Light': const Color(0xFFFFDDB3),
+      'Medium': const Color(0xFFE8B98A),
+      'Tan': const Color(0xFFD2A574),
+      'Brown': const Color(0xFFA67C52),
+      'Dark': const Color(0xFF8B6F47),
+      'Ebony': const Color(0xFF4A3728),
+      'Custom': Colors.grey,
+    };
+    final currentSkin = (state.skin?.isNotEmpty ?? false) ? state.skin : null;
+
+    return InkWell(
+      onTap: () async {
+        final selected = await showDialog<String>(
+          context: context,
+          builder: (BuildContext context) {
+            return SimpleDialog(
+              title: const Text('Select Skin Tone'),
+              children: skinTones.map((tone) {
+                return SimpleDialogOption(
+                  onPressed: () async {
+                    if (tone == 'Custom') {
+                      Navigator.pop(context);
+                      final customValue = await _showCustomInputDialog(
+                        context,
+                        'Custom Skin Tone',
+                        'Enter custom skin tone',
+                      );
+                      if (customValue != null && context.mounted) {
+                        context.read<CharacterCreationState>().updateSkin(customValue);
+                      }
+                    } else {
+                      Navigator.pop(context, tone);
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      // Color circle indicator
+                      Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: skinToneValues[tone],
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: theme.colorScheme.outline,
+                            width: tone == 'Pale' || tone == 'Fair' ? 1.5 : 1,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(child: Text(tone)),
+                      if (currentSkin == tone)
+                        Icon(Icons.check, color: theme.colorScheme.primary, size: 20),
+                    ],
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        );
+        if (selected != null && context.mounted) {
+          context.read<CharacterCreationState>().updateSkin(selected);
+        }
+      },
+      child: Container(
+        height: 56,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outline),
+          borderRadius: BorderRadius.circular(4),
+          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Skin',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    (state.skin?.isEmpty ?? true) ? '—' : state.skin!,
+                    style: theme.textTheme.bodyLarge,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper method for custom input dialog
+  Future<String?> _showCustomInputDialog(BuildContext context, String title, String hint) async {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: hint,
+              border: const OutlineInputBorder(),
+            ),
+            autofocus: true,
+            textCapitalization: TextCapitalization.words,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                if (controller.text.isNotEmpty) {
+                  Navigator.pop(context, controller.text);
+                }
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

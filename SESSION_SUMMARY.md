@@ -333,6 +333,56 @@
 
 ---
 
+## ✅ Session 6.1: Equipment System Bug Fixes & Quantity Support
+
+**Дата**: 2025-11-24
+**Статус**: ✅ ЗАВЕРШЕНА
+**Тип**: Bug Fix & Enhancement
+
+### Проблемы
+
+После завершения Session 6 были обнаружены критические баги:
+1. **Предметы не отображались в списке** custom equipment при создании персонажа
+2. **Количество предметов игнорировалось** - не сохранялось и не передавалось в инвентарь
+3. **UI не обновлялся** после добавления предметов
+
+### Выполненные исправления
+
+#### 1. Изменена структура данных
+- **До**: `List<String> customEquipmentIds` - только ID предметов
+- **После**: `Map<String, int> customEquipmentQuantities` - ID → количество
+- Обновлены методы в `CharacterCreationState`:
+  - `addCustomEquipment(itemId, {quantity = 1})`
+  - `removeCustomEquipment(itemId)`
+  - `clearCustomEquipment()`
+
+#### 2. Обновлён equipment_step.dart
+- ✅ Список custom equipment теперь показывает количество в subtitle
+- ✅ Item Catalog отображает количество на Badge иконки предмета
+- ✅ Quantity dialog с TextField для ввода количества
+- ✅ "Done" button с счётчиком выбранных предметов
+- ✅ Real-time обновление UI через `setState()` и `notifyListeners()`
+
+#### 3. Обновлён character_creation_wizard.dart
+- ✅ Метод `_addCustomEquipment()` теперь принимает `Map<String, int>`
+- ✅ Цикл добавления: для каждого предмета создаётся `quantity` копий
+- ✅ Правильная передача количества в финальный инвентарь
+
+### Технические детали
+
+**Файлы изменены**:
+- `lib/features/character_creation/character_creation_state.dart` (lines 55, 214-227)
+- `lib/features/character_creation/steps/equipment_step.dart` (lines 213, 250-279, 1003-1004, 1044-1064, 1080-1095, 1118-1124)
+- `lib/features/character_creation/character_creation_wizard.dart` (lines 311, 386-405)
+
+**Результаты**:
+- ✅ Предметы отображаются в списке сразу после добавления
+- ✅ Количество корректно показывается в UI (Badge на иконке + subtitle "• Количество: X")
+- ✅ В финальный инвентарь добавляется правильное количество копий предметов
+- ✅ UI обновляется в реальном времени
+
+---
+
 ## ✅ Session 7: Combat Tracker & HP Management
 
 **Дата**: 2025-11-21

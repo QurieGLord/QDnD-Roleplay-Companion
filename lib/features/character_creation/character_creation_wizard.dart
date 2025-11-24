@@ -308,7 +308,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       // 6. Add starting equipment if selected
       if (_state.selectedEquipmentPackage == 'custom') {
         // Add custom equipment
-        await _addCustomEquipment(character, _state.customEquipmentIds);
+        await _addCustomEquipment(character, _state.customEquipmentQuantities);
       } else if (_state.selectedEquipmentPackage != null) {
         // Add standard/alternative package
         await _addStartingEquipment(character, _state.selectedClass!.id, _state.selectedEquipmentPackage!);
@@ -382,13 +382,19 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
     _autoEquipItems(character);
   }
 
-  /// Add custom equipment from item IDs
-  Future<void> _addCustomEquipment(Character character, List<String> itemIds) async {
-    for (var itemId in itemIds) {
+  /// Add custom equipment from item IDs with quantities
+  Future<void> _addCustomEquipment(Character character, Map<String, int> itemQuantities) async {
+    for (var entry in itemQuantities.entries) {
+      final itemId = entry.key;
+      final quantity = entry.value;
+
       try {
-        final item = ItemService.createItemFromTemplate(itemId);
-        if (item != null) {
-          character.inventory.add(item);
+        // Add the item 'quantity' times
+        for (int i = 0; i < quantity; i++) {
+          final item = ItemService.createItemFromTemplate(itemId);
+          if (item != null) {
+            character.inventory.add(item);
+          }
         }
       } catch (e) {
         print('Failed to add custom equipment item $itemId: $e');
