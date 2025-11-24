@@ -239,6 +239,89 @@ class _InventoryTabState extends State<InventoryTab> {
 
         const SizedBox(height: 12),
 
+        // Currency card
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.monetization_on, size: 20, color: theme.colorScheme.primary),
+                      const SizedBox(width: 8),
+                      Text(
+                        locale == 'ru' ? 'Валюта' : 'Currency',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.edit, size: 20),
+                        onPressed: () => _showEditCurrencyDialog(context, locale),
+                        tooltip: locale == 'ru' ? 'Изменить' : 'Edit',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildCurrencyChip(
+                          theme,
+                          'PP',
+                          widget.character.platinumPieces,
+                          Colors.grey.shade300,
+                          Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildCurrencyChip(
+                          theme,
+                          'GP',
+                          widget.character.goldPieces,
+                          Colors.amber.shade600,
+                          Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildCurrencyChip(
+                          theme,
+                          'SP',
+                          widget.character.silverPieces,
+                          Colors.grey.shade400,
+                          Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _buildCurrencyChip(
+                          theme,
+                          'CP',
+                          widget.character.copperPieces,
+                          Colors.brown.shade400,
+                          Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
         // Inventory list
         Expanded(
           child: filteredItems.isEmpty
@@ -773,5 +856,139 @@ class _InventoryTabState extends State<InventoryTab> {
 
     // Update UI
     setState(() {});
+  }
+
+  Widget _buildCurrencyChip(ThemeData theme, String label, int amount, Color bgColor, Color textColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant,
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '$amount',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditCurrencyDialog(BuildContext context, String locale) {
+    final ppController = TextEditingController(text: '${widget.character.platinumPieces}');
+    final gpController = TextEditingController(text: '${widget.character.goldPieces}');
+    final spController = TextEditingController(text: '${widget.character.silverPieces}');
+    final cpController = TextEditingController(text: '${widget.character.copperPieces}');
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(locale == 'ru' ? 'Изменить валюту' : 'Edit Currency'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: ppController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: locale == 'ru' ? 'Платина (PP)' : 'Platinum (PP)',
+                  border: const OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.monetization_on, color: Colors.grey.shade300),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: gpController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: locale == 'ru' ? 'Золото (GP)' : 'Gold (GP)',
+                  border: const OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.monetization_on, color: Colors.amber.shade600),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: spController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: locale == 'ru' ? 'Серебро (SP)' : 'Silver (SP)',
+                  border: const OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.monetization_on, color: Colors.grey.shade400),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: cpController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: locale == 'ru' ? 'Медь (CP)' : 'Copper (CP)',
+                  border: const OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.monetization_on, color: Colors.brown.shade400),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(locale == 'ru' ? 'Отмена' : 'Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              // Update currency values
+              widget.character.platinumPieces = int.tryParse(ppController.text) ?? 0;
+              widget.character.goldPieces = int.tryParse(gpController.text) ?? 0;
+              widget.character.silverPieces = int.tryParse(spController.text) ?? 0;
+              widget.character.copperPieces = int.tryParse(cpController.text) ?? 0;
+
+              // Save to database
+              widget.character.updatedAt = DateTime.now();
+              await widget.character.save();
+
+              // Close dialog
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+
+              // Update UI
+              setState(() {});
+
+              // Show feedback
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      locale == 'ru' ? 'Валюта обновлена' : 'Currency updated',
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
+            child: Text(locale == 'ru' ? 'Сохранить' : 'Save'),
+          ),
+        ],
+      ),
+    );
   }
 }

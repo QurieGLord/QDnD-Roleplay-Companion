@@ -150,6 +150,19 @@ class Character extends HiveObject {
   @HiveField(45)
   String? appearanceDescription; // Detailed description
 
+  // Currency (in copper pieces for easy conversion)
+  @HiveField(46)
+  int copperPieces;
+
+  @HiveField(47)
+  int silverPieces;
+
+  @HiveField(48)
+  int goldPieces;
+
+  @HiveField(49)
+  int platinumPieces;
+
   Character({
     required this.id,
     required this.name,
@@ -197,6 +210,10 @@ class Character extends HiveObject {
     this.hair,
     this.skin,
     this.appearanceDescription,
+    this.copperPieces = 0,
+    this.silverPieces = 0,
+    this.goldPieces = 0,
+    this.platinumPieces = 0,
   })  : knownSpells = knownSpells ?? [],
         preparedSpells = preparedSpells ?? [],
         features = features ?? [],
@@ -272,6 +289,10 @@ class Character extends HiveObject {
       'hair': hair,
       'skin': skin,
       'appearanceDescription': appearanceDescription,
+      'copperPieces': copperPieces,
+      'silverPieces': silverPieces,
+      'goldPieces': goldPieces,
+      'platinumPieces': platinumPieces,
     };
   }
 
