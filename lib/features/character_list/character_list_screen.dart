@@ -1,20 +1,13 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:uuid/uuid.dart';
-import 'dart:io';
-import '../../core/models/character.dart';
-import '../../core/models/ability_scores.dart';
-import '../../core/models/character_feature.dart';
-import '../../core/models/item.dart';
-import '../../core/services/storage_service.dart';
-import '../../core/services/import_service.dart';
-import '../../core/services/fc5_parser.dart';
-import '../character_sheet/character_sheet_screen.dart';
-import '../character_creation/character_creation_wizard.dart';
-import '../character_edit/character_edit_screen.dart';
-import 'widgets/empty_state.dart';
+import '../../../core/models/character.dart';
+import '../../../core/services/storage_service.dart';
+import '../../../core/services/import_service.dart';
 import 'widgets/character_card.dart';
+import 'widgets/empty_state.dart';
+import '../../character_sheet/character_sheet_screen.dart';
+import '../../character_creation/character_creation_wizard.dart';
 
 class CharacterListScreen extends StatefulWidget {
   const CharacterListScreen({super.key});
@@ -434,19 +427,11 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       print('🔧 _importFromFC5: File selected: ${result.files.single.path}');
 
       final file = File(result.files.single.path!);
-      final xmlContent = await file.readAsString();
-
-      print('🔧 _importFromFC5: Read ${xmlContent.length} characters from file');
-
-      // Parse XML to Character
-      print('🔧 _importFromFC5: Parsing XML...');
-      final character = FC5Parser.parseXml(xmlContent);
-      print('🔧 _importFromFC5: Parsed character: ${character.name} (${character.characterClass} level ${character.level})');
-
-      // Save to database
-      print('🔧 _importFromFC5: Saving to database...');
-      await StorageService.saveCharacter(character);
-      print('🔧 _importFromFC5: Character saved successfully!');
+      
+      // Use ImportService to handle parsing, feature addition, and saving
+      final character = await ImportService.importFromFC5File(file);
+      
+      print('🔧 _importFromFC5: Character imported successfully: ${character.name}');
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
