@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:flutter/services.dart';
 import '../models/character.dart';
 import '../models/character_feature.dart';
 
@@ -48,12 +50,36 @@ class FeatureService {
   static Future<void> init() async {
     if (_initialized) return;
 
-    // TODO: Load features from assets/data/features.json when implemented
-    // For now, we'll add them programmatically
-    _loadPaladinFeatures();
+    try {
+      await _loadFeaturesFromAsset('assets/data/features/paladin_features.json');
+      // TODO: Load other feature files here
+      
+      // Load subclass specific features (keep hardcoded for now until JSONs are ready)
+      _loadSubclassFeatures();
+    } catch (e) {
+      print('❌ Error loading features: $e');
+    }
 
     print('🔧 FeatureService.init() completed. Loaded ${_features.length} features');
     _initialized = true;
+  }
+
+  static Future<void> _loadFeaturesFromAsset(String path) async {
+    try {
+      final String jsonString = await rootBundle.loadString(path);
+      final List<dynamic> jsonList = json.decode(jsonString);
+
+      for (var jsonFeature in jsonList) {
+        try {
+          final feature = CharacterFeature.fromJson(jsonFeature);
+          _features[feature.id] = feature;
+        } catch (e) {
+          print('❌ Error parsing feature in $path: $e');
+        }
+      }
+    } catch (e) {
+      print('❌ Error reading feature file $path: $e');
+    }
   }
 
   /// Get all features available for a character at their current level
@@ -239,73 +265,10 @@ class FeatureService {
   }
 
   // ============================================================
-  // PALADIN FEATURES
+  // SUBCLASS SPECIFIC FEATURES (Temporary Hardcode)
   // ============================================================
 
-  static void _loadPaladinFeatures() {
-    // Lay on Hands
-    _features['lay_on_hands'] = CharacterFeature(
-      id: 'lay_on_hands',
-      nameEn: 'Lay on Hands',
-      nameRu: 'Наложение рук',
-      descriptionEn: 'Your blessed touch can heal wounds. You have a pool of healing power that replenishes when you take a long rest. With that pool, you can restore a total number of hit points equal to your paladin level × 5.',
-      descriptionRu: 'Ваше благословенное прикосновение может исцелять раны. У вас есть запас целительной силы, который восстанавливается после длительного отдыха. С помощью этого запаса вы можете восстановить общее количество хитов, равное вашему уровню паладина × 5.',
-      type: FeatureType.action,
-      minLevel: 1,
-      associatedClass: 'Paladin',
-      requiresRest: true,
-      actionEconomy: 'action',
-      iconName: 'healing',
-      resourcePool: ResourcePool(
-        currentUses: 0,
-        maxUses: 0,
-        recoveryType: RecoveryType.longRest,
-        calculationFormula: 'level * 5',
-      ),
-    );
-
-    // Divine Sense
-    _features['divine_sense'] = CharacterFeature(
-      id: 'divine_sense',
-      nameEn: 'Divine Sense',
-      nameRu: 'Божественное чувство',
-      descriptionEn: 'The presence of strong evil registers on your senses like a noxious odor, and powerful good rings like heavenly music in your ears. As an action, you can open your awareness to detect such forces. Until the end of your next turn, you know the location of any celestial, fiend, or undead within 60 feet of you that is not behind total cover.',
-      descriptionRu: 'Присутствие сильного зла регистрируется вашими чувствами как ядовитый запах, а могущественное добро звучит как небесная музыка в ваших ушах. Вы можете действием открыть свою осведомленность для обнаружения таких сил. До конца вашего следующего хода вы знаете местоположение любого небожителя, исчадия или нежити в пределах 60 футов от вас, который не находится за полным укрытием.',
-      type: FeatureType.action,
-      minLevel: 1,
-      associatedClass: 'Paladin',
-      requiresRest: true,
-      actionEconomy: 'action',
-      iconName: 'visibility',
-      resourcePool: ResourcePool(
-        currentUses: 0,
-        maxUses: 0,
-        recoveryType: RecoveryType.longRest,
-        calculationFormula: '1 + cha_mod',
-      ),
-    );
-
-    // Channel Divinity (base feature - each oath has specific options)
-    _features['channel_divinity'] = CharacterFeature(
-      id: 'channel_divinity',
-      nameEn: 'Channel Divinity',
-      nameRu: 'Божественный канал',
-      descriptionEn: 'You gain the ability to channel divine energy directly from your deity, using that energy to fuel magical effects. Each Channel Divinity option provided by your oath explains how to use it. When you use your Channel Divinity, you choose which option to use. You must then finish a short or long rest to use your Channel Divinity again.',
-      descriptionRu: 'Вы получаете способность направлять божественную энергию непосредственно от вашего божества, используя эту энергию для создания магических эффектов. Каждый вариант Божественного канала, предоставленный вашей клятвой, объясняет, как его использовать. Когда вы используете свой Божественный канал, вы выбираете, какой вариант использовать. Затем вы должны закончить короткий или длительный отдых, чтобы снова использовать свой Божественный канал.',
-      type: FeatureType.action,
-      minLevel: 3,
-      associatedClass: 'Paladin',
-      requiresRest: true,
-      actionEconomy: 'action',
-      iconName: 'auto_awesome',
-      resourcePool: ResourcePool(
-        currentUses: 0,
-        maxUses: 1,
-        recoveryType: RecoveryType.shortRest,
-        calculationFormula: null, // Fixed at 1 use
-      ),
-    );
-
+  static void _loadSubclassFeatures() {
     // ============================================================
     // OATH OF CONQUEST (Клятва Покорения) - Channel Divinity Options
     // ============================================================
@@ -345,12 +308,5 @@ class FeatureService {
     );
 
     // TODO: Add other oath-specific Channel Divinity options when needed
-    // - Sacred Weapon (Devotion)
-    // - Turn the Unholy (Devotion)
-    // - Nature's Wrath (Ancients)
-    // - Turn the Faithless (Ancients)
-    // - Abjure Enemy (Vengeance)
-    // - Vow of Enmity (Vengeance)
-    // etc.
   }
 }

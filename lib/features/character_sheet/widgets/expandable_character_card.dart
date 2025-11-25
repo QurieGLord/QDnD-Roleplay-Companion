@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../../core/models/character.dart';
+import '../../character_level_up/level_up_screen.dart';
 
 class ExpandableCharacterCard extends StatefulWidget {
   final Character character;
@@ -22,6 +23,21 @@ class ExpandableCharacterCard extends StatefulWidget {
 
 class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
   bool _showDetails = false;
+
+  void _openLevelUpWizard() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LevelUpScreen(character: widget.character),
+      ),
+    );
+
+    if (result == true) {
+      setState(() {
+        // Refresh UI to show new level
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,13 +130,35 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            '${widget.character.race} • Level ${widget.character.level}',
-                            style: TextStyle(
-                              color: colorScheme.onPrimaryContainer.withOpacity(0.8),
-                              fontSize: 13,
+                          
+                          // Level Up Trigger
+                          InkWell(
+                            onTap: _openLevelUpWizard,
+                            borderRadius: BorderRadius.circular(8),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 2.0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '${widget.character.race} • Level ${widget.character.level}',
+                                    style: TextStyle(
+                                      color: colorScheme.onPrimaryContainer.withOpacity(0.9),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    Icons.arrow_upward,
+                                    size: 14,
+                                    color: colorScheme.onPrimaryContainer,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
+                          
                           Text(
                             widget.character.characterClass,
                             style: TextStyle(
