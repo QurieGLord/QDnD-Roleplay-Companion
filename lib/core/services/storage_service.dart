@@ -1,5 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/character.dart';
+import '../models/character_class.dart';
 import '../models/ability_scores.dart';
 import '../models/spell.dart';
 import '../models/character_spell.dart';
@@ -23,6 +24,7 @@ class StorageService {
 
     // Register adapters
     Hive.registerAdapter(CharacterAdapter());
+    Hive.registerAdapter(CharacterClassAdapter());
     Hive.registerAdapter(AbilityScoresAdapter());
     Hive.registerAdapter(SpellAdapter());
     Hive.registerAdapter(CharacterSpellAdapter());
