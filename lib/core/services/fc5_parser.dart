@@ -101,18 +101,31 @@ class FC5Parser {
     final background = backgroundNode?.findElements('name').firstOrNull?.innerText;
 
     // Parse class
-    final classNode = characterNode.findElements('class').first;
-    final classText = classNode.findElements('name').first.innerText;
-    final level = int.parse(classNode.findElements('level').first.innerText);
-
-    // Extract class name and subclass
-    String characterClass = classText;
+    String characterClass = 'Unknown';
     String? subclass;
+    int level = 1;
+    XmlElement? classNode;
 
-    if (classText.contains(':')) {
-      final parts = classText.split(':');
-      characterClass = parts[0].trim();
-      subclass = parts[1].trim();
+    final classElements = characterNode.findElements('class');
+    if (classElements.isNotEmpty) {
+      classNode = classElements.first;
+      
+      try {
+        final classText = classNode.findElements('name').first.innerText;
+        level = int.parse(classNode.findElements('level').first.innerText);
+
+        if (classText.contains(':')) {
+          final parts = classText.split(':');
+          characterClass = parts[0].trim();
+          subclass = parts[1].trim();
+        } else {
+          characterClass = classText.trim();
+        }
+      } catch (e) {
+        print('⚠️ FC5Parser: Error parsing class details: $e');
+      }
+    } else {
+      print('⚠️ FC5Parser: No <class> element found');
     }
 
     // Parse spell slots
@@ -121,45 +134,49 @@ class FC5Parser {
     List<int> maxSpellSlots = List.filled(9, 0);
     List<int> currentSpellSlots = List.filled(9, 0);
 
-    try {
-      final slotsText = classNode.findElements('slots').first.innerText;
-      final slotsList = slotsText
-          .split(',')
-          .where((s) => s.isNotEmpty)
-          .map((s) => int.parse(s.trim()))
-          .toList();
+    if (classNode != null) {
+      try {
+        final slotsText = classNode!.findElements('slots').first.innerText;
+        final slotsList = slotsText
+            .split(',')
+            .where((s) => s.isNotEmpty)
+            .map((s) => int.parse(s.trim()))
+            .toList();
 
-      // Skip index 0 (cantrips), copy indices 1-9 as spell levels 1-9
-      for (int i = 1; i < slotsList.length && i <= 9; i++) {
-        maxSpellSlots[i - 1] = slotsList[i];
+        // Skip index 0 (cantrips), copy indices 1-9 as spell levels 1-9
+        for (int i = 1; i < slotsList.length && i <= 9; i++) {
+          maxSpellSlots[i - 1] = slotsList[i];
+        }
+
+        final currentSlotsText = classNode!.findElements('slotsCurrent').first.innerText;
+        final currentSlotsList = currentSlotsText
+            .split(',')
+            .where((s) => s.isNotEmpty)
+            .map((s) => int.parse(s.trim()))
+            .toList();
+
+        // Skip index 0 (cantrips), copy indices 1-9 as spell levels 1-9
+        for (int i = 1; i < currentSlotsList.length && i <= 9; i++) {
+          currentSpellSlots[i - 1] = currentSlotsList[i];
+        }
+      } catch (e) {
+        // No spell slots (non-caster or error)
+        maxSpellSlots = List.filled(9, 0);
+        currentSpellSlots = List.filled(9, 0);
       }
-
-      final currentSlotsText = classNode.findElements('slotsCurrent').first.innerText;
-      final currentSlotsList = currentSlotsText
-          .split(',')
-          .where((s) => s.isNotEmpty)
-          .map((s) => int.parse(s.trim()))
-          .toList();
-
-      // Skip index 0 (cantrips), copy indices 1-9 as spell levels 1-9
-      for (int i = 1; i < currentSlotsList.length && i <= 9; i++) {
-        currentSpellSlots[i - 1] = currentSlotsList[i];
-      }
-    } catch (e) {
-      // No spell slots (non-caster or error)
-      maxSpellSlots = List.filled(9, 0);
-      currentSpellSlots = List.filled(9, 0);
     }
 
     // Parse proficient skills
     List<String> proficientSkills = [];
-    try {
-      final proficiencies = classNode.findAllElements('proficiency');
-      for (var prof in proficiencies) {
-        proficientSkills.add(prof.innerText);
+    if (classNode != null) {
+      try {
+        final proficiencies = classNode!.findAllElements('proficiency');
+        for (var prof in proficiencies) {
+          proficientSkills.add(prof.innerText);
+        }
+      } catch (e) {
+        // No proficiencies found
       }
-    } catch (e) {
-      // No proficiencies found
     }
 
     // Parse spells - for now, we'll add some default spells for Paladins
