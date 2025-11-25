@@ -12,20 +12,26 @@ import 'features/settings/settings_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize storage
-  await StorageService.init();
+  try {
+    // Initialize storage
+    await StorageService.init();
 
-  // Load spells database
-  await SpellService.loadSpells();
+    // Load spells database
+    await SpellService.loadSpells();
 
-  // Load class features
-  await FeatureService.init();
+    // Load class features
+    await FeatureService.init();
 
-  // Load character creation data (races, classes, backgrounds)
-  await CharacterDataService.loadAllData();
+    // Load character creation data (races, classes, backgrounds)
+    await CharacterDataService.loadAllData();
 
-  // Load items database
-  await ItemService.loadItems();
+    // Load items database
+    await ItemService.loadItems();
+  } catch (e, stackTrace) {
+    print('❌ CRITICAL ERROR during initialization: $e');
+    print(stackTrace);
+    // Consider showing an error screen here or proceeding with limited functionality
+  }
 
   runApp(const QDnDApp());
 }

@@ -1,13 +1,19 @@
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:uuid/uuid.dart';
 import '../../../core/models/character.dart';
+import '../../../core/models/ability_scores.dart';
+import '../../../core/models/character_feature.dart';
+import '../../../core/models/item.dart';
 import '../../../core/services/storage_service.dart';
 import '../../../core/services/import_service.dart';
 import 'widgets/character_card.dart';
 import 'widgets/empty_state.dart';
-import '../../character_sheet/character_sheet_screen.dart';
-import '../../character_creation/character_creation_wizard.dart';
+import 'package:qd_and_d/features/character_sheet/character_sheet_screen.dart';
+import 'package:qd_and_d/features/character_creation/character_creation_wizard.dart';
+import 'package:qd_and_d/features/character_edit/character_edit_screen.dart';
 
 class CharacterListScreen extends StatefulWidget {
   const CharacterListScreen({super.key});
@@ -312,7 +318,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
         knownSpells: List<String>.from(original.knownSpells),
         preparedSpells: List<String>.from(original.preparedSpells),
         maxPreparedSpells: original.maxPreparedSpells,
-        features: original.features.map((f) {
+        features: List<CharacterFeature>.from(original.features.map((f) {
           // Deep copy features with their resource pools
           return CharacterFeature(
             id: f.id,
@@ -336,8 +342,8 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                   )
                 : null,
           );
-        }).toList(),
-        inventory: original.inventory.map((item) {
+        })),
+        inventory: List<Item>.from(original.inventory.map((item) {
           // Deep copy inventory items with their properties
           return Item(
             id: item.id,
@@ -375,7 +381,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             isMagical: item.isMagical,
             iconName: item.iconName,
           );
-        }).toList(),
+        })),
         personalityTraits: original.personalityTraits,
         ideals: original.ideals,
         bonds: original.bonds,

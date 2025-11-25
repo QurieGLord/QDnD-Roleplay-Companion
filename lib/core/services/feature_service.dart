@@ -52,11 +52,11 @@ class FeatureService {
 
     try {
       // Dynamically load ALL files in assets/data/features/
-      final manifestContent = await rootBundle.loadString('AssetManifest.json');
-      final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      final assetList = manifest.listAssets();
 
       // Filter for files in the features directory
-      final featureFiles = manifestMap.keys
+      final featureFiles = assetList
           .where((String key) => key.startsWith('assets/data/features/') && key.endsWith('.json'))
           .toList();
 
@@ -70,6 +70,12 @@ class FeatureService {
       _loadSubclassFeatures();
     } catch (e) {
       print('❌ Error loading features: $e');
+      // Fallback to hardcoded list if manifest fails (e.g. during testing or some build configurations)
+      try {
+        await _loadFeaturesFromAsset('assets/data/features/paladin_features.json');
+      } catch (e2) {
+        print('❌ Error loading fallback features: $e2');
+      }
     }
 
     print('🔧 FeatureService.init() completed. Loaded ${_features.length} features');
