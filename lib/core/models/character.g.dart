@@ -67,13 +67,15 @@ class CharacterAdapter extends TypeAdapter<Character> {
       silverPieces: fields[47] as int,
       goldPieces: fields[48] as int,
       platinumPieces: fields[49] as int,
+      journalNotes: (fields[50] as List?)?.cast<JournalNote>(),
+      quests: (fields[51] as List?)?.cast<Quest>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Character obj) {
     writer
-      ..writeByte(50)
+      ..writeByte(52)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -173,7 +175,11 @@ class CharacterAdapter extends TypeAdapter<Character> {
       ..writeByte(48)
       ..write(obj.goldPieces)
       ..writeByte(49)
-      ..write(obj.platinumPieces);
+      ..write(obj.platinumPieces)
+      ..writeByte(50)
+      ..write(obj.journalNotes)
+      ..writeByte(51)
+      ..write(obj.quests);
   }
 
   @override

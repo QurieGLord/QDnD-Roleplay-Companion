@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../character_list/character_list_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -60,27 +61,27 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.casino_outlined,
-                  size: 120,
-                  color: Theme.of(context).colorScheme.primary,
+                // Increased size from 120 to 200
+                SvgPicture.asset(
+                  'assets/images/icon.svg',
+                  width: 200,
+                  height: 200,
+                  colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.primary,
+                    BlendMode.srcIn,
+                  ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16), // Reduced spacing
+                // Removed "QD&D" Text
                 Text(
-                  'QD&D',
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Your Roleplay Companion',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  'Roleplay Companion',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith( // Slightly larger subtitle
                         color: Theme.of(context)
                             .colorScheme
                             .onSurface
-                            .withOpacity(0.6),
+                            .withOpacity(0.8), // Increased opacity
+                        letterSpacing: 1.2, // Added spacing for elegance
+                        fontWeight: FontWeight.w500,
                       ),
                 ),
               ],

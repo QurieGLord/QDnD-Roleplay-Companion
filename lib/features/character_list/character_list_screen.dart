@@ -12,6 +12,7 @@ import '../../core/services/import_service.dart';
 import '../../core/services/fc5_parser.dart';
 import '../character_sheet/character_sheet_screen.dart';
 import '../character_creation/character_creation_wizard.dart';
+import '../character_edit/character_edit_screen.dart';
 import 'widgets/empty_state.dart';
 import 'widgets/character_card.dart';
 
@@ -150,11 +151,15 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             ListTile(
               leading: const Icon(Icons.edit),
               title: const Text('Edit'),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Edit coming in Session 4!')),
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CharacterEditScreen(character: character),
+                  ),
                 );
+                if (mounted) setState(() {});
               },
             ),
             ListTile(

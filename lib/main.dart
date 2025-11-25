@@ -36,7 +36,7 @@ class QDnDApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'QD&D',
+      title: 'QD&D - Roleplay Companion',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),

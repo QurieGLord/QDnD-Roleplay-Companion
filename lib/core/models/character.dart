@@ -6,6 +6,8 @@ import 'item.dart';
 import 'combat_state.dart';
 import 'death_saves.dart';
 import 'condition.dart';
+import 'journal_note.dart';
+import 'quest.dart';
 
 part 'character.g.dart';
 
@@ -163,6 +165,13 @@ class Character extends HiveObject {
   @HiveField(49)
   int platinumPieces;
 
+  // Journal Fields (Simplified)
+  @HiveField(50)
+  List<JournalNote> journalNotes;
+
+  @HiveField(51)
+  List<Quest> quests;
+
   Character({
     required this.id,
     required this.name,
@@ -214,6 +223,8 @@ class Character extends HiveObject {
     this.silverPieces = 0,
     this.goldPieces = 0,
     this.platinumPieces = 0,
+    List<JournalNote>? journalNotes,
+    List<Quest>? quests,
   })  : knownSpells = knownSpells ?? [],
         preparedSpells = preparedSpells ?? [],
         features = features ?? [],
@@ -223,6 +234,8 @@ class Character extends HiveObject {
         activeConditions = activeConditions ?? [],
         hitDice = hitDice ?? [level],
         maxHitDice = maxHitDice ?? level,
+        journalNotes = journalNotes ?? [],
+        quests = quests ?? [],
         createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
 
@@ -293,7 +306,70 @@ class Character extends HiveObject {
       'silverPieces': silverPieces,
       'goldPieces': goldPieces,
       'platinumPieces': platinumPieces,
+      'journalNotes': journalNotes.map((n) => n.toJson()).toList(),
+      'quests': quests.map((q) => q.toJson()).toList(),
     };
+  }
+
+  // Journal Notes
+  void addJournalNote(JournalNote note) {
+    journalNotes.add(note);
+    updatedAt = DateTime.now();
+    save();
+  }
+
+  void updateJournalNote(JournalNote note) {
+    final index = journalNotes.indexWhere((n) => n.id == note.id);
+    if (index != -1) {
+      note.updatedAt = DateTime.now();
+      journalNotes[index] = note;
+      updatedAt = DateTime.now();
+      save();
+    }
+  }
+
+  void deleteJournalNote(String noteId) {
+    journalNotes.removeWhere((n) => n.id == noteId);
+    updatedAt = DateTime.now();
+    save();
+  }
+
+  // Quests
+  void addQuest(Quest quest) {
+    quests.add(quest);
+    updatedAt = DateTime.now();
+    save();
+  }
+
+  void updateQuest(Quest quest) {
+    final index = quests.indexWhere((q) => q.id == quest.id);
+    if (index != -1) {
+      quests[index] = quest;
+      updatedAt = DateTime.now();
+      save();
+    }
+  }
+
+  void completeQuest(String questId) {
+    final quest = quests.firstWhere((q) => q.id == questId);
+    quest.status = QuestStatus.completed;
+    quest.completedAt = DateTime.now();
+    updatedAt = DateTime.now();
+    save();
+  }
+
+  void failQuest(String questId) {
+    final quest = quests.firstWhere((q) => q.id == questId);
+    quest.status = QuestStatus.failed;
+    quest.completedAt = DateTime.now();
+    updatedAt = DateTime.now();
+    save();
+  }
+
+  void deleteQuest(String questId) {
+    quests.removeWhere((q) => q.id == questId);
+    updatedAt = DateTime.now();
+    save();
   }
 
   // Spell slot management methods

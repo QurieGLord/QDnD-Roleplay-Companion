@@ -11,6 +11,7 @@ import 'widgets/overview_tab.dart';
 import 'widgets/stats_tab.dart';
 import 'widgets/spells_tab.dart';
 import 'tabs/inventory_tab.dart';
+import 'tabs/journal_tab.dart';
 
 class CharacterSheetScreen extends StatefulWidget {
   final Character character;
@@ -156,7 +157,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
                   StatsTab(character: widget.character),
                   SpellsTab(character: widget.character),
                   InventoryTab(character: widget.character),
-                  _buildPlaceholderTab('Journal - Session 8'),
+                  JournalTab(character: widget.character),
                 ],
               ),
             ),
