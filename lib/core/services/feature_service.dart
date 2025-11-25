@@ -51,10 +51,22 @@ class FeatureService {
     if (_initialized) return;
 
     try {
-      await _loadFeaturesFromAsset('assets/data/features/paladin_features.json');
-      // TODO: Load other feature files here
+      // Dynamically load ALL files in assets/data/features/
+      final manifestContent = await rootBundle.loadString('AssetManifest.json');
+      final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+
+      // Filter for files in the features directory
+      final featureFiles = manifestMap.keys
+          .where((String key) => key.startsWith('assets/data/features/') && key.endsWith('.json'))
+          .toList();
+
+      print('📦 Found ${featureFiles.length} feature files to load.');
+
+      for (final path in featureFiles) {
+        await _loadFeaturesFromAsset(path);
+      }
       
-      // Load subclass specific features (keep hardcoded for now until JSONs are ready)
+      // Load subclass specific features (keep hardcoded ONLY for complex logic not yet JSON-ified)
       _loadSubclassFeatures();
     } catch (e) {
       print('❌ Error loading features: $e');

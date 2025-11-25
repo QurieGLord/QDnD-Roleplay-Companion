@@ -2,6 +2,7 @@ import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 import 'ability_scores.dart';
 import 'character_feature.dart';
+import 'character_class.dart';
 import 'item.dart';
 import 'combat_state.dart';
 import 'death_saves.dart';
@@ -25,12 +26,15 @@ class Character extends HiveObject {
   @HiveField(3)
   String race;
 
+  // Legacy single-class field. Kept for backward compatibility and "Main Class" display.
   @HiveField(4)
   String characterClass;
 
+  // Legacy subclass field.
   @HiveField(5)
   String? subclass;
 
+  // Total character level.
   @HiveField(6)
   int level;
 
@@ -172,6 +176,10 @@ class Character extends HiveObject {
   @HiveField(51)
   List<Quest> quests;
 
+  // Multiclassing Support
+  @HiveField(52)
+  List<CharacterClass> classes;
+
   Character({
     required this.id,
     required this.name,
@@ -225,6 +233,7 @@ class Character extends HiveObject {
     this.platinumPieces = 0,
     List<JournalNote>? journalNotes,
     List<Quest>? quests,
+    List<CharacterClass>? classes,
   })  : knownSpells = knownSpells ?? [],
         preparedSpells = preparedSpells ?? [],
         features = features ?? [],
@@ -236,8 +245,21 @@ class Character extends HiveObject {
         maxHitDice = maxHitDice ?? level,
         journalNotes = journalNotes ?? [],
         quests = quests ?? [],
+        classes = classes ?? [],
         createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now();
+        updatedAt = updatedAt ?? DateTime.now() {
+          // Migration/Sync Logic:
+          // If classes list is empty but we have legacy single class data, populate it.
+          if (this.classes.isEmpty && this.characterClass.isNotEmpty) {
+            this.classes.add(CharacterClass(
+              id: this.characterClass.toLowerCase(),
+              name: this.characterClass,
+              level: this.level,
+              subclass: this.subclass,
+              isPrimary: true,
+            ));
+          }
+        }
 
   // Calculate proficiency bonus based on level
   int get proficiencyBonus {

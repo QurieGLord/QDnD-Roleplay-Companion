@@ -180,7 +180,10 @@ class FeaturesStep extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 4.0),
             child: Row(
               children: [
-                Text('Lvl $level', style: const TextStyle(fontWeight: FontWeight.bold, width: 50)),
+                SizedBox(
+                  width: 50,
+                  child: Text('Lvl $level', style: const TextStyle(fontWeight: FontWeight.bold)),
+                ),
                 const SizedBox(width: 16),
                 // Old slots
                 ...List.generate(oldCount, (_) => const Padding(
