@@ -1,120 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/character.dart';
-import '../../../core/models/item.dart';
 import '../../../shared/widgets/dice_roller_modal.dart';
 
 class StatsTab extends StatelessWidget {
-// ... (class start) ...
-
-  Widget _buildAttacksList(BuildContext context) {
-    final weapons = character.inventory.where((i) => i.isEquipped && i.type == ItemType.weapon).toList();
-    final colorScheme = Theme.of(context).colorScheme;
-
-    if (weapons.isEmpty) {
-      // Unarmed Strike
-      final strMod = character.abilityScores.strengthModifier;
-      final hitBonus = strMod + character.proficiencyBonus;
-      final damage = 1 + strMod; // 1 damage + STR
-      return _buildAttackCard(context, 'Unarmed Strike', hitBonus, '$damage', 'Bludgeoning', icon: Icons.back_hand);
-    }
-
-    return Column(
-      children: weapons.map((weapon) {
-        // Simple logic: Finesse uses DEX if higher, otherwise STR. Ranged uses DEX.
-        // Warning: This is a simplification.
-        // We need to check weapon properties (finesse, ranged).
-        bool isRanged = false;
-        bool isFinesse = false;
-        if (weapon.weaponProperties != null) {
-           // We need to check tags or range. Assuming simple check for now or default to STR.
-           // TODO: Check properties deeply.
-        }
-        
-        // Defaulting to STR for melee, DEX for ranged (if we could detect it).
-        // Let's use STR for now for simplicity unless it's a known ranged weapon.
-        // Better: Use MAX(STR, DEX) for Finesse/Ranged simulation.
-        final strMod = character.abilityScores.strengthModifier;
-        final dexMod = character.abilityScores.dexterityModifier;
-        
-        final mod = (dexMod > strMod) ? dexMod : strMod; // Simplified "Best Mod" logic
-        
-        final hitBonus = mod + character.proficiencyBonus; // Assuming proficiency
-        final damageDice = weapon.weaponProperties?.damageDice ?? '1d4';
-        final damageType = weapon.weaponProperties?.damageType.name ?? 'Physical';
-        
-        return _buildAttackCard(context, weapon.getName('en'), hitBonus, '$damageDice ${character.formatModifier(mod)}', damageType);
-      }).toList(),
-    );
-  }
-
-  Widget _buildAttackCard(BuildContext context, String name, int hitBonus, String damage, String type, {IconData icon = Icons.swords}) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: colorScheme.tertiaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: colorScheme.onTertiaryContainer, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  Text(type, style: TextStyle(fontSize: 10, color: colorScheme.onSurfaceVariant)),
-                ],
-              ),
-            ),
-            // Hit Button
-            InkWell(
-              onTap: () => showDiceRoller(context, title: 'Attack Roll ($name)', modifier: hitBonus),
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  border: Border.all(color: colorScheme.outline),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  children: [
-                    const Text('HIT', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold)),
-                    Text(character.formatModifier(hitBonus), style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            // Damage Button (Mockup, DiceRoller needs update to support damage dice)
-            InkWell(
-              onTap: () => showDiceRoller(context, title: 'Damage ($name)', modifier: 0), // TODO: Parse dice
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  children: [
-                    const Text('DMG', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold)),
-                    Text(damage, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSecondaryContainer)),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
   final Character character;
 
   const StatsTab({super.key, required this.character});
@@ -126,25 +14,19 @@ class StatsTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // 1. Attacks & Damage
-        _buildSectionHeader(context, 'ATTACKS & DAMAGE', Icons.sports_martial_arts),
-        const SizedBox(height: 12),
-        _buildAttacksList(context),
-        const SizedBox(height: 24),
-
-        // 2. Ability Scores Grid
+        // 1. Ability Scores Grid
         _buildSectionHeader(context, 'ABILITIES', Icons.accessibility_new),
         const SizedBox(height: 12),
         _buildAbilityScoresGrid(context),
         const SizedBox(height: 24),
 
-        // 3. Saving Throws
+        // 2. Saving Throws
         _buildSectionHeader(context, 'SAVING THROWS', Icons.shield),
         const SizedBox(height: 12),
         _buildSavingThrowsList(context),
         const SizedBox(height: 24),
 
-        // 4. Skills
+        // 3. Skills
         _buildSectionHeader(context, 'SKILLS', Icons.psychology),
         const SizedBox(height: 12),
         _buildSkillsList(context),
@@ -171,62 +53,6 @@ class StatsTab extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(child: Divider(color: colorScheme.primary.withOpacity(0.2))),
       ],
-    );
-  }
-
-  Widget _buildTopStatsRow(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: _buildStatCard(context, 'PROFICIENCY', '+${character.proficiencyBonus}', Icons.school)),
-        const SizedBox(width: 8),
-        Expanded(child: _buildStatCard(context, 'SPEED', '${character.speed} ft', Icons.directions_run)),
-        const SizedBox(width: 8),
-        Expanded(child: _buildStatCard(context, 'INITIATIVE', character.formatModifier(character.initiativeBonus), Icons.timer)),
-        const SizedBox(width: 8),
-        Expanded(child: _buildStatCard(context, 'ARMOR', '${character.armorClass}', Icons.shield_outlined, isHighlighted: true)),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(BuildContext context, String label, String value, IconData icon, {bool isHighlighted = false}) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-      decoration: BoxDecoration(
-        color: isHighlighted ? colorScheme.primaryContainer : colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isHighlighted ? colorScheme.primary : colorScheme.outlineVariant,
-          width: 1,
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 18, color: isHighlighted ? colorScheme.onPrimaryContainer : colorScheme.secondary),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-              color: isHighlighted ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 9,
-              fontWeight: FontWeight.bold,
-              color: isHighlighted ? colorScheme.onPrimaryContainer.withOpacity(0.8) : colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
     );
   }
 

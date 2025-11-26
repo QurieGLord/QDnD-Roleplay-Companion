@@ -65,20 +65,22 @@ class OverviewTab extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: _StatCard(
-                        icon: Icons.favorite,
-                        label: 'Hit Points',
-                        value: '${character.currentHp}/${character.maxHp}',
-                        color: colorScheme.error,
+                      child: _buildStatCard(
+                        context,
+                        'Hit Points',
+                        '${character.currentHp}/${character.maxHp}',
+                        Icons.favorite,
+                        colorScheme.error,
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: _StatCard(
-                        icon: Icons.shield,
-                        label: 'Armor Class',
-                        value: '${character.armorClass}',
-                        color: colorScheme.secondary,
+                      child: _buildStatCard(
+                        context,
+                        'Armor Class',
+                        '${character.armorClass}',
+                        Icons.shield,
+                        colorScheme.secondary,
                       ),
                     ),
                   ],
@@ -88,20 +90,22 @@ class OverviewTab extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: _StatCard(
-                        icon: Icons.directions_run,
-                        label: 'Speed',
-                        value: '${character.speed} ft',
-                        color: colorScheme.tertiary,
+                      child: _buildStatCard(
+                        context,
+                        'Speed',
+                        '${character.speed} ft',
+                        Icons.directions_run,
+                        colorScheme.tertiary,
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: _StatCard(
-                        icon: Icons.flash_on,
-                        label: 'Initiative',
-                        value: character.formatModifier(character.initiativeBonus),
-                        color: colorScheme.primary,
+                      child: _buildStatCard(
+                        context,
+                        'Initiative',
+                        character.formatModifier(character.initiativeBonus),
+                        Icons.flash_on,
+                        colorScheme.primary,
                         onTap: () => showDiceRoller(
                           context,
                           title: 'Initiative',
@@ -114,11 +118,12 @@ class OverviewTab extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
-                _StatCard(
-                  icon: Icons.star,
-                  label: 'Proficiency Bonus',
-                  value: '+${character.proficiencyBonus}',
-                  color: colorScheme.primary,
+                _buildStatCard(
+                  context,
+                  'Proficiency Bonus',
+                  '+${character.proficiencyBonus}',
+                  Icons.star,
+                  colorScheme.primary,
                 ),
               ],
             ),
@@ -385,7 +390,7 @@ class OverviewTab extends StatelessWidget {
     );
   }
 
-  Widget _buildAttackCard(BuildContext context, String name, int hitBonus, String damage, String type, {IconData icon = Icons.swords}) {
+  Widget _buildAttackCard(BuildContext context, String name, int hitBonus, String damage, String type, {IconData icon = Icons.sports_martial_arts}) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -459,7 +464,7 @@ class OverviewTab extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String label, String value, IconData icon, {bool isHighlighted = false, VoidCallback? onTap}) {
+  Widget _buildStatCard(BuildContext context, String label, String value, IconData icon, Color color, {bool isHighlighted = false, VoidCallback? onTap}) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
