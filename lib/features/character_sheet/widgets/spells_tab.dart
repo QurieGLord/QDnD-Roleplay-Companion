@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/spell.dart';
+import '../../../core/models/character_feature.dart';
 import '../../../core/services/spell_service.dart';
 import '../../../core/services/spellcasting_service.dart';
 import '../../../core/services/storage_service.dart';
@@ -42,14 +43,18 @@ class _SpellsTabState extends State<SpellsTab> {
     // Get available spell slot levels (starting from spell's minimum level)
     final availableSlots = <int>[];
     for (int i = spell.level; i <= widget.character.maxSpellSlots.length; i++) {
-      if (widget.character.spellSlots[i - 1] > 0) {
+      // Check bounds for spellSlots array to prevent crash
+      if (i <= widget.character.spellSlots.length && widget.character.spellSlots[i - 1] > 0) {
         availableSlots.add(i);
       }
     }
 
     if (availableSlots.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No spell slots available!')),
+        const SnackBar(
+          content: Text('No spell slots available!'),
+          duration: Duration(seconds: 2),
+        ),
       );
       return;
     }
@@ -113,6 +118,7 @@ class _SpellsTabState extends State<SpellsTab> {
           content: Text(message),
           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
         ),
       );
     });
@@ -132,395 +138,96 @@ class _SpellsTabState extends State<SpellsTab> {
       spellsByLevel.putIfAbsent(spell.level, () => []).add(spell);
     }
 
-    // Get ALL features (both with and without resource pools)
+    // Categorize Features
     final features = widget.character.features.toList();
-
-    // Debug output
-    print('🔧 SpellsTab build: character has ${widget.character.features.length} total features');
-    for (var f in widget.character.features) {
-      print('🔧   - ${f.nameEn} (pool: ${f.resourcePool != null})');
-    }
+    
+    // 1. Resources: Have a resource pool
+    final resourceFeatures = features.where((f) => f.resourcePool != null).toList();
+    
+    // 2. Passives: No pool, type is passive
+    final passiveFeatures = features.where((f) => f.resourcePool == null && f.type == FeatureType.passive).toList();
+    
+    // 3. Actives: No pool, type is NOT passive (Action, Bonus Action, Reaction, etc.)
+    final activeFeatures = features.where((f) => f.resourcePool == null && f.type != FeatureType.passive).toList();
 
     return Stack(
       children: [
         ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // Class Features section
-        if (features.isNotEmpty) ...[
-          Card(
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.star, color: colorScheme.primary),
-                      const SizedBox(width: 8),
-                      Text('CLASS FEATURES', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
-                    ],
+          padding: const EdgeInsets.all(16),
+          children: [
+            // === RESOURCES ===
+            if (resourceFeatures.isNotEmpty) ...[
+              _buildSectionHeader('RESOURCES'),
+              Card(
+                elevation: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: resourceFeatures.map((feature) => _buildResourceFeature(feature)).toList(),
                   ),
-                  const SizedBox(height: 16),
-                  ...features.map((feature) {
-                    final pool = feature.resourcePool;
-
-                    // Feature with resource pool - show full UI with progress bar
-                    if (pool != null) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    feature.nameEn,
-                                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                                  ),
-                                ),
-                                Text(
-                                  '${pool.currentUses}/${pool.maxUses}',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    color: pool.isEmpty ? colorScheme.error : colorScheme.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: LinearProgressIndicator(
-                                    value: pool.maxUses > 0 ? pool.currentUses / pool.maxUses : 0,
-                                    backgroundColor: colorScheme.surfaceContainerHighest,
-                                    color: pool.isEmpty ? colorScheme.error : colorScheme.primary,
-                                    minHeight: 8,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                IconButton(
-                                  icon: const Icon(Icons.remove_circle_outline),
-                                  onPressed: pool.isEmpty
-                                      ? null
-                                      : () {
-                                          setState(() {
-                                            pool.use(1);
-                                            StorageService.saveCharacter(widget.character);
-                                          });
-                                        },
-                                  tooltip: 'Use',
-                                  iconSize: 28,
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.add_circle_outline),
-                                  onPressed: pool.isFull
-                                      ? null
-                                      : () {
-                                          setState(() {
-                                            pool.restore(1);
-                                            StorageService.saveCharacter(widget.character);
-                                          });
-                                        },
-                                  tooltip: 'Restore',
-                                  iconSize: 28,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              feature.descriptionEn,
-                              style: TextStyle(fontSize: 12, color: colorScheme.onSurface.withOpacity(0.7)),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    // Feature without resource pool (e.g., Channel Divinity options) - show simple card with usage button
-                    // Find the main Channel Divinity pool if this feature uses it
-                    final channelDivinity = widget.character.features.firstWhere(
-                      (f) => f.id == 'channel_divinity',
-                      orElse: () => feature, // Fallback to self if no Channel Divinity found
-                    );
-                    final hasChannelDivinity = channelDivinity.id == 'channel_divinity' && channelDivinity.resourcePool != null;
-                    final canUseChannelDivinity = hasChannelDivinity && channelDivinity.resourcePool!.currentUses > 0;
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: colorScheme.secondary.withOpacity(0.3), width: 1.5),
-                          borderRadius: BorderRadius.circular(8),
-                          color: colorScheme.surfaceContainerLow,
-                        ),
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.bolt, size: 20, color: colorScheme.secondary),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    feature.nameEn,
-                                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                                  ),
-                                ),
-                                if (feature.actionEconomy != null)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: colorScheme.secondaryContainer,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      feature.actionEconomy!.toUpperCase(),
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        color: colorScheme.onSecondaryContainer,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              feature.descriptionEn,
-                              style: TextStyle(fontSize: 12, color: colorScheme.onSurface.withOpacity(0.7)),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            if (hasChannelDivinity) ...[
-                              const SizedBox(height: 12),
-                              SizedBox(
-                                width: double.infinity,
-                                child: FilledButton.tonalIcon(
-                                  onPressed: canUseChannelDivinity
-                                      ? () {
-                                          setState(() {
-                                            channelDivinity.resourcePool!.use(1);
-                                            widget.character.save();
-                                          });
-                                        }
-                                      : null,
-                                  icon: const Icon(Icons.auto_awesome, size: 18),
-                                  label: Text(
-                                    canUseChannelDivinity
-                                        ? 'Use Channel Divinity (${channelDivinity.resourcePool!.currentUses}/${channelDivinity.resourcePool!.maxUses} available)'
-                                        : 'No Channel Divinity charges (${channelDivinity.resourcePool!.currentUses}/${channelDivinity.resourcePool!.maxUses})',
-                                    style: const TextStyle(fontSize: 13),
-                                  ),
-                                  style: FilledButton.styleFrom(
-                                    backgroundColor: canUseChannelDivinity ? colorScheme.secondaryContainer : colorScheme.surfaceContainerHighest,
-                                    foregroundColor: canUseChannelDivinity ? colorScheme.onSecondaryContainer : colorScheme.onSurface.withOpacity(0.4),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-
-        // Spell Slots
-        Card(
-          elevation: 4,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('SPELL SLOTS', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 16),
-                ...List.generate(9, (i) {
-                  final level = i + 1;
-                  
-                  // Safety check for array bounds
-                  if (i >= widget.character.maxSpellSlots.length) return const SizedBox.shrink();
-                  
-                  final max = widget.character.maxSpellSlots[i];
-                  if (max == 0) return const SizedBox.shrink();
-                  
-                  final curr = i < widget.character.spellSlots.length 
-                      ? widget.character.spellSlots[i] 
-                      : 0; // Default to 0 if current slots array is shorter
-
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 60, child: Text('Level $level', style: const TextStyle(fontWeight: FontWeight.w600))),
-                        Expanded(
-                          child: Wrap(
-                            spacing: 8,
-                            children: List.generate(max, (j) {
-                              final isUsed = j >= curr;
-                              return GestureDetector(
-                                onTap: () => setState(() {
-                                  if (isUsed) widget.character.restoreSpellSlot(level);
-                                  else widget.character.useSpellSlot(level);
-                                }),
-                                child: Container(
-                                  width: 32, height: 32,
-                                  decoration: BoxDecoration(
-                                    color: isUsed ? colorScheme.surfaceContainerHighest : colorScheme.primaryContainer,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: colorScheme.primary, width: 2),
-                                  ),
-                                  child: isUsed ? null : Icon(Icons.auto_fix_high, size: 16, color: colorScheme.onPrimaryContainer),
-                                ),
-                              );
-                            }),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ],
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // Spellcasting Info
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.auto_fix_high, color: colorScheme.primary),
-                    const SizedBox(width: 8),
-                    Text('Spellcasting', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  ],
                 ),
-                const SizedBox(height: 12),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Text('Spellcasting Ability'),
-                  Text(SpellcastingService.getSpellcastingAbilityName(widget.character.characterClass), style: const TextStyle(fontWeight: FontWeight.bold))
-                ]),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  const Text('Spell Save DC'),
-                  Text('${SpellcastingService.getSpellSaveDC(widget.character)}', style: const TextStyle(fontWeight: FontWeight.bold))
-                ]),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  const Text('Spell Attack'),
-                  Text('+${SpellcastingService.getSpellAttackBonus(widget.character)}', style: const TextStyle(fontWeight: FontWeight.bold))
-                ]),
-                if (SpellcastingService.getSpellcastingType(widget.character.characterClass) == 'prepared')
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    const Text('Prepared'),
-                    Text('${widget.character.preparedSpells.length}/${widget.character.maxPreparedSpells}', style: const TextStyle(fontWeight: FontWeight.bold))
-                  ]),
-              ],
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 24),
-
-        if (knownSpells.isEmpty) ...[
-          Center(child: Column(children: [
-            Icon(Icons.auto_fix_off, size: 64, color: colorScheme.onSurface.withOpacity(0.3)),
-            const SizedBox(height: 16),
-            Text('No spells learned yet', style: Theme.of(context).textTheme.titleMedium),
-          ])),
-        ] else ...[
-          ...spellsByLevel.keys.toList()..sort(),
-        ].map((level) {
-          final spells = spellsByLevel[level]!;
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(level == 0 ? 'CANTRIPS' : 'LEVEL $level', style: TextStyle(color: colorScheme.primary)),
               ),
-              ...spells.map((spell) {
-                final isPrepared = widget.character.preparedSpells.contains(spell.id);
-                final canCast = spell.level == 0 || (spell.level <= widget.character.spellSlots.length && widget.character.spellSlots[spell.level - 1] > 0);
-
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    leading: Container(
-                      width: 40, height: 40,
-                      decoration: BoxDecoration(color: _getSchoolColor(spell.school), shape: BoxShape.circle),
-                      child: Center(child: Text(spell.level == 0 ? '∞' : '${spell.level}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                    ),
-                    title: Text(spell.nameEn),
-                    subtitle: Row(children: [
-                      if (spell.concentration) const Padding(padding: EdgeInsets.only(right: 8), child: Icon(Icons.timelapse, size: 14)),
-                      if (spell.ritual) const Padding(padding: EdgeInsets.only(right: 8), child: Icon(Icons.book, size: 14)),
-                      Text(spell.school),
-                    ]),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Cast button
-                        if (isPrepared) IconButton(
-                          icon: Icon(Icons.auto_fix_high, color: canCast ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.3)),
-                          onPressed: canCast ? () => _showCastSpellDialog(spell) : null,
-                          tooltip: 'Cast',
-                        ),
-                        // Prepare/Unprepare button
-                        IconButton(
-                          icon: Icon(isPrepared ? Icons.star : Icons.star_outline, color: isPrepared ? Colors.amber : null),
-                          onPressed: () {
-                            setState(() {
-                              if (isPrepared) {
-                                widget.character.preparedSpells.remove(spell.id);
-                              } else {
-                                if (widget.character.preparedSpells.length < widget.character.maxPreparedSpells) {
-                                  widget.character.preparedSpells.add(spell.id);
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Maximum prepared spells reached!')));
-                                  return;
-                                }
-                              }
-                              StorageService.saveCharacter(widget.character);
-                            });
-                          },
-                          tooltip: isPrepared ? 'Unprepare' : 'Prepare',
-                        ),
-                      ],
-                    ),
-                    onTap: () => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Spell details - ${spell.nameEn}'))),
-                  ),
-                );
-              }),
               const SizedBox(height: 16),
             ],
-          );
-        }).toList(),
 
-        // Add bottom padding so content doesn't hide behind FAB
-        const SizedBox(height: 80),
-      ],
-    ),
-        // Floating Action Button for Spell Almanac
+            // === ACTIVE ABILITIES ===
+            if (activeFeatures.isNotEmpty) ...[
+              _buildSectionHeader('ACTIVE ABILITIES'),
+              ...activeFeatures.map((feature) => _buildActiveFeature(feature)).toList(),
+              const SizedBox(height: 16),
+            ],
+
+            // === MAGIC (Slots & Stats) ===
+            _buildSectionHeader('MAGIC'),
+            _buildMagicSection(context),
+            const SizedBox(height: 16),
+
+            // === SPELLS LIST ===
+            if (knownSpells.isEmpty)
+              Center(child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Icon(Icons.auto_fix_off, size: 48, color: colorScheme.onSurface.withOpacity(0.3)),
+                    const SizedBox(height: 8),
+                    Text('No spells learned yet', style: TextStyle(color: colorScheme.onSurface.withOpacity(0.5))),
+                  ],
+                ),
+              ))
+            else
+              ...spellsByLevel.keys.toList()..sort().map((level) => _buildSpellLevelGroup(level, spellsByLevel[level]!)).toList(),
+
+            const SizedBox(height: 16),
+
+            // === PASSIVE TRAITS ===
+            if (passiveFeatures.isNotEmpty) ...[
+              _buildSectionHeader('PASSIVE TRAITS'),
+              Card(
+                elevation: 1,
+                child: ExpansionTile(
+                  title: Text('${passiveFeatures.length} Passive Traits'),
+                  subtitle: Text(
+                    passiveFeatures.map((f) => f.nameEn).join(', '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                  ),
+                  leading: Icon(Icons.psychology, color: colorScheme.secondary),
+                  children: passiveFeatures.map((feature) => ListTile(
+                    title: Text(feature.nameEn, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    subtitle: Text(feature.descriptionEn, style: const TextStyle(fontSize: 12)),
+                    dense: true,
+                    leading: Icon(_getFeatureIcon(feature.iconName), size: 18, color: colorScheme.secondary.withOpacity(0.7)),
+                  )).toList(),
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 80), // Bottom padding for FAB
+          ],
+        ),
+        
+        // Floating Action Button
         Positioned(
           right: 16,
           bottom: 16,
@@ -530,18 +237,340 @@ class _SpellsTabState extends State<SpellsTab> {
                 MaterialPageRoute(
                   builder: (context) => SpellAlmanacScreen(character: widget.character),
                 ),
-              ).then((_) {
-                // Rebuild UI after returning from Spell Almanac
-                setState(() {});
-              });
+              ).then((_) => setState(() {}));
             },
             icon: const Icon(Icons.library_books),
             label: const Text('Spell Almanac'),
-            backgroundColor: colorScheme.primaryContainer,
-            foregroundColor: colorScheme.onPrimaryContainer,
           ),
         ),
       ],
     );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w900,
+          color: Theme.of(context).colorScheme.primary,
+          letterSpacing: 1.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResourceFeature(CharacterFeature feature) {
+    final pool = feature.resourcePool!;
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(_getFeatureIcon(feature.iconName), size: 20, color: colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(feature.nameEn, style: const TextStyle(fontWeight: FontWeight.w600))),
+                  ],
+                ),
+              ),
+              Text('${pool.currentUses}/${pool.maxUses}', 
+                style: TextStyle(fontWeight: FontWeight.bold, color: pool.isEmpty ? colorScheme.error : colorScheme.primary)),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: pool.maxUses > 0 ? pool.currentUses / pool.maxUses : 0,
+                    color: pool.isEmpty ? colorScheme.error : colorScheme.primary,
+                    backgroundColor: colorScheme.surfaceContainerHighest,
+                    minHeight: 8,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              IconButton(
+                icon: const Icon(Icons.remove_circle_outline),
+                onPressed: pool.isEmpty ? null : () => setState(() { pool.use(1); widget.character.save(); }),
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints(),
+                padding: EdgeInsets.zero,
+                iconSize: 24,
+              ),
+              const SizedBox(width: 12),
+              IconButton(
+                icon: const Icon(Icons.add_circle_outline),
+                onPressed: pool.isFull ? null : () => setState(() { pool.restore(1); widget.character.save(); }),
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints(),
+                padding: EdgeInsets.zero,
+                iconSize: 24,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActiveFeature(CharacterFeature feature) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
+    // Smart check for Channel Divinity usage
+    bool usesChannelDivinity = false;
+    CharacterFeature? cdPoolFeature;
+    
+    // Heuristic: Name or Description mentions "Channel Divinity" AND it's an action-type feature
+    if (feature.nameEn.contains('Channel Divinity') || feature.descriptionEn.contains('Channel Divinity')) {
+      try {
+        // Try to find the resource pool feature
+        cdPoolFeature = widget.character.features.firstWhere((f) => f.id == 'channel_divinity');
+        if (cdPoolFeature.resourcePool != null) {
+          usesChannelDivinity = true;
+        }
+      } catch (_) {
+        // No Channel Divinity pool found on character
+      }
+    }
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      elevation: 1,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(_getFeatureIcon(feature.iconName), size: 20, color: colorScheme.onSecondaryContainer),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(feature.nameEn, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                      if (feature.actionEconomy != null)
+                        Text(
+                          feature.actionEconomy!.toUpperCase(),
+                          style: TextStyle(fontSize: 10, color: colorScheme.secondary, fontWeight: FontWeight.w600, letterSpacing: 0.5),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              feature.descriptionEn, 
+              maxLines: usesChannelDivinity ? 2 : 4, 
+              overflow: TextOverflow.ellipsis, 
+              style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)
+            ),
+            
+            if (usesChannelDivinity && cdPoolFeature != null) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  onPressed: cdPoolFeature.resourcePool!.currentUses > 0 
+                    ? () => setState(() { cdPoolFeature!.resourcePool!.use(1); widget.character.save(); }) 
+                    : null,
+                  icon: const Icon(Icons.auto_awesome, size: 16),
+                  label: Text(
+                    cdPoolFeature.resourcePool!.currentUses > 0
+                    ? 'Use Channel Divinity (${cdPoolFeature.resourcePool!.currentUses} left)'
+                    : 'No Channel Divinity charges'
+                  ),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                ),
+              ),
+            ]
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMagicSection(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            // Stats Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildMagicStat('Ability', SpellcastingService.getSpellcastingAbilityName(widget.character.characterClass).substring(0, 3).toUpperCase()),
+                Container(width: 1, height: 30, color: colorScheme.outlineVariant),
+                _buildMagicStat('Save DC', '${SpellcastingService.getSpellSaveDC(widget.character)}'),
+                Container(width: 1, height: 30, color: colorScheme.outlineVariant),
+                _buildMagicStat('Attack', '+${SpellcastingService.getSpellAttackBonus(widget.character)}'),
+              ],
+            ),
+            if (widget.character.maxSpellSlots.any((s) => s > 0)) ...[
+              const Divider(height: 32),
+              // Slots
+              ...List.generate(9, (i) {
+                final level = i + 1;
+                // Safety checks
+                if (i >= widget.character.maxSpellSlots.length) return const SizedBox.shrink();
+                final max = widget.character.maxSpellSlots[i];
+                if (max == 0) return const SizedBox.shrink();
+                
+                final curr = i < widget.character.spellSlots.length ? widget.character.spellSlots[i] : 0;
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      SizedBox(width: 40, child: Text('Lvl $level', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey))),
+                      Expanded(
+                        child: Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: List.generate(max, (j) {
+                            final isUsed = j >= curr;
+                            return GestureDetector(
+                              onTap: () => setState(() {
+                                if (isUsed) widget.character.restoreSpellSlot(level);
+                                else widget.character.useSpellSlot(level);
+                              }),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                width: 28, height: 28,
+                                decoration: BoxDecoration(
+                                  color: isUsed ? colorScheme.surfaceContainerHighest : colorScheme.primary,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: isUsed ? colorScheme.outline : colorScheme.primary, 
+                                    width: 1.5
+                                  ),
+                                ),
+                                child: isUsed ? null : Icon(Icons.bolt, size: 18, color: colorScheme.onPrimary),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMagicStat(String label, String value) {
+    return Column(
+      children: [
+        Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.secondary)),
+        const SizedBox(height: 2),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+      ],
+    );
+  }
+
+  Widget _buildSpellLevelGroup(int level, List<Spell> spells) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Text(level == 0 ? 'CANTRIPS' : 'LEVEL $level', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+        ),
+        ...spells.map((spell) {
+           final isPrepared = widget.character.preparedSpells.contains(spell.id);
+           // Bounds check for spell slots
+           final canCast = spell.level == 0 || (spell.level <= widget.character.spellSlots.length && widget.character.spellSlots[spell.level - 1] > 0);
+           
+           return Card(
+             margin: const EdgeInsets.only(bottom: 6),
+             elevation: 0,
+             shape: RoundedRectangleBorder(
+               side: BorderSide(color: colorScheme.outlineVariant),
+               borderRadius: BorderRadius.circular(12),
+             ),
+             child: ListTile(
+               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+               dense: true,
+               leading: GestureDetector(
+                 onTap: () {
+                   // Toggle prepare
+                   setState(() {
+                      if (isPrepared) widget.character.preparedSpells.remove(spell.id);
+                      else widget.character.preparedSpells.add(spell.id);
+                      widget.character.save();
+                   });
+                 },
+                 child: Icon(
+                   isPrepared ? Icons.star : Icons.star_border, 
+                   color: isPrepared ? Colors.amber : colorScheme.outline, 
+                   size: 24
+                 ),
+               ),
+               title: Text(spell.nameEn, style: const TextStyle(fontWeight: FontWeight.w600)),
+               subtitle: Text(spell.school, style: TextStyle(color: colorScheme.secondary, fontSize: 11)),
+               trailing: IconButton(
+                 icon: const Icon(Icons.auto_fix_high),
+                 onPressed: canCast ? () => _showCastSpellDialog(spell) : null,
+                 color: canCast ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.2),
+                 tooltip: 'Cast Spell',
+               ),
+               onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                 SnackBar(content: Text(spell.descriptionEn), duration: const Duration(seconds: 2))
+               ),
+             ),
+           );
+        }).toList(),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  IconData _getFeatureIcon(String? iconName) {
+    switch (iconName) {
+      case 'healing': return Icons.favorite;
+      case 'visibility': return Icons.visibility;
+      case 'flash_on': return Icons.flash_on;
+      case 'swords': return Icons.shield;
+      case 'auto_fix_high': return Icons.auto_fix_high;
+      case 'health_and_safety': return Icons.health_and_safety;
+      case 'auto_awesome': return Icons.auto_awesome;
+      case 'filter_2': return Icons.filter_2;
+      case 'security': return Icons.security;
+      case 'back_hand': return Icons.back_hand;
+      case 'wifi_tethering': return Icons.wifi_tethering;
+      default: return Icons.star;
+    }
   }
 }
