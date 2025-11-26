@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/character.dart';
+import '../../../core/models/item.dart';
 import '../../../core/services/storage_service.dart';
 import '../../../shared/widgets/dice_roller_modal.dart';
 import '../../combat/combat_tracker_screen.dart';
@@ -42,14 +43,14 @@ class OverviewTab extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
-                        Icons.sports_martial_arts,
+                        Icons.shield_outlined,
                         color: colorScheme.onPrimaryContainer,
                         size: 20,
                       ),
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'COMBAT STATS',
+                      'VITAL STATS',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: colorScheme.primary,
                             fontWeight: FontWeight.bold,
@@ -126,6 +127,52 @@ class OverviewTab extends StatelessWidget {
 
         const SizedBox(height: 16),
 
+        // Attacks & Weapons Section
+        Card(
+          elevation: 4,
+          shadowColor: colorScheme.primary.withOpacity(0.2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: colorScheme.tertiaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.sports_martial_arts,
+                        color: colorScheme.onTertiaryContainer,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'ATTACKS & WEAPONS',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: colorScheme.tertiary,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildAttacksList(context),
+              ],
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
         // Rest & Combat Actions
         Card(
           elevation: 4,
@@ -147,7 +194,7 @@ class OverviewTab extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
-                        Icons.flash_on,
+                        Icons.bolt,
                         color: colorScheme.onPrimaryContainer,
                         size: 20,
                       ),
@@ -300,31 +347,124 @@ class OverviewTab extends StatelessWidget {
             ),
           ),
         ),
+        
+        const SizedBox(height: 80), // Bottom padding
       ],
     );
   }
-}
 
-class _StatCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-  final VoidCallback? onTap;
+  Widget _buildAttacksList(BuildContext context) {
+    final weapons = character.inventory.where((i) => i.isEquipped && i.type == ItemType.weapon).toList();
+    final colorScheme = Theme.of(context).colorScheme;
 
-  const _StatCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-    this.onTap,
-  });
+    if (weapons.isEmpty) {
+      // Unarmed Strike
+      final strMod = character.abilityScores.strengthModifier;
+      final hitBonus = strMod + character.proficiencyBonus;
+      final damage = 1 + strMod; // 1 damage + STR
+      return _buildAttackCard(context, 'Unarmed Strike', hitBonus, '$damage', 'Bludgeoning', icon: Icons.back_hand);
+    }
 
-  @override
-  Widget build(BuildContext context) {
+    return Column(
+      children: weapons.map((weapon) {
+        final strMod = character.abilityScores.strengthModifier;
+        final dexMod = character.abilityScores.dexterityModifier;
+        
+        // Simplified Finesse logic: use best of STR/DEX
+        final mod = (dexMod > strMod) ? dexMod : strMod; 
+        
+        final hitBonus = mod + character.proficiencyBonus;
+        final damageDice = weapon.weaponProperties?.damageDice ?? '1d4';
+        final damageType = weapon.weaponProperties?.damageType.name ?? 'Physical';
+        
+        // Format damage string: e.g., "1d8 + 3"
+        final damageModStr = mod != 0 ? (mod > 0 ? ' + $mod' : ' - ${mod.abs()}') : '';
+        
+        return _buildAttackCard(context, weapon.getName('en'), hitBonus, '$damageDice$damageModStr', damageType);
+      }).toList(),
+    );
+  }
+
+  Widget _buildAttackCard(BuildContext context, String name, int hitBonus, String damage, String type, {IconData icon = Icons.swords}) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: colorScheme.primary, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(type, style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant)),
+              ],
+            ),
+          ),
+          // Hit Button
+          InkWell(
+            onTap: () => showDiceRoller(context, title: 'Attack Roll ($name)', modifier: hitBonus),
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: colorScheme.primary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                children: [
+                  Text('HIT', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: colorScheme.onPrimary.withOpacity(0.8))),
+                  Text(character.formatModifier(hitBonus), style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onPrimary)),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Damage Button
+          InkWell(
+            onTap: () {
+               showDiceRoller(context, title: 'Damage ($name)', modifier: 0);
+            },
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: colorScheme.tertiary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                children: [
+                  Text('DMG', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: colorScheme.onTertiary.withOpacity(0.8))),
+                  Text(damage, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onTertiary, fontSize: 12)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard(BuildContext context, String label, String value, IconData icon, {bool isHighlighted = false, VoidCallback? onTap}) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
+      elevation: isHighlighted ? 2 : 1,
+      color: isHighlighted ? colorScheme.primaryContainer : null,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
@@ -332,12 +472,12 @@ class _StatCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              Icon(icon, color: color, size: 32),
+              Icon(icon, color: isHighlighted ? colorScheme.onPrimaryContainer : color, size: 32),
               const SizedBox(height: 8),
               Text(
                 label,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colorScheme.onSurface.withOpacity(0.6),
+                      color: isHighlighted ? colorScheme.onPrimaryContainer.withOpacity(0.7) : colorScheme.onSurface.withOpacity(0.6),
                     ),
                 textAlign: TextAlign.center,
               ),
@@ -346,7 +486,7 @@ class _StatCard extends StatelessWidget {
                 value,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: color,
+                      color: isHighlighted ? colorScheme.onPrimaryContainer : color,
                     ),
               ),
             ],
