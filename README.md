@@ -27,38 +27,37 @@ Whether you're an experienced adventurer or a beginning hero, QD&D will become y
 ## ✨ Key Features
 
 ### 🎭 Character Management
-- **Character Creation Wizard** — step-by-step creation with validation.
-- **Full Customization** — edit avatar, appearance, traits, and backstory.
-- **Universal System** — supports all 13 official classes (via JSON data).
-- **Fight Club 5 Import** — seamlessly import characters from XML.
+- **Creation Wizard** — Step-by-step character creation with instant feature preview.
+- **Level Up Wizard** — Interactive, data-driven leveling with choice support (Subclass, Fighting Style).
+- **Fight Club 5 Import** — Seamlessly migrate your characters from XML.
+- **Multiclassing** — Support for complex character builds (Architecture ready).
 
-### ⚔️ Combat System
-- **Combat Tracker** — initiative, rounds, and turn management.
-- **HP Management** — quick damage/heal, temporary HP.
-- **Conditions** — track all 13 conditions with descriptions.
-- **Death Saves** — automatic tracking of successes/failures.
+### ⚔️ Combat & Stats
+- **Combat Tracker** — Initiative, rounds, and turn management.
+- **Vitality** — Quick HP adjustments, Death Saves, and Temporary HP.
+- **Conditions** — Track all 13 conditions with detailed tooltips.
+- **Dice Roller** — 3D physics-based dice for all your rolls.
 
-### 🔮 Magic & Spells
-- **Spellbook** — manage known and prepared spells.
-- **Spell Slots** — interactive trackers for all levels.
-- **Spell Almanac** — searchable database of 300+ spells.
-- **Filtering** — filter by class, level, and school.
+### 🔮 Magic & Abilities
+- **Spellbook** — Manage known and prepared spells with filtering.
+- **Spell Slots** — Interactive trackers that auto-scale with level.
+- **Class Features** — Smart tracking of resources (e.g., Lay on Hands) and active abilities.
+- **Data-Driven** — Features and spells are loaded from JSON, making the app endlessly extensible.
 
-### 🎒 Inventory & Equipment
-- **Equipment Slots** — visual management of weapons and armor.
-- **Auto AC** — Armor Class calculated automatically based on gear.
-- **Encumbrance** — weight tracking with status indicators.
-- **Item Database** — hundreds of standard items included.
+### 🎒 Inventory & Adventure
+- **Equipment** — Visual slots for weapons/armor with auto AC calculation.
+- **Adventure Journal** — Rich text notes and quest tracking to chronicle your journey.
+- **Offline First** — 100% functional without internet.
 
-### 📔 Adventure Journal (New in v1.0)
-- **Notes** — rich text notes with images and tags.
-- **Quests** — track objectives, progress, and status.
-- **Motivational Quotes** — daily inspiration for adventurers.
+---
 
-### 🎲 Tools
-- **Dice Roller** — 3D physics-based dice (d4, d6, d8, d10, d12, d20).
-- **Offline First** — works entirely without internet.
-- **Material 3 Design** — modern, expressive, and beautiful UI.
+## 🛠️ Architecture & Customization
+
+QD&D is built on a **Data-Driven Architecture**. This means you can add new content without writing code!
+
+- **Add Classes/Features:** Simply drop JSON files into `assets/data/features/`.
+- **Add Spells/Items:** Extend the database with your own homebrew content via JSON.
+- **Localization:** Built-in support for bilingual content (English/Russian).
 
 ---
 
@@ -70,9 +69,9 @@ Whether you're an experienced adventurer or a beginning hero, QD&D will become y
 |:-:|:-:|:-:|
 | ![Character Sheet](docs/screenshots/character_sheet.png) | ![Combat Tracker](docs/screenshots/combat.png) | ![Spells](docs/screenshots/spells.png) |
 
-| Journal | Inventory | Dice Roller |
+| Journal | Inventory | Level Up |
 |:-:|:-:|:-:|
-| ![Journal](docs/screenshots/journal.png) | ![Inventory](docs/screenshots/inventory.png) | ![Dice Roller](docs/screenshots/dice.png) |
+| ![Journal](docs/screenshots/journal.png) | ![Inventory](docs/screenshots/inventory.png) | ![Level Up](docs/screenshots/levelup.png) |
 
 </div>
 
@@ -106,20 +105,18 @@ flutter run
 
 ## 🗺️ Roadmap
 
-### ✅ v1.0 (Released)
-- Core character sheet
-- Spell system
-- Inventory & Equipment
-- Combat Tracker
-- Adventure Journal
-- FC5 Import
+### ✅ v1.1 (Paladin Update)
+- Level Up Wizard
+- Complete Paladin Class (1-20)
+- Feature & Spell Choices
+- Improved Spell Tab
+- Robust FC5 Import
 
 ### 🔮 v2.0 (Planned)
-- [ ] Level Up System
-- [ ] Multiclassing Support
+- [ ] Full Content Population (All Classes/Races)
+- [ ] Multiclassing UI (Add Class)
 - [ ] Cloud Sync (Google Drive)
 - [ ] PDF Export
-- [ ] Homebrew Content Creator
 
 ---
 
