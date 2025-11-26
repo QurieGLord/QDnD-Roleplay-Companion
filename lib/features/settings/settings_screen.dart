@@ -159,24 +159,17 @@ class _ThemePreviewCard extends StatelessWidget {
     
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: scheme.surface,
+      child: Card(
+        elevation: isSelected ? 4 : 1,
+        color: scheme.surface,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
+          side: BorderSide(
             color: isSelected ? scheme.primary : scheme.outlineVariant,
             width: isSelected ? 3 : 1,
           ),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: scheme.primary.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            )
-          ] : [],
         ),
-        clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
             // Preview Content
