@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'core/theme/app_theme.dart';
+import 'package:provider/provider.dart';
 import 'core/services/storage_service.dart';
 import 'core/services/spell_service.dart';
 import 'core/services/feature_service.dart';
 import 'core/services/character_data_service.dart';
 import 'core/services/item_service.dart';
+import 'core/services/theme_provider.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/character_list/character_list_screen.dart';
 import 'features/settings/settings_screen.dart';
@@ -30,10 +31,14 @@ void main() async {
   } catch (e, stackTrace) {
     print('❌ CRITICAL ERROR during initialization: $e');
     print(stackTrace);
-    // Consider showing an error screen here or proceeding with limited functionality
   }
 
-  runApp(const QDnDApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const QDnDApp(),
+    ),
+  );
 }
 
 class QDnDApp extends StatelessWidget {
@@ -41,17 +46,21 @@ class QDnDApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'QD&D - Roleplay Companion',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.system,
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const SplashScreen(),
-        '/home': (context) => const CharacterListScreen(),
-        '/settings': (context) => const SettingsScreen(),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: 'QD&D - Roleplay Companion',
+          debugShowCheckedModeBanner: false,
+          theme: themeProvider.lightTheme,
+          darkTheme: themeProvider.darkTheme,
+          themeMode: themeProvider.themeMode,
+          initialRoute: '/',
+          routes: {
+            '/': (context) => const SplashScreen(),
+            '/home': (context) => const CharacterListScreen(),
+            '/settings': (context) => const SettingsScreen(),
+          },
+        );
       },
     );
   }
