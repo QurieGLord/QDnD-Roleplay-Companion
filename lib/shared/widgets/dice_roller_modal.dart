@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -97,26 +96,30 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
   int _displayedNumber = 1;
   Timer? _rollTimer;
 
+  // UI Colors state
+  bool _resultReady = false;
+
   @override
   void initState() {
     super.initState();
     _selectedDice = widget.initialDice;
     _modifier = widget.initialModifier;
+    _displayedNumber = widget.initialDice.sides; // Show max value initially
 
     _rollController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
     _rotationAnimation = CurvedAnimation(
       parent: _rollController,
-      curve: Curves.fastOutSlowIn,
+      curve: Curves.easeInOutBack, // Smoother rotation
     );
 
     _scaleAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.8), weight: 20), // Pull back
-      TweenSequenceItem(tween: Tween(begin: 0.8, end: 1.2), weight: 40), // Throw forward
-      TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 40), // Settle
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.9), weight: 30),
+      TweenSequenceItem(tween: Tween(begin: 0.9, end: 1.1), weight: 40), 
+      TweenSequenceItem(tween: Tween(begin: 1.1, end: 1.0), weight: 30),
     ]).animate(_rollController);
   }
 
@@ -130,26 +133,49 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
   void _rollDice() async {
     if (_isRolling) return;
 
-    setState(() => _isRolling = true);
+    setState(() {
+      _isRolling = true;
+      _resultReady = false;
+    });
+    
     HapticFeedback.selectionClick();
     _rollController.forward(from: 0);
 
     final random = Random();
     int cycles = 0;
     
-    // Fast number cycling
-    _rollTimer = Timer.periodic(const Duration(milliseconds: 60), (timer) {
-      setState(() {
-        _displayedNumber = random.nextInt(_selectedDice.sides) + 1;
-      });
+    // Cycle numbers logic
+    _rollTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      if (mounted) {
+        setState(() {
+          _displayedNumber = random.nextInt(_selectedDice.sides) + 1;
+        });
+      }
       cycles++;
-      if (cycles > 12) timer.cancel();
+      // Slow down towards the end
+      if (cycles > 10) {
+         timer.cancel();
+         // Final manual ticks for "slowing down" feel
+         _slowDownTicks(random);
+      }
     });
+  }
 
-    // Wait for animation
-    await Future.delayed(const Duration(milliseconds: 1000));
+  void _slowDownTicks(Random random) async {
+    // Tick 1
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (mounted) setState(() => _displayedNumber = random.nextInt(_selectedDice.sides) + 1);
+    
+    // Tick 2
+    await Future.delayed(const Duration(milliseconds: 150));
+    if (mounted) setState(() => _displayedNumber = random.nextInt(_selectedDice.sides) + 1);
 
-    // Calculate actual result
+    // Final Result
+    await Future.delayed(const Duration(milliseconds: 200));
+    _finalizeRoll(random);
+  }
+
+  void _finalizeRoll(Random random) {
     final rolls = <int>[];
     int resultVal = 0;
 
@@ -164,21 +190,24 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
           : rolls.reduce(min);
     }
 
-    setState(() {
-      _displayedNumber = resultVal;
-      _isRolling = false;
-      _history.insert(0, DiceRoll(
-        result: resultVal,
-        total: resultVal + _modifier,
-        type: _selectedDice,
-        modifier: _modifier,
-        rawRolls: rolls,
-        advantage: _advantage,
-        timestamp: DateTime.now(),
-      ));
-    });
-
-    HapticFeedback.heavyImpact();
+    if (mounted) {
+      setState(() {
+        _displayedNumber = resultVal;
+        _isRolling = false;
+        _resultReady = true; // Trigger color change
+        
+        _history.insert(0, DiceRoll(
+          result: resultVal,
+          total: resultVal + _modifier,
+          type: _selectedDice,
+          modifier: _modifier,
+          rawRolls: rolls,
+          advantage: _advantage,
+          timestamp: DateTime.now(),
+        ));
+      });
+      HapticFeedback.heavyImpact();
+    }
   }
 
   @override
@@ -186,26 +215,44 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // Dynamic Colors based on state
+    final dieColor = _isRolling 
+        ? colorScheme.primaryContainer 
+        : (_resultReady ? colorScheme.tertiaryContainer : colorScheme.surfaceContainerHighest);
+    
+    final dieOutlineColor = _isRolling 
+        ? colorScheme.primary 
+        : (_resultReady ? colorScheme.tertiary : colorScheme.outline);
+
+    final textColor = _isRolling 
+        ? colorScheme.onPrimaryContainer
+        : (_resultReady ? colorScheme.onTertiaryContainer : colorScheme.onSurfaceVariant);
+
     return Container(
-      height: MediaQuery.of(context).size.height * 0.9,
+      height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20),
+        ],
       ),
       child: Column(
         children: [
           // Handle
-          Container(
-            margin: const EdgeInsets.only(top: 12, bottom: 8),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: colorScheme.onSurfaceVariant.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(2),
+          Center(
+            child: Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colorScheme.onSurfaceVariant.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
           ),
 
-          // Title & Close
+          // Header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: Row(
@@ -215,7 +262,10 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(widget.title, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                      Text('Tap the dice to roll', style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.secondary)),
+                      if (!_resultReady)
+                        Text('Tap dice to roll', style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.secondary))
+                      else
+                        Text('Roll complete!', style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.tertiary, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
@@ -231,10 +281,10 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
 
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
 
                   // --- THE DIE ---
                   GestureDetector(
@@ -242,81 +292,106 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                     child: AnimatedBuilder(
                       animation: _rollController,
                       builder: (context, child) {
-                        // 3D-ish rotation effect
                         return Transform(
                           alignment: Alignment.center,
                           transform: Matrix4.identity()
                             ..rotateZ(_rotationAnimation.value * pi * 2)
                             ..scale(_scaleAnimation.value),
-                          child: CustomPaint(
-                            size: const Size(200, 200),
-                            painter: DiceShapePainter(
-                              type: _selectedDice,
-                              color: _isRolling ? colorScheme.primary : colorScheme.primaryContainer,
-                              outlineColor: colorScheme.primary,
-                            ),
-                            child: SizedBox(
-                              width: 200,
-                              height: 200,
-                              child: Center(
-                                child: Transform.rotate(
-                                  // Counter-rotate text so it stays readable
-                                  angle: -_rotationAnimation.value * pi * 2,
-                                  child: Text(
-                                    '$_displayedNumber',
-                                    style: TextStyle(
-                                      fontSize: 64,
-                                      fontWeight: FontWeight.w900,
-                                      color: _isRolling ? colorScheme.onPrimary : colorScheme.primary,
-                                    ),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Animated Color Shape
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                                child: CustomPaint(
+                                  size: const Size(220, 220),
+                                  painter: DiceShapePainter(
+                                    type: _selectedDice,
+                                    color: dieColor,
+                                    outlineColor: dieOutlineColor,
+                                    strokeWidth: _resultReady ? 4.0 : 2.0,
                                   ),
                                 ),
                               ),
-                            ),
+                              
+                              // Animated Text
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 100),
+                                transitionBuilder: (child, animation) {
+                                  return ScaleTransition(scale: animation, child: child);
+                                },
+                                child: Text(
+                                  '$_displayedNumber',
+                                  key: ValueKey<int>(_displayedNumber),
+                                  style: TextStyle(
+                                    fontSize: 80,
+                                    fontWeight: FontWeight.w900,
+                                    color: textColor,
+                                    shadows: _resultReady ? [
+                                      Shadow(color: dieOutlineColor.withOpacity(0.5), blurRadius: 10)
+                                    ] : [],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       },
                     ),
                   ),
 
-                  // Result display
-                  if (!_isRolling && _history.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 32),
+                  // Result Modifiers Badge (Overlay style)
+                  if (_resultReady && (_modifier != 0 || _history.first.rawRolls.length > 1))
+                    Transform.translate(
+                      offset: const Offset(0, -20), // Overlap slightly bottom
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
-                          color: colorScheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(16),
+                          color: colorScheme.surface,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: colorScheme.outlineVariant),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4))
+                          ],
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              'Total: ',
-                              style: TextStyle(color: colorScheme.onSecondaryContainer, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              '${_history.first.total}',
-                              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: colorScheme.onSecondaryContainer),
-                            ),
+                            if (_history.first.rawRolls.length > 1) ...[
+                              Text('[${_history.first.rawRolls.join(', ')}]', style: const TextStyle(fontSize: 12)),
+                              const SizedBox(width: 8),
+                              const Text('→', style: TextStyle(fontWeight: FontWeight.bold)),
+                              const SizedBox(width: 8),
+                            ],
                             if (_modifier != 0)
                               Text(
-                                ' (${_history.first.result} ${_modifier >= 0 ? '+' : ''} $_modifier)',
-                                style: TextStyle(color: colorScheme.onSecondaryContainer.withOpacity(0.7), fontSize: 12),
+                                '${_modifier >= 0 ? '+' : ''}$_modifier',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
+                            if (_modifier != 0) ...[
+                              const SizedBox(width: 8),
+                              const Text('='),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${_history.first.total}',
+                                style: TextStyle(
+                                  fontSize: 20, 
+                                  fontWeight: FontWeight.w900,
+                                  color: colorScheme.primary
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
-                    )
-                  else
-                    const SizedBox(height: 80), // Spacer placeholder
+                    ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 32),
 
                   // --- CONTROLS ---
                   
-                  // Dice Type Selector (Grid/Wrap)
+                  // Dice Type Selector (Wrap for full visibility)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -332,8 +407,8 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                             onTap: () => setState(() => _selectedDice = dice),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
-                              width: 60,
-                              height: 60,
+                              width: 56,
+                              height: 56,
                               decoration: BoxDecoration(
                                 color: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(16),
@@ -341,25 +416,22 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                                   color: isSelected ? colorScheme.primary : colorScheme.outline.withOpacity(0.3),
                                   width: isSelected ? 0 : 1,
                                 ),
-                                boxShadow: isSelected ? [
-                                  BoxShadow(color: colorScheme.primary.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))
-                                ] : [],
                               ),
                               child: Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    // Mini icon representation
+                                    // Mini shape
                                     CustomPaint(
-                                      size: const Size(20, 20),
+                                      size: const Size(16, 16),
                                       painter: DiceShapePainter(
                                         type: dice,
-                                        color: isSelected ? colorScheme.onPrimary.withOpacity(0.2) : colorScheme.onSurface.withOpacity(0.1),
+                                        color: isSelected ? colorScheme.onPrimary.withOpacity(0.3) : colorScheme.onSurface.withOpacity(0.2),
                                         outlineColor: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
                                         strokeWidth: 1.5,
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
+                                    const SizedBox(height: 2),
                                     Text(
                                       dice.label,
                                       style: TextStyle(
@@ -380,62 +452,118 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
 
                   const SizedBox(height: 24),
 
-                  // Modifier & Advantage Row
+                  // Modifier & Advantage
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Modifier
                       Expanded(
-                        flex: 4,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: colorScheme.outlineVariant),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              IconButton(
-                                onPressed: () => setState(() => _modifier--),
-                                icon: const Icon(Icons.remove),
-                                visualDensity: VisualDensity.compact,
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('MODIFIER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.outline, letterSpacing: 1.2)),
+                            const SizedBox(height: 8),
+                            Container(
+                              height: 48,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: colorScheme.outlineVariant),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              Column(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('MOD', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: colorScheme.outline)),
-                                  Text('${_modifier >= 0 ? '+' : ''}$_modifier', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                  IconButton(
+                                    onPressed: () => setState(() => _modifier--),
+                                    icon: const Icon(Icons.remove, size: 16),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(minWidth: 32),
+                                  ),
+                                  Text(
+                                    '${_modifier >= 0 ? '+' : ''}$_modifier',
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                  IconButton(
+                                    onPressed: () => setState(() => _modifier++),
+                                    icon: const Icon(Icons.add, size: 16),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(minWidth: 32),
+                                  ),
                                 ],
                               ),
-                              IconButton(
-                                onPressed: () => setState(() => _modifier++),
-                                icon: const Icon(Icons.add),
-                                visualDensity: VisualDensity.compact,
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 16),
                       // Advantage
                       Expanded(
-                        flex: 6,
-                        child: SegmentedButton<AdvantageType>(
-                          segments: const [
-                            ButtonSegment(value: AdvantageType.disadvantage, icon: Icon(Icons.keyboard_double_arrow_down)),
-                            ButtonSegment(value: AdvantageType.none, label: Text(' - ')),
-                            ButtonSegment(value: AdvantageType.advantage, icon: Icon(Icons.keyboard_double_arrow_up)),
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('ROLL TYPE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.outline, letterSpacing: 1.2)),
+                            const SizedBox(height: 8),
+                            SegmentedButton<AdvantageType>(
+                              segments: const [
+                                ButtonSegment(value: AdvantageType.disadvantage, label: Text('Dis')),
+                                ButtonSegment(value: AdvantageType.none, label: Text(' - ')),
+                                ButtonSegment(value: AdvantageType.advantage, label: Text('Adv')),
+                              ],
+                              selected: {_advantage},
+                              onSelectionChanged: (val) => setState(() => _advantage = val.first),
+                              showSelectedIcon: false,
+                              style: ButtonStyle(
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                visualDensity: VisualDensity.compact,
+                                textStyle: MaterialStateProperty.all(const TextStyle(fontSize: 12)),
+                              ),
+                            ),
                           ],
-                          selected: {_advantage},
-                          onSelectionChanged: (val) => setState(() => _advantage = val.first),
-                          showSelectedIcon: false,
-                          style: ButtonStyle(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            visualDensity: VisualDensity.compact,
-                          ),
                         ),
                       ),
                     ],
                   ),
+
+                  const SizedBox(height: 32),
+
+                  // History
+                  if (_history.isNotEmpty) ...[
+                    Row(
+                      children: [
+                        const Icon(Icons.history, size: 16),
+                        const SizedBox(width: 8),
+                        Text('HISTORY', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.outline, letterSpacing: 1.2)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: min(_history.length, 3),
+                      itemBuilder: (context, index) {
+                        final roll = _history[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Text('d${roll.type.sides}', style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.secondary)),
+                              const SizedBox(width: 12),
+                              if (roll.rawRolls.length > 1)
+                                Text('[${roll.rawRolls.join(', ')}]', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
+                              const Spacer(),
+                              Text('${roll.total}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -445,8 +573,6 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
     );
   }
 }
-
-// --- CUSTOM PAINTER FOR DICE SHAPES ---
 
 class DiceShapePainter extends CustomPainter {
   final DiceType type;
@@ -474,18 +600,18 @@ class DiceShapePainter extends CustomPainter {
       ..strokeJoin = StrokeJoin.round;
 
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = min(size.width, size.height) / 2 * 0.9; // Padding
+    final radius = min(size.width, size.height) / 2 * 0.9;
 
     final path = Path();
 
     switch (type) {
       case DiceType.d4:
         // Triangle
-        final angle = -pi / 2; // Point up
+        final angle = -pi / 2;
         for (int i = 0; i < 3; i++) {
           final theta = angle + (i * 2 * pi / 3);
           final x = center.dx + radius * cos(theta);
-          final y = center.dy + radius * sin(theta) * 1.1; // Adjust aspect
+          final y = center.dy + radius * sin(theta) * 1.1 + (radius * 0.2); // Centering adj
           if (i == 0) path.moveTo(x, y); else path.lineTo(x, y);
         }
         path.close();
@@ -493,34 +619,34 @@ class DiceShapePainter extends CustomPainter {
 
       case DiceType.d6:
         // Rounded Square
-        final rect = Rect.fromCircle(center: center, radius: radius * 0.85);
+        final rect = Rect.fromCircle(center: center, radius: radius * 0.8);
         path.addRRect(RRect.fromRectAndRadius(rect, const Radius.circular(16)));
         break;
 
       case DiceType.d8:
-        // Diamond (2 triangles)
-        path.moveTo(center.dx, center.dy - radius); // Top
-        path.lineTo(center.dx + radius * 0.8, center.dy); // Right
-        path.lineTo(center.dx, center.dy + radius); // Bottom
-        path.lineTo(center.dx - radius * 0.8, center.dy); // Left
+        // Diamond
+        path.moveTo(center.dx, center.dy - radius);
+        path.lineTo(center.dx + radius * 0.8, center.dy);
+        path.lineTo(center.dx, center.dy + radius);
+        path.lineTo(center.dx - radius * 0.8, center.dy);
         path.close();
-        // Inner lines for 3D effect
+        // Inner
         canvas.drawPath(path, paint);
         canvas.drawPath(path, outlinePaint);
         canvas.drawLine(center, Offset(center.dx, center.dy - radius), outlinePaint..strokeWidth = 1);
         canvas.drawLine(center, Offset(center.dx, center.dy + radius), outlinePaint..strokeWidth = 1);
         canvas.drawLine(Offset(center.dx - radius * 0.8, center.dy), Offset(center.dx + radius * 0.8, center.dy), outlinePaint..strokeWidth = 1);
-        return; // Special handling for inner lines
+        return;
 
       case DiceType.d10:
-      case DiceType.d100: // Same shape
-        // Kite / Deltoid
-        path.moveTo(center.dx, center.dy - radius); // Top
-        path.lineTo(center.dx + radius * 0.8, center.dy - radius * 0.2); // Upper Right
-        path.lineTo(center.dx, center.dy + radius); // Bottom
-        path.lineTo(center.dx - radius * 0.8, center.dy - radius * 0.2); // Upper Left
+      case DiceType.d100:
+        // Kite
+        path.moveTo(center.dx, center.dy - radius);
+        path.lineTo(center.dx + radius * 0.8, center.dy - radius * 0.2);
+        path.lineTo(center.dx, center.dy + radius);
+        path.lineTo(center.dx - radius * 0.8, center.dy - radius * 0.2);
         path.close();
-        // Inner lines
+        // Inner
         canvas.drawPath(path, paint);
         canvas.drawPath(path, outlinePaint);
         canvas.drawLine(center, Offset(center.dx, center.dy - radius), outlinePaint..strokeWidth = 1);
@@ -543,7 +669,7 @@ class DiceShapePainter extends CustomPainter {
 
       case DiceType.d20:
         // Hexagon
-        final angle = pi / 6; // Flat top? No, pointy top usually
+        final angle = pi / 6; 
         for (int i = 0; i < 6; i++) {
           final theta = angle + (i * 2 * pi / 6);
           final x = center.dx + radius * cos(theta);
