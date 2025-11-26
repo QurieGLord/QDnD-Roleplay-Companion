@@ -115,69 +115,75 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
 
                     // Info
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            widget.character.name,
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: colorScheme.onPrimaryContainer,
-                                ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 2),
-                          
-                          // Level Up Trigger
-                          InkWell(
-                            onTap: _openLevelUpWizard,
-                            borderRadius: BorderRadius.circular(8),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 2.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    '${widget.character.race} • Level ${widget.character.level}',
-                                    style: TextStyle(
-                                      color: colorScheme.onPrimaryContainer.withOpacity(0.9),
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    Icons.arrow_upward,
-                                    size: 14,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 48.0), // Avoid overlap with dice button
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              widget.character.name,
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
                                     color: colorScheme.onPrimaryContainer,
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          
-                          Text(
-                            widget.character.characterClass,
-                            style: TextStyle(
-                              color: colorScheme.onPrimaryContainer.withOpacity(0.8),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                            ),
-                          ),
-                          if (widget.character.subclass != null)
-                            Text(
-                              widget.character.subclass!,
-                              style: TextStyle(
-                                color: colorScheme.onPrimaryContainer.withOpacity(0.6),
-                                fontSize: 12,
-                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                        ],
+                            const SizedBox(height: 2),
+                            
+                            // Level Up Trigger
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: _openLevelUpWizard,
+                                borderRadius: BorderRadius.circular(8),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 2.0),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        '${widget.character.race} • Level ${widget.character.level}',
+                                        style: TextStyle(
+                                          color: colorScheme.onPrimaryContainer.withOpacity(0.9),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Icon(
+                                        Icons.arrow_upward,
+                                        size: 14,
+                                        color: colorScheme.onPrimaryContainer,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            
+                            Text(
+                              widget.character.characterClass,
+                              style: TextStyle(
+                                color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                            ),
+                            if (widget.character.subclass != null)
+                              Text(
+                                widget.character.subclass!,
+                                style: TextStyle(
+                                  color: colorScheme.onPrimaryContainer.withOpacity(0.6),
+                                  fontSize: 12,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ],

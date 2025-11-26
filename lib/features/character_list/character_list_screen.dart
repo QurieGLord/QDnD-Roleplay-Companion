@@ -271,7 +271,10 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
               if (context.mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${character.name} deleted')),
+                  SnackBar(
+                    content: Text('${character.name} deleted'),
+                    duration: const Duration(seconds: 2),
+                  ),
                 );
               }
             },
@@ -400,6 +403,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
           SnackBar(
             content: Text('${original.name} duplicated successfully!'),
             backgroundColor: Theme.of(context).colorScheme.primary,
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -409,6 +413,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
           SnackBar(
             content: Text('Failed to duplicate character: $e'),
             backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -444,6 +449,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
           SnackBar(
             content: Text('${character.name} imported successfully!'),
             backgroundColor: Theme.of(context).colorScheme.primary,
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -456,6 +462,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
           SnackBar(
             content: Text('Failed to import character: $e'),
             backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 2),
           ),
         );
       }
