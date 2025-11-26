@@ -254,7 +254,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
                     color: Theme.of(context).colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(icon, color: Theme.of(context).colorScheme.primary),
+                  child: Icon(icon, color: Theme.of(context).colorScheme.onPrimaryContainer),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
