@@ -27,7 +27,14 @@ class FeaturesSpellsStep extends StatelessWidget {
           level: 1,
           maxHp: 10,
           currentHp: 10,
-          abilityScores: AbilityScores(),
+          abilityScores: AbilityScores(
+            strength: 10,
+            dexterity: 10,
+            constitution: 10,
+            intelligence: 10,
+            wisdom: 10,
+            charisma: 10,
+          ),
           spellSlots: [],
           maxSpellSlots: [],
         );
