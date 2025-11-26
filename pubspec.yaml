@@ -51,4 +51,5 @@ flutter:
     - assets/data/races/
     - assets/data/classes/
     - assets/data/backgrounds/
+    - assets/data/features/
     - assets/data/items.json
