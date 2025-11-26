@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'character_class.g.dart';
 
-@HiveType(typeId: 8) // Next available TypeId
+@HiveType(typeId: 25) // Changed from 8 to 25 to avoid conflict with Item (8)
 class CharacterClass extends HiveObject {
   @HiveField(0)
   String id; // Class ID (e.g., "paladin")

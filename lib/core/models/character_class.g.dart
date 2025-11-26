@@ -8,7 +8,7 @@ part of 'character_class.dart';
 
 class CharacterClassAdapter extends TypeAdapter<CharacterClass> {
   @override
-  final int typeId = 8;
+  final int typeId = 25;
 
   @override
   CharacterClass read(BinaryReader reader) {
