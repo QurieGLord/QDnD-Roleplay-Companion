@@ -134,31 +134,38 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
                             const SizedBox(height: 2),
                             
                             // Level Up Trigger
-                            Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                onTap: _openLevelUpWizard,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              child: Material(
+                                color: colorScheme.primary.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(8),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 2.0),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        '${widget.character.race} • Level ${widget.character.level}',
-                                        style: TextStyle(
-                                          color: colorScheme.onPrimaryContainer.withOpacity(0.9),
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold,
+                                clipBehavior: Clip.antiAlias,
+                                child: InkWell(
+                                  onTap: () {
+                                    print("🔧 Level Up Tapped");
+                                    _openLevelUpWizard();
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          '${widget.character.race} • Level ${widget.character.level}',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: colorScheme.primary,
+                                            fontSize: 13,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Icon(
-                                        Icons.arrow_upward,
-                                        size: 14,
-                                        color: colorScheme.onPrimaryContainer,
-                                      ),
-                                    ],
+                                        const SizedBox(width: 4),
+                                        Icon(
+                                          Icons.upgrade,
+                                          size: 18,
+                                          color: colorScheme.primary,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

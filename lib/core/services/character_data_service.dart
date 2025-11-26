@@ -84,15 +84,63 @@ class CharacterDataService {
   static List<ClassData> getAllClasses() => _classes ?? [];
   static List<BackgroundData> getAllBackgrounds() => _backgrounds ?? [];
 
-  static RaceData? getRaceById(String id) {
-    return _races?.firstWhere((r) => r.id == id, orElse: () => throw Exception('Race not found: $id'));
+  static String _normalizeId(String input) {
+    final lower = input.toLowerCase().trim();
+    // Simple mapping for common Russian names
+    switch (lower) {
+      // Classes
+      case 'паладин': return 'paladin';
+      case 'воин': return 'fighter';
+      case 'варвар': return 'barbarian';
+      case 'монах': return 'monk';
+      case 'плут': return 'rogue';
+      case 'следопыт': return 'ranger';
+      case 'друид': return 'druid';
+      case 'жрец': return 'cleric';
+      case 'волшебник': return 'wizard';
+      case 'чародей': return 'sorcerer';
+      case 'колдун': return 'warlock';
+      case 'бард': return 'bard';
+      case 'изобретатель': return 'artificer';
+      // Races
+      case 'человек': return 'human';
+      case 'эльф': return 'elf';
+      case 'дварф': return 'dwarf';
+      case 'гном': return 'gnome';
+      case 'полурослик': return 'halfling';
+      case 'драконорожденный': return 'dragonborn';
+      case 'тифлинг': return 'tiefling';
+      case 'полуорк': return 'half_orc';
+      case 'полуэльф': return 'half_elf';
+      // Backgrounds
+      case 'прислужник': return 'acolyte';
+      case 'солдат': return 'soldier';
+      case 'народный герой': return 'folk_hero';
+      default: return lower;
+    }
   }
 
-  static ClassData? getClassById(String id) {
-    return _classes?.firstWhere((c) => c.id == id, orElse: () => throw Exception('Class not found: $id'));
+  static RaceData? getRaceById(String idOrName) {
+    final targetId = _normalizeId(idOrName);
+    return _races?.firstWhere(
+      (r) => r.id == targetId || r.name.values.any((val) => val.toLowerCase() == targetId), 
+      orElse: () => throw Exception('Race not found: $idOrName')
+    );
   }
 
-  static BackgroundData? getBackgroundById(String id) {
-    return _backgrounds?.firstWhere((b) => b.id == id, orElse: () => throw Exception('Background not found: $id'));
+  static ClassData? getClassById(String idOrName) {
+    final targetId = _normalizeId(idOrName);
+    return _classes?.firstWhere(
+      (c) => c.id == targetId || c.name.values.any((val) => val.toLowerCase() == targetId), 
+      orElse: () => throw Exception('Class not found: $idOrName')
+    );
+  }
+
+  static BackgroundData? getBackgroundById(String idOrName) {
+    final targetId = _normalizeId(idOrName);
+    return _backgrounds?.firstWhere(
+      (b) => b.id == targetId || b.name.values.any((val) => val.toLowerCase() == targetId), 
+      orElse: () => throw Exception('Background not found: $idOrName')
+    );
   }
 }
