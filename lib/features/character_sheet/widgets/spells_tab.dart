@@ -195,7 +195,7 @@ class _SpellsTabState extends State<SpellsTab> {
                 ),
               ))
             else
-              ...spellsByLevel.keys.toList()..sort().map((level) => _buildSpellLevelGroup(level, spellsByLevel[level]!)).toList(),
+              ...(spellsByLevel.keys.toList()..sort()).map((level) => _buildSpellLevelGroup(level, spellsByLevel[level]!)).toList(),
 
             const SizedBox(height: 16),
 
