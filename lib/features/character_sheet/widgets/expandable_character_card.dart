@@ -135,10 +135,10 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
                             
                             // Level Up Trigger
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              padding: const EdgeInsets.symmetric(vertical: 6.0),
                               child: Material(
-                                color: colorScheme.primary.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
+                                color: colorScheme.tertiaryContainer,
+                                borderRadius: BorderRadius.circular(12),
                                 clipBehavior: Clip.antiAlias,
                                 child: InkWell(
                                   onTap: () {
@@ -146,24 +146,40 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
                                     _openLevelUpWizard();
                                   },
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Text(
-                                          '${widget.character.race} • Level ${widget.character.level}',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: colorScheme.primary,
-                                            fontSize: 13,
-                                          ),
+                                        Icon(
+                                          Icons.keyboard_double_arrow_up,
+                                          size: 20,
+                                          color: colorScheme.onTertiaryContainer,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              'LEVEL ${widget.character.level}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w900,
+                                                color: colorScheme.onTertiaryContainer,
+                                                fontSize: 12,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ),
+                                            Text(
+                                              'TAP TO UPGRADE',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                color: colorScheme.onTertiaryContainer.withOpacity(0.7),
+                                                fontSize: 9,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                         const SizedBox(width: 4),
-                                        Icon(
-                                          Icons.upgrade,
-                                          size: 18,
-                                          color: colorScheme.primary,
-                                        ),
                                       ],
                                     ),
                                   ),
