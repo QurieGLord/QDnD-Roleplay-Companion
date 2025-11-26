@@ -35,28 +35,28 @@ class AppPalettes {
   }
 
   // ===========================================================================
-  // 1. QMonokai (Vibrant Warmth)
+  // 1. QMonokai (The Original Warmth)
   // ===========================================================================
   static const _qMonokaiDark = ColorScheme(
     brightness: Brightness.dark,
-    primary: Color(0xFFFF6161), // Vibrant Coral Pink
-    onPrimary: Color(0xFF2D0E0E),
-    primaryContainer: Color(0xFF8A2036), // Rich Berry (Removes muddiness)
+    primary: Color(0xFFFF5C5C), // Vibrant Warm Coral
+    onPrimary: Color(0xFF330000),
+    primaryContainer: Color(0xFF9E1A34), // Deep Berry
     onPrimaryContainer: Color(0xFFFFD9DE),
-    secondary: Color(0xFFA6E22E), // Acid Green
+    secondary: Color(0xFFA6E22E), // The Classic Monokai Lime (Warm & Acidic)
     onSecondary: Color(0xFF1E2905),
-    secondaryContainer: Color(0xFF526615), // Rich Moss
+    secondaryContainer: Color(0xFF526615),
     onSecondaryContainer: Color(0xFFE8F7C8),
-    tertiary: Color(0xFF66D9EF), // Cyan
+    tertiary: Color(0xFF66D9EF), // Cyan (Classic)
     onTertiary: Color(0xFF002830),
     tertiaryContainer: Color(0xFF004F5E),
     onTertiaryContainer: Color(0xFFC4F3FF),
     error: Color(0xFFFD971F), // Orange
     onError: Color(0xFF381E00),
-    surface: Color(0xFF292220), // Deep Warm Coffee (Cleaner than chocolate)
-    onSurface: Color(0xFFEDE0D9), // Warm Cream
-    surfaceContainerHighest: Color(0xFF4A3E3A), // Lighter coffee
-    outline: Color(0xFF9C8C85),
+    surface: Color(0xFF2E2B29), // Warm Dark Chocolate/Grey
+    onSurface: Color(0xFFF8F8F2), // Off-white
+    surfaceContainerHighest: Color(0xFF46423F), // Lighter chocolate
+    outline: Color(0xFF968B83),
   );
 
   static const _qMonokaiLight = ColorScheme(
