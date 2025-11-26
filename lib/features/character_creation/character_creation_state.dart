@@ -47,6 +47,9 @@ class CharacterCreationState extends ChangeNotifier {
   String hpSelectionMethod = 'max'; // 'max', 'average', 'roll'
   int? rolledHp; // Stored when user rolls for HP
 
+  // Step 3.5: Features & Spells (New)
+  List<String> selectedSpells = []; // IDs of selected spells
+
   // Step 4: Skills
   List<String> selectedSkills = [];
 
@@ -71,6 +74,8 @@ class CharacterCreationState extends ChangeNotifier {
   bool get isStep5Valid => _validateSkills();
   bool get isStep6Valid => true; // Review всегда валиден если дошли до него
 
+  bool get isStepFeaturesValid => true; // Placeholder: Add validation logic if class requires spell selection
+
   bool _validateAbilityScores() {
     return abilityScores.values.every((score) => score >= 3 && score <= 18);
   }
@@ -78,6 +83,15 @@ class CharacterCreationState extends ChangeNotifier {
   bool _validateSkills() {
     if (selectedClass == null) return false;
     return selectedSkills.length == selectedClass!.skillProficiencies.choose;
+  }
+
+  void toggleSpell(String spellId) {
+    if (selectedSpells.contains(spellId)) {
+      selectedSpells.remove(spellId);
+    } else {
+      selectedSpells.add(spellId);
+    }
+    notifyListeners();
   }
 
   void updateName(String newName) {

@@ -12,6 +12,7 @@ import 'character_creation_state.dart';
 import 'steps/basic_info_step.dart';
 import 'steps/race_class_step.dart';
 import 'steps/ability_scores_step.dart';
+import 'steps/features_spells_step.dart';
 import 'steps/equipment_step.dart';
 import 'steps/background_step.dart';
 import 'steps/skills_step.dart';
@@ -32,6 +33,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
     'Basic Info',
     'Race & Class',
     'Ability Scores & HP',
+    'Features & Spells', // New step
     'Equipment',
     'Background',
     'Skills',
@@ -62,6 +64,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
                   BasicInfoStep(),
                   RaceClassStep(),
                   AbilityScoresStep(),
+                  FeaturesSpellsStep(), // New step
                   EquipmentStep(),
                   BackgroundStep(),
                   SkillsStep(),
@@ -81,7 +84,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
-        children: List.generate(7, (index) {
+        children: List.generate(8, (index) {
           final isCompleted = index < _currentStep;
           final isCurrent = index == _currentStep;
           return Expanded(
@@ -132,7 +135,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
                 Expanded(
                   child: FilledButton(
                     onPressed: _canProceed() ? _handleNext : null,
-                    child: Text(_currentStep == 6 ? 'Create Character' : 'Next'),
+                    child: Text(_currentStep == 7 ? 'Create Character' : 'Next'),
                   ),
                 ),
               ],
@@ -152,20 +155,22 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       case 2:
         return _state.isStep3Valid;
       case 3:
-        return true; // Equipment step is always valid (placeholder)
+        return _state.isStepFeaturesValid; // Features & Spells
       case 4:
-        return _state.isStep4Valid;
+        return true; // Equipment
       case 5:
-        return _state.isStep5Valid;
+        return _state.isStep4Valid; // Background (was step 4)
       case 6:
-        return _state.isStep6Valid;
+        return _state.isStep5Valid; // Skills (was step 5)
+      case 7:
+        return _state.isStep6Valid; // Review
       default:
         return false;
     }
   }
 
   void _handleNext() async {
-    if (_currentStep < 6) {
+    if (_currentStep < 7) {
       setState(() {
         _currentStep++;
       });
