@@ -35,37 +35,37 @@ class AppPalettes {
   }
 
   // ===========================================================================
-  // 1. QMonokai
+  // 1. QMonokai (Warm & Vibrant)
   // ===========================================================================
   static const _qMonokaiDark = ColorScheme(
     brightness: Brightness.dark,
-    primary: Color(0xFFF92672), // Pink
-    onPrimary: Color(0xFF272822),
-    primaryContainer: Color(0xFF4D1025),
-    onPrimaryContainer: Color(0xFFFFD4E2),
-    secondary: Color(0xFFA6E22E), // Green
+    primary: Color(0xFFFF6B6B), // Warm Coral Pink
+    onPrimary: Color(0xFF2D1212),
+    primaryContainer: Color(0xFF5C1E1E), // Muted warm container
+    onPrimaryContainer: Color(0xFFFFD4CC),
+    secondary: Color(0xFFA6E22E), // Warm Green
     onSecondary: Color(0xFF272822),
-    secondaryContainer: Color(0xFF354713),
+    secondaryContainer: Color(0xFF3E4F17),
     onSecondaryContainer: Color(0xFFE2F5C8),
-    tertiary: Color(0xFF66D9EF), // Blue
+    tertiary: Color(0xFF66D9EF), // Cyan
     onTertiary: Color(0xFF272822),
-    tertiaryContainer: Color(0xFF18424B),
+    tertiaryContainer: Color(0xFF1C4852),
     onTertiaryContainer: Color(0xFFD1F4FA),
     error: Color(0xFFFD971F), // Orange
     onError: Color(0xFF272822),
-    surface: Color(0xFF272822), // Monokai Bg
-    onSurface: Color(0xFFF8F8F2), // Monokai Fg
-    surfaceContainerHighest: Color(0xFF3E3D32),
-    outline: Color(0xFF75715E),
+    surface: Color(0xFF362E2B), // Warm Milk Chocolate / Espresso
+    onSurface: Color(0xFFF8F2EA), // Warm White
+    surfaceContainerHighest: Color(0xFF4E423F), // Lighter chocolate
+    outline: Color(0xFF968B83),
   );
 
   static const _qMonokaiLight = ColorScheme(
     brightness: Brightness.light,
-    primary: Color(0xFFD41C60), // Darker Pink for contrast on light
+    primary: Color(0xFFD41C60), // Deep Pink
     onPrimary: Colors.white,
     primaryContainer: Color(0xFFFFD4E2),
     onPrimaryContainer: Color(0xFF4D1025),
-    secondary: Color(0xFF76A318), // Darker Green
+    secondary: Color(0xFF6E9615), // Darker Green
     onSecondary: Colors.white,
     secondaryContainer: Color(0xFFE2F5C8),
     onSecondaryContainer: Color(0xFF263608),
@@ -75,21 +75,21 @@ class AppPalettes {
     onTertiaryContainer: Color(0xFF00363D),
     error: Color(0xFFD67608), // Darker Orange
     onError: Colors.white,
-    surface: Color(0xFFFAF8F5), // Creamy White
+    surface: Color(0xFFFDF9F3), // Creamy White
     onSurface: Color(0xFF272822), // Dark Text
-    surfaceContainerHighest: Color(0xFFEAE8E3),
+    surfaceContainerHighest: Color(0xFFECE8E1),
     outline: Color(0xFFA5A296),
   );
 
   // ===========================================================================
-  // 2. Gruvbox
+  // 2. Gruvbox (Retro Warmth)
   // ===========================================================================
   static const _gruvboxDark = ColorScheme(
     brightness: Brightness.dark,
-    primary: Color(0xFFFB4934), // Red
+    primary: Color(0xFFFE8019), // Orange (Gruvbox signature)
     onPrimary: Color(0xFF282828),
-    primaryContainer: Color(0xFF9D0006),
-    onPrimaryContainer: Color(0xFFFDBDA4),
+    primaryContainer: Color(0xFFA04B02), // Darker Orange
+    onPrimaryContainer: Color(0xFFFFDAB9),
     secondary: Color(0xFFB8BB26), // Green
     onSecondary: Color(0xFF282828),
     secondaryContainer: Color(0xFF79740E),
@@ -100,10 +100,10 @@ class AppPalettes {
     onTertiaryContainer: Color(0xFFFEEBC3),
     error: Color(0xFFCC241D),
     onError: Color(0xFFEBDBB2),
-    surface: Color(0xFF282828), // Dark Bg
+    surface: Color(0xFF2C2827), // Warmer Brown-Grey (Soft Hard Dark)
     onSurface: Color(0xFFEBDBB2), // Light Fg
-    surfaceContainerHighest: Color(0xFF3C3836),
-    outline: Color(0xFF928374),
+    surfaceContainerHighest: Color(0xFF504945), // Lighter warm grey
+    outline: Color(0xFFA89984),
   );
 
   static const _gruvboxLight = ColorScheme(
@@ -270,28 +270,28 @@ class AppPalettes {
   );
 
   // ===========================================================================
-  // 6. Rose of Dune
+  // 6. Rose of Dune (Arid Warmth)
   // ===========================================================================
   static const _duneDark = ColorScheme(
     brightness: Brightness.dark,
-    primary: Color(0xFFE67E22), // Spice Orange
-    onPrimary: Color(0xFF2D1908),
-    primaryContainer: Color(0xFF7A3E08),
-    onPrimaryContainer: Color(0xFFFFDCC2),
-    secondary: Color(0xFFD35400), // Sand Worm Red
-    onSecondary: Color(0xFF2D1908),
-    secondaryContainer: Color(0xFF6E2C00),
-    onSecondaryContainer: Color(0xFFFFD6C2),
-    tertiary: Color(0xFF3498DB), // Water of Life (Blue eyes)
-    onTertiary: Color(0xFF081A26),
-    tertiaryContainer: Color(0xFF003B5C),
+    primary: Color(0xFFD68C45), // Sand Gold (Softer)
+    onPrimary: Color(0xFF362410),
+    primaryContainer: Color(0xFF7A4B1C),
+    onPrimaryContainer: Color(0xFFFFE0C2),
+    secondary: Color(0xFFB85C00), // Muted Spice
+    onSecondary: Color(0xFF3E1F00),
+    secondaryContainer: Color(0xFF6E3600),
+    onSecondaryContainer: Color(0xFFFFDCC2),
+    tertiary: Color(0xFF4A8CB0), // Muted Water Blue
+    onTertiary: Color(0xFF002C42),
+    tertiaryContainer: Color(0xFF004663),
     onTertiaryContainer: Color(0xFFC2E5FF),
     error: Color(0xFFC0392B),
     onError: Color(0xFFFFFFFF),
-    surface: Color(0xFF2D1908), // Deep Desert Night
-    onSurface: Color(0xFFF5CBA7), // Sand
-    surfaceContainerHighest: Color(0xFF4A2C13),
-    outline: Color(0xFFA06837),
+    surface: Color(0xFF26201B), // Deep Neutral Brown (Less Red, More Earth)
+    onSurface: Color(0xFFE6D6C8), // Light Sand Text
+    surfaceContainerHighest: Color(0xFF423832), // Lighter Brown
+    outline: Color(0xFF8C7A6B),
   );
 
   static const _duneLight = ColorScheme(
