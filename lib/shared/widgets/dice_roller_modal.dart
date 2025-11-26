@@ -1,20 +1,21 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For HapticFeedback
+import 'package:flutter/services.dart';
 
 enum DiceType {
-  d4(4, '▲'),
-  d6(6, '■'),
-  d8(8, '◆'),
-  d10(10, '⬖'),
-  d12(12, '⬟'),
-  d20(20, '⬢'),
-  d100(100, '%');
+  d4(4, 'd4'),
+  d6(6, 'd6'),
+  d8(8, 'd8'),
+  d10(10, 'd10'),
+  d12(12, 'd12'),
+  d20(20, 'd20'),
+  d100(100, 'd100');
 
   final int sides;
-  final String icon;
-  const DiceType(this.sides, this.icon);
+  final String label;
+  const DiceType(this.sides, this.label);
 }
 
 enum AdvantageType {
@@ -87,11 +88,11 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
   AdvantageType _advantage = AdvantageType.none;
   final List<DiceRoll> _history = [];
 
-  // Animation Controllers
-  late AnimationController _shakeController;
-  late AnimationController _scaleController;
+  // Animation
+  late AnimationController _rollController;
+  late Animation<double> _rotationAnimation;
+  late Animation<double> _scaleAnimation;
   
-  // State for rolling visual
   bool _isRolling = false;
   int _displayedNumber = 1;
   Timer? _rollTimer;
@@ -102,21 +103,26 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
     _selectedDice = widget.initialDice;
     _modifier = widget.initialModifier;
 
-    _shakeController = AnimationController(
-      duration: const Duration(milliseconds: 100),
+    _rollController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
 
-    _scaleController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
+    _rotationAnimation = CurvedAnimation(
+      parent: _rollController,
+      curve: Curves.fastOutSlowIn,
     );
+
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.8), weight: 20), // Pull back
+      TweenSequenceItem(tween: Tween(begin: 0.8, end: 1.2), weight: 40), // Throw forward
+      TweenSequenceItem(tween: Tween(begin: 1.2, end: 1.0), weight: 40), // Settle
+    ]).animate(_rollController);
   }
 
   @override
   void dispose() {
-    _shakeController.dispose();
-    _scaleController.dispose();
+    _rollController.dispose();
     _rollTimer?.cancel();
     super.dispose();
   }
@@ -126,49 +132,41 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
 
     setState(() => _isRolling = true);
     HapticFeedback.selectionClick();
+    _rollController.forward(from: 0);
 
-    // 1. Start Shaking and Cycling Numbers
-    _shakeController.repeat(reverse: true);
-    
-    int cycles = 0;
     final random = Random();
+    int cycles = 0;
     
-    _rollTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+    // Fast number cycling
+    _rollTimer = Timer.periodic(const Duration(milliseconds: 60), (timer) {
       setState(() {
         _displayedNumber = random.nextInt(_selectedDice.sides) + 1;
       });
       cycles++;
-      // Add haptic feedback on ticks for tactile feel
-      if (cycles % 2 == 0) HapticFeedback.lightImpact();
+      if (cycles > 12) timer.cancel();
     });
 
-    // 2. Wait for animation duration
-    await Future.delayed(const Duration(milliseconds: 800));
+    // Wait for animation
+    await Future.delayed(const Duration(milliseconds: 1000));
 
-    // 3. Stop animations and Calculate Result
-    _rollTimer?.cancel();
-    _shakeController.stop();
-    _shakeController.value = 0;
-
+    // Calculate actual result
     final rolls = <int>[];
     int resultVal = 0;
 
     if (_advantage == AdvantageType.none) {
-      final r = random.nextInt(_selectedDice.sides) + 1;
-      rolls.add(r);
-      resultVal = r;
+      rolls.add(random.nextInt(_selectedDice.sides) + 1);
+      resultVal = rolls.first;
     } else {
-      final r1 = random.nextInt(_selectedDice.sides) + 1;
-      final r2 = random.nextInt(_selectedDice.sides) + 1;
-      rolls.add(r1);
-      rolls.add(r2);
-      resultVal = _advantage == AdvantageType.advantage ? max(r1, r2) : min(r1, r2);
+      rolls.add(random.nextInt(_selectedDice.sides) + 1);
+      rolls.add(random.nextInt(_selectedDice.sides) + 1);
+      resultVal = _advantage == AdvantageType.advantage 
+          ? rolls.reduce(max) 
+          : rolls.reduce(min);
     }
 
     setState(() {
       _displayedNumber = resultVal;
       _isRolling = false;
-      
       _history.insert(0, DiceRoll(
         result: resultVal,
         total: resultVal + _modifier,
@@ -180,9 +178,7 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
       ));
     });
 
-    // 4. Success Animation (Pop)
     HapticFeedback.heavyImpact();
-    _scaleController.forward(from: 0).then((_) => _scaleController.reverse());
   }
 
   @override
@@ -191,285 +187,255 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
     final colorScheme = theme.colorScheme;
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.85,
+      height: MediaQuery.of(context).size.height * 0.9,
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20),
-        ],
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Column(
         children: [
           // Handle
-          Center(
-            child: Container(
-              margin: const EdgeInsets.only(top: 12, bottom: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: colorScheme.onSurfaceVariant.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 8),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: colorScheme.onSurfaceVariant.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
 
-          // Header
+          // Title & Close
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(widget.title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                      Text('Tap to roll', style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant)),
+                      Text(widget.title, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                      Text('Tap the dice to roll', style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.secondary)),
                     ],
                   ),
                 ),
                 IconButton.filledTonal(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.check),
+                  icon: const Icon(Icons.close),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(height: 20),
+          const Divider(),
 
-          // --- MAIN ROLLING AREA ---
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  // The Big Die
+                  const SizedBox(height: 20),
+
+                  // --- THE DIE ---
                   GestureDetector(
                     onTap: _rollDice,
                     child: AnimatedBuilder(
-                      animation: _shakeController,
+                      animation: _rollController,
                       builder: (context, child) {
-                        // Shake effect using translation
-                        final dx = sin(_shakeController.value * pi * 4) * 8;
-                        return Transform.translate(
-                          offset: Offset(dx, 0),
-                          child: child,
-                        );
-                      },
-                      child: AnimatedBuilder(
-                        animation: _scaleController,
-                        builder: (context, child) {
-                          // Pop effect using scale
-                          final scale = 1.0 + (sin(_scaleController.value * pi) * 0.2);
-                          return Transform.scale(
-                            scale: scale,
-                            child: Container(
+                        // 3D-ish rotation effect
+                        return Transform(
+                          alignment: Alignment.center,
+                          transform: Matrix4.identity()
+                            ..rotateZ(_rotationAnimation.value * pi * 2)
+                            ..scale(_scaleAnimation.value),
+                          child: CustomPaint(
+                            size: const Size(200, 200),
+                            painter: DiceShapePainter(
+                              type: _selectedDice,
+                              color: _isRolling ? colorScheme.primary : colorScheme.primaryContainer,
+                              outlineColor: colorScheme.primary,
+                            ),
+                            child: SizedBox(
                               width: 200,
                               height: 200,
-                              decoration: BoxDecoration(
-                                color: _isRolling 
-                                    ? colorScheme.primary 
-                                    : colorScheme.primaryContainer,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: colorScheme.primary.withOpacity(0.3),
-                                    blurRadius: 30,
-                                    spreadRadius: 5,
-                                  )
-                                ],
-                              ),
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  // Dice Icon Background
-                                  Text(
-                                    _selectedDice.icon,
+                              child: Center(
+                                child: Transform.rotate(
+                                  // Counter-rotate text so it stays readable
+                                  angle: -_rotationAnimation.value * pi * 2,
+                                  child: Text(
+                                    '$_displayedNumber',
                                     style: TextStyle(
-                                      fontSize: 140,
-                                      color: _isRolling 
-                                          ? Colors.white.withOpacity(0.2)
-                                          : colorScheme.primary.withOpacity(0.1),
+                                      fontSize: 64,
+                                      fontWeight: FontWeight.w900,
+                                      color: _isRolling ? colorScheme.onPrimary : colorScheme.primary,
                                     ),
                                   ),
-                                  // The Number
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        '$_displayedNumber',
-                                        style: TextStyle(
-                                          fontSize: 80,
-                                          fontWeight: FontWeight.w900,
-                                          color: _isRolling 
-                                              ? Colors.white 
-                                              : colorScheme.primary,
-                                          height: 1,
-                                        ),
-                                      ),
-                                      if (!_isRolling && _history.isNotEmpty)
-                                        Container(
-                                          margin: const EdgeInsets.only(top: 8),
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: colorScheme.surface,
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          child: Text(
-                                            'Total: ${_history.first.total}',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: colorScheme.onSurface,
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
                     ),
                   ),
 
-                  const SizedBox(height: 32),
-
-                  // Controls Row (Dice Type & Modifier)
-                  Row(
-                    children: [
-                      // Dice Selector
-                      Expanded(
-                        flex: 3,
-                        child: Container(
-                          height: 56,
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: colorScheme.outlineVariant),
-                          ),
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            children: DiceType.values.map((dice) {
-                              final isSelected = _selectedDice == dice;
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                                child: ChoiceChip(
-                                  label: Text('d${dice.sides}'),
-                                  selected: isSelected,
-                                  showCheckmark: false,
-                                  onSelected: (val) => setState(() => _selectedDice = dice),
-                                  labelStyle: TextStyle(
-                                    color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  backgroundColor: Colors.transparent,
-                                  selectedColor: colorScheme.primary,
-                                  padding: EdgeInsets.zero,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      
-                      // Modifier Stepper
-                      Container(
-                        height: 56,
+                  // Result display
+                  if (!_isRolling && _history.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 32),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                          color: colorScheme.secondaryContainer,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: colorScheme.outlineVariant),
                         ),
                         child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            IconButton(
-                              onPressed: () => setState(() => _modifier--),
-                              icon: const Icon(Icons.remove, size: 18),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(minWidth: 40),
+                            Text(
+                              'Total: ',
+                              style: TextStyle(color: colorScheme.onSecondaryContainer, fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              '${_modifier >= 0 ? '+' : ''}$_modifier',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              '${_history.first.total}',
+                              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: colorScheme.onSecondaryContainer),
                             ),
-                            IconButton(
-                              onPressed: () => setState(() => _modifier++),
-                              icon: const Icon(Icons.add, size: 18),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(minWidth: 40),
-                            ),
+                            if (_modifier != 0)
+                              Text(
+                                ' (${_history.first.result} ${_modifier >= 0 ? '+' : ''} $_modifier)',
+                                style: TextStyle(color: colorScheme.onSecondaryContainer.withOpacity(0.7), fontSize: 12),
+                              ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    )
+                  else
+                    const SizedBox(height: 80), // Spacer placeholder
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 40),
 
-                  // Advantage Selector
-                  SegmentedButton<AdvantageType>(
-                    segments: const [
-                      ButtonSegment(value: AdvantageType.disadvantage, label: Text('Disadv'), icon: Icon(Icons.arrow_downward, size: 16)),
-                      ButtonSegment(value: AdvantageType.none, label: Text('Normal')),
-                      ButtonSegment(value: AdvantageType.advantage, label: Text('Adv'), icon: Icon(Icons.arrow_upward, size: 16)),
+                  // --- CONTROLS ---
+                  
+                  // Dice Type Selector (Grid/Wrap)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('DICE TYPE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.outline, letterSpacing: 1.2)),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        alignment: WrapAlignment.center,
+                        children: DiceType.values.map((dice) {
+                          final isSelected = _selectedDice == dice;
+                          return GestureDetector(
+                            onTap: () => setState(() => _selectedDice = dice),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: isSelected ? colorScheme.primary : colorScheme.outline.withOpacity(0.3),
+                                  width: isSelected ? 0 : 1,
+                                ),
+                                boxShadow: isSelected ? [
+                                  BoxShadow(color: colorScheme.primary.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))
+                                ] : [],
+                              ),
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // Mini icon representation
+                                    CustomPaint(
+                                      size: const Size(20, 20),
+                                      painter: DiceShapePainter(
+                                        type: dice,
+                                        color: isSelected ? colorScheme.onPrimary.withOpacity(0.2) : colorScheme.onSurface.withOpacity(0.1),
+                                        outlineColor: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+                                        strokeWidth: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      dice.label,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ],
-                    selected: {_advantage},
-                    onSelectionChanged: (val) => setState(() => _advantage = val.first),
-                    style: ButtonStyle(
-                      visualDensity: VisualDensity.compact,
-                      shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                    ),
                   ),
 
                   const SizedBox(height: 24),
 
-                  // History Log
-                  if (_history.isNotEmpty) ...[
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text('Recent Rolls', style: theme.textTheme.titleSmall?.copyWith(color: colorScheme.secondary)),
-                    ),
-                    const SizedBox(height: 8),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: min(_history.length, 3),
-                      itemBuilder: (context, index) {
-                        final roll = _history[index];
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          elevation: 0,
-                          color: colorScheme.surfaceContainerLow,
-                          child: ListTile(
-                            dense: true,
-                            leading: Text(roll.type.icon, style: const TextStyle(fontSize: 24)),
-                            title: Row(
-                              children: [
-                                Text('${roll.result}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                if (roll.modifier != 0)
-                                  Text(' ${roll.modifier >= 0 ? '+' : ''}${roll.modifier}', style: TextStyle(color: colorScheme.onSurfaceVariant)),
-                                Text(' = ${roll.total}', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.w900, fontSize: 16)),
-                              ],
-                            ),
-                            subtitle: roll.advantage != AdvantageType.none
-                                ? Text('${roll.advantage.label} [${roll.rawRolls.join(', ')}]')
-                                : null,
-                            trailing: Text(
-                              '${roll.timestamp.minute}:${roll.timestamp.second.toString().padLeft(2, '0')}',
-                              style: TextStyle(fontSize: 10, color: colorScheme.outline),
-                            ),
+                  // Modifier & Advantage Row
+                  Row(
+                    children: [
+                      // Modifier
+                      Expanded(
+                        flex: 4,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: colorScheme.outlineVariant),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        );
-                      },
-                    ),
-                  ],
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                onPressed: () => setState(() => _modifier--),
+                                icon: const Icon(Icons.remove),
+                                visualDensity: VisualDensity.compact,
+                              ),
+                              Column(
+                                children: [
+                                  Text('MOD', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: colorScheme.outline)),
+                                  Text('${_modifier >= 0 ? '+' : ''}$_modifier', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                              IconButton(
+                                onPressed: () => setState(() => _modifier++),
+                                icon: const Icon(Icons.add),
+                                visualDensity: VisualDensity.compact,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // Advantage
+                      Expanded(
+                        flex: 6,
+                        child: SegmentedButton<AdvantageType>(
+                          segments: const [
+                            ButtonSegment(value: AdvantageType.disadvantage, icon: Icon(Icons.keyboard_double_arrow_down)),
+                            ButtonSegment(value: AdvantageType.none, label: Text(' - ')),
+                            ButtonSegment(value: AdvantageType.advantage, icon: Icon(Icons.keyboard_double_arrow_up)),
+                          ],
+                          selected: {_advantage},
+                          onSelectionChanged: (val) => setState(() => _advantage = val.first),
+                          showSelectedIcon: false,
+                          style: ButtonStyle(
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -478,4 +444,120 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
       ),
     );
   }
+}
+
+// --- CUSTOM PAINTER FOR DICE SHAPES ---
+
+class DiceShapePainter extends CustomPainter {
+  final DiceType type;
+  final Color color;
+  final Color outlineColor;
+  final double strokeWidth;
+
+  DiceShapePainter({
+    required this.type,
+    required this.color,
+    required this.outlineColor,
+    this.strokeWidth = 3.0,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final outlinePaint = Paint()
+      ..color = outlineColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeJoin = StrokeJoin.round;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = min(size.width, size.height) / 2 * 0.9; // Padding
+
+    final path = Path();
+
+    switch (type) {
+      case DiceType.d4:
+        // Triangle
+        final angle = -pi / 2; // Point up
+        for (int i = 0; i < 3; i++) {
+          final theta = angle + (i * 2 * pi / 3);
+          final x = center.dx + radius * cos(theta);
+          final y = center.dy + radius * sin(theta) * 1.1; // Adjust aspect
+          if (i == 0) path.moveTo(x, y); else path.lineTo(x, y);
+        }
+        path.close();
+        break;
+
+      case DiceType.d6:
+        // Rounded Square
+        final rect = Rect.fromCircle(center: center, radius: radius * 0.85);
+        path.addRRect(RRect.fromRectAndRadius(rect, const Radius.circular(16)));
+        break;
+
+      case DiceType.d8:
+        // Diamond (2 triangles)
+        path.moveTo(center.dx, center.dy - radius); // Top
+        path.lineTo(center.dx + radius * 0.8, center.dy); // Right
+        path.lineTo(center.dx, center.dy + radius); // Bottom
+        path.lineTo(center.dx - radius * 0.8, center.dy); // Left
+        path.close();
+        // Inner lines for 3D effect
+        canvas.drawPath(path, paint);
+        canvas.drawPath(path, outlinePaint);
+        canvas.drawLine(center, Offset(center.dx, center.dy - radius), outlinePaint..strokeWidth = 1);
+        canvas.drawLine(center, Offset(center.dx, center.dy + radius), outlinePaint..strokeWidth = 1);
+        canvas.drawLine(Offset(center.dx - radius * 0.8, center.dy), Offset(center.dx + radius * 0.8, center.dy), outlinePaint..strokeWidth = 1);
+        return; // Special handling for inner lines
+
+      case DiceType.d10:
+      case DiceType.d100: // Same shape
+        // Kite / Deltoid
+        path.moveTo(center.dx, center.dy - radius); // Top
+        path.lineTo(center.dx + radius * 0.8, center.dy - radius * 0.2); // Upper Right
+        path.lineTo(center.dx, center.dy + radius); // Bottom
+        path.lineTo(center.dx - radius * 0.8, center.dy - radius * 0.2); // Upper Left
+        path.close();
+        // Inner lines
+        canvas.drawPath(path, paint);
+        canvas.drawPath(path, outlinePaint);
+        canvas.drawLine(center, Offset(center.dx, center.dy - radius), outlinePaint..strokeWidth = 1);
+        canvas.drawLine(center, Offset(center.dx, center.dy + radius), outlinePaint..strokeWidth = 1);
+        canvas.drawLine(Offset(center.dx - radius * 0.8, center.dy - radius * 0.2), center, outlinePaint..strokeWidth = 1);
+        canvas.drawLine(Offset(center.dx + radius * 0.8, center.dy - radius * 0.2), center, outlinePaint..strokeWidth = 1);
+        return;
+
+      case DiceType.d12:
+        // Pentagon
+        final angle = -pi / 2;
+        for (int i = 0; i < 5; i++) {
+          final theta = angle + (i * 2 * pi / 5);
+          final x = center.dx + radius * cos(theta);
+          final y = center.dy + radius * sin(theta);
+          if (i == 0) path.moveTo(x, y); else path.lineTo(x, y);
+        }
+        path.close();
+        break;
+
+      case DiceType.d20:
+        // Hexagon
+        final angle = pi / 6; // Flat top? No, pointy top usually
+        for (int i = 0; i < 6; i++) {
+          final theta = angle + (i * 2 * pi / 6);
+          final x = center.dx + radius * cos(theta);
+          final y = center.dy + radius * sin(theta);
+          if (i == 0) path.moveTo(x, y); else path.lineTo(x, y);
+        }
+        path.close();
+        break;
+    }
+
+    canvas.drawPath(path, paint);
+    canvas.drawPath(path, outlinePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
