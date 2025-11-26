@@ -7,6 +7,7 @@ import '../../core/models/item.dart';
 import '../../core/constants/enums.dart';
 import '../../core/services/storage_service.dart';
 import '../../core/services/item_service.dart';
+import '../../core/services/feature_service.dart';
 import 'character_creation_state.dart';
 import 'steps/basic_info_step.dart';
 import 'steps/race_class_step.dart';
@@ -304,6 +305,9 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
         skin: _state.skin,
         appearanceDescription: _state.appearanceDescription,
       );
+
+      // 5.5 Add class features
+      FeatureService.addFeaturesToCharacter(character);
 
       // 6. Add starting equipment if selected
       if (_state.selectedEquipmentPackage == 'custom') {

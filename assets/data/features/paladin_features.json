@@ -12,8 +12,8 @@
     "actionEconomy": "action",
     "iconName": "healing",
     "resourcePool": {
-      "currentUses": 0,
-      "maxUses": 0,
+      "currentUses": 5,
+      "maxUses": 5,
       "recoveryType": "longRest",
       "calculationFormula": "level * 5"
     }
@@ -31,8 +31,8 @@
     "actionEconomy": "action",
     "iconName": "visibility",
     "resourcePool": {
-      "currentUses": 0,
-      "maxUses": 0,
+      "currentUses": 1,
+      "maxUses": 1,
       "recoveryType": "longRest",
       "calculationFormula": "1 + cha_mod"
     }
@@ -102,9 +102,93 @@
     "actionEconomy": "action",
     "iconName": "auto_awesome",
     "resourcePool": {
-      "currentUses": 0,
+      "currentUses": 1,
       "maxUses": 1,
       "recoveryType": "shortRest"
     }
+  },
+  {
+    "id": "extra_attack",
+    "nameEn": "Extra Attack",
+    "nameRu": "Дополнительная атака",
+    "descriptionEn": "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn.",
+    "descriptionRu": "Начиная с 5-го уровня, вы можете атаковать дважды, вместо одного раза, когда вы совершаете действие Атака в свой ход.",
+    "type": "passive",
+    "minLevel": 5,
+    "associatedClass": "Paladin",
+    "requiresRest": false,
+    "actionEconomy": null,
+    "iconName": "filter_2"
+  },
+  {
+    "id": "aura_of_protection",
+    "nameEn": "Aura of Protection",
+    "nameRu": "Аура защиты",
+    "descriptionEn": "Starting at 6th level, whenever you or a friendly creature within 10 feet of you must make a saving throw, the creature gains a bonus to the saving throw equal to your Charisma modifier (with a minimum bonus of +1). You must be conscious to grant this bonus.",
+    "descriptionRu": "Начиная с 6-го уровня, если вы или дружественное существо в пределах 10 футов от вас должны совершить спасбросок, это существо получает бонус к спасброску, равный модификатору вашей Харизмы (минимальный бонус +1). Вы должны находиться в сознании, чтобы предоставлять этот бонус.",
+    "type": "passive",
+    "minLevel": 6,
+    "associatedClass": "Paladin",
+    "requiresRest": false,
+    "actionEconomy": null,
+    "iconName": "security"
+  },
+  {
+    "id": "aura_of_courage",
+    "nameEn": "Aura of Courage",
+    "nameRu": "Аура отваги",
+    "descriptionEn": "Starting at 10th level, you and friendly creatures within 10 feet of you can't be frightened while you are conscious.",
+    "descriptionRu": "Начиная с 10-го уровня, вы и дружественные существа в пределах 10 футов от вас не можете быть испуганы, пока вы находитесь в сознании.",
+    "type": "passive",
+    "minLevel": 10,
+    "associatedClass": "Paladin",
+    "requiresRest": false,
+    "actionEconomy": null,
+    "iconName": "favorite"
+  },
+  {
+    "id": "improved_divine_smite",
+    "nameEn": "Improved Divine Smite",
+    "nameRu": "Улучшенная божественная кара",
+    "descriptionEn": "By 11th level, you are so suffused with righteous might that all your melee weapon strikes carry divine power. Whenever you hit a creature with a melee weapon, the creature takes an extra 1d8 radiant damage.",
+    "descriptionRu": "К 11-му уровню вы настолько пропитаны праведной мощью, что все ваши удары оружием ближнего боя несут божественную силу. Всякий раз, когда вы попадаете по существу оружием ближнего боя, существо получает дополнительные 1d8 урона излучением.",
+    "type": "passive",
+    "minLevel": 11,
+    "associatedClass": "Paladin",
+    "requiresRest": false,
+    "actionEconomy": null,
+    "iconName": "auto_fix_normal"
+  },
+  {
+    "id": "cleansing_touch",
+    "nameEn": "Cleansing Touch",
+    "nameRu": "Очищающее касание",
+    "descriptionEn": "Beginning at 14th level, you can use your action to end one spell on yourself or on one willing creature that you touch.",
+    "descriptionRu": "Начиная с 14-го уровня, вы можете действием окончить действие одного заклинания на себе или на одном согласном существе, которого вы касаетесь.",
+    "type": "action",
+    "minLevel": 14,
+    "associatedClass": "Paladin",
+    "requiresRest": true,
+    "actionEconomy": "action",
+    "iconName": "back_hand",
+    "resourcePool": {
+      "currentUses": 0,
+      "maxUses": 0,
+      "recoveryType": "longRest",
+      "calculationFormula": "cha_mod"
+    }
+  },
+  {
+    "id": "aura_expansion",
+    "nameEn": "Aura Expansion",
+    "nameRu": "Расширение ауры",
+    "descriptionEn": "At 18th level, the range of your auras increases to 30 feet.",
+    "descriptionRu": "На 18-м уровне радиус ваших аур увеличивается до 30 футов.",
+    "type": "passive",
+    "minLevel": 18,
+    "associatedClass": "Paladin",
+    "requiresRest": false,
+    "actionEconomy": null,
+    "iconName": "wifi_tethering"
   }
 ]
