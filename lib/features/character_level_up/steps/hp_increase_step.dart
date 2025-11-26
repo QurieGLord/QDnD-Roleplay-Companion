@@ -28,7 +28,7 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 1),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
 
@@ -56,7 +56,6 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
         _currentRollDisplay = finalRoll;
       });
       
-      // Delay slightly to show result before moving on
       Future.delayed(const Duration(milliseconds: 800), () {
         widget.onRoll(finalRoll);
       });
@@ -65,112 +64,130 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final avgValue = (widget.hitDie / 2).floor() + 1;
     final totalAvg = avgValue + widget.conMod;
     
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text(
-            'Increase Hit Points',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          Text(
+            'Hit Points',
+            style: theme.textTheme.headlineMedium?.copyWith(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Choose how to increase your maximum HP.',
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.center,
+            'Your constitution modifier is ${widget.conMod >= 0 ? '+' : ''}${widget.conMod}',
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
-          
           const Spacer(),
           
-          // Dice Display
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.casino, // Placeholder for dice icon
-                  size: 48,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _isRolling ? '$_currentRollDisplay' : 'd${widget.hitDie}',
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-                ),
-              ],
+          // Main Visual
+          Center(
+            child: Container(
+              width: 160,
+              height: 160,
+              decoration: BoxDecoration(
+                color: colorScheme.secondaryContainer.withOpacity(0.3),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: _isRolling 
+                  ? RotationTransition(
+                      turns: CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+                      child: Icon(Icons.casino, size: 80, color: colorScheme.primary),
+                    )
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.favorite, size: 48, color: colorScheme.primary),
+                        const SizedBox(height: 8),
+                        Text('d${widget.hitDie}', style: theme.textTheme.titleLarge),
+                      ],
+                    ),
+              ),
             ),
           ),
           
-          const SizedBox(height: 16),
-          Text(
-            'Constitution Modifier: ${widget.conMod >= 0 ? '+' : ''}${widget.conMod}',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          
+          if (_isRolling) ...[
+            const SizedBox(height: 32),
+            Text(
+              '$_currentRollDisplay',
+              style: theme.textTheme.displayLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.primary,
+              ),
+            ),
+          ],
+
           const Spacer(),
           
           if (!_isRolling)
             Row(
               children: [
+                // Average Option
                 Expanded(
-                  child: OutlinedButton(
-                    onPressed: widget.onAverage,
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Column(
-                      children: [
-                        const Text('Take Average'),
-                        const SizedBox(height: 4),
-                        Text(
-                          '$totalAvg HP', 
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  child: Card(
+                    elevation: 0,
+                    color: colorScheme.surfaceContainer,
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: widget.onAverage,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            Text('Average', style: theme.textTheme.labelLarge),
+                            const SizedBox(height: 8),
+                            Text(
+                              '+$totalAvg',
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text('Safe choice', style: theme.textTheme.bodySmall),
+                          ],
                         ),
-                        Text('($avgValue + ${widget.conMod})', style: const TextStyle(fontSize: 12)),
-                      ],
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 16),
+                // Roll Option
                 Expanded(
-                  child: FilledButton(
-                    onPressed: _startRoll,
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Column(
-                      children: [
-                        const Text('Roll Dice'),
-                        const SizedBox(height: 4),
-                        Text(
-                          '1d${widget.hitDie} + ${widget.conMod}',
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  child: Card(
+                    elevation: 4,
+                    shadowColor: colorScheme.primary.withOpacity(0.4),
+                    color: colorScheme.primary,
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: _startRoll,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            Text('Roll', style: theme.textTheme.labelLarge?.copyWith(color: colorScheme.onPrimary)),
+                            const SizedBox(height: 8),
+                            Icon(Icons.casino, size: 36, color: colorScheme.onPrimary),
+                            const SizedBox(height: 4),
+                            Text('Risk it!', style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onPrimary.withOpacity(0.8))),
+                          ],
                         ),
-                        const Text('(Risk it!)', style: TextStyle(fontSize: 12)),
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-            
-          if (_isRolling)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text('Rolling...', style: TextStyle(fontSize: 18)),
-            ),
-            
-          const SizedBox(height: 32),
+          const SizedBox(height: 16),
         ],
       ),
     );

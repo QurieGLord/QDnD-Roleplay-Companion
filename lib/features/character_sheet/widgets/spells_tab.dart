@@ -352,9 +352,16 @@ class _SpellsTabState extends State<SpellsTab> {
                 const SizedBox(height: 16),
                 ...List.generate(9, (i) {
                   final level = i + 1;
+                  
+                  // Safety check for array bounds
+                  if (i >= widget.character.maxSpellSlots.length) return const SizedBox.shrink();
+                  
                   final max = widget.character.maxSpellSlots[i];
-                  final curr = widget.character.spellSlots[i];
                   if (max == 0) return const SizedBox.shrink();
+                  
+                  final curr = i < widget.character.spellSlots.length 
+                      ? widget.character.spellSlots[i] 
+                      : 0; // Default to 0 if current slots array is shorter
 
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),

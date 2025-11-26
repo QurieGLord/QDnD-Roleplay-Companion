@@ -34,6 +34,9 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
   List<int> _oldSpellSlots = [];
   bool _hasNewSpellSlots = false;
   
+  // Selections
+  final Map<String, String> _selectedOptions = {};
+  
   bool _isLoading = true;
 
   @override
@@ -153,26 +156,52 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
     char.hitDice[0]++; // Add one hit die
     char.maxHitDice = _nextLevel;
 
-    // 3. Add Features
-    for (var feature in _newFeatures) {
-      // Check duplicates
-      if (!char.features.any((f) => f.id == feature.id)) {
-        // Need to clone/calculate max uses
-        // Using FeatureService helper if available or manual logic
-        FeatureService.addFeaturesToCharacter(char); 
-        // Note: addFeaturesToCharacter adds ALL available. Since we upped the level, 
-        // calling this is the safest way to ensure all logic (resource pools etc) runs.
-      }
+    // 3. Apply Choices
+    if (_selectedOptions.containsKey('subclass')) {
+      final subclassId = _selectedOptions['subclass'];
+      final subclass = _classData.subclasses.firstWhere((s) => s.id == subclassId);
+      char.subclass = subclass.getName('en');
     }
 
-    // 4. Update Spell Slots
+    if (_selectedOptions.containsKey('fighting_style')) {
+      final styleId = _selectedOptions['fighting_style'];
+      // Add as a pseudo-feature
+      char.features.add(CharacterFeature(
+        id: 'fs_$styleId',
+        nameEn: 'Fighting Style: ${styleId!.toUpperCase()}',
+        nameRu: 'Боевой стиль',
+        descriptionEn: 'Selected fighting style',
+        descriptionRu: '',
+        type: FeatureType.passive,
+        minLevel: _nextLevel,
+        associatedClass: char.characterClass,
+      ));
+    }
+
+    // 4. Add Features
+    for (var feature in _newFeatures) {
+      // Skip "container" features that were replaced by choices
+      if (feature.id == 'fighting_style') continue;
+
+      // Check duplicates
+      if (!char.features.any((f) => f.id == feature.id)) {
+        FeatureService.addFeaturesToCharacter(char); 
+      }
+    }
+    
+    // Explicitly reload features to catch subclass features if subclass was just set
+    if (_selectedOptions.containsKey('subclass')) {
+       FeatureService.addFeaturesToCharacter(char);
+    }
+
+    // 5. Update Spell Slots
     if (_hasNewSpellSlots) {
       char.maxSpellSlots = _newSpellSlots;
       // Refill new slots? Usually yes on level up
       char.spellSlots = List.from(_newSpellSlots);
     }
 
-    // 5. Save
+    // 6. Save
     await char.save();
 
     if (mounted) {
@@ -210,6 +239,13 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
             newFeatures: _newFeatures,
             newSpellSlots: _newSpellSlots,
             oldSpellSlots: _oldSpellSlots,
+            classData: _classData,
+            nextLevel: _nextLevel,
+            onOptionSelected: (featureId, optionId) {
+              setState(() {
+                _selectedOptions[featureId] = optionId;
+              });
+            },
             onNext: _nextPage,
           ),
           SummaryStep(
