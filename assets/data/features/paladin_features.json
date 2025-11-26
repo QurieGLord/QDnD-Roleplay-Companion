@@ -43,7 +43,7 @@
     "nameRu": "Божественная кара",
     "descriptionEn": "Starting at 2nd level, when you hit a creature with a melee weapon attack, you can expend one spell slot to deal radiant damage to the target, in addition to the weapon's damage.",
     "descriptionRu": "Начиная со 2-го уровня, когда вы попадаете по существу атакой оружием ближнего боя, вы можете потратить одну ячейку заклинаний, чтобы нанести цели урона излучением в дополнение к урону оружия.",
-    "type": "passive",
+    "type": "reaction",
     "minLevel": 2,
     "associatedClass": "Paladin",
     "requiresRest": false,

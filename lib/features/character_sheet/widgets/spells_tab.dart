@@ -138,9 +138,15 @@ class _SpellsTabState extends State<SpellsTab> {
       spellsByLevel.putIfAbsent(spell.level, () => []).add(spell);
     }
 
-    // Categorize Features
+    // Feature Categorization
     final features = widget.character.features.toList();
     
+    // Filter out generic "Fighting Style" container if a specific choice has been made
+    final hasSpecificFightingStyle = features.any((f) => f.nameEn.startsWith('Fighting Style:'));
+    if (hasSpecificFightingStyle) {
+      features.removeWhere((f) => f.id == 'fighting_style');
+    }
+
     // 1. Resources: Have a resource pool
     final resourceFeatures = features.where((f) => f.resourcePool != null).toList();
     
