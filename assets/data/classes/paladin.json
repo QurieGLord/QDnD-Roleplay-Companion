@@ -59,6 +59,72 @@
         "en": "Paladins who punish those who commit grievous sins.",
         "ru": "Паладины, карающие тех, кто совершает тяжкие грехи."
       }
+    },
+    {
+      "id": "oath_of_the_ancients",
+      "name": {
+        "en": "Oath of the Ancients",
+        "ru": "Клятва древних"
+      },
+      "description": {
+        "en": "Paladins who love the natural world and the light.",
+        "ru": "Паладины, любящие мир природы и свет."
+      }
+    },
+    {
+      "id": "oath_of_the_crown",
+      "name": {
+        "en": "Oath of the Crown",
+        "ru": "Клятва короны"
+      },
+      "description": {
+        "en": "Paladins who dedicate themselves to serving society and law.",
+        "ru": "Паладины, посвятившие себя служению обществу и закону."
+      }
+    },
+    {
+      "id": "oath_of_redemption",
+      "name": {
+        "en": "Oath of Redemption",
+        "ru": "Клятва искупления"
+      },
+      "description": {
+        "en": "Paladins who believe that anyone can turn to the light.",
+        "ru": "Паладины, верящие, что любой может обратиться к свету."
+      }
+    },
+    {
+      "id": "oath_of_glory",
+      "name": {
+        "en": "Oath of Glory",
+        "ru": "Клятва славы"
+      },
+      "description": {
+        "en": "Paladins who believe they are destined for glory.",
+        "ru": "Паладины, верящие, что им уготована слава."
+      }
+    },
+    {
+      "id": "oath_of_the_watchers",
+      "name": {
+        "en": "Oath of the Watchers",
+        "ru": "Клятва стражей"
+      },
+      "description": {
+        "en": "Paladins who protect the mortal realm from extraplanar threats.",
+        "ru": "Паладины, защищающие мир смертных от угроз из других планов."
+      }
+    },
+    {
+      "id": "oathbreaker",
+      "name": {
+        "en": "Oathbreaker",
+        "ru": "Клятвопреступник"
+      },
+      "description": {
+        "en": "A paladin who has broken their sacred oath to pursue some dark ambition.",
+        "ru": "Паладин, нарушивший свою священную клятву ради преследования темных амбиций."
+      }
     }
   ],
   "subclassLevel": 3,
