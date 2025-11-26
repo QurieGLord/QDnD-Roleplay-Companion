@@ -17,344 +17,169 @@ class OverviewTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Combat Stats Section
+        // COMBAT DASHBOARD
         Card(
-          elevation: 4,
-          shadowColor: colorScheme.primary.withOpacity(0.2),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          elevation: 2,
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.shield_outlined,
-                        color: colorScheme.onPrimaryContainer,
-                        size: 20,
-                      ),
-                    ),
+                    Icon(Icons.security, color: colorScheme.primary),
                     const SizedBox(width: 12),
-                    Text(
-                      'VITAL STATS',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: colorScheme.primary,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                    ),
+                    Text('COMBAT DASHBOARD', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2, color: colorScheme.primary)),
                   ],
                 ),
                 const SizedBox(height: 20),
 
-                // HP, AC, Speed Grid
+                // 1. HP Bar
+                _buildHpBar(context),
+                const SizedBox(height: 20),
+
+                // 2. Vital Stats Grid
                 Row(
                   children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        context,
-                        'Hit Points',
-                        '${character.currentHp}/${character.maxHp}',
-                        Icons.favorite,
-                        colorScheme.error,
-                      ),
-                    ),
+                    Expanded(child: _buildStatCard(context, 'AC', '${character.armorClass}', Icons.shield_outlined, colorScheme.secondary)),
                     const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatCard(
-                        context,
-                        'Armor Class',
-                        '${character.armorClass}',
-                        Icons.shield,
-                        colorScheme.secondary,
-                      ),
-                    ),
+                    Expanded(child: _buildStatCard(context, 'INIT', character.formatModifier(character.initiativeBonus), Icons.flash_on, colorScheme.tertiary, onTap: () => showDiceRoller(context, title: 'Initiative', modifier: character.initiativeBonus))),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildStatCard(context, 'SPEED', '${character.speed}', Icons.directions_run, colorScheme.surfaceTint)),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildStatCard(context, 'PROF', '+${character.proficiencyBonus}', Icons.school, colorScheme.outline)),
                   ],
                 ),
+
+                const SizedBox(height: 24),
+                
+                // 3. Attacks
+                Text('WEAPONS & ATTACKS', style: theme.textTheme.labelLarge?.copyWith(color: colorScheme.onSurfaceVariant)),
                 const SizedBox(height: 12),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        context,
-                        'Speed',
-                        '${character.speed} ft',
-                        Icons.directions_run,
-                        colorScheme.tertiary,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatCard(
-                        context,
-                        'Initiative',
-                        character.formatModifier(character.initiativeBonus),
-                        Icons.flash_on,
-                        colorScheme.primary,
-                        onTap: () => showDiceRoller(
-                          context,
-                          title: 'Initiative',
-                          modifier: character.initiativeBonus,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 12),
-
-                _buildStatCard(
-                  context,
-                  'Proficiency Bonus',
-                  '+${character.proficiencyBonus}',
-                  Icons.star,
-                  colorScheme.primary,
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // Attacks & Weapons Section
-        Card(
-          elevation: 4,
-          shadowColor: colorScheme.primary.withOpacity(0.2),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: colorScheme.tertiaryContainer,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.sports_martial_arts,
-                        color: colorScheme.onTertiaryContainer,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'ATTACKS & WEAPONS',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: colorScheme.tertiary,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
                 _buildAttacksList(context),
               ],
             ),
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
 
-        // Rest & Combat Actions
-        Card(
-          elevation: 4,
-          shadowColor: colorScheme.primary.withOpacity(0.2),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.bolt,
-                        color: colorScheme.onPrimaryContainer,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'ACTIONS',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: colorScheme.primary,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Rest Buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () async {
-                          final confirmed = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Row(
-                                children: [
-                                  Icon(Icons.coffee, size: 28),
-                                  SizedBox(width: 12),
-                                  Text('Short Rest'),
-                                ],
-                              ),
-                              content: const Text(
-                                'Take a short rest?\n\n'
-                                'Will restore:\n'
-                                '• Features that recharge on short rest\n'
-                                '• Channel Divinity',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, false),
-                                  child: const Text('Cancel'),
-                                ),
-                                FilledButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: const Text('Rest'),
-                                ),
-                              ],
-                            ),
-                          );
-
-                          if (confirmed == true && context.mounted) {
-                            character.shortRest();
-                            await StorageService.saveCharacter(character);
-                            onCharacterUpdated?.call();
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('✨ Rested! Resources restored.'),
-                                  duration: Duration(seconds: 2),
-                                ),
-                              );
-                            }
-                          }
-                        },
-                        icon: const Icon(Icons.coffee),
-                        label: const Text('Short Rest'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: () async {
-                          final confirmed = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Row(
-                                children: [
-                                  Icon(Icons.hotel, size: 28),
-                                  SizedBox(width: 12),
-                                  Text('Long Rest'),
-                                ],
-                              ),
-                              content: const Text(
-                                'Take a long rest?\n\n'
-                                'Will restore:\n'
-                                '• All HP (including temp HP cleared)\n'
-                                '• All spell slots\n'
-                                '• All features\n'
-                                '• Lay on Hands, Divine Sense, Channel Divinity',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, false),
-                                  child: const Text('Cancel'),
-                                ),
-                                FilledButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: const Text('Rest'),
-                                ),
-                              ],
-                            ),
-                          );
-
-                          if (confirmed == true && context.mounted) {
-                            character.longRest();
-                            await StorageService.saveCharacter(character);
-                            onCharacterUpdated?.call();
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('🌙 Fully rested! All resources restored.'),
-                                  duration: Duration(seconds: 2),
-                                ),
-                              );
-                            }
-                          }
-                        },
-                        icon: const Icon(Icons.hotel),
-                        label: const Text('Long Rest'),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 12),
-
-                // Enter Combat Button
-                FilledButton.tonalIcon(
-                  onPressed: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CombatTrackerScreen(
-                          character: character,
-                        ),
-                      ),
-                    );
-                    // Trigger parent rebuild after returning from combat
-                    onCharacterUpdated?.call();
-                  },
-                  icon: const Icon(Icons.sports_martial_arts),
-                  label: const Text('Enter Combat'),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 48),
-                  ),
-                ),
-              ],
+        // REST & ACTIONS
+        Row(
+          children: [
+            Expanded(
+              child: FilledButton.tonalIcon(
+                onPressed: () => _showRestDialog(context, short: true),
+                icon: const Icon(Icons.coffee, size: 18),
+                label: const Text('Short Rest'),
+                style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+              ),
             ),
-          ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton.tonalIcon(
+                onPressed: () => _showRestDialog(context, short: false),
+                icon: const Icon(Icons.hotel, size: 18),
+                label: const Text('Long Rest'),
+                style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+              ),
+            ),
+          ],
         ),
         
-        const SizedBox(height: 80), // Bottom padding
+        const SizedBox(height: 16),
+        
+        FilledButton.icon(
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CombatTrackerScreen(character: character),
+              ),
+            );
+            onCharacterUpdated?.call();
+          },
+          icon: const Icon(Icons.sports_martial_arts),
+          label: const Text('Enter Combat Mode'),
+          style: FilledButton.styleFrom(
+            minimumSize: const Size(double.infinity, 56),
+            backgroundColor: colorScheme.errorContainer,
+            foregroundColor: colorScheme.onErrorContainer,
+          ),
+        ),
+
+        const SizedBox(height: 80),
       ],
+    );
+  }
+
+  Widget _buildHpBar(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final hpPercent = (character.currentHp / character.maxHp).clamp(0.0, 1.0);
+    
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Hit Points', style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+            RichText(
+              text: TextSpan(
+                style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16),
+                children: [
+                  TextSpan(text: '${character.currentHp}', style: TextStyle(fontSize: 24, color: hpPercent < 0.3 ? colorScheme.error : colorScheme.primary)),
+                  TextSpan(text: '/${character.maxHp}', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 16)),
+                  if (character.temporaryHp > 0)
+                    TextSpan(text: ' +${character.temporaryHp}', style: TextStyle(color: colorScheme.tertiary)),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(
+            value: hpPercent,
+            minHeight: 12,
+            backgroundColor: colorScheme.surfaceContainerHighest,
+            color: hpPercent < 0.3 ? colorScheme.error : (hpPercent > 0.5 ? colorScheme.primary : Colors.amber),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatCard(BuildContext context, String label, String value, IconData icon, Color color, {VoidCallback? onTap}) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 20, color: color),
+            const SizedBox(height: 4),
+            Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: colorScheme.onSurface)),
+            Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+          ],
+        ),
+      ),
     );
   }
 
@@ -363,98 +188,81 @@ class OverviewTab extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     if (weapons.isEmpty) {
-      // Unarmed Strike
       final strMod = character.abilityScores.strengthModifier;
       final hitBonus = strMod + character.proficiencyBonus;
-      final damage = 1 + strMod; // 1 damage + STR
-      return _buildAttackCard(context, 'Unarmed Strike', hitBonus, '$damage', 'Bludgeoning', icon: Icons.back_hand);
+      final damage = 1 + strMod;
+      return _buildAttackRow(context, 'Unarmed Strike', hitBonus, '$damage', 'Bludgeoning', icon: Icons.back_hand);
     }
 
     return Column(
       children: weapons.map((weapon) {
         final strMod = character.abilityScores.strengthModifier;
         final dexMod = character.abilityScores.dexterityModifier;
-        
-        // Simplified Finesse logic: use best of STR/DEX
-        final mod = (dexMod > strMod) ? dexMod : strMod; 
-        
+        final mod = (dexMod > strMod) ? dexMod : strMod;
         final hitBonus = mod + character.proficiencyBonus;
         final damageDice = weapon.weaponProperties?.damageDice ?? '1d4';
         final damageType = weapon.weaponProperties?.damageType.name ?? 'Physical';
-        
-        // Format damage string: e.g., "1d8 + 3"
         final damageModStr = mod != 0 ? (mod > 0 ? ' + $mod' : ' - ${mod.abs()}') : '';
         
-        return _buildAttackCard(context, weapon.getName('en'), hitBonus, '$damageDice$damageModStr', damageType);
+        return _buildAttackRow(context, weapon.getName('en'), hitBonus, '$damageDice$damageModStr', damageType);
       }).toList(),
     );
   }
 
-  Widget _buildAttackCard(BuildContext context, String name, int hitBonus, String damage, String type, {IconData icon = Icons.sports_martial_arts}) {
+  Widget _buildAttackRow(BuildContext context, String name, int hitBonus, String damage, String type, {IconData icon = Icons.sports_martial_arts}) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outlineVariant),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.5)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: colorScheme.primary, size: 20),
+            decoration: BoxDecoration(color: colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+            child: Icon(icon, size: 20, color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                 Text(type, style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant)),
               ],
             ),
           ),
-          // Hit Button
+          // Hit
           InkWell(
-            onTap: () => showDiceRoller(context, title: 'Attack Roll ($name)', modifier: hitBonus),
+            onTap: () => showDiceRoller(context, title: 'Attack ($name)', modifier: hitBonus),
             borderRadius: BorderRadius.circular(8),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: colorScheme.primary,
-                borderRadius: BorderRadius.circular(8),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(color: colorScheme.primaryContainer, borderRadius: BorderRadius.circular(8)),
               child: Column(
                 children: [
-                  Text('HIT', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: colorScheme.onPrimary.withOpacity(0.8))),
-                  Text(character.formatModifier(hitBonus), style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onPrimary)),
+                  Text('HIT', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: colorScheme.onPrimaryContainer.withOpacity(0.7))),
+                  Text(character.formatModifier(hitBonus), style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onPrimaryContainer)),
                 ],
               ),
             ),
           ),
           const SizedBox(width: 8),
-          // Damage Button
+          // Dmg
           InkWell(
-            onTap: () {
-               showDiceRoller(context, title: 'Damage ($name)', modifier: 0);
-            },
+            onTap: () => showDiceRoller(context, title: 'Damage ($name)', modifier: 0),
             borderRadius: BorderRadius.circular(8),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: colorScheme.tertiary,
-                borderRadius: BorderRadius.circular(8),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(color: colorScheme.secondaryContainer, borderRadius: BorderRadius.circular(8)),
               child: Column(
                 children: [
-                  Text('DMG', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: colorScheme.onTertiary.withOpacity(0.8))),
-                  Text(damage, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onTertiary, fontSize: 12)),
+                  Text('DMG', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: colorScheme.onSecondaryContainer.withOpacity(0.7))),
+                  Text(damage, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSecondaryContainer, fontSize: 12)),
                 ],
               ),
             ),
@@ -464,40 +272,24 @@ class OverviewTab extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String label, String value, IconData icon, Color color, {bool isHighlighted = false, VoidCallback? onTap}) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Card(
-      elevation: isHighlighted ? 2 : 1,
-      color: isHighlighted ? colorScheme.primaryContainer : null,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Icon(icon, color: isHighlighted ? colorScheme.onPrimaryContainer : color, size: 32),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: isHighlighted ? colorScheme.onPrimaryContainer.withOpacity(0.7) : colorScheme.onSurface.withOpacity(0.6),
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: isHighlighted ? colorScheme.onPrimaryContainer : color,
-                    ),
-              ),
-            ],
-          ),
-        ),
+  Future<void> _showRestDialog(BuildContext context, {required bool short}) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(children: [Icon(short ? Icons.coffee : Icons.hotel), const SizedBox(width: 12), Text(short ? 'Short Rest' : 'Long Rest')]),
+        content: Text(short ? 'Recover short-rest features and spend Hit Dice?' : 'Recover all HP, spell slots, and features?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Rest')),
+        ],
       ),
     );
+
+    if (confirmed == true) {
+      if (short) character.shortRest(); else character.longRest();
+      await StorageService.saveCharacter(character);
+      onCharacterUpdated?.call();
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Rested successfully'), duration: Duration(seconds: 2)));
+    }
   }
 }
