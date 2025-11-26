@@ -85,255 +85,246 @@ class _InventoryTabState extends State<InventoryTab> {
 
     return Column(
       children: [
-        // Search bar
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: locale == 'ru' ? 'Поиск предметов...' : 'Search items...',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _searchQuery.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() => _searchQuery = '');
+        // --- FIXED HEADER (Search & Filters) ---
+        Container(
+          color: theme.scaffoldBackgroundColor,
+          child: Column(
+            children: [
+              // Search bar
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: locale == 'ru' ? 'Поиск предметов...' : 'Search items...',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => _searchQuery = '');
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                  ),
+                  onChanged: (value) => setState(() => _searchQuery = value),
+                ),
+              ),
+
+              // Filter and sort row
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    // Sort dropdown
+                    Expanded(
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: locale == 'ru' ? 'Сортировка' : 'Sort by',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _sortBy,
+                            isDense: true,
+                            items: [
+                              DropdownMenuItem(value: 'name', child: Text(locale == 'ru' ? 'Имя' : 'Name')),
+                              DropdownMenuItem(value: 'weight', child: Text(locale == 'ru' ? 'Вес' : 'Weight')),
+                              DropdownMenuItem(value: 'value', child: Text(locale == 'ru' ? 'Стоимость' : 'Value')),
+                              DropdownMenuItem(value: 'type', child: Text(locale == 'ru' ? 'Тип' : 'Type')),
+                            ],
+                            onChanged: (value) => setState(() => _sortBy = value!),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Equipment filter dropdown
+                    Expanded(
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: locale == 'ru' ? 'Экипировка' : 'Equipped',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _equipFilter,
+                            isDense: true,
+                            items: [
+                              DropdownMenuItem(value: 'all', child: Text(locale == 'ru' ? 'Все' : 'All')),
+                              DropdownMenuItem(value: 'equipped', child: Text(locale == 'ru' ? 'Надето' : 'Equipped')),
+                              DropdownMenuItem(value: 'unequipped', child: Text(locale == 'ru' ? 'Снято' : 'Unequipped')),
+                            ],
+                            onChanged: (value) => setState(() => _equipFilter = value!),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              // Type filter chips
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    FilterChip(
+                      label: Text(locale == 'ru' ? 'Всё' : 'All'),
+                      selected: _filterType == 'all',
+                      onSelected: (selected) {
+                        if (selected) setState(() => _filterType = 'all');
                       },
-                    )
-                  : null,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                    ),
+                    const SizedBox(width: 8),
+                    FilterChip(
+                      label: Text(locale == 'ru' ? 'Оружие' : 'Weapons'),
+                      selected: _filterType == 'weapon',
+                      onSelected: (selected) {
+                        if (selected) setState(() => _filterType = 'weapon');
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    FilterChip(
+                      label: Text(locale == 'ru' ? 'Доспехи' : 'Armor'),
+                      selected: _filterType == 'armor',
+                      onSelected: (selected) {
+                        if (selected) setState(() => _filterType = 'armor');
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    FilterChip(
+                      label: Text(locale == 'ru' ? 'Снаряжение' : 'Gear'),
+                      selected: _filterType == 'gear',
+                      onSelected: (selected) {
+                        if (selected) setState(() => _filterType = 'gear');
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    FilterChip(
+                      label: Text(locale == 'ru' ? 'Расходники' : 'Consumables'),
+                      selected: _filterType == 'consumable',
+                      onSelected: (selected) {
+                        if (selected) setState(() => _filterType = 'consumable');
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            onChanged: (value) => setState(() => _searchQuery = value),
-          ),
-        ),
 
-        // Filter and sort row
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              // Sort dropdown
-              Expanded(
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: locale == 'ru' ? 'Сортировка' : 'Sort by',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: _sortBy,
-                      isDense: true,
-                      items: [
-                        DropdownMenuItem(value: 'name', child: Text(locale == 'ru' ? 'Имя' : 'Name')),
-                        DropdownMenuItem(value: 'weight', child: Text(locale == 'ru' ? 'Вес' : 'Weight')),
-                        DropdownMenuItem(value: 'value', child: Text(locale == 'ru' ? 'Стоимость' : 'Value')),
-                        DropdownMenuItem(value: 'type', child: Text(locale == 'ru' ? 'Тип' : 'Type')),
-                      ],
-                      onChanged: (value) => setState(() => _sortBy = value!),
+              // Weight info
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                child: Row(
+                  children: [
+                    Icon(Icons.fitness_center, size: 16, color: theme.colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text(
+                      locale == 'ru'
+                          ? 'Общий вес: ${totalWeight.toStringAsFixed(1)} фунтов'
+                          : 'Total Weight: ${totalWeight.toStringAsFixed(1)} lb',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 12),
-              // Equipment filter dropdown
-              Expanded(
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: locale == 'ru' ? 'Экипировка' : 'Equipped',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: _equipFilter,
-                      isDense: true,
-                      items: [
-                        DropdownMenuItem(value: 'all', child: Text(locale == 'ru' ? 'Все' : 'All')),
-                        DropdownMenuItem(value: 'equipped', child: Text(locale == 'ru' ? 'Надето' : 'Equipped')),
-                        DropdownMenuItem(value: 'unequipped', child: Text(locale == 'ru' ? 'Снято' : 'Unequipped')),
-                      ],
-                      onChanged: (value) => setState(() => _equipFilter = value!),
-                    ),
-                  ),
-                ),
-              ),
+              const Divider(height: 1),
             ],
           ),
         ),
 
-        const SizedBox(height: 8),
-
-        // Type filter chips
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                FilterChip(
-                  label: Text(locale == 'ru' ? 'Всё' : 'All'),
-                  selected: _filterType == 'all',
-                  onSelected: (selected) {
-                    if (selected) setState(() => _filterType = 'all');
-                  },
-                ),
-                const SizedBox(width: 8),
-                FilterChip(
-                  label: Text(locale == 'ru' ? 'Оружие' : 'Weapons'),
-                  selected: _filterType == 'weapon',
-                  onSelected: (selected) {
-                    if (selected) setState(() => _filterType = 'weapon');
-                  },
-                ),
-                const SizedBox(width: 8),
-                FilterChip(
-                  label: Text(locale == 'ru' ? 'Доспехи' : 'Armor'),
-                  selected: _filterType == 'armor',
-                  onSelected: (selected) {
-                    if (selected) setState(() => _filterType = 'armor');
-                  },
-                ),
-                const SizedBox(width: 8),
-                FilterChip(
-                  label: Text(locale == 'ru' ? 'Снаряжение' : 'Gear'),
-                  selected: _filterType == 'gear',
-                  onSelected: (selected) {
-                    if (selected) setState(() => _filterType = 'gear');
-                  },
-                ),
-                const SizedBox(width: 8),
-                FilterChip(
-                  label: Text(locale == 'ru' ? 'Расходники' : 'Consumables'),
-                  selected: _filterType == 'consumable',
-                  onSelected: (selected) {
-                    if (selected) setState(() => _filterType = 'consumable');
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        // Weight info
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Icon(Icons.fitness_center, size: 18, color: theme.colorScheme.primary),
-              const SizedBox(width: 8),
-              Text(
-                locale == 'ru'
-                    ? 'Общий вес: ${totalWeight.toStringAsFixed(1)} фунтов'
-                    : 'Total Weight: ${totalWeight.toStringAsFixed(1)} lb',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        // Currency card
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.monetization_on, size: 20, color: theme.colorScheme.primary),
-                      const SizedBox(width: 8),
-                      Text(
-                        locale == 'ru' ? 'Валюта' : 'Currency',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.edit, size: 20),
-                        onPressed: () => _showEditCurrencyDialog(context, locale),
-                        tooltip: locale == 'ru' ? 'Изменить' : 'Edit',
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildCurrencyChip(
-                          theme,
-                          'PP',
-                          widget.character.platinumPieces,
-                          Colors.grey.shade300,
-                          Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildCurrencyChip(
-                          theme,
-                          'GP',
-                          widget.character.goldPieces,
-                          Colors.amber.shade600,
-                          Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildCurrencyChip(
-                          theme,
-                          'SP',
-                          widget.character.silverPieces,
-                          Colors.grey.shade400,
-                          Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildCurrencyChip(
-                          theme,
-                          'CP',
-                          widget.character.copperPieces,
-                          Colors.brown.shade400,
-                          Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        // Inventory list
+        // --- SCROLLABLE CONTENT (Currency + Items) ---
         Expanded(
-          child: filteredItems.isEmpty
-              ? _buildEmptyState(locale)
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: filteredItems.length,
-                  itemBuilder: (context, index) {
-                    final item = filteredItems[index];
-                    return _buildItemCard(context, item, locale);
-                  },
-                ),
+          child: ListView.builder(
+            padding: const EdgeInsets.only(top: 8, bottom: 80), // Bottom padding for FAB
+            itemCount: filteredItems.length + 1,
+            itemBuilder: (context, index) {
+              // 0: Currency Card
+              if (index == 0) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Card(
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.monetization_on, size: 20, color: theme.colorScheme.primary),
+                              const SizedBox(width: 8),
+                              Text(
+                                locale == 'ru' ? 'Валюта' : 'Currency',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                icon: const Icon(Icons.edit, size: 20),
+                                onPressed: () => _showEditCurrencyDialog(context, locale),
+                                tooltip: locale == 'ru' ? 'Изменить' : 'Edit',
+                                visualDensity: VisualDensity.compact,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(child: _buildCurrencyChip(theme, 'PP', widget.character.platinumPieces, Colors.grey.shade300, Colors.black87)),
+                              const SizedBox(width: 8),
+                              Expanded(child: _buildCurrencyChip(theme, 'GP', widget.character.goldPieces, Colors.amber.shade600, Colors.black87)),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(child: _buildCurrencyChip(theme, 'SP', widget.character.silverPieces, Colors.grey.shade400, Colors.black87)),
+                              const SizedBox(width: 8),
+                              Expanded(child: _buildCurrencyChip(theme, 'CP', widget.character.copperPieces, Colors.brown.shade400, Colors.white)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              // Items
+              // If list is empty (but we have index > 0 which is impossible here unless filteredItems > 0)
+              // Actually if filteredItems is empty, itemCount is 1.
+              // So index 0 is Currency.
+              // If we want to show "Empty State" when no items, we should do it differently.
+              
+              // Better logic:
+              // itemCount: filteredItems.isEmpty ? 2 : filteredItems.length + 1
+              // index 0: Currency
+              // index 1: Empty State (if empty) OR Item[0]
+              
+              // Let's adjust itemCount above in logic if needed, but here standard logic:
+              
+              final itemIndex = index - 1;
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _buildItemCard(context, filteredItems[itemIndex], locale),
+              );
+            },
+          ),
         ),
       ],
     );
