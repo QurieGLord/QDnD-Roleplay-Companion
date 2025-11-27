@@ -52,14 +52,21 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
     return Container(
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colorScheme.primaryContainer,
+            colorScheme.secondaryContainer,
+          ],
+        ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-            spreadRadius: 0,
+            color: colorScheme.primary.withOpacity(0.2), // Colored Glow!
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+            spreadRadius: 2,
           ),
         ],
       ),
@@ -79,10 +86,9 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: widget.character.avatarPath == null
-                              ? colorScheme.surface
-                              : null,
+                          color: colorScheme.surface.withOpacity(0.3), // Semi-transparent bg
                           borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: colorScheme.onPrimaryContainer.withOpacity(0.2), width: 1),
                         ),
                         child: widget.character.avatarPath != null
                             ? ClipRRect(
@@ -94,7 +100,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
                                     return Icon(
                                       _getClassIcon(widget.character.characterClass),
                                       size: 40,
-                                      color: colorScheme.onSurface,
+                                      color: colorScheme.onPrimaryContainer,
                                     );
                                   },
                                 ),
@@ -102,7 +108,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
                             : Icon(
                                 _getClassIcon(widget.character.characterClass),
                                 size: 40,
-                                color: colorScheme.onSurface,
+                                color: colorScheme.onPrimaryContainer,
                               ),
                       ),
                     ),
@@ -122,6 +128,9 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
                               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: colorScheme.onPrimaryContainer,
+                                    shadows: [
+                                      Shadow(color: Colors.black.withOpacity(0.1), blurRadius: 2, offset: const Offset(0, 1))
+                                    ],
                                   ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -132,9 +141,10 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 6.0),
                               child: Material(
-                                color: colorScheme.tertiaryContainer,
+                                color: colorScheme.tertiaryContainer, // Keep accent button
                                 borderRadius: BorderRadius.circular(12),
                                 clipBehavior: Clip.antiAlias,
+                                elevation: 2, // Slight pop
                                 child: InkWell(
                                   onTap: () {
                                     print("🔧 Level Up Tapped");
@@ -185,7 +195,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
                             Text(
                               widget.character.characterClass,
                               style: TextStyle(
-                                color: colorScheme.onPrimaryContainer.withOpacity(0.8),
+                                color: colorScheme.onPrimaryContainer.withOpacity(0.9),
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
                               ),
@@ -194,7 +204,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
                               Text(
                                 widget.character.subclass!,
                                 style: TextStyle(
-                                  color: colorScheme.onPrimaryContainer.withOpacity(0.6),
+                                  color: colorScheme.onPrimaryContainer.withOpacity(0.7),
                                   fontSize: 12,
                                 ),
                                 maxLines: 1,
@@ -212,14 +222,12 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
               Positioned(
                 top: 12,
                 right: 12,
-                child: IconButton(
+                child: IconButton.filledTonal( // More prominent button
                   onPressed: widget.onDicePressed,
-                  icon: Icon(
-                    Icons.casino,
-                    color: colorScheme.onPrimaryContainer,
-                  ),
+                  icon: const Icon(Icons.casino),
                   style: IconButton.styleFrom(
                     backgroundColor: colorScheme.surface.withOpacity(0.3),
+                    foregroundColor: colorScheme.onPrimaryContainer,
                   ),
                 ),
               ),
@@ -240,7 +248,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(
-                      color: colorScheme.onPrimaryContainer.withOpacity(0.2),
+                      color: colorScheme.onPrimaryContainer.withOpacity(0.1),
                       width: 1,
                     ),
                   ),
@@ -279,7 +287,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: colorScheme.surface.withOpacity(0.3),
+                color: colorScheme.surface.withOpacity(0.5), // Lighter/Darker backing
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
@@ -426,14 +434,14 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withOpacity(0.5),
+        color: colorScheme.surface.withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontSize: 11,
-          color: colorScheme.onPrimaryContainer,
+          color: colorScheme.onSurface,
           fontWeight: FontWeight.w500,
         ),
       ),
