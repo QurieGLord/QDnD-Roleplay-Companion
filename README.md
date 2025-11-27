@@ -26,32 +26,35 @@ Whether you're an experienced adventurer or a beginning hero, QD&D will become y
 
 ## ✨ Key Features
 
+### 🎨 Design & Customization
+- **Themes:** Choose from 6 stunning color schemes (QMonokai, Gruvbox, Catppuccin, etc.) with Light/Dark modes.
+- **Visuals:** Material 3 Expressive design with rich animations and vibrant accents.
+- **Dice Roller:** 3D-like physics animations for satisfying rolls.
+
 ### 🎭 Character Management
-- **Creation Wizard** — Step-by-step character creation with instant feature preview.
-- **Level Up Wizard** — Interactive, data-driven leveling with choice support (Subclass, Fighting Style).
-- **Fight Club 5 Import** — Seamlessly migrate your characters from XML.
-- **Multiclassing** — Support for complex character builds (Architecture ready).
+- **Creation Wizard:** Step-by-step character creation with instant feature preview.
+- **Level Up Wizard:** Interactive leveling with choice support (Subclass, Fighting Style).
+- **Universal System:** Supports all 13 official classes via data-driven architecture.
+- **Fight Club 5 Import:** Seamlessly migrate your characters from XML.
 
-### ⚔️ Combat & Stats
-- **Combat Tracker** — Initiative, rounds, and turn management.
-- **Vitality** — Quick HP adjustments, Death Saves, and Temporary HP.
-- **Conditions** — Track all 13 conditions with detailed tooltips.
-- **Dice Roller** — 3D physics-based dice for all your rolls.
+### ⚔️ Combat System
+- **Combat Tracker:** Initiative, rounds, and turn management with a visual dashboard.
+- **Vitality:** Quick HP adjustments with shake animations, Death Saves, and Temporary HP.
+- **Conditions:** Track all 13 conditions with detailed tooltips.
 
-### 🔮 Magic & Abilities
-- **Spellbook** — Manage known and prepared spells with filtering.
-- **Spell Slots** — Interactive trackers that auto-scale with level.
-- **Class Features** — Smart tracking of resources (e.g., Lay on Hands) and active abilities.
-- **Data-Driven** — Features and spells are loaded from JSON, making the app endlessly extensible.
+### 🔮 Magic & Spells
+- **Spellbook:** Manage known and prepared spells with filtering.
+- **Spell Slots:** Interactive trackers that auto-scale with level.
+- **Class Features:** Smart tracking of resources (e.g., Lay on Hands) and active abilities.
 
 ### 🎒 Inventory & Adventure
-- **Equipment** — Visual slots for weapons/armor with auto AC calculation.
-- **Adventure Journal** — Rich text notes and quest tracking to chronicle your journey.
-- **Offline First** — 100% functional without internet.
+- **Equipment:** Visual slots for weapons/armor with auto AC calculation.
+- **Adventure Journal:** Rich text notes and quest tracking.
+- **Offline First:** 100% functional without internet.
 
 ---
 
-## 🛠️ Architecture & Customization
+## 🛠️ Architecture
 
 QD&D is built on a **Data-Driven Architecture**. This means you can add new content without writing code!
 
@@ -105,12 +108,11 @@ flutter run
 
 ## 🗺️ Roadmap
 
-### ✅ v1.1 (Paladin Update)
+### ✅ v1.2 (Visuals & Themes)
+- 6 Color Themes (QMonokai, Gruvbox, etc.)
+- Redesigned Combat Tracker & Dice Roller
+- Complete Paladin Class
 - Level Up Wizard
-- Complete Paladin Class (1-20)
-- Feature & Spell Choices
-- Improved Spell Tab
-- Robust FC5 Import
 
 ### 🔮 v2.0 (Planned)
 - [ ] Full Content Population (All Classes/Races)
