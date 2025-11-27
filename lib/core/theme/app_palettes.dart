@@ -35,28 +35,44 @@ class AppPalettes {
   }
 
   // ===========================================================================
-  // 1. QMonokai (User Custom Palette)
+  // 1. QMonokai (Strict User Palette)
   // ===========================================================================
   static const _qMonokaiDark = ColorScheme(
     brightness: Brightness.dark,
-    primary: Color(0xFFD33B47), // Magenta (User req)
-    onPrimary: Color(0xFFF7F3E8),
-    primaryContainer: Color(0xFF5E1A20), // Darker Magenta
-    onPrimaryContainer: Color(0xFFFFD9DE),
-    secondary: Color(0xFFC3D62D), // Green (User req)
-    onSecondary: Color(0xFF2A3300),
-    secondaryContainer: Color(0xFF455200),
-    onSecondaryContainer: Color(0xFFE8F7C8),
-    tertiary: Color(0xFF8ED9D4), // Pastel Bright Cyan (User Req)
-    onTertiary: Color(0xFF00363D),
-    tertiaryContainer: Color(0xFF004F5E),
-    onTertiaryContainer: Color(0xFFC4F3FF),
-    error: Color(0xFFFD971F), // Orange
-    onError: Color(0xFF381E00),
-    surface: Color(0xFF362C22), // Background (User req)
-    onSurface: Color(0xFFF7F3E8), // Foreground (User req)
-    surfaceContainerHighest: Color(0xFF4A3C30), // Slightly lighter than BG for cards
-    outline: Color(0xFF816E53), // Comment color (User req)
+    
+    // Accents
+    primary: Color(0xFFD33B47), // Magenta
+    onPrimary: Color(0xFFF7F3E8), // FG
+    
+    secondary: Color(0xFFC3D62D), // Green
+    onSecondary: Color(0xFF362C22), // BG (for contrast)
+    
+    tertiary: Color(0xFF8ED9D4), // Cyan
+    onTertiary: Color(0xFF362C22), // BG
+    
+    // Containers (Derived strictly from palette)
+    primaryContainer: Color(0xFFD33B47), // Magenta (Bold) or use Comment? Let's use Magenta with opacity in UI, but here strict.
+    // Actually, if we want "pop", let's use the colors directly.
+    // But for text on container, we need contrast.
+    onPrimaryContainer: Color(0xFFF7F3E8), 
+    
+    secondaryContainer: Color(0xFFC3D62D), 
+    onSecondaryContainer: Color(0xFF362C22),
+    
+    tertiaryContainer: Color(0xFF8ED9D4),
+    onTertiaryContainer: Color(0xFF362C22),
+
+    // Base
+    surface: Color(0xFF362C22), // BG
+    onSurface: Color(0xFFF7F3E8), // FG
+    
+    // Variations using "Comment" color
+    surfaceContainerHighest: Color(0xFF816E53), // Comment (Used for cards/inputs)
+    outline: Color(0xFF816E53), // Comment
+    outlineVariant: Color(0xFF816E53),
+    
+    error: Color(0xFFD33B47), // Magenta as Error
+    onError: Color(0xFFF7F3E8),
   );
 
   static const _qMonokaiLight = ColorScheme(
