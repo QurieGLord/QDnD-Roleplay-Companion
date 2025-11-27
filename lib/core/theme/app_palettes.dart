@@ -35,28 +35,28 @@ class AppPalettes {
   }
 
   // ===========================================================================
-  // 1. QMonokai (Pastel Neon - The Final Polish)
+  // 1. QMonokai (Bright Pastel on Warm Chocolate)
   // ===========================================================================
   static const _qMonokaiDark = ColorScheme(
     brightness: Brightness.dark,
-    primary: Color(0xFFFF7F7F), // Pastel Coral
-    onPrimary: Color(0xFF2D0E0E),
-    primaryContainer: Color(0xFF5E2A2A),
+    primary: Color(0xFFFF8585), // Brighter Pastel Coral
+    onPrimary: Color(0xFF4A0000),
+    primaryContainer: Color(0xFF7A2E2E), // Warm reddish container
     onPrimaryContainer: Color(0xFFFFD9DE),
-    secondary: Color(0xFFC5E17A), // Pastel Yellow Green (as requested)
-    onSecondary: Color(0xFF243200),
-    secondaryContainer: Color(0xFF4A5E15),
-    onSecondaryContainer: Color(0xFFE8F7C8),
-    tertiary: Color(0xFF89DDFF), // Pastel Bright Cyan (as requested)
-    onTertiary: Color(0xFF003241),
+    secondary: Color(0xFFDCE775), // Bright Pastel Lime (User req: brighter)
+    onSecondary: Color(0xFF384200),
+    secondaryContainer: Color(0xFF5A6615),
+    onSecondaryContainer: Color(0xFFF3F9C8),
+    tertiary: Color(0xFF84FFFF), // Bright Neon Cyan (User req: brighter)
+    onTertiary: Color(0xFF00363D),
     tertiaryContainer: Color(0xFF004F5E),
     onTertiaryContainer: Color(0xFFC4F3FF),
-    error: Color(0xFFFD971F), // Orange
+    error: Color(0xFFFC9867), // Soft Orange
     onError: Color(0xFF381E00),
-    surface: Color(0xFF2D2A2E), // Warm Dark Grey
-    onSurface: Color(0xFFFCFCFA), // Off-white
-    surfaceContainerHighest: Color(0xFF403E41),
-    outline: Color(0xFF939293),
+    surface: Color(0xFF4B3527), // Warm Chocolate (User req)
+    onSurface: Color(0xFFFFF3E0), // Creamy White
+    surfaceContainerHighest: Color(0xFF634D40), // Lighter chocolate for cards
+    outline: Color(0xFFBCAAA4),
   );
 
   static const _qMonokaiLight = ColorScheme(
