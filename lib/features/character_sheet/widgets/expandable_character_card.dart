@@ -52,16 +52,11 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
     return Container(
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            colorScheme.primaryContainer,
-            colorScheme.secondaryContainer,
-          ],
-        ),
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.primary.withOpacity(0.08),
+            color: colorScheme.shadow.withOpacity(0.05),
             blurRadius: 12,
             offset: const Offset(0, 4),
             spreadRadius: 0,

@@ -90,10 +90,10 @@ class AppPalettes {
     onPrimary: Color(0xFF282828),
     primaryContainer: Color(0xFFA65000),
     onPrimaryContainer: Color(0xFFFFDAB9),
-    secondary: Color(0xFFB8BB26), // Green
-    onSecondary: Color(0xFF282828),
-    secondaryContainer: Color(0xFF79740E),
-    onSecondaryContainer: Color(0xFFE7EBB3),
+    secondary: Color(0xFFE7D7AD), // Milk (User req)
+    onSecondary: Color(0xFF3C3836),
+    secondaryContainer: Color(0xFF504945), // BG2
+    onSecondaryContainer: Color(0xFFEBDBB2),
     tertiary: Color(0xFFFABD2F), // Yellow
     onTertiary: Color(0xFF282828),
     tertiaryContainer: Color(0xFFB57614),
@@ -102,7 +102,7 @@ class AppPalettes {
     onError: Color(0xFFEBDBB2),
     surface: Color(0xFF3C3836), // Gruvbox BG1 (Lighter than BG0)
     onSurface: Color(0xFFEBDBB2), // FG1
-    surfaceContainerHighest: Color(0xFF504945), // BG2 (Even lighter)
+    surfaceContainerHighest: Color(0xFF504945), // BG2
     outline: Color(0xFFA89984),
   );
 
