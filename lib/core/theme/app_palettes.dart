@@ -35,20 +35,20 @@ class AppPalettes {
   }
 
   // ===========================================================================
-  // 1. QMonokai (Soft Pastel Neon)
+  // 1. QMonokai (Pastel Neon - The Final Polish)
   // ===========================================================================
   static const _qMonokaiDark = ColorScheme(
     brightness: Brightness.dark,
-    primary: Color(0xFFFF7F7F), // Pastel Coral (was FF6A4C)
+    primary: Color(0xFFFF7F7F), // Pastel Coral
     onPrimary: Color(0xFF2D0E0E),
     primaryContainer: Color(0xFF5E2A2A),
     onPrimaryContainer: Color(0xFFFFD9DE),
-    secondary: Color(0xFFB5D365), // Pastel Lime (was 31F306)
-    onSecondary: Color(0xFF1E2905),
+    secondary: Color(0xFFC5E17A), // Pastel Yellow Green (as requested)
+    onSecondary: Color(0xFF243200),
     secondaryContainer: Color(0xFF4A5E15),
     onSecondaryContainer: Color(0xFFE8F7C8),
-    tertiary: Color(0xFF73D0E3), // Pastel Cyan (was 33C7D8)
-    onTertiary: Color(0xFF002830),
+    tertiary: Color(0xFF89DDFF), // Pastel Bright Cyan (as requested)
+    onTertiary: Color(0xFF003241),
     tertiaryContainer: Color(0xFF004F5E),
     onTertiaryContainer: Color(0xFFC4F3FF),
     error: Color(0xFFFD971F), // Orange
