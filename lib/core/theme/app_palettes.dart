@@ -35,7 +35,7 @@ class AppPalettes {
   }
 
   // ===========================================================================
-  // 1. QMonokai (Strict User Palette)
+  // 1. QMonokai (User Custom Palette - Cyan Priority)
   // ===========================================================================
   static const _qMonokaiDark = ColorScheme(
     brightness: Brightness.dark,
@@ -44,30 +44,28 @@ class AppPalettes {
     primary: Color(0xFFD33B47), // Magenta
     onPrimary: Color(0xFFF7F3E8), // FG
     
-    secondary: Color(0xFFC3D62D), // Green
-    onSecondary: Color(0xFF362C22), // BG (for contrast)
+    secondary: Color(0xFF8ED9D4), // Cyan (Promoted to Secondary)
+    onSecondary: Color(0xFF00363D), // Dark teal text for contrast
     
-    tertiary: Color(0xFF8ED9D4), // Cyan
-    onTertiary: Color(0xFF362C22), // BG
+    tertiary: Color(0xFFC3D62D), // Green (Demoted to Tertiary)
+    onTertiary: Color(0xFF2A3300), // Dark green text for contrast
     
-    // Containers (Derived strictly from palette)
-    primaryContainer: Color(0xFFD33B47), // Magenta (Bold) or use Comment? Let's use Magenta with opacity in UI, but here strict.
-    // Actually, if we want "pop", let's use the colors directly.
-    // But for text on container, we need contrast.
+    // Containers
+    primaryContainer: Color(0xFFD33B47), 
     onPrimaryContainer: Color(0xFFF7F3E8), 
     
-    secondaryContainer: Color(0xFFC3D62D), 
-    onSecondaryContainer: Color(0xFF362C22),
+    secondaryContainer: Color(0xFF8ED9D4), 
+    onSecondaryContainer: Color(0xFF00363D),
     
-    tertiaryContainer: Color(0xFF8ED9D4),
-    onTertiaryContainer: Color(0xFF362C22),
+    tertiaryContainer: Color(0xFFC3D62D),
+    onTertiaryContainer: Color(0xFF2A3300),
 
     // Base
-    surface: Color(0xFF362C22), // BG
+    surface: Color(0xFF272822), // Background (Classic Warm Monokai)
     onSurface: Color(0xFFF7F3E8), // FG
     
-    // Variations using "Comment" color
-    surfaceContainerHighest: Color(0xFF816E53), // Comment (Used for cards/inputs)
+    // Variations
+    surfaceContainerHighest: Color(0xFF816E53), // Comment color
     outline: Color(0xFF816E53), // Comment
     outlineVariant: Color(0xFF816E53),
     
