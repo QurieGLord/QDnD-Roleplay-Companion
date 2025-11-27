@@ -35,48 +35,48 @@ class AppPalettes {
   }
 
   // ===========================================================================
-  // 1. QMonokai (Bright Pastel on Warm Chocolate - FINAL)
+  // 1. QMonokai (User Custom Palette)
   // ===========================================================================
   static const _qMonokaiDark = ColorScheme(
     brightness: Brightness.dark,
-    primary: Color(0xFFFF8585), // Pastel Coral (User Req)
-    onPrimary: Color(0xFF4A0000),
-    primaryContainer: Color(0xFF7A2E2E),
+    primary: Color(0xFFD33B47), // Magenta (User req)
+    onPrimary: Color(0xFFF7F3E8),
+    primaryContainer: Color(0xFF5E1A20), // Darker Magenta
     onPrimaryContainer: Color(0xFFFFD9DE),
-    secondary: Color(0xFFDCE775), // Pastel Yellow Green (User Req)
-    onSecondary: Color(0xFF384200),
-    secondaryContainer: Color(0xFF5A6615),
-    onSecondaryContainer: Color(0xFFF3F9C8),
-    tertiary: Color(0xFF84FFFF), // Bright Neon Cyan (User Req)
+    secondary: Color(0xFFC3D62D), // Green (User req)
+    onSecondary: Color(0xFF2A3300),
+    secondaryContainer: Color(0xFF455200),
+    onSecondaryContainer: Color(0xFFE8F7C8),
+    tertiary: Color(0xFF84FFFF), // Cyan (Kept previous bright cyan as req was likely typo or dup)
     onTertiary: Color(0xFF00363D),
     tertiaryContainer: Color(0xFF004F5E),
     onTertiaryContainer: Color(0xFFC4F3FF),
-    error: Color(0xFFFC9867), // Soft Orange
+    error: Color(0xFFFD971F), // Orange
     onError: Color(0xFF381E00),
-    surface: Color(0xFF4B3527), // Warm Chocolate (User Req)
-    onSurface: Color(0xFFFFF3E0), // Creamy White
-    surfaceContainerHighest: Color(0xFF634D40), // Lighter chocolate for cards
-    outline: Color(0xFFBCAAA4),
+    surface: Color(0xFF362C22), // Background (User req)
+    onSurface: Color(0xFFF7F3E8), // Foreground (User req)
+    surfaceContainerHighest: Color(0xFF4A3C30), // Slightly lighter than BG for cards
+    outline: Color(0xFF816E53), // Comment color (User req)
   );
 
   static const _qMonokaiLight = ColorScheme(
     brightness: Brightness.light,
-    primary: Color(0xFFD41C60), // Deep Pink
+    primary: Color(0xFFD41C60),
     onPrimary: Colors.white,
     primaryContainer: Color(0xFFFFD4E2),
     onPrimaryContainer: Color(0xFF4D1025),
-    secondary: Color(0xFF6E9615), // Darker Green
+    secondary: Color(0xFF6E9615),
     onSecondary: Colors.white,
     secondaryContainer: Color(0xFFE2F5C8),
     onSecondaryContainer: Color(0xFF263608),
-    tertiary: Color(0xFF1E9CB0), // Darker Blue
+    tertiary: Color(0xFF1E9CB0),
     onTertiary: Colors.white,
     tertiaryContainer: Color(0xFFD1F4FA),
     onTertiaryContainer: Color(0xFF00363D),
-    error: Color(0xFFD67608), // Darker Orange
+    error: Color(0xFFD67608),
     onError: Colors.white,
-    surface: Color(0xFFFDF9F3), // Creamy White
-    onSurface: Color(0xFF272822), // Dark Text
+    surface: Color(0xFFFDF9F3),
+    onSurface: Color(0xFF272822),
     surfaceContainerHighest: Color(0xFFECE8E1),
     outline: Color(0xFFA5A296),
   );
@@ -100,9 +100,9 @@ class AppPalettes {
     onTertiaryContainer: Color(0xFFE7EBB3),
     error: Color(0xFFCC241D),
     onError: Color(0xFFEBDBB2),
-    surface: Color(0xFF3C3836), // Warm Grey-Brown (Bg1)
-    onSurface: Color(0xFFEBDBB2), // Fg1
-    surfaceContainerHighest: Color(0xFF504945), // Bg2
+    surface: Color(0xFF3C3836), // Warm Grey-Brown
+    onSurface: Color(0xFFEBDBB2),
+    surfaceContainerHighest: Color(0xFF504945),
     outline: Color(0xFFA89984),
   );
 
@@ -270,7 +270,7 @@ class AppPalettes {
   );
 
   // ===========================================================================
-  // 6. Rose of Dune (Spice Sands)
+  // 6. Rose of Dune (Gold & Spice)
   // ===========================================================================
   static const _duneDark = ColorScheme(
     brightness: Brightness.dark,
@@ -296,22 +296,22 @@ class AppPalettes {
 
   static const _duneLight = ColorScheme(
     brightness: Brightness.light,
-    primary: Color(0xFFBA4A00), // Darker Spice
+    primary: Color(0xFFBA4A00),
     onPrimary: Colors.white,
     primaryContainer: Color(0xFFFFDCC2),
     onPrimaryContainer: Color(0xFF3E1600),
-    secondary: Color(0xFFA04000), // Darker Red
+    secondary: Color(0xFFA04000),
     onSecondary: Colors.white,
     secondaryContainer: Color(0xFFFFD6C2),
     onSecondaryContainer: Color(0xFF381200),
-    tertiary: Color(0xFF2980B9), // Water Blue
+    tertiary: Color(0xFF2980B9),
     onTertiary: Colors.white,
     tertiaryContainer: Color(0xFFC2E5FF),
     onTertiaryContainer: Color(0xFF002642),
     error: Color(0xFFA93226),
     onError: Colors.white,
-    surface: Color(0xFFFDEBD0), // Light Sand
-    onSurface: Color(0xFF5D4037), // Dark Brown
+    surface: Color(0xFFFDEBD0),
+    onSurface: Color(0xFF5D4037),
     surfaceContainerHighest: Color(0xFFF6DDC7),
     outline: Color(0xFFB9770E),
   );
