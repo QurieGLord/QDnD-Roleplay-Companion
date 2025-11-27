@@ -47,7 +47,7 @@ class AppPalettes {
     onSecondary: Color(0xFF2A3300),
     secondaryContainer: Color(0xFF455200),
     onSecondaryContainer: Color(0xFFE8F7C8),
-    tertiary: Color(0xFF84FFFF), // Cyan (Kept previous bright cyan as req was likely typo or dup)
+    tertiary: Color(0xFF8ED9D4), // Pastel Bright Cyan (User Req)
     onTertiary: Color(0xFF00363D),
     tertiaryContainer: Color(0xFF004F5E),
     onTertiaryContainer: Color(0xFFC4F3FF),
