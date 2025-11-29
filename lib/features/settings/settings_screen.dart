@@ -46,6 +46,18 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
           
+          const SizedBox(height: 16),
+          
+          // High Contrast Switch
+          SwitchListTile(
+            title: const Text('High Contrast'),
+            subtitle: const Text('Increases visibility with sharper colors and borders'),
+            secondary: const Icon(Icons.contrast),
+            value: themeProvider.isHighContrast,
+            onChanged: (value) => themeProvider.setHighContrast(value),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+          ),
+          
           const SizedBox(height: 24),
           Text(
             'Color Scheme',
