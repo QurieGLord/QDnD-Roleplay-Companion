@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/ability_scores.dart';
 import '../../../core/models/character_feature.dart';
@@ -32,9 +33,11 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Characters'),
+        title: Text(l10n.characters),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
@@ -84,12 +87,13 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreateCharacterDialog(context),
         icon: const Icon(Icons.add),
-        label: const Text('New Character'),
+        label: Text(l10n.createNewCharacter),
       ),
     );
   }
 
   void _showCreateCharacterDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       builder: (context) => Padding(
@@ -99,7 +103,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Create New Character',
+              l10n.createNewCharacter,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 24),
@@ -114,7 +118,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                 );
               },
               icon: const Icon(Icons.edit),
-              label: const Text('Create New Character'),
+              label: Text(l10n.createNewCharacter),
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
@@ -123,7 +127,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                 await _importFromFC5(context);
               },
               icon: const Icon(Icons.upload_file),
-              label: const Text('Import from Fight Club 5'),
+              label: Text(l10n.importFC5),
             ),
           ],
         ),
@@ -132,6 +136,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   }
 
   void _showCharacterOptions(BuildContext context, Character character) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       builder: (context) => Padding(
@@ -141,7 +146,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.info_outline),
-              title: const Text('View Details'),
+              title: Text(l10n.viewDetails),
               onTap: () {
                 Navigator.pop(context);
                 _showCharacterDetails(context, character);
@@ -149,7 +154,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.edit),
-              title: const Text('Edit'),
+              title: Text(l10n.edit),
               onTap: () async {
                 Navigator.pop(context);
                 await Navigator.push(
@@ -163,7 +168,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.copy),
-              title: const Text('Duplicate'),
+              title: Text(l10n.duplicate),
               onTap: () async {
                 Navigator.pop(context);
                 await _duplicateCharacter(context, character);
@@ -171,7 +176,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             ),
             ListTile(
               leading: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
-              title: Text('Delete',
+              title: Text(l10n.delete,
                   style: TextStyle(color: Theme.of(context).colorScheme.error)),
               onTap: () {
                 Navigator.pop(context);
@@ -234,7 +239,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(AppLocalizations.of(context)!.close),
           ),
         ],
       ),
@@ -254,16 +259,16 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   }
 
   void _confirmDelete(BuildContext context, Character character) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Character'),
-        content: Text(
-            'Are you sure you want to delete ${character.name}? This cannot be undone.'),
+        title: Text(l10n.deleteConfirmationTitle),
+        content: Text(l10n.deleteConfirmationMessage(character.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -272,7 +277,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('${character.name} deleted'),
+                    content: Text(l10n.deletedSuccess(character.name)),
                     duration: const Duration(seconds: 2),
                   ),
                 );
@@ -281,7 +286,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -289,6 +294,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   }
 
   Future<void> _duplicateCharacter(BuildContext context, Character original) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       // Create a new character with copied data
       final duplicate = Character(
@@ -401,7 +407,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${original.name} duplicated successfully!'),
+            content: Text(l10n.duplicatedSuccess(original.name)),
             backgroundColor: Theme.of(context).colorScheme.primary,
             duration: const Duration(seconds: 2),
           ),
@@ -421,6 +427,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   }
 
   Future<void> _importFromFC5(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       print('🔧 _importFromFC5: Starting FC5 import');
 
@@ -447,13 +454,14 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${character.name} imported successfully!'),
+            content: Text(l10n.importedSuccess(character.name)),
             backgroundColor: Theme.of(context).colorScheme.primary,
             duration: const Duration(seconds: 2),
           ),
         );
       }
     } catch (e, stackTrace) {
+
       print('❌ _importFromFC5: ERROR: $e');
       print('❌ Stack trace: $stackTrace');
 

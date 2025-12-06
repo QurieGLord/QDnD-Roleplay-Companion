@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
+import '../../../core/services/character_data_service.dart';
 
 class CharacterCard extends StatelessWidget {
   final Character character;
@@ -14,9 +16,43 @@ class CharacterCard extends StatelessWidget {
     required this.onLongPress,
   });
 
+  String _getLocalizedClassName(BuildContext context, String className) {
+    try {
+      final locale = Localizations.localeOf(context).languageCode;
+      final classData = CharacterDataService.getClassById(className);
+      return classData?.getName(locale) ?? className;
+    } catch (e) {
+      return className;
+    }
+  }
+
+  String _getLocalizedSubclassName(BuildContext context, String className, String subclassName) {
+    try {
+      final locale = Localizations.localeOf(context).languageCode;
+      final classData = CharacterDataService.getClassById(className);
+      if (classData != null) {
+        final subclass = classData.subclasses.firstWhere(
+          (s) => s.id == subclassName || s.name.values.contains(subclassName),
+          orElse: () => throw Exception('Subclass not found'),
+        );
+        return subclass.getName(locale);
+      }
+      return subclassName;
+    } catch (e) {
+      return subclassName;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+
+    // Localize dynamic fields
+    final localizedClassName = _getLocalizedClassName(context, character.characterClass);
+    final localizedSubclass = character.subclass != null 
+        ? _getLocalizedSubclassName(context, character.characterClass, character.subclass!)
+        : null;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -85,15 +121,15 @@ class CharacterCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Level ${character.level} ${character.characterClass}',
+                      '${l10n.levelShort} ${character.level} $localizedClassName',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: colorScheme.onSurface.withOpacity(0.6),
                           ),
                     ),
-                    if (character.subclass != null) ...[
+                    if (localizedSubclass != null) ...[
                       const SizedBox(height: 2),
                       Text(
-                        character.subclass!,
+                        localizedSubclass,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: colorScheme.primary,
                               fontWeight: FontWeight.w600,
@@ -113,7 +149,7 @@ class CharacterCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         _StatChip(
                           icon: Icons.shield,
-                          label: 'AC ${character.armorClass}',
+                          label: '${l10n.armorClassAC} ${character.armorClass}',
                           color: colorScheme.secondary,
                         ),
                       ],

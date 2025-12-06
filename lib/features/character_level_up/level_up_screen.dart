@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/class_data.dart';
 import '../../../core/models/character_feature.dart';
@@ -217,9 +218,12 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       );
     }
 
+    final locale = Localizations.localeOf(context).languageCode;
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Level Up: ${_classData.getName('en')} $_nextLevel'),
+        title: Text('${l10n.levelUpTitle}: ${_classData.getName(locale)} $_nextLevel'),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),

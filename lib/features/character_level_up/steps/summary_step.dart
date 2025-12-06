@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/character_feature.dart';
 
@@ -20,6 +21,8 @@ class SummaryStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -29,12 +32,12 @@ class SummaryStep extends StatelessWidget {
           const SizedBox(height: 24),
           
           Text(
-            'Level Up Ready!',
+            l10n.levelUpReady,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 8),
           Text(
-            'Confirm these changes to your character.',
+            l10n.confirmLevelUp,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 32),
@@ -44,11 +47,11 @@ class SummaryStep extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  _buildRow(context, 'Level', '${character.level}', '$nextLevel'),
+                  _buildRow(context, l10n.levelShort, '${character.level}', '$nextLevel'),
                   const Divider(),
-                  _buildRow(context, 'Max HP', '${character.maxHp}', '${character.maxHp + hpIncrease} (+$hpIncrease)'),
+                  _buildRow(context, l10n.hitPoints, '${character.maxHp}', '${character.maxHp + hpIncrease} (+$hpIncrease)'),
                   const Divider(),
-                  _buildRow(context, 'Proficiency Bonus', _formatBonus(character.proficiencyBonus), _formatBonus(_calculateProficiency(nextLevel))),
+                  _buildRow(context, l10n.proficiencyPROF, _formatBonus(character.proficiencyBonus), _formatBonus(_calculateProficiency(nextLevel))),
                   if (newFeatures.isNotEmpty) ...[
                     const Divider(),
                     Padding(
@@ -56,7 +59,7 @@ class SummaryStep extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('New Features'),
+                          Text(l10n.newFeaturesLabel),
                           Text('${newFeatures.length}', style: const TextStyle(fontWeight: FontWeight.bold)),
                         ],
                       ),
@@ -77,7 +80,7 @@ class SummaryStep extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 backgroundColor: Colors.green,
               ),
-              child: const Text('APPLY CHANGES'),
+              child: Text(l10n.applyChanges),
             ),
           ),
         ],

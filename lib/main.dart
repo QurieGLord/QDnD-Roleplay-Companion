@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import 'core/services/storage_service.dart';
 import 'core/services/spell_service.dart';
 import 'core/services/feature_service.dart';
 import 'core/services/character_data_service.dart';
 import 'core/services/item_service.dart';
 import 'core/services/theme_provider.dart';
+import 'core/services/locale_provider.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/character_list/character_list_screen.dart';
 import 'features/settings/settings_screen.dart';
@@ -34,8 +37,11 @@ void main() async {
   }
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+      ],
       child: const QDnDApp(),
     ),
   );
@@ -46,14 +52,25 @@ class QDnDApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
+    return Consumer2<ThemeProvider, LocaleProvider>(
+      builder: (context, themeProvider, localeProvider, child) {
         return MaterialApp(
           title: 'QD&D - Roleplay Companion',
           debugShowCheckedModeBanner: false,
           theme: themeProvider.lightTheme,
           darkTheme: themeProvider.darkTheme,
           themeMode: themeProvider.themeMode,
+          locale: localeProvider.locale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en'), // English
+            Locale('ru'), // Russian
+          ],
           initialRoute: '/',
           routes: {
             '/': (context) => const SplashScreen(),

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:math';
 import 'dart:async';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/models/character.dart';
 import '../../core/models/condition.dart';
 import '../../core/services/storage_service.dart';
@@ -58,21 +59,40 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
     setState(() {});
   }
 
-  void _startCombat() {
+  String _getConditionName(AppLocalizations l10n, ConditionType type) {
+    switch (type) {
+      case ConditionType.blinded: return l10n.conditionBlinded;
+      case ConditionType.charmed: return l10n.conditionCharmed;
+      case ConditionType.deafened: return l10n.conditionDeafened;
+      case ConditionType.frightened: return l10n.conditionFrightened;
+      case ConditionType.grappled: return l10n.conditionGrappled;
+      case ConditionType.incapacitated: return l10n.conditionIncapacitated;
+      case ConditionType.invisible: return l10n.conditionInvisible;
+      case ConditionType.paralyzed: return l10n.conditionParalyzed;
+      case ConditionType.petrified: return l10n.conditionPetrified;
+      case ConditionType.poisoned: return l10n.conditionPoisoned;
+      case ConditionType.prone: return l10n.conditionProne;
+      case ConditionType.restrained: return l10n.conditionRestrained;
+      case ConditionType.stunned: return l10n.conditionStunned;
+      case ConditionType.unconscious: return l10n.conditionUnconscious;
+    }
+  }
+
+  void _startCombat(AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Roll Initiative'),
+        title: Text(l10n.rollInitiative),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.sports_martial_arts, size: 48),
             const SizedBox(height: 16),
-            Text('Bonus: ${_character.formatModifier(_character.initiativeBonus)}'),
+            Text('${l10n.modifier}: ${_character.formatModifier(_character.initiativeBonus)}'),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
           FilledButton(
             onPressed: () async {
               final d20 = Random().nextInt(20) + 1;
@@ -88,28 +108,28 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
     );
   }
 
-  void _endCombat() {
+  void _endCombat(AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('End Combat?'),
-        content: const Text('This will reset the round counter.'),
+        title: Text(l10n.endCombat),
+        content: Text(l10n.endCombatConfirm),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
           FilledButton(
             onPressed: () async {
               Navigator.pop(context);
               _character.combatState.endCombat();
               await _save();
             },
-            child: const Text('End'),
+            child: Text(l10n.finish),
           ),
         ],
       ),
     );
   }
 
-  void _modifyHP(bool heal) {
+  void _modifyHP(bool heal, AppLocalizations l10n) {
     final controller = TextEditingController();
     showModalBottomSheet(
       context: context,
@@ -119,7 +139,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(heal ? 'Heal' : 'Take Damage', style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            Text(heal ? l10n.heal : l10n.takeDamage, style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               color: heal ? Colors.green : Colors.red, fontWeight: FontWeight.bold
             )),
             const SizedBox(height: 20),
@@ -150,7 +170,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                           _save();
                         }
                       },
-                      child: const Text('Temp HP'), // Actually this logic is complex, let's keep it simple: Just damage/heal
+                      child: Text(l10n.tempHp), 
                     ),
                   ),
                 if (!heal) const SizedBox(width: 12),
@@ -170,7 +190,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                         _save();
                       }
                     },
-                    child: Text(heal ? 'HEAL' : 'DAMAGE'),
+                    child: Text(heal ? l10n.heal.toUpperCase() : l10n.takeDamage.toUpperCase()),
                   ),
                 ),
               ],
@@ -190,7 +210,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
     _save();
   }
 
-  void _showConditionsDialog() {
+  void _showConditionsDialog(AppLocalizations l10n) {
     showModalBottomSheet(
       context: context,
       builder: (context) => ListView(
@@ -198,7 +218,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
         children: ConditionType.values.map((c) {
           final isActive = _character.activeConditions.contains(c);
           return ListTile(
-            title: Text(c.displayName),
+            title: Text(_getConditionName(l10n, c)),
             trailing: isActive ? const Icon(Icons.check_circle, color: Colors.green) : null,
             onTap: () {
               _toggleCondition(c);
@@ -224,6 +244,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
   Widget _buildUI(BuildContext context, Character character) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final isInCombat = character.combatState.isInCombat;
     final hpPercent = character.currentHp / character.maxHp;
     final isDying = character.currentHp <= 0;
@@ -259,9 +280,9 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildHeaderStat('INITIATIVE', '${character.combatState.initiative}', Icons.flash_on, colorScheme.tertiary),
+                  _buildHeaderStat(l10n.initiativeINIT, '${character.combatState.initiative}', Icons.flash_on, colorScheme.tertiary),
                   if (isInCombat)
-                    _buildHeaderStat('ROUND', '${character.combatState.currentRound}', Icons.refresh, colorScheme.primary),
+                    _buildHeaderStat('ROUND', '${character.combatState.currentRound}', Icons.refresh, colorScheme.primary), // TODO: Add "Round" key if missing, or use l10n
                 ],
               ),
             ),
@@ -308,7 +329,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                       if (isDying) ...[
                         const Icon(Icons.dangerous, size: 48, color: Colors.grey),
                         const SizedBox(height: 8),
-                        Text('UNCONSCIOUS', style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.error, letterSpacing: 1.5)),
+                        Text(l10n.conditionUnconscious.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.error, letterSpacing: 1.5)),
                       ] else ...[
                         Icon(Icons.favorite, size: 32, color: colorScheme.error.withOpacity(0.8)),
                         const SizedBox(height: 4),
@@ -348,16 +369,16 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                 ),
                 child: Column(
                   children: [
-                    Text('DEATH SAVES', style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.error, letterSpacing: 1.2)),
+                    Text(l10n.deathSaves.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.error, letterSpacing: 1.2)),
                     const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildDeathSaveRow('Successes', character.deathSaves.successes, Icons.check_circle, Colors.green, () async {
+                        _buildDeathSaveRow(l10n.successes, character.deathSaves.successes, Icons.check_circle, Colors.green, () async {
                           character.deathSaves.addSuccess(); await _save();
                         }),
                         Container(width: 1, height: 40, color: colorScheme.outlineVariant),
-                        _buildDeathSaveRow('Failures', character.deathSaves.failures, Icons.cancel, colorScheme.error, () async {
+                        _buildDeathSaveRow(l10n.failures, character.deathSaves.failures, Icons.cancel, colorScheme.error, () async {
                           character.deathSaves.addFailure(); await _save();
                         }),
                       ],
@@ -376,7 +397,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                   children: character.activeConditions.map((c) => Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: Chip(
-                      label: Text(c.displayName),
+                      label: Text(_getConditionName(l10n, c)),
                       backgroundColor: colorScheme.errorContainer,
                       labelStyle: TextStyle(color: colorScheme.onErrorContainer),
                       onDeleted: () => _toggleCondition(c),
@@ -398,20 +419,20 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                       Expanded(
                         child: _buildActionButton(
                           context, 
-                          'DAMAGE', 
+                          l10n.takeDamage.toUpperCase(), 
                           Icons.broken_image, 
                           colorScheme.error, 
-                          () => _modifyHP(false)
+                          () => _modifyHP(false, l10n)
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildActionButton(
                           context, 
-                          'HEAL', 
+                          l10n.heal.toUpperCase(), 
                           Icons.healing, 
                           Colors.green, 
-                          () => _modifyHP(true)
+                          () => _modifyHP(true, l10n)
                         ),
                       ),
                     ],
@@ -422,9 +443,9 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: _showConditionsDialog,
+                          onPressed: () => _showConditionsDialog(l10n),
                           icon: const Icon(Icons.sick_outlined),
-                          label: const Text('Condition'),
+                          label: Text(l10n.condition),
                           style: OutlinedButton.styleFrom(minimumSize: const Size(0, 56)),
                         ),
                       ),
@@ -436,13 +457,13 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                                 setState(() { character.combatState.currentRound++; _save(); });
                               },
                               icon: const Icon(Icons.skip_next),
-                              label: const Text('Next Round'),
+                              label: Text(l10n.nextRound),
                               style: FilledButton.styleFrom(minimumSize: const Size(0, 56)),
                             )
                           : FilledButton.icon(
-                              onPressed: _startCombat,
+                              onPressed: () => _startCombat(l10n),
                               icon: const Icon(Icons.play_arrow),
-                              label: const Text('Start Combat'),
+                              label: Text(l10n.startCombat),
                               style: FilledButton.styleFrom(minimumSize: const Size(0, 56)),
                             ),
                       ),

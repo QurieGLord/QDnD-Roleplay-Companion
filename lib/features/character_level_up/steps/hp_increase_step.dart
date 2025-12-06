@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 
 class HpIncreaseStep extends StatefulWidget {
   final int hitDie;
@@ -66,6 +67,7 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final avgValue = (widget.hitDie / 2).floor() + 1;
     final totalAvg = avgValue + widget.conMod;
     
@@ -74,7 +76,7 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
       child: Column(
         children: [
           Text(
-            'Hit Points',
+            l10n.hpIncrease,
             style: theme.textTheme.headlineMedium?.copyWith(
               color: colorScheme.primary,
               fontWeight: FontWeight.bold,
@@ -82,7 +84,7 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
           ),
           const SizedBox(height: 8),
           Text(
-            'Your constitution modifier is ${widget.conMod >= 0 ? '+' : ''}${widget.conMod}',
+            l10n.conModIs('${widget.conMod >= 0 ? '+' : ''}${widget.conMod}'),
             style: theme.textTheme.bodyLarge?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -95,7 +97,7 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
               width: 160,
               height: 160,
               decoration: BoxDecoration(
-                color: colorScheme.secondaryContainer.withOpacity(0.3),
+                color: colorScheme.secondaryContainer.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -144,7 +146,7 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
-                            Text('Average', style: theme.textTheme.labelLarge),
+                            Text(l10n.average, style: theme.textTheme.labelLarge),
                             const SizedBox(height: 8),
                             Text(
                               '+$totalAvg',
@@ -153,7 +155,7 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text('Safe choice', style: theme.textTheme.bodySmall),
+                            Text(l10n.safeChoice, style: theme.textTheme.bodySmall),
                           ],
                         ),
                       ),
@@ -165,7 +167,7 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
                 Expanded(
                   child: Card(
                     elevation: 4,
-                    shadowColor: colorScheme.primary.withOpacity(0.4),
+                    shadowColor: colorScheme.primary.withValues(alpha: 0.4),
                     color: colorScheme.primary,
                     clipBehavior: Clip.antiAlias,
                     child: InkWell(
@@ -174,11 +176,11 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
-                            Text('Roll', style: theme.textTheme.labelLarge?.copyWith(color: colorScheme.onPrimary)),
+                            Text(l10n.roll, style: theme.textTheme.labelLarge?.copyWith(color: colorScheme.onPrimary)),
                             const SizedBox(height: 8),
                             Icon(Icons.casino, size: 36, color: colorScheme.onPrimary),
                             const SizedBox(height: 4),
-                            Text('Risk it!', style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onPrimary.withOpacity(0.8))),
+                            Text(l10n.riskIt, style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onPrimary.withValues(alpha: 0.8))),
                           ],
                         ),
                       ),

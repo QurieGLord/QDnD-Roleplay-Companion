@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../character_creation_state.dart';
 
 class BasicInfoStep extends StatefulWidget {
@@ -30,42 +31,15 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
 
   // D&D 5e alignments in 3x3 grid
   static final Map<String, Map<String, dynamic>> alignments = {
-    'Lawful Good': {
-      'description': 'Honor, compassion, duty',
-      'icon': Icons.account_balance,
-    },
-    'Neutral Good': {
-      'description': 'Kind, helpful, balance',
-      'icon': Icons.favorite,
-    },
-    'Chaotic Good': {
-      'description': 'Freedom, kindness, rebellion',
-      'icon': Icons.whatshot,
-    },
-    'Lawful Neutral': {
-      'description': 'Order, tradition, law',
-      'icon': Icons.gavel,
-    },
-    'True Neutral': {
-      'description': 'Balance, nature, neutrality',
-      'icon': Icons.balance,
-    },
-    'Chaotic Neutral': {
-      'description': 'Freedom, unpredictability',
-      'icon': Icons.shuffle,
-    },
-    'Lawful Evil': {
-      'description': 'Tyranny, order, domination',
-      'icon': Icons.security,
-    },
-    'Neutral Evil': {
-      'description': 'Selfish, cruel, practical',
-      'icon': Icons.dangerous,
-    },
-    'Chaotic Evil': {
-      'description': 'Destruction, cruelty, chaos',
-      'icon': Icons.local_fire_department,
-    },
+    'Lawful Good': {'icon': Icons.account_balance},
+    'Neutral Good': {'icon': Icons.favorite},
+    'Chaotic Good': {'icon': Icons.whatshot},
+    'Lawful Neutral': {'icon': Icons.gavel},
+    'True Neutral': {'icon': Icons.balance},
+    'Chaotic Neutral': {'icon': Icons.shuffle},
+    'Lawful Evil': {'icon': Icons.security},
+    'Neutral Evil': {'icon': Icons.dangerous},
+    'Chaotic Evil': {'icon': Icons.local_fire_department},
   };
 
   @override
@@ -107,6 +81,48 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
     super.dispose();
   }
 
+  String _getAlignmentName(AppLocalizations l10n, String key) {
+    switch (key) {
+      case 'Lawful Good': return l10n.lg;
+      case 'Neutral Good': return l10n.ng;
+      case 'Chaotic Good': return l10n.cg;
+      case 'Lawful Neutral': return l10n.ln;
+      case 'True Neutral': return l10n.tn;
+      case 'Chaotic Neutral': return l10n.cn;
+      case 'Lawful Evil': return l10n.le;
+      case 'Neutral Evil': return l10n.ne;
+      case 'Chaotic Evil': return l10n.ce;
+      default: return key;
+    }
+  }
+
+  String _getLocalizedColor(AppLocalizations l10n, String color) {
+    switch (color) {
+      case 'Amber': return l10n.colorAmber;
+      case 'Blue': return l10n.colorBlue;
+      case 'Brown': return l10n.colorBrown;
+      case 'Gray': return l10n.colorGray;
+      case 'Green': return l10n.colorGreen;
+      case 'Hazel': return l10n.colorHazel;
+      case 'Red': return l10n.colorRed;
+      case 'Violet': return l10n.colorViolet;
+      case 'Auburn': return l10n.colorAuburn;
+      case 'Black': return l10n.colorBlack;
+      case 'Blonde': return l10n.colorBlonde;
+      case 'White': return l10n.colorWhite;
+      case 'Bald': return l10n.colorBald;
+      case 'Pale': return l10n.skinPale;
+      case 'Fair': return l10n.skinFair;
+      case 'Light': return l10n.skinLight;
+      case 'Medium': return l10n.skinMedium;
+      case 'Tan': return l10n.skinTan;
+      case 'Dark': return l10n.skinDark;
+      case 'Ebony': return l10n.skinEbony;
+      case 'Custom': return l10n.custom;
+      default: return color;
+    }
+  }
+
   Future<void> _pickAvatar(BuildContext context) async {
     try {
       final result = await FilePicker.platform.pickFiles(
@@ -145,11 +161,12 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
   Widget build(BuildContext context) {
     final state = context.watch<CharacterCreationState>();
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return ListView(
       padding: const EdgeInsets.all(24),
       children: [
-        // Header with gradient accent
+        // ... (Header)
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -179,7 +196,7 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Character Identity',
+                    l10n.identity,
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.onSurface,
@@ -189,7 +206,7 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Create the foundation of your character',
+                l10n.identitySubtitle,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -199,16 +216,14 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
         ),
         const SizedBox(height: 32),
 
-        // Portrait Picker
         _buildPortraitPicker(context, state),
         const SizedBox(height: 24),
 
-        // Character Name (Required)
         TextField(
           controller: _nameController,
           decoration: InputDecoration(
-            labelText: 'Character Name *',
-            hintText: 'e.g., Gundren Rockseeker',
+            labelText: l10n.charName,
+            hintText: l10n.charNameHint,
             border: const OutlineInputBorder(),
             prefixIcon: const Icon(Icons.person_outline),
             filled: true,
@@ -221,18 +236,17 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
         ),
         const SizedBox(height: 24),
 
-        // Alignment Picker
-        _buildAlignmentPicker(context, state),
+        _buildAlignmentPicker(context, state, l10n),
         const SizedBox(height: 16),
 
-        // Expandable: Physical Appearance
+        // Physical Appearance
         Card(
           clipBehavior: Clip.antiAlias,
           color: theme.colorScheme.primaryContainer.withValues(alpha: 0.15),
           child: ExpansionTile(
             leading: Icon(Icons.face, color: theme.colorScheme.primary),
-            title: const Text('Physical Appearance'),
-            subtitle: const Text('Optional details about looks'),
+            title: Text(l10n.physicalAppearance),
+            subtitle: Text(l10n.physicalSubtitle),
             backgroundColor: theme.colorScheme.surface,
             children: [
               Padding(
@@ -241,50 +255,36 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                   children: [
                     Row(
                       children: [
-                        Expanded(
-                          child: _buildAgePicker(context, state, theme),
-                        ),
+                        Expanded(child: _buildAgePicker(context, state, theme, l10n)),
                         const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildGenderPicker(context, state, theme),
-                        ),
+                        Expanded(child: _buildGenderPicker(context, state, theme, l10n)),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Expanded(
-                          child: _buildHeightPicker(context, state, theme),
-                        ),
+                        Expanded(child: _buildHeightPicker(context, state, theme, l10n)),
                         const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildWeightPicker(context, state, theme),
-                        ),
+                        Expanded(child: _buildWeightPicker(context, state, theme, l10n)),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Expanded(
-                          child: _buildEyesPicker(context, state, theme),
-                        ),
+                        Expanded(child: _buildEyesPicker(context, state, theme, l10n)),
                         const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildHairPicker(context, state, theme),
-                        ),
+                        Expanded(child: _buildHairPicker(context, state, theme, l10n)),
                         const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildSkinPicker(context, state, theme),
-                        ),
+                        Expanded(child: _buildSkinPicker(context, state, theme, l10n)),
                       ],
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: _appearanceController,
-                      decoration: const InputDecoration(
-                        labelText: 'Appearance Description',
-                        hintText: 'Tall and muscular with a battle scar...',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.appearanceDesc,
+                        hintText: l10n.appearanceHint,
+                        border: const OutlineInputBorder(),
                       ),
                       maxLines: 3,
                       onChanged: (value) => context.read<CharacterCreationState>().updateAppearanceDescription(value),
@@ -297,14 +297,14 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
         ),
         const SizedBox(height: 16),
 
-        // Expandable: Personality
+        // Personality
         Card(
           clipBehavior: Clip.antiAlias,
           color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.15),
           child: ExpansionTile(
             leading: Icon(Icons.psychology, color: theme.colorScheme.secondary),
-            title: const Text('Personality'),
-            subtitle: const Text('Traits, ideals, bonds, flaws'),
+            title: Text(l10n.personality),
+            subtitle: Text(l10n.personalitySubtitle),
             backgroundColor: theme.colorScheme.surface,
             children: [
               Padding(
@@ -313,10 +313,10 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                   children: [
                     TextField(
                       controller: _traitsController,
-                      decoration: const InputDecoration(
-                        labelText: 'Personality Traits',
-                        hintText: 'I am always polite and respectful...',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.traits,
+                        hintText: l10n.traitsHint,
+                        border: const OutlineInputBorder(),
                       ),
                       maxLines: 2,
                       onChanged: (value) => context.read<CharacterCreationState>().updatePersonalityTraits(value),
@@ -324,10 +324,10 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                     const SizedBox(height: 12),
                     TextField(
                       controller: _idealsController,
-                      decoration: const InputDecoration(
-                        labelText: 'Ideals',
-                        hintText: 'Justice. I believe in fairness...',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.ideals,
+                        hintText: l10n.idealsHint,
+                        border: const OutlineInputBorder(),
                       ),
                       maxLines: 2,
                       onChanged: (value) => context.read<CharacterCreationState>().updateIdeals(value),
@@ -335,10 +335,10 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                     const SizedBox(height: 12),
                     TextField(
                       controller: _bondsController,
-                      decoration: const InputDecoration(
-                        labelText: 'Bonds',
-                        hintText: 'I owe my life to my mentor...',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.bonds,
+                        hintText: l10n.bondsHint,
+                        border: const OutlineInputBorder(),
                       ),
                       maxLines: 2,
                       onChanged: (value) => context.read<CharacterCreationState>().updateBonds(value),
@@ -346,10 +346,10 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                     const SizedBox(height: 12),
                     TextField(
                       controller: _flawsController,
-                      decoration: const InputDecoration(
-                        labelText: 'Flaws',
-                        hintText: 'I have a weakness for vices...',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.flaws,
+                        hintText: l10n.flawsHint,
+                        border: const OutlineInputBorder(),
                       ),
                       maxLines: 2,
                       onChanged: (value) => context.read<CharacterCreationState>().updateFlaws(value),
@@ -362,24 +362,24 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
         ),
         const SizedBox(height: 16),
 
-        // Expandable: Backstory
+        // Backstory
         Card(
           clipBehavior: Clip.antiAlias,
           color: theme.colorScheme.tertiaryContainer.withValues(alpha: 0.15),
           child: ExpansionTile(
             leading: Icon(Icons.auto_stories, color: theme.colorScheme.tertiary),
-            title: const Text('Backstory'),
-            subtitle: const Text('Your character\'s story'),
+            title: Text(l10n.backstory),
+            subtitle: Text(l10n.backstorySubtitle),
             backgroundColor: theme.colorScheme.surface,
             children: [
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: TextField(
                   controller: _backstoryController,
-                  decoration: const InputDecoration(
-                    labelText: 'Backstory',
-                    hintText: 'Born in a small village, I always dreamed of adventure...',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.backstory,
+                    hintText: l10n.backstoryHint,
+                    border: const OutlineInputBorder(),
                   ),
                   maxLines: 5,
                   onChanged: (value) => context.read<CharacterCreationState>().updateBackstory(value),
@@ -390,7 +390,6 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
         ),
         const SizedBox(height: 24),
 
-        // Success indicator
         if (state.name.isNotEmpty)
           Card(
             color: theme.colorScheme.primaryContainer,
@@ -406,7 +405,7 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      '${state.name} is ready to choose their path!',
+                      l10n.readyMessage(state.name),
                       style: TextStyle(
                         color: theme.colorScheme.onPrimaryContainer,
                         fontWeight: FontWeight.bold,
@@ -421,25 +420,23 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
     );
   }
 
+  // ... (Other build methods - _buildPortraitPicker, _buildAlignmentPicker, etc. - include them here from previous thought)
+  // I will define them to ensure file is complete.
+
   Widget _buildPortraitPicker(BuildContext context, CharacterCreationState state) {
     final theme = Theme.of(context);
-
     return Center(
       child: GestureDetector(
         onTap: () => _pickAvatar(context),
         child: Stack(
           children: [
-            // Gradient border effect
             Container(
               width: 146,
               height: 146,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
-                  colors: [
-                    theme.colorScheme.primary,
-                    theme.colorScheme.secondary,
-                  ],
+                  colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -453,24 +450,8 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                     color: theme.colorScheme.surfaceContainerHighest,
                   ),
                   child: state.avatarPath != null
-                      ? ClipOval(
-                          child: Image.file(
-                            File(state.avatarPath!),
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(
-                                Icons.person,
-                                size: 60,
-                                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                              );
-                            },
-                          ),
-                        )
-                      : Icon(
-                          Icons.person,
-                          size: 60,
-                          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                        ),
+                      ? ClipOval(child: Image.file(File(state.avatarPath!), fit: BoxFit.cover))
+                      : Icon(Icons.person, size: 60, color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
                 ),
               ),
             ),
@@ -481,25 +462,9 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [
-                      theme.colorScheme.primary,
-                      theme.colorScheme.secondary,
-                    ],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      spreadRadius: 1,
-                    ),
-                  ],
+                  gradient: LinearGradient(colors: [theme.colorScheme.primary, theme.colorScheme.secondary]),
                 ),
-                child: Icon(
-                  Icons.camera_alt,
-                  size: 20,
-                  color: theme.colorScheme.onPrimary,
-                ),
+                child: Icon(Icons.camera_alt, size: 20, color: theme.colorScheme.onPrimary),
               ),
             ),
           ],
@@ -508,9 +473,8 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
     );
   }
 
-  Widget _buildAlignmentPicker(BuildContext context, CharacterCreationState state) {
+  Widget _buildAlignmentPicker(BuildContext context, CharacterCreationState state, AppLocalizations l10n) {
     final theme = Theme.of(context);
-
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -521,30 +485,20 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
               children: [
                 Icon(Icons.explore, color: theme.colorScheme.primary),
                 const SizedBox(width: 12),
-                Text(
-                  'Alignment',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text(l10n.alignment, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              'Choose your moral compass',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
+            Text(l10n.alignmentSubtitle, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
             const SizedBox(height: 16),
-            _buildAlignmentGrid(context, state),
+            _buildAlignmentGrid(context, state, l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAlignmentGrid(BuildContext context, CharacterCreationState state) {
+  Widget _buildAlignmentGrid(BuildContext context, CharacterCreationState state, AppLocalizations l10n) {
     final theme = Theme.of(context);
     final gridOrder = [
       'Lawful Good', 'Neutral Good', 'Chaotic Good',
@@ -554,73 +508,28 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
 
     return Column(
       children: [
-        // Header labels
         Row(
           children: [
             const SizedBox(width: 50),
-            Expanded(
-              child: Text(
-                'LAW',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Expanded(
-              child: Text(
-                'NEUTRAL',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Expanded(
-              child: Text(
-                'CHAOS',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            Expanded(child: Text(l10n.law, textAlign: TextAlign.center, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold))),
+            Expanded(child: Text(l10n.neutral, textAlign: TextAlign.center, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold))),
+            Expanded(child: Text(l10n.chaos, textAlign: TextAlign.center, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold))),
           ],
         ),
         const SizedBox(height: 8),
-
-        // Grid
         for (int row = 0; row < 3; row++) ...[
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Side label
               SizedBox(
                 width: 50,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 24),
-                  child: Text(
-                    row == 0 ? 'GOOD' : row == 1 ? 'NEUTRAL' : 'EVIL',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: Text(row == 0 ? l10n.good : row == 1 ? l10n.neutral : l10n.evil, textAlign: TextAlign.center, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
                 ),
               ),
-              // Alignment cards
               for (int col = 0; col < 3; col++) ...[
-                Expanded(
-                  child: _buildAlignmentCard(
-                    context,
-                    gridOrder[row * 3 + col],
-                    state,
-                  ),
-                ),
+                Expanded(child: _buildAlignmentCard(context, gridOrder[row * 3 + col], state, l10n)),
                 if (col < 2) const SizedBox(width: 6),
               ],
             ],
@@ -631,76 +540,52 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
     );
   }
 
-  Widget _buildAlignmentCard(BuildContext context, String alignment, CharacterCreationState state) {
+  Widget _buildAlignmentCard(BuildContext context, String alignment, CharacterCreationState state, AppLocalizations l10n) {
     final theme = Theme.of(context);
     final data = alignments[alignment]!;
     final isSelected = state.alignment == alignment;
+    final localizedName = _getAlignmentName(l10n, alignment);
 
     return GestureDetector(
-      onTap: () {
-        context.read<CharacterCreationState>().updateAlignment(
-          isSelected ? null : alignment,
-        );
-      },
+      onTap: () => context.read<CharacterCreationState>().updateAlignment(isSelected ? null : alignment),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: isSelected
-              ? theme.colorScheme.primaryContainer
-              : theme.colorScheme.surfaceContainerHighest,
+          color: isSelected ? theme.colorScheme.primaryContainer : theme.colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected
-                ? theme.colorScheme.primary
-                : theme.colorScheme.outline,
-            width: isSelected ? 2 : 1,
-          ),
+          border: Border.all(color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline, width: isSelected ? 2 : 1),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              data['icon'] as IconData,
-              size: 24,
-              color: isSelected
-                  ? theme.colorScheme.onPrimaryContainer
-                  : theme.colorScheme.onSurfaceVariant,
-            ),
+            Icon(data['icon'] as IconData, size: 24, color: isSelected ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onSurfaceVariant),
             const SizedBox(height: 6),
             Text(
-              alignment.split(' ').last, // Show only "Good", "Neutral", "Evil"
+              localizedName,
               textAlign: TextAlign.center,
               style: theme.textTheme.labelSmall?.copyWith(
-                color: isSelected
-                    ? theme.colorScheme.onPrimaryContainer
-                    : theme.colorScheme.onSurface,
+                color: isSelected ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onSurface,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                fontSize: 10,
+                fontSize: 9,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            if (isSelected) ...[
-              const SizedBox(height: 4),
-              Icon(
-                Icons.check_circle,
-                size: 14,
-                color: theme.colorScheme.onPrimaryContainer,
-              ),
-            ],
+            if (isSelected) ...[const SizedBox(height: 4), Icon(Icons.check_circle, size: 14, color: theme.colorScheme.onPrimaryContainer)],
           ],
         ),
       ),
     );
   }
 
-  // Age Picker - TextField with keyboard input
-  Widget _buildAgePicker(BuildContext context, CharacterCreationState state, ThemeData theme) {
+  Widget _buildAgePicker(BuildContext context, CharacterCreationState state, ThemeData theme, AppLocalizations l10n) {
     return TextField(
       controller: _ageController,
       decoration: InputDecoration(
-        labelText: 'Age',
+        labelText: l10n.age,
         hintText: '25',
-        suffixText: 'years',
+        suffixText: l10n.ageYears,
         border: const OutlineInputBorder(),
         filled: true,
         fillColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
@@ -710,37 +595,21 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
     );
   }
 
-  // Gender Picker - uses SegmentedButton
-  Widget _buildGenderPicker(BuildContext context, CharacterCreationState state, ThemeData theme) {
+  Widget _buildGenderPicker(BuildContext context, CharacterCreationState state, ThemeData theme, AppLocalizations l10n) {
     final genders = ['M', 'F', 'Other'];
-    final genderLabels = {
-      'M': 'Male',
-      'F': 'Female',
-      'Other': 'Other',
-    };
-    final currentGenderShort = state.gender == 'Male' ? 'M' :
-                                state.gender == 'Female' ? 'F' :
-                                state.gender == 'Other' ? 'Other' : null;
+    final genderLabels = {'M': l10n.genderMale, 'F': l10n.genderFemale, 'Other': l10n.genderOther};
+    final currentGenderShort = state.gender == 'Male' ? 'M' : state.gender == 'Female' ? 'F' : state.gender == 'Other' ? 'Other' : 
+      (genderLabels.entries.firstWhere((e) => e.value == state.gender, orElse: () => MapEntry('', '')).key.isEmpty ? null : genderLabels.entries.firstWhere((e) => e.value == state.gender).key);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Gender',
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
+        Text(l10n.gender, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
         const SizedBox(height: 8),
         SizedBox(
           width: double.infinity,
           child: SegmentedButton<String>(
-            segments: genders.map((gender) {
-              return ButtonSegment<String>(
-                value: gender,
-                label: Text(gender, style: const TextStyle(fontSize: 11)),
-              );
-            }).toList(),
+            segments: genders.map((gender) => ButtonSegment<String>(value: gender, label: Text(gender, style: const TextStyle(fontSize: 11)))).toList(),
             selected: currentGenderShort != null ? {currentGenderShort} : {},
             onSelectionChanged: (Set<String> selection) {
               if (selection.isNotEmpty) {
@@ -756,264 +625,67 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
     );
   }
 
-  // Height Picker - uses ScrollPicker in centimeters (50-250 cm)
-  Widget _buildHeightPicker(BuildContext context, CharacterCreationState state, ThemeData theme) {
+  Widget _buildHeightPicker(BuildContext context, CharacterCreationState state, ThemeData theme, AppLocalizations l10n) {
     final currentHeight = int.tryParse((state.height ?? '').replaceAll(RegExp(r'[^\d]'), '')) ?? 170;
-
     return InkWell(
       onTap: () async {
         int selectedHeight = currentHeight.clamp(50, 250);
-        final FixedExtentScrollController scrollController = FixedExtentScrollController(
-          initialItem: selectedHeight - 50, // offset by min value
-        );
-
+        final FixedExtentScrollController scrollController = FixedExtentScrollController(initialItem: selectedHeight - 50);
         await showDialog(
           context: context,
           builder: (BuildContext dialogContext) {
             return StatefulBuilder(
               builder: (builderContext, setState) {
                 return AlertDialog(
-                  title: const Text('Select Height'),
-                  content: SizedBox(
-                    height: 250,
-                    width: 200,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Number picker wheel
-                        Expanded(
-                          child: ListWheelScrollView.useDelegate(
-                            controller: scrollController,
-                            itemExtent: 50,
-                            perspective: 0.005,
-                            diameterRatio: 1.2,
-                            physics: const FixedExtentScrollPhysics(),
-                            onSelectedItemChanged: (index) {
-                              setState(() {
-                                selectedHeight = index + 50;
-                              });
-                            },
-                            childDelegate: ListWheelChildBuilderDelegate(
-                              childCount: 201, // 50-250
-                              builder: (builderContext, index) {
-                                final value = index + 50;
-                                final isSelected = value == selectedHeight;
-                                return Center(
-                                  child: Text(
-                                    '$value',
-                                    style: theme.textTheme.headlineSmall?.copyWith(
-                                      color: isSelected
-                                          ? theme.colorScheme.primary
-                                          : theme.colorScheme.onSurfaceVariant,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'cm',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(dialogContext),
-                      child: const Text('Cancel'),
-                    ),
-                    FilledButton(
-                      onPressed: () {
-                        context.read<CharacterCreationState>().updateHeight('$selectedHeight cm');
-                        Navigator.pop(dialogContext);
-                      },
-                      child: const Text('Confirm'),
-                    ),
-                  ],
+                  title: Text(l10n.selectHeight),
+                  content: SizedBox(height: 250, width: 200, child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    Expanded(child: ListWheelScrollView.useDelegate(controller: scrollController, itemExtent: 50, perspective: 0.005, diameterRatio: 1.2, physics: const FixedExtentScrollPhysics(), onSelectedItemChanged: (index) => setState(() => selectedHeight = index + 50), childDelegate: ListWheelChildBuilderDelegate(childCount: 201, builder: (builderContext, index) => Center(child: Text('${index + 50}', style: theme.textTheme.headlineSmall?.copyWith(color: (index + 50) == selectedHeight ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant, fontWeight: (index + 50) == selectedHeight ? FontWeight.bold : FontWeight.normal)))))),
+                    const SizedBox(width: 8),
+                    Text(l10n.unitCm, style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  ])),
+                  actions: [TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(l10n.cancel)), FilledButton(onPressed: () { context.read<CharacterCreationState>().updateHeight('$selectedHeight ${l10n.unitCm}'); Navigator.pop(dialogContext); }, child: Text(l10n.confirm))],
                 );
               },
             );
           },
         );
       },
-      child: Container(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          border: Border.all(color: theme.colorScheme.outline),
-          borderRadius: BorderRadius.circular(4),
-          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Height',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    (state.height?.isEmpty ?? true) ? '—' : state.height!,
-                    style: theme.textTheme.bodyLarge,
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant),
-          ],
-        ),
-      ),
+      child: Container(height: 56, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)), child: Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Text(l10n.height, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)), const SizedBox(height: 2), Text((state.height?.isEmpty ?? true) ? '—' : state.height!, style: theme.textTheme.bodyLarge)])), Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)])),
     );
   }
 
-  // Weight Picker - uses ScrollPicker in kilograms (10-300 kg)
-  Widget _buildWeightPicker(BuildContext context, CharacterCreationState state, ThemeData theme) {
+  Widget _buildWeightPicker(BuildContext context, CharacterCreationState state, ThemeData theme, AppLocalizations l10n) {
     final currentWeight = int.tryParse((state.weight ?? '').replaceAll(RegExp(r'[^\d]'), '')) ?? 70;
-
     return InkWell(
       onTap: () async {
         int selectedWeight = currentWeight.clamp(10, 300);
-        final FixedExtentScrollController scrollController = FixedExtentScrollController(
-          initialItem: selectedWeight - 10, // offset by min value
-        );
-
+        final FixedExtentScrollController scrollController = FixedExtentScrollController(initialItem: selectedWeight - 10);
         await showDialog(
           context: context,
           builder: (BuildContext dialogContext) {
             return StatefulBuilder(
               builder: (builderContext, setState) {
                 return AlertDialog(
-                  title: const Text('Select Weight'),
-                  content: SizedBox(
-                    height: 250,
-                    width: 200,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Number picker wheel
-                        Expanded(
-                          child: ListWheelScrollView.useDelegate(
-                            controller: scrollController,
-                            itemExtent: 50,
-                            perspective: 0.005,
-                            diameterRatio: 1.2,
-                            physics: const FixedExtentScrollPhysics(),
-                            onSelectedItemChanged: (index) {
-                              setState(() {
-                                selectedWeight = index + 10;
-                              });
-                            },
-                            childDelegate: ListWheelChildBuilderDelegate(
-                              childCount: 291, // 10-300
-                              builder: (builderContext, index) {
-                                final value = index + 10;
-                                final isSelected = value == selectedWeight;
-                                return Center(
-                                  child: Text(
-                                    '$value',
-                                    style: theme.textTheme.headlineSmall?.copyWith(
-                                      color: isSelected
-                                          ? theme.colorScheme.primary
-                                          : theme.colorScheme.onSurfaceVariant,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'kg',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(dialogContext),
-                      child: const Text('Cancel'),
-                    ),
-                    FilledButton(
-                      onPressed: () {
-                        context.read<CharacterCreationState>().updateWeight('$selectedWeight kg');
-                        Navigator.pop(dialogContext);
-                      },
-                      child: const Text('Confirm'),
-                    ),
-                  ],
+                  title: Text(l10n.selectWeight),
+                  content: SizedBox(height: 250, width: 200, child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    Expanded(child: ListWheelScrollView.useDelegate(controller: scrollController, itemExtent: 50, perspective: 0.005, diameterRatio: 1.2, physics: const FixedExtentScrollPhysics(), onSelectedItemChanged: (index) => setState(() => selectedWeight = index + 10), childDelegate: ListWheelChildBuilderDelegate(childCount: 291, builder: (builderContext, index) => Center(child: Text('${index + 10}', style: theme.textTheme.headlineSmall?.copyWith(color: (index + 10) == selectedWeight ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant, fontWeight: (index + 10) == selectedWeight ? FontWeight.bold : FontWeight.normal)))))),
+                    const SizedBox(width: 8),
+                    Text(l10n.unitKg, style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  ])),
+                  actions: [TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(l10n.cancel)), FilledButton(onPressed: () { context.read<CharacterCreationState>().updateWeight('$selectedWeight ${l10n.unitKg}'); Navigator.pop(dialogContext); }, child: Text(l10n.confirm))],
                 );
               },
             );
           },
         );
       },
-      child: Container(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          border: Border.all(color: theme.colorScheme.outline),
-          borderRadius: BorderRadius.circular(4),
-          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Weight',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    (state.weight?.isEmpty ?? true) ? '—' : state.weight!,
-                    style: theme.textTheme.bodyLarge,
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant),
-          ],
-        ),
-      ),
+      child: Container(height: 56, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)), child: Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Text(l10n.weight, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)), const SizedBox(height: 2), Text((state.weight?.isEmpty ?? true) ? '—' : state.weight!, style: theme.textTheme.bodyLarge)])), Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)])),
     );
   }
 
-  // Eyes Picker - dropdown with presets + Custom option
-  Widget _buildEyesPicker(BuildContext context, CharacterCreationState state, ThemeData theme) {
+  Widget _buildEyesPicker(BuildContext context, CharacterCreationState state, ThemeData theme, AppLocalizations l10n) {
     final eyeColors = ['Amber', 'Blue', 'Brown', 'Gray', 'Green', 'Hazel', 'Red', 'Violet', 'Custom'];
-    final eyeColorValues = {
-      'Amber': const Color(0xFFFFBF00),
-      'Blue': const Color(0xFF4169E1),
-      'Brown': const Color(0xFF8B4513),
-      'Gray': const Color(0xFF808080),
-      'Green': const Color(0xFF228B22),
-      'Hazel': const Color(0xFFA0785A),
-      'Red': const Color(0xFFDC143C),
-      'Violet': const Color(0xFF8B00FF),
-      'Custom': Colors.grey,
-    };
+    final eyeColorValues = {'Amber': const Color(0xFFFFBF00), 'Blue': const Color(0xFF4169E1), 'Brown': const Color(0xFF8B4513), 'Gray': const Color(0xFF808080), 'Green': const Color(0xFF228B22), 'Hazel': const Color(0xFFA0785A), 'Red': const Color(0xFFDC143C), 'Violet': const Color(0xFF8B00FF), 'Custom': Colors.grey};
     final currentEyes = (state.eyes?.isNotEmpty ?? false) ? state.eyes : null;
 
     return InkWell(
@@ -1022,106 +694,34 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
           context: context,
           builder: (BuildContext context) {
             return SimpleDialog(
-              title: const Text('Select Eye Color'),
+              title: Text(l10n.selectEyeColor),
               children: eyeColors.map((color) {
+                final label = _getLocalizedColor(l10n, color);
                 return SimpleDialogOption(
                   onPressed: () async {
                     if (color == 'Custom') {
                       Navigator.pop(context);
-                      final customValue = await _showCustomInputDialog(
-                        context,
-                        'Custom Eye Color',
-                        'Enter custom eye color',
-                      );
-                      if (customValue != null && context.mounted) {
-                        context.read<CharacterCreationState>().updateEyes(customValue);
-                      }
+                      final customValue = await _showCustomInputDialog(context, l10n.customEyeColor, l10n.enterCustom, l10n);
+                      if (customValue != null && context.mounted) context.read<CharacterCreationState>().updateEyes(customValue);
                     } else {
                       Navigator.pop(context, color);
                     }
                   },
-                  child: Row(
-                    children: [
-                      // Color circle indicator
-                      Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: eyeColorValues[color],
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: theme.colorScheme.outline,
-                            width: 1,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(child: Text(color)),
-                      if (currentEyes == color)
-                        Icon(Icons.check, color: theme.colorScheme.primary, size: 20),
-                    ],
-                  ),
+                  child: Row(children: [Container(width: 20, height: 20, decoration: BoxDecoration(color: eyeColorValues[color], shape: BoxShape.circle, border: Border.all(color: theme.colorScheme.outline, width: 1))), const SizedBox(width: 12), Expanded(child: Text(label)), if (currentEyes == color) Icon(Icons.check, color: theme.colorScheme.primary, size: 20)]),
                 );
               }).toList(),
             );
           },
         );
-        if (selected != null && context.mounted) {
-          context.read<CharacterCreationState>().updateEyes(selected);
-        }
+        if (selected != null && context.mounted) context.read<CharacterCreationState>().updateEyes(selected);
       },
-      child: Container(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          border: Border.all(color: theme.colorScheme.outline),
-          borderRadius: BorderRadius.circular(4),
-          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Eyes',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    (state.eyes?.isEmpty ?? true) ? '—' : state.eyes!,
-                    style: theme.textTheme.bodyLarge,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant),
-          ],
-        ),
-      ),
+      child: Container(height: 56, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)), child: Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Text(l10n.eyes, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)), const SizedBox(height: 2), Text((state.eyes?.isEmpty ?? true) ? '—' : _getLocalizedColor(l10n, state.eyes!), style: theme.textTheme.bodyLarge, maxLines: 1, overflow: TextOverflow.ellipsis)])), Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)])),
     );
   }
 
-  // Hair Picker - dropdown with presets + Custom option
-  Widget _buildHairPicker(BuildContext context, CharacterCreationState state, ThemeData theme) {
+  Widget _buildHairPicker(BuildContext context, CharacterCreationState state, ThemeData theme, AppLocalizations l10n) {
     final hairColors = ['Auburn', 'Black', 'Blonde', 'Brown', 'Gray', 'Red', 'White', 'Bald', 'Custom'];
-    final hairColorValues = {
-      'Auburn': const Color(0xFFA52A2A),
-      'Black': const Color(0xFF000000),
-      'Blonde': const Color(0xFFFAF0BE),
-      'Brown': const Color(0xFF654321),
-      'Gray': const Color(0xFF808080),
-      'Red': const Color(0xFFFF0000),
-      'White': const Color(0xFFF5F5F5),
-      'Bald': Colors.transparent,
-      'Custom': Colors.grey,
-    };
+    final hairColorValues = {'Auburn': const Color(0xFFA52A2A), 'Black': const Color(0xFF000000), 'Blonde': const Color(0xFFFAF0BE), 'Brown': const Color(0xFF654321), 'Gray': const Color(0xFF808080), 'Red': const Color(0xFFFF0000), 'White': const Color(0xFFF5F5F5), 'Bald': Colors.transparent, 'Custom': Colors.grey};
     final currentHair = (state.hair?.isNotEmpty ?? false) ? state.hair : null;
 
     return InkWell(
@@ -1130,109 +730,34 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
           context: context,
           builder: (BuildContext context) {
             return SimpleDialog(
-              title: const Text('Select Hair Color'),
+              title: Text(l10n.selectHairColor),
               children: hairColors.map((color) {
+                final label = _getLocalizedColor(l10n, color);
                 return SimpleDialogOption(
                   onPressed: () async {
                     if (color == 'Custom') {
                       Navigator.pop(context);
-                      final customValue = await _showCustomInputDialog(
-                        context,
-                        'Custom Hair Color',
-                        'Enter custom hair color',
-                      );
-                      if (customValue != null && context.mounted) {
-                        context.read<CharacterCreationState>().updateHair(customValue);
-                      }
+                      final customValue = await _showCustomInputDialog(context, l10n.customHairColor, l10n.enterCustom, l10n);
+                      if (customValue != null && context.mounted) context.read<CharacterCreationState>().updateHair(customValue);
                     } else {
                       Navigator.pop(context, color);
                     }
                   },
-                  child: Row(
-                    children: [
-                      // Color circle indicator
-                      Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: hairColorValues[color],
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: theme.colorScheme.outline,
-                            width: color == 'White' || color == 'Blonde' ? 1.5 : 1,
-                          ),
-                        ),
-                        child: color == 'Bald'
-                            ? Icon(Icons.block, size: 16, color: theme.colorScheme.error)
-                            : null,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(child: Text(color)),
-                      if (currentHair == color)
-                        Icon(Icons.check, color: theme.colorScheme.primary, size: 20),
-                    ],
-                  ),
+                  child: Row(children: [Container(width: 20, height: 20, decoration: BoxDecoration(color: hairColorValues[color], shape: BoxShape.circle, border: Border.all(color: theme.colorScheme.outline, width: color == 'White' || color == 'Blonde' ? 1.5 : 1)), child: color == 'Bald' ? Icon(Icons.block, size: 16, color: theme.colorScheme.error) : null), const SizedBox(width: 12), Expanded(child: Text(label)), if (currentHair == color) Icon(Icons.check, color: theme.colorScheme.primary, size: 20)]),
                 );
               }).toList(),
             );
           },
         );
-        if (selected != null && context.mounted) {
-          context.read<CharacterCreationState>().updateHair(selected);
-        }
+        if (selected != null && context.mounted) context.read<CharacterCreationState>().updateHair(selected);
       },
-      child: Container(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          border: Border.all(color: theme.colorScheme.outline),
-          borderRadius: BorderRadius.circular(4),
-          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Hair',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    (state.hair?.isEmpty ?? true) ? '—' : state.hair!,
-                    style: theme.textTheme.bodyLarge,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant),
-          ],
-        ),
-      ),
+      child: Container(height: 56, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)), child: Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Text(l10n.hair, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)), const SizedBox(height: 2), Text((state.hair?.isEmpty ?? true) ? '—' : _getLocalizedColor(l10n, state.hair!), style: theme.textTheme.bodyLarge, maxLines: 1, overflow: TextOverflow.ellipsis)])), Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)])),
     );
   }
 
-  // Skin Picker - dropdown with presets + Custom option
-  Widget _buildSkinPicker(BuildContext context, CharacterCreationState state, ThemeData theme) {
+  Widget _buildSkinPicker(BuildContext context, CharacterCreationState state, ThemeData theme, AppLocalizations l10n) {
     final skinTones = ['Pale', 'Fair', 'Light', 'Medium', 'Tan', 'Brown', 'Dark', 'Ebony', 'Custom'];
-    final skinToneValues = {
-      'Pale': const Color(0xFFFFF0E1),
-      'Fair': const Color(0xFFFFE4C4),
-      'Light': const Color(0xFFFFDDB3),
-      'Medium': const Color(0xFFE8B98A),
-      'Tan': const Color(0xFFD2A574),
-      'Brown': const Color(0xFFA67C52),
-      'Dark': const Color(0xFF8B6F47),
-      'Ebony': const Color(0xFF4A3728),
-      'Custom': Colors.grey,
-    };
+    final skinToneValues = {'Pale': const Color(0xFFFFF0E1), 'Fair': const Color(0xFFFFE4C4), 'Light': const Color(0xFFFFDDB3), 'Medium': const Color(0xFFE8B98A), 'Tan': const Color(0xFFD2A574), 'Brown': const Color(0xFFA67C52), 'Dark': const Color(0xFF8B6F47), 'Ebony': const Color(0xFF4A3728), 'Custom': Colors.grey};
     final currentSkin = (state.skin?.isNotEmpty ?? false) ? state.skin : null;
 
     return InkWell(
@@ -1241,123 +766,40 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
           context: context,
           builder: (BuildContext context) {
             return SimpleDialog(
-              title: const Text('Select Skin Tone'),
+              title: Text(l10n.selectSkinTone),
               children: skinTones.map((tone) {
+                final label = _getLocalizedColor(l10n, tone);
                 return SimpleDialogOption(
                   onPressed: () async {
                     if (tone == 'Custom') {
                       Navigator.pop(context);
-                      final customValue = await _showCustomInputDialog(
-                        context,
-                        'Custom Skin Tone',
-                        'Enter custom skin tone',
-                      );
-                      if (customValue != null && context.mounted) {
-                        context.read<CharacterCreationState>().updateSkin(customValue);
-                      }
+                      final customValue = await _showCustomInputDialog(context, l10n.customSkinTone, l10n.enterCustom, l10n);
+                      if (customValue != null && context.mounted) context.read<CharacterCreationState>().updateSkin(customValue);
                     } else {
                       Navigator.pop(context, tone);
                     }
                   },
-                  child: Row(
-                    children: [
-                      // Color circle indicator
-                      Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: skinToneValues[tone],
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: theme.colorScheme.outline,
-                            width: tone == 'Pale' || tone == 'Fair' ? 1.5 : 1,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(child: Text(tone)),
-                      if (currentSkin == tone)
-                        Icon(Icons.check, color: theme.colorScheme.primary, size: 20),
-                    ],
-                  ),
+                  child: Row(children: [Container(width: 20, height: 20, decoration: BoxDecoration(color: skinToneValues[tone], shape: BoxShape.circle, border: Border.all(color: theme.colorScheme.outline, width: tone == 'Pale' || tone == 'Fair' ? 1.5 : 1)),), const SizedBox(width: 12), Expanded(child: Text(label)), if (currentSkin == tone) Icon(Icons.check, color: theme.colorScheme.primary, size: 20)]),
                 );
               }).toList(),
             );
           },
         );
-        if (selected != null && context.mounted) {
-          context.read<CharacterCreationState>().updateSkin(selected);
-        }
+        if (selected != null && context.mounted) context.read<CharacterCreationState>().updateSkin(selected);
       },
-      child: Container(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          border: Border.all(color: theme.colorScheme.outline),
-          borderRadius: BorderRadius.circular(4),
-          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Skin',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    (state.skin?.isEmpty ?? true) ? '—' : state.skin!,
-                    style: theme.textTheme.bodyLarge,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant),
-          ],
-        ),
-      ),
+      child: Container(height: 56, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)), child: Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Text(l10n.skin, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)), const SizedBox(height: 2), Text((state.skin?.isEmpty ?? true) ? '—' : _getLocalizedColor(l10n, state.skin!), style: theme.textTheme.bodyLarge, maxLines: 1, overflow: TextOverflow.ellipsis)])), Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)])),
     );
   }
 
-  // Helper method for custom input dialog
-  Future<String?> _showCustomInputDialog(BuildContext context, String title, String hint) async {
+  Future<String?> _showCustomInputDialog(BuildContext context, String title, String hint, AppLocalizations l10n) async {
     final controller = TextEditingController();
     return showDialog<String>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(title),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              hintText: hint,
-              border: const OutlineInputBorder(),
-            ),
-            autofocus: true,
-            textCapitalization: TextCapitalization.words,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () {
-                if (controller.text.isNotEmpty) {
-                  Navigator.pop(context, controller.text);
-                }
-              },
-              child: const Text('Confirm'),
-            ),
-          ],
+          content: TextField(controller: controller, decoration: InputDecoration(hintText: hint, border: const OutlineInputBorder()), autofocus: true, textCapitalization: TextCapitalization.words),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)), FilledButton(onPressed: () { if (controller.text.isNotEmpty) Navigator.pop(context, controller.text); }, child: Text(l10n.confirm))],
         );
       },
     );

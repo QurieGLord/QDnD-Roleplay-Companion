@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character_feature.dart';
 import '../../../core/models/class_data.dart';
 
@@ -41,6 +42,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     
     final hasSpellChanges = widget.newSpellSlots.isNotEmpty && 
         (widget.newSpellSlots.length > widget.oldSpellSlots.length || 
@@ -59,7 +61,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
       child: Column(
         children: [
           Text(
-            'New Abilities',
+            l10n.newAbilities,
             style: theme.textTheme.headlineMedium?.copyWith(
               color: colorScheme.primary,
               fontWeight: FontWeight.bold,
@@ -67,7 +69,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Level ${widget.nextLevel} Unlocks',
+            l10n.unlocksAtLevel(widget.nextLevel),
             style: theme.textTheme.titleMedium?.copyWith(
               color: colorScheme.secondary,
             ),
@@ -78,15 +80,15 @@ class _FeaturesStepState extends State<FeaturesStep> {
             child: ListView(
               children: [
                 if (widget.newFeatures.isEmpty && !hasSpellChanges && !needsSubclass)
-                  const Center(
+                  Center(
                     child: Padding(
-                      padding: EdgeInsets.all(32.0),
-                      child: Text('No new features at this level. But your stats improved!'),
+                      padding: const EdgeInsets.all(32.0),
+                      child: Text(l10n.noNewFeaturesAtLevel),
                     ),
                   ),
 
                 if (hasSpellChanges) ...[
-                  _buildSectionHeader(context, 'Magic'),
+                  _buildSectionHeader(context, l10n.magic),
                   Card(
                     elevation: 2,
                     color: colorScheme.surfaceContainerLow,
@@ -99,14 +101,14 @@ class _FeaturesStepState extends State<FeaturesStep> {
                             children: [
                               Icon(Icons.auto_fix_high, color: colorScheme.primary),
                               const SizedBox(width: 8),
-                              const Text(
-                                'Spell Slots Increased',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              Text(
+                                l10n.spellSlotsIncreased,
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
                           const SizedBox(height: 16),
-                          _buildSpellSlotGrid(context),
+                          _buildSpellSlotGrid(context, l10n),
                         ],
                       ),
                     ),
@@ -115,16 +117,16 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 ],
 
                 if (needsSubclass) ...[
-                  _buildSectionHeader(context, 'Sacred Oath'),
+                  _buildSectionHeader(context, l10n.sacredOath),
                   _buildSubclassChoice(context),
                   const SizedBox(height: 16),
                 ],
 
                 if (widget.newFeatures.isNotEmpty) ...[
-                  _buildSectionHeader(context, 'Class Features'),
+                  _buildSectionHeader(context, l10n.classFeatures),
                   ...widget.newFeatures.map((feature) {
                     if (feature.id == 'fighting_style') {
-                      return _buildFightingStyleChoice(context, feature);
+                      return _buildFightingStyleChoice(context, feature, l10n);
                     }
                     return _buildFeatureCard(context, feature);
                   }).toList(),
@@ -139,7 +141,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
             child: FilledButton(
               onPressed: allChoicesMade ? widget.onNext : null,
               style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-              child: Text(allChoicesMade ? 'Continue' : 'Make Choices to Continue'),
+              child: Text(allChoicesMade ? l10n.continueLabel : l10n.makeChoices),
             ),
           ),
         ],
@@ -148,6 +150,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
   }
 
   Widget _buildSubclassChoice(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
     return Column(
       children: widget.classData.subclasses.map((subclass) {
         final isSelected = _selections['subclass'] == subclass.id;
@@ -164,8 +167,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 widget.onOptionSelected('subclass', value);
               });
             },
-            title: Text(subclass.getName('en'), style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(subclass.getDescription('en'), maxLines: 2, overflow: TextOverflow.ellipsis),
+            title: Text(subclass.getName(locale), style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(subclass.getDescription(locale), maxLines: 2, overflow: TextOverflow.ellipsis),
             secondary: Icon(isSelected ? Icons.check_circle : Icons.shield_outlined),
             activeColor: Theme.of(context).colorScheme.primary,
           ),
@@ -174,15 +177,16 @@ class _FeaturesStepState extends State<FeaturesStep> {
     );
   }
 
-  Widget _buildFightingStyleChoice(BuildContext context, CharacterFeature feature) {
+  Widget _buildFightingStyleChoice(BuildContext context, CharacterFeature feature, AppLocalizations l10n) {
+    final locale = Localizations.localeOf(context).languageCode;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFeatureCard(context, feature), // Show description first
         const SizedBox(height: 8),
-        const Padding(
-          padding: EdgeInsets.only(left: 8.0, bottom: 8.0),
-          child: Text('Choose a Fighting Style:', style: TextStyle(fontWeight: FontWeight.bold)),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
+          child: Text(l10n.chooseFightingStyle, style: const TextStyle(fontWeight: FontWeight.bold)),
         ),
         ..._fightingStyles.map((style) {
           final isSelected = _selections['fighting_style'] == style['id'];
@@ -226,6 +230,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
   }
 
   Widget _buildFeatureCard(BuildContext context, CharacterFeature feature) {
+    final locale = Localizations.localeOf(context).languageCode;
     IconData icon = Icons.star;
     if (feature.iconName != null) {
        switch(feature.iconName) {
@@ -262,7 +267,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        feature.nameEn,
+                        feature.getName(locale),
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       Text(
@@ -278,14 +283,14 @@ class _FeaturesStepState extends State<FeaturesStep> {
               ],
             ),
             const SizedBox(height: 12),
-            Text(feature.descriptionEn),
+            Text(feature.getDescription(locale)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSpellSlotGrid(BuildContext context) {
+  Widget _buildSpellSlotGrid(BuildContext context, AppLocalizations l10n) {
     List<Widget> levelRows = [];
     
     for (int i = 0; i < widget.newSpellSlots.length; i++) {
@@ -301,7 +306,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
               children: [
                 SizedBox(
                   width: 50,
-                  child: Text('Lvl $level', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(l10n.lvlShort(level), style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(width: 16),
                 ...List.generate(oldCount, (_) => const Padding(

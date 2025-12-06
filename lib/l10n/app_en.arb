@@ -1,0 +1,538 @@
+{
+  "@@locale": "en",
+  "appTitle": "QD&D",
+  "appSubtitle": "Roleplay Companion",
+  "@appSubtitle": {
+    "description": "The app subtitle which should NOT be translated"
+  },
+  "settings": "Settings",
+  "language": "Language",
+  "theme": "Theme",
+  "characters": "Characters",
+  "compendium": "Compendium",
+  "diceRoller": "Dice Roller",
+  "inventory": "Inventory",
+  "spells": "Spells",
+  "features": "Features",
+  "stats": "Stats",
+  "combat": "Combat",
+  "notes": "Notes",
+  "quests": "Quests",
+  "cancel": "Cancel",
+  "save": "Save",
+  "edit": "Edit",
+  "delete": "Delete",
+  "level": "Level",
+  "race": "Race",
+  "background": "Background",
+  "classLabel": "Class",
+  "subclass": "Subclass",
+  "alignment": "Alignment",
+  "experience": "Experience",
+  "playerName": "Player Name",
+  "createNewCharacter": "Create New Character",
+  "importFC5": "Import from Fight Club 5",
+  "viewDetails": "View Details",
+  "duplicate": "Duplicate",
+  "close": "Close",
+  "deleteConfirmationTitle": "Delete Character",
+  "deleteConfirmationMessage": "Are you sure you want to delete {name}? This cannot be undone.",
+  "@deleteConfirmationMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletedSuccess": "{name} deleted",
+  "@deletedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "duplicatedSuccess": "{name} duplicated successfully!",
+  "@duplicatedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "importedSuccess": "{name} imported successfully!",
+  "@importedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "abilities": "Abilities",
+  "savingThrows": "Saving Throws",
+  "skills": "Skills",
+  "abilityStr": "Strength",
+  "abilityDex": "Dexterity",
+  "abilityCon": "Constitution",
+  "abilityInt": "Intelligence",
+  "abilityWis": "Wisdom",
+  "abilityCha": "Charisma",
+  "skillAthletics": "Athletics",
+  "skillAcrobatics": "Acrobatics",
+  "skillSleightOfHand": "Sleight of Hand",
+  "skillStealth": "Stealth",
+  "skillArcana": "Arcana",
+  "skillHistory": "History",
+  "skillInvestigation": "Investigation",
+  "skillNature": "Nature",
+  "skillReligion": "Religion",
+  "skillAnimalHandling": "Animal Handling",
+  "skillInsight": "Insight",
+  "skillMedicine": "Medicine",
+  "skillPerception": "Perception",
+  "skillSurvival": "Survival",
+  "skillDeception": "Deception",
+  "skillIntimidation": "Intimidation",
+  "skillPerformance": "Performance",
+  "skillPersuasion": "Persuasion",
+  "combatDashboard": "Combat Dashboard",
+  "hitPoints": "Hit Points",
+  "armorClassAC": "AC",
+  "initiativeINIT": "INIT",
+  "speedSPEED": "SPEED",
+  "proficiencyPROF": "PROF",
+  "weaponsAttacks": "Weapons & Attacks",
+  "shortRest": "Short Rest",
+  "longRest": "Long Rest",
+  "enterCombatMode": "Enter Combat Mode",
+  "rest": "Rest",
+  "shortRestDescription": "Recover short-rest features and spend Hit Dice?",
+  "longRestDescription": "Recover all HP, spell slots, and features?",
+  "restedSuccess": "Rested successfully",
+  "unarmedStrike": "Unarmed Strike",
+  "hit": "HIT",
+  "dmg": "DMG",
+  "damageTypeBludgeoning": "Bludgeoning",
+  "damageTypePiercing": "Piercing",
+  "damageTypeSlashing": "Slashing",
+  "damageTypePhysical": "Physical",
+  "searchItems": "Search items...",
+  "sortBy": "Sort by",
+  "sortName": "Name",
+  "sortWeight": "Weight",
+  "sortValue": "Value",
+  "sortType": "Type",
+  "filterAll": "All",
+  "filterEquipped": "Equipped",
+  "filterUnequipped": "Unequipped",
+  "typeWeapon": "Weapons",
+  "typeArmor": "Armor",
+  "typeGear": "Gear",
+  "typeConsumable": "Consumables",
+  "totalWeight": "Total Weight",
+  "currency": "Currency",
+  "editCurrency": "Edit Currency",
+  "currencyUpdated": "Currency updated",
+  "currencyPP": "Platinum (PP)",
+  "currencyGP": "Gold (GP)",
+  "currencySP": "Silver (SP)",
+  "currencyCP": "Copper (CP)",
+  "inventoryEmpty": "Inventory is empty",
+  "inventoryEmptyHint": "Tap + to add items",
+  "quantity": "Quantity",
+  "unequip": "Unequip",
+  "equip": "Equip",
+  "remove": "Remove",
+  "itemRemoved": "Item removed",
+  "itemEquipped": "Equipped",
+  "itemUnequipped": "Unequipped",
+  "weaponProperties": "WEAPON PROPERTIES",
+  "armorProperties": "ARMOR PROPERTIES",
+  "damage": "Damage",
+  "damageType": "Damage Type",
+  "versatileDamage": "Versatile Damage",
+  "range": "Range",
+  "properties": "Properties",
+  "armorClass": "Armor Class",
+  "type": "Type",
+  "strRequirement": "STR Requirement",
+  "stealth": "Stealth",
+  "disadvantage": "Disadvantage",
+  "weight": "Weight",
+  "value": "Value",
+  "spellAlmanac": "Spell Almanac",
+  "resources": "Resources",
+  "activeAbilities": "Active Abilities",
+  "magic": "Magic",
+  "spellsList": "Spells List",
+  "passiveTraits": "Passive Traits",
+  "cantrips": "Cantrips",
+  "levelLabel": "Level {level}",
+  "levelShort": "Level",
+  "@levelLabel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "noSpellsLearned": "No spells learned yet",
+  "castSpell": "Cast Spell",
+  "castAction": "Cast {name}",
+  "@castAction": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseSpellSlot": "Choose spell slot level:",
+  "levelSlot": "Level {level} Slot",
+  "@levelSlot": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "slotsRemaining": "{count} slot{count, plural, =1{ } other{s }} remaining",
+  "@slotsRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "upcast": "Upcast",
+  "noSlotsAvailable": "No spell slots available!",
+  "spellCastSuccess": "{name} cast!",
+  "spellCastLevelSuccess": "{name} cast at level {level}!",
+  "spellAbility": "Ability",
+  "spellSaveDC": "Save DC",
+  "spellAttack": "Attack",
+  "lvlShort": "Lvl {level}",
+  "@lvlShort": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "useChannelDivinity": "Use Channel Divinity ({count} left)",
+  "@useChannelDivinity": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noChannelDivinity": "No Channel Divinity charges",
+  "schoolAbjuration": "Abjuration",
+  "schoolConjuration": "Conjuration",
+  "schoolDivination": "Divination",
+  "schoolEnchantment": "Enchantment",
+  "schoolEvocation": "Evocation",
+  "schoolIllusion": "Illusion",
+  "schoolNecromancy": "Necromancy",
+  "schoolTransmutation": "Transmutation",
+  "combatStats": "Combat Stats",
+  "rollInitiative": "Roll Initiative",
+  "endCombat": "End Combat",
+  "endCombatConfirm": "This will reset the round counter.",
+  "nextRound": "Next Round",
+  "startCombat": "Start Combat",
+  "heal": "Heal",
+  "takeDamage": "Take Damage",
+  "tempHp": "Temp HP",
+  "deathSaves": "Death Saves",
+  "successes": "Successes",
+  "failures": "Failures",
+  "unconscious": "Unconscious",
+  "condition": "Condition",
+  "conditions": "Conditions",
+  "actionTypeAction": "Action",
+  "actionTypeBonus": "Bonus Action",
+  "actionTypeReaction": "Reaction",
+  "spellcastingAbility": "Spellcasting Ability",
+  "currencyPP_short": "pp",
+  "currencyGP_short": "gp",
+  "currencySP_short": "sp",
+  "currencyCP_short": "cp",
+  "weightUnit": "lb",
+  "currencyUnit": "gp",
+  "age": "Age",
+  "height": "Height",
+  "weight": "Weight",
+  "eyes": "Eyes",
+  "skin": "Skin",
+  "hair": "Hair",
+  "appearance": "Appearance",
+  "rollType": "Roll Type",
+  "normal": "Normal",
+  "advantage": "Advantage",
+  "disadvantage": "Disadvantage",
+  "modifier": "Modifier",
+  "rolling": "Rolling...",
+  "total": "Total: {value}",
+  "tapToRoll": "Tap to Roll",
+  "levelUp": "Level Up",
+  "levelUpTitle": "Level Up",
+  "currentLevel": "Current Level",
+  "nextLevel": "Next Level",
+  "hpIncrease": "HP Increase",
+  "features": "Features",
+  "chooseRace": "Choose Race",
+  "chooseClass": "Choose Class",
+  "hitDieType": "Hit Die: d{value}",
+  "damageTypeAcid": "Acid",
+  "damageTypeCold": "Cold",
+  "damageTypeFire": "Fire",
+  "damageTypeForce": "Force",
+  "damageTypeLightning": "Lightning",
+  "damageTypeNecrotic": "Necrotic",
+  "damageTypePoison": "Poison",
+  "damageTypePsychic": "Psychic",
+  "damageTypeRadiant": "Radiant",
+  "damageTypeThunder": "Thunder",
+  "conModIs": "Your Constitution modifier is {value}",
+  "@conModIs": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "average": "Average",
+  "safeChoice": "Safe choice",
+  "roll": "Roll",
+  "riskIt": "Risk it!",
+  "conditionBlinded": "Blinded",
+  "conditionCharmed": "Charmed",
+  "conditionDeafened": "Deafened",
+  "conditionFrightened": "Frightened",
+  "conditionGrappled": "Grappled",
+  "conditionIncapacitated": "Incapacitated",
+  "conditionInvisible": "Invisible",
+  "conditionParalyzed": "Paralyzed",
+  "conditionPetrified": "Petrified",
+  "conditionPoisoned": "Poisoned",
+  "conditionProne": "Prone",
+  "conditionRestrained": "Restrained",
+  "conditionStunned": "Stunned",
+  "conditionUnconscious": "Unconscious",
+  "stepBasicInfo": "Basic Info",
+  "identity": "Character Identity",
+  "identitySubtitle": "Create the foundation of your character",
+  "charName": "Character Name *",
+  "charNameHint": "e.g., Gundren Rockseeker",
+  "alignment": "Alignment",
+  "alignmentSubtitle": "Choose your moral compass",
+  "physicalAppearance": "Physical Appearance",
+  "physicalSubtitle": "Optional details about looks",
+  "personality": "Personality",
+  "personalitySubtitle": "Traits, ideals, bonds, flaws",
+  "backstory": "Backstory",
+  "backstorySubtitle": "Your character's story",
+  "backstoryHint": "Born in a small village...",
+  "traits": "Personality Traits",
+  "traitsHint": "I am always polite...",
+  "ideals": "Ideals",
+  "idealsHint": "Justice...",
+  "bonds": "Bonds",
+  "bondsHint": "I owe my life...",
+  "flaws": "Flaws",
+  "flawsHint": "I have a weakness...",
+  "appearanceDesc": "Appearance Description",
+  "appearanceHint": "Tall and muscular...",
+  "ageYears": "years",
+  "gender": "Gender",
+  "genderMale": "Male",
+  "genderFemale": "Female",
+  "genderOther": "Other",
+  "height": "Height",
+  "weight": "Weight",
+  "eyes": "Eyes",
+  "hair": "Hair",
+  "skin": "Skin",
+  "selectHeight": "Select Height",
+  "selectWeight": "Select Weight",
+  "selectEyeColor": "Select Eye Color",
+  "selectHairColor": "Select Hair Color",
+  "selectSkinTone": "Select Skin Tone",
+  "custom": "Custom",
+  "customEyeColor": "Custom Eye Color",
+  "customHairColor": "Custom Hair Color",
+  "customSkinTone": "Custom Skin Tone",
+  "enterCustom": "Enter custom value",
+  "confirm": "Confirm",
+  "readyMessage": "{name} is ready to choose their path!",
+  "law": "LAW",
+  "neutral": "NEUTRAL",
+  "chaos": "CHAOS",
+  "good": "GOOD",
+  "evil": "EVIL",
+  "lg": "Lawful Good",
+  "ng": "Neutral Good",
+  "cg": "Chaotic Good",
+  "ln": "Lawful Neutral",
+  "tn": "True Neutral",
+  "cn": "Chaotic Neutral",
+  "le": "Lawful Evil",
+  "ne": "Neutral Evil",
+  "ce": "Chaotic Evil",
+  "lgDesc": "Honor, compassion, duty",
+  "ngDesc": "Kind, helpful, balance",
+  "cgDesc": "Freedom, kindness, rebellion",
+  "lnDesc": "Order, tradition, law",
+  "tnDesc": "Balance, nature, neutrality",
+  "cnDesc": "Freedom, unpredictability",
+  "leDesc": "Tyranny, order, domination",
+  "neDesc": "Selfish, cruel, practical",
+  "ceDesc": "Destruction, cruelty, chaos",
+  "stepRaceClass": "Race & Class",
+  "stepAbilities": "Ability Scores & HP",
+  "stepFeatures": "Features & Spells",
+  "stepEquipment": "Equipment",
+  "stepBackground": "Background",
+  "stepSkills": "Skills",
+  "stepReview": "Review",
+  "next": "Next",
+  "back": "Back",
+  "finish": "Finish",
+  "characterCreated": "Character created successfully!",
+  "tapToUpgrade": "TAP TO UPGRADE",
+  "showDetails": "Show Character Details",
+  "hideDetails": "Hide Details",
+  "newAbilities": "New Abilities",
+  "unlocksAtLevel": "Level {level} Unlocks",
+  "@unlocksAtLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "noNewFeaturesAtLevel": "No new features at this level. But your stats improved!",
+  "spellSlotsIncreased": "Spell Slots Increased",
+  "sacredOath": "Sacred Oath",
+  "classFeatures": "Class Features",
+  "chooseFightingStyle": "Choose a Fighting Style:",
+  "makeChoices": "Make Choices to Continue",
+  "continueLabel": "Continue",
+  "levelUpReady": "Level Up Ready!",
+  "confirmLevelUp": "Confirm these changes to your character.",
+  "applyChanges": "APPLY CHANGES",
+  "characterCreated": "Character created successfully!",
+  "colorAmber": "Amber",
+  "colorBlue": "Blue",
+  "colorBrown": "Brown",
+  "colorGray": "Gray",
+  "colorGreen": "Green",
+  "colorHazel": "Hazel",
+  "colorRed": "Red",
+  "colorViolet": "Violet",
+  "colorAuburn": "Auburn",
+  "colorBlack": "Black",
+  "colorBlonde": "Blonde",
+  "colorWhite": "White",
+  "colorBald": "Bald",
+  "skinPale": "Pale",
+  "skinFair": "Fair",
+  "skinLight": "Light",
+  "skinMedium": "Medium",
+  "skinTan": "Tan",
+  "skinDark": "Dark",
+  "skinEbony": "Ebony",
+  "unitCm": "cm",
+  "unitKg": "kg",
+  "chooseRaceClass": "Choose Race & Class",
+  "raceClassSubtitle": "Select your character's race and class.",
+  "loadingRaces": "Loading races...",
+  "loadingClasses": "Loading classes...",
+  "speed": "Speed: {value} ft",
+  "@speed": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "abilityScoreIncreases": "Ability Score Increases",
+  "languages": "Languages",
+  "racialTraits": "Racial Traits",
+  "savingThrowProficiencies": "Saving Throw Proficiencies",
+  "skillProficiencies": "Skill Proficiencies",
+  "chooseSkills": "Choose {count} from: {list}",
+  "@chooseSkills": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "list": {
+        "type": "String"
+      }
+    }
+  },
+  "armorProficiencies": "Armor Proficiencies",
+  "weaponProficiencies": "Weapon Proficiencies",
+  "assignAbilityScores": "Assign Ability Scores",
+  "abilityScoresSubtitle": "Choose how you want to determine your character's ability scores.",
+  "allocationMethod": "Allocation Method",
+  "standardArray": "Standard Array",
+  "pointBuy": "Point Buy",
+  "manualEntry": "Manual Entry",
+  "standardArrayDesc": "Assign these values: 15, 14, 13, 12, 10, 8. Balanced.",
+  "pointBuyDesc": "Spend 27 points to customize scores (8-15).",
+  "manualEntryDesc": "Set any value from 3 to 18.",
+  "strDesc": "Physical power",
+  "dexDesc": "Agility & reflexes",
+  "conDesc": "Endurance & health",
+  "intDesc": "Reasoning & memory",
+  "wisDesc": "Awareness & insight",
+  "chaDesc": "Force of personality",
+  "racialBonus": "Racial Bonus: +{bonus} → Final: {result} ({mod})",
+  "@racialBonus": {
+    "placeholders": {
+      "bonus": { "type": "int" },
+      "result": { "type": "int" },
+      "mod": { "type": "String" }
+    }
+  },
+  "startingHitPoints": "Starting Hit Points",
+  "hitDieConMod": "Hit Die: d{die} | CON Mod: {mod}",
+  "@hitDieConMod": {
+    "placeholders": {
+      "die": { "type": "int" },
+      "mod": { "type": "String" }
+    }
+  },
+  "hpMaxDesc": "Maximum HP (recommended)",
+  "hpAvgDesc": "Average roll: {avg} + CON modifier",
+  "@hpAvgDesc": {
+    "placeholders": {
+      "avg": { "type": "int" }
+    }
+  },
+  "hpRollDesc": "Roll 1d{die} for starting HP",
+  "@hpRollDesc": {
+    "placeholders": {
+      "die": { "type": "int" }
+    }
+  },
+  "reRoll": "Re-roll d{die} (rolled: {val})",
+  "@reRoll": {
+    "placeholders": {
+      "die": { "type": "int" },
+      "val": { "type": "int" }
+    }
+  },
+  "pointsUsed": "Points: {used} / {total} used ({remaining} remaining)",
+  "@pointsUsed": {
+    "placeholders": {
+      "used": { "type": "int" },
+      "total": { "type": "int" },
+      "remaining": { "type": "int" }
+    }
+  },
+  "newFeaturesLabel": "New Features"
+}

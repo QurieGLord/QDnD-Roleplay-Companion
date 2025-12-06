@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 
 enum DiceType {
   d4(4, 'd4'),
@@ -19,13 +20,12 @@ enum DiceType {
 }
 
 enum AdvantageType {
-  none('Normal', Icons.remove),
-  advantage('Advantage', Icons.keyboard_double_arrow_up),
-  disadvantage('Disadvantage', Icons.keyboard_double_arrow_down);
+  none(Icons.remove),
+  advantage(Icons.keyboard_double_arrow_up),
+  disadvantage(Icons.keyboard_double_arrow_down);
 
-  final String label;
   final IconData icon;
-  const AdvantageType(this.label, this.icon);
+  const AdvantageType(this.icon);
 }
 
 class DiceRoll {
@@ -59,7 +59,7 @@ void showDiceRoller(
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (context) => DiceRollerModal(
-      title: title ?? 'Dice Roller',
+      title: title,
       initialModifier: modifier,
       initialDice: initialDice,
     ),
@@ -67,13 +67,13 @@ void showDiceRoller(
 }
 
 class DiceRollerModal extends StatefulWidget {
-  final String title;
+  final String? title;
   final int initialModifier;
   final DiceType initialDice;
 
   const DiceRollerModal({
     super.key,
-    required this.title,
+    this.title,
     this.initialModifier = 0,
     this.initialDice = DiceType.d20,
   });
@@ -215,10 +215,19 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
     HapticFeedback.heavyImpact();
   }
 
+  String _getAdvantageLabel(AppLocalizations l10n, AdvantageType type) {
+    switch (type) {
+      case AdvantageType.none: return l10n.normal;
+      case AdvantageType.advantage: return l10n.advantage;
+      case AdvantageType.disadvantage: return l10n.disadvantage;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     // Colors for animation
     final baseColor = colorScheme.primaryContainer;
@@ -254,7 +263,7 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(widget.title, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                Text(widget.title ?? l10n.diceRoller, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
                 IconButton.filledTonal(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.close),
@@ -319,20 +328,6 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                                 ),
                               ),
                               // The Text
-                              // Counter-rotate text ONLY if we want it upright, 
-                              // but real dice rotate with numbers.
-                              // Let's rotate text WITH the dice for realism, 
-                              // but at the end it should land upright.
-                              // Elastic curve handles the "landing upright" naturally if end is 0 or 2pi.
-                              // But _rotationAnimation goes 0 -> 1.
-                              // So rotation = 4*pi. That lands upright.
-                              
-                              // To prevent text from being upside down during spin (hard to read),
-                              // we can counter-rotate it PARTIALLY or just let it spin.
-                              // Let's let it spin. It looks more physical.
-                              
-                              // Wait, user said "text pops out". Need to ensure font size fits.
-                              
                               Center(
                                 child: Text(
                                   '$_displayedNumber',
@@ -359,8 +354,8 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                     builder: (context, _) {
                       return Text(
                         _isRolling 
-                            ? 'Rolling...' 
-                            : (_history.isNotEmpty ? 'Total: ${_history.first.total}' : 'Tap to Roll'),
+                            ? l10n.rolling 
+                            : (_history.isNotEmpty ? l10n.total(_history.first.total) : l10n.tapToRoll),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -457,7 +452,7 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('MODIFIER', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.outline, letterSpacing: 1.2)),
+                            Text(l10n.modifier.toUpperCase(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.outline, letterSpacing: 1.2)),
                             const SizedBox(height: 8),
                             Container(
                               height: 48,
@@ -497,13 +492,13 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('ROLL TYPE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.outline, letterSpacing: 1.2)),
+                            Text(l10n.rollType.toUpperCase(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.outline, letterSpacing: 1.2)),
                             const SizedBox(height: 8),
                             SegmentedButton<AdvantageType>(
-                              segments: const [
-                                ButtonSegment(value: AdvantageType.disadvantage, label: Text('Dis')),
-                                ButtonSegment(value: AdvantageType.none, label: Text('-')),
-                                ButtonSegment(value: AdvantageType.advantage, label: Text('Adv')),
+                              segments: [
+                                ButtonSegment(value: AdvantageType.disadvantage, label: Text(l10n.disadvantage)),
+                                ButtonSegment(value: AdvantageType.none, label: Text('-')), // Or short label
+                                ButtonSegment(value: AdvantageType.advantage, label: Text(l10n.advantage)),
                               ],
                               selected: {_advantage},
                               onSelectionChanged: (val) => setState(() => _advantage = val.first),
@@ -511,7 +506,7 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                               style: ButtonStyle(
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 visualDensity: VisualDensity.compact,
-                                textStyle: MaterialStateProperty.all(const TextStyle(fontSize: 12)),
+                                textStyle: MaterialStateProperty.all(const TextStyle(fontSize: 10)), // Smaller font for long words
                               ),
                             ),
                           ],

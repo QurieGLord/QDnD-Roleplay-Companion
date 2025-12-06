@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/services/character_data_service.dart';
 import '../../../core/models/race_data.dart';
 import '../../../core/models/class_data.dart';
@@ -20,6 +21,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
   Widget build(BuildContext context) {
     final state = context.watch<CharacterCreationState>();
     final locale = Localizations.localeOf(context).languageCode;
+    final l10n = AppLocalizations.of(context)!;
 
     final races = CharacterDataService.getAllRaces();
     final classes = CharacterDataService.getAllClasses();
@@ -28,12 +30,12 @@ class _RaceClassStepState extends State<RaceClassStep> {
       padding: const EdgeInsets.all(24),
       children: [
         Text(
-          'Choose Race & Class',
+          l10n.chooseRaceClass,
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         const SizedBox(height: 8),
         Text(
-          'Select your character\'s race and class.',
+          l10n.raceClassSubtitle,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
@@ -42,15 +44,15 @@ class _RaceClassStepState extends State<RaceClassStep> {
 
         // Race Selection
         Text(
-          'Race',
+          l10n.race,
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 12),
         if (races.isEmpty)
-          const Card(
+          Card(
             child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Text('Loading races...'),
+              padding: const EdgeInsets.all(16),
+              child: Text(l10n.loadingRaces),
             ),
           )
         else
@@ -136,7 +138,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildRaceDetails(context, race, locale, isSelected),
+                          _buildRaceDetails(context, race, locale, isSelected, l10n),
                         ],
                       ),
                     ),
@@ -150,15 +152,15 @@ class _RaceClassStepState extends State<RaceClassStep> {
 
         // Class Selection
         Text(
-          'Class',
+          l10n.classLabel,
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 12),
         if (classes.isEmpty)
-          const Card(
+          Card(
             child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Text('Loading classes...'),
+              padding: const EdgeInsets.all(16),
+              child: Text(l10n.loadingClasses),
             ),
           )
         else
@@ -214,7 +216,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Hit Die: d${classData.hitDie}',
+                                  l10n.hitDieType(classData.hitDie),
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     fontWeight: FontWeight.w500,
                                     color: isSelected
@@ -254,7 +256,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildClassDetails(context, classData, locale, isSelected),
+                          _buildClassDetails(context, classData, locale, isSelected, l10n),
                         ],
                       ),
                     ),
@@ -267,7 +269,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
     );
   }
 
-  Widget _buildRaceDetails(BuildContext context, race, String locale, bool isSelected) {
+  Widget _buildRaceDetails(BuildContext context, RaceData race, String locale, bool isSelected, AppLocalizations l10n) {
     final textColor = isSelected
         ? Theme.of(context).colorScheme.onPrimaryContainer
         : Theme.of(context).colorScheme.onSurface;
@@ -281,7 +283,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
             Icon(Icons.speed, size: 16, color: textColor.withValues(alpha: 0.7)),
             const SizedBox(width: 8),
             Text(
-              'Speed: ${race.speed} ft',
+              l10n.speed(race.speed),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: textColor,
                 fontWeight: FontWeight.w500,
@@ -294,7 +296,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
         // Ability Score Increases
         if (race.abilityScoreIncreases.isNotEmpty) ...[
           Text(
-            'Ability Score Increases',
+            l10n.abilityScoreIncreases,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: textColor,
             ),
@@ -329,7 +331,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
         // Languages
         if (race.languages.isNotEmpty) ...[
           Text(
-            'Languages',
+            l10n.languages,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: textColor,
             ),
@@ -347,7 +349,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
         // Traits
         if (race.getTraits(locale).isNotEmpty) ...[
           Text(
-            'Racial Traits',
+            l10n.racialTraits,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: textColor,
             ),
@@ -375,7 +377,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
     );
   }
 
-  Widget _buildClassDetails(BuildContext context, classData, String locale, bool isSelected) {
+  Widget _buildClassDetails(BuildContext context, ClassData classData, String locale, bool isSelected, AppLocalizations l10n) {
     final textColor = isSelected
         ? Theme.of(context).colorScheme.onSecondaryContainer
         : Theme.of(context).colorScheme.onSurface;
@@ -389,7 +391,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
             Icon(Icons.favorite, size: 16, color: textColor.withValues(alpha: 0.7)),
             const SizedBox(width: 8),
             Text(
-              'Hit Die: d${classData.hitDie}',
+              l10n.hitDieType(classData.hitDie),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: textColor,
                 fontWeight: FontWeight.w500,
@@ -402,7 +404,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
         // Saving Throws
         if (classData.savingThrowProficiencies.isNotEmpty) ...[
           Text(
-            'Saving Throw Proficiencies',
+            l10n.savingThrowProficiencies,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: textColor,
             ),
@@ -419,14 +421,14 @@ class _RaceClassStepState extends State<RaceClassStep> {
 
         // Skill Proficiencies
         Text(
-          'Skill Proficiencies',
+          l10n.skillProficiencies,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
             color: textColor,
           ),
         ),
         const SizedBox(height: 4),
         Text(
-          'Choose ${classData.skillProficiencies.choose} from: ${classData.skillProficiencies.from.join(', ')}',
+          l10n.chooseSkills(classData.skillProficiencies.choose, classData.skillProficiencies.from.join(', ')),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: textColor.withValues(alpha: 0.8),
           ),
@@ -436,7 +438,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
         // Armor & Weapon Proficiencies
         if (classData.armorProficiencies.isNotEmpty) ...[
           Text(
-            'Armor Proficiencies',
+            l10n.armorProficiencies,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: textColor,
             ),
@@ -453,7 +455,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
 
         if (classData.weaponProficiencies.isNotEmpty) ...[
           Text(
-            'Weapon Proficiencies',
+            l10n.weaponProficiencies,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: textColor,
             ),

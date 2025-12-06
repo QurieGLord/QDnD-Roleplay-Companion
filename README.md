@@ -52,6 +52,10 @@ Whether you're an experienced adventurer or a beginning hero, QD&D will become y
 - **Adventure Journal:** Rich text notes and quest tracking.
 - **Offline First:** 100% functional without internet.
 
+### 🌍 Localization
+- **Bilingual:** Full support for English and Russian languages (UI and Content).
+- **Dynamic Translation:** Automatically formats units (lb/kg, ft/m) and terms based on your preference.
+
 ---
 
 ## 🛠️ Architecture
@@ -97,8 +101,9 @@ git clone https://github.com/QurieGLord/QDnD-Roleplay-Companion.git
 # Install dependencies
 flutter pub get
 
-# Generate code (Hive adapters)
+# Generate code (Hive adapters & Localization)
 flutter pub run build_runner build --delete-conflicting-outputs
+flutter gen-l10n
 
 # Run
 flutter run
@@ -113,6 +118,7 @@ flutter run
 - Redesigned Combat Tracker & Dice Roller
 - Complete Paladin Class
 - Level Up Wizard
+- Full Localization (EN/RU)
 
 ### 🔮 v2.0 (Planned)
 - [ ] Full Content Population (All Classes/Races)

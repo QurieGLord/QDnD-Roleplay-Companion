@@ -52,6 +52,15 @@
     *   **Reactive Animations:** The screen uses a `ShakeAnimation` (Sine wave translation) triggered when taking damage.
     *   **State Sync:** Uses `ValueListenableBuilder` on the Hive box to react to changes made in modal bottom sheets (like damage/heal dialogs) instantly without manual `setState` chains.
 
+### F. Localization (`feat/l10n`)
+*   **Architecture:** `flutter_localizations` + `intl` (ARB based).
+*   **Configuration:**
+    *   `l10n.yaml` configured to output files to `lib/l10n/` (no synthetic package).
+    *   Imports use direct path: `package:qd_and_d/l10n/app_localizations.dart`.
+*   **State:** `LocaleProvider` manages language selection and persists it to Hive (`settings` box).
+*   **Dynamic Translation:** Helper methods (`_getLocalizedValue`, `_formatValue`) are used in widgets to translate data-driven values (like "Blue" -> "Голубой" or "cm" -> "см") without altering the underlying English data model.
+*   **Data Migration:** JSON assets are pre-populated with `ru` fields. A script `bin/migrate_localization.dart` exists for maintenance.
+
 ## 3. Building and Running
 
 ### Prerequisites
@@ -60,6 +69,10 @@
 *   **Build Runner:** Must be run after any model changes:
     ```bash
     flutter pub run build_runner build --delete-conflicting-outputs
+    ```
+*   **Localization Gen:** Must be run after editing `.arb` files:
+    ```bash
+    flutter gen-l10n
     ```
 
 ### Important Assets
@@ -71,6 +84,32 @@
     *   Advanced Theming system with 6 presets.
     *   Redesigned Combat/Dice/Stats interfaces.
     *   Robust FC5 Import with error handling.
+    *   **Localization (EN/RU):** Full UI translation, data migration, dynamic value formatting.
+    *   **UI Fix:** Adjusted `CharacterSheetScreen` padding so `ExpandableCharacterCard` aligns with the Navbar.
 *   **Pending Technical Tasks:**
     *   **Spell Selection Logic:** `CharacterCreationWizard` needs a step to write chosen spells to `Character.knownSpells`.
     *   **Multiclass UI:** The backend supports `List<CharacterClass>`, but `LevelUpScreen` currently assumes leveling up the *primary* class. Needs a "Add New Class" flow.
+
+## 5. Operational Guidelines (User Mandates)
+
+### A. Definition of Done (DoD)
+Before confirming a task completion, you MUST:
+1.  **Summary:** Briefly list changed files and logic.
+2.  **Verification:** Autonomous execution of `flutter build apk --release`.
+3.  **Result:**
+    *   *Failure:* Fix silently and retry.
+    *   *Success:* Append the last lines of the build log to the response.
+
+### B. Merge Protocol
+Upon user confirmation ("Success"/"Accepted"):
+1.  **Update Docs:** Update `GEMINI.md` (this file), `docs/DEVELOPMENT_PLAN.md`, and `README.md` (if applicable).
+2.  **Git:**
+    *   `git add .`
+    *   `git commit -m "feat(scope): message"`
+    *   `git push origin gemini`
+3.  **Next:** Proceed to the next backlog item.
+
+### C. Safety Protocols
+*   **No Full Rewrites:** Avoid rewriting large files (>50 lines) unless structural integrity is compromised. Prefer `replace` or `sed`.
+*   **Validation:** Always `cat` or `read_file` before editing to ensure context match.
+*   **Localization Source:** `docs/Компендиум` is the Source of Truth for translations.

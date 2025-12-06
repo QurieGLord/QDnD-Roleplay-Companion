@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/services/theme_provider.dart';
+import '../../core/services/locale_provider.dart';
 import '../../core/theme/app_palettes.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -10,14 +12,41 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(l10n.settings),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          _buildSectionHeader(context, l10n.language.toUpperCase()),
+          const SizedBox(height: 16),
+
+          // Language Selector
+          SegmentedButton<String>(
+            segments: const [
+              ButtonSegment(
+                value: 'en',
+                label: Text('English'),
+                icon: Icon(Icons.language),
+              ),
+              ButtonSegment(
+                value: 'ru',
+                label: Text('Русский'),
+                icon: Icon(Icons.translate),
+              ),
+            ],
+            selected: {localeProvider.locale.languageCode},
+            onSelectionChanged: (Set<String> newSelection) {
+              localeProvider.setLocale(Locale(newSelection.first));
+            },
+          ),
+
+          const SizedBox(height: 32),
+          
           _buildSectionHeader(context, 'APPEARANCE'),
           const SizedBox(height: 16),
           

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/spell.dart';
 import '../../../core/models/character_feature.dart';
@@ -18,25 +19,45 @@ class SpellsTab extends StatefulWidget {
 
 class _SpellsTabState extends State<SpellsTab> {
   Color _getSchoolColor(String school) {
-    switch (school) {
-      case 'Abjuration': return Colors.blue;
-      case 'Conjuration': return Colors.purple;
-      case 'Divination': return Colors.cyan;
-      case 'Enchantment': return Colors.pink;
-      case 'Evocation': return Colors.red;
-      case 'Illusion': return Colors.indigo;
-      case 'Necromancy': return Colors.grey;
-      case 'Transmutation': return Colors.green;
-      default: return Theme.of(context).colorScheme.primary;
-    }
+    // Simple check based on common school names (english or russian substring match could work, but strict is better)
+    // Since data might be localized, we check known English names or mapping.
+    // For now, let's assume the input is the raw school string from data.
+    // If data was migrated to Russian, this might fail unless we handle Russian names.
+    
+    final lower = school.toLowerCase();
+    if (lower.contains('abj') || lower.contains('огражд')) return Colors.blue;
+    if (lower.contains('con') || lower.contains('вызов')) return Colors.purple;
+    if (lower.contains('div') || lower.contains('прориц')) return Colors.cyan;
+    if (lower.contains('ench') || lower.contains('очаров')) return Colors.pink;
+    if (lower.contains('evo') || lower.contains('эвокац')) return Colors.red;
+    if (lower.contains('ill') || lower.contains('иллюз')) return Colors.indigo;
+    if (lower.contains('nec') || lower.contains('некро')) return Colors.grey;
+    if (lower.contains('trans') || lower.contains('преобр')) return Colors.green;
+    
+    return Theme.of(context).colorScheme.primary;
   }
 
-  void _showCastSpellDialog(Spell spell) {
+  String _getSchoolName(AppLocalizations l10n, String school) {
+    // Map English school names to localized names if possible
+    // This is a visual helper. 
+    final lower = school.toLowerCase();
+    if (lower.contains('abjur')) return l10n.schoolAbjuration;
+    if (lower.contains('conjur')) return l10n.schoolConjuration;
+    if (lower.contains('divin')) return l10n.schoolDivination;
+    if (lower.contains('enchant')) return l10n.schoolEnchantment;
+    if (lower.contains('evoc')) return l10n.schoolEvocation;
+    if (lower.contains('illus')) return l10n.schoolIllusion;
+    if (lower.contains('necro')) return l10n.schoolNecromancy;
+    if (lower.contains('trans')) return l10n.schoolTransmutation;
+    return school;
+  }
+
+  void _showCastSpellDialog(Spell spell, String locale, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
 
     // Cantrips don't use spell slots
     if (spell.level == 0) {
-      _castSpell(spell, 0);
+      _castSpell(spell, 0, locale, l10n);
       return;
     }
 
@@ -51,9 +72,9 @@ class _SpellsTabState extends State<SpellsTab> {
 
     if (availableSlots.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No spell slots available!'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.noSlotsAvailable),
+          duration: const Duration(seconds: 2),
         ),
       );
       return;
@@ -62,44 +83,60 @@ class _SpellsTabState extends State<SpellsTab> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Cast ${spell.nameEn}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Choose spell slot level:', style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 16),
-            ...availableSlots.map((level) {
-              final slotsRemaining = widget.character.spellSlots[level - 1];
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: colorScheme.primaryContainer,
-                  child: Text('$level', style: TextStyle(color: colorScheme.onPrimaryContainer, fontWeight: FontWeight.bold)),
+        title: Text(l10n.castAction(spell.getName(locale))),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.chooseSpellSlot, style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 16),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: availableSlots.length,
+                  itemBuilder: (context, index) {
+                    final level = availableSlots[index];
+                    final slotsRemaining = widget.character.spellSlots[level - 1];
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        backgroundColor: colorScheme.primaryContainer,
+                        child: Text('$level', style: TextStyle(color: colorScheme.onPrimaryContainer, fontWeight: FontWeight.bold)),
+                      ),
+                      title: Text(l10n.levelSlot(level), style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(l10n.slotsRemaining(slotsRemaining)),
+                      trailing: level > spell.level
+                        ? Chip(
+                            label: Text(l10n.upcast, style: const TextStyle(fontSize: 10)), 
+                            backgroundColor: colorScheme.tertiaryContainer,
+                            visualDensity: VisualDensity.compact,
+                            padding: EdgeInsets.zero,
+                          )
+                        : null,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _castSpell(spell, level, locale, l10n);
+                      },
+                    );
+                  },
                 ),
-                title: Text('Level $level Slot'),
-                subtitle: Text('$slotsRemaining slot${slotsRemaining > 1 ? 's' : ''} remaining'),
-                trailing: level > spell.level
-                  ? Chip(label: Text('Upcast', style: TextStyle(fontSize: 10)), backgroundColor: colorScheme.tertiaryContainer)
-                  : null,
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _castSpell(spell, level);
-                },
-              );
-            }),
-          ],
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
         ],
       ),
     );
   }
 
-  void _castSpell(Spell spell, int slotLevel) {
+  void _castSpell(Spell spell, int slotLevel, String locale, AppLocalizations l10n) {
     setState(() {
       // Use spell slot (if not cantrip)
       if (slotLevel > 0) {
@@ -108,10 +145,8 @@ class _SpellsTabState extends State<SpellsTab> {
 
       // Show feedback
       final message = slotLevel > spell.level
-        ? '${spell.nameEn} cast at level $slotLevel!'
-        : slotLevel == 0
-          ? '${spell.nameEn} cast!'
-          : '${spell.nameEn} cast! (Level $slotLevel slot used)';
+        ? l10n.spellCastLevelSuccess(spell.getName(locale), slotLevel)
+        : l10n.spellCastSuccess(spell.getName(locale));
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -127,6 +162,8 @@ class _SpellsTabState extends State<SpellsTab> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final locale = Localizations.localeOf(context).languageCode;
+    final l10n = AppLocalizations.of(context)!;
 
     final knownSpells = widget.character.knownSpells
         .map((id) => SpellService.getSpellById(id))
@@ -163,13 +200,13 @@ class _SpellsTabState extends State<SpellsTab> {
           children: [
             // === RESOURCES ===
             if (resourceFeatures.isNotEmpty) ...[
-              _buildSectionHeader('RESOURCES'),
+              _buildSectionHeader(l10n.resources.toUpperCase()),
               Card(
                 elevation: 2,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
-                    children: resourceFeatures.map((feature) => _buildResourceFeature(feature)).toList(),
+                    children: resourceFeatures.map((feature) => _buildResourceFeature(feature, locale)).toList(),
                   ),
                 ),
               ),
@@ -178,14 +215,14 @@ class _SpellsTabState extends State<SpellsTab> {
 
             // === ACTIVE ABILITIES ===
             if (activeFeatures.isNotEmpty) ...[
-              _buildSectionHeader('ACTIVE ABILITIES'),
-              ...activeFeatures.map((feature) => _buildActiveFeature(feature)).toList(),
+              _buildSectionHeader(l10n.activeAbilities.toUpperCase()),
+              ...activeFeatures.map((feature) => _buildActiveFeature(feature, locale, l10n)).toList(),
               const SizedBox(height: 16),
             ],
 
             // === MAGIC (Slots & Stats) ===
-            _buildSectionHeader('MAGIC'),
-            _buildMagicSection(context),
+            _buildSectionHeader(l10n.magic.toUpperCase()),
+            _buildMagicSection(context, l10n),
             const SizedBox(height: 16),
 
             // === SPELLS LIST ===
@@ -196,32 +233,32 @@ class _SpellsTabState extends State<SpellsTab> {
                   children: [
                     Icon(Icons.auto_fix_off, size: 48, color: colorScheme.onSurface.withOpacity(0.3)),
                     const SizedBox(height: 8),
-                    Text('No spells learned yet', style: TextStyle(color: colorScheme.onSurface.withOpacity(0.5))),
+                    Text(l10n.noSpellsLearned, style: TextStyle(color: colorScheme.onSurface.withOpacity(0.5))),
                   ],
                 ),
               ))
             else
-              ...(spellsByLevel.keys.toList()..sort()).map((level) => _buildSpellLevelGroup(level, spellsByLevel[level]!)).toList(),
+              ...(spellsByLevel.keys.toList()..sort()).map((level) => _buildSpellLevelGroup(level, spellsByLevel[level]!, locale, l10n)).toList(),
 
             const SizedBox(height: 16),
 
             // === PASSIVE TRAITS ===
             if (passiveFeatures.isNotEmpty) ...[
-              _buildSectionHeader('PASSIVE TRAITS'),
+              _buildSectionHeader(l10n.passiveTraits.toUpperCase()),
               Card(
                 elevation: 1,
                 child: ExpansionTile(
-                  title: Text('${passiveFeatures.length} Passive Traits'),
+                  title: Text('${passiveFeatures.length} ${l10n.passiveTraits}'),
                   subtitle: Text(
-                    passiveFeatures.map((f) => f.nameEn).join(', '),
+                    passiveFeatures.map((f) => f.getName(locale)).join(', '),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
                   ),
                   leading: Icon(Icons.psychology, color: colorScheme.secondary),
                   children: passiveFeatures.map((feature) => ListTile(
-                    title: Text(feature.nameEn, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                    subtitle: Text(feature.descriptionEn, style: const TextStyle(fontSize: 12)),
+                    title: Text(feature.getName(locale), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    subtitle: Text(feature.getDescription(locale), style: const TextStyle(fontSize: 12)),
                     dense: true,
                     leading: Icon(_getFeatureIcon(feature.iconName), size: 18, color: colorScheme.secondary.withOpacity(0.7)),
                   )).toList(),
@@ -246,7 +283,7 @@ class _SpellsTabState extends State<SpellsTab> {
               ).then((_) => setState(() {}));
             },
             icon: const Icon(Icons.library_books),
-            label: const Text('Spell Almanac'),
+            label: Text(l10n.spellAlmanac),
           ),
         ),
       ],
@@ -268,7 +305,7 @@ class _SpellsTabState extends State<SpellsTab> {
     );
   }
 
-  Widget _buildResourceFeature(CharacterFeature feature) {
+  Widget _buildResourceFeature(CharacterFeature feature, String locale) {
     final pool = feature.resourcePool!;
     final colorScheme = Theme.of(context).colorScheme;
     
@@ -285,7 +322,7 @@ class _SpellsTabState extends State<SpellsTab> {
                   children: [
                     Icon(_getFeatureIcon(feature.iconName), size: 20, color: colorScheme.primary),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(feature.nameEn, style: const TextStyle(fontWeight: FontWeight.w600))),
+                    Expanded(child: Text(feature.getName(locale), style: const TextStyle(fontWeight: FontWeight.w600))),
                   ],
                 ),
               ),
@@ -332,7 +369,7 @@ class _SpellsTabState extends State<SpellsTab> {
     );
   }
 
-  Widget _buildActiveFeature(CharacterFeature feature) {
+  Widget _buildActiveFeature(CharacterFeature feature, String locale, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
     
     // Smart check for Channel Divinity usage
@@ -375,7 +412,7 @@ class _SpellsTabState extends State<SpellsTab> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(feature.nameEn, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                      Text(feature.getName(locale), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                       if (feature.actionEconomy != null)
                         Text(
                           feature.actionEconomy!.toUpperCase(),
@@ -388,7 +425,7 @@ class _SpellsTabState extends State<SpellsTab> {
             ),
             const SizedBox(height: 8),
             Text(
-              feature.descriptionEn, 
+              feature.getDescription(locale), 
               maxLines: usesChannelDivinity ? 2 : 4, 
               overflow: TextOverflow.ellipsis, 
               style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)
@@ -405,8 +442,8 @@ class _SpellsTabState extends State<SpellsTab> {
                   icon: const Icon(Icons.auto_awesome, size: 16),
                   label: Text(
                     cdPoolFeature.resourcePool!.currentUses > 0
-                    ? 'Use Channel Divinity (${cdPoolFeature.resourcePool!.currentUses} left)'
-                    : 'No Channel Divinity charges'
+                    ? l10n.useChannelDivinity(cdPoolFeature.resourcePool!.currentUses)
+                    : l10n.noChannelDivinity
                   ),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 10),
@@ -420,7 +457,7 @@ class _SpellsTabState extends State<SpellsTab> {
     );
   }
 
-  Widget _buildMagicSection(BuildContext context) {
+  Widget _buildMagicSection(BuildContext context, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
     return Card(
       elevation: 2,
@@ -432,11 +469,11 @@ class _SpellsTabState extends State<SpellsTab> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildMagicStat('Ability', SpellcastingService.getSpellcastingAbilityName(widget.character.characterClass).substring(0, 3).toUpperCase()),
+                _buildMagicStat(l10n.spellAbility, SpellcastingService.getSpellcastingAbilityName(widget.character.characterClass).substring(0, 3).toUpperCase()),
                 Container(width: 1, height: 30, color: colorScheme.outlineVariant),
-                _buildMagicStat('Save DC', '${SpellcastingService.getSpellSaveDC(widget.character)}'),
+                _buildMagicStat(l10n.spellSaveDC, '${SpellcastingService.getSpellSaveDC(widget.character)}'),
                 Container(width: 1, height: 30, color: colorScheme.outlineVariant),
-                _buildMagicStat('Attack', '+${SpellcastingService.getSpellAttackBonus(widget.character)}'),
+                _buildMagicStat(l10n.spellAttack, '+${SpellcastingService.getSpellAttackBonus(widget.character)}'),
               ],
             ),
             if (widget.character.maxSpellSlots.any((s) => s > 0)) ...[
@@ -455,7 +492,7 @@ class _SpellsTabState extends State<SpellsTab> {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
                     children: [
-                      SizedBox(width: 40, child: Text('Lvl $level', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey))),
+                      SizedBox(width: 40, child: Text(l10n.lvlShort(level), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey))),
                       Expanded(
                         child: Wrap(
                           spacing: 6,
@@ -505,14 +542,14 @@ class _SpellsTabState extends State<SpellsTab> {
     );
   }
 
-  Widget _buildSpellLevelGroup(int level, List<Spell> spells) {
+  Widget _buildSpellLevelGroup(int level, List<Spell> spells, String locale, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Text(level == 0 ? 'CANTRIPS' : 'LEVEL $level', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+          child: Text(level == 0 ? l10n.cantrips.toUpperCase() : l10n.levelLabel(level).toUpperCase(), style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
         ),
         ...spells.map((spell) {
            final isPrepared = widget.character.preparedSpells.contains(spell.id);
@@ -544,16 +581,16 @@ class _SpellsTabState extends State<SpellsTab> {
                    size: 24
                  ),
                ),
-               title: Text(spell.nameEn, style: const TextStyle(fontWeight: FontWeight.w600)),
-               subtitle: Text(spell.school, style: TextStyle(color: colorScheme.secondary, fontSize: 11)),
+               title: Text(spell.getName(locale), style: const TextStyle(fontWeight: FontWeight.w600)),
+               subtitle: Text(_getSchoolName(l10n, spell.school), style: TextStyle(color: colorScheme.secondary, fontSize: 11)),
                trailing: IconButton(
                  icon: const Icon(Icons.auto_fix_high),
-                 onPressed: canCast ? () => _showCastSpellDialog(spell) : null,
+                 onPressed: canCast ? () => _showCastSpellDialog(spell, locale, l10n) : null,
                  color: canCast ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.2),
-                 tooltip: 'Cast Spell',
+                 tooltip: l10n.castSpell,
                ),
                onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                 SnackBar(content: Text(spell.descriptionEn), duration: const Duration(seconds: 2))
+                 SnackBar(content: Text(spell.getDescription(locale)), duration: const Duration(seconds: 2))
                ),
              ),
            );

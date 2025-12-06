@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../shared/widgets/dice_roller_modal.dart';
 
@@ -7,29 +8,66 @@ class StatsTab extends StatelessWidget {
 
   const StatsTab({super.key, required this.character});
 
+  String _getAbilityName(AppLocalizations l10n, String key) {
+    switch (key.toLowerCase()) {
+      case 'strength': return l10n.abilityStr;
+      case 'dexterity': return l10n.abilityDex;
+      case 'constitution': return l10n.abilityCon;
+      case 'intelligence': return l10n.abilityInt;
+      case 'wisdom': return l10n.abilityWis;
+      case 'charisma': return l10n.abilityCha;
+      default: return key;
+    }
+  }
+
+  String _getSkillName(AppLocalizations l10n, String key) {
+    switch (key.replaceAll(' ', '').toLowerCase()) {
+      case 'athletics': return l10n.skillAthletics;
+      case 'acrobatics': return l10n.skillAcrobatics;
+      case 'sleightofhand': return l10n.skillSleightOfHand;
+      case 'stealth': return l10n.skillStealth;
+      case 'arcana': return l10n.skillArcana;
+      case 'history': return l10n.skillHistory;
+      case 'investigation': return l10n.skillInvestigation;
+      case 'nature': return l10n.skillNature;
+      case 'religion': return l10n.skillReligion;
+      case 'animalhandling': return l10n.skillAnimalHandling;
+      case 'insight': return l10n.skillInsight;
+      case 'medicine': return l10n.skillMedicine;
+      case 'perception': return l10n.skillPerception;
+      case 'survival': return l10n.skillSurvival;
+      case 'deception': return l10n.skillDeception;
+      case 'intimidation': return l10n.skillIntimidation;
+      case 'performance': return l10n.skillPerformance;
+      case 'persuasion': return l10n.skillPersuasion;
+      default: return key;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         // 1. Ability Scores Grid
-        _buildSectionHeader(context, 'ABILITIES', Icons.accessibility_new),
+        _buildSectionHeader(context, l10n.abilities.toUpperCase(), Icons.accessibility_new),
         const SizedBox(height: 12),
-        _buildAbilityScoresGrid(context),
+        _buildAbilityScoresGrid(context, l10n),
         const SizedBox(height: 24),
 
         // 2. Saving Throws
-        _buildSectionHeader(context, 'SAVING THROWS', Icons.shield),
+        _buildSectionHeader(context, l10n.savingThrows.toUpperCase(), Icons.shield),
         const SizedBox(height: 12),
-        _buildSavingThrowsList(context),
+        _buildSavingThrowsList(context, l10n),
         const SizedBox(height: 24),
 
         // 3. Skills
-        _buildSectionHeader(context, 'SKILLS', Icons.psychology),
+        _buildSectionHeader(context, l10n.skills.toUpperCase(), Icons.psychology),
         const SizedBox(height: 12),
-        _buildSkillsList(context),
+        _buildSkillsList(context, l10n),
         
         const SizedBox(height: 80),
       ],
@@ -56,7 +94,7 @@ class StatsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildAbilityScoresGrid(BuildContext context) {
+  Widget _buildAbilityScoresGrid(BuildContext context, AppLocalizations l10n) {
     return GridView.count(
       crossAxisCount: 3,
       shrinkWrap: true,
@@ -65,12 +103,12 @@ class StatsTab extends StatelessWidget {
       crossAxisSpacing: 8,
       childAspectRatio: 0.85,
       children: [
-        _buildAbilityCard(context, 'STR', 'Strength', character.abilityScores.strength, character.abilityScores.strengthModifier),
-        _buildAbilityCard(context, 'DEX', 'Dexterity', character.abilityScores.dexterity, character.abilityScores.dexterityModifier),
-        _buildAbilityCard(context, 'CON', 'Constitution', character.abilityScores.constitution, character.abilityScores.constitutionModifier),
-        _buildAbilityCard(context, 'INT', 'Intelligence', character.abilityScores.intelligence, character.abilityScores.intelligenceModifier),
-        _buildAbilityCard(context, 'WIS', 'Wisdom', character.abilityScores.wisdom, character.abilityScores.wisdomModifier),
-        _buildAbilityCard(context, 'CHA', 'Charisma', character.abilityScores.charisma, character.abilityScores.charismaModifier),
+        _buildAbilityCard(context, 'STR', l10n.abilityStr, character.abilityScores.strength, character.abilityScores.strengthModifier),
+        _buildAbilityCard(context, 'DEX', l10n.abilityDex, character.abilityScores.dexterity, character.abilityScores.dexterityModifier),
+        _buildAbilityCard(context, 'CON', l10n.abilityCon, character.abilityScores.constitution, character.abilityScores.constitutionModifier),
+        _buildAbilityCard(context, 'INT', l10n.abilityInt, character.abilityScores.intelligence, character.abilityScores.intelligenceModifier),
+        _buildAbilityCard(context, 'WIS', l10n.abilityWis, character.abilityScores.wisdom, character.abilityScores.wisdomModifier),
+        _buildAbilityCard(context, 'CHA', l10n.abilityCha, character.abilityScores.charisma, character.abilityScores.charismaModifier),
       ],
     );
   }
@@ -109,7 +147,7 @@ class StatsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildSavingThrowsList(BuildContext context) {
+  Widget _buildSavingThrowsList(BuildContext context, AppLocalizations l10n) {
     final saves = {
       'Strength': character.abilityScores.strengthModifier,
       'Dexterity': character.abilityScores.dexterityModifier,
@@ -123,12 +161,13 @@ class StatsTab extends StatelessWidget {
       children: saves.entries.map((entry) {
         final isProficient = character.savingThrowProficiencies.map((s) => s.toLowerCase()).contains(entry.key.toLowerCase());
         final totalMod = entry.value + (isProficient ? character.proficiencyBonus : 0);
-        return _buildSkillRow(context, entry.key, totalMod, isProficient, isSave: true);
+        // Use English key for logic, localized name for display
+        return _buildSkillRow(context, _getAbilityName(l10n, entry.key), totalMod, isProficient, isSave: true);
       }).toList(),
     );
   }
 
-  Widget _buildSkillsList(BuildContext context) {
+  Widget _buildSkillsList(BuildContext context, AppLocalizations l10n) {
     // Standard 5e Skills mapped to abilities
     final skillsMap = {
       'Athletics': 'Strength',
@@ -153,7 +192,7 @@ class StatsTab extends StatelessWidget {
 
     return Column(
       children: skillsMap.entries.map((entry) {
-        final skillName = entry.key;
+        final skillKey = entry.key; // English key
         final ability = entry.value;
         
         // Get ability mod
@@ -167,10 +206,16 @@ class StatsTab extends StatelessWidget {
           case 'Charisma': mod = character.abilityScores.charismaModifier; break;
         }
 
-        final isProficient = character.proficientSkills.map((s) => s.toLowerCase()).contains(skillName.toLowerCase());
+        final isProficient = character.proficientSkills.map((s) => s.toLowerCase()).contains(skillKey.toLowerCase());
         final totalMod = mod + (isProficient ? character.proficiencyBonus : 0);
 
-        return _buildSkillRow(context, skillName, totalMod, isProficient, abilityLabel: ability.substring(0, 3).toUpperCase());
+        return _buildSkillRow(
+            context, 
+            _getSkillName(l10n, skillKey), 
+            totalMod, 
+            isProficient, 
+            abilityLabel: _getAbilityName(l10n, ability).substring(0, 3).toUpperCase()
+        );
       }).toList(),
     );
   }
