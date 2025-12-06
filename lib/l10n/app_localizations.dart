@@ -2246,6 +2246,12 @@ abstract class AppLocalizations {
   /// **'Skill Proficiencies'**
   String get skillProficiencies;
 
+  /// No description provided for @chooseSkillsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Skills'**
+  String get chooseSkillsTitle;
+
   /// No description provided for @chooseSkills.
   ///
   /// In en, this message translates to:
@@ -2407,6 +2413,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New Features'**
   String get newFeaturesLabel;
+
+  /// No description provided for @searchJournal.
+  ///
+  /// In en, this message translates to:
+  /// **'Search journal...'**
+  String get searchJournal;
+
+  /// No description provided for @addQuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Quest'**
+  String get addQuest;
+
+  /// No description provided for @noActiveQuests.
+  ///
+  /// In en, this message translates to:
+  /// **'No active quests'**
+  String get noActiveQuests;
+
+  /// No description provided for @addNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Note'**
+  String get addNote;
+
+  /// No description provided for @noNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes'**
+  String get noNotes;
+
+  /// No description provided for @deleteNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Note'**
+  String get deleteNote;
+
+  /// No description provided for @deleteNoteConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\"?'**
+  String deleteNoteConfirmation(String title);
+
+  /// No description provided for @deleteQuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Quest'**
+  String get deleteQuest;
+
+  /// No description provided for @deleteQuestConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\"?'**
+  String deleteQuestConfirmation(String title);
+
+  /// No description provided for @characterCreatedName.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} created successfully!'**
+  String characterCreatedName(String name);
+
+  /// No description provided for @errorCreatingCharacter.
+  ///
+  /// In en, this message translates to:
+  /// **'Error creating character: {error}'**
+  String errorCreatingCharacter(String error);
+
+  /// No description provided for @cancelCharacterCreationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Character Creation?'**
+  String get cancelCharacterCreationTitle;
+
+  /// No description provided for @cancelCharacterCreationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'All progress will be lost.'**
+  String get cancelCharacterCreationMessage;
+
+  /// No description provided for @continueEditing.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Editing'**
+  String get continueEditing;
+
+  /// No description provided for @discard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discard;
+
+  /// No description provided for @selectClassFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a class first'**
+  String get selectClassFirst;
+
+  /// No description provided for @selectSkillProficiencies.
+  ///
+  /// In en, this message translates to:
+  /// **'Select {count} skill proficiencies for your {characterClass}.'**
+  String selectSkillProficiencies(int count, String characterClass);
+
+  /// No description provided for @allSkillsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'All skills selected!'**
+  String get allSkillsSelected;
+
+  /// No description provided for @chooseMoreSkills.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose {count} more skill{count, plural, =1{} other{s}}'**
+  String chooseMoreSkills(int count);
+
+  /// No description provided for @skillAcrobaticsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Dexterity - Balance, tumbling, aerial maneuvers'**
+  String get skillAcrobaticsDesc;
+
+  /// No description provided for @skillAnimalHandlingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Wisdom - Calming animals, riding, training'**
+  String get skillAnimalHandlingDesc;
+
+  /// No description provided for @skillArcanaDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Intelligence - Magic, spells, magical items'**
+  String get skillArcanaDesc;
+
+  /// No description provided for @skillAthleticsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength - Climbing, jumping, swimming'**
+  String get skillAthleticsDesc;
+
+  /// No description provided for @skillDeceptionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Charisma - Lying, disguising, misleading'**
+  String get skillDeceptionDesc;
+
+  /// No description provided for @skillHistoryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Intelligence - Historical events, legends'**
+  String get skillHistoryDesc;
+
+  /// No description provided for @skillInsightDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Wisdom - Reading intentions, detecting lies'**
+  String get skillInsightDesc;
+
+  /// No description provided for @skillIntimidationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Charisma - Threats, coercion'**
+  String get skillIntimidationDesc;
+
+  /// No description provided for @skillInvestigationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Intelligence - Finding clues, deduction'**
+  String get skillInvestigationDesc;
+
+  /// No description provided for @skillMedicineDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Wisdom - Stabilizing, diagnosing'**
+  String get skillMedicineDesc;
+
+  /// No description provided for @skillNatureDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Intelligence - Terrain, plants, animals'**
+  String get skillNatureDesc;
+
+  /// No description provided for @skillPerceptionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Wisdom - Spotting, hearing, detecting'**
+  String get skillPerceptionDesc;
+
+  /// No description provided for @skillPerformanceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Charisma - Music, dance, acting'**
+  String get skillPerformanceDesc;
+
+  /// No description provided for @skillPersuasionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Charisma - Diplomacy, negotiations'**
+  String get skillPersuasionDesc;
+
+  /// No description provided for @skillReligionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Intelligence - Deities, rites, prayers'**
+  String get skillReligionDesc;
+
+  /// No description provided for @skillSleightOfHandDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Dexterity - Pickpocketing, tricks'**
+  String get skillSleightOfHandDesc;
+
+  /// No description provided for @skillStealthDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Dexterity - Hiding, moving silently'**
+  String get skillStealthDesc;
+
+  /// No description provided for @skillSurvivalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Wisdom - Tracking, foraging, navigation'**
+  String get skillSurvivalDesc;
+
+  /// No description provided for @chooseBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Background'**
+  String get chooseBackground;
+
+  /// No description provided for @backgroundDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your background represents your character\'s past and grants additional skills.'**
+  String get backgroundDescription;
+
+  /// No description provided for @noBackgroundsAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No backgrounds available'**
+  String get noBackgroundsAvailable;
 }
 
 class _AppLocalizationsDelegate

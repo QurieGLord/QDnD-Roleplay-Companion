@@ -1,31 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../character_creation_state.dart';
 
 class SkillsStep extends StatelessWidget {
   const SkillsStep({super.key});
-
-  // D&D 5e skills with descriptions and icons
-  static const Map<String, String> skillDescriptions = {
-    'acrobatics': 'Dexterity - Balance, tumbling, aerial maneuvers',
-    'animal_handling': 'Wisdom - Calming animals, riding, training',
-    'arcana': 'Intelligence - Magic, spells, magical items',
-    'athletics': 'Strength - Climbing, jumping, swimming',
-    'deception': 'Charisma - Lying, disguising, misleading',
-    'history': 'Intelligence - Historical events, legends',
-    'insight': 'Wisdom - Reading intentions, detecting lies',
-    'intimidation': 'Charisma - Threats, coercion',
-    'investigation': 'Intelligence - Finding clues, deduction',
-    'medicine': 'Wisdom - Stabilizing, diagnosing',
-    'nature': 'Intelligence - Terrain, plants, animals',
-    'perception': 'Wisdom - Spotting, hearing, detecting',
-    'performance': 'Charisma - Music, dance, acting',
-    'persuasion': 'Charisma - Diplomacy, negotiations',
-    'religion': 'Intelligence - Deities, rites, prayers',
-    'sleight_of_hand': 'Dexterity - Pickpocketing, tricks',
-    'stealth': 'Dexterity - Hiding, moving silently',
-    'survival': 'Wisdom - Tracking, foraging, navigation',
-  };
 
   static const Map<String, IconData> skillIcons = {
     'acrobatics': Icons.sports_gymnastics,
@@ -48,14 +27,60 @@ class SkillsStep extends StatelessWidget {
     'survival': Icons.hiking,
   };
 
-  String _formatSkillName(String skill) {
-    return skill.split('_').map((word) => word[0].toUpperCase() + word.substring(1)).join(' ');
+  String _getSkillName(String skillId, AppLocalizations l10n) {
+    switch (skillId) {
+      case 'acrobatics': return l10n.skillAcrobatics;
+      case 'animal_handling': return l10n.skillAnimalHandling;
+      case 'arcana': return l10n.skillArcana;
+      case 'athletics': return l10n.skillAthletics;
+      case 'deception': return l10n.skillDeception;
+      case 'history': return l10n.skillHistory;
+      case 'insight': return l10n.skillInsight;
+      case 'intimidation': return l10n.skillIntimidation;
+      case 'investigation': return l10n.skillInvestigation;
+      case 'medicine': return l10n.skillMedicine;
+      case 'nature': return l10n.skillNature;
+      case 'perception': return l10n.skillPerception;
+      case 'performance': return l10n.skillPerformance;
+      case 'persuasion': return l10n.skillPersuasion;
+      case 'religion': return l10n.skillReligion;
+      case 'sleight_of_hand': return l10n.skillSleightOfHand;
+      case 'stealth': return l10n.skillStealth;
+      case 'survival': return l10n.skillSurvival;
+      default: return skillId;
+    }
+  }
+
+  String _getSkillDesc(String skillId, AppLocalizations l10n) {
+    switch (skillId) {
+      case 'acrobatics': return l10n.skillAcrobaticsDesc;
+      case 'animal_handling': return l10n.skillAnimalHandlingDesc;
+      case 'arcana': return l10n.skillArcanaDesc;
+      case 'athletics': return l10n.skillAthleticsDesc;
+      case 'deception': return l10n.skillDeceptionDesc;
+      case 'history': return l10n.skillHistoryDesc;
+      case 'insight': return l10n.skillInsightDesc;
+      case 'intimidation': return l10n.skillIntimidationDesc;
+      case 'investigation': return l10n.skillInvestigationDesc;
+      case 'medicine': return l10n.skillMedicineDesc;
+      case 'nature': return l10n.skillNatureDesc;
+      case 'perception': return l10n.skillPerceptionDesc;
+      case 'performance': return l10n.skillPerformanceDesc;
+      case 'persuasion': return l10n.skillPersuasionDesc;
+      case 'religion': return l10n.skillReligionDesc;
+      case 'sleight_of_hand': return l10n.skillSleightOfHandDesc;
+      case 'stealth': return l10n.skillStealthDesc;
+      case 'survival': return l10n.skillSurvivalDesc;
+      default: return '';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final state = context.watch<CharacterCreationState>();
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
 
     if (state.selectedClass == null) {
       return Center(
@@ -69,7 +94,7 @@ class SkillsStep extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Please select a class first',
+              l10n.selectClassFirst,
               style: theme.textTheme.titleLarge,
             ),
           ],
@@ -86,14 +111,14 @@ class SkillsStep extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       children: [
         Text(
-          'Choose Skills',
+          l10n.chooseSkillsTitle,
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          'Select $maxSkills skill proficiencies for your ${state.selectedClass!.name['en']}.',
+          l10n.selectSkillProficiencies(maxSkills, state.selectedClass!.getName(locale)),
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
@@ -121,8 +146,8 @@ class SkillsStep extends StatelessWidget {
                     Expanded(
                       child: Text(
                         isComplete
-                            ? 'All skills selected!'
-                            : 'Choose ${maxSkills - selectedCount} more skill${maxSkills - selectedCount == 1 ? '' : 's'}',
+                            ? l10n.allSkillsSelected
+                            : l10n.chooseMoreSkills(maxSkills - selectedCount),
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: isComplete
@@ -216,7 +241,7 @@ class SkillsStep extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _formatSkillName(skill),
+                            _getSkillName(skill, l10n),
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: isSelected
@@ -228,7 +253,7 @@ class SkillsStep extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            skillDescriptions[skill] ?? skill,
+                            _getSkillDesc(skill, l10n),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: isSelected
                                   ? theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.8)

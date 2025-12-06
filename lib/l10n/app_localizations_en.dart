@@ -1128,6 +1128,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get skillProficiencies => 'Skill Proficiencies';
 
   @override
+  String get chooseSkillsTitle => 'Choose Skills';
+
+  @override
   String chooseSkills(int count, String list) {
     return 'Choose $count from: $list';
   }
@@ -1223,4 +1226,146 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get newFeaturesLabel => 'New Features';
+
+  @override
+  String get searchJournal => 'Search journal...';
+
+  @override
+  String get addQuest => 'Add Quest';
+
+  @override
+  String get noActiveQuests => 'No active quests';
+
+  @override
+  String get addNote => 'Add Note';
+
+  @override
+  String get noNotes => 'No notes';
+
+  @override
+  String get deleteNote => 'Delete Note';
+
+  @override
+  String deleteNoteConfirmation(String title) {
+    return 'Delete \"$title\"?';
+  }
+
+  @override
+  String get deleteQuest => 'Delete Quest';
+
+  @override
+  String deleteQuestConfirmation(String title) {
+    return 'Delete \"$title\"?';
+  }
+
+  @override
+  String characterCreatedName(String name) {
+    return '$name created successfully!';
+  }
+
+  @override
+  String errorCreatingCharacter(String error) {
+    return 'Error creating character: $error';
+  }
+
+  @override
+  String get cancelCharacterCreationTitle => 'Cancel Character Creation?';
+
+  @override
+  String get cancelCharacterCreationMessage => 'All progress will be lost.';
+
+  @override
+  String get continueEditing => 'Continue Editing';
+
+  @override
+  String get discard => 'Discard';
+
+  @override
+  String get selectClassFirst => 'Please select a class first';
+
+  @override
+  String selectSkillProficiencies(int count, String characterClass) {
+    return 'Select $count skill proficiencies for your $characterClass.';
+  }
+
+  @override
+  String get allSkillsSelected => 'All skills selected!';
+
+  @override
+  String chooseMoreSkills(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return 'Choose $count more skill$_temp0';
+  }
+
+  @override
+  String get skillAcrobaticsDesc =>
+      'Dexterity - Balance, tumbling, aerial maneuvers';
+
+  @override
+  String get skillAnimalHandlingDesc =>
+      'Wisdom - Calming animals, riding, training';
+
+  @override
+  String get skillArcanaDesc => 'Intelligence - Magic, spells, magical items';
+
+  @override
+  String get skillAthleticsDesc => 'Strength - Climbing, jumping, swimming';
+
+  @override
+  String get skillDeceptionDesc => 'Charisma - Lying, disguising, misleading';
+
+  @override
+  String get skillHistoryDesc => 'Intelligence - Historical events, legends';
+
+  @override
+  String get skillInsightDesc => 'Wisdom - Reading intentions, detecting lies';
+
+  @override
+  String get skillIntimidationDesc => 'Charisma - Threats, coercion';
+
+  @override
+  String get skillInvestigationDesc =>
+      'Intelligence - Finding clues, deduction';
+
+  @override
+  String get skillMedicineDesc => 'Wisdom - Stabilizing, diagnosing';
+
+  @override
+  String get skillNatureDesc => 'Intelligence - Terrain, plants, animals';
+
+  @override
+  String get skillPerceptionDesc => 'Wisdom - Spotting, hearing, detecting';
+
+  @override
+  String get skillPerformanceDesc => 'Charisma - Music, dance, acting';
+
+  @override
+  String get skillPersuasionDesc => 'Charisma - Diplomacy, negotiations';
+
+  @override
+  String get skillReligionDesc => 'Intelligence - Deities, rites, prayers';
+
+  @override
+  String get skillSleightOfHandDesc => 'Dexterity - Pickpocketing, tricks';
+
+  @override
+  String get skillStealthDesc => 'Dexterity - Hiding, moving silently';
+
+  @override
+  String get skillSurvivalDesc => 'Wisdom - Tracking, foraging, navigation';
+
+  @override
+  String get chooseBackground => 'Choose Background';
+
+  @override
+  String get backgroundDescription =>
+      'Your background represents your character\'s past and grants additional skills.';
+
+  @override
+  String get noBackgroundsAvailable => 'No backgrounds available';
 }

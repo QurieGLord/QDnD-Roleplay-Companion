@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import 'dart:math';
 import '../character_creation_state.dart';
 
@@ -24,10 +25,35 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
   int _rolledHP = 0;
   bool _initialized = false;
 
+  String _getAbilityName(String key, AppLocalizations l10n) {
+    switch (key) {
+      case 'strength': return l10n.abilityStr;
+      case 'dexterity': return l10n.abilityDex;
+      case 'constitution': return l10n.abilityCon;
+      case 'intelligence': return l10n.abilityInt;
+      case 'wisdom': return l10n.abilityWis;
+      case 'charisma': return l10n.abilityCha;
+      default: return key;
+    }
+  }
+
+  String _getAbilityDesc(String key, AppLocalizations l10n) {
+    switch (key) {
+      case 'strength': return l10n.strDesc;
+      case 'dexterity': return l10n.dexDesc;
+      case 'constitution': return l10n.conDesc;
+      case 'intelligence': return l10n.intDesc;
+      case 'wisdom': return l10n.wisDesc;
+      case 'charisma': return l10n.chaDesc;
+      default: return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = context.watch<CharacterCreationState>();
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     // Initialize ability scores on first build
     if (!_initialized && state.selectedClass != null) {
@@ -41,14 +67,14 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
       padding: const EdgeInsets.all(24),
       children: [
         Text(
-          'Assign Ability Scores',
+          l10n.assignAbilityScores,
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          'Choose how you want to determine your character\'s ability scores.',
+          l10n.abilityScoresSubtitle,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
@@ -56,37 +82,37 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
         const SizedBox(height: 24),
 
         // Mode Selection
-        _buildModeSelector(context, state),
+        _buildModeSelector(context, state, l10n),
         const SizedBox(height: 24),
 
         // Mode Description
-        _buildModeDescription(context),
+        _buildModeDescription(context, l10n),
         const SizedBox(height: 24),
 
         // Ability Score Cards
-        _buildAbilityCard(context, state, 'strength', 'Strength', 'STR', 'Physical power', Icons.fitness_center),
-        _buildAbilityCard(context, state, 'dexterity', 'Dexterity', 'DEX', 'Agility & reflexes', Icons.directions_run),
-        _buildAbilityCard(context, state, 'constitution', 'Constitution', 'CON', 'Endurance & health', Icons.favorite),
-        _buildAbilityCard(context, state, 'intelligence', 'Intelligence', 'INT', 'Reasoning & memory', Icons.lightbulb),
-        _buildAbilityCard(context, state, 'wisdom', 'Wisdom', 'WIS', 'Awareness & insight', Icons.visibility),
-        _buildAbilityCard(context, state, 'charisma', 'Charisma', 'CHA', 'Force of personality', Icons.people),
+        _buildAbilityCard(context, state, l10n, 'strength', 'STR', Icons.fitness_center),
+        _buildAbilityCard(context, state, l10n, 'dexterity', 'DEX', Icons.directions_run),
+        _buildAbilityCard(context, state, l10n, 'constitution', 'CON', Icons.favorite),
+        _buildAbilityCard(context, state, l10n, 'intelligence', 'INT', Icons.lightbulb),
+        _buildAbilityCard(context, state, l10n, 'wisdom', 'WIS', Icons.visibility),
+        _buildAbilityCard(context, state, l10n, 'charisma', 'CHA', Icons.people),
 
         // Point Buy Summary (only in Point Buy mode)
         if (_mode == 'point_buy') ...[
           const SizedBox(height: 16),
-          _buildPointBuySummary(context, state),
+          _buildPointBuySummary(context, state, l10n),
         ],
 
         // HP Selection Section
         if (state.selectedClass != null) ...[
           const SizedBox(height: 32),
-          _buildHPSection(context, state),
+          _buildHPSection(context, state, l10n),
         ],
       ],
     );
   }
 
-  Widget _buildHPSection(BuildContext context, CharacterCreationState state) {
+  Widget _buildHPSection(BuildContext context, CharacterCreationState state, AppLocalizations l10n) {
     final theme = Theme.of(context);
     final hitDie = state.selectedClass?.hitDie ?? 8;
     final conScore = state.abilityScores['constitution'] ?? 10;
@@ -117,7 +143,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
             Icon(Icons.favorite, color: theme.colorScheme.primary, size: 24),
             const SizedBox(width: 12),
             Text(
-              'Starting Hit Points',
+              l10n.startingHitPoints,
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -148,7 +174,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Hit Die: d$hitDie | CON Mod: $conModStr',
+                      l10n.hitDieConMod(hitDie, conModStr),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onErrorContainer.withValues(alpha: 0.8),
                       ),
@@ -161,10 +187,10 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                 SizedBox(
                   width: double.infinity,
                   child: SegmentedButton<String>(
-                  segments: const [
-                    ButtonSegment(value: 'max', label: Text('Max'), icon: Icon(Icons.trending_up, size: 16)),
-                    ButtonSegment(value: 'average', label: Text('Avg'), icon: Icon(Icons.functions, size: 16)),
-                    ButtonSegment(value: 'roll', label: Text('Roll'), icon: Icon(Icons.casino, size: 16)),
+                  segments: [
+                    ButtonSegment(value: 'max', label: const Text('Max'), icon: const Icon(Icons.trending_up, size: 16)),
+                    ButtonSegment(value: 'average', label: Text(l10n.average), icon: const Icon(Icons.functions, size: 16)),
+                    ButtonSegment(value: 'roll', label: Text(l10n.roll), icon: const Icon(Icons.casino, size: 16)),
                   ],
                   selected: {_hpMode},
                   onSelectionChanged: (Set<String> newSelection) {
@@ -205,7 +231,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                   _rolledHP = random.nextInt(hitDie) + 1;
                 });
               },
-              child: Text('Re-roll d$hitDie${_rolledHP > 0 ? ' (rolled: $_rolledHP)' : ''}'),
+              child: Text(l10n.reRoll(hitDie, _rolledHP)),
             ),
           ),
         ],
@@ -224,10 +250,10 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                 Expanded(
                   child: Text(
                     _hpMode == 'max'
-                        ? 'Maximum HP (recommended for new players)'
+                        ? l10n.hpMaxDesc
                         : _hpMode == 'average'
-                            ? 'Average roll: ${((hitDie / 2) + 1).ceil()} + CON modifier'
-                            : 'Roll 1d$hitDie for your starting HP',
+                            ? l10n.hpAvgDesc(((hitDie / 2) + 1).ceil())
+                            : l10n.hpRollDesc(hitDie),
                     style: TextStyle(
                       color: theme.colorScheme.onTertiaryContainer,
                       fontSize: 12,
@@ -242,7 +268,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
     );
   }
 
-  Widget _buildModeSelector(BuildContext context, CharacterCreationState state) {
+  Widget _buildModeSelector(BuildContext context, CharacterCreationState state, AppLocalizations l10n) {
     final theme = Theme.of(context);
 
     return Card(
@@ -252,28 +278,28 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Allocation Method',
+              l10n.allocationMethod,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 12),
             SegmentedButton<String>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: 'standard_array',
-                  label: Text('Array'),
-                  icon: Icon(Icons.grid_4x4),
+                  label: Text(l10n.standardArray.split(' ').first), // "Standard"
+                  icon: const Icon(Icons.grid_4x4),
                 ),
                 ButtonSegment(
                   value: 'point_buy',
-                  label: Text('Buy'),
-                  icon: Icon(Icons.calculate),
+                  label: Text(l10n.pointBuy.split(' ').first), // "Point"
+                  icon: const Icon(Icons.calculate),
                 ),
                 ButtonSegment(
                   value: 'manual',
-                  label: Text('Manual'),
-                  icon: Icon(Icons.edit),
+                  label: Text(l10n.manualEntry.split(' ').first), // "Manual"
+                  icon: const Icon(Icons.edit),
                 ),
               ],
               selected: {_mode},
@@ -293,22 +319,22 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
     );
   }
 
-  Widget _buildModeDescription(BuildContext context) {
+  Widget _buildModeDescription(BuildContext context, AppLocalizations l10n) {
     final theme = Theme.of(context);
     String title, description;
 
     switch (_mode) {
       case 'standard_array':
-        title = 'Standard Array';
-        description = 'Assign these values to your abilities: 15, 14, 13, 12, 10, 8. Quick and balanced for most builds.';
+        title = l10n.standardArray;
+        description = l10n.standardArrayDesc;
         break;
       case 'point_buy':
-        title = 'Point Buy';
-        description = 'Spend 27 points to customize your scores (8-15). Costs increase for higher scores.';
+        title = l10n.pointBuy;
+        description = l10n.pointBuyDesc;
         break;
       case 'manual':
-        title = 'Manual Entry';
-        description = 'Set any value from 3 to 18. Use this for rolled stats or custom builds.';
+        title = l10n.manualEntry;
+        description = l10n.manualEntryDesc;
         break;
       default:
         title = '';
@@ -356,14 +382,15 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
   Widget _buildAbilityCard(
     BuildContext context,
     CharacterCreationState state,
+    AppLocalizations l10n,
     String key,
-    String name,
     String abbr,
-    String description,
     IconData icon,
   ) {
     final theme = Theme.of(context);
     final score = state.abilityScores[key] ?? 10;
+    final name = _getAbilityName(key, l10n);
+    final description = _getAbilityDesc(key, l10n);
 
     // Get racial bonus if race is selected
     final racialBonus = state.selectedRace?.abilityScoreIncreases[key] ?? 0;
@@ -422,7 +449,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Racial Bonus: +$racialBonus → Final: $finalScore ($finalModifierStr)',
+                      l10n.racialBonus(racialBonus, finalScore, finalModifierStr),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onTertiaryContainer,
                         fontWeight: FontWeight.w500,
@@ -609,10 +636,11 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
     );
   }
 
-  Widget _buildPointBuySummary(BuildContext context, CharacterCreationState state) {
+  Widget _buildPointBuySummary(BuildContext context, CharacterCreationState state, AppLocalizations l10n) {
     final theme = Theme.of(context);
     final remaining = _getPointsRemaining(state);
     const total = 27;
+    final used = total - remaining;
 
     return Card(
       color: remaining == 0
@@ -631,7 +659,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Points: ${total - remaining} / $total used ($remaining remaining)',
+                l10n.pointsUsed(used, total, remaining),
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: remaining == 0

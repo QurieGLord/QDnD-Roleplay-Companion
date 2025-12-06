@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/journal_note.dart';
 import '../../../core/models/quest.dart';
@@ -27,7 +27,7 @@ class _JournalTabState extends State<JournalTab> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final locale = Localizations.localeOf(context).languageCode;
+    final l10n = AppLocalizations.of(context)!;
 
     // Filter notes
     var filteredNotes = widget.character.journalNotes.where((note) {
@@ -82,7 +82,7 @@ class _JournalTabState extends State<JournalTab> {
             child: TextField(
               onChanged: (value) => setState(() => _searchQuery = value),
               decoration: InputDecoration(
-                hintText: locale == 'ru' ? 'Поиск в журнале...' : 'Search journal...',
+                hintText: l10n.searchJournal,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
@@ -111,7 +111,7 @@ class _JournalTabState extends State<JournalTab> {
                 Icon(Icons.flag, size: 20, color: Colors.orange),
                 const SizedBox(width: 8),
                 Text(
-                  locale == 'ru' ? 'Квесты' : 'Quests',
+                  l10n.quests,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -122,7 +122,7 @@ class _JournalTabState extends State<JournalTab> {
                   onPressed: _addQuest,
                   icon: const Icon(Icons.add, size: 18),
                   constraints: const BoxConstraints.tightFor(width: 32, height: 32),
-                  tooltip: locale == 'ru' ? 'Добавить квест' : 'Add Quest',
+                  tooltip: l10n.addQuest,
                 ),
               ],
             ),
@@ -143,7 +143,7 @@ class _JournalTabState extends State<JournalTab> {
                 ),
                 child: Center(
                   child: Text(
-                    locale == 'ru' ? 'Нет активных квестов' : 'No active quests',
+                    l10n.noActiveQuests,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -180,7 +180,7 @@ class _JournalTabState extends State<JournalTab> {
                 Icon(Icons.note, size: 20, color: theme.colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
-                  locale == 'ru' ? 'Заметки' : 'Notes',
+                  l10n.notes,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -191,7 +191,7 @@ class _JournalTabState extends State<JournalTab> {
                   onPressed: _addNote,
                   icon: const Icon(Icons.add, size: 18),
                   constraints: const BoxConstraints.tightFor(width: 32, height: 32),
-                  tooltip: locale == 'ru' ? 'Добавить заметку' : 'Add Note',
+                  tooltip: l10n.addNote,
                 ),
               ],
             ),
@@ -212,7 +212,7 @@ class _JournalTabState extends State<JournalTab> {
                 ),
                 child: Center(
                   child: Text(
-                    locale == 'ru' ? 'Нет заметок' : 'No notes',
+                    l10n.noNotes,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -271,15 +271,16 @@ class _JournalTabState extends State<JournalTab> {
   }
 
   void _deleteNote(JournalNote note) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(Localizations.localeOf(context).languageCode == 'ru' ? 'Удалить заметку' : 'Delete Note'),
-        content: Text(Localizations.localeOf(context).languageCode == 'ru' ? 'Удалить "${note.title}"?' : 'Delete "${note.title}"?'),
+        title: Text(l10n.deleteNote),
+        content: Text(l10n.deleteNoteConfirmation(note.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(Localizations.localeOf(context).languageCode == 'ru' ? 'Отмена' : 'Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () {
@@ -292,7 +293,7 @@ class _JournalTabState extends State<JournalTab> {
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: Text(Localizations.localeOf(context).languageCode == 'ru' ? 'Удалить' : 'Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -342,15 +343,16 @@ class _JournalTabState extends State<JournalTab> {
   }
 
   void _deleteQuest(Quest quest) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(Localizations.localeOf(context).languageCode == 'ru' ? 'Удалить квест' : 'Delete Quest'),
-        content: Text(Localizations.localeOf(context).languageCode == 'ru' ? 'Удалить "${quest.title}"?' : 'Delete "${quest.title}"?'),
+        title: Text(l10n.deleteQuest),
+        content: Text(l10n.deleteQuestConfirmation(quest.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(Localizations.localeOf(context).languageCode == 'ru' ? 'Отмена' : 'Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () {
@@ -363,7 +365,7 @@ class _JournalTabState extends State<JournalTab> {
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: Text(Localizations.localeOf(context).languageCode == 'ru' ? 'Удалить' : 'Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),

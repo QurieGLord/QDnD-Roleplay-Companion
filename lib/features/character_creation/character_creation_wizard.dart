@@ -314,16 +314,18 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       await StorageService.saveCharacter(character);
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${character.name} created successfully!')),
+          SnackBar(content: Text(l10n.characterCreatedName(character.name))),
         );
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error creating character: $e'),
+            content: Text(l10n.errorCreatingCharacter(e.toString())),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -332,25 +334,26 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
   }
 
   void _confirmCancel() {
+    final l10n = AppLocalizations.of(context)!;
     if (_state.name.isNotEmpty ||
         _state.selectedRace != null ||
         _state.selectedClass != null) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Cancel Character Creation?'),
-          content: const Text('All progress will be lost.'),
+          title: Text(l10n.cancelCharacterCreationTitle),
+          content: Text(l10n.cancelCharacterCreationMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Continue Editing'),
+              child: Text(l10n.continueEditing),
             ),
             FilledButton(
               onPressed: () {
                 Navigator.pop(context); // Close dialog
                 Navigator.pop(context); // Close wizard
               },
-              child: const Text('Discard'),
+              child: Text(l10n.discard),
             ),
           ],
         ),

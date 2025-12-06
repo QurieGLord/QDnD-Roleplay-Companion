@@ -462,6 +462,7 @@
   "racialTraits": "Racial Traits",
   "savingThrowProficiencies": "Saving Throw Proficiencies",
   "skillProficiencies": "Skill Proficiencies",
+  "chooseSkillsTitle": "Choose Skills",
   "chooseSkills": "Choose {count} from: {list}",
   "@chooseSkills": {
     "placeholders": {
@@ -534,5 +535,76 @@
       "remaining": { "type": "int" }
     }
   },
-  "newFeaturesLabel": "New Features"
+  "newFeaturesLabel": "New Features",
+  "searchJournal": "Search journal...",
+  "addQuest": "Add Quest",
+  "noActiveQuests": "No active quests",
+  "addNote": "Add Note",
+  "noNotes": "No notes",
+  "deleteNote": "Delete Note",
+  "deleteNoteConfirmation": "Delete \"{title}\"?",
+  "@deleteNoteConfirmation": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "deleteQuest": "Delete Quest",
+  "deleteQuestConfirmation": "Delete \"{title}\"?",
+  "@deleteQuestConfirmation": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "characterCreatedName": "{name} created successfully!",
+  "@characterCreatedName": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "errorCreatingCharacter": "Error creating character: {error}",
+  "@errorCreatingCharacter": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "cancelCharacterCreationTitle": "Cancel Character Creation?",
+  "cancelCharacterCreationMessage": "All progress will be lost.",
+  "continueEditing": "Continue Editing",
+  "discard": "Discard",
+  "selectClassFirst": "Please select a class first",
+  "selectSkillProficiencies": "Select {count} skill proficiencies for your {characterClass}.",
+  "@selectSkillProficiencies": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "characterClass": { "type": "String" }
+    }
+  },
+  "allSkillsSelected": "All skills selected!",
+  "chooseMoreSkills": "Choose {count} more skill{count, plural, =1{} other{s}}",
+  "@chooseMoreSkills": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "skillAcrobaticsDesc": "Dexterity - Balance, tumbling, aerial maneuvers",
+  "skillAnimalHandlingDesc": "Wisdom - Calming animals, riding, training",
+  "skillArcanaDesc": "Intelligence - Magic, spells, magical items",
+  "skillAthleticsDesc": "Strength - Climbing, jumping, swimming",
+  "skillDeceptionDesc": "Charisma - Lying, disguising, misleading",
+  "skillHistoryDesc": "Intelligence - Historical events, legends",
+  "skillInsightDesc": "Wisdom - Reading intentions, detecting lies",
+  "skillIntimidationDesc": "Charisma - Threats, coercion",
+  "skillInvestigationDesc": "Intelligence - Finding clues, deduction",
+  "skillMedicineDesc": "Wisdom - Stabilizing, diagnosing",
+  "skillNatureDesc": "Intelligence - Terrain, plants, animals",
+  "skillPerceptionDesc": "Wisdom - Spotting, hearing, detecting",
+  "skillPerformanceDesc": "Charisma - Music, dance, acting",
+  "skillPersuasionDesc": "Charisma - Diplomacy, negotiations",
+  "skillReligionDesc": "Intelligence - Deities, rites, prayers",
+  "skillSleightOfHandDesc": "Dexterity - Pickpocketing, tricks",
+  "skillStealthDesc": "Dexterity - Hiding, moving silently",
+  "skillSurvivalDesc": "Wisdom - Tracking, foraging, navigation",
+  "chooseBackground": "Choose Background",
+  "backgroundDescription": "Your background represents your character's past and grants additional skills.",
+  "noBackgroundsAvailable": "No backgrounds available"
 }

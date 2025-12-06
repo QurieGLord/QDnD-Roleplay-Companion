@@ -1024,70 +1024,70 @@ class AppLocalizationsRu extends AppLocalizations {
   String get applyChanges => 'ПРИМЕНИТЬ';
 
   @override
-  String get colorAmber => 'Янтарный';
+  String get colorAmber => 'Amber';
 
   @override
-  String get colorBlue => 'Голубой';
+  String get colorBlue => 'Blue';
 
   @override
-  String get colorBrown => 'Коричневый';
+  String get colorBrown => 'Brown';
 
   @override
-  String get colorGray => 'Серый';
+  String get colorGray => 'Gray';
 
   @override
-  String get colorGreen => 'Зеленый';
+  String get colorGreen => 'Green';
 
   @override
-  String get colorHazel => 'Карий';
+  String get colorHazel => 'Hazel';
 
   @override
-  String get colorRed => 'Красный';
+  String get colorRed => 'Red';
 
   @override
-  String get colorViolet => 'Фиолетовый';
+  String get colorViolet => 'Violet';
 
   @override
-  String get colorAuburn => 'Каштановый';
+  String get colorAuburn => 'Auburn';
 
   @override
-  String get colorBlack => 'Черный';
+  String get colorBlack => 'Black';
 
   @override
-  String get colorBlonde => 'Блонд';
+  String get colorBlonde => 'Blonde';
 
   @override
-  String get colorWhite => 'Белый';
+  String get colorWhite => 'White';
 
   @override
-  String get colorBald => 'Лысый';
+  String get colorBald => 'Bald';
 
   @override
-  String get skinPale => 'Бледная';
+  String get skinPale => 'Pale';
 
   @override
-  String get skinFair => 'Светлая';
+  String get skinFair => 'Fair';
 
   @override
-  String get skinLight => 'Легкий загар';
+  String get skinLight => 'Light';
 
   @override
-  String get skinMedium => 'Средняя';
+  String get skinMedium => 'Medium';
 
   @override
-  String get skinTan => 'Смуглая';
+  String get skinTan => 'Tan';
 
   @override
-  String get skinDark => 'Темная';
+  String get skinDark => 'Dark';
 
   @override
-  String get skinEbony => 'Эбеновая';
+  String get skinEbony => 'Ebony';
 
   @override
-  String get unitCm => 'см';
+  String get unitCm => 'cm';
 
   @override
-  String get unitKg => 'кг';
+  String get unitKg => 'kg';
 
   @override
   String get chooseRaceClass => 'Choose Race & Class';
@@ -1122,8 +1122,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get skillProficiencies => 'Skill Proficiencies';
 
   @override
+  String get chooseSkillsTitle => 'Выберите навыки';
+
+  @override
   String chooseSkills(int count, String list) {
-    return 'Choose $count from: $list';
+    return 'Выберите $count из: $list';
   }
 
   @override
@@ -1217,4 +1220,138 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get newFeaturesLabel => 'Новые умения';
+
+  @override
+  String get searchJournal => 'Поиск в журнале...';
+
+  @override
+  String get addQuest => 'Добавить квест';
+
+  @override
+  String get noActiveQuests => 'Нет активных квестов';
+
+  @override
+  String get addNote => 'Добавить заметку';
+
+  @override
+  String get noNotes => 'Нет заметок';
+
+  @override
+  String get deleteNote => 'Удалить заметку';
+
+  @override
+  String deleteNoteConfirmation(String title) {
+    return 'Удалить \"$title\"?';
+  }
+
+  @override
+  String get deleteQuest => 'Удалить квест';
+
+  @override
+  String deleteQuestConfirmation(String title) {
+    return 'Удалить \"$title\"?';
+  }
+
+  @override
+  String characterCreatedName(String name) {
+    return '$name успешно создан!';
+  }
+
+  @override
+  String errorCreatingCharacter(String error) {
+    return 'Ошибка при создании персонажа: $error';
+  }
+
+  @override
+  String get cancelCharacterCreationTitle => 'Отменить создание персонажа?';
+
+  @override
+  String get cancelCharacterCreationMessage => 'Весь прогресс будет потерян.';
+
+  @override
+  String get continueEditing => 'Продолжить редактирование';
+
+  @override
+  String get discard => 'Сбросить';
+
+  @override
+  String get selectClassFirst => 'Пожалуйста, сначала выберите класс';
+
+  @override
+  String selectSkillProficiencies(int count, String characterClass) {
+    return 'Выберите $count навыка для класса $characterClass.';
+  }
+
+  @override
+  String get allSkillsSelected => 'Все навыки выбраны!';
+
+  @override
+  String chooseMoreSkills(int count) {
+    return 'Выберите еще $count';
+  }
+
+  @override
+  String get skillAcrobaticsDesc => 'Ловкость - Баланс, кувырки, трюки';
+
+  @override
+  String get skillAnimalHandlingDesc => 'Мудрость - Успокоение животных, езда';
+
+  @override
+  String get skillArcanaDesc => 'Интеллект - Магия, заклинания, артефакты';
+
+  @override
+  String get skillAthleticsDesc => 'Сила - Лазание, прыжки, плавание';
+
+  @override
+  String get skillDeceptionDesc => 'Харизма - Ложь, маскировка, обман';
+
+  @override
+  String get skillHistoryDesc => 'Интеллект - Исторические события, легенды';
+
+  @override
+  String get skillInsightDesc => 'Мудрость - Понимание намерений, ложь';
+
+  @override
+  String get skillIntimidationDesc => 'Харизма - Угрозы, принуждение';
+
+  @override
+  String get skillInvestigationDesc => 'Интеллект - Поиск улик, дедукция';
+
+  @override
+  String get skillMedicineDesc => 'Мудрость - Стабилизация, диагностика';
+
+  @override
+  String get skillNatureDesc => 'Интеллект - Местность, растения, животные';
+
+  @override
+  String get skillPerceptionDesc =>
+      'Мудрость - Замечать, слышать, обнаруживать';
+
+  @override
+  String get skillPerformanceDesc => 'Харизма - Музыка, танец, актерство';
+
+  @override
+  String get skillPersuasionDesc => 'Харизма - Дипломатия, переговоры';
+
+  @override
+  String get skillReligionDesc => 'Интеллект - Божества, обряды, молитвы';
+
+  @override
+  String get skillSleightOfHandDesc => 'Ловкость - Карманные кражи, фокусы';
+
+  @override
+  String get skillStealthDesc => 'Скрытность - Спрятаться, двигаться тихо';
+
+  @override
+  String get skillSurvivalDesc => 'Мудрость - Следопытство, навигация';
+
+  @override
+  String get chooseBackground => 'Выберите предысторию';
+
+  @override
+  String get backgroundDescription =>
+      'Предыстория отражает прошлое вашего персонажа и дает дополнительные навыки.';
+
+  @override
+  String get noBackgroundsAvailable => 'Нет доступных предысторий';
 }
