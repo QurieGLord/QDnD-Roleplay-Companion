@@ -23,72 +23,69 @@
 *   **Architecture:** `ThemeProvider` (ChangeNotifier) + `AppPalettes` (Static Data).
 *   **Implementation:**
     *   **Palettes:** `lib/core/theme/app_palettes.dart` contains strictly defined `ColorScheme` definitions for 6 presets (QMonokai, Gruvbox, etc.) in both Light and Dark modes.
-    *   **Strict Mapping:** We avoid `ThemeData.from(seedColor)` to maintain exact control over hex codes (critical for "QMonokai" specific shades).
-    *   **UI Integration:** Custom widgets (like `ExpandableCharacterCard`) do NOT use hardcoded colors. They bind to semantic slots:
-        *   `surfaceContainerHighest`: Used for card backgrounds to differentiate from the main background (`surface`).
-        *   `primary/secondary`: Used for icons and accents.
-        *   `tertiary`: Used for special highlights (e.g., Level Up button).
-    *   **Glow Effects:** Achieved via `BoxShadow` using `colorScheme.primary.withOpacity(0.2)` rather than gradients, ensuring readability while maintaining style.
+    *   **UI Integration:** Custom widgets (like `ExpandableCharacterCard`) bind to semantic slots:
+        *   `secondaryContainer`: Used for the Character Card and Navbar background (Accent color).
+        *   `onSecondaryContainer`: Used for text/icons on the card.
+        *   `secondary`: Used for Glow effects and active highlights.
+        *   `primary`: Used for main actions (FAB, Buttons).
+    *   **Glow Effects:** Achieved via `BoxShadow` using `colorScheme.secondary.withOpacity(0.15)`.
 
 ### C. Character Model & Multiclassing (`feat/core`)
 *   **Migration:** The `Character` model was refactored to support multiclassing.
     *   **Legacy Fields:** `characterClass` and `subclass` (Strings) are kept for backward compatibility and UI display of the "Primary" class.
     *   **New Field:** `List<CharacterClass> classes` (Hive TypeId 25).
-    *   **Auto-Migration:** The `Character` constructor detects if `classes` is empty but legacy fields exist, and automatically populates the list. This ensures old saves don't break.
+    *   **Auto-Migration:** The `Character` constructor detects if `classes` is empty but legacy fields exist, and automatically populates the list.
 
-### D. Dice Roller (`refactor/ui`)
-*   **Rendering:** Instead of fonts/images, we use a **`CustomPainter` (`DiceShapePainter`)**.
-    *   Draws geometric paths (Triangle d4, Rounded Rect d6, Pentagonal d12, Hexagonal d20) programmatically.
-    *   Allows dynamic coloring (`primary` when rolling, `tertiary` on success) without managing multiple assets.
-*   **Animation:** Physics-based simulation using `AnimationController`.
-    *   **Tumble:** `RotationTransition` with `CurvedAnimation` (ElasticOut) for a satisfying "clunk" stop.
-    *   **Pop:** `ScaleTransition` sequence (shrink -> expand -> settle) to emphasize the result.
-    *   **Haptics:** Triggers `HapticFeedback.selectionClick` on roll and `heavyImpact` on result.
-
-### E. Combat System (`feat/combat`)
-*   **Tracker:** `CombatTrackerScreen` manages a separate state loop via `Timer` for round tracking.
-*   **UI:** Implements a "Dashboard" layout.
-    *   **HP Ring:** Huge `CircularProgressIndicator` in the center acts as the main interactive element.
-    *   **Reactive Animations:** The screen uses a `ShakeAnimation` (Sine wave translation) triggered when taking damage.
-    *   **State Sync:** Uses `ValueListenableBuilder` on the Hive box to react to changes made in modal bottom sheets (like damage/heal dialogs) instantly without manual `setState` chains.
-
-### F. Localization (`feat/l10n`)
+### D. Localization (`feat/l10n`)
 *   **Architecture:** `flutter_localizations` + `intl` (ARB based).
-*   **Configuration:**
-    *   `l10n.yaml` configured to output files to `lib/l10n/` (no synthetic package).
-    *   Imports use direct path: `package:qd_and_d/l10n/app_localizations.dart`.
-*   **State:** `LocaleProvider` manages language selection and persists it to Hive (`settings` box).
-*   **Dynamic Translation:** Helper methods (`_getLocalizedValue`, `_formatValue`) are used in widgets to translate data-driven values (like "Blue" -> "Голубой" or "cm" -> "см") without altering the underlying English data model.
-*   **Data Migration:** JSON assets are pre-populated with `ru` fields. A script `bin/migrate_localization.dart` exists for maintenance.
+*   **Configuration:** `l10n.yaml` -> `lib/l10n/`.
+*   **Dynamic Translation:**
+    *   **Helpers:** `_getLocalizedValue`, `_formatValue` (in widgets) translate data-driven strings (e.g., "Blue" -> "Голубой", "lb" -> "фунт") without altering the English data model.
+    *   **Keys:** `AppLocalizations` keys match standardized D&D terms (e.g., `abilityStr`, `skillStealth`).
+
+### E. UI/UX Polish (`feat/ui`)
+*   **Expandable Character Card:**
+    *   **Gestures:** Swipe Down on card to Expand. Swipe Up on card to Collapse.
+    *   **Smart Scroll:** Swiping the card halts the parent `NestedScrollView` to prevent "flying away".
+    *   **Animation:** Smooth `AnimatedSize` transition when switching tabs (card collapses upwards).
+    *   **Visibility:** Card is only interactive on Overview tab but persists in tree for animation.
+    *   **Scroll Reset:** Returning to Overview tab automatically smooth-scrolls to top (`_scrollToTop`).
 
 ## 3. Building and Running
 
 ### Prerequisites
 *   Flutter 3.35.7+
 *   Dart 3.9.4+
-*   **Build Runner:** Must be run after any model changes:
+*   **Build Runner:**
     ```bash
     flutter pub run build_runner build --delete-conflicting-outputs
     ```
-*   **Localization Gen:** Must be run after editing `.arb` files:
+*   **Localization Gen:**
     ```bash
     flutter gen-l10n
     ```
 
-### Important Assets
-*   Ensure all new content folders (e.g., `assets/data/features/`) are explicitly listed in `pubspec.yaml`. Flutter does not recursively include folders.
+## 4. Current Status (v1.3 - "Localization & Polish")
 
-## 4. Current Status (v1.2 - "Visuals Update")
-*   **Completed:**
-    *   Full Paladin implementation (JSON).
-    *   Advanced Theming system with 6 presets.
-    *   Redesigned Combat/Dice/Stats interfaces.
-    *   Robust FC5 Import with error handling.
-    *   **Localization (EN/RU):** Full UI translation, data migration, dynamic value formatting.
-    *   **UI Fix:** Adjusted `CharacterSheetScreen` padding so `ExpandableCharacterCard` aligns with the Navbar.
-*   **Pending Technical Tasks:**
-    *   **Spell Selection Logic:** `CharacterCreationWizard` needs a step to write chosen spells to `Character.knownSpells`.
-    *   **Multiclass UI:** The backend supports `List<CharacterClass>`, but `LevelUpScreen` currently assumes leveling up the *primary* class. Needs a "Add New Class" flow.
+### Completed Tasks
+*   **Localization:**
+    *   Full Russian translation (`app_ru.arb`) for all UI elements.
+    *   Dynamic formatter for units (imperial -> metric visual conversion).
+    *   Locale toggler in Settings.
+*   **UI Overhaul:**
+    *   **Character Card:**
+        *   Fixed width inconsistency (removed excess padding).
+        *   Implemented `Listener`-based swipe gestures (Threshold 6px).
+        *   Updated colors to use `secondaryContainer` (Cyan/Milk/Green depending on theme) for distinct visual hierarchy.
+    *   **Navigation:**
+        *   Navbar colors synced with Character Card.
+        *   Smooth hide animation.
+    *   **Scroll Physics:** Implemented scroll holding during card gestures and auto-reset on tab switch.
+
+### Pending Technical Tasks
+*   **Spell Selection Logic:** `CharacterCreationWizard` needs a step to write chosen spells to `Character.knownSpells`.
+*   **Multiclass UI:** `LevelUpScreen` currently assumes leveling up the *primary* class. Needs a "Add New Class" flow.
+*   **Content Population:** Fill `assets/data/features/` for remaining classes (Barbarian, Fighter, Rogue are currently empty placeholders).
 
 ## 5. Operational Guidelines (User Mandates)
 
@@ -108,8 +105,3 @@ Upon user confirmation ("Success"/"Accepted"):
     *   `git commit -m "feat(scope): message"`
     *   `git push origin gemini`
 3.  **Next:** Proceed to the next backlog item.
-
-### C. Safety Protocols
-*   **No Full Rewrites:** Avoid rewriting large files (>50 lines) unless structural integrity is compromised. Prefer `replace` or `sed`.
-*   **Validation:** Always `cat` or `read_file` before editing to ensure context match.
-*   **Localization Source:** `docs/Компендиум` is the Source of Truth for translations.
