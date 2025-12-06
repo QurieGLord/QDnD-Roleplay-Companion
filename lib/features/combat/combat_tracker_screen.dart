@@ -246,7 +246,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
     final isInCombat = character.combatState.isInCombat;
-    final hpPercent = character.currentHp / character.maxHp;
+    final hpPercent = (character.currentHp / character.maxHp).clamp(0.0, 1.0);
     final isDying = character.currentHp <= 0;
 
     return Scaffold(
@@ -255,6 +255,13 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
         title: Text(character.name),
         centerTitle: true,
         actions: [
+          if (isInCombat)
+            IconButton(
+              icon: const Icon(Icons.stop_circle_outlined),
+              color: colorScheme.error,
+              tooltip: l10n.endCombat,
+              onPressed: () => _endCombat(l10n),
+            ),
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () => showModalBottomSheet(
@@ -282,41 +289,41 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                 children: [
                   _buildHeaderStat(l10n.initiativeINIT, '${character.combatState.initiative}', Icons.flash_on, colorScheme.tertiary),
                   if (isInCombat)
-                    _buildHeaderStat('ROUND', '${character.combatState.currentRound}', Icons.refresh, colorScheme.primary), // TODO: Add "Round" key if missing, or use l10n
+                    _buildHeaderStat('ROUND', '${character.combatState.currentRound}', Icons.refresh, colorScheme.primary),
                 ],
               ),
             ),
 
-            const Spacer(),
+            const SizedBox(height: 20),
 
-            // --- MAIN VISUAL: HP RING ---
+            // --- MAIN VISUAL: HP RING (Smaller) ---
             Center(
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   // Background Circle
                   Container(
-                    width: 280,
-                    height: 280,
+                    width: 200,
+                    height: 200,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: colorScheme.surface,
                       boxShadow: [
                         BoxShadow(
                           color: (isDying ? colorScheme.error : colorScheme.primary).withOpacity(0.15),
-                          blurRadius: 40,
-                          spreadRadius: 10,
+                          blurRadius: 30,
+                          spreadRadius: 5,
                         )
                       ],
                     ),
                   ),
                   // Progress Indicator
                   SizedBox(
-                    width: 260,
-                    height: 260,
+                    width: 180,
+                    height: 180,
                     child: CircularProgressIndicator(
                       value: hpPercent,
-                      strokeWidth: 16,
+                      strokeWidth: 12,
                       backgroundColor: colorScheme.surfaceContainerHighest,
                       color: isDying ? colorScheme.error : (hpPercent > 0.5 ? Colors.green : Colors.amber),
                       strokeCap: StrokeCap.round,
@@ -327,27 +334,19 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (isDying) ...[
-                        const Icon(Icons.dangerous, size: 48, color: Colors.grey),
-                        const SizedBox(height: 8),
-                        Text(l10n.conditionUnconscious.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.error, letterSpacing: 1.5)),
-                      ] else ...[
-                        Icon(Icons.favorite, size: 32, color: colorScheme.error.withOpacity(0.8)),
+                        const Icon(Icons.dangerous, size: 40, color: Colors.grey),
                         const SizedBox(height: 4),
+                        Text(l10n.conditionUnconscious.toUpperCase(), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: colorScheme.error, letterSpacing: 1.0)),
+                      ] else ...[
+                        Icon(Icons.favorite, size: 24, color: colorScheme.error.withOpacity(0.8)),
                         Text(
                           '${character.currentHp}',
-                          style: TextStyle(fontSize: 64, fontWeight: FontWeight.w900, color: colorScheme.onSurface, height: 1),
+                          style: TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: colorScheme.onSurface, height: 1),
                         ),
                         Text(
                           '/${character.maxHp}',
-                          style: TextStyle(fontSize: 24, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
+                          style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
                         ),
-                        if (character.temporaryHp > 0)
-                          Container(
-                            margin: const EdgeInsets.only(top: 8),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                            decoration: BoxDecoration(color: colorScheme.secondaryContainer, borderRadius: BorderRadius.circular(12)),
-                            child: Text('+${character.temporaryHp} TEMP', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSecondaryContainer)),
-                          ),
                       ],
                     ],
                   ),
@@ -355,58 +354,83 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
               ),
             ),
 
-            const Spacer(),
-
-            // --- DEATH SAVES (IF DYING) ---
-            if (isDying)
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: colorScheme.error.withOpacity(0.5)),
-                ),
-                child: Column(
-                  children: [
-                    Text(l10n.deathSaves.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.error, letterSpacing: 1.2)),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildDeathSaveRow(l10n.successes, character.deathSaves.successes, Icons.check_circle, Colors.green, () async {
-                          character.deathSaves.addSuccess(); await _save();
-                        }),
-                        Container(width: 1, height: 40, color: colorScheme.outlineVariant),
-                        _buildDeathSaveRow(l10n.failures, character.deathSaves.failures, Icons.cancel, colorScheme.error, () async {
-                          character.deathSaves.addFailure(); await _save();
-                        }),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-            // --- CONDITIONS ROW ---
-            if (character.activeConditions.isNotEmpty)
-              SizedBox(
-                height: 50,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  children: character.activeConditions.map((c) => Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Chip(
-                      label: Text(_getConditionName(l10n, c)),
-                      backgroundColor: colorScheme.errorContainer,
-                      labelStyle: TextStyle(color: colorScheme.onErrorContainer),
-                      onDeleted: () => _toggleCondition(c),
-                    ),
-                  )).toList(),
-                ),
-              ),
-
             const SizedBox(height: 24),
+
+            // --- STATS DASHBOARD (Indicators) ---
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                  // Temp HP
+                  if (character.temporaryHp > 0)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: colorScheme.secondaryContainer, 
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: colorScheme.secondary),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.shield, size: 16, color: colorScheme.onSecondaryContainer),
+                          const SizedBox(width: 8),
+                          Text('${character.temporaryHp} ${l10n.tempHp}', style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSecondaryContainer)),
+                        ],
+                      ),
+                    ),
+
+                  // Conditions
+                  if (character.activeConditions.isNotEmpty)
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.center,
+                      children: character.activeConditions.map((c) => Chip(
+                        label: Text(_getConditionName(l10n, c)),
+                        backgroundColor: colorScheme.errorContainer,
+                        labelStyle: TextStyle(color: colorScheme.onErrorContainer, fontSize: 12),
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                        onDeleted: () => _toggleCondition(c),
+                      )).toList(),
+                    ),
+
+                  // Death Saves
+                  if (isDying)
+                    Container(
+                      margin: const EdgeInsets.only(top: 16),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: colorScheme.error.withOpacity(0.5)),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(l10n.deathSaves.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.error, fontSize: 10, letterSpacing: 1.2)),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _buildDeathSaveRow(l10n.successes, character.deathSaves.successes, Icons.check_circle, Colors.green, () async {
+                                character.deathSaves.addSuccess(); await _save();
+                              }),
+                              Container(width: 1, height: 30, color: colorScheme.outlineVariant),
+                              _buildDeathSaveRow(l10n.failures, character.deathSaves.failures, Icons.cancel, colorScheme.error, () async {
+                                character.deathSaves.addFailure(); await _save();
+                              }),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            const Spacer(),
 
             // --- CONTROLS ---
             Padding(

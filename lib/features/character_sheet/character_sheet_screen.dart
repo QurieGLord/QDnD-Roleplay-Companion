@@ -47,11 +47,22 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
     super.dispose();
   }
 
+  void _scrollToTop() {
+    if (_scrollController.hasClients && _scrollController.offset > 0) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
   void _onTabChanged(int index) {
     setState(() {
       _currentIndex = index;
       _isCardExpanded = false;
     });
+    if (index == 0) _scrollToTop();
     _pageController.animateToPage(
       index,
       duration: const Duration(milliseconds: 300),
@@ -64,6 +75,8 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
       _currentIndex = index;
       if (index != 0) {
         _isCardExpanded = false;
+      } else {
+        _scrollToTop();
       }
     });
   }
@@ -177,7 +190,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
       child: Container(
         height: 64,
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest,
+          color: colorScheme.secondaryContainer,
           borderRadius: BorderRadius.circular(32),
           boxShadow: [
             BoxShadow(
@@ -214,7 +227,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
           children: [
             Icon(
               isSelected ? activeIcon : icon,
-              color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+              color: isSelected ? colorScheme.onSecondaryContainer : colorScheme.onSecondaryContainer.withOpacity(0.7),
               size: 26,
             ),
             if (isSelected)
@@ -223,7 +236,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
                 width: 4,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: colorScheme.primary,
+                  color: colorScheme.onSecondaryContainer,
                   shape: BoxShape.circle,
                 ),
               ),
