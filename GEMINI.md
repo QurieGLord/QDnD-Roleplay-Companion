@@ -83,6 +83,7 @@
     *   **Scroll Physics:** Implemented scroll holding during card gestures and auto-reset on tab switch.
 
 ### Pending Technical Tasks
+*   **Localization QA & Fixes (High Priority):** Systematic audit of the UI to fix hardcoded strings, grammar errors, layout overflows, and incorrect dynamic formatting logic. The infrastructure is ready, but the content quality needs a full pass.
 *   **Spell Selection Logic:** `CharacterCreationWizard` needs a step to write chosen spells to `Character.knownSpells`.
 *   **Multiclass UI:** `LevelUpScreen` currently assumes leveling up the *primary* class. Needs a "Add New Class" flow.
 *   **Content Population:** Fill `assets/data/features/` for remaining classes (Barbarian, Fighter, Rogue are currently empty placeholders).
