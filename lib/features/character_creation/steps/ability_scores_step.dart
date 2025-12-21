@@ -288,17 +288,17 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
               segments: [
                 ButtonSegment(
                   value: 'standard_array',
-                  label: Text(l10n.standardArray.split(' ').first), // "Standard"
+                  label: Text(l10n.methodStandard),
                   icon: const Icon(Icons.grid_4x4),
                 ),
                 ButtonSegment(
                   value: 'point_buy',
-                  label: Text(l10n.pointBuy.split(' ').first), // "Point"
+                  label: Text(l10n.methodPointBuy),
                   icon: const Icon(Icons.calculate),
                 ),
                 ButtonSegment(
                   value: 'manual',
-                  label: Text(l10n.manualEntry.split(' ').first), // "Manual"
+                  label: Text(l10n.methodManual),
                   icon: const Icon(Icons.edit),
                 ),
               ],

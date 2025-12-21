@@ -52,6 +52,27 @@ class _SpellsTabState extends State<SpellsTab> {
     return school;
   }
 
+  String _getLocalizedActionEconomy(AppLocalizations l10n, String economy) {
+    final lower = economy.toLowerCase();
+    if (lower.contains('bonus')) return l10n.actionTypeBonus;
+    if (lower.contains('reaction')) return l10n.actionTypeReaction;
+    if (lower.contains('action')) return l10n.actionTypeAction;
+    if (lower.contains('free')) return l10n.actionTypeFree;
+    return economy;
+  }
+
+  String _getAbilityAbbr(AppLocalizations l10n, String key) {
+    switch (key.toLowerCase()) {
+      case 'strength': return l10n.abilityStrAbbr;
+      case 'dexterity': return l10n.abilityDexAbbr;
+      case 'constitution': return l10n.abilityConAbbr;
+      case 'intelligence': return l10n.abilityIntAbbr;
+      case 'wisdom': return l10n.abilityWisAbbr;
+      case 'charisma': return l10n.abilityChaAbbr;
+      default: return key.length >= 3 ? key.substring(0, 3).toUpperCase() : key.toUpperCase();
+    }
+  }
+
   void _showCastSpellDialog(Spell spell, String locale, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -415,7 +436,7 @@ class _SpellsTabState extends State<SpellsTab> {
                       Text(feature.getName(locale), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                       if (feature.actionEconomy != null)
                         Text(
-                          feature.actionEconomy!.toUpperCase(),
+                          _getLocalizedActionEconomy(l10n, feature.actionEconomy!).toUpperCase(),
                           style: TextStyle(fontSize: 10, color: colorScheme.secondary, fontWeight: FontWeight.w600, letterSpacing: 0.5),
                         ),
                     ],
@@ -469,7 +490,7 @@ class _SpellsTabState extends State<SpellsTab> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildMagicStat(l10n.spellAbility, SpellcastingService.getSpellcastingAbilityName(widget.character.characterClass).substring(0, 3).toUpperCase()),
+                _buildMagicStat(l10n.spellAbility, _getAbilityAbbr(l10n, SpellcastingService.getSpellcastingAbilityName(widget.character.characterClass))),
                 Container(width: 1, height: 30, color: colorScheme.outlineVariant),
                 _buildMagicStat(l10n.spellSaveDC, '${SpellcastingService.getSpellSaveDC(widget.character)}'),
                 Container(width: 1, height: 30, color: colorScheme.outlineVariant),

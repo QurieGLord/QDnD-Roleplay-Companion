@@ -38,6 +38,57 @@ class _InventoryTabState extends State<InventoryTab> {
     }
   }
 
+  String _getLocalizedTag(AppLocalizations l10n, String tag) {
+    switch (tag.trim().toLowerCase()) {
+      case 'ammunition': return l10n.propertyAmmunition;
+      case 'finesse': return l10n.propertyFinesse;
+      case 'heavy': return l10n.propertyHeavy;
+      case 'light': return l10n.propertyLight;
+      case 'loading': return l10n.propertyLoading;
+      case 'range': return l10n.propertyRange;
+      case 'reach': return l10n.propertyReach;
+      case 'special': return l10n.propertySpecial;
+      case 'thrown': return l10n.propertyThrown;
+      case 'two-handed': 
+      case 'two_handed': return l10n.propertyTwoHanded;
+      case 'versatile': return l10n.propertyVersatile;
+      case 'martial': return l10n.propertyMartial;
+      case 'simple': return l10n.propertySimple;
+      default: return tag;
+    }
+  }
+
+  String _getLocalizedDamageType(AppLocalizations l10n, String damageType) {
+    final lower = damageType.toLowerCase().split('.').last;
+    switch (lower) {
+      case 'acid': return l10n.damageTypeAcid;
+      case 'bludgeoning': return l10n.damageTypeBludgeoning;
+      case 'cold': return l10n.damageTypeCold;
+      case 'fire': return l10n.damageTypeFire;
+      case 'force': return l10n.damageTypeForce;
+      case 'lightning': return l10n.damageTypeLightning;
+      case 'necrotic': return l10n.damageTypeNecrotic;
+      case 'piercing': return l10n.damageTypePiercing;
+      case 'poison': return l10n.damageTypePoison;
+      case 'psychic': return l10n.damageTypePsychic;
+      case 'radiant': return l10n.damageTypeRadiant;
+      case 'slashing': return l10n.damageTypeSlashing;
+      case 'thunder': return l10n.damageTypeThunder;
+      default: return damageType;
+    }
+  }
+
+  String _getLocalizedArmorType(AppLocalizations l10n, String armorType) {
+     final lower = armorType.toLowerCase().split('.').last;
+     switch (lower) {
+       case 'light': return l10n.armorTypeLight;
+       case 'medium': return l10n.armorTypeMedium;
+       case 'heavy': return l10n.armorTypeHeavy;
+       case 'shield': return l10n.armorTypeShield;
+       default: return armorType;
+     }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -447,268 +498,267 @@ class _InventoryTabState extends State<InventoryTab> {
                         ),
                       ],
                     ),
-                    if (item.weaponProperties != null && item.weaponProperties!.weaponTags.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Wrap(
-                        spacing: 4,
-                        runSpacing: 4,
-                        children: item.weaponProperties!.weaponTags.take(3).map((tag) {
-                          return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.secondaryContainer.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              tag,
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: theme.colorScheme.onSecondaryContainer,
-                                fontSize: 10,
+                                          if (item.weaponProperties != null && item.weaponProperties!.weaponTags.isNotEmpty) ...[
+                                          const SizedBox(height: 4),
+                                          Wrap(
+                                            spacing: 4,
+                                            runSpacing: 4,
+                                            children: item.weaponProperties!.weaponTags.take(3).map((tag) {
+                                              return Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                decoration: BoxDecoration(
+                                                  color: theme.colorScheme.secondaryContainer.withOpacity(0.5),
+                                                  borderRadius: BorderRadius.circular(4),
+                                                ),
+                                                child: Text(
+                                                  _getLocalizedTag(l10n, tag),
+                                                  style: theme.textTheme.labelSmall?.copyWith(
+                                                    color: theme.colorScheme.onSecondaryContainer,
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                    
+                                  if (item.isEquipped)
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: theme.colorScheme.primary,
+                                      size: 20,
+                                    ),
+                                ],
                               ),
                             ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-
-              if (item.isEquipped)
-                Icon(
-                  Icons.check_circle,
-                  color: theme.colorScheme.primary,
-                  size: 20,
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  IconData _getItemIcon(ItemType type) {
-    switch (type) {
-      case ItemType.weapon:
-        return Icons.gavel;
-      case ItemType.armor:
-        return Icons.shield;
-      case ItemType.gear:
-        return Icons.backpack;
-      case ItemType.consumable:
-        return Icons.local_drink;
-      case ItemType.tool:
-        return Icons.build;
-      case ItemType.treasure:
-        return Icons.diamond;
-    }
-  }
-
-  void _showItemDetails(BuildContext context, Item item, String locale, AppLocalizations l10n) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        minChildSize: 0.4,
-        maxChildSize: 0.9,
-        expand: false,
-        builder: (context, scrollController) {
-          return SingleChildScrollView(
-            controller: scrollController,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        _getItemIcon(item.type),
-                        size: 32,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          item.getName(locale),
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  Text(
-                    item.getDescription(locale),
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  if (item.weaponProperties != null)
-                    _buildWeaponProperties(item.weaponProperties!, l10n),
-                  if (item.armorProperties != null)
-                    _buildArmorProperties(item.armorProperties!, l10n),
-
-                  _buildStatRow(
-                    l10n.weight,
-                    '${item.weight} ${l10n.weightUnit}',
-                  ),
-                  _buildStatRow(
-                    l10n.value,
-                    '${item.valueInGold.toStringAsFixed(2)} ${l10n.currencyUnit}',
-                  ),
-                  
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        l10n.quantity,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                            onPressed: item.quantity > 1
-                                ? () {
-                                    _changeQuantity(item, -1);
-                                    Navigator.pop(context);
-                                    _showItemDetails(context, item, locale, l10n);
-                                  }
-                                : null,
-                            icon: const Icon(Icons.remove_circle_outline),
                           ),
-                          Text(
-                            '${item.quantity}',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
+                        );
+                      }
+                    
+                      IconData _getItemIcon(ItemType type) {
+                        switch (type) {
+                          case ItemType.weapon:
+                            return Icons.gavel;
+                          case ItemType.armor:
+                            return Icons.shield;
+                          case ItemType.gear:
+                            return Icons.backpack;
+                          case ItemType.consumable:
+                            return Icons.local_drink;
+                          case ItemType.tool:
+                            return Icons.build;
+                          case ItemType.treasure:
+                            return Icons.diamond;
+                        }
+                      }
+                    
+                      void _showItemDetails(BuildContext context, Item item, String locale, AppLocalizations l10n) {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (context) => DraggableScrollableSheet(
+                            initialChildSize: 0.6,
+                            minChildSize: 0.4,
+                            maxChildSize: 0.9,
+                            expand: false,
+                            builder: (context, scrollController) {
+                              return SingleChildScrollView(
+                                controller: scrollController,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(24),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            _getItemIcon(item.type),
+                                            size: 32,
+                                            color: Theme.of(context).colorScheme.primary,
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              item.getName(locale),
+                                              style: Theme.of(context).textTheme.headlineSmall,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                    
+                                      const SizedBox(height: 16),
+                    
+                                      Text(
+                                        item.getDescription(locale),
+                                        style: Theme.of(context).textTheme.bodyMedium,
+                                      ),
+                    
+                                      const SizedBox(height: 24),
+                    
+                                      if (item.weaponProperties != null)
+                                        _buildWeaponProperties(item.weaponProperties!, l10n),
+                                      if (item.armorProperties != null)
+                                        _buildArmorProperties(item.armorProperties!, l10n),
+                    
+                                      _buildStatRow(
+                                        l10n.weight,
+                                        '${item.weight} ${l10n.weightUnit}',
+                                      ),
+                                      _buildStatRow(
+                                        l10n.value,
+                                        '${item.valueInGold.toStringAsFixed(2)} ${l10n.currencyUnit}',
+                                      ),
+                                      
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            l10n.quantity,
+                                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              IconButton(
+                                                onPressed: item.quantity > 1
+                                                    ? () {
+                                                        _changeQuantity(item, -1);
+                                                        Navigator.pop(context);
+                                                        _showItemDetails(context, item, locale, l10n);
+                                                      }
+                                                    : null,
+                                                icon: const Icon(Icons.remove_circle_outline),
+                                              ),
+                                              Text(
+                                                '${item.quantity}',
+                                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                              ),
+                                              IconButton(
+                                                onPressed: () {
+                                                  _changeQuantity(item, 1);
+                                                  Navigator.pop(context);
+                                                  _showItemDetails(context, item, locale, l10n);
+                                                },
+                                                icon: const Icon(Icons.add_circle_outline),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                    
+                                      const SizedBox(height: 24),
+                    
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: FilledButton.icon(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                _toggleEquip(item);
+                                              },
+                                              icon: Icon(
+                                                  item.isEquipped ? Icons.close : Icons.check),
+                                              label: Text(
+                                                item.isEquipped
+                                                    ? l10n.unequip
+                                                    : l10n.equip,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          FilledButton.tonalIcon(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              _removeItem(item);
+                                            },
+                                            icon: const Icon(Icons.delete),
+                                            label: Text(l10n.remove),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              _changeQuantity(item, 1);
-                              Navigator.pop(context);
-                              _showItemDetails(context, item, locale, l10n);
+                              );
                             },
-                            icon: const Icon(Icons.add_circle_outline),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: FilledButton.icon(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            _toggleEquip(item);
-                          },
-                          icon: Icon(
-                              item.isEquipped ? Icons.close : Icons.check),
-                          label: Text(
-                            item.isEquipped
-                                ? l10n.unequip
-                                : l10n.equip,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      FilledButton.tonalIcon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _removeItem(item);
-                        },
-                        icon: const Icon(Icons.delete),
-                        label: Text(l10n.remove),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildWeaponProperties(WeaponProperties props, AppLocalizations l10n) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.weaponProperties,
-          style: Theme.of(context).textTheme.labelLarge,
-        ),
-        const SizedBox(height: 8),
-        _buildStatRow(
-          l10n.damage,
-          props.damageDice,
-        ),
-        _buildStatRow(
-          l10n.damageType,
-          props.damageType.toString().split('.').last,
-        ),
-        if (props.versatileDamageDice != null)
-          _buildStatRow(
-            l10n.versatileDamage,
-            props.versatileDamageDice!,
-          ),
-        if (props.range != null)
-          _buildStatRow(
-            l10n.range,
-            '${props.range}/${props.longRange} ft',
-          ),
-        if (props.weaponTags.isNotEmpty)
-          _buildStatRow(
-            l10n.properties,
-            props.weaponTags.join(', '),
-          ),
-        const SizedBox(height: 16),
-      ],
-    );
-  }
-
-  Widget _buildArmorProperties(ArmorProperties props, AppLocalizations l10n) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.armorProperties,
-          style: Theme.of(context).textTheme.labelLarge,
-        ),
-        const SizedBox(height: 8),
-        _buildStatRow(
-          l10n.armorClass,
-          'AC ${props.baseAC}',
-        ),
-        _buildStatRow(
-          l10n.type,
-          props.armorType.toString().split('.').last,
-        ),
-        if (props.strengthRequirement != null && props.strengthRequirement! > 0)
-          _buildStatRow(
-            l10n.strRequirement,
-            '${props.strengthRequirement}',
-          ),
-        if (props.stealthDisadvantage)
-          _buildStatRow(
-            l10n.stealth,
-            l10n.disadvantage,
-          ),
-        const SizedBox(height: 16),
-      ],
-    );
-  }
-
+                        );
+                      }
+                    
+                      Widget _buildWeaponProperties(WeaponProperties props, AppLocalizations l10n) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.weaponProperties,
+                              style: Theme.of(context).textTheme.labelLarge,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildStatRow(
+                              l10n.damage,
+                              props.damageDice,
+                            ),
+                            _buildStatRow(
+                              l10n.damageType,
+                              _getLocalizedDamageType(l10n, props.damageType.toString()),
+                            ),
+                            if (props.versatileDamageDice != null)
+                              _buildStatRow(
+                                l10n.versatileDamage,
+                                props.versatileDamageDice!,
+                              ),
+                            if (props.range != null)
+                              _buildStatRow(
+                                l10n.range,
+                                '${props.range}/${props.longRange} ft', // Consider localizing unit if possible
+                              ),
+                            if (props.weaponTags.isNotEmpty)
+                              _buildStatRow(
+                                l10n.properties,
+                                props.weaponTags.map((t) => _getLocalizedTag(l10n, t)).join(', '),
+                              ),
+                            const SizedBox(height: 16),
+                          ],
+                        );
+                      }
+                    
+                      Widget _buildArmorProperties(ArmorProperties props, AppLocalizations l10n) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.armorProperties,
+                              style: Theme.of(context).textTheme.labelLarge,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildStatRow(
+                              l10n.armorClass,
+                              '${l10n.armorClassAC} ${props.baseAC}',
+                            ),
+                            _buildStatRow(
+                              l10n.type,
+                              _getLocalizedArmorType(l10n, props.armorType.toString()),
+                            ),
+                            if (props.strengthRequirement != null && props.strengthRequirement! > 0)
+                              _buildStatRow(
+                                l10n.strRequirement,
+                                '${props.strengthRequirement}',
+                              ),
+                            if (props.stealthDisadvantage)
+                              _buildStatRow(
+                                l10n.stealth,
+                                l10n.disadvantage,
+                              ),
+                            const SizedBox(height: 16),
+                          ],
+                        );
+                      }
   Widget _buildStatRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),

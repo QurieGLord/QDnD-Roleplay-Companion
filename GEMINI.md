@@ -65,30 +65,26 @@
     flutter gen-l10n
     ```
 
-## 4. Current Status (v1.3 - "Localization & Polish")
+## 4. Current Status (v1.4 - "Localization Checkpoint")
 
-### Completed Tasks
-*   **Localization:**
-    *   Full Russian translation (`app_ru.arb`) for all UI elements.
-    *   Dynamic formatter for units (imperial -> metric visual conversion).
-    *   Locale toggler in Settings.
-*   **UI Overhaul:**
-    *   **Character Card:**
-        *   Fixed width inconsistency (removed excess padding).
-        *   Implemented `Listener`-based swipe gestures (Threshold 6px).
-        *   Updated colors to use `secondaryContainer` (Cyan/Milk/Green depending on theme) for distinct visual hierarchy.
-    *   **Navigation:**
-        *   Navbar colors synced with Character Card.
-        *   Smooth hide animation.
-    *   **Scroll Physics:** Implemented scroll holding during card gestures and auto-reset on tab switch.
+### Recent Localization Efforts (Retrospective)
+*   **Spell Almanac:**
+    *   Attempted to implement localized parsing for spell duration (e.g., "Concentration, up to...").
+    *   **Issue:** User reports "Concentration, up to" is *still not translated* in the UI, despite logic changes in `spell_almanac_screen.dart`. This requires a deeper debug of the string matching logic or build cache clearing.
+    *   Added `atHigherLevelsRu` and `materialComponentsRu` to data models and JSON.
+*   **Character Creation Wizard:**
+    *   Refactored `FeaturesSpellsStep` and `EquipmentStep` to use `AppLocalizations`.
+    *   **Issue:** User reports UI layout issues ("awkward text wrapping", "clumsy look") in the Wizard steps, specifically mentioning that the localization changes haven't fully resolved the visual quality or translation gaps.
+*   **Data Models:**
+    *   Updated `Spell` model to support bilingual fields for materials and higher levels.
+    *   Updated `Paladin` spells JSON with Russian translations.
 
-### Pending Technical Tasks
-*   **Localization QA & Fixes (High Priority):** Systematic audit of the UI to fix hardcoded strings, grammar errors, layout overflows, and incorrect dynamic formatting logic. The infrastructure is ready, but the content quality needs a full pass.
-*   **Spell Selection Logic:** `CharacterCreationWizard` needs a step to write chosen spells to `Character.knownSpells`.
-*   **Multiclass UI:** `LevelUpScreen` currently assumes leveling up the *primary* class. Needs a "Add New Class" flow.
-*   **Content Population:** Fill `assets/data/features/` for remaining classes (Barbarian, Fighter, Rogue are currently empty placeholders).
+### Pending High-Priority Fixes
+1.  **Debug Spell Duration Localization:** The `_getLocalizedValue` function in `SpellAlmanacScreen` is failing to catch the "Concentration" pattern for some reason. Needs a regex audit.
+2.  **Wizard UI Overhaul:** The Creation Wizard steps need a visual pass. Simply swapping strings isn't enough; `ListTile`s and `Cards` are overflowing with longer Russian text.
+3.  **Data Population:** Continue filling Russian fields for other classes/spells.
 
-## 5. Operational Guidelines (User Mandates)
+### Operational Guidelines (User Mandates)
 
 ### A. Definition of Done (DoD)
 Before confirming a task completion, you MUST:

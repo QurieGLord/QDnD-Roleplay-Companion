@@ -1368,4 +1368,359 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noBackgroundsAvailable => 'No backgrounds available';
+
+  @override
+  String get abilityStrAbbr => 'STR';
+
+  @override
+  String get abilityDexAbbr => 'DEX';
+
+  @override
+  String get abilityConAbbr => 'CON';
+
+  @override
+  String get abilityIntAbbr => 'INT';
+
+  @override
+  String get abilityWisAbbr => 'WIS';
+
+  @override
+  String get abilityChaAbbr => 'CHA';
+
+  @override
+  String get propertyAmmunition => 'Ammunition';
+
+  @override
+  String get propertyFinesse => 'Finesse';
+
+  @override
+  String get propertyHeavy => 'Heavy';
+
+  @override
+  String get propertyLight => 'Light';
+
+  @override
+  String get propertyLoading => 'Loading';
+
+  @override
+  String get propertyRange => 'Range';
+
+  @override
+  String get propertyReach => 'Reach';
+
+  @override
+  String get propertySpecial => 'Special';
+
+  @override
+  String get propertyThrown => 'Thrown';
+
+  @override
+  String get propertyTwoHanded => 'Two-Handed';
+
+  @override
+  String get propertyVersatile => 'Versatile';
+
+  @override
+  String get propertyMartial => 'Martial';
+
+  @override
+  String get propertySimple => 'Simple';
+
+  @override
+  String get armorTypeLight => 'Light Armor';
+
+  @override
+  String get armorTypeMedium => 'Medium Armor';
+
+  @override
+  String get armorTypeHeavy => 'Heavy Armor';
+
+  @override
+  String get armorTypeShield => 'Shield';
+
+  @override
+  String get searchSpells => 'Search spells...';
+
+  @override
+  String get noSpellsFound => 'No spells found';
+
+  @override
+  String get tryAdjustingFilters => 'Try adjusting your filters';
+
+  @override
+  String get filters => 'Filters';
+
+  @override
+  String get clearAll => 'Clear All';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get castingTime => 'Casting Time';
+
+  @override
+  String get duration => 'Duration';
+
+  @override
+  String get components => 'Components';
+
+  @override
+  String get materials => 'Materials';
+
+  @override
+  String get concentration => 'Concentration';
+
+  @override
+  String get ritual => 'Ritual';
+
+  @override
+  String get atHigherLevels => 'At Higher Levels';
+
+  @override
+  String get classes => 'Classes';
+
+  @override
+  String get addToKnown => 'Add to Known Spells';
+
+  @override
+  String get removeFromKnown => 'Remove from Known Spells';
+
+  @override
+  String addedToKnown(String name) {
+    return 'Added \"$name\" to known spells';
+  }
+
+  @override
+  String removedFromKnown(String name) {
+    return 'Removed \"$name\" from known spells';
+  }
+
+  @override
+  String get availableToLearn => 'Available to Learn';
+
+  @override
+  String availableAtLevel(int level) {
+    return 'Available at Level $level';
+  }
+
+  @override
+  String get filterAvailability => 'Availability';
+
+  @override
+  String get filterClass => 'Class';
+
+  @override
+  String get filterLevel => 'Level';
+
+  @override
+  String get filterSchool => 'School';
+
+  @override
+  String get filterAllSpells => 'All Spells';
+
+  @override
+  String get filterCanLearnNow => 'Can Learn Now';
+
+  @override
+  String get filterAvailableToClass => 'Available to Class';
+
+  @override
+  String get filterAllClasses => 'All Classes';
+
+  @override
+  String get filterAllLevels => 'All Levels';
+
+  @override
+  String get filterAllSchools => 'All Schools';
+
+  @override
+  String get clearFilters => 'Clear filters';
+
+  @override
+  String spellsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$count spell$_temp0';
+  }
+
+  @override
+  String get spellAlmanacTitle => 'Spell Almanac';
+
+  @override
+  String get actionTypeFree => 'Free Action';
+
+  @override
+  String get featuresStepTitle => 'Class Features';
+
+  @override
+  String featuresStepSubtitle(String className) {
+    return 'As a level 1 $className, you gain the following features:';
+  }
+
+  @override
+  String get noFeaturesAtLevel1 =>
+      'No features available at level 1 for this class.';
+
+  @override
+  String get spellsStepTitle => 'Spells';
+
+  @override
+  String get spellsStepPlaceholder =>
+      'Spell selection will be available in future updates. For now, please add spells manually in the character sheet after creation.';
+
+  @override
+  String get equipmentStepTitle => 'Starting Equipment';
+
+  @override
+  String get equipmentStepSubtitle =>
+      'Choose your starting equipment for your class';
+
+  @override
+  String get chooseEquipmentPackage => 'Choose Equipment Package';
+
+  @override
+  String get packageStandard => 'Standard Package';
+
+  @override
+  String get packageStandardDesc =>
+      'Recommended starting equipment for your class';
+
+  @override
+  String get packageAlternative => 'Alternative Package';
+
+  @override
+  String get packageAlternativeDesc => 'Different equipment options';
+
+  @override
+  String get packageCustom => 'Custom Package';
+
+  @override
+  String get packageCustomDesc => 'Choose items from catalog';
+
+  @override
+  String get selectedEquipment => 'Selected Equipment';
+
+  @override
+  String get addItem => 'Add Item';
+
+  @override
+  String get noItemsSelected => 'No items selected';
+
+  @override
+  String get tapToAddItems => 'Tap \"Add Item\" to select equipment';
+
+  @override
+  String equipmentPreview(String className) {
+    return '$className Equipment Preview';
+  }
+
+  @override
+  String get toolsAndGear => 'Tools & Gear';
+
+  @override
+  String get equipmentPreviewDisclaimer =>
+      'This is a preview of typical starting equipment. You can customize your inventory after character creation.';
+
+  @override
+  String get itemCatalog => 'Item Catalog';
+
+  @override
+  String get createItem => 'Create Item';
+
+  @override
+  String foundItems(int count, int selected) {
+    return 'Found: $count (selected: $selected)';
+  }
+
+  @override
+  String get noItemsFound => 'No items found';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get createCustomItem => 'Create Custom Item';
+
+  @override
+  String get addImage => 'Add\nimage';
+
+  @override
+  String errorLoadingImage(String error) {
+    return 'Error loading image: $error';
+  }
+
+  @override
+  String get itemName => 'Name';
+
+  @override
+  String get itemNameHint => 'e.g., Sword of Light';
+
+  @override
+  String get enterItemName => 'Enter name';
+
+  @override
+  String get itemDescription => 'Description';
+
+  @override
+  String get itemDescriptionHint => 'Describe the item...';
+
+  @override
+  String get itemType => 'Type';
+
+  @override
+  String get itemRarity => 'Rarity';
+
+  @override
+  String get itemWeight => 'Weight';
+
+  @override
+  String get itemValue => 'Value';
+
+  @override
+  String get itemQuantity => 'Quantity';
+
+  @override
+  String get minQuantity1 => 'Minimum 1';
+
+  @override
+  String itemAdded(String name, int quantity) {
+    return '$name (x$quantity) added';
+  }
+
+  @override
+  String errorCreatingItem(String error) {
+    return 'Error creating item: $error';
+  }
+
+  @override
+  String get rarityCommon => 'Common';
+
+  @override
+  String get rarityUncommon => 'Uncommon';
+
+  @override
+  String get rarityRare => 'Rare';
+
+  @override
+  String get rarityVeryRare => 'Very Rare';
+
+  @override
+  String get rarityLegendary => 'Legendary';
+
+  @override
+  String get rarityArtifact => 'Artifact';
+
+  @override
+  String get methodStandard => 'Standard';
+
+  @override
+  String get methodPointBuy => 'Point Buy';
+
+  @override
+  String get methodManual => 'Manual';
 }

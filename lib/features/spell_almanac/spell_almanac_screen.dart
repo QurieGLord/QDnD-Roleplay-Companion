@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/models/spell.dart';
 import '../../core/models/character.dart';
 import '../../core/services/spell_service.dart';
@@ -23,7 +24,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
   bool? _filterRitual;
   SpellAvailabilityFilter _availabilityFilter = SpellAvailabilityFilter.all;
 
-  List<Spell> _getFilteredSpells() {
+  List<Spell> _getFilteredSpells(String locale) {
     List<Spell> spells = SpellService.getAllSpells();
 
     // 1. Apply availability filter (if character provided)
@@ -44,8 +45,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
     // 2. Apply search
     if (_searchQuery.isNotEmpty) {
       spells = spells.where((spell) {
-        return spell.nameEn.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            spell.nameRu.toLowerCase().contains(_searchQuery.toLowerCase());
+        return spell.getName(locale).toLowerCase().contains(_searchQuery.toLowerCase());
       }).toList();
     }
 
@@ -89,16 +89,109 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
   }
 
   Color _getSchoolColor(String school) {
-    switch (school) {
-      case 'Abjuration': return Colors.blue;
-      case 'Conjuration': return Colors.purple;
-      case 'Divination': return Colors.cyan;
-      case 'Enchantment': return Colors.pink;
-      case 'Evocation': return Colors.red;
-      case 'Illusion': return Colors.indigo;
-      case 'Necromancy': return Colors.grey;
-      case 'Transmutation': return Colors.green;
-      default: return Theme.of(context).colorScheme.primary;
+    final lower = school.toLowerCase();
+    if (lower.contains('abj')) return Colors.blue;
+    if (lower.contains('con')) return Colors.purple;
+    if (lower.contains('div')) return Colors.cyan;
+    if (lower.contains('enc')) return Colors.pink;
+    if (lower.contains('evo')) return Colors.red;
+    if (lower.contains('ill')) return Colors.indigo;
+    if (lower.contains('nec')) return Colors.grey;
+    if (lower.contains('tra')) return Colors.green;
+    return Theme.of(context).colorScheme.primary;
+  }
+
+  String _getLocalizedSchool(AppLocalizations l10n, String school) {
+    final lower = school.toLowerCase();
+    if (lower.contains('abjur')) return l10n.schoolAbjuration;
+    if (lower.contains('conjur')) return l10n.schoolConjuration;
+    if (lower.contains('divin')) return l10n.schoolDivination;
+    if (lower.contains('enchant')) return l10n.schoolEnchantment;
+    if (lower.contains('evoc')) return l10n.schoolEvocation;
+    if (lower.contains('illus')) return l10n.schoolIllusion;
+    if (lower.contains('necro')) return l10n.schoolNecromancy;
+    if (lower.contains('trans')) return l10n.schoolTransmutation;
+    return school;
+  }
+
+  String _getLocalizedValue(AppLocalizations l10n, String value) {
+    var lower = value.toLowerCase().trim();
+    
+    // Casting Time
+    if (lower.contains('1 action') || lower == '1 action') return '1 ${l10n.actionTypeAction.toLowerCase()}';
+    if (lower.contains('1 bonus action')) return '1 ${l10n.actionTypeBonus.toLowerCase()}';
+    if (lower.contains('1 reaction')) return '1 ${l10n.actionTypeReaction.toLowerCase()}';
+    if (lower.contains('minutes')) return value.replaceAll('minutes', 'мин.');
+    if (lower.contains('minute')) return value.replaceAll('minute', 'мин.');
+    if (lower.contains('hours')) return value.replaceAll('hours', 'ч.');
+    if (lower.contains('hour')) return value.replaceAll('hour', 'ч.');
+
+    // Range
+    if (lower == 'self') return 'На себя';
+    if (lower == 'touch') return 'Касание';
+    if (lower.contains('feet')) return value.replaceAll('feet', 'фт.');
+    if (lower.contains('foot')) return value.replaceAll('foot', 'фт.');
+    if (lower.contains('radius')) return value.replaceAll('radius', 'радиус').replaceAll('feet', 'фт.');
+
+    // Duration
+    if (lower == 'instantaneous') return 'Мгновенная';
+    if (lower == 'until dispelled') return 'Пока не рассеется';
+    if (lower == 'special') return 'Особое';
+    
+    // Handle "Concentration, up to X" pattern
+    if (lower.contains('concentration')) {
+       // Remove "Concentration, " prefix from value to process the rest
+       var rest = value.replaceAll(RegExp(r'Concentration,\s*', caseSensitive: false), '');
+       
+       // Handle "up to" in the remaining part
+       if (rest.toLowerCase().contains('up to')) {
+         rest = rest.replaceAll(RegExp(r'up to', caseSensitive: false), 'вплоть до');
+       }
+       
+       // Localize time units in the remaining part
+       rest = _getLocalizedValue(l10n, rest);
+       
+       return '${l10n.concentration}, $rest';
+    }
+    
+    // Handle simple "up to" without concentration (rare but possible)
+    if (lower.contains('up to')) {
+      value = value.replaceAll(RegExp(r'up to', caseSensitive: false), 'вплоть до');
+      // Recursive call to handle units
+      return _getLocalizedValue(l10n, value);
+    }
+
+    if (lower.contains('round')) return value.replaceAll('round', 'раунд');
+
+    // Components
+    // Often handled by simple list join, but we can localize V, S, M if needed.
+    // In Russian usually V, S, M are V, S, M or В, С, М. Let's assume standard VSM for now or transliterate.
+    
+    return value;
+  }
+  
+  String _getLocalizedClassName(BuildContext context, String className) {
+    // This is a simple mapping. In a real app, you might want to fetch from CharacterDataService if available.
+    final l10n = AppLocalizations.of(context)!;
+    // We don't have direct class name keys in l10n yet, but we can try to map standard names.
+    // Or we can assume the className is English and map it manually here for now, 
+    // or add keys to ARB.
+    
+    switch (className.toLowerCase()) {
+      case 'barbarian': return 'Варвар';
+      case 'bard': return 'Бард';
+      case 'cleric': return 'Жрец';
+      case 'druid': return 'Друид';
+      case 'fighter': return 'Воин';
+      case 'monk': return 'Монах';
+      case 'paladin': return 'Паладин';
+      case 'ranger': return 'Следопыт';
+      case 'rogue': return 'Плут';
+      case 'sorcerer': return 'Чародей';
+      case 'warlock': return 'Колдун';
+      case 'wizard': return 'Волшебник';
+      case 'artificer': return 'Изобретатель';
+      default: return className;
     }
   }
 
@@ -117,6 +210,9 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
         expand: false,
         builder: (context, scrollController) {
           final colorScheme = Theme.of(context).colorScheme;
+          final l10n = AppLocalizations.of(context)!;
+          final locale = Localizations.localeOf(context).languageCode;
+
           return Container(
             padding: const EdgeInsets.all(24),
             child: ListView(
@@ -149,14 +245,14 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            spell.nameEn,
+                            spell.getName(locale),
                             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            '${spell.school}${spell.level == 0 ? ' Cantrip' : ' • Level ${spell.level}'}',
-                            style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                            '${_getLocalizedSchool(l10n, spell.school)}${spell.level == 0 ? ' • ${l10n.cantrips}' : ' • ${l10n.levelLabel(spell.level)}'}',
+                            style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
                           ),
                         ],
                       ),
@@ -167,18 +263,18 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                 // Eligibility badge (if character provided)
                 if (eligibility != null) ...[
                   const SizedBox(height: 16),
-                  _buildEligibilityBadge(eligibility),
+                  _buildEligibilityBadge(eligibility, l10n),
                 ],
 
                 const SizedBox(height: 24),
 
                 // Stats
-                _buildInfoRow('Casting Time', spell.castingTime),
-                _buildInfoRow('Range', spell.range),
-                _buildInfoRow('Duration', spell.duration),
-                _buildInfoRow('Components', spell.components.join(', ')),
-                if (spell.materialComponents != null)
-                  _buildInfoRow('Materials', spell.materialComponents!),
+                _buildInfoRow(l10n.castingTime, _getLocalizedValue(l10n, spell.castingTime)),
+                _buildInfoRow(l10n.range, _getLocalizedValue(l10n, spell.range)),
+                _buildInfoRow(l10n.duration, _getLocalizedValue(l10n, spell.duration)),
+                _buildInfoRow(l10n.components, spell.components.join(', ')),
+                if (spell.getMaterialComponents(locale) != null)
+                  _buildInfoRow(l10n.materials, spell.getMaterialComponents(locale)!),
                 if (spell.concentration || spell.ritual)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
@@ -186,14 +282,14 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                       spacing: 8,
                       children: [
                         if (spell.concentration)
-                          const Chip(
-                            label: Text('Concentration'),
-                            avatar: Icon(Icons.timelapse, size: 16),
+                          Chip(
+                            label: Text(l10n.concentration),
+                            avatar: const Icon(Icons.timelapse, size: 16),
                           ),
                         if (spell.ritual)
-                          const Chip(
-                            label: Text('Ritual'),
-                            avatar: Icon(Icons.book, size: 16),
+                          Chip(
+                            label: Text(l10n.ritual),
+                            avatar: const Icon(Icons.book, size: 16),
                           ),
                       ],
                     ),
@@ -203,31 +299,31 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
 
                 // Description
                 Text(
-                  spell.descriptionEn,
+                  spell.getDescription(locale),
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
 
-                if (spell.atHigherLevels != null) ...[
+                if (spell.getAtHigherLevels(locale) != null) ...[
                   const SizedBox(height: 16),
                   Text(
-                    'At Higher Levels',
+                    l10n.atHigherLevels,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    spell.atHigherLevels!,
+                    spell.getAtHigherLevels(locale)!,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ],
 
                 const SizedBox(height: 16),
                 Text(
-                  'Classes: ${spell.availableToClasses.join(', ')}',
+                  '${l10n.classes}: ${spell.availableToClasses.map((c) => _getLocalizedClassName(context, c)).join(', ')}',
                   style: TextStyle(
                     fontStyle: FontStyle.italic,
-                    color: colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
 
@@ -238,7 +334,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                     width: double.infinity,
                     child: FilledButton.icon(
                       onPressed: () {
-                        _toggleKnownSpell(spell);
+                        _toggleKnownSpell(spell, l10n);
                         Navigator.pop(context);
                       },
                       icon: Icon(
@@ -248,8 +344,8 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                       ),
                       label: Text(
                         widget.character!.knownSpells.contains(spell.id)
-                            ? 'Remove from Known Spells'
-                            : 'Add to Known Spells',
+                            ? l10n.removeFromKnown
+                            : l10n.addToKnown,
                       ),
                       style: FilledButton.styleFrom(
                         backgroundColor: widget.character!.knownSpells.contains(spell.id)
@@ -268,8 +364,9 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
     );
   }
 
-  void _toggleKnownSpell(Spell spell) async {
+  void _toggleKnownSpell(Spell spell, AppLocalizations l10n) async {
     if (widget.character == null) return;
+    final locale = Localizations.localeOf(context).languageCode;
 
     final isKnown = widget.character!.knownSpells.contains(spell.id);
 
@@ -292,8 +389,8 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
         SnackBar(
           content: Text(
             isKnown
-                ? 'Removed "${spell.nameEn}" from known spells'
-                : 'Added "${spell.nameEn}" to known spells',
+                ? l10n.removedFromKnown(spell.getName(locale))
+                : l10n.addedToKnown(spell.getName(locale)),
           ),
           duration: const Duration(seconds: 2),
         ),
@@ -301,23 +398,23 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
     }
   }
 
-  Widget _buildEligibilityBadge(SpellEligibilityResult eligibility) {
+  Widget _buildEligibilityBadge(SpellEligibilityResult eligibility, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
 
     if (eligibility.canLearn) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.green.withValues(alpha: 0.2),
+          color: Colors.green.withOpacity(0.2),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.green),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.check_circle, color: Colors.green, size: 16),
-            SizedBox(width: 8),
-            Text('Available to Learn', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+            const Icon(Icons.check_circle, color: Colors.green, size: 16),
+            const SizedBox(width: 8),
+            Text(l10n.availableToLearn, style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
           ],
         ),
       );
@@ -325,7 +422,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.orange.withValues(alpha: 0.2),
+          color: Colors.orange.withOpacity(0.2),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.orange),
         ),
@@ -335,7 +432,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
             const Icon(Icons.lock_clock, color: Colors.orange, size: 16),
             const SizedBox(width: 8),
             Text(
-              'Available at Level ${eligibility.canLearnAtLevel}',
+              l10n.availableAtLevel(eligibility.canLearnAtLevel!),
               style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
             ),
           ],
@@ -345,7 +442,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: colorScheme.errorContainer.withValues(alpha: 0.5),
+          color: colorScheme.errorContainer.withOpacity(0.5),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: colorScheme.error),
         ),
@@ -356,7 +453,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                eligibility.reason,
+                eligibility.reason, // Reason might come from service, hard to localize unless service returns key
                 style: TextStyle(color: colorScheme.error, fontWeight: FontWeight.bold),
               ),
             ),
@@ -387,7 +484,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
     );
   }
 
-  void _showFilters() {
+  void _showFilters(AppLocalizations l10n) {
     final allClasses = ['Wizard', 'Cleric', 'Druid', 'Bard', 'Sorcerer', 'Paladin', 'Ranger', 'Warlock'];
     final allSchools = ['Abjuration', 'Conjuration', 'Divination', 'Enchantment', 'Evocation', 'Illusion', 'Necromancy', 'Transmutation'];
 
@@ -404,18 +501,18 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Filters', style: Theme.of(context).textTheme.titleLarge),
+                    Text(l10n.filters, style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: 16),
 
                     // Availability filter (if character provided)
                     if (widget.character != null) ...[
-                      Text('Availability for ${widget.character!.name}', style: Theme.of(context).textTheme.titleMedium),
+                      Text('${l10n.filterAvailability} (${widget.character!.name})', style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,
                         children: [
                           FilterChip(
-                            label: const Text('All Spells'),
+                            label: Text(l10n.filterAllSpells),
                             selected: _availabilityFilter == SpellAvailabilityFilter.all,
                             onSelected: (selected) {
                               setModalState(() => _availabilityFilter = SpellAvailabilityFilter.all);
@@ -423,7 +520,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                             },
                           ),
                           FilterChip(
-                            label: const Text('Can Learn Now'),
+                            label: Text(l10n.filterCanLearnNow),
                             selected: _availabilityFilter == SpellAvailabilityFilter.canLearnNow,
                             onSelected: (selected) {
                               setModalState(() => _availabilityFilter = SpellAvailabilityFilter.canLearnNow);
@@ -431,7 +528,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                             },
                           ),
                           FilterChip(
-                            label: const Text('Available to Class'),
+                            label: Text(l10n.filterAvailableToClass),
                             selected: _availabilityFilter == SpellAvailabilityFilter.availableToClass,
                             onSelected: (selected) {
                               setModalState(() => _availabilityFilter = SpellAvailabilityFilter.availableToClass);
@@ -444,13 +541,13 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                     ],
 
                     // Class filter
-                    Text('Class', style: Theme.of(context).textTheme.titleMedium),
+                    Text(l10n.filterClass, style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       children: [
                         FilterChip(
-                          label: const Text('All Classes'),
+                          label: Text(l10n.filterAllClasses),
                           selected: _filterClass == null,
                           onSelected: (selected) {
                             setModalState(() => _filterClass = null);
@@ -459,7 +556,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                         ),
                         ...allClasses.map((className) {
                           return FilterChip(
-                            label: Text(className),
+                            label: Text(_getLocalizedClassName(context, className)),
                             selected: _filterClass == className,
                             onSelected: (selected) {
                               setModalState(() => _filterClass = selected ? className : null);
@@ -473,13 +570,13 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                     const SizedBox(height: 16),
 
                     // Level filter
-                    Text('Level', style: Theme.of(context).textTheme.titleMedium),
+                    Text(l10n.filterLevel, style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       children: [
                         FilterChip(
-                          label: const Text('All Levels'),
+                          label: Text(l10n.filterAllLevels),
                           selected: _filterLevel == null,
                           onSelected: (selected) {
                             setModalState(() => _filterLevel = null);
@@ -488,7 +585,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                         ),
                         ...List.generate(10, (i) {
                           return FilterChip(
-                            label: Text(i == 0 ? 'Cantrips' : 'Level $i'),
+                            label: Text(i == 0 ? l10n.cantrips : '${l10n.levelShort} $i'),
                             selected: _filterLevel == i,
                             onSelected: (selected) {
                               setModalState(() => _filterLevel = selected ? i : null);
@@ -502,13 +599,13 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                     const SizedBox(height: 16),
 
                     // School filter
-                    Text('School', style: Theme.of(context).textTheme.titleMedium),
+                    Text(l10n.filterSchool, style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       children: [
                         FilterChip(
-                          label: const Text('All Schools'),
+                          label: Text(l10n.filterAllSchools),
                           selected: _filterSchool == null,
                           onSelected: (selected) {
                             setModalState(() => _filterSchool = null);
@@ -517,7 +614,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                         ),
                         ...allSchools.map((school) {
                           return FilterChip(
-                            label: Text(school),
+                            label: Text(_getLocalizedSchool(l10n, school)),
                             selected: _filterSchool == school,
                             onSelected: (selected) {
                               setModalState(() => _filterSchool = selected ? school : null);
@@ -535,7 +632,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                       children: [
                         Expanded(
                           child: CheckboxListTile(
-                            title: const Text('Concentration'),
+                            title: Text(l10n.concentration),
                             tristate: true,
                             value: _filterConcentration,
                             onChanged: (value) {
@@ -546,7 +643,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                         ),
                         Expanded(
                           child: CheckboxListTile(
-                            title: const Text('Ritual'),
+                            title: Text(l10n.ritual),
                             tristate: true,
                             value: _filterRitual,
                             onChanged: (value) {
@@ -583,12 +680,12 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                               _availabilityFilter = SpellAvailabilityFilter.all;
                             });
                           },
-                          child: const Text('Clear All'),
+                          child: Text(l10n.clearAll),
                         ),
                         const SizedBox(width: 8),
                         FilledButton(
                           onPressed: () => Navigator.pop(context),
-                          child: const Text('Apply'),
+                          child: Text(l10n.apply),
                         ),
                       ],
                     ),
@@ -605,17 +702,20 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final filteredSpells = _getFilteredSpells();
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
+
+    final filteredSpells = _getFilteredSpells(locale);
     final groupedSpells = _groupSpellsByLevel(filteredSpells);
     final sortedLevels = groupedSpells.keys.toList()..sort();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.character != null ? 'Spell Almanac - ${widget.character!.name}' : 'Spell Almanac'),
+        title: Text(widget.character != null ? '${l10n.spellAlmanacTitle} - ${widget.character!.name}' : l10n.spellAlmanacTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
-            onPressed: _showFilters,
+            onPressed: () => _showFilters(l10n),
           ),
         ],
       ),
@@ -626,7 +726,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
             padding: const EdgeInsets.all(16),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Search spells...',
+                hintText: l10n.searchSpells,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -642,9 +742,9 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
             child: Row(
               children: [
                 Text(
-                  '${filteredSpells.length} spell${filteredSpells.length == 1 ? '' : 's'}',
+                  l10n.spellsCount(filteredSpells.length),
                   style: TextStyle(
-                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    color: colorScheme.onSurface.withOpacity(0.6),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -663,7 +763,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                       });
                     },
                     icon: const Icon(Icons.clear_all, size: 16),
-                    label: const Text('Clear filters'),
+                    label: Text(l10n.clearFilters),
                   ),
               ],
             ),
@@ -678,11 +778,11 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.search_off, size: 64, color: colorScheme.onSurface.withValues(alpha: 0.3)),
+                        Icon(Icons.search_off, size: 64, color: colorScheme.onSurface.withOpacity(0.3)),
                         const SizedBox(height: 16),
-                        Text('No spells found', style: Theme.of(context).textTheme.titleMedium),
+                        Text(l10n.noSpellsFound, style: Theme.of(context).textTheme.titleMedium),
                         const SizedBox(height: 8),
-                        Text('Try adjusting your filters', style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6))),
+                        Text(l10n.tryAdjustingFilters, style: TextStyle(color: colorScheme.onSurface.withOpacity(0.6))),
                       ],
                     ),
                   )
@@ -708,7 +808,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    level == 0 ? 'CANTRIPS' : 'LEVEL $level',
+                                    level == 0 ? l10n.cantrips.toUpperCase() : '${l10n.levelShort} $level'.toUpperCase(),
                                     style: TextStyle(
                                       color: colorScheme.onPrimaryContainer,
                                       fontWeight: FontWeight.bold,
@@ -719,9 +819,9 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '${spells.length} spell${spells.length == 1 ? '' : 's'}',
+                                  l10n.spellsCount(spells.length),
                                   style: TextStyle(
-                                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                                    color: colorScheme.onSurface.withOpacity(0.6),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -755,7 +855,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                                     ),
                                   ),
                                 ),
-                                title: Text(spell.nameEn),
+                                title: Text(spell.getName(locale)),
                                 subtitle: Row(
                                   children: [
                                     if (spell.concentration)
@@ -768,7 +868,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                                         padding: EdgeInsets.only(right: 8),
                                         child: Icon(Icons.book, size: 14),
                                       ),
-                                    Expanded(child: Text(spell.school)),
+                                    Expanded(child: Text(_getLocalizedSchool(l10n, spell.school))),
                                   ],
                                 ),
                                 trailing: eligibility != null ? _buildEligibilityIcon(eligibility) : null,

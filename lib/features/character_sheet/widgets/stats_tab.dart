@@ -44,6 +44,18 @@ class StatsTab extends StatelessWidget {
     }
   }
 
+  String _getAbilityAbbr(AppLocalizations l10n, String key) {
+    switch (key.toLowerCase()) {
+      case 'strength': return l10n.abilityStrAbbr;
+      case 'dexterity': return l10n.abilityDexAbbr;
+      case 'constitution': return l10n.abilityConAbbr;
+      case 'intelligence': return l10n.abilityIntAbbr;
+      case 'wisdom': return l10n.abilityWisAbbr;
+      case 'charisma': return l10n.abilityChaAbbr;
+      default: return key.length >= 3 ? key.substring(0, 3).toUpperCase() : key.toUpperCase();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -103,12 +115,12 @@ class StatsTab extends StatelessWidget {
       crossAxisSpacing: 8,
       childAspectRatio: 0.85,
       children: [
-        _buildAbilityCard(context, 'STR', l10n.abilityStr, character.abilityScores.strength, character.abilityScores.strengthModifier),
-        _buildAbilityCard(context, 'DEX', l10n.abilityDex, character.abilityScores.dexterity, character.abilityScores.dexterityModifier),
-        _buildAbilityCard(context, 'CON', l10n.abilityCon, character.abilityScores.constitution, character.abilityScores.constitutionModifier),
-        _buildAbilityCard(context, 'INT', l10n.abilityInt, character.abilityScores.intelligence, character.abilityScores.intelligenceModifier),
-        _buildAbilityCard(context, 'WIS', l10n.abilityWis, character.abilityScores.wisdom, character.abilityScores.wisdomModifier),
-        _buildAbilityCard(context, 'CHA', l10n.abilityCha, character.abilityScores.charisma, character.abilityScores.charismaModifier),
+        _buildAbilityCard(context, l10n.abilityStrAbbr, l10n.abilityStr, character.abilityScores.strength, character.abilityScores.strengthModifier),
+        _buildAbilityCard(context, l10n.abilityDexAbbr, l10n.abilityDex, character.abilityScores.dexterity, character.abilityScores.dexterityModifier),
+        _buildAbilityCard(context, l10n.abilityConAbbr, l10n.abilityCon, character.abilityScores.constitution, character.abilityScores.constitutionModifier),
+        _buildAbilityCard(context, l10n.abilityIntAbbr, l10n.abilityInt, character.abilityScores.intelligence, character.abilityScores.intelligenceModifier),
+        _buildAbilityCard(context, l10n.abilityWisAbbr, l10n.abilityWis, character.abilityScores.wisdom, character.abilityScores.wisdomModifier),
+        _buildAbilityCard(context, l10n.abilityChaAbbr, l10n.abilityCha, character.abilityScores.charisma, character.abilityScores.charismaModifier),
       ],
     );
   }
@@ -214,7 +226,7 @@ class StatsTab extends StatelessWidget {
             _getSkillName(l10n, skillKey), 
             totalMod, 
             isProficient, 
-            abilityLabel: _getAbilityName(l10n, ability).substring(0, 3).toUpperCase()
+            abilityLabel: _getAbilityAbbr(l10n, ability)
         );
       }).toList(),
     );

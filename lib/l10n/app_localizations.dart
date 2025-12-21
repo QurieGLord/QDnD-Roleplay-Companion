@@ -2653,6 +2653,654 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No backgrounds available'**
   String get noBackgroundsAvailable;
+
+  /// No description provided for @abilityStrAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'STR'**
+  String get abilityStrAbbr;
+
+  /// No description provided for @abilityDexAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'DEX'**
+  String get abilityDexAbbr;
+
+  /// No description provided for @abilityConAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'CON'**
+  String get abilityConAbbr;
+
+  /// No description provided for @abilityIntAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'INT'**
+  String get abilityIntAbbr;
+
+  /// No description provided for @abilityWisAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'WIS'**
+  String get abilityWisAbbr;
+
+  /// No description provided for @abilityChaAbbr.
+  ///
+  /// In en, this message translates to:
+  /// **'CHA'**
+  String get abilityChaAbbr;
+
+  /// No description provided for @propertyAmmunition.
+  ///
+  /// In en, this message translates to:
+  /// **'Ammunition'**
+  String get propertyAmmunition;
+
+  /// No description provided for @propertyFinesse.
+  ///
+  /// In en, this message translates to:
+  /// **'Finesse'**
+  String get propertyFinesse;
+
+  /// No description provided for @propertyHeavy.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy'**
+  String get propertyHeavy;
+
+  /// No description provided for @propertyLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get propertyLight;
+
+  /// No description provided for @propertyLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get propertyLoading;
+
+  /// No description provided for @propertyRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Range'**
+  String get propertyRange;
+
+  /// No description provided for @propertyReach.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach'**
+  String get propertyReach;
+
+  /// No description provided for @propertySpecial.
+  ///
+  /// In en, this message translates to:
+  /// **'Special'**
+  String get propertySpecial;
+
+  /// No description provided for @propertyThrown.
+  ///
+  /// In en, this message translates to:
+  /// **'Thrown'**
+  String get propertyThrown;
+
+  /// No description provided for @propertyTwoHanded.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-Handed'**
+  String get propertyTwoHanded;
+
+  /// No description provided for @propertyVersatile.
+  ///
+  /// In en, this message translates to:
+  /// **'Versatile'**
+  String get propertyVersatile;
+
+  /// No description provided for @propertyMartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Martial'**
+  String get propertyMartial;
+
+  /// No description provided for @propertySimple.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple'**
+  String get propertySimple;
+
+  /// No description provided for @armorTypeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Armor'**
+  String get armorTypeLight;
+
+  /// No description provided for @armorTypeMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium Armor'**
+  String get armorTypeMedium;
+
+  /// No description provided for @armorTypeHeavy.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy Armor'**
+  String get armorTypeHeavy;
+
+  /// No description provided for @armorTypeShield.
+  ///
+  /// In en, this message translates to:
+  /// **'Shield'**
+  String get armorTypeShield;
+
+  /// No description provided for @searchSpells.
+  ///
+  /// In en, this message translates to:
+  /// **'Search spells...'**
+  String get searchSpells;
+
+  /// No description provided for @noSpellsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No spells found'**
+  String get noSpellsFound;
+
+  /// No description provided for @tryAdjustingFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Try adjusting your filters'**
+  String get tryAdjustingFilters;
+
+  /// No description provided for @filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filters;
+
+  /// No description provided for @clearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get clearAll;
+
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
+
+  /// No description provided for @castingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Casting Time'**
+  String get castingTime;
+
+  /// No description provided for @duration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get duration;
+
+  /// No description provided for @components.
+  ///
+  /// In en, this message translates to:
+  /// **'Components'**
+  String get components;
+
+  /// No description provided for @materials.
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get materials;
+
+  /// No description provided for @concentration.
+  ///
+  /// In en, this message translates to:
+  /// **'Concentration'**
+  String get concentration;
+
+  /// No description provided for @ritual.
+  ///
+  /// In en, this message translates to:
+  /// **'Ritual'**
+  String get ritual;
+
+  /// No description provided for @atHigherLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'At Higher Levels'**
+  String get atHigherLevels;
+
+  /// No description provided for @classes.
+  ///
+  /// In en, this message translates to:
+  /// **'Classes'**
+  String get classes;
+
+  /// No description provided for @addToKnown.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Known Spells'**
+  String get addToKnown;
+
+  /// No description provided for @removeFromKnown.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from Known Spells'**
+  String get removeFromKnown;
+
+  /// No description provided for @addedToKnown.
+  ///
+  /// In en, this message translates to:
+  /// **'Added \"{name}\" to known spells'**
+  String addedToKnown(String name);
+
+  /// No description provided for @removedFromKnown.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed \"{name}\" from known spells'**
+  String removedFromKnown(String name);
+
+  /// No description provided for @availableToLearn.
+  ///
+  /// In en, this message translates to:
+  /// **'Available to Learn'**
+  String get availableToLearn;
+
+  /// No description provided for @availableAtLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Available at Level {level}'**
+  String availableAtLevel(int level);
+
+  /// No description provided for @filterAvailability.
+  ///
+  /// In en, this message translates to:
+  /// **'Availability'**
+  String get filterAvailability;
+
+  /// No description provided for @filterClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Class'**
+  String get filterClass;
+
+  /// No description provided for @filterLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get filterLevel;
+
+  /// No description provided for @filterSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'School'**
+  String get filterSchool;
+
+  /// No description provided for @filterAllSpells.
+  ///
+  /// In en, this message translates to:
+  /// **'All Spells'**
+  String get filterAllSpells;
+
+  /// No description provided for @filterCanLearnNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Can Learn Now'**
+  String get filterCanLearnNow;
+
+  /// No description provided for @filterAvailableToClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Available to Class'**
+  String get filterAvailableToClass;
+
+  /// No description provided for @filterAllClasses.
+  ///
+  /// In en, this message translates to:
+  /// **'All Classes'**
+  String get filterAllClasses;
+
+  /// No description provided for @filterAllLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'All Levels'**
+  String get filterAllLevels;
+
+  /// No description provided for @filterAllSchools.
+  ///
+  /// In en, this message translates to:
+  /// **'All Schools'**
+  String get filterAllSchools;
+
+  /// No description provided for @clearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get clearFilters;
+
+  /// No description provided for @spellsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} spell{count, plural, =1{} other{s}}'**
+  String spellsCount(int count);
+
+  /// No description provided for @spellAlmanacTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spell Almanac'**
+  String get spellAlmanacTitle;
+
+  /// No description provided for @actionTypeFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Action'**
+  String get actionTypeFree;
+
+  /// No description provided for @featuresStepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Class Features'**
+  String get featuresStepTitle;
+
+  /// No description provided for @featuresStepSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'As a level 1 {className}, you gain the following features:'**
+  String featuresStepSubtitle(String className);
+
+  /// No description provided for @noFeaturesAtLevel1.
+  ///
+  /// In en, this message translates to:
+  /// **'No features available at level 1 for this class.'**
+  String get noFeaturesAtLevel1;
+
+  /// No description provided for @spellsStepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spells'**
+  String get spellsStepTitle;
+
+  /// No description provided for @spellsStepPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Spell selection will be available in future updates. For now, please add spells manually in the character sheet after creation.'**
+  String get spellsStepPlaceholder;
+
+  /// No description provided for @equipmentStepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting Equipment'**
+  String get equipmentStepTitle;
+
+  /// No description provided for @equipmentStepSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your starting equipment for your class'**
+  String get equipmentStepSubtitle;
+
+  /// No description provided for @chooseEquipmentPackage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Equipment Package'**
+  String get chooseEquipmentPackage;
+
+  /// No description provided for @packageStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard Package'**
+  String get packageStandard;
+
+  /// No description provided for @packageStandardDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended starting equipment for your class'**
+  String get packageStandardDesc;
+
+  /// No description provided for @packageAlternative.
+  ///
+  /// In en, this message translates to:
+  /// **'Alternative Package'**
+  String get packageAlternative;
+
+  /// No description provided for @packageAlternativeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Different equipment options'**
+  String get packageAlternativeDesc;
+
+  /// No description provided for @packageCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Package'**
+  String get packageCustom;
+
+  /// No description provided for @packageCustomDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose items from catalog'**
+  String get packageCustomDesc;
+
+  /// No description provided for @selectedEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected Equipment'**
+  String get selectedEquipment;
+
+  /// No description provided for @addItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Item'**
+  String get addItem;
+
+  /// No description provided for @noItemsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'No items selected'**
+  String get noItemsSelected;
+
+  /// No description provided for @tapToAddItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \"Add Item\" to select equipment'**
+  String get tapToAddItems;
+
+  /// No description provided for @equipmentPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'{className} Equipment Preview'**
+  String equipmentPreview(String className);
+
+  /// No description provided for @toolsAndGear.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools & Gear'**
+  String get toolsAndGear;
+
+  /// No description provided for @equipmentPreviewDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a preview of typical starting equipment. You can customize your inventory after character creation.'**
+  String get equipmentPreviewDisclaimer;
+
+  /// No description provided for @itemCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Item Catalog'**
+  String get itemCatalog;
+
+  /// No description provided for @createItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Item'**
+  String get createItem;
+
+  /// No description provided for @foundItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Found: {count} (selected: {selected})'**
+  String foundItems(int count, int selected);
+
+  /// No description provided for @noItemsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No items found'**
+  String get noItemsFound;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @createCustomItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Custom Item'**
+  String get createCustomItem;
+
+  /// No description provided for @addImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add\nimage'**
+  String get addImage;
+
+  /// No description provided for @errorLoadingImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading image: {error}'**
+  String errorLoadingImage(String error);
+
+  /// No description provided for @itemName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get itemName;
+
+  /// No description provided for @itemNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Sword of Light'**
+  String get itemNameHint;
+
+  /// No description provided for @enterItemName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter name'**
+  String get enterItemName;
+
+  /// No description provided for @itemDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get itemDescription;
+
+  /// No description provided for @itemDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the item...'**
+  String get itemDescriptionHint;
+
+  /// No description provided for @itemType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get itemType;
+
+  /// No description provided for @itemRarity.
+  ///
+  /// In en, this message translates to:
+  /// **'Rarity'**
+  String get itemRarity;
+
+  /// No description provided for @itemWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get itemWeight;
+
+  /// No description provided for @itemValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get itemValue;
+
+  /// No description provided for @itemQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get itemQuantity;
+
+  /// No description provided for @minQuantity1.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum 1'**
+  String get minQuantity1;
+
+  /// No description provided for @itemAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (x{quantity}) added'**
+  String itemAdded(String name, int quantity);
+
+  /// No description provided for @errorCreatingItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Error creating item: {error}'**
+  String errorCreatingItem(String error);
+
+  /// No description provided for @rarityCommon.
+  ///
+  /// In en, this message translates to:
+  /// **'Common'**
+  String get rarityCommon;
+
+  /// No description provided for @rarityUncommon.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncommon'**
+  String get rarityUncommon;
+
+  /// No description provided for @rarityRare.
+  ///
+  /// In en, this message translates to:
+  /// **'Rare'**
+  String get rarityRare;
+
+  /// No description provided for @rarityVeryRare.
+  ///
+  /// In en, this message translates to:
+  /// **'Very Rare'**
+  String get rarityVeryRare;
+
+  /// No description provided for @rarityLegendary.
+  ///
+  /// In en, this message translates to:
+  /// **'Legendary'**
+  String get rarityLegendary;
+
+  /// No description provided for @rarityArtifact.
+  ///
+  /// In en, this message translates to:
+  /// **'Artifact'**
+  String get rarityArtifact;
+
+  /// No description provided for @methodStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get methodStandard;
+
+  /// No description provided for @methodPointBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Point Buy'**
+  String get methodPointBuy;
+
+  /// No description provided for @methodManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get methodManual;
 }
 
 class _AppLocalizationsDelegate

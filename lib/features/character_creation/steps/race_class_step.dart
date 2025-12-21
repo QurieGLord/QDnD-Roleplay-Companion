@@ -17,6 +17,18 @@ class _RaceClassStepState extends State<RaceClassStep> {
   String? _expandedRaceId;
   String? _expandedClassId;
 
+  String _getAbilityAbbr(AppLocalizations l10n, String key) {
+    switch (key.toLowerCase()) {
+      case 'strength': return l10n.abilityStrAbbr;
+      case 'dexterity': return l10n.abilityDexAbbr;
+      case 'constitution': return l10n.abilityConAbbr;
+      case 'intelligence': return l10n.abilityIntAbbr;
+      case 'wisdom': return l10n.abilityWisAbbr;
+      case 'charisma': return l10n.abilityChaAbbr;
+      default: return key.substring(0, 3).toUpperCase();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = context.watch<CharacterCreationState>();
@@ -308,7 +320,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
             children: race.abilityScoreIncreases.entries.map<Widget>((entry) {
               return Chip(
                 label: Text(
-                  '${entry.key.toUpperCase()}: +${entry.value}',
+                  '${_getAbilityAbbr(l10n, entry.key)}: +${entry.value}',
                   style: TextStyle(
                     fontSize: 12,
                     color: isSelected
@@ -318,7 +330,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
                   ),
                 ),
                 backgroundColor: isSelected
-                    ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5)
+                    ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5)
                     : Theme.of(context).colorScheme.surfaceContainerHighest,
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -411,9 +423,9 @@ class _RaceClassStepState extends State<RaceClassStep> {
           ),
           const SizedBox(height: 4),
           Text(
-            classData.savingThrowProficiencies.map((s) => s.toUpperCase()).join(', '),
+            classData.savingThrowProficiencies.map((s) => _getAbilityAbbr(l10n, s)).join(', '),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: textColor.withValues(alpha: 0.8),
+              color: textColor.withOpacity(0.8),
             ),
           ),
           const SizedBox(height: 12),

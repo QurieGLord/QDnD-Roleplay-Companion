@@ -606,5 +606,166 @@
   "skillSurvivalDesc": "Wisdom - Tracking, foraging, navigation",
   "chooseBackground": "Choose Background",
   "backgroundDescription": "Your background represents your character's past and grants additional skills.",
-  "noBackgroundsAvailable": "No backgrounds available"
+  "noBackgroundsAvailable": "No backgrounds available",
+  "abilityStrAbbr": "STR",
+  "abilityDexAbbr": "DEX",
+  "abilityConAbbr": "CON",
+  "abilityIntAbbr": "INT",
+  "abilityWisAbbr": "WIS",
+  "abilityChaAbbr": "CHA",
+  "propertyAmmunition": "Ammunition",
+  "propertyFinesse": "Finesse",
+  "propertyHeavy": "Heavy",
+  "propertyLight": "Light",
+  "propertyLoading": "Loading",
+  "propertyRange": "Range",
+  "propertyReach": "Reach",
+  "propertySpecial": "Special",
+  "propertyThrown": "Thrown",
+  "propertyTwoHanded": "Two-Handed",
+  "propertyVersatile": "Versatile",
+  "propertyMartial": "Martial",
+  "propertySimple": "Simple",
+  "armorTypeLight": "Light Armor",
+  "armorTypeMedium": "Medium Armor",
+  "armorTypeHeavy": "Heavy Armor",
+  "armorTypeShield": "Shield",
+  "searchSpells": "Search spells...",
+  "noSpellsFound": "No spells found",
+  "tryAdjustingFilters": "Try adjusting your filters",
+  "filters": "Filters",
+  "clearAll": "Clear All",
+  "apply": "Apply",
+  "castingTime": "Casting Time",
+  "duration": "Duration",
+  "components": "Components",
+  "materials": "Materials",
+  "concentration": "Concentration",
+  "ritual": "Ritual",
+  "atHigherLevels": "At Higher Levels",
+  "classes": "Classes",
+  "addToKnown": "Add to Known Spells",
+  "removeFromKnown": "Remove from Known Spells",
+  "addedToKnown": "Added \"{name}\" to known spells",
+  "@addedToKnown": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "removedFromKnown": "Removed \"{name}\" from known spells",
+  "@removedFromKnown": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "availableToLearn": "Available to Learn",
+  "availableAtLevel": "Available at Level {level}",
+  "@availableAtLevel": {
+    "placeholders": {
+      "level": { "type": "int" }
+    }
+  },
+  "filterAvailability": "Availability",
+  "filterClass": "Class",
+  "filterLevel": "Level",
+  "filterSchool": "School",
+  "filterAllSpells": "All Spells",
+  "filterCanLearnNow": "Can Learn Now",
+  "filterAvailableToClass": "Available to Class",
+  "filterAllClasses": "All Classes",
+  "filterAllLevels": "All Levels",
+  "filterAllSchools": "All Schools",
+  "clearFilters": "Clear filters",
+  "spellsCount": "{count} spell{count, plural, =1{} other{s}}",
+  "@spellsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "spellAlmanacTitle": "Spell Almanac",
+  "actionTypeFree": "Free Action",
+  "featuresStepTitle": "Class Features",
+  "featuresStepSubtitle": "As a level 1 {className}, you gain the following features:",
+  "@featuresStepSubtitle": {
+    "placeholders": {
+      "className": { "type": "String" }
+    }
+  },
+  "noFeaturesAtLevel1": "No features available at level 1 for this class.",
+  "spellsStepTitle": "Spells",
+  "spellsStepPlaceholder": "Spell selection will be available in future updates. For now, please add spells manually in the character sheet after creation.",
+  "equipmentStepTitle": "Starting Equipment",
+  "equipmentStepSubtitle": "Choose your starting equipment for your class",
+  "chooseEquipmentPackage": "Choose Equipment Package",
+  "packageStandard": "Standard Package",
+  "packageStandardDesc": "Recommended starting equipment for your class",
+  "packageAlternative": "Alternative Package",
+  "packageAlternativeDesc": "Different equipment options",
+  "packageCustom": "Custom Package",
+  "packageCustomDesc": "Choose items from catalog",
+  "selectedEquipment": "Selected Equipment",
+  "addItem": "Add Item",
+  "noItemsSelected": "No items selected",
+  "tapToAddItems": "Tap \"Add Item\" to select equipment",
+  "equipmentPreview": "{className} Equipment Preview",
+  "@equipmentPreview": {
+    "placeholders": {
+      "className": { "type": "String" }
+    }
+  },
+  "toolsAndGear": "Tools & Gear",
+  "equipmentPreviewDisclaimer": "This is a preview of typical starting equipment. You can customize your inventory after character creation.",
+  "itemCatalog": "Item Catalog",
+  "createItem": "Create Item",
+  "searchItems": "Search items...",
+  "foundItems": "Found: {count} (selected: {selected})",
+  "@foundItems": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "selected": { "type": "int" }
+    }
+  },
+  "noItemsFound": "No items found",
+  "done": "Done",
+  "createCustomItem": "Create Custom Item",
+  "addImage": "Add\nimage",
+  "errorLoadingImage": "Error loading image: {error}",
+  "@errorLoadingImage": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "itemName": "Name",
+  "itemNameHint": "e.g., Sword of Light",
+  "enterItemName": "Enter name",
+  "itemDescription": "Description",
+  "itemDescriptionHint": "Describe the item...",
+  "itemType": "Type",
+  "itemRarity": "Rarity",
+  "itemWeight": "Weight",
+  "itemValue": "Value",
+  "itemQuantity": "Quantity",
+  "minQuantity1": "Minimum 1",
+  "itemAdded": "{name} (x{quantity}) added",
+  "@itemAdded": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "quantity": { "type": "int" }
+    }
+  },
+  "errorCreatingItem": "Error creating item: {error}",
+  "@errorCreatingItem": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "rarityCommon": "Common",
+  "rarityUncommon": "Uncommon",
+  "rarityRare": "Rare",
+  "rarityVeryRare": "Very Rare",
+  "rarityLegendary": "Legendary",
+  "rarityArtifact": "Artifact",
+  "methodStandard": "Standard",
+  "methodPointBuy": "Point Buy",
+  "methodManual": "Manual"
 }

@@ -39,6 +39,9 @@ class Spell extends HiveObject {
 
   @HiveField(11)
   String? materialComponents;
+  
+  @HiveField(17)
+  String? materialComponentsRu;
 
   @HiveField(12)
   String descriptionEn;
@@ -50,7 +53,10 @@ class Spell extends HiveObject {
   List<String> availableToClasses;
 
   @HiveField(15)
-  String? atHigherLevels;
+  String? atHigherLevelsEn;
+  
+  @HiveField(16)
+  String? atHigherLevelsRu;
 
   Spell({
     required this.id,
@@ -65,10 +71,12 @@ class Spell extends HiveObject {
     required this.ritual,
     required this.components,
     this.materialComponents,
+    this.materialComponentsRu,
     required this.descriptionEn,
     required this.descriptionRu,
     required this.availableToClasses,
-    this.atHigherLevels,
+    this.atHigherLevelsEn,
+    this.atHigherLevelsRu,
   });
 
   String getName(String locale) {
@@ -77,6 +85,14 @@ class Spell extends HiveObject {
 
   String getDescription(String locale) {
     return locale == 'ru' ? descriptionRu : descriptionEn;
+  }
+  
+  String? getAtHigherLevels(String locale) {
+    return locale == 'ru' ? atHigherLevelsRu : atHigherLevelsEn;
+  }
+
+  String? getMaterialComponents(String locale) {
+    return locale == 'ru' ? materialComponentsRu : materialComponents;
   }
 
   String get levelText {
@@ -98,10 +114,12 @@ class Spell extends HiveObject {
       'ritual': ritual,
       'components': components,
       'materialComponents': materialComponents,
+      'materialComponentsRu': materialComponentsRu,
       'descriptionEn': descriptionEn,
       'descriptionRu': descriptionRu,
       'availableToClasses': availableToClasses,
-      'atHigherLevels': atHigherLevels,
+      'atHigherLevelsEn': atHigherLevelsEn,
+      'atHigherLevelsRu': atHigherLevelsRu,
     };
   }
 
@@ -119,10 +137,12 @@ class Spell extends HiveObject {
       ritual: json['ritual'] ?? false,
       components: List<String>.from(json['components'] ?? []),
       materialComponents: json['materialComponents'],
+      materialComponentsRu: json['materialComponentsRu'],
       descriptionEn: json['descriptionEn'],
       descriptionRu: json['descriptionRu'],
       availableToClasses: List<String>.from(json['availableToClasses'] ?? []),
-      atHigherLevels: json['atHigherLevels'],
+      atHigherLevelsEn: json['atHigherLevelsEn'] ?? json['atHigherLevels'], // Fallback for old key
+      atHigherLevelsRu: json['atHigherLevelsRu'],
     );
   }
 }

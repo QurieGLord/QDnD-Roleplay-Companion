@@ -1024,70 +1024,70 @@ class AppLocalizationsRu extends AppLocalizations {
   String get applyChanges => 'ПРИМЕНИТЬ';
 
   @override
-  String get colorAmber => 'Amber';
+  String get colorAmber => 'Янтарный';
 
   @override
-  String get colorBlue => 'Blue';
+  String get colorBlue => 'Голубой';
 
   @override
-  String get colorBrown => 'Brown';
+  String get colorBrown => 'Карий';
 
   @override
-  String get colorGray => 'Gray';
+  String get colorGray => 'Серый';
 
   @override
-  String get colorGreen => 'Green';
+  String get colorGreen => 'Зеленый';
 
   @override
-  String get colorHazel => 'Hazel';
+  String get colorHazel => 'Ореховый';
 
   @override
-  String get colorRed => 'Red';
+  String get colorRed => 'Красный';
 
   @override
-  String get colorViolet => 'Violet';
+  String get colorViolet => 'Фиолетовый';
 
   @override
-  String get colorAuburn => 'Auburn';
+  String get colorAuburn => 'Золотисто-каштановый';
 
   @override
-  String get colorBlack => 'Black';
+  String get colorBlack => 'Черный';
 
   @override
-  String get colorBlonde => 'Blonde';
+  String get colorBlonde => 'Блондин';
 
   @override
-  String get colorWhite => 'White';
+  String get colorWhite => 'Белый';
 
   @override
-  String get colorBald => 'Bald';
+  String get colorBald => 'Лысый';
 
   @override
-  String get skinPale => 'Pale';
+  String get skinPale => 'Бледная';
 
   @override
-  String get skinFair => 'Fair';
+  String get skinFair => 'Светлая';
 
   @override
-  String get skinLight => 'Light';
+  String get skinLight => 'Светлая';
 
   @override
-  String get skinMedium => 'Medium';
+  String get skinMedium => 'Средняя';
 
   @override
-  String get skinTan => 'Tan';
+  String get skinTan => 'Смуглая';
 
   @override
-  String get skinDark => 'Dark';
+  String get skinDark => 'Темная';
 
   @override
-  String get skinEbony => 'Ebony';
+  String get skinEbony => 'Черная';
 
   @override
-  String get unitCm => 'cm';
+  String get unitCm => 'см';
 
   @override
-  String get unitKg => 'kg';
+  String get unitKg => 'кг';
 
   @override
   String get chooseRaceClass => 'Choose Race & Class';
@@ -1354,4 +1354,351 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noBackgroundsAvailable => 'Нет доступных предысторий';
+
+  @override
+  String get abilityStrAbbr => 'СИЛ';
+
+  @override
+  String get abilityDexAbbr => 'ЛОВ';
+
+  @override
+  String get abilityConAbbr => 'ТЕЛ';
+
+  @override
+  String get abilityIntAbbr => 'ИНТ';
+
+  @override
+  String get abilityWisAbbr => 'МУД';
+
+  @override
+  String get abilityChaAbbr => 'ХАР';
+
+  @override
+  String get propertyAmmunition => 'Боеприпасы';
+
+  @override
+  String get propertyFinesse => 'Фехтовальное';
+
+  @override
+  String get propertyHeavy => 'Тяжелое';
+
+  @override
+  String get propertyLight => 'Легкое';
+
+  @override
+  String get propertyLoading => 'Перезарядка';
+
+  @override
+  String get propertyRange => 'Дальнобойное';
+
+  @override
+  String get propertyReach => 'Досягаемость';
+
+  @override
+  String get propertySpecial => 'Особое';
+
+  @override
+  String get propertyThrown => 'Метательное';
+
+  @override
+  String get propertyTwoHanded => 'Двуручное';
+
+  @override
+  String get propertyVersatile => 'Универсальное';
+
+  @override
+  String get propertyMartial => 'Воинское';
+
+  @override
+  String get propertySimple => 'Простое';
+
+  @override
+  String get armorTypeLight => 'Легкий доспех';
+
+  @override
+  String get armorTypeMedium => 'Средний доспех';
+
+  @override
+  String get armorTypeHeavy => 'Тяжелый доспех';
+
+  @override
+  String get armorTypeShield => 'Щит';
+
+  @override
+  String get searchSpells => 'Поиск заклинаний...';
+
+  @override
+  String get noSpellsFound => 'Заклинания не найдены';
+
+  @override
+  String get tryAdjustingFilters => 'Попробуйте изменить фильтры';
+
+  @override
+  String get filters => 'Фильтры';
+
+  @override
+  String get clearAll => 'Очистить';
+
+  @override
+  String get apply => 'Применить';
+
+  @override
+  String get castingTime => 'Время накл.';
+
+  @override
+  String get duration => 'Длительность';
+
+  @override
+  String get components => 'Компоненты';
+
+  @override
+  String get materials => 'Материалы';
+
+  @override
+  String get concentration => 'Концентрация';
+
+  @override
+  String get ritual => 'Ритуал';
+
+  @override
+  String get atHigherLevels => 'На более высоких уровнях';
+
+  @override
+  String get classes => 'Классы';
+
+  @override
+  String get addToKnown => 'Добавить в изученные';
+
+  @override
+  String get removeFromKnown => 'Забыть заклинание';
+
+  @override
+  String addedToKnown(String name) {
+    return 'Добавлено \"$name\" в изученные';
+  }
+
+  @override
+  String removedFromKnown(String name) {
+    return 'Удалено \"$name\" из изученных';
+  }
+
+  @override
+  String get availableToLearn => 'Доступно для изучения';
+
+  @override
+  String availableAtLevel(int level) {
+    return 'Доступно на $level уровне';
+  }
+
+  @override
+  String get filterAvailability => 'Доступность';
+
+  @override
+  String get filterClass => 'Класс';
+
+  @override
+  String get filterLevel => 'Уровень';
+
+  @override
+  String get filterSchool => 'Школа';
+
+  @override
+  String get filterAllSpells => 'Все заклинания';
+
+  @override
+  String get filterCanLearnNow => 'Можно изучить';
+
+  @override
+  String get filterAvailableToClass => 'Доступно классу';
+
+  @override
+  String get filterAllClasses => 'Все классы';
+
+  @override
+  String get filterAllLevels => 'Все уровни';
+
+  @override
+  String get filterAllSchools => 'Все школы';
+
+  @override
+  String get clearFilters => 'Сбросить';
+
+  @override
+  String spellsCount(int count) {
+    return '$count заклинаний';
+  }
+
+  @override
+  String get spellAlmanacTitle => 'Альманах';
+
+  @override
+  String get actionTypeFree => 'Свободное действие';
+
+  @override
+  String get featuresStepTitle => 'Умения класса';
+
+  @override
+  String featuresStepSubtitle(String className) {
+    return 'Как $className 1-го уровня, вы получаете следующие умения:';
+  }
+
+  @override
+  String get noFeaturesAtLevel1 => 'Нет умений на 1-м уровне для этого класса.';
+
+  @override
+  String get spellsStepTitle => 'Заклинания';
+
+  @override
+  String get spellsStepPlaceholder =>
+      'Выбор заклинаний будет доступен в будущих обновлениях. Пока что добавьте заклинания вручную в листе персонажа после создания.';
+
+  @override
+  String get equipmentStepTitle => 'Стартовое снаряжение';
+
+  @override
+  String get equipmentStepSubtitle =>
+      'Выберите начальное снаряжение для вашего класса';
+
+  @override
+  String get chooseEquipmentPackage => 'Выберите набор снаряжения';
+
+  @override
+  String get packageStandard => 'Стандартный набор';
+
+  @override
+  String get packageStandardDesc => 'Рекомендуемое снаряжение';
+
+  @override
+  String get packageAlternative => 'Альтернативный набор';
+
+  @override
+  String get packageAlternativeDesc => 'Другие варианты снаряжения';
+
+  @override
+  String get packageCustom => 'Свой набор';
+
+  @override
+  String get packageCustomDesc => 'Выберите предметы из каталога';
+
+  @override
+  String get selectedEquipment => 'Выбранное снаряжение';
+
+  @override
+  String get addItem => 'Добавить';
+
+  @override
+  String get noItemsSelected => 'Нет выбранных предметов';
+
+  @override
+  String get tapToAddItems => 'Нажмите \"Добавить\", чтобы выбрать снаряжение';
+
+  @override
+  String equipmentPreview(String className) {
+    return 'Предпросмотр снаряжения: $className';
+  }
+
+  @override
+  String get toolsAndGear => 'Инструменты и снаряжение';
+
+  @override
+  String get equipmentPreviewDisclaimer =>
+      'Это пример типичного снаряжения. Вы сможете изменить инвентарь после создания персонажа.';
+
+  @override
+  String get itemCatalog => 'Каталог предметов';
+
+  @override
+  String get createItem => 'Создать предмет';
+
+  @override
+  String foundItems(int count, int selected) {
+    return 'Найдено: $count (выбрано: $selected)';
+  }
+
+  @override
+  String get noItemsFound => 'Предметы не найдены';
+
+  @override
+  String get done => 'Готово';
+
+  @override
+  String get createCustomItem => 'Создание предмета';
+
+  @override
+  String get addImage => 'Добавить\nфото';
+
+  @override
+  String errorLoadingImage(String error) {
+    return 'Ошибка загрузки: $error';
+  }
+
+  @override
+  String get itemName => 'Название';
+
+  @override
+  String get itemNameHint => 'напр., Меч Света';
+
+  @override
+  String get enterItemName => 'Введите название';
+
+  @override
+  String get itemDescription => 'Описание';
+
+  @override
+  String get itemDescriptionHint => 'Опишите предмет...';
+
+  @override
+  String get itemType => 'Тип';
+
+  @override
+  String get itemRarity => 'Редкость';
+
+  @override
+  String get itemWeight => 'Вес';
+
+  @override
+  String get itemValue => 'Цена';
+
+  @override
+  String get itemQuantity => 'Количество';
+
+  @override
+  String get minQuantity1 => 'Минимум 1';
+
+  @override
+  String itemAdded(String name, int quantity) {
+    return '$name (x$quantity) добавлен';
+  }
+
+  @override
+  String errorCreatingItem(String error) {
+    return 'Ошибка создания: $error';
+  }
+
+  @override
+  String get rarityCommon => 'Обычный';
+
+  @override
+  String get rarityUncommon => 'Необычный';
+
+  @override
+  String get rarityRare => 'Редкий';
+
+  @override
+  String get rarityVeryRare => 'Очень редкий';
+
+  @override
+  String get rarityLegendary => 'Легендарный';
+
+  @override
+  String get rarityArtifact => 'Артефакт';
+
+  @override
+  String get methodStandard => 'Стандарт';
+
+  @override
+  String get methodPointBuy => 'Покупка';
+
+  @override
+  String get methodManual => 'Вручную';
 }

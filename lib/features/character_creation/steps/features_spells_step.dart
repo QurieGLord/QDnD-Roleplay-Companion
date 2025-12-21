@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/ability_scores.dart';
 import '../../../core/services/feature_service.dart';
@@ -9,12 +10,37 @@ import '../character_creation_state.dart';
 class FeaturesSpellsStep extends StatelessWidget {
   const FeaturesSpellsStep({super.key});
 
+  String _getLocalizedActionEconomy(AppLocalizations l10n, String economy) {
+    final lower = economy.toLowerCase();
+    if (lower.contains('bonus')) return l10n.actionTypeBonus;
+    if (lower.contains('reaction')) return l10n.actionTypeReaction;
+    if (lower.contains('action')) return l10n.actionTypeAction;
+    if (lower.contains('free')) return l10n.actionTypeFree;
+    return economy;
+  }
+
+  IconData _getFeatureIcon(String? iconName) {
+    switch (iconName) {
+      case 'healing': return Icons.favorite;
+      case 'visibility': return Icons.visibility;
+      case 'flash_on': return Icons.flash_on;
+      case 'swords': return Icons.shield;
+      case 'auto_fix_high': return Icons.auto_fix_high;
+      case 'health_and_safety': return Icons.health_and_safety;
+      case 'auto_awesome': return Icons.auto_awesome;
+      default: return Icons.star;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<CharacterCreationState>(
       builder: (context, state, child) {
+        final l10n = AppLocalizations.of(context)!;
+        final locale = Localizations.localeOf(context).languageCode;
+
         if (state.selectedClass == null || state.selectedRace == null) {
-          return const Center(child: Text('Please select a race and class first.'));
+          return Center(child: Text(l10n.selectClassFirst));
         }
 
         // Create temporary character to check for features
@@ -47,33 +73,71 @@ class FeaturesSpellsStep extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Class Features (Level 1)',
+                l10n.featuresStepTitle,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),
               Text(
-                'As a level 1 ${state.selectedClass!.getName('en')}, you gain the following features:',
+                l10n.featuresStepSubtitle(state.selectedClass!.getName(locale)),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 16),
               
               if (features.isEmpty)
-                const Card(
+                Card(
                   child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text('No features available at level 1 for this class (or data missing).'),
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(l10n.noFeaturesAtLevel1),
                   ),
                 )
               else
                 ...features.map((feature) => Card(
                   margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    leading: Icon(
-                      _getFeatureIcon(feature.iconName), 
-                      color: Theme.of(context).colorScheme.primary
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              _getFeatureIcon(feature.iconName), 
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    feature.getName(locale), 
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+                                  ),
+                                  if (feature.actionEconomy != null)
+                                    Text(
+                                      _getLocalizedActionEconomy(l10n, feature.actionEconomy!).toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 10, 
+                                        color: Theme.of(context).colorScheme.secondary, 
+                                        fontWeight: FontWeight.w600, 
+                                        letterSpacing: 0.5
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          feature.getDescription(locale),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
-                    title: Text(feature.nameEn, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(feature.descriptionEn),
                   ),
                 )),
 
@@ -81,14 +145,14 @@ class FeaturesSpellsStep extends StatelessWidget {
               if (state.selectedClass!.spellcasting != null) ...[
                 const SizedBox(height: 24),
                 Text(
-                  'Spells',
+                  l10n.spellsStepTitle,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
-                const Card(
+                Card(
                   child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text('Spell selection will be available in future updates. For now, please add spells manually in the character sheet after creation.'),
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(l10n.spellsStepPlaceholder),
                   ),
                 ),
               ]
@@ -97,18 +161,5 @@ class FeaturesSpellsStep extends StatelessWidget {
         );
       },
     );
-  }
-
-  IconData _getFeatureIcon(String? iconName) {
-    switch (iconName) {
-      case 'healing': return Icons.favorite;
-      case 'visibility': return Icons.visibility;
-      case 'flash_on': return Icons.flash_on;
-      case 'swords': return Icons.shield;
-      case 'auto_fix_high': return Icons.auto_fix_high;
-      case 'health_and_safety': return Icons.health_and_safety;
-      case 'auto_awesome': return Icons.auto_awesome;
-      default: return Icons.star;
-    }
   }
 }
