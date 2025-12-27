@@ -83,7 +83,12 @@
 
 ### Operational Guidelines (User Mandates)
 
-### A. Definition of Done (DoD)
+### A. Bilingual Content Mandate (CRITICAL)
+*   **All new content** (Classes, Races, Spells, Items, Features) added to JSON files **MUST** be localized in both English (`en`) and Russian (`ru`).
+*   **Structure:** Use `{"en": "Text", "ru": "Текст"}` for names and descriptions.
+*   **Keys:** Ensure `AppLocalizations` has keys for any new UI terms.
+
+### B. Definition of Done (DoD)
 Before confirming a task completion, you MUST:
 1.  **Summary:** Briefly list changed files and logic.
 2.  **Verification:** Autonomous execution of `flutter build apk --release`.

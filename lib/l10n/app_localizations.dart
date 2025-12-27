@@ -494,6 +494,12 @@ abstract class AppLocalizations {
   /// **'Hit Points'**
   String get hitPoints;
 
+  /// No description provided for @hpShort.
+  ///
+  /// In en, this message translates to:
+  /// **'HP'**
+  String get hpShort;
+
   /// No description provided for @armorClassAC.
   ///
   /// In en, this message translates to:
@@ -3641,8 +3647,44 @@ abstract class AppLocalizations {
   /// No description provided for @methodManual.
   ///
   /// In en, this message translates to:
-  /// **'Manual'**
+  /// **'Manual Entry'**
   String get methodManual;
+
+  /// No description provided for @characterReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Character Ready!'**
+  String get characterReady;
+
+  /// No description provided for @reviewChoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Review your choices before finalizing'**
+  String get reviewChoices;
+
+  /// No description provided for @unnamed.
+  ///
+  /// In en, this message translates to:
+  /// **'(Unnamed)'**
+  String get unnamed;
+
+  /// No description provided for @basicInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic Information'**
+  String get basicInfo;
+
+  /// No description provided for @level1Info.
+  ///
+  /// In en, this message translates to:
+  /// **'Your character will be created at level 1. Additional features will be added based on your class and background.'**
+  String get level1Info;
+
+  /// No description provided for @hpMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get hpMax;
 }
 
 class _AppLocalizationsDelegate

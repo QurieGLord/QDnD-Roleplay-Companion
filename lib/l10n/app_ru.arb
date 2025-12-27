@@ -66,6 +66,7 @@
   "skillPersuasion": "Убеждение",
   "combatDashboard": "Боевые характеристики",
   "hitPoints": "Очки Здоровья",
+  "hpShort": "ОЗ",
   "armorClassAC": "КД",
   "initiativeINIT": "ИНИЦ",
   "speedSPEED": "СКР",
@@ -599,7 +600,13 @@
   "rarityVeryRare": "Очень редкий",
   "rarityLegendary": "Легендарный",
   "rarityArtifact": "Артефакт",
-  "methodStandard": "Стандарт",
-  "methodPointBuy": "Покупка",
-  "methodManual": "Вручную"
+  "methodStandard": "Стандартный набор",
+  "methodPointBuy": "Распределение очков",
+  "methodManual": "Вручную",
+  "characterReady": "Персонаж готов!",
+  "reviewChoices": "Проверьте выбор перед завершением",
+  "unnamed": "(Без имени)",
+  "basicInfo": "Основная информация",
+  "level1Info": "Ваш персонаж будет создан на 1 уровне. Дополнительные умения будут добавлены на основе вашего класса и предыстории.",
+  "hpMax": "Максимум"
 }

@@ -82,7 +82,7 @@
 
 ### Goals
 - [ ] Adventurer's Journal (quests, notes)
-- [x] Full Russian localization (UI + Data)
+- [x] Full Russian localization (UI + Data) ✅
 - [x] Add 4 additional color themes (6 total implemented)
 - [ ] FC5 export functionality
 - [ ] Import/export backup (JSON)

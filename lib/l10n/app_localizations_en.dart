@@ -215,6 +215,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hitPoints => 'Hit Points';
 
   @override
+  String get hpShort => 'HP';
+
+  @override
   String get armorClassAC => 'AC';
 
   @override
@@ -1893,5 +1896,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodPointBuy => 'Point Buy';
 
   @override
-  String get methodManual => 'Manual';
+  String get methodManual => 'Manual Entry';
+
+  @override
+  String get characterReady => 'Character Ready!';
+
+  @override
+  String get reviewChoices => 'Review your choices before finalizing';
+
+  @override
+  String get unnamed => '(Unnamed)';
+
+  @override
+  String get basicInfo => 'Basic Information';
+
+  @override
+  String get level1Info =>
+      'Your character will be created at level 1. Additional features will be added based on your class and background.';
+
+  @override
+  String get hpMax => 'Max';
 }

@@ -159,14 +159,14 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // HP Display
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      currentHP > 0 ? '$currentHP HP' : '— HP',
+                      currentHP > 0 ? '$currentHP ${l10n.hpShort}' : '— ${l10n.hpShort}',
                       style: theme.textTheme.displaySmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.onErrorContainer,
@@ -181,39 +181,61 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
 
                 // HP Mode Selector
-                SizedBox(
-                  width: double.infinity,
-                  child: SegmentedButton<String>(
-                  segments: [
-                    ButtonSegment(value: 'max', label: const Text('Max'), icon: const Icon(Icons.trending_up, size: 16)),
-                    ButtonSegment(value: 'average', label: Text(l10n.average), icon: const Icon(Icons.functions, size: 16)),
-                    ButtonSegment(value: 'roll', label: Text(l10n.roll), icon: const Icon(Icons.casino, size: 16)),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    ChoiceChip(
+                      label: Text(l10n.hpMax),
+                      avatar: const Icon(Icons.trending_up, size: 16),
+                      selected: _hpMode == 'max',
+                      onSelected: (selected) {
+                        if (selected) setState(() => _hpMode = 'max');
+                      },
+                      labelStyle: TextStyle(
+                        color: _hpMode == 'max' ? theme.colorScheme.onSecondaryContainer : theme.colorScheme.onErrorContainer,
+                      ),
+                      selectedColor: theme.colorScheme.secondaryContainer,
+                      backgroundColor: theme.colorScheme.surface.withOpacity(0.5),
+                    ),
+                    ChoiceChip(
+                      label: Text(l10n.average),
+                      avatar: const Icon(Icons.functions, size: 16),
+                      selected: _hpMode == 'average',
+                      onSelected: (selected) {
+                        if (selected) setState(() => _hpMode = 'average');
+                      },
+                      labelStyle: TextStyle(
+                        color: _hpMode == 'average' ? theme.colorScheme.onSecondaryContainer : theme.colorScheme.onErrorContainer,
+                      ),
+                      selectedColor: theme.colorScheme.secondaryContainer,
+                      backgroundColor: theme.colorScheme.surface.withOpacity(0.5),
+                    ),
+                    ChoiceChip(
+                      label: Text(l10n.roll),
+                      avatar: const Icon(Icons.casino, size: 16),
+                      selected: _hpMode == 'roll',
+                      onSelected: (selected) {
+                        if (selected) {
+                          setState(() {
+                            _hpMode = 'roll';
+                            if (_rolledHP == 0) {
+                              final random = Random();
+                              _rolledHP = random.nextInt(hitDie) + 1;
+                            }
+                          });
+                        }
+                      },
+                      labelStyle: TextStyle(
+                        color: _hpMode == 'roll' ? theme.colorScheme.onSecondaryContainer : theme.colorScheme.onErrorContainer,
+                      ),
+                      selectedColor: theme.colorScheme.secondaryContainer,
+                      backgroundColor: theme.colorScheme.surface.withOpacity(0.5),
+                    ),
                   ],
-                  selected: {_hpMode},
-                  onSelectionChanged: (Set<String> newSelection) {
-                    setState(() {
-                      _hpMode = newSelection.first;
-                      if (_hpMode == 'roll' && _rolledHP == 0) {
-                        // Auto-roll on first selection
-                        final random = Random();
-                        _rolledHP = random.nextInt(hitDie) + 1;
-                      }
-                    });
-                  },
-                  style: ButtonStyle(
-                    visualDensity: VisualDensity.compact,
-                    backgroundColor: WidgetStateProperty.resolveWith((states) {
-                      if (states.contains(WidgetState.selected)) {
-                        return theme.colorScheme.onErrorContainer.withValues(alpha: 0.2);
-                      }
-                      return null;
-                    }),
-                    foregroundColor: WidgetStateProperty.all(theme.colorScheme.onErrorContainer),
-                  ),
-                  ),
                 ),
               ],
             ),
@@ -271,50 +293,64 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
   Widget _buildModeSelector(BuildContext context, CharacterCreationState state, AppLocalizations l10n) {
     final theme = Theme.of(context);
 
+    final modes = [
+      {'id': 'standard_array', 'label': l10n.methodStandard, 'icon': Icons.grid_4x4},
+      {'id': 'point_buy', 'label': l10n.methodPointBuy, 'icon': Icons.calculate},
+      {'id': 'manual', 'label': l10n.methodManual, 'icon': Icons.edit},
+    ];
+
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
               l10n.allocationMethod,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 12),
-            SegmentedButton<String>(
-              segments: [
-                ButtonSegment(
-                  value: 'standard_array',
-                  label: Text(l10n.methodStandard),
-                  icon: const Icon(Icons.grid_4x4),
-                ),
-                ButtonSegment(
-                  value: 'point_buy',
-                  label: Text(l10n.methodPointBuy),
-                  icon: const Icon(Icons.calculate),
-                ),
-                ButtonSegment(
-                  value: 'manual',
-                  label: Text(l10n.methodManual),
-                  icon: const Icon(Icons.edit),
-                ),
-              ],
-              selected: {_mode},
-              onSelectionChanged: (Set<String> newSelection) {
+          ),
+          ...modes.map((mode) {
+            final isSelected = _mode == mode['id'];
+            return InkWell(
+              onTap: () {
                 setState(() {
-                  _mode = newSelection.first;
+                  _mode = mode['id'] as String;
                   _resetScoresForMode(state);
                 });
               },
-              style: const ButtonStyle(
-                visualDensity: VisualDensity.compact,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                color: isSelected ? theme.colorScheme.primaryContainer.withOpacity(0.5) : null,
+                child: Row(
+                  children: [
+                    Icon(
+                      mode['icon'] as IconData,
+                      color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        mode['label'] as String,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected ? theme.colorScheme.onSurface : theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                    if (isSelected)
+                      Icon(Icons.check_circle, color: theme.colorScheme.primary, size: 20)
+                    else
+                      Icon(Icons.circle_outlined, color: theme.colorScheme.outline, size: 20),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+            );
+          }),
+        ],
       ),
     );
   }

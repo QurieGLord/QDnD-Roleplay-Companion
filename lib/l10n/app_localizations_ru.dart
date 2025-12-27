@@ -215,6 +215,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get hitPoints => 'Очки Здоровья';
 
   @override
+  String get hpShort => 'ОЗ';
+
+  @override
   String get armorClassAC => 'КД';
 
   @override
@@ -1866,11 +1869,30 @@ class AppLocalizationsRu extends AppLocalizations {
   String get rarityArtifact => 'Артефакт';
 
   @override
-  String get methodStandard => 'Стандарт';
+  String get methodStandard => 'Стандартный набор';
 
   @override
-  String get methodPointBuy => 'Покупка';
+  String get methodPointBuy => 'Распределение очков';
 
   @override
   String get methodManual => 'Вручную';
+
+  @override
+  String get characterReady => 'Персонаж готов!';
+
+  @override
+  String get reviewChoices => 'Проверьте выбор перед завершением';
+
+  @override
+  String get unnamed => '(Без имени)';
+
+  @override
+  String get basicInfo => 'Основная информация';
+
+  @override
+  String get level1Info =>
+      'Ваш персонаж будет создан на 1 уровне. Дополнительные умения будут добавлены на основе вашего класса и предыстории.';
+
+  @override
+  String get hpMax => 'Максимум';
 }

@@ -97,6 +97,7 @@
   "skillPersuasion": "Persuasion",
   "combatDashboard": "Combat Dashboard",
   "hitPoints": "Hit Points",
+  "hpShort": "HP",
   "armorClassAC": "AC",
   "initiativeINIT": "INIT",
   "speedSPEED": "SPEED",
@@ -836,5 +837,11 @@
   "rarityArtifact": "Artifact",
   "methodStandard": "Standard",
   "methodPointBuy": "Point Buy",
-  "methodManual": "Manual"
+  "methodManual": "Manual Entry",
+  "characterReady": "Character Ready!",
+  "reviewChoices": "Review your choices before finalizing",
+  "unnamed": "(Unnamed)",
+  "basicInfo": "Basic Information",
+  "level1Info": "Your character will be created at level 1. Additional features will be added based on your class and background.",
+  "hpMax": "Max"
 }
