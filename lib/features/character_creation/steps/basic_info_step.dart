@@ -254,10 +254,11 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                 child: Column(
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(child: _buildAgePicker(context, state, theme, l10n)),
+                        Expanded(flex: 4, child: _buildAgePicker(context, state, theme, l10n)),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildGenderPicker(context, state, theme, l10n)),
+                        Expanded(flex: 6, child: _buildGenderPicker(context, state, theme, l10n)),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -274,7 +275,11 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                         Expanded(child: _buildEyesPicker(context, state, theme, l10n)),
                         const SizedBox(width: 12),
                         Expanded(child: _buildHairPicker(context, state, theme, l10n)),
-                        const SizedBox(width: 12),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
                         Expanded(child: _buildSkinPicker(context, state, theme, l10n)),
                       ],
                     ),
@@ -596,29 +601,46 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
   }
 
   Widget _buildGenderPicker(BuildContext context, CharacterCreationState state, ThemeData theme, AppLocalizations l10n) {
-    final genders = ['M', 'F', 'Other'];
-    final genderLabels = {'M': l10n.genderMale, 'F': l10n.genderFemale, 'Other': l10n.genderOther};
-    final currentGenderShort = state.gender == 'Male' ? 'M' : state.gender == 'Female' ? 'F' : state.gender == 'Other' ? 'Other' : 
-      (genderLabels.entries.firstWhere((e) => e.value == state.gender, orElse: () => MapEntry('', '')).key.isEmpty ? null : genderLabels.entries.firstWhere((e) => e.value == state.gender).key);
+    // Map internal state keys to localized UI data (Short labels)
+    final genderOptions = {
+      'Male': l10n.genderMaleShort,
+      'Female': l10n.genderFemaleShort,
+      'Other': l10n.genderOtherShort,
+    };
+
+    final gender = state.gender ?? '';
+    final currentSelection = gender.isNotEmpty && genderOptions.containsKey(gender)
+        ? {gender}
+        : <String>{};
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l10n.gender, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Text(l10n.gender, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+        ),
         SizedBox(
           width: double.infinity,
           child: SegmentedButton<String>(
-            segments: genders.map((gender) => ButtonSegment<String>(value: gender, label: Text(gender, style: const TextStyle(fontSize: 11)))).toList(),
-            selected: currentGenderShort != null ? {currentGenderShort} : {},
+            segments: genderOptions.entries.map((entry) {
+              return ButtonSegment<String>(
+                value: entry.key,
+                label: Text(entry.value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              );
+            }).toList(),
+            selected: currentSelection,
             onSelectionChanged: (Set<String> selection) {
               if (selection.isNotEmpty) {
-                final fullGender = genderLabels[selection.first]!;
-                context.read<CharacterCreationState>().updateGender(fullGender);
+                context.read<CharacterCreationState>().updateGender(selection.first);
               }
             },
             emptySelectionAllowed: true,
             showSelectedIcon: false,
+            style: ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
           ),
         ),
       ],
@@ -650,7 +672,27 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
           },
         );
       },
-      child: Container(height: 56, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)), child: Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Text(l10n.height, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)), const SizedBox(height: 2), Text((state.height?.isEmpty ?? true) ? '—' : state.height!, style: theme.textTheme.bodyLarge)])), Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)])),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 56),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(l10n.height, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  const SizedBox(height: 2),
+                  Text((state.height?.isEmpty ?? true) ? '—' : state.height!, style: theme.textTheme.bodyLarge)
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)
+          ],
+        ),
+      ),
     );
   }
 
@@ -679,7 +721,27 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
           },
         );
       },
-      child: Container(height: 56, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)), child: Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Text(l10n.weight, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)), const SizedBox(height: 2), Text((state.weight?.isEmpty ?? true) ? '—' : state.weight!, style: theme.textTheme.bodyLarge)])), Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)])),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 56),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(l10n.weight, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  const SizedBox(height: 2),
+                  Text((state.weight?.isEmpty ?? true) ? '—' : state.weight!, style: theme.textTheme.bodyLarge)
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)
+          ],
+        ),
+      ),
     );
   }
 
@@ -715,7 +777,27 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
         );
         if (selected != null && context.mounted) context.read<CharacterCreationState>().updateEyes(selected);
       },
-      child: Container(height: 56, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)), child: Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Text(l10n.eyes, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)), const SizedBox(height: 2), Text((state.eyes?.isEmpty ?? true) ? '—' : _getLocalizedColor(l10n, state.eyes!), style: theme.textTheme.bodyLarge, maxLines: 1, overflow: TextOverflow.ellipsis)])), Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)])),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 56),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(l10n.eyes, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  const SizedBox(height: 2),
+                  Text((state.eyes?.isEmpty ?? true) ? '—' : _getLocalizedColor(l10n, state.eyes!), style: theme.textTheme.bodyLarge, maxLines: 1, overflow: TextOverflow.ellipsis)
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)
+          ],
+        ),
+      ),
     );
   }
 
@@ -751,7 +833,27 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
         );
         if (selected != null && context.mounted) context.read<CharacterCreationState>().updateHair(selected);
       },
-      child: Container(height: 56, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)), child: Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Text(l10n.hair, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)), const SizedBox(height: 2), Text((state.hair?.isEmpty ?? true) ? '—' : _getLocalizedColor(l10n, state.hair!), style: theme.textTheme.bodyLarge, maxLines: 1, overflow: TextOverflow.ellipsis)])), Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)])),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 56),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(l10n.hair, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  const SizedBox(height: 2),
+                  Text((state.hair?.isEmpty ?? true) ? '—' : _getLocalizedColor(l10n, state.hair!), style: theme.textTheme.bodyLarge, maxLines: 1, overflow: TextOverflow.ellipsis)
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)
+          ],
+        ),
+      ),
     );
   }
 
@@ -787,7 +889,27 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
         );
         if (selected != null && context.mounted) context.read<CharacterCreationState>().updateSkin(selected);
       },
-      child: Container(height: 56, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)), child: Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [Text(l10n.skin, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)), const SizedBox(height: 2), Text((state.skin?.isEmpty ?? true) ? '—' : _getLocalizedColor(l10n, state.skin!), style: theme.textTheme.bodyLarge, maxLines: 1, overflow: TextOverflow.ellipsis)])), Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)])),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 56),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(border: Border.all(color: theme.colorScheme.outline), borderRadius: BorderRadius.circular(4), color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(l10n.skin, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  const SizedBox(height: 2),
+                  Text((state.skin?.isEmpty ?? true) ? '—' : _getLocalizedColor(l10n, state.skin!), style: theme.textTheme.bodyLarge, maxLines: 1, overflow: TextOverflow.ellipsis)
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant)
+          ],
+        ),
+      ),
     );
   }
 

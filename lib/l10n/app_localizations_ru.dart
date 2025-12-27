@@ -836,6 +836,216 @@ class AppLocalizationsRu extends AppLocalizations {
   String get genderOther => 'Другое';
 
   @override
+  String get genderMaleShort => 'М';
+
+  @override
+  String get genderFemaleShort => 'Ж';
+
+  @override
+  String get genderOtherShort => 'Др';
+
+  @override
+  String get chooseRaceClass => 'Раса и Класс';
+
+  @override
+  String get choose => 'Выбрать';
+
+  @override
+  String get raceClassSubtitle =>
+      'Выберите расу и класс персонажа, чтобы определить его основные способности.';
+
+  @override
+  String get loadingRaces => 'Загрузка рас...';
+
+  @override
+  String get loadingClasses => 'Загрузка классов...';
+
+  @override
+  String speed(int value) {
+    return 'Скорость: $value фт.';
+  }
+
+  @override
+  String get abilityScoreIncreases => 'Увеличение характеристик';
+
+  @override
+  String get languages => 'Языки';
+
+  @override
+  String get racialTraits => 'Расовые особенности';
+
+  @override
+  String get savingThrowProficiencies => 'Спасброски';
+
+  @override
+  String get skillProficiencies => 'Навыки';
+
+  @override
+  String get armorProficiencies => 'Доспехи';
+
+  @override
+  String get weaponProficiencies => 'Оружие';
+
+  @override
+  String get langCommon => 'Общий';
+
+  @override
+  String get langDwarvish => 'Дварфийский';
+
+  @override
+  String get langElvish => 'Эльфийский';
+
+  @override
+  String get langGiant => 'Великаний';
+
+  @override
+  String get langGnomish => 'Гномий';
+
+  @override
+  String get langGoblin => 'Гоблинский';
+
+  @override
+  String get langHalfling => 'Полуросликов';
+
+  @override
+  String get langOrc => 'Орочий';
+
+  @override
+  String get langAbyssal => 'Бездны';
+
+  @override
+  String get langCelestial => 'Небесный';
+
+  @override
+  String get langDraconic => 'Драконий';
+
+  @override
+  String get langDeepSpeech => 'Глубинная речь';
+
+  @override
+  String get langInfernal => 'Инфернальный';
+
+  @override
+  String get langPrimordial => 'Первичный';
+
+  @override
+  String get langSylvan => 'Сильван';
+
+  @override
+  String get langUndercommon => 'Подземный';
+
+  @override
+  String get weaponClub => 'Дубинка';
+
+  @override
+  String get weaponDagger => 'Кинжал';
+
+  @override
+  String get weaponGreatclub => 'Великая дубина';
+
+  @override
+  String get weaponHandaxe => 'Ручной топор';
+
+  @override
+  String get weaponJavelin => 'Метательное копье';
+
+  @override
+  String get weaponLightHammer => 'Легкий молот';
+
+  @override
+  String get weaponMace => 'Булава';
+
+  @override
+  String get weaponQuarterstaff => 'Боевой посох';
+
+  @override
+  String get weaponSickle => 'Серп';
+
+  @override
+  String get weaponSpear => 'Копье';
+
+  @override
+  String get weaponLightCrossbow => 'Легкий арбалет';
+
+  @override
+  String get weaponDart => 'Дротик';
+
+  @override
+  String get weaponShortbow => 'Короткий лук';
+
+  @override
+  String get weaponSling => 'Праща';
+
+  @override
+  String get weaponBattleaxe => 'Боевой топор';
+
+  @override
+  String get weaponFlail => 'Цеп';
+
+  @override
+  String get weaponGlaive => 'Глефа';
+
+  @override
+  String get weaponGreataxe => 'Секира';
+
+  @override
+  String get weaponGreatsword => 'Двуручный меч';
+
+  @override
+  String get weaponHalberd => 'Алебарда';
+
+  @override
+  String get weaponLance => 'Длинное копье';
+
+  @override
+  String get weaponLongsword => 'Длинный меч';
+
+  @override
+  String get weaponMaul => 'Молот';
+
+  @override
+  String get weaponMorningstar => 'Моргенштерн';
+
+  @override
+  String get weaponPike => 'Пика';
+
+  @override
+  String get weaponRapier => 'Рапира';
+
+  @override
+  String get weaponScimitar => 'Скимитар';
+
+  @override
+  String get weaponShortsword => 'Короткий меч';
+
+  @override
+  String get weaponTrident => 'Трезубец';
+
+  @override
+  String get weaponWarPick => 'Клевец';
+
+  @override
+  String get weaponWarhammer => 'Боевой молот';
+
+  @override
+  String get weaponWhip => 'Кнут';
+
+  @override
+  String get weaponBlowgun => 'Духовая трубка';
+
+  @override
+  String get weaponHandCrossbow => 'Ручной арбалет';
+
+  @override
+  String get weaponHeavyCrossbow => 'Тяжелый арбалет';
+
+  @override
+  String get weaponLongbow => 'Длинный лук';
+
+  @override
+  String get weaponNet => 'Сеть';
+
+  @override
   String get selectHeight => 'Выберите Рост';
 
   @override
@@ -1090,50 +1300,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get unitKg => 'кг';
 
   @override
-  String get chooseRaceClass => 'Choose Race & Class';
-
-  @override
-  String get raceClassSubtitle => 'Select your character\'s race and class.';
-
-  @override
-  String get loadingRaces => 'Loading races...';
-
-  @override
-  String get loadingClasses => 'Loading classes...';
-
-  @override
-  String speed(int value) {
-    return 'Speed: $value ft';
-  }
-
-  @override
-  String get abilityScoreIncreases => 'Ability Score Increases';
-
-  @override
-  String get languages => 'Languages';
-
-  @override
-  String get racialTraits => 'Racial Traits';
-
-  @override
-  String get savingThrowProficiencies => 'Saving Throw Proficiencies';
-
-  @override
-  String get skillProficiencies => 'Skill Proficiencies';
-
-  @override
   String get chooseSkillsTitle => 'Выберите навыки';
 
   @override
   String chooseSkills(int count, String list) {
     return 'Выберите $count из: $list';
   }
-
-  @override
-  String get armorProficiencies => 'Armor Proficiencies';
-
-  @override
-  String get weaponProficiencies => 'Weapon Proficiencies';
 
   @override
   String get assignAbilityScores => 'Распределение характеристик';

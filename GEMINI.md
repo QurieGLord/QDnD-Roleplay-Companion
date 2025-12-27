@@ -65,17 +65,15 @@
     flutter gen-l10n
     ```
 
-## 4. Current Status (v1.5 - "Wizard & Almanac Polish")
+## 4. Current Status (v1.6 - "Wizard Localization Finalized")
 
 ### Recent Localization Efforts (Retrospective)
 *   **Spell Almanac:**
-    *   **FIXED:** `_getLocalizedValue` logic order was corrected. "Concentration, up to..." now correctly translates to "Концентрация, вплоть до..." instead of getting truncated by the "minute" check.
+    *   **FIXED:** `_getLocalizedValue` logic order corrected (Concentration duration bug).
 *   **Character Creation Wizard:**
-    *   **FIXED:** `FeaturesSpellsStep` UI overhaul: Feature Action Economy types (Bonus Action, Reaction) are now displayed as styled Badges/Chips instead of small text, improving readability and layout stability for Cyrillic.
-    *   **FIXED:** `EquipmentStep`: Increased `maxLines` for item descriptions in lists to 2, preventing aggressive truncation of Russian text.
-*   **Data Models:**
-    *   Updated `Spell` model to support bilingual fields for materials and higher levels.
-    *   Updated `Paladin` spells JSON with Russian translations.
+    *   **FIXED (UI):** `FeaturesSpellsStep` features now use styled Chips. `EquipmentStep` description wrapping improved.
+    *   **FIXED (Basic Info):** Gender picker refactored to use text-only SegmentedButton (M/F/Oth) with correct localized keys. Physical appearance grid layout improved for responsiveness.
+    *   **FIXED (Race & Class):** Added full localization for Races (Languages, Traits headers) and Classes (Skills, Armor, Weapons). Added mapping for snake_case weapon names from JSON data.
 
 ### Pending High-Priority Fixes
 1.  **Data Population:**

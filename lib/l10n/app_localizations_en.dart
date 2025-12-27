@@ -842,6 +842,215 @@ class AppLocalizationsEn extends AppLocalizations {
   String get genderOther => 'Other';
 
   @override
+  String get genderMaleShort => 'M';
+
+  @override
+  String get genderFemaleShort => 'F';
+
+  @override
+  String get genderOtherShort => 'Oth';
+
+  @override
+  String get chooseRaceClass => 'Choose Race & Class';
+
+  @override
+  String get choose => 'Choose';
+
+  @override
+  String get raceClassSubtitle => 'Select your character\'s race and class.';
+
+  @override
+  String get loadingRaces => 'Loading races...';
+
+  @override
+  String get loadingClasses => 'Loading classes...';
+
+  @override
+  String speed(int value) {
+    return 'Speed: $value ft';
+  }
+
+  @override
+  String get abilityScoreIncreases => 'Ability Score Increases';
+
+  @override
+  String get languages => 'Languages';
+
+  @override
+  String get racialTraits => 'Racial Traits';
+
+  @override
+  String get savingThrowProficiencies => 'Saving Throw Proficiencies';
+
+  @override
+  String get skillProficiencies => 'Skill Proficiencies';
+
+  @override
+  String get armorProficiencies => 'Armor Proficiencies';
+
+  @override
+  String get weaponProficiencies => 'Weapon Proficiencies';
+
+  @override
+  String get langCommon => 'Common';
+
+  @override
+  String get langDwarvish => 'Dwarvish';
+
+  @override
+  String get langElvish => 'Elvish';
+
+  @override
+  String get langGiant => 'Giant';
+
+  @override
+  String get langGnomish => 'Gnomish';
+
+  @override
+  String get langGoblin => 'Goblin';
+
+  @override
+  String get langHalfling => 'Halfling';
+
+  @override
+  String get langOrc => 'Orc';
+
+  @override
+  String get langAbyssal => 'Abyssal';
+
+  @override
+  String get langCelestial => 'Celestial';
+
+  @override
+  String get langDraconic => 'Draconic';
+
+  @override
+  String get langDeepSpeech => 'Deep Speech';
+
+  @override
+  String get langInfernal => 'Infernal';
+
+  @override
+  String get langPrimordial => 'Primordial';
+
+  @override
+  String get langSylvan => 'Sylvan';
+
+  @override
+  String get langUndercommon => 'Undercommon';
+
+  @override
+  String get weaponClub => 'Club';
+
+  @override
+  String get weaponDagger => 'Dagger';
+
+  @override
+  String get weaponGreatclub => 'Greatclub';
+
+  @override
+  String get weaponHandaxe => 'Handaxe';
+
+  @override
+  String get weaponJavelin => 'Javelin';
+
+  @override
+  String get weaponLightHammer => 'Light Hammer';
+
+  @override
+  String get weaponMace => 'Mace';
+
+  @override
+  String get weaponQuarterstaff => 'Quarterstaff';
+
+  @override
+  String get weaponSickle => 'Sickle';
+
+  @override
+  String get weaponSpear => 'Spear';
+
+  @override
+  String get weaponLightCrossbow => 'Light Crossbow';
+
+  @override
+  String get weaponDart => 'Dart';
+
+  @override
+  String get weaponShortbow => 'Shortbow';
+
+  @override
+  String get weaponSling => 'Sling';
+
+  @override
+  String get weaponBattleaxe => 'Battleaxe';
+
+  @override
+  String get weaponFlail => 'Flail';
+
+  @override
+  String get weaponGlaive => 'Glaive';
+
+  @override
+  String get weaponGreataxe => 'Greataxe';
+
+  @override
+  String get weaponGreatsword => 'Greatsword';
+
+  @override
+  String get weaponHalberd => 'Halberd';
+
+  @override
+  String get weaponLance => 'Lance';
+
+  @override
+  String get weaponLongsword => 'Longsword';
+
+  @override
+  String get weaponMaul => 'Maul';
+
+  @override
+  String get weaponMorningstar => 'Morningstar';
+
+  @override
+  String get weaponPike => 'Pike';
+
+  @override
+  String get weaponRapier => 'Rapier';
+
+  @override
+  String get weaponScimitar => 'Scimitar';
+
+  @override
+  String get weaponShortsword => 'Shortsword';
+
+  @override
+  String get weaponTrident => 'Trident';
+
+  @override
+  String get weaponWarPick => 'War Pick';
+
+  @override
+  String get weaponWarhammer => 'Warhammer';
+
+  @override
+  String get weaponWhip => 'Whip';
+
+  @override
+  String get weaponBlowgun => 'Blowgun';
+
+  @override
+  String get weaponHandCrossbow => 'Hand Crossbow';
+
+  @override
+  String get weaponHeavyCrossbow => 'Heavy Crossbow';
+
+  @override
+  String get weaponLongbow => 'Longbow';
+
+  @override
+  String get weaponNet => 'Net';
+
+  @override
   String get selectHeight => 'Select Height';
 
   @override
@@ -1096,50 +1305,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unitKg => 'kg';
 
   @override
-  String get chooseRaceClass => 'Choose Race & Class';
-
-  @override
-  String get raceClassSubtitle => 'Select your character\'s race and class.';
-
-  @override
-  String get loadingRaces => 'Loading races...';
-
-  @override
-  String get loadingClasses => 'Loading classes...';
-
-  @override
-  String speed(int value) {
-    return 'Speed: $value ft';
-  }
-
-  @override
-  String get abilityScoreIncreases => 'Ability Score Increases';
-
-  @override
-  String get languages => 'Languages';
-
-  @override
-  String get racialTraits => 'Racial Traits';
-
-  @override
-  String get savingThrowProficiencies => 'Saving Throw Proficiencies';
-
-  @override
-  String get skillProficiencies => 'Skill Proficiencies';
-
-  @override
   String get chooseSkillsTitle => 'Choose Skills';
 
   @override
   String chooseSkills(int count, String list) {
     return 'Choose $count from: $list';
   }
-
-  @override
-  String get armorProficiencies => 'Armor Proficiencies';
-
-  @override
-  String get weaponProficiencies => 'Weapon Proficiencies';
 
   @override
   String get assignAbilityScores => 'Assign Ability Scores';

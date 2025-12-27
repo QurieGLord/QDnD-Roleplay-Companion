@@ -29,6 +29,111 @@ class _RaceClassStepState extends State<RaceClassStep> {
     }
   }
 
+  String _getLocalizedSkill(AppLocalizations l10n, String skill) {
+    switch (skill.toLowerCase()) {
+      case 'athletics': return l10n.skillAthletics;
+      case 'acrobatics': return l10n.skillAcrobatics;
+      case 'sleight of hand': return l10n.skillSleightOfHand;
+      case 'stealth': return l10n.skillStealth;
+      case 'arcana': return l10n.skillArcana;
+      case 'history': return l10n.skillHistory;
+      case 'investigation': return l10n.skillInvestigation;
+      case 'nature': return l10n.skillNature;
+      case 'religion': return l10n.skillReligion;
+      case 'animal handling': return l10n.skillAnimalHandling;
+      case 'insight': return l10n.skillInsight;
+      case 'medicine': return l10n.skillMedicine;
+      case 'perception': return l10n.skillPerception;
+      case 'survival': return l10n.skillSurvival;
+      case 'deception': return l10n.skillDeception;
+      case 'intimidation': return l10n.skillIntimidation;
+      case 'performance': return l10n.skillPerformance;
+      case 'persuasion': return l10n.skillPersuasion;
+      default: return skill;
+    }
+  }
+  
+  String _getLocalizedLanguage(AppLocalizations l10n, String lang) {
+    if (lang.startsWith('choice:')) return '${l10n.choose}: ${lang.split(':')[1]}';
+    
+    switch (lang.toLowerCase()) {
+      case 'common': return l10n.langCommon;
+      case 'dwarvish': return l10n.langDwarvish;
+      case 'elvish': return l10n.langElvish;
+      case 'giant': return l10n.langGiant;
+      case 'gnomish': return l10n.langGnomish;
+      case 'goblin': return l10n.langGoblin;
+      case 'halfling': return l10n.langHalfling;
+      case 'orc': return l10n.langOrc;
+      case 'abyssal': return l10n.langAbyssal;
+      case 'celestial': return l10n.langCelestial;
+      case 'draconic': return l10n.langDraconic;
+      case 'deep speech': return l10n.langDeepSpeech;
+      case 'infernal': return l10n.langInfernal;
+      case 'primordial': return l10n.langPrimordial;
+      case 'sylvan': return l10n.langSylvan;
+      case 'undercommon': return l10n.langUndercommon;
+      default: return lang;
+    }
+  }
+
+  String _getLocalizedProficiency(AppLocalizations l10n, String prof) {
+     final lower = prof.toLowerCase().replaceAll('_', ' '); // handle snake_case from JSON
+     
+     // Armor categories
+     if (lower.contains('light armor')) return l10n.armorTypeLight;
+     if (lower.contains('medium armor')) return l10n.armorTypeMedium;
+     if (lower.contains('heavy armor')) return l10n.armorTypeHeavy;
+     if (lower.contains('shields')) return l10n.armorTypeShield;
+     
+     // Weapon categories
+     if (lower.contains('simple weapons')) return l10n.propertySimple;
+     if (lower.contains('martial weapons')) return l10n.propertyMartial;
+     
+     // Specific Weapons
+     switch (lower) {
+       case 'club': return l10n.weaponClub;
+       case 'dagger': return l10n.weaponDagger;
+       case 'greatclub': return l10n.weaponGreatclub;
+       case 'handaxe': return l10n.weaponHandaxe;
+       case 'javelin': return l10n.weaponJavelin;
+       case 'light hammer': return l10n.weaponLightHammer;
+       case 'mace': return l10n.weaponMace;
+       case 'quarterstaff': return l10n.weaponQuarterstaff;
+       case 'sickle': return l10n.weaponSickle;
+       case 'spear': return l10n.weaponSpear;
+       case 'light crossbow': return l10n.weaponLightCrossbow;
+       case 'dart': return l10n.weaponDart;
+       case 'shortbow': return l10n.weaponShortbow;
+       case 'sling': return l10n.weaponSling;
+       case 'battleaxe': return l10n.weaponBattleaxe;
+       case 'flail': return l10n.weaponFlail;
+       case 'glaive': return l10n.weaponGlaive;
+       case 'greataxe': return l10n.weaponGreataxe;
+       case 'greatsword': return l10n.weaponGreatsword;
+       case 'halberd': return l10n.weaponHalberd;
+       case 'lance': return l10n.weaponLance;
+       case 'longsword': return l10n.weaponLongsword;
+       case 'maul': return l10n.weaponMaul;
+       case 'morningstar': return l10n.weaponMorningstar;
+       case 'pike': return l10n.weaponPike;
+       case 'rapier': return l10n.weaponRapier;
+       case 'scimitar': return l10n.weaponScimitar;
+       case 'shortsword': return l10n.weaponShortsword;
+       case 'trident': return l10n.weaponTrident;
+       case 'war pick': return l10n.weaponWarPick;
+       case 'warhammer': return l10n.weaponWarhammer;
+       case 'whip': return l10n.weaponWhip;
+       case 'blowgun': return l10n.weaponBlowgun;
+       case 'hand crossbow': return l10n.weaponHandCrossbow;
+       case 'heavy crossbow': return l10n.weaponHeavyCrossbow;
+       case 'longbow': return l10n.weaponLongbow;
+       case 'net': return l10n.weaponNet;
+     }
+     
+     return prof;
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = context.watch<CharacterCreationState>();
@@ -350,7 +455,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
           ),
           const SizedBox(height: 4),
           Text(
-            race.languages.join(', '),
+            race.languages.map((l) => _getLocalizedLanguage(l10n, l)).join(', '),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: textColor.withValues(alpha: 0.8),
             ),
@@ -440,7 +545,10 @@ class _RaceClassStepState extends State<RaceClassStep> {
         ),
         const SizedBox(height: 4),
         Text(
-          l10n.chooseSkills(classData.skillProficiencies.choose, classData.skillProficiencies.from.join(', ')),
+          l10n.chooseSkills(
+            classData.skillProficiencies.choose, 
+            classData.skillProficiencies.from.map((s) => _getLocalizedSkill(l10n, s)).join(', ')
+          ),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: textColor.withValues(alpha: 0.8),
           ),
@@ -457,7 +565,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
           ),
           const SizedBox(height: 4),
           Text(
-            classData.armorProficiencies.toList().join(', '),
+            classData.armorProficiencies.toList().map((p) => _getLocalizedProficiency(l10n, p)).join(', '),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: textColor.withValues(alpha: 0.8),
             ),
@@ -474,7 +582,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
           ),
           const SizedBox(height: 4),
           Text(
-            classData.weaponProficiencies.toList().join(', '),
+            classData.weaponProficiencies.toList().map((p) => _getLocalizedProficiency(l10n, p)).join(', '),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: textColor.withValues(alpha: 0.8),
             ),

@@ -1688,6 +1688,420 @@ abstract class AppLocalizations {
   /// **'Other'**
   String get genderOther;
 
+  /// No description provided for @genderMaleShort.
+  ///
+  /// In en, this message translates to:
+  /// **'M'**
+  String get genderMaleShort;
+
+  /// No description provided for @genderFemaleShort.
+  ///
+  /// In en, this message translates to:
+  /// **'F'**
+  String get genderFemaleShort;
+
+  /// No description provided for @genderOtherShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Oth'**
+  String get genderOtherShort;
+
+  /// No description provided for @chooseRaceClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Race & Class'**
+  String get chooseRaceClass;
+
+  /// No description provided for @choose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get choose;
+
+  /// No description provided for @raceClassSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your character\'s race and class.'**
+  String get raceClassSubtitle;
+
+  /// No description provided for @loadingRaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading races...'**
+  String get loadingRaces;
+
+  /// No description provided for @loadingClasses.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading classes...'**
+  String get loadingClasses;
+
+  /// No description provided for @speed.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed: {value} ft'**
+  String speed(int value);
+
+  /// No description provided for @abilityScoreIncreases.
+  ///
+  /// In en, this message translates to:
+  /// **'Ability Score Increases'**
+  String get abilityScoreIncreases;
+
+  /// No description provided for @languages.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get languages;
+
+  /// No description provided for @racialTraits.
+  ///
+  /// In en, this message translates to:
+  /// **'Racial Traits'**
+  String get racialTraits;
+
+  /// No description provided for @savingThrowProficiencies.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving Throw Proficiencies'**
+  String get savingThrowProficiencies;
+
+  /// No description provided for @skillProficiencies.
+  ///
+  /// In en, this message translates to:
+  /// **'Skill Proficiencies'**
+  String get skillProficiencies;
+
+  /// No description provided for @armorProficiencies.
+  ///
+  /// In en, this message translates to:
+  /// **'Armor Proficiencies'**
+  String get armorProficiencies;
+
+  /// No description provided for @weaponProficiencies.
+  ///
+  /// In en, this message translates to:
+  /// **'Weapon Proficiencies'**
+  String get weaponProficiencies;
+
+  /// No description provided for @langCommon.
+  ///
+  /// In en, this message translates to:
+  /// **'Common'**
+  String get langCommon;
+
+  /// No description provided for @langDwarvish.
+  ///
+  /// In en, this message translates to:
+  /// **'Dwarvish'**
+  String get langDwarvish;
+
+  /// No description provided for @langElvish.
+  ///
+  /// In en, this message translates to:
+  /// **'Elvish'**
+  String get langElvish;
+
+  /// No description provided for @langGiant.
+  ///
+  /// In en, this message translates to:
+  /// **'Giant'**
+  String get langGiant;
+
+  /// No description provided for @langGnomish.
+  ///
+  /// In en, this message translates to:
+  /// **'Gnomish'**
+  String get langGnomish;
+
+  /// No description provided for @langGoblin.
+  ///
+  /// In en, this message translates to:
+  /// **'Goblin'**
+  String get langGoblin;
+
+  /// No description provided for @langHalfling.
+  ///
+  /// In en, this message translates to:
+  /// **'Halfling'**
+  String get langHalfling;
+
+  /// No description provided for @langOrc.
+  ///
+  /// In en, this message translates to:
+  /// **'Orc'**
+  String get langOrc;
+
+  /// No description provided for @langAbyssal.
+  ///
+  /// In en, this message translates to:
+  /// **'Abyssal'**
+  String get langAbyssal;
+
+  /// No description provided for @langCelestial.
+  ///
+  /// In en, this message translates to:
+  /// **'Celestial'**
+  String get langCelestial;
+
+  /// No description provided for @langDraconic.
+  ///
+  /// In en, this message translates to:
+  /// **'Draconic'**
+  String get langDraconic;
+
+  /// No description provided for @langDeepSpeech.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep Speech'**
+  String get langDeepSpeech;
+
+  /// No description provided for @langInfernal.
+  ///
+  /// In en, this message translates to:
+  /// **'Infernal'**
+  String get langInfernal;
+
+  /// No description provided for @langPrimordial.
+  ///
+  /// In en, this message translates to:
+  /// **'Primordial'**
+  String get langPrimordial;
+
+  /// No description provided for @langSylvan.
+  ///
+  /// In en, this message translates to:
+  /// **'Sylvan'**
+  String get langSylvan;
+
+  /// No description provided for @langUndercommon.
+  ///
+  /// In en, this message translates to:
+  /// **'Undercommon'**
+  String get langUndercommon;
+
+  /// No description provided for @weaponClub.
+  ///
+  /// In en, this message translates to:
+  /// **'Club'**
+  String get weaponClub;
+
+  /// No description provided for @weaponDagger.
+  ///
+  /// In en, this message translates to:
+  /// **'Dagger'**
+  String get weaponDagger;
+
+  /// No description provided for @weaponGreatclub.
+  ///
+  /// In en, this message translates to:
+  /// **'Greatclub'**
+  String get weaponGreatclub;
+
+  /// No description provided for @weaponHandaxe.
+  ///
+  /// In en, this message translates to:
+  /// **'Handaxe'**
+  String get weaponHandaxe;
+
+  /// No description provided for @weaponJavelin.
+  ///
+  /// In en, this message translates to:
+  /// **'Javelin'**
+  String get weaponJavelin;
+
+  /// No description provided for @weaponLightHammer.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Hammer'**
+  String get weaponLightHammer;
+
+  /// No description provided for @weaponMace.
+  ///
+  /// In en, this message translates to:
+  /// **'Mace'**
+  String get weaponMace;
+
+  /// No description provided for @weaponQuarterstaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarterstaff'**
+  String get weaponQuarterstaff;
+
+  /// No description provided for @weaponSickle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sickle'**
+  String get weaponSickle;
+
+  /// No description provided for @weaponSpear.
+  ///
+  /// In en, this message translates to:
+  /// **'Spear'**
+  String get weaponSpear;
+
+  /// No description provided for @weaponLightCrossbow.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Crossbow'**
+  String get weaponLightCrossbow;
+
+  /// No description provided for @weaponDart.
+  ///
+  /// In en, this message translates to:
+  /// **'Dart'**
+  String get weaponDart;
+
+  /// No description provided for @weaponShortbow.
+  ///
+  /// In en, this message translates to:
+  /// **'Shortbow'**
+  String get weaponShortbow;
+
+  /// No description provided for @weaponSling.
+  ///
+  /// In en, this message translates to:
+  /// **'Sling'**
+  String get weaponSling;
+
+  /// No description provided for @weaponBattleaxe.
+  ///
+  /// In en, this message translates to:
+  /// **'Battleaxe'**
+  String get weaponBattleaxe;
+
+  /// No description provided for @weaponFlail.
+  ///
+  /// In en, this message translates to:
+  /// **'Flail'**
+  String get weaponFlail;
+
+  /// No description provided for @weaponGlaive.
+  ///
+  /// In en, this message translates to:
+  /// **'Glaive'**
+  String get weaponGlaive;
+
+  /// No description provided for @weaponGreataxe.
+  ///
+  /// In en, this message translates to:
+  /// **'Greataxe'**
+  String get weaponGreataxe;
+
+  /// No description provided for @weaponGreatsword.
+  ///
+  /// In en, this message translates to:
+  /// **'Greatsword'**
+  String get weaponGreatsword;
+
+  /// No description provided for @weaponHalberd.
+  ///
+  /// In en, this message translates to:
+  /// **'Halberd'**
+  String get weaponHalberd;
+
+  /// No description provided for @weaponLance.
+  ///
+  /// In en, this message translates to:
+  /// **'Lance'**
+  String get weaponLance;
+
+  /// No description provided for @weaponLongsword.
+  ///
+  /// In en, this message translates to:
+  /// **'Longsword'**
+  String get weaponLongsword;
+
+  /// No description provided for @weaponMaul.
+  ///
+  /// In en, this message translates to:
+  /// **'Maul'**
+  String get weaponMaul;
+
+  /// No description provided for @weaponMorningstar.
+  ///
+  /// In en, this message translates to:
+  /// **'Morningstar'**
+  String get weaponMorningstar;
+
+  /// No description provided for @weaponPike.
+  ///
+  /// In en, this message translates to:
+  /// **'Pike'**
+  String get weaponPike;
+
+  /// No description provided for @weaponRapier.
+  ///
+  /// In en, this message translates to:
+  /// **'Rapier'**
+  String get weaponRapier;
+
+  /// No description provided for @weaponScimitar.
+  ///
+  /// In en, this message translates to:
+  /// **'Scimitar'**
+  String get weaponScimitar;
+
+  /// No description provided for @weaponShortsword.
+  ///
+  /// In en, this message translates to:
+  /// **'Shortsword'**
+  String get weaponShortsword;
+
+  /// No description provided for @weaponTrident.
+  ///
+  /// In en, this message translates to:
+  /// **'Trident'**
+  String get weaponTrident;
+
+  /// No description provided for @weaponWarPick.
+  ///
+  /// In en, this message translates to:
+  /// **'War Pick'**
+  String get weaponWarPick;
+
+  /// No description provided for @weaponWarhammer.
+  ///
+  /// In en, this message translates to:
+  /// **'Warhammer'**
+  String get weaponWarhammer;
+
+  /// No description provided for @weaponWhip.
+  ///
+  /// In en, this message translates to:
+  /// **'Whip'**
+  String get weaponWhip;
+
+  /// No description provided for @weaponBlowgun.
+  ///
+  /// In en, this message translates to:
+  /// **'Blowgun'**
+  String get weaponBlowgun;
+
+  /// No description provided for @weaponHandCrossbow.
+  ///
+  /// In en, this message translates to:
+  /// **'Hand Crossbow'**
+  String get weaponHandCrossbow;
+
+  /// No description provided for @weaponHeavyCrossbow.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy Crossbow'**
+  String get weaponHeavyCrossbow;
+
+  /// No description provided for @weaponLongbow.
+  ///
+  /// In en, this message translates to:
+  /// **'Longbow'**
+  String get weaponLongbow;
+
+  /// No description provided for @weaponNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get weaponNet;
+
   /// No description provided for @selectHeight.
   ///
   /// In en, this message translates to:
@@ -2186,66 +2600,6 @@ abstract class AppLocalizations {
   /// **'kg'**
   String get unitKg;
 
-  /// No description provided for @chooseRaceClass.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose Race & Class'**
-  String get chooseRaceClass;
-
-  /// No description provided for @raceClassSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Select your character\'s race and class.'**
-  String get raceClassSubtitle;
-
-  /// No description provided for @loadingRaces.
-  ///
-  /// In en, this message translates to:
-  /// **'Loading races...'**
-  String get loadingRaces;
-
-  /// No description provided for @loadingClasses.
-  ///
-  /// In en, this message translates to:
-  /// **'Loading classes...'**
-  String get loadingClasses;
-
-  /// No description provided for @speed.
-  ///
-  /// In en, this message translates to:
-  /// **'Speed: {value} ft'**
-  String speed(int value);
-
-  /// No description provided for @abilityScoreIncreases.
-  ///
-  /// In en, this message translates to:
-  /// **'Ability Score Increases'**
-  String get abilityScoreIncreases;
-
-  /// No description provided for @languages.
-  ///
-  /// In en, this message translates to:
-  /// **'Languages'**
-  String get languages;
-
-  /// No description provided for @racialTraits.
-  ///
-  /// In en, this message translates to:
-  /// **'Racial Traits'**
-  String get racialTraits;
-
-  /// No description provided for @savingThrowProficiencies.
-  ///
-  /// In en, this message translates to:
-  /// **'Saving Throw Proficiencies'**
-  String get savingThrowProficiencies;
-
-  /// No description provided for @skillProficiencies.
-  ///
-  /// In en, this message translates to:
-  /// **'Skill Proficiencies'**
-  String get skillProficiencies;
-
   /// No description provided for @chooseSkillsTitle.
   ///
   /// In en, this message translates to:
@@ -2257,18 +2611,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose {count} from: {list}'**
   String chooseSkills(int count, String list);
-
-  /// No description provided for @armorProficiencies.
-  ///
-  /// In en, this message translates to:
-  /// **'Armor Proficiencies'**
-  String get armorProficiencies;
-
-  /// No description provided for @weaponProficiencies.
-  ///
-  /// In en, this message translates to:
-  /// **'Weapon Proficiencies'**
-  String get weaponProficiencies;
 
   /// No description provided for @assignAbilityScores.
   ///
