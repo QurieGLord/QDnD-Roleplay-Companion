@@ -270,7 +270,7 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                             alignment: Alignment.center,
                             children: [
                               CustomPaint(
-                                size: const Size(180, 180), // Reduced size
+                                size: const Size(180, 180),
                                 painter: DiceShapePainter(
                                   type: _selectedDice,
                                   color: currentColor,
@@ -282,7 +282,7 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                                 child: Text(
                                   '$_displayedNumber',
                                   style: TextStyle(
-                                    fontSize: _getFontSizeForDice(_selectedDice) * 0.85, // Adjusted scale
+                                    fontSize: _getFontSizeForDice(_selectedDice) * 0.85,
                                     fontWeight: FontWeight.w900,
                                     color: currentTextColor,
                                     height: 1.0,
@@ -315,7 +315,7 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                     }
                   ),
                   
-                  const Spacer(flex: 2),
+                  const Spacer(),
                 ],
               ),
             ),
@@ -329,58 +329,65 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
               ),
               child: Column(
                 children: [
-                  // Row 1: Modifier & Advantage
-                  Row(
-                    children: [
-                      // Modifier
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: colorScheme.surface,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: colorScheme.outlineVariant),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(l10n.modifier, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                              Row(
-                                children: [
-                                  InkWell(onTap: () => setState(() => _modifier--), child: const Icon(Icons.remove_circle_outline, size: 20)),
-                                  const SizedBox(width: 8),
-                                  Text('${_modifier >= 0 ? '+' : ''}$_modifier', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                  const SizedBox(width: 8),
-                                  InkWell(onTap: () => setState(() => _modifier++), child: const Icon(Icons.add_circle_outline, size: 20)),
-                                ],
-                              ),
-                            ],
-                          ),
+                  // Row 1: Modifier
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: colorScheme.outlineVariant),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(l10n.modifier, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                        Row(
+                          children: [
+                            InkWell(
+                              onTap: () => setState(() => _modifier--), 
+                              borderRadius: BorderRadius.circular(20),
+                              child: const Padding(padding: EdgeInsets.all(8.0), child: Icon(Icons.remove_circle_outline, size: 24))
+                            ),
+                            SizedBox(
+                              width: 40,
+                              child: Text('${_modifier >= 0 ? '+' : ''}$_modifier', textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                            ),
+                            InkWell(
+                              onTap: () => setState(() => _modifier++),
+                              borderRadius: BorderRadius.circular(20), 
+                              child: const Padding(padding: EdgeInsets.all(8.0), child: Icon(Icons.add_circle_outline, size: 24))
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Advantage
-                      SegmentedButton<AdvantageType>(
-                        segments: const [
-                          ButtonSegment(value: AdvantageType.disadvantage, icon: Icon(Icons.keyboard_double_arrow_down, size: 16)),
-                          ButtonSegment(value: AdvantageType.none, label: Text('-')),
-                          ButtonSegment(value: AdvantageType.advantage, icon: Icon(Icons.keyboard_double_arrow_up, size: 16)),
-                        ],
-                        selected: {_advantage},
-                        onSelectionChanged: (val) => setState(() => _advantage = val.first),
-                        showSelectedIcon: false,
-                        style: ButtonStyle(
-                          visualDensity: VisualDensity.compact,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          padding: MaterialStateProperty.all(EdgeInsets.zero),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
 
-                  // Row 2: Dice Selector
+                  // Row 2: Advantage
+                  SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<AdvantageType>(
+                      segments: [
+                        ButtonSegment(value: AdvantageType.disadvantage, label: Text(l10n.disadvantage), icon: const Icon(Icons.keyboard_double_arrow_down, size: 16)),
+                        const ButtonSegment(value: AdvantageType.none, label: Text('-')),
+                        ButtonSegment(value: AdvantageType.advantage, label: Text(l10n.advantage), icon: const Icon(Icons.keyboard_double_arrow_up, size: 16)),
+                      ],
+                      selected: {_advantage},
+                      onSelectionChanged: (val) => setState(() => _advantage = val.first),
+                      showSelectedIcon: false,
+                      style: ButtonStyle(
+                        visualDensity: VisualDensity.standard,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 0)),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Row 3: Dice Selector
                   SizedBox(
                     height: 48,
                     child: ListView.separated(
