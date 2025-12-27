@@ -116,29 +116,11 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
 
   String _getLocalizedValue(AppLocalizations l10n, String value) {
     var lower = value.toLowerCase().trim();
-    
-    // Casting Time
-    if (lower.contains('1 action') || lower == '1 action') return '1 ${l10n.actionTypeAction.toLowerCase()}';
-    if (lower.contains('1 bonus action')) return '1 ${l10n.actionTypeBonus.toLowerCase()}';
-    if (lower.contains('1 reaction')) return '1 ${l10n.actionTypeReaction.toLowerCase()}';
-    if (lower.contains('minutes')) return value.replaceAll('minutes', 'мин.');
-    if (lower.contains('minute')) return value.replaceAll('minute', 'мин.');
-    if (lower.contains('hours')) return value.replaceAll('hours', 'ч.');
-    if (lower.contains('hour')) return value.replaceAll('hour', 'ч.');
 
-    // Range
-    if (lower == 'self') return 'На себя';
-    if (lower == 'touch') return 'Касание';
-    if (lower.contains('feet')) return value.replaceAll('feet', 'фт.');
-    if (lower.contains('foot')) return value.replaceAll('foot', 'фт.');
-    if (lower.contains('radius')) return value.replaceAll('radius', 'радиус').replaceAll('feet', 'фт.');
-
-    // Duration
-    if (lower == 'instantaneous') return 'Мгновенная';
-    if (lower == 'until dispelled') return 'Пока не рассеется';
-    if (lower == 'special') return 'Особое';
+    // --- PRIORITY CHECKS (Complex patterns & Exact matches) ---
     
     // Handle "Concentration, up to X" pattern
+    // Must be before "minute" check because it contains "minute"
     if (lower.contains('concentration')) {
        // Remove "Concentration, " prefix from value to process the rest
        var rest = value.replaceAll(RegExp(r'Concentration,\s*', caseSensitive: false), '');
@@ -161,12 +143,34 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
       return _getLocalizedValue(l10n, value);
     }
 
+    // Duration special cases
+    if (lower == 'instantaneous') return 'Мгновенная';
+    if (lower == 'until dispelled') return 'Пока не рассеется';
+    if (lower == 'special') return 'Особое';
+
+    // Casting Time special cases
+    if (lower.contains('1 action') || lower == '1 action') return '1 ${l10n.actionTypeAction.toLowerCase()}';
+    if (lower.contains('1 bonus action')) return '1 ${l10n.actionTypeBonus.toLowerCase()}';
+    if (lower.contains('1 reaction')) return '1 ${l10n.actionTypeReaction.toLowerCase()}';
+
+    // Range special cases
+    if (lower == 'self') return 'На себя';
+    if (lower == 'touch') return 'Касание';
+
+    // --- UNIT REPLACEMENTS (Substrings) ---
+
+    // Time units
+    if (lower.contains('minutes')) return value.replaceAll('minutes', 'мин.');
+    if (lower.contains('minute')) return value.replaceAll('minute', 'мин.');
+    if (lower.contains('hours')) return value.replaceAll('hours', 'ч.');
+    if (lower.contains('hour')) return value.replaceAll('hour', 'ч.');
     if (lower.contains('round')) return value.replaceAll('round', 'раунд');
 
-    // Components
-    // Often handled by simple list join, but we can localize V, S, M if needed.
-    // In Russian usually V, S, M are V, S, M or В, С, М. Let's assume standard VSM for now or transliterate.
-    
+    // Distance units
+    if (lower.contains('feet')) return value.replaceAll('feet', 'фт.');
+    if (lower.contains('foot')) return value.replaceAll('foot', 'фт.');
+    if (lower.contains('radius')) return value.replaceAll('radius', 'радиус').replaceAll('feet', 'фт.');
+
     return value;
   }
   

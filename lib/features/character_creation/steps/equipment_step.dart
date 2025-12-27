@@ -258,7 +258,7 @@ class _EquipmentStepState extends State<EquipmentStep> {
                 title: Text(item.getName(locale)),
                 subtitle: Text(
                   '${item.getDescription(locale)} • ${l10n.itemQuantity}: $quantity',
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 trailing: IconButton(
@@ -946,7 +946,7 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                           child: ListTile(
                             leading: Badge(label: Text('$quantity'), isLabelVisible: isSelected && quantity > 0, backgroundColor: theme.colorScheme.secondary, textColor: theme.colorScheme.onSecondary, child: Icon(_getItemIcon(item.type), color: isSelected ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.primary)),
                             title: Text(item.getName(widget.locale), style: TextStyle(color: isSelected ? theme.colorScheme.onPrimaryContainer : null)),
-                            subtitle: Text(item.getDescription(widget.locale), maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: isSelected ? theme.colorScheme.onPrimaryContainer.withOpacity(0.7) : null)),
+                            subtitle: Text(item.getDescription(widget.locale), maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: isSelected ? theme.colorScheme.onPrimaryContainer.withOpacity(0.7) : null)),
                             trailing: Checkbox(value: isSelected, onChanged: (_) { if (isSelected) { setState(() => widget.state.removeCustomEquipment(item.id)); } else { widget.onAddItem(item.id); } }),
                             onTap: () { if (isSelected) { setState(() => widget.state.removeCustomEquipment(item.id)); } else { widget.onAddItem(item.id); } },
                           ),

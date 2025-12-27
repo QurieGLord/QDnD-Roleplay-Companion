@@ -65,24 +65,23 @@
     flutter gen-l10n
     ```
 
-## 4. Current Status (v1.4 - "Localization Checkpoint")
+## 4. Current Status (v1.5 - "Wizard & Almanac Polish")
 
 ### Recent Localization Efforts (Retrospective)
 *   **Spell Almanac:**
-    *   Attempted to implement localized parsing for spell duration (e.g., "Concentration, up to...").
-    *   **Issue:** User reports "Concentration, up to" is *still not translated* in the UI, despite logic changes in `spell_almanac_screen.dart`. This requires a deeper debug of the string matching logic or build cache clearing.
-    *   Added `atHigherLevelsRu` and `materialComponentsRu` to data models and JSON.
+    *   **FIXED:** `_getLocalizedValue` logic order was corrected. "Concentration, up to..." now correctly translates to "Концентрация, вплоть до..." instead of getting truncated by the "minute" check.
 *   **Character Creation Wizard:**
-    *   Refactored `FeaturesSpellsStep` and `EquipmentStep` to use `AppLocalizations`.
-    *   **Issue:** User reports UI layout issues ("awkward text wrapping", "clumsy look") in the Wizard steps, specifically mentioning that the localization changes haven't fully resolved the visual quality or translation gaps.
+    *   **FIXED:** `FeaturesSpellsStep` UI overhaul: Feature Action Economy types (Bonus Action, Reaction) are now displayed as styled Badges/Chips instead of small text, improving readability and layout stability for Cyrillic.
+    *   **FIXED:** `EquipmentStep`: Increased `maxLines` for item descriptions in lists to 2, preventing aggressive truncation of Russian text.
 *   **Data Models:**
     *   Updated `Spell` model to support bilingual fields for materials and higher levels.
     *   Updated `Paladin` spells JSON with Russian translations.
 
 ### Pending High-Priority Fixes
-1.  **Debug Spell Duration Localization:** The `_getLocalizedValue` function in `SpellAlmanacScreen` is failing to catch the "Concentration" pattern for some reason. Needs a regex audit.
-2.  **Wizard UI Overhaul:** The Creation Wizard steps need a visual pass. Simply swapping strings isn't enough; `ListTile`s and `Cards` are overflowing with longer Russian text.
-3.  **Data Population:** Continue filling Russian fields for other classes/spells.
+1.  **Data Population:**
+    *   *Correction:* `barbarian.json`, `fighter.json`, `rogue.json` have content (check if localized).
+    *   *Empty Files:* `bard.json`, `cleric.json`, `druid.json`, `monk.json`, `ranger.json`, `sorcerer.json`, `warlock.json`, `wizard.json` are currently empty placeholders (3 bytes).
+    *   **Task:** Populate these files with D&D 5e SRD data (English first, then Russian keys).
 
 ### Operational Guidelines (User Mandates)
 

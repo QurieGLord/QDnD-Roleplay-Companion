@@ -92,48 +92,74 @@ class FeaturesSpellsStep extends StatelessWidget {
                 )
               else
                 ...features.map((feature) => Card(
-                  margin: const EdgeInsets.only(bottom: 8),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: Padding(
-                    padding: const EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              _getFeatureIcon(feature.iconName), 
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 20,
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primaryContainer,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                _getFeatureIcon(feature.iconName), 
+                                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                size: 24,
+                              ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 16),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     feature.getName(locale), 
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                  if (feature.actionEconomy != null)
-                                    Text(
-                                      _getLocalizedActionEconomy(l10n, feature.actionEconomy!).toUpperCase(),
-                                      style: TextStyle(
-                                        fontSize: 10, 
-                                        color: Theme.of(context).colorScheme.secondary, 
-                                        fontWeight: FontWeight.w600, 
-                                        letterSpacing: 0.5
+                                  if (feature.actionEconomy != null) ...[
+                                    const SizedBox(height: 4),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(4),
+                                        border: Border.all(
+                                          color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        _getLocalizedActionEconomy(l10n, feature.actionEconomy!).toUpperCase(),
+                                        style: TextStyle(
+                                          fontSize: 10, 
+                                          color: Theme.of(context).colorScheme.secondary, 
+                                          fontWeight: FontWeight.bold, 
+                                          letterSpacing: 0.5
+                                        ),
                                       ),
                                     ),
+                                  ],
                                 ],
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
                         Text(
                           feature.getDescription(locale),
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            height: 1.5,
                           ),
                         ),
                       ],
