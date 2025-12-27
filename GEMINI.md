@@ -83,6 +83,8 @@
 *   **Dice Roller & Stats:**
     *   **FIXED (Layout):** Completely redesigned `DiceRollerModal` to fit on screen without scrolling. Reduced die size (180px), created a compact control dock with horizontal dice selector and unified modifier/advantage row.
     *   **FIXED (Titles):** Changed title format for checks/saves to be more concise: "Check STR", "Save DEX" (localized as "Проверка СИЛ", "Спасбросок ЛОВ"), fixing overflow issues.
+*   **Settings:**
+    *   **FIXED:** Full localization of the Settings screen (Appearance, Theme, About, License). Added necessary keys to ARB files.
 
 ### Pending High-Priority Fixes
 1.  **Data Population:**

@@ -614,7 +614,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get hair => 'Волосы';
 
   @override
-  String get appearance => 'Внешность';
+  String get appearance => 'Внешний вид';
 
   @override
   String get rollType => 'Тип броска';
@@ -1887,6 +1887,40 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get methodManual => 'Вручную';
+
+  @override
+  String get themeSystem => 'Системная';
+
+  @override
+  String get themeLight => 'Светлая';
+
+  @override
+  String get themeDark => 'Темная';
+
+  @override
+  String get highContrast => 'Высокий контраст';
+
+  @override
+  String get highContrastDesc =>
+      'Повышает читаемость за счет контрастных цветов';
+
+  @override
+  String get colorScheme => 'Цветовая схема';
+
+  @override
+  String get about => 'О приложении';
+
+  @override
+  String get version => 'Версия';
+
+  @override
+  String get developedBy => 'Разработчик';
+
+  @override
+  String get license => 'Лицензия';
+
+  @override
+  String get d20wish => 'Пусть на вашем d20 всегда выпадает 20!';
 
   @override
   String get characterReady => 'Персонаж готов!';

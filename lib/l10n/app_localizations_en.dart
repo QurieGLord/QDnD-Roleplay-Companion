@@ -1910,6 +1910,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodManual => 'Manual Entry';
 
   @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get highContrast => 'High Contrast';
+
+  @override
+  String get highContrastDesc => 'Increases visibility with sharper colors';
+
+  @override
+  String get colorScheme => 'Color Scheme';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get developedBy => 'Developed by';
+
+  @override
+  String get license => 'License';
+
+  @override
+  String get d20wish => 'May your d20 always land on 20!';
+
+  @override
   String get characterReady => 'Character Ready!';
 
   @override

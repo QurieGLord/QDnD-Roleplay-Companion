@@ -47,26 +47,26 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 32),
           
-          _buildSectionHeader(context, 'APPEARANCE'),
+          _buildSectionHeader(context, l10n.appearance.toUpperCase()),
           const SizedBox(height: 16),
           
           // Theme Mode Selector
           SegmentedButton<ThemeMode>(
-            segments: const [
+            segments: [
               ButtonSegment(
                 value: ThemeMode.system,
-                label: Text('System'),
-                icon: Icon(Icons.brightness_auto),
+                label: Text(l10n.themeSystem),
+                icon: const Icon(Icons.brightness_auto),
               ),
               ButtonSegment(
                 value: ThemeMode.light,
-                label: Text('Light'),
-                icon: Icon(Icons.light_mode),
+                label: Text(l10n.themeLight),
+                icon: const Icon(Icons.light_mode),
               ),
               ButtonSegment(
                 value: ThemeMode.dark,
-                label: Text('Dark'),
-                icon: Icon(Icons.dark_mode),
+                label: Text(l10n.themeDark),
+                icon: const Icon(Icons.dark_mode),
               ),
             ],
             selected: {themeProvider.themeMode},
@@ -79,8 +79,8 @@ class SettingsScreen extends StatelessWidget {
           
           // High Contrast Switch
           SwitchListTile(
-            title: const Text('High Contrast'),
-            subtitle: const Text('Increases visibility with sharper colors and borders'),
+            title: Text(l10n.highContrast),
+            subtitle: Text(l10n.highContrastDesc),
             secondary: const Icon(Icons.contrast),
             value: themeProvider.isHighContrast,
             onChanged: (value) => themeProvider.setHighContrast(value),
@@ -89,7 +89,7 @@ class SettingsScreen extends StatelessWidget {
           
           const SizedBox(height: 24),
           Text(
-            'Color Scheme',
+            l10n.colorScheme,
             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
@@ -116,7 +116,7 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: 32),
-          _buildSectionHeader(context, 'ABOUT'),
+          _buildSectionHeader(context, l10n.about.toUpperCase()),
           const SizedBox(height: 16),
           
           Card(
@@ -124,19 +124,19 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 ListTile(
                   leading: const Icon(Icons.info_outline),
-                  title: const Text('Version'),
+                  title: Text(l10n.version),
                   subtitle: const Text('1.1.0 (Beta)'),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.code),
-                  title: const Text('Developed by'),
+                  title: Text(l10n.developedBy),
                   subtitle: const Text('Qurie'),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.description_outlined),
-                  title: const Text('License'),
+                  title: Text(l10n.license),
                   subtitle: const Text('MIT License'),
                   onTap: () {
                     // Show license dialog
@@ -155,11 +155,12 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 32),
           Center(
             child: Text(
-              'May your d20 always land on 20!',
+              l10n.d20wish,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.outline,
                 fontStyle: FontStyle.italic,
               ),
+              textAlign: TextAlign.center,
             ),
           ),
         ],
