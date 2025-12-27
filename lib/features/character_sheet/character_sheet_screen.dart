@@ -7,7 +7,9 @@ import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/models/character.dart';
 import '../../core/models/item.dart';
 import '../../core/services/item_service.dart';
+import '../../core/utils/item_utils.dart';
 import '../../shared/widgets/dice_roller_modal.dart';
+import '../../shared/widgets/item_details_sheet.dart';
 import 'widgets/expandable_character_card.dart';
 import 'widgets/overview_tab.dart';
 import 'widgets/stats_tab.dart';
@@ -90,55 +92,55 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
           controller: _scrollController,
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
-                            // 1. Character Card
-                            SliverToBoxAdapter(
-                              child: AnimatedSize(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                                child: _currentIndex == 0
-                                    ? Listener(
-                                        behavior: HitTestBehavior.translucent,
-                                        onPointerDown: (event) => _dragStartY = event.position.dy,
-                                        onPointerUp: (_) => _dragStartY = null,
-                                        onPointerMove: (event) {
-                                          if (_dragStartY == null) return;
-                                          final delta = event.position.dy - _dragStartY!;
-                                          
-                                          // Swipe Down -> Expand
-                                          if (delta > 6 && !_isCardExpanded) {
-                                            setState(() {
-                                              _isCardExpanded = true;
-                                              _dragStartY = null;
-                                            });
-                                            _scrollController.position.hold(() {});
-                                          }
-                                          // Swipe Up -> Collapse
-                                          else if (delta < -6 && _isCardExpanded) {
-                                            setState(() {
-                                              _isCardExpanded = false;
-                                              _dragStartY = null;
-                                            });
-                                            _scrollController.position.hold(() {});
-                                          }
-                                        },
-                                        child: ExpandableCharacterCard(
-                                          character: widget.character,
-                                          isExpanded: _isCardExpanded,
-                                          onDicePressed: () {
-                                            showDiceRoller(
-                                              context,
-                                              title: AppLocalizations.of(context)!.rollDie(20),
-                                              modifier: 0,
-                                            );
-                                          },
-                                          onDetailsToggled: (val) {
-                                            setState(() => _isCardExpanded = val);
-                                          },
-                                        ),
-                                      )
-                                    : const SizedBox.shrink(),
-                              ),
-                            ),
+              // 1. Character Card
+              SliverToBoxAdapter(
+                child: AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: _currentIndex == 0
+                      ? Listener(
+                          behavior: HitTestBehavior.translucent,
+                          onPointerDown: (event) => _dragStartY = event.position.dy,
+                          onPointerUp: (_) => _dragStartY = null,
+                          onPointerMove: (event) {
+                            if (_dragStartY == null) return;
+                            final delta = event.position.dy - _dragStartY!;
+                            
+                            // Swipe Down -> Expand
+                            if (delta > 6 && !_isCardExpanded) {
+                              setState(() {
+                                _isCardExpanded = true;
+                                _dragStartY = null;
+                              });
+                              _scrollController.position.hold(() {});
+                            }
+                            // Swipe Up -> Collapse
+                            else if (delta < -6 && _isCardExpanded) {
+                              setState(() {
+                                _isCardExpanded = false;
+                                _dragStartY = null;
+                              });
+                              _scrollController.position.hold(() {});
+                            }
+                          },
+                          child: ExpandableCharacterCard(
+                            character: widget.character,
+                            isExpanded: _isCardExpanded,
+                            onDicePressed: () {
+                              showDiceRoller(
+                                context,
+                                title: AppLocalizations.of(context)!.rollDie(20),
+                                modifier: 0,
+                              );
+                            },
+                            onDetailsToggled: (val) {
+                              setState(() => _isCardExpanded = val);
+                            },
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ),
               // 2. Sticky Navigation Bar
               SliverPersistentHeader(
                 pinned: true,
@@ -262,6 +264,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
   }
 
   void _showQuantityDialog(BuildContext context, Item item) {
+    final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
     final quantityController = TextEditingController(text: '1');
     showDialog(
@@ -277,7 +280,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
               controller: quantityController,
               keyboardType: TextInputType.number,
               autofocus: true,
-              decoration: InputDecoration(labelText: locale == 'ru' ? 'Количество' : 'Quantity', border: const OutlineInputBorder()),
+              decoration: InputDecoration(labelText: l10n.quantity, border: const OutlineInputBorder()),
               onSubmitted: (value) {
                 final quantity = int.tryParse(value) ?? 1;
                 if (quantity > 0) {
@@ -289,7 +292,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(locale == 'ru' ? 'Отмена' : 'Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
           FilledButton(
             onPressed: () {
               final quantity = int.tryParse(quantityController.text) ?? 1;
@@ -298,7 +301,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
                 _addItemToInventory(item.id, quantity: quantity);
               }
             },
-            child: Text(locale == 'ru' ? 'Добавить' : 'Add'),
+            child: Text(l10n.addItem),
           ),
         ],
       ),
@@ -312,7 +315,8 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
     widget.character.updatedAt = DateTime.now();
     widget.character.save();
     final locale = Localizations.localeOf(context).languageCode;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(locale == 'ru' ? '${newItem.getName(locale)} (x$quantity) добавлен в инвентарь' : '${newItem.getName(locale)} (x$quantity) added to inventory'), duration: const Duration(seconds: 2)));
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.itemAdded(newItem.getName(locale), quantity)), duration: const Duration(seconds: 2)));
     setState(() {});
   }
 }
@@ -383,28 +387,6 @@ class _AddItemDialogState extends State<_AddItemDialog> {
     return items;
   }
 
-  IconData _getItemIcon(ItemType type) {
-    switch (type) {
-      case ItemType.weapon: return Icons.gavel;
-      case ItemType.armor: return Icons.shield;
-      case ItemType.gear: return Icons.backpack;
-      case ItemType.consumable: return Icons.local_drink;
-      case ItemType.tool: return Icons.build;
-      case ItemType.treasure: return Icons.diamond;
-    }
-  }
-
-  String _getCategoryName(ItemType type) {
-    switch (type) {
-      case ItemType.weapon: return widget.locale == 'ru' ? 'Оружие' : 'Weapons';
-      case ItemType.armor: return widget.locale == 'ru' ? 'Доспехи' : 'Armor';
-      case ItemType.gear: return widget.locale == 'ru' ? 'Снаряжение' : 'Gear';
-      case ItemType.consumable: return widget.locale == 'ru' ? 'Расходники' : 'Consumables';
-      case ItemType.tool: return widget.locale == 'ru' ? 'Инструменты' : 'Tools';
-      case ItemType.treasure: return widget.locale == 'ru' ? 'Сокровища' : 'Treasure';
-    }
-  }
-
   void _showCreateCustomItemDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -412,24 +394,39 @@ class _AddItemDialogState extends State<_AddItemDialog> {
     );
   }
 
-  Future<void> _showQuantityDialogForItem(String itemId, String itemName, String itemDesc) async {
-    final quantityController = TextEditingController(text: _selectedItems.containsKey(itemId) ? '${_selectedItems[itemId]}' : '1');
+  Future<void> _showQuantityDialogForItem(Item item) async {
+    final l10n = AppLocalizations.of(context)!;
+    final quantityController = TextEditingController(text: _selectedItems.containsKey(item.id) ? '${_selectedItems[item.id]}' : '1');
+    
     final quantity = await showDialog<int>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(itemName),
+        title: Text(item.getName(widget.locale)),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(itemDesc, style: Theme.of(context).textTheme.bodySmall),
+            Text(item.getDescription(widget.locale), style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 16),
-            TextField(controller: quantityController, keyboardType: TextInputType.number, autofocus: true, decoration: InputDecoration(labelText: widget.locale == 'ru' ? 'Количество' : 'Quantity', border: const OutlineInputBorder()), onSubmitted: (value) { final qty = int.tryParse(value) ?? 1; if (qty > 0) Navigator.pop(context, qty); }),
+            TextField(
+              controller: quantityController, 
+              keyboardType: TextInputType.number, 
+              autofocus: true, 
+              decoration: InputDecoration(labelText: l10n.quantity, border: const OutlineInputBorder()), 
+              onSubmitted: (value) { final qty = int.tryParse(value) ?? 1; if (qty > 0) Navigator.pop(context, qty); }
+            ),
         ]),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(widget.locale == 'ru' ? 'Отмена' : 'Cancel')), FilledButton(onPressed: () { final qty = int.tryParse(quantityController.text) ?? 1; if (qty > 0) Navigator.pop(context, qty); }, child: Text(widget.locale == 'ru' ? 'Готово' : 'Done'))],
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)), 
+          FilledButton(onPressed: () { final qty = int.tryParse(quantityController.text) ?? 1; if (qty > 0) Navigator.pop(context, qty); }, child: Text(l10n.done))
+        ],
       ),
     );
-    if (quantity != null && quantity > 0) setState(() => _selectedItems[itemId] = quantity);
+    
+    if (quantity != null && quantity > 0) {
+      setState(() => _selectedItems[item.id] = quantity);
+    }
   }
 
   void _addSelectedItemsToInventory() {
+    final l10n = AppLocalizations.of(context)!;
     for (var entry in _selectedItems.entries) {
       for (int i = 0; i < entry.value; i++) {
         final newItem = ItemService.createItemFromTemplate(entry.key);
@@ -438,26 +435,42 @@ class _AddItemDialogState extends State<_AddItemDialog> {
     }
     widget.character.updatedAt = DateTime.now();
     widget.character.save();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(widget.locale == 'ru' ? 'Добавлено предметов: ${_selectedItems.length}' : 'Added ${_selectedItems.length} items'), duration: const Duration(seconds: 2)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.itemAdded('Items', _selectedItems.length)), duration: const Duration(seconds: 2)));
     Navigator.pop(context);
+  }
+
+  void _showItemDetails(Item item) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => ItemDetailsSheet(
+        item: item,
+        onAdd: () {
+          Navigator.pop(context); // Close details
+          _showQuantityDialogForItem(item); // Open quantity dialog
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final filteredItems = _getFilteredItems();
+    
     return DraggableScrollableSheet(
       initialChildSize: 0.7, minChildSize: 0.5, maxChildSize: 0.95, expand: false,
       builder: (context, scrollController) {
         return Column(children: [
-            Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(border: Border(bottom: BorderSide(color: theme.colorScheme.outlineVariant, width: 1))), child: Row(children: [Expanded(child: Text(widget.locale == 'ru' ? 'Добавить предмет' : 'Add Item', style: theme.textTheme.headlineSmall)), FilledButton.icon(onPressed: () { Navigator.pop(context); _showCreateCustomItemDialog(context); }, icon: const Icon(Icons.add), label: Text(widget.locale == 'ru' ? 'Создать' : 'Create'))])),
-            Padding(padding: const EdgeInsets.all(16), child: TextField(controller: _searchController, decoration: InputDecoration(hintText: widget.locale == 'ru' ? 'Поиск предметов...' : 'Search items...', prefixIcon: const Icon(Icons.search), suffixIcon: _searchQuery.isNotEmpty ? IconButton(icon: const Icon(Icons.clear), onPressed: () => setState(() { _searchController.clear(); _searchQuery = ''; })) : null, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), onChanged: (value) => setState(() => _searchQuery = value))),
-            SizedBox(height: 50, child: ListView(scrollDirection: Axis.horizontal, padding: const EdgeInsets.symmetric(horizontal: 16), children: [Padding(padding: const EdgeInsets.only(right: 8), child: FilterChip(label: Text(widget.locale == 'ru' ? 'Все' : 'All'), selected: _selectedCategory == null, onSelected: (_) => setState(() => _selectedCategory = null))), ...ItemType.values.map((type) => Padding(padding: const EdgeInsets.only(right: 8), child: FilterChip(avatar: Icon(_getItemIcon(type), size: 18), label: Text(_getCategoryName(type)), selected: _selectedCategory == type, onSelected: (_) => setState(() => _selectedCategory = type))))])),
+            Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(border: Border(bottom: BorderSide(color: theme.colorScheme.outlineVariant, width: 1))), child: Row(children: [Expanded(child: Text(l10n.itemCatalog, style: theme.textTheme.headlineSmall)), FilledButton.icon(onPressed: () { Navigator.pop(context); _showCreateCustomItemDialog(context); }, icon: const Icon(Icons.add), label: Text(l10n.createItem))])),
+            Padding(padding: const EdgeInsets.all(16), child: TextField(controller: _searchController, decoration: InputDecoration(hintText: l10n.searchItems, prefixIcon: const Icon(Icons.search), suffixIcon: _searchQuery.isNotEmpty ? IconButton(icon: const Icon(Icons.clear), onPressed: () => setState(() { _searchController.clear(); _searchQuery = ''; })) : null, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), onChanged: (value) => setState(() => _searchQuery = value))),
+            SizedBox(height: 50, child: ListView(scrollDirection: Axis.horizontal, padding: const EdgeInsets.symmetric(horizontal: 16), children: [Padding(padding: const EdgeInsets.only(right: 8), child: FilterChip(label: Text(l10n.filterAll), selected: _selectedCategory == null, onSelected: (_) => setState(() => _selectedCategory = null))), ...ItemType.values.map((type) => Padding(padding: const EdgeInsets.only(right: 8), child: FilterChip(avatar: Icon(ItemUtils.getIcon(type), size: 18), label: Text(ItemUtils.getLocalizedTypeName(l10n, type)), selected: _selectedCategory == type, onSelected: (_) => setState(() => _selectedCategory = type))))])),
             const SizedBox(height: 8),
-            Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Align(alignment: Alignment.centerLeft, child: Text(widget.locale == 'ru' ? 'Найдено: ${filteredItems.length}' : 'Found: ${filteredItems.length}', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)))),
+            Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Align(alignment: Alignment.centerLeft, child: Text(l10n.foundItems(filteredItems.length, _selectedItems.length), style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)))),
             const SizedBox(height: 8),
-            Expanded(child: filteredItems.isEmpty ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.inventory_2_outlined, size: 64, color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5)), const SizedBox(height: 16), Text(widget.locale == 'ru' ? 'Предметы не найдены' : 'No items found', style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant))])) : ListView.builder(controller: scrollController, padding: const EdgeInsets.all(16), itemCount: filteredItems.length, itemBuilder: (context, index) { final item = filteredItems[index]; final isSelected = _selectedItems.containsKey(item.id); final quantity = isSelected ? _selectedItems[item.id] ?? 1 : 0; return Card(margin: const EdgeInsets.only(bottom: 12), color: isSelected ? theme.colorScheme.primaryContainer : null, child: ListTile(leading: Badge(label: Text('$quantity'), isLabelVisible: isSelected && quantity > 0, backgroundColor: theme.colorScheme.secondary, textColor: theme.colorScheme.onSecondary, child: Icon(_getItemIcon(item.type), color: isSelected ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.primary)), title: Text(item.getName(widget.locale), style: TextStyle(color: isSelected ? theme.colorScheme.onPrimaryContainer : null)), subtitle: Text(item.getDescription(widget.locale), maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: isSelected ? theme.colorScheme.onPrimaryContainer.withOpacity(0.8) : null)), trailing: IconButton(icon: Icon(isSelected ? Icons.remove_circle : Icons.add_circle, color: isSelected ? theme.colorScheme.onPrimaryContainer : null), onPressed: () { if (isSelected) { setState(() => _selectedItems.remove(item.id)); } else { _showQuantityDialogForItem(item.id, item.getName(widget.locale), item.getDescription(widget.locale)); } }), onTap: () => _showQuantityDialogForItem(item.id, item.getName(widget.locale), item.getDescription(widget.locale)))); })),
-            if (_selectedItems.isNotEmpty) Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: theme.colorScheme.surface, border: Border(top: BorderSide(color: theme.colorScheme.outlineVariant, width: 1))), child: SafeArea(top: false, child: FilledButton(onPressed: _addSelectedItemsToInventory, child: Text(widget.locale == 'ru' ? 'Готово (${_selectedItems.length})' : 'Done (${_selectedItems.length})')))),
+            Expanded(child: filteredItems.isEmpty ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.inventory_2_outlined, size: 64, color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5)), const SizedBox(height: 16), Text(l10n.noItemsFound, style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant))])) : ListView.builder(controller: scrollController, padding: const EdgeInsets.all(16), itemCount: filteredItems.length, itemBuilder: (context, index) { final item = filteredItems[index]; final isSelected = _selectedItems.containsKey(item.id); final quantity = isSelected ? _selectedItems[item.id] ?? 1 : 0; return Card(margin: const EdgeInsets.only(bottom: 12), color: isSelected ? theme.colorScheme.primaryContainer : null, child: ListTile(leading: Badge(label: Text('$quantity'), isLabelVisible: isSelected && quantity > 0, backgroundColor: theme.colorScheme.secondary, textColor: theme.colorScheme.onSecondary, child: Icon(ItemUtils.getIcon(item.type), color: isSelected ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.primary)), title: Text(item.getName(widget.locale), style: TextStyle(color: isSelected ? theme.colorScheme.onPrimaryContainer : null)), subtitle: Text(item.getDescription(widget.locale), maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: isSelected ? theme.colorScheme.onPrimaryContainer.withOpacity(0.8) : null)), trailing: IconButton(icon: Icon(isSelected ? Icons.remove_circle : Icons.add_circle, color: isSelected ? theme.colorScheme.onPrimaryContainer : null), onPressed: () { if (isSelected) { setState(() => _selectedItems.remove(item.id)); } else { _showQuantityDialogForItem(item); } }), onTap: () => _showItemDetails(item))); })),
+            if (_selectedItems.isNotEmpty) Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: theme.colorScheme.surface, border: Border(top: BorderSide(color: theme.colorScheme.outlineVariant, width: 1))), child: SafeArea(top: false, child: FilledButton(onPressed: _addSelectedItemsToInventory, child: Text('${l10n.done} (${_selectedItems.length})')))),
         ]);
       },
     );
@@ -490,31 +503,26 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
   }
 
   Future<void> _pickImage() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final result = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: false);
       if (result != null && result.files.isNotEmpty) setState(() => _imagePath = result.files.first.path);
-    } catch (e) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(widget.locale == 'ru' ? 'Ошибка: $e' : 'Error: $e'), backgroundColor: Theme.of(context).colorScheme.error)); }
-  }
-
-  String _getTypeName(ItemType type) {
-    switch (type) { case ItemType.weapon: return widget.locale == 'ru' ? 'Оружие' : 'Weapon'; case ItemType.armor: return widget.locale == 'ru' ? 'Доспехи' : 'Armor'; case ItemType.gear: return widget.locale == 'ru' ? 'Снаряжение' : 'Gear'; case ItemType.consumable: return widget.locale == 'ru' ? 'Расходник' : 'Consumable'; case ItemType.tool: return widget.locale == 'ru' ? 'Инструмент' : 'Tool'; case ItemType.treasure: return widget.locale == 'ru' ? 'Сокровище' : 'Treasure'; }
-  }
-
-  String _getRarityName(ItemRarity rarity) {
-    switch (rarity) { case ItemRarity.common: return widget.locale == 'ru' ? 'Обычный' : 'Common'; case ItemRarity.uncommon: return widget.locale == 'ru' ? 'Необычный' : 'Uncommon'; case ItemRarity.rare: return widget.locale == 'ru' ? 'Редкий' : 'Rare'; case ItemRarity.veryRare: return widget.locale == 'ru' ? 'Очень редкий' : 'Very Rare'; case ItemRarity.legendary: return widget.locale == 'ru' ? 'Легендарный' : 'Legendary'; case ItemRarity.artifact: return widget.locale == 'ru' ? 'Артефакт' : 'Artifact'; }
+    } catch (e) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.errorLoadingImage(e.toString())), backgroundColor: Theme.of(context).colorScheme.error)); }
   }
 
   void _createItem() {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     try {
       final newItem = Item(id: 'custom_${Uuid().v4()}', nameEn: _nameController.text.trim(), nameRu: _nameController.text.trim(), descriptionEn: _descController.text.trim(), descriptionRu: _descController.text.trim(), type: _selectedType, rarity: _selectedRarity, quantity: int.tryParse(_quantityController.text) ?? 1, weight: double.tryParse(_weightController.text) ?? 0.0, valueInCopper: int.tryParse(_valueController.text) ?? 0, customImagePath: _imagePath, isEquipped: false, isAttuned: false);
-      widget.character.inventory.add(newItem); widget.character.updatedAt = DateTime.now(); widget.character.save(); Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(widget.locale == 'ru' ? '${newItem.getName(widget.locale)} создан!' : '${newItem.getName(widget.locale)} created!')));
-    } catch (e) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(widget.locale == 'ru' ? 'Ошибка: $e' : 'Error: $e'), backgroundColor: Theme.of(context).colorScheme.error)); } 
+      widget.character.inventory.add(newItem); widget.character.updatedAt = DateTime.now(); widget.character.save(); Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.itemAdded(newItem.getName(widget.locale), newItem.quantity))));
+    } catch (e) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.errorCreatingItem(e.toString())), backgroundColor: Theme.of(context).colorScheme.error)); } 
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Dialog(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 600, maxHeight: 800),
@@ -532,7 +540,7 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      widget.locale == 'ru' ? 'Создать предмет' : 'Create Custom Item',
+                      l10n.createCustomItem,
                       style: theme.textTheme.titleLarge?.copyWith(
                         color: theme.colorScheme.onPrimaryContainer,
                       ),
@@ -575,7 +583,7 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
                                       Icon(Icons.add_photo_alternate, size: 40, color: theme.colorScheme.onSurfaceVariant),
                                       const SizedBox(height: 8),
                                       Text(
-                                        widget.locale == 'ru' ? 'Добавить\nизображение' : 'Add\nimage',
+                                        l10n.addImage,
                                         textAlign: TextAlign.center,
                                         style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                                       ),
@@ -588,16 +596,16 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
                       TextFormField(
                         controller: _nameController,
                         decoration: InputDecoration(
-                          labelText: widget.locale == 'ru' ? 'Название' : 'Name',
+                          labelText: l10n.itemName,
                           border: const OutlineInputBorder(),
                         ),
-                        validator: (v) => (v == null || v.isEmpty) ? (widget.locale == 'ru' ? 'Введите название' : 'Enter name') : null,
+                        validator: (v) => (v == null || v.isEmpty) ? l10n.enterItemName : null,
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _descController,
                         decoration: InputDecoration(
-                          labelText: widget.locale == 'ru' ? 'Описание' : 'Description',
+                          labelText: l10n.itemDescription,
                           border: const OutlineInputBorder(),
                         ),
                         maxLines: 3,
@@ -606,20 +614,20 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
                       DropdownButtonFormField<ItemType>(
                         value: _selectedType,
                         decoration: InputDecoration(
-                          labelText: widget.locale == 'ru' ? 'Тип' : 'Type',
+                          labelText: l10n.itemType,
                           border: const OutlineInputBorder(),
                         ),
-                        items: ItemType.values.map((t) => DropdownMenuItem(value: t, child: Text(_getTypeName(t)))).toList(),
+                        items: ItemType.values.map((t) => DropdownMenuItem(value: t, child: Text(ItemUtils.getLocalizedTypeName(l10n, t)))).toList(),
                         onChanged: (v) => setState(() => _selectedType = v!),
                       ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<ItemRarity>(
                         value: _selectedRarity,
                         decoration: InputDecoration(
-                          labelText: widget.locale == 'ru' ? 'Редкость' : 'Rarity',
+                          labelText: l10n.itemRarity,
                           border: const OutlineInputBorder(),
                         ),
-                        items: ItemRarity.values.map((r) => DropdownMenuItem(value: r, child: Text(_getRarityName(r)))).toList(),
+                        items: ItemRarity.values.map((r) => DropdownMenuItem(value: r, child: Text(ItemUtils.getLocalizedRarityName(l10n, r)))).toList(),
                         onChanged: (v) => setState(() => _selectedRarity = v!),
                       ),
                       const SizedBox(height: 16),
@@ -629,7 +637,7 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
                             child: TextFormField(
                               controller: _weightController,
                               decoration: InputDecoration(
-                                labelText: widget.locale == 'ru' ? 'Вес' : 'Weight',
+                                labelText: l10n.itemWeight,
                                 border: const OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.number,
@@ -640,7 +648,7 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
                             child: TextFormField(
                               controller: _valueController,
                               decoration: InputDecoration(
-                                labelText: widget.locale == 'ru' ? 'Цена' : 'Value',
+                                labelText: l10n.itemValue,
                                 border: const OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.number,
@@ -652,7 +660,7 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
                       TextFormField(
                         controller: _quantityController,
                         decoration: InputDecoration(
-                          labelText: widget.locale == 'ru' ? 'Количество' : 'Quantity',
+                          labelText: l10n.itemQuantity,
                           border: const OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.number,
@@ -674,13 +682,13 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text(widget.locale == 'ru' ? 'Отмена' : 'Cancel'),
+                    child: Text(l10n.cancel),
                   ),
                   const SizedBox(width: 12),
                   FilledButton.icon(
                     onPressed: _createItem,
                     icon: const Icon(Icons.check),
-                    label: Text(widget.locale == 'ru' ? 'Создать' : 'Create'),
+                    label: Text(l10n.createItem),
                   ),
                 ],
               ),

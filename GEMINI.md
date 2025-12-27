@@ -77,6 +77,9 @@
 *   **Character Sheet UI Polish:**
     *   **FIXED (Dice Roller):** Localized titles for "Roll d20", "Saving Throws", and "Checks".
     *   **FIXED (Spells Tab):** Resources and Active Abilities are now interactive cards that open details sheets. Spells now open a full detail view (same as Almanac) instead of a simple toast. Refactored spell details logic into reusable `SpellDetailsSheet` and `SpellUtils`.
+*   **Inventory & Catalog Polish:**
+    *   **FIXED (Catalog):** Tapping an item in the "Add Item" catalog now opens a full `ItemDetailsSheet` instead of immediately asking for quantity. Users can review stats before adding.
+    *   **Refactor:** Extracted item details logic to `ItemDetailsSheet` and localization logic to `ItemUtils`, removing duplication between Inventory tab and Catalog.
 
 ### Pending High-Priority Fixes
 1.  **Data Population:**
