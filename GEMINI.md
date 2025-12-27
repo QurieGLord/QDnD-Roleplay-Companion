@@ -80,6 +80,9 @@
 *   **Inventory & Catalog Polish:**
     *   **FIXED (Catalog):** Tapping an item in the "Add Item" catalog now opens a full `ItemDetailsSheet` instead of immediately asking for quantity. Users can review stats before adding.
     *   **Refactor:** Extracted item details logic to `ItemDetailsSheet` and localization logic to `ItemUtils`, removing duplication between Inventory tab and Catalog.
+*   **Dice Roller & Stats:**
+    *   **FIXED (Layout):** Completely redesigned `DiceRollerModal` to fit on screen without scrolling. Reduced die size (180px), created a compact control dock with horizontal dice selector and unified modifier/advantage row.
+    *   **FIXED (Titles):** Changed title format for checks/saves to be more concise: "Check STR", "Save DEX" (localized as "Проверка СИЛ", "Спасбросок ЛОВ"), fixing overflow issues.
 
 ### Pending High-Priority Fixes
 1.  **Data Population:**

@@ -130,7 +130,7 @@ class StatsTab extends StatelessWidget {
       elevation: 2,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => showDiceRoller(context, title: '$full ${l10n.check}', modifier: modifier),
+        onTap: () => showDiceRoller(context, title: '${l10n.check} $abbr', modifier: modifier),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -172,7 +172,15 @@ class StatsTab extends StatelessWidget {
       children: saves.entries.map((entry) {
         final isProficient = character.savingThrowProficiencies.map((s) => s.toLowerCase()).contains(entry.key.toLowerCase());
         final totalMod = entry.value + (isProficient ? character.proficiencyBonus : 0);
-        return _buildSkillRow(context, _getAbilityName(l10n, entry.key), totalMod, isProficient, l10n, isSave: true);
+        return _buildSkillRow(
+          context, 
+          _getAbilityName(l10n, entry.key), 
+          totalMod, 
+          isProficient, 
+          l10n, 
+          isSave: true,
+          abilityLabel: _getAbilityAbbr(l10n, entry.key),
+        );
       }).toList(),
     );
   }
@@ -232,9 +240,12 @@ class StatsTab extends StatelessWidget {
 
   Widget _buildSkillRow(BuildContext context, String name, int modifier, bool isProficient, AppLocalizations l10n, {bool isSave = false, String? abilityLabel}) {
     final colorScheme = Theme.of(context).colorScheme;
+    final title = isSave 
+      ? '${l10n.saveLabel} ${abilityLabel ?? name}' 
+      : '$name ${l10n.check}';
     
     return InkWell(
-      onTap: () => showDiceRoller(context, title: '$name ${isSave ? l10n.saveLabel : l10n.check}', modifier: modifier),
+      onTap: () => showDiceRoller(context, title: title, modifier: modifier),
       borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
