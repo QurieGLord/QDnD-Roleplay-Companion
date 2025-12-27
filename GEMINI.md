@@ -74,6 +74,9 @@
     *   **FIXED (UI):** `FeaturesSpellsStep` features now use styled Chips. `EquipmentStep` description wrapping improved.
     *   **FIXED (Basic Info):** Gender picker refactored to use text-only SegmentedButton (M/F/Oth) with correct localized keys. Physical appearance grid layout improved for responsiveness.
     *   **FIXED (Race & Class):** Added full localization for Races (Languages, Traits headers) and Classes (Skills, Armor, Weapons). Added mapping for snake_case weapon names from JSON data.
+*   **Character Sheet UI Polish:**
+    *   **FIXED (Dice Roller):** Localized titles for "Roll d20", "Saving Throws", and "Checks".
+    *   **FIXED (Spells Tab):** Resources and Active Abilities are now interactive cards that open details sheets. Spells now open a full detail view (same as Almanac) instead of a simple toast. Refactored spell details logic into reusable `SpellDetailsSheet` and `SpellUtils`.
 
 ### Pending High-Priority Fixes
 1.  **Data Population:**

@@ -1772,6 +1772,24 @@ abstract class AppLocalizations {
   /// **'Saving Throw Proficiencies'**
   String get savingThrowProficiencies;
 
+  /// No description provided for @check.
+  ///
+  /// In en, this message translates to:
+  /// **'Check'**
+  String get check;
+
+  /// No description provided for @saveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveLabel;
+
+  /// No description provided for @rollDie.
+  ///
+  /// In en, this message translates to:
+  /// **'Roll d{sides}'**
+  String rollDie(int sides);
+
   /// No description provided for @skillProficiencies.
   ///
   /// In en, this message translates to:

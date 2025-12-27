@@ -363,6 +363,14 @@
   "languages": "Languages",
   "racialTraits": "Racial Traits",
   "savingThrowProficiencies": "Saving Throws",
+  "check": "Check",
+  "saveLabel": "Save",
+  "rollDie": "Roll d{sides}",
+  "@rollDie": {
+    "placeholders": {
+      "sides": { "type": "int" }
+    }
+  },
   "skillProficiencies": "Skills",
   "armorProficiencies": "Armor",
   "weaponProficiencies": "Weapons",

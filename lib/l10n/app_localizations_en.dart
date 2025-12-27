@@ -886,6 +886,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savingThrowProficiencies => 'Saving Throw Proficiencies';
 
   @override
+  String get check => 'Check';
+
+  @override
+  String get saveLabel => 'Save';
+
+  @override
+  String rollDie(int sides) {
+    return 'Roll d$sides';
+  }
+
+  @override
   String get skillProficiencies => 'Skill Proficiencies';
 
   @override

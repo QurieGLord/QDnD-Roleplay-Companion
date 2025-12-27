@@ -881,6 +881,17 @@ class AppLocalizationsRu extends AppLocalizations {
   String get savingThrowProficiencies => 'Спасброски';
 
   @override
+  String get check => 'Проверка';
+
+  @override
+  String get saveLabel => 'Спасбросок';
+
+  @override
+  String rollDie(int sides) {
+    return 'Бросок d$sides';
+  }
+
+  @override
   String get skillProficiencies => 'Навыки';
 
   @override

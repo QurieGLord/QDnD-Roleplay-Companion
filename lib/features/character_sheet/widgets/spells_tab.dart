@@ -7,6 +7,9 @@ import '../../../core/services/spell_service.dart';
 import '../../../core/services/spellcasting_service.dart';
 import '../../../core/services/storage_service.dart';
 import '../../spell_almanac/spell_almanac_screen.dart';
+import '../../../shared/widgets/spell_details_sheet.dart';
+import '../../../shared/widgets/feature_details_sheet.dart';
+import '../../../core/utils/spell_utils.dart';
 
 class SpellsTab extends StatefulWidget {
   final Character character;
@@ -18,40 +21,6 @@ class SpellsTab extends StatefulWidget {
 }
 
 class _SpellsTabState extends State<SpellsTab> {
-  Color _getSchoolColor(String school) {
-    // Simple check based on common school names (english or russian substring match could work, but strict is better)
-    // Since data might be localized, we check known English names or mapping.
-    // For now, let's assume the input is the raw school string from data.
-    // If data was migrated to Russian, this might fail unless we handle Russian names.
-    
-    final lower = school.toLowerCase();
-    if (lower.contains('abj') || lower.contains('огражд')) return Colors.blue;
-    if (lower.contains('con') || lower.contains('вызов')) return Colors.purple;
-    if (lower.contains('div') || lower.contains('прориц')) return Colors.cyan;
-    if (lower.contains('ench') || lower.contains('очаров')) return Colors.pink;
-    if (lower.contains('evo') || lower.contains('эвокац')) return Colors.red;
-    if (lower.contains('ill') || lower.contains('иллюз')) return Colors.indigo;
-    if (lower.contains('nec') || lower.contains('некро')) return Colors.grey;
-    if (lower.contains('trans') || lower.contains('преобр')) return Colors.green;
-    
-    return Theme.of(context).colorScheme.primary;
-  }
-
-  String _getSchoolName(AppLocalizations l10n, String school) {
-    // Map English school names to localized names if possible
-    // This is a visual helper. 
-    final lower = school.toLowerCase();
-    if (lower.contains('abjur')) return l10n.schoolAbjuration;
-    if (lower.contains('conjur')) return l10n.schoolConjuration;
-    if (lower.contains('divin')) return l10n.schoolDivination;
-    if (lower.contains('enchant')) return l10n.schoolEnchantment;
-    if (lower.contains('evoc')) return l10n.schoolEvocation;
-    if (lower.contains('illus')) return l10n.schoolIllusion;
-    if (lower.contains('necro')) return l10n.schoolNecromancy;
-    if (lower.contains('trans')) return l10n.schoolTransmutation;
-    return school;
-  }
-
   String _getLocalizedActionEconomy(AppLocalizations l10n, String economy) {
     final lower = economy.toLowerCase();
     if (lower.contains('bonus')) return l10n.actionTypeBonus;
@@ -222,15 +191,7 @@ class _SpellsTabState extends State<SpellsTab> {
             // === RESOURCES ===
             if (resourceFeatures.isNotEmpty) ...[
               _buildSectionHeader(l10n.resources.toUpperCase()),
-              Card(
-                elevation: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: resourceFeatures.map((feature) => _buildResourceFeature(feature, locale)).toList(),
-                  ),
-                ),
-              ),
+              ...resourceFeatures.map((feature) => _buildResourceFeature(feature, locale)).toList(),
               const SizedBox(height: 16),
             ],
 
@@ -330,62 +291,75 @@ class _SpellsTabState extends State<SpellsTab> {
     final pool = feature.resourcePool!;
     final colorScheme = Theme.of(context).colorScheme;
     
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: () => showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          builder: (context) => FeatureDetailsSheet(feature: feature),
+        ),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Icon(_getFeatureIcon(feature.iconName), size: 20, color: colorScheme.primary),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(feature.getName(locale), style: const TextStyle(fontWeight: FontWeight.w600))),
-                  ],
-                ),
-              ),
-              Text('${pool.currentUses}/${pool.maxUses}', 
-                style: TextStyle(fontWeight: FontWeight.bold, color: pool.isEmpty ? colorScheme.error : colorScheme.primary)),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: pool.maxUses > 0 ? pool.currentUses / pool.maxUses : 0,
-                    color: pool.isEmpty ? colorScheme.error : colorScheme.primary,
-                    backgroundColor: colorScheme.surfaceContainerHighest,
-                    minHeight: 8,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Icon(_getFeatureIcon(feature.iconName), size: 20, color: colorScheme.primary),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(feature.getName(locale), style: const TextStyle(fontWeight: FontWeight.w600))),
+                      ],
+                    ),
                   ),
-                ),
+                  Text('${pool.currentUses}/${pool.maxUses}', 
+                    style: TextStyle(fontWeight: FontWeight.bold, color: pool.isEmpty ? colorScheme.error : colorScheme.primary)),
+                ],
               ),
-              const SizedBox(width: 12),
-              IconButton(
-                icon: const Icon(Icons.remove_circle_outline),
-                onPressed: pool.isEmpty ? null : () => setState(() { pool.use(1); widget.character.save(); }),
-                visualDensity: VisualDensity.compact,
-                constraints: const BoxConstraints(),
-                padding: EdgeInsets.zero,
-                iconSize: 24,
-              ),
-              const SizedBox(width: 12),
-              IconButton(
-                icon: const Icon(Icons.add_circle_outline),
-                onPressed: pool.isFull ? null : () => setState(() { pool.restore(1); widget.character.save(); }),
-                visualDensity: VisualDensity.compact,
-                constraints: const BoxConstraints(),
-                padding: EdgeInsets.zero,
-                iconSize: 24,
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: pool.maxUses > 0 ? pool.currentUses / pool.maxUses : 0,
+                        color: pool.isEmpty ? colorScheme.error : colorScheme.primary,
+                        backgroundColor: colorScheme.surfaceContainerHighest,
+                        minHeight: 8,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  IconButton(
+                    icon: const Icon(Icons.remove_circle_outline),
+                    onPressed: pool.isEmpty ? null : () => setState(() { pool.use(1); widget.character.save(); }),
+                    visualDensity: VisualDensity.compact,
+                    constraints: const BoxConstraints(),
+                    padding: EdgeInsets.zero,
+                    iconSize: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline),
+                    onPressed: pool.isFull ? null : () => setState(() { pool.restore(1); widget.character.save(); }),
+                    visualDensity: VisualDensity.compact,
+                    constraints: const BoxConstraints(),
+                    padding: EdgeInsets.zero,
+                    iconSize: 24,
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -397,82 +371,86 @@ class _SpellsTabState extends State<SpellsTab> {
     bool usesChannelDivinity = false;
     CharacterFeature? cdPoolFeature;
     
-    // Heuristic: Name or Description mentions "Channel Divinity" AND it's an action-type feature
     if (feature.nameEn.contains('Channel Divinity') || feature.descriptionEn.contains('Channel Divinity')) {
       try {
-        // Try to find the resource pool feature
         cdPoolFeature = widget.character.features.firstWhere((f) => f.id == 'channel_divinity');
         if (cdPoolFeature.resourcePool != null) {
           usesChannelDivinity = true;
         }
-      } catch (_) {
-        // No Channel Divinity pool found on character
-      }
+      } catch (_) {}
     }
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: () => showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          builder: (context) => FeatureDetailsSheet(feature: feature),
+        ),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: colorScheme.secondaryContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(_getFeatureIcon(feature.iconName), size: 20, color: colorScheme.onSecondaryContainer),
                   ),
-                  child: Icon(_getFeatureIcon(feature.iconName), size: 20, color: colorScheme.onSecondaryContainer),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(feature.getName(locale), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                      if (feature.actionEconomy != null)
-                        Text(
-                          _getLocalizedActionEconomy(l10n, feature.actionEconomy!).toUpperCase(),
-                          style: TextStyle(fontSize: 10, color: colorScheme.secondary, fontWeight: FontWeight.w600, letterSpacing: 0.5),
-                        ),
-                    ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(feature.getName(locale), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                        if (feature.actionEconomy != null)
+                          Text(
+                            _getLocalizedActionEconomy(l10n, feature.actionEconomy!).toUpperCase(),
+                            style: TextStyle(fontSize: 10, color: colorScheme.secondary, fontWeight: FontWeight.w600, letterSpacing: 0.5),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              feature.getDescription(locale), 
-              maxLines: usesChannelDivinity ? 2 : 4, 
-              overflow: TextOverflow.ellipsis, 
-              style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)
-            ),
-            
-            if (usesChannelDivinity && cdPoolFeature != null) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.tonalIcon(
-                  onPressed: cdPoolFeature.resourcePool!.currentUses > 0 
-                    ? () => setState(() { cdPoolFeature!.resourcePool!.use(1); widget.character.save(); }) 
-                    : null,
-                  icon: const Icon(Icons.auto_awesome, size: 16),
-                  label: Text(
-                    cdPoolFeature.resourcePool!.currentUses > 0
-                    ? l10n.useChannelDivinity(cdPoolFeature.resourcePool!.currentUses)
-                    : l10n.noChannelDivinity
-                  ),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                  ),
-                ),
+                ],
               ),
-            ]
-          ],
+              const SizedBox(height: 8),
+              Text(
+                feature.getDescription(locale), 
+                maxLines: usesChannelDivinity ? 2 : 4, 
+                overflow: TextOverflow.ellipsis, 
+                style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)
+              ),
+              
+              if (usesChannelDivinity && cdPoolFeature != null) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.tonalIcon(
+                    onPressed: cdPoolFeature.resourcePool!.currentUses > 0 
+                      ? () => setState(() { cdPoolFeature!.resourcePool!.use(1); widget.character.save(); }) 
+                      : null,
+                    icon: const Icon(Icons.auto_awesome, size: 16),
+                    label: Text(
+                      cdPoolFeature.resourcePool!.currentUses > 0
+                      ? l10n.useChannelDivinity(cdPoolFeature.resourcePool!.currentUses)
+                      : l10n.noChannelDivinity
+                    ),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                  ),
+                ),
+              ]
+            ],
+          ),
         ),
       ),
     );
@@ -486,7 +464,6 @@ class _SpellsTabState extends State<SpellsTab> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Stats Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -499,10 +476,8 @@ class _SpellsTabState extends State<SpellsTab> {
             ),
             if (widget.character.maxSpellSlots.any((s) => s > 0)) ...[
               const Divider(height: 32),
-              // Slots
               ...List.generate(9, (i) {
                 final level = i + 1;
-                // Safety checks
                 if (i >= widget.character.maxSpellSlots.length) return const SizedBox.shrink();
                 final max = widget.character.maxSpellSlots[i];
                 if (max == 0) return const SizedBox.shrink();
@@ -574,7 +549,6 @@ class _SpellsTabState extends State<SpellsTab> {
         ),
         ...spells.map((spell) {
            final isPrepared = widget.character.preparedSpells.contains(spell.id);
-           // Bounds check for spell slots
            final canCast = spell.level == 0 || (spell.level <= widget.character.spellSlots.length && widget.character.spellSlots[spell.level - 1] > 0);
            
            return Card(
@@ -589,7 +563,6 @@ class _SpellsTabState extends State<SpellsTab> {
                dense: true,
                leading: GestureDetector(
                  onTap: () {
-                   // Toggle prepare
                    setState(() {
                       if (isPrepared) widget.character.preparedSpells.remove(spell.id);
                       else widget.character.preparedSpells.add(spell.id);
@@ -603,15 +576,29 @@ class _SpellsTabState extends State<SpellsTab> {
                  ),
                ),
                title: Text(spell.getName(locale), style: const TextStyle(fontWeight: FontWeight.w600)),
-               subtitle: Text(_getSchoolName(l10n, spell.school), style: TextStyle(color: colorScheme.secondary, fontSize: 11)),
+               subtitle: Text(SpellUtils.getLocalizedSchool(l10n, spell.school), style: TextStyle(color: colorScheme.secondary, fontSize: 11)),
                trailing: IconButton(
                  icon: const Icon(Icons.auto_fix_high),
                  onPressed: canCast ? () => _showCastSpellDialog(spell, locale, l10n) : null,
                  color: canCast ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.2),
                  tooltip: l10n.castSpell,
                ),
-               onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                 SnackBar(content: Text(spell.getDescription(locale)), duration: const Duration(seconds: 2))
+               onTap: () => showModalBottomSheet(
+                 context: context,
+                 isScrollControlled: true,
+                 builder: (context) => SpellDetailsSheet(
+                   spell: spell,
+                   character: widget.character,
+                   onToggleKnown: () => setState(() {
+                      if (widget.character.knownSpells.contains(spell.id)) {
+                        widget.character.knownSpells.remove(spell.id);
+                        widget.character.preparedSpells.remove(spell.id);
+                      } else {
+                        widget.character.knownSpells.add(spell.id);
+                      }
+                      widget.character.save();
+                   }),
+                 ),
                ),
              ),
            );

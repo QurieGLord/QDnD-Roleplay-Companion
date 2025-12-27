@@ -59,8 +59,7 @@ class StatsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
-
+    
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -115,23 +114,23 @@ class StatsTab extends StatelessWidget {
       crossAxisSpacing: 8,
       childAspectRatio: 0.85,
       children: [
-        _buildAbilityCard(context, l10n.abilityStrAbbr, l10n.abilityStr, character.abilityScores.strength, character.abilityScores.strengthModifier),
-        _buildAbilityCard(context, l10n.abilityDexAbbr, l10n.abilityDex, character.abilityScores.dexterity, character.abilityScores.dexterityModifier),
-        _buildAbilityCard(context, l10n.abilityConAbbr, l10n.abilityCon, character.abilityScores.constitution, character.abilityScores.constitutionModifier),
-        _buildAbilityCard(context, l10n.abilityIntAbbr, l10n.abilityInt, character.abilityScores.intelligence, character.abilityScores.intelligenceModifier),
-        _buildAbilityCard(context, l10n.abilityWisAbbr, l10n.abilityWis, character.abilityScores.wisdom, character.abilityScores.wisdomModifier),
-        _buildAbilityCard(context, l10n.abilityChaAbbr, l10n.abilityCha, character.abilityScores.charisma, character.abilityScores.charismaModifier),
+        _buildAbilityCard(context, l10n.abilityStrAbbr, l10n.abilityStr, character.abilityScores.strength, character.abilityScores.strengthModifier, l10n),
+        _buildAbilityCard(context, l10n.abilityDexAbbr, l10n.abilityDex, character.abilityScores.dexterity, character.abilityScores.dexterityModifier, l10n),
+        _buildAbilityCard(context, l10n.abilityConAbbr, l10n.abilityCon, character.abilityScores.constitution, character.abilityScores.constitutionModifier, l10n),
+        _buildAbilityCard(context, l10n.abilityIntAbbr, l10n.abilityInt, character.abilityScores.intelligence, character.abilityScores.intelligenceModifier, l10n),
+        _buildAbilityCard(context, l10n.abilityWisAbbr, l10n.abilityWis, character.abilityScores.wisdom, character.abilityScores.wisdomModifier, l10n),
+        _buildAbilityCard(context, l10n.abilityChaAbbr, l10n.abilityCha, character.abilityScores.charisma, character.abilityScores.charismaModifier, l10n),
       ],
     );
   }
 
-  Widget _buildAbilityCard(BuildContext context, String abbr, String full, int score, int modifier) {
+  Widget _buildAbilityCard(BuildContext context, String abbr, String full, int score, int modifier, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
     return Card(
       elevation: 2,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => showDiceRoller(context, title: '$full Check', modifier: modifier),
+        onTap: () => showDiceRoller(context, title: '$full ${l10n.check}', modifier: modifier),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -173,14 +172,12 @@ class StatsTab extends StatelessWidget {
       children: saves.entries.map((entry) {
         final isProficient = character.savingThrowProficiencies.map((s) => s.toLowerCase()).contains(entry.key.toLowerCase());
         final totalMod = entry.value + (isProficient ? character.proficiencyBonus : 0);
-        // Use English key for logic, localized name for display
-        return _buildSkillRow(context, _getAbilityName(l10n, entry.key), totalMod, isProficient, isSave: true);
+        return _buildSkillRow(context, _getAbilityName(l10n, entry.key), totalMod, isProficient, l10n, isSave: true);
       }).toList(),
     );
   }
 
   Widget _buildSkillsList(BuildContext context, AppLocalizations l10n) {
-    // Standard 5e Skills mapped to abilities
     final skillsMap = {
       'Athletics': 'Strength',
       'Acrobatics': 'Dexterity',
@@ -226,17 +223,18 @@ class StatsTab extends StatelessWidget {
             _getSkillName(l10n, skillKey), 
             totalMod, 
             isProficient, 
+            l10n,
             abilityLabel: _getAbilityAbbr(l10n, ability)
         );
       }).toList(),
     );
   }
 
-  Widget _buildSkillRow(BuildContext context, String name, int modifier, bool isProficient, {bool isSave = false, String? abilityLabel}) {
+  Widget _buildSkillRow(BuildContext context, String name, int modifier, bool isProficient, AppLocalizations l10n, {bool isSave = false, String? abilityLabel}) {
     final colorScheme = Theme.of(context).colorScheme;
     
     return InkWell(
-      onTap: () => showDiceRoller(context, title: '$name ${isSave ? "Save" : "Check"}', modifier: modifier),
+      onTap: () => showDiceRoller(context, title: '$name ${isSave ? l10n.saveLabel : l10n.check}', modifier: modifier),
       borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),

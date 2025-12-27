@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:uuid/uuid.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/models/character.dart';
 import '../../core/models/item.dart';
 import '../../core/services/item_service.dart';
@@ -126,7 +127,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
                                           onDicePressed: () {
                                             showDiceRoller(
                                               context,
-                                              title: 'Roll d20',
+                                              title: AppLocalizations.of(context)!.rollDie(20),
                                               modifier: 0,
                                             );
                                           },
