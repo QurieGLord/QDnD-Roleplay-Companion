@@ -1,0 +1,39 @@
+[
+  {
+    "id": "rage",
+    "nameEn": "Rage",
+    "nameRu": "Ярость",
+    "descriptionEn": "In battle, you fight with primal ferocity. On your turn, you can enter a rage as a bonus action.",
+    "descriptionRu": "В бою вы сражаетесь с первобытной свирепостью. В свой ход вы можете войти в состояние ярости бонусным действием.",
+    "type": "resourcePool",
+    "resourcePool": {
+      "currentUses": 2,
+      "maxUses": 2,
+      "recoveryType": "longRest",
+      "calculationFormula": "2" 
+    },
+    "actionEconomy": "bonus_action",
+    "minLevel": 1,
+    "iconName": "whatshot"
+  },
+  {
+    "id": "unarmored_defense_barb",
+    "nameEn": "Unarmored Defense",
+    "nameRu": "Защита без доспехов",
+    "descriptionEn": "While you are not wearing any armor, your Armor Class equals 10 + your Dexterity modifier + your Constitution modifier. You can use a shield and still gain this benefit.",
+    "descriptionRu": "Если вы не носите доспехов, ваш Класс Доспеха равен 10 + модификатор Ловкости + модификатор Телосложения. Вы можете использовать щит, не теряя этого преимущества.",
+    "type": "passive",
+    "minLevel": 1,
+    "iconName": "shield"
+  },
+  {
+    "id": "reckless_attack",
+    "nameEn": "Reckless Attack",
+    "nameRu": "Безрассудная атака",
+    "descriptionEn": "When you make your first attack on your turn, you can decide to attack recklessly. Doing so gives you advantage on melee weapon attack rolls using Strength during this turn, but attack rolls against you have advantage until your next turn.",
+    "descriptionRu": "Когда вы совершаете первую атаку в свой ход, вы можете решить атаковать безрассудно. Это дает вам преимущество на броски атаки рукопашным оружием, использующие Силу, в течение этого хода, но броски атаки против вас имеют преимущество до вашего следующего хода.",
+    "type": "passive",
+    "minLevel": 2,
+    "iconName": "dangerous"
+  }
+]

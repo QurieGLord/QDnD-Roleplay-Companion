@@ -1,0 +1,64 @@
+{
+  "id": "elf",
+  "name": {
+    "en": "Elf",
+    "ru": "Эльф"
+  },
+  "description": {
+    "en": "Elves are a magical people of otherworldly grace, living in the world but not entirely part of it.",
+    "ru": "Эльфы — магический народ с потусторонней грацией, живущий в мире, но не являющийся его полностью частью."
+  },
+  "speed": 30,
+  "abilityScoreIncrease": {
+    "dexterity": 2
+  },
+  "traits": {
+    "en": ["Darkvision", "Keen Senses", "Fey Ancestry", "Trance"],
+    "ru": ["Тёмное зрение", "Острые чувства", "Наследие фей", "Транс"]
+  },
+  "languages": ["Common", "Elvish"],
+  "subraces": [
+    {
+      "id": "high_elf",
+      "name": {
+        "en": "High Elf",
+        "ru": "Высший эльф"
+      },
+      "abilityScoreIncrease": {
+        "intelligence": 1
+      },
+      "traits": {
+        "en": ["Elf Weapon Training", "Cantrip", "Extra Language"],
+        "ru": ["Владение эльфийским оружием", "Заговор", "Дополнительный язык"]
+      }
+    },
+    {
+      "id": "wood_elf",
+      "name": {
+        "en": "Wood Elf",
+        "ru": "Лесной эльф"
+      },
+      "abilityScoreIncrease": {
+        "wisdom": 1
+      },
+      "traits": {
+        "en": ["Elf Weapon Training", "Fleet of Foot", "Mask of the Wild"],
+        "ru": ["Владение эльфийским оружием", "Быстрота", "Маска дикой природы"]
+      }
+    },
+    {
+      "id": "dark_elf",
+      "name": {
+        "en": "Dark Elf (Drow)",
+        "ru": "Тёмный эльф (Дроу)"
+      },
+      "abilityScoreIncrease": {
+        "charisma": 1
+      },
+      "traits": {
+        "en": ["Superior Darkvision", "Sunlight Sensitivity", "Drow Magic", "Drow Weapon Training"],
+        "ru": ["Превосходное тёмное зрение", "Чувствительность к солнечному свету", "Магия дроу", "Владение оружием дроу"]
+      }
+    }
+  ]
+}

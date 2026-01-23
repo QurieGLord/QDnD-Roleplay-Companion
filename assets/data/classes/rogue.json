@@ -1,0 +1,54 @@
+{
+  "id": "rogue",
+  "name": {
+    "en": "Rogue",
+    "ru": "Плут"
+  },
+  "description": {
+    "en": "A scoundrel who uses stealth and trickery to overcome obstacles and enemies.",
+    "ru": "Мошенник, использующий скрытность и хитрость для преодоления препятствий и врагов."
+  },
+  "hitDie": 8,
+  "primaryAbilities": ["dexterity"],
+  "savingThrowProficiencies": ["dexterity", "intelligence"],
+  "armorProficiencies": {
+    "light": true,
+    "medium": false,
+    "heavy": false,
+    "shields": false
+  },
+  "weaponProficiencies": {
+    "simple": true,
+    "martial": false,
+    "specific": ["hand_crossbow", "longsword", "rapier", "shortsword"]
+  },
+  "skillProficiencies": {
+    "choose": 4,
+    "from": ["acrobatics", "athletics", "deception", "insight", "intimidation", "investigation", "perception", "performance", "persuasion", "sleight_of_hand", "stealth"]
+  },
+  "subclasses": [
+    {
+      "id": "thief",
+      "name": {
+        "en": "Thief",
+        "ru": "Вор"
+      },
+      "description": {
+        "en": "You hone your skills in the larcenous arts. Burglars, bandits, cutpurses, and other criminals typically follow this archetype.",
+        "ru": "Вы оттачиваете свои навыки в воровском искусстве. Грабители, бандиты, карманники и другие преступники обычно следуют этому архетипу."
+      }
+    },
+    {
+      "id": "assassin",
+      "name": {
+        "en": "Assassin",
+        "ru": "Ассассин"
+      },
+      "description": {
+        "en": "You focus your training on the grim art of death. Those who adhere to this archetype are diverse: hired killers, spies, bounty hunters.",
+        "ru": "Вы фокусируете свою подготовку на мрачном искусстве смерти. Те, кто придерживается этого архетипа, разнообразны: наёмные убийцы, шпионы, охотники за головами."
+      }
+    }
+  ],
+  "subclassLevel": 3
+}

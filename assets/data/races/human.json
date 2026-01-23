@@ -1,0 +1,19 @@
+{
+  "id": "human",
+  "name": {
+    "en": "Human",
+    "ru": "Человек"
+  },
+  "description": {
+    "en": "Humans are the most adaptable and ambitious people among the common races.",
+    "ru": "Люди — самая адаптивная и амбициозная раса среди обычных рас."
+  },
+  "speed": 30,
+  "abilityScoreIncreases": {
+    "all": 1
+  },
+  "languages": ["Common", "choice:1"],
+  "proficiencies": [],
+  "traits": [],
+  "subraces": []
+}

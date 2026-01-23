@@ -1,0 +1,29 @@
+[
+  {
+    "id": "sorcery_points",
+    "nameEn": "Sorcery Points",
+    "nameRu": "Единицы чародейства",
+    "descriptionEn": "You have sorcery points that allow you to create a variety of magical effects.",
+    "descriptionRu": "У вас есть единицы чародейства, которые позволяют создавать различные магические эффекты.",
+    "type": "resourcePool",
+    "resourcePool": {
+      "currentUses": 2,
+      "maxUses": 2,
+      "recoveryType": "longRest",
+      "calculationFormula": "level"
+    },
+    "minLevel": 2,
+    "iconName": "auto_awesome"
+  },
+  {
+    "id": "flexible_casting",
+    "nameEn": "Flexible Casting",
+    "nameRu": "Гибкая магия",
+    "descriptionEn": "You can use your sorcery points to gain additional spell slots, or sacrifice spell slots to gain additional sorcery points.",
+    "descriptionRu": "Вы можете использовать свои единицы чародейства, чтобы получить дополнительные ячейки заклинаний, или пожертвовать ячейками заклинаний, чтобы получить дополнительные единицы чародейства.",
+    "type": "bonusAction",
+    "minLevel": 2,
+    "actionEconomy": "bonus_action",
+    "iconName": "swap_horiz"
+  }
+]

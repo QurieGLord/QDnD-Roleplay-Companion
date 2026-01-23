@@ -1,0 +1,58 @@
+{
+  "id": "wizard",
+  "name": {
+    "en": "Wizard",
+    "ru": "Волшебник"
+  },
+  "description": {
+    "en": "A scholarly magic-user capable of manipulating the structures of reality.",
+    "ru": "Учёный маг, способный манипулировать структурами реальности."
+  },
+  "hitDie": 6,
+  "primaryAbilities": ["intelligence"],
+  "savingThrowProficiencies": ["intelligence", "wisdom"],
+  "armorProficiencies": {
+    "light": false,
+    "medium": false,
+    "heavy": false,
+    "shields": false
+  },
+  "weaponProficiencies": {
+    "simple": false,
+    "martial": false,
+    "specific": ["dagger", "dart", "sling", "quarterstaff", "light_crossbow"]
+  },
+  "skillProficiencies": {
+    "choose": 2,
+    "from": ["arcana", "history", "insight", "investigation", "medicine", "religion"]
+  },
+  "subclasses": [
+    {
+      "id": "school_of_evocation",
+      "name": {
+        "en": "School of Evocation",
+        "ru": "Школа Воплощения"
+      },
+      "description": {
+        "en": "Focuses on creating powerful elemental effects.",
+        "ru": "Фокусируется на создании мощных стихийных эффектов."
+      }
+    },
+    {
+      "id": "school_of_abjuration",
+      "name": {
+        "en": "School of Abjuration",
+        "ru": "Школа Ограждения"
+      },
+      "description": {
+        "en": "Focuses on protective magic.",
+        "ru": "Фокусируется на защитной магии."
+      }
+    }
+  ],
+  "subclassLevel": 2,
+  "spellcasting": {
+    "ability": "intelligence",
+    "type": "full"
+  }
+}

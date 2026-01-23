@@ -1,0 +1,110 @@
+[
+  {
+    "id": "second_wind",
+    "nameEn": "Second Wind",
+    "nameRu": "Второе дыхание",
+    "descriptionEn": "You have a limited well of stamina that you can draw on to protect yourself from harm. On your turn, you can use a bonus action to regain hit points equal to 1d10 + your fighter level.",
+    "descriptionRu": "У вас есть ограниченный источник выносливости, который вы можете использовать, чтобы восстановить силы. В свой ход вы можете использовать бонусное действие, чтобы восстановить хиты в количестве, равном 1к10 + ваш уровень воина.",
+    "type": "bonusAction",
+    "minLevel": 1,
+    "associatedClass": "Fighter",
+    "requiresRest": true,
+    "actionEconomy": "bonus_action",
+    "iconName": "favorite_border",
+    "resourcePool": {
+      "currentUses": 1,
+      "maxUses": 1,
+      "recoveryType": "shortRest"
+    }
+  },
+  {
+    "id": "fighting_style_fighter",
+    "nameEn": "Fighting Style",
+    "nameRu": "Боевой стиль",
+    "descriptionEn": "You adopt a particular style of fighting as your specialty. Choose one of the available options.",
+    "descriptionRu": "Вы принимаете определенный стиль боя в качестве своей специальности. Выберите один из доступных вариантов.",
+    "type": "passive",
+    "minLevel": 1,
+    "associatedClass": "Fighter",
+    "requiresRest": false,
+    "actionEconomy": null,
+    "iconName": "swords"
+  },
+  {
+    "id": "action_surge",
+    "nameEn": "Action Surge",
+    "nameRu": "Всплеск действий",
+    "descriptionEn": "Starting at 2nd level, you can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action.",
+    "descriptionRu": "Начиная со 2-го уровня, вы можете на мгновение выйти за пределы своих обычных возможностей. В свой ход вы можете совершить одно дополнительное действие.",
+    "type": "action",
+    "minLevel": 2,
+    "associatedClass": "Fighter",
+    "requiresRest": true,
+    "actionEconomy": "free",
+    "iconName": "bolt",
+    "resourcePool": {
+      "currentUses": 1,
+      "maxUses": 1,
+      "recoveryType": "shortRest",
+      "calculationFormula": "level >= 17 ? 2 : 1"
+    }
+  },
+  {
+    "id": "martial_archetype",
+    "nameEn": "Martial Archetype",
+    "nameRu": "Воинский архетип",
+    "descriptionEn": "At 3rd level, you choose an archetype that you strive to emulate in your combat styles and techniques.",
+    "descriptionRu": "На 3-м уровне вы выбираете архетип, которому вы стремитесь подражать в своих боевых стилях и техниках.",
+    "type": "passive",
+    "minLevel": 3,
+    "associatedClass": "Fighter",
+    "requiresRest": false,
+    "actionEconomy": null,
+    "iconName": "military_tech"
+  },
+  {
+    "id": "ability_score_improvement_fighter",
+    "nameEn": "Ability Score Improvement",
+    "nameRu": "Увеличение характеристик",
+    "descriptionEn": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1.",
+    "descriptionRu": "Когда вы достигаете 4-го уровня, а также на 6, 8, 12, 14, 16 и 19 уровнях, вы можете увеличить одну характеристику на ваш выбор на 2 или две характеристики на ваш выбор на 1.",
+    "type": "passive",
+    "minLevel": 4,
+    "associatedClass": "Fighter",
+    "requiresRest": false,
+    "actionEconomy": null,
+    "iconName": "upgrade"
+  },
+  {
+    "id": "extra_attack_fighter",
+    "nameEn": "Extra Attack",
+    "nameRu": "Дополнительная атака",
+    "descriptionEn": "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn. The number of attacks increases to three when you reach 11th level and to four when you reach 20th level.",
+    "descriptionRu": "Начиная с 5-го уровня, вы можете атаковать дважды, вместо одного раза, когда вы совершаете действие Атака в свой ход. Количество атак увеличивается до трех на 11-м уровне и до четырех на 20-м уровне.",
+    "type": "passive",
+    "minLevel": 5,
+    "associatedClass": "Fighter",
+    "requiresRest": false,
+    "actionEconomy": null,
+    "iconName": "filter_2"
+  },
+  {
+    "id": "indomitable",
+    "nameEn": "Indomitable",
+    "nameRu": "Несгибаемый",
+    "descriptionEn": "Beginning at 9th level, you can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can't use this feature again until you finish a long rest.",
+    "descriptionRu": "Начиная с 9-го уровня, вы можете перебросить спасбросок, который вы провалили. Если вы это делаете, вы должны использовать новый результат, и вы не можете использовать это умение снова, пока не закончите длительный отдых.",
+    "type": "reaction",
+    "minLevel": 9,
+    "associatedClass": "Fighter",
+    "requiresRest": true,
+    "actionEconomy": "free",
+    "iconName": "replay",
+    "resourcePool": {
+      "currentUses": 1,
+      "maxUses": 1,
+      "recoveryType": "longRest",
+      "calculationFormula": "level >= 17 ? 3 : (level >= 13 ? 2 : 1)"
+    }
+  }
+]

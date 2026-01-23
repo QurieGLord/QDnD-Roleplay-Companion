@@ -1,0 +1,47 @@
+{
+  "id": "soldier",
+  "name": {
+    "en": "Soldier",
+    "ru": "Солдат"
+  },
+  "description": {
+    "en": "You trained and fought as part of an army. Your experience of battle gives you a soldier's mentality.",
+    "ru": "Вы тренировались и сражались как часть армии. Ваш боевой опыт дал вам солдатский менталитет."
+  },
+  "skillProficiencies": ["athletics", "intimidation"],
+  "toolProficiencies": {
+    "en": ["One type of gaming set", "Vehicles (land)"],
+    "ru": ["Один вид игрового набора", "Транспорт (сухопутный)"]
+  },
+  "languages": 0,
+  "equipment": {
+    "en": [
+      "An insignia of rank",
+      "A trophy taken from a fallen enemy",
+      "A set of bone dice or a deck of cards",
+      "A set of common clothes",
+      "A belt pouch containing 10 gp"
+    ],
+    "ru": [
+      "Знак отличия",
+      "Трофей, взятый у поверженного врага",
+      "Набор костяных кубиков или колода карт",
+      "Комплект обычной одежды",
+      "Поясная сумка с 10 зм"
+    ]
+  },
+  "feature": {
+    "name": {
+      "en": "Military Rank",
+      "ru": "Воинское звание"
+    },
+    "description": {
+      "en": "You have a military rank from your career as a soldier. Soldiers loyal to your former military organization still recognize your authority and influence.",
+      "ru": "У вас есть воинское звание с вашей карьеры солдата. Солдаты, верные вашей прежней военной организации, всё ещё признают ваш авторитет и влияние."
+    }
+  },
+  "suggestedCharacteristics": {
+    "en": "The horrors of war combined with the rigid discipline of military service leave their mark on all soldiers, shaping their ideals, creating strong bonds, and often leaving them scarred and vulnerable to fear, shame, and hatred.",
+    "ru": "Ужасы войны в сочетании с жёсткой дисциплиной военной службы оставляют свой след на всех солдатах, формируя их идеалы, создавая прочные связи и часто оставляя их с шрамами и уязвимыми для страха, стыда и ненависти."
+  }
+}

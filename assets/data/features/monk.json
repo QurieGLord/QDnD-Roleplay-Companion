@@ -1,0 +1,73 @@
+[
+  {
+    "id": "martial_arts",
+    "nameEn": "Martial Arts",
+    "nameRu": "Боевые искусства",
+    "descriptionEn": "Your practice of martial arts gives you mastery of combat styles that use unarmed strikes and monk weapons.",
+    "descriptionRu": "Ваши занятия боевыми искусствами дают вам мастерство в боевых стилях, использующих безоружные удары и монашеское оружие.",
+    "type": "passive",
+    "minLevel": 1,
+    "iconName": "sports_mma"
+  },
+  {
+    "id": "ki",
+    "nameEn": "Ki",
+    "nameRu": "Ци",
+    "descriptionEn": "Your training allows you to harness the mystic energy of ki.",
+    "descriptionRu": "Ваши тренировки позволяют вам использовать мистическую энергию ци.",
+    "type": "resourcePool",
+    "resourcePool": {
+      "currentUses": 2,
+      "maxUses": 2,
+      "recoveryType": "shortRest",
+      "calculationFormula": "level"
+    },
+    "minLevel": 2,
+    "iconName": "auto_awesome"
+  },
+  {
+    "id": "flurry_of_blows",
+    "nameEn": "Flurry of Blows",
+    "nameRu": "Шквал ударов",
+    "descriptionEn": "Immediately after you take the Attack action on your turn, you can spend 1 ki point to make two unarmed strikes as a bonus action.",
+    "descriptionRu": "Сразу после того, как вы совершите действие Атака в свой ход, вы можете потратить 1 очко ци, чтобы совершить два безоружных удара бонусным действием.",
+    "type": "bonusAction",
+    "minLevel": 2,
+    "actionEconomy": "bonus_action",
+    "consumption": {
+      "resourceId": "ki",
+      "amount": 1
+    },
+    "iconName": "flash_on"
+  },
+  {
+    "id": "patient_defense",
+    "nameEn": "Patient Defense",
+    "nameRu": "Терпеливая оборона",
+    "descriptionEn": "You can spend 1 ki point to take the Dodge action as a bonus action on your turn.",
+    "descriptionRu": "Вы можете потратить 1 очко ци, чтобы совершить действие Уклонение бонусным действием в свой ход.",
+    "type": "bonusAction",
+    "minLevel": 2,
+    "actionEconomy": "bonus_action",
+    "consumption": {
+      "resourceId": "ki",
+      "amount": 1
+    },
+    "iconName": "shield"
+  },
+  {
+    "id": "step_of_the_wind",
+    "nameEn": "Step of the Wind",
+    "nameRu": "Поступь ветра",
+    "descriptionEn": "You can spend 1 ki point to take the Disengage or Dash action as a bonus action on your turn, and your jump distance is doubled for the turn.",
+    "descriptionRu": "Вы можете потратить 1 очко ци, чтобы совершить действие Отход или Рывок бонусным действием в свой ход, и дальность вашего прыжка удваивается на этот ход.",
+    "type": "bonusAction",
+    "minLevel": 2,
+    "actionEconomy": "bonus_action",
+    "consumption": {
+      "resourceId": "ki",
+      "amount": 1
+    },
+    "iconName": "air"
+  }
+]

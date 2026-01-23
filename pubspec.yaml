@@ -1,0 +1,58 @@
+name: qd_and_d
+description: "QD&D - Your Roleplay Companion for D&D 5e"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # UI & Theming
+  google_fonts: ^6.1.0
+  flutter_svg: ^2.0.9
+
+  # State Management
+  provider: ^6.1.1
+
+  # Local Storage
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # XML Parsing
+  xml: ^6.5.0
+  intl: ^0.20.2
+
+  # Utilities
+  uuid: ^4.2.2
+  path_provider: ^2.1.1
+  file_picker: ^8.1.4
+
+  # Animations
+  flutter_animate: ^4.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.7
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/images/
+    - assets/data/fc5_examples/
+    - assets/data/spells/
+    - assets/data/races/
+    - assets/data/classes/
+    - assets/data/backgrounds/
+    - assets/data/features/
+    - assets/data/items.json
