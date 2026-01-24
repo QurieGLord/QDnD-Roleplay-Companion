@@ -129,13 +129,14 @@ class FC5Exporter {
 }
 ```
 
-#### 5. Backup System
-```dart
-class BackupService {
-  Future<String> exportAllData();  // JSON
-  Future<void> importBackup(String json);
-}
-```
+#### 6. Polish & Logic Fixes
+- [x] Spell Selection Logic: Added `SpellPreparationManager` to enforce prepared spell limits (Wizard/Cleric/etc).
+- [x] Adaptive Spell Slots: Implemented `SpellSlotsWidget` (Icons vs Chips modes).
+- [x] FC5 Import Fix: Filtered class features by `associatedClass` to prevent cross-class pollution.
+- [x] Strict Feature Filtering: Implemented `getFeaturesForLevel` to ensure Paladins don't get Fighter features on Level Up.
+- [ ] Spell Selection in Wizard: `CharacterCreationWizard` needs a step to write chosen spells.
+- [ ] Multiclass UI: `LevelUpScreen` currently assumes leveling up the *primary* class.
+- [ ] Content Population: Fill `assets/data/features/` for remaining classes.
 
 ### Success Criteria
 - ✅ All text in both EN and RU

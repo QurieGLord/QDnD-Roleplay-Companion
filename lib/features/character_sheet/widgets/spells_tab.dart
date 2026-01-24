@@ -6,6 +6,8 @@ import '../../../core/models/character_feature.dart';
 import '../../../core/services/spell_service.dart';
 import '../../../core/services/spellcasting_service.dart';
 import '../../../core/services/storage_service.dart';
+import '../../../core/managers/spell_preparation_manager.dart';
+import 'spell_slots_widget.dart';
 import '../../spell_almanac/spell_almanac_screen.dart';
 import '../../../shared/widgets/spell_details_sheet.dart';
 import '../../../shared/widgets/feature_details_sheet.dart';
@@ -42,19 +44,73 @@ class _SpellsTabState extends State<SpellsTab> {
     }
   }
 
+  CharacterFeature? _findResourceFeature(String id) {
+    try {
+      return widget.character.features.firstWhere((f) => f.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _useFeature(CharacterFeature feature, String locale, AppLocalizations l10n) {
+    // 1. Consumption Logic
+    if (feature.consumption != null) {
+      final resource = _findResourceFeature(feature.consumption!.resourceId);
+      if (resource != null && resource.resourcePool != null) {
+        if (resource.resourcePool!.currentUses >= feature.consumption!.amount) {
+          setState(() {
+            resource.resourcePool!.use(feature.consumption!.amount);
+            widget.character.save();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('${feature.getName(locale)} used!'),
+            duration: const Duration(milliseconds: 1000),
+          ));
+        } else {
+           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+             content: Text('Not enough ${resource.getName(locale)}!'), 
+             backgroundColor: Theme.of(context).colorScheme.error
+           ));
+        }
+        return;
+      }
+    }
+
+    // 2. Legacy Channel Divinity Logic
+    if (feature.nameEn.contains('Channel Divinity') || feature.descriptionEn.contains('Channel Divinity')) {
+      try {
+        final cdPoolFeature = widget.character.features.firstWhere((f) => f.id == 'channel_divinity');
+        if (cdPoolFeature.resourcePool != null) {
+           if (cdPoolFeature.resourcePool!.currentUses > 0) {
+             setState(() {
+               cdPoolFeature.resourcePool!.use(1);
+               widget.character.save();
+             });
+             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+               content: Text(l10n.useChannelDivinity(cdPoolFeature.resourcePool!.currentUses)),
+               duration: const Duration(milliseconds: 1000),
+             ));
+           } else {
+             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+               content: Text(l10n.noChannelDivinity), 
+               backgroundColor: Theme.of(context).colorScheme.error
+             ));
+           }
+        }
+      } catch (_) {}
+    }
+  }
+
   void _showCastSpellDialog(Spell spell, String locale, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    // Cantrips don't use spell slots
     if (spell.level == 0) {
       _castSpell(spell, 0, locale, l10n);
       return;
     }
 
-    // Get available spell slot levels (starting from spell's minimum level)
     final availableSlots = <int>[];
     for (int i = spell.level; i <= widget.character.maxSpellSlots.length; i++) {
-      // Check bounds for spellSlots array to prevent crash
       if (i <= widget.character.spellSlots.length && widget.character.spellSlots[i - 1] > 0) {
         availableSlots.add(i);
       }
@@ -128,12 +184,9 @@ class _SpellsTabState extends State<SpellsTab> {
 
   void _castSpell(Spell spell, int slotLevel, String locale, AppLocalizations l10n) {
     setState(() {
-      // Use spell slot (if not cantrip)
       if (slotLevel > 0) {
         widget.character.useSpellSlot(slotLevel);
       }
-
-      // Show feedback
       final message = slotLevel > spell.level
         ? l10n.spellCastLevelSuccess(spell.getName(locale), slotLevel)
         : l10n.spellCastSuccess(spell.getName(locale));
@@ -165,22 +218,14 @@ class _SpellsTabState extends State<SpellsTab> {
       spellsByLevel.putIfAbsent(spell.level, () => []).add(spell);
     }
 
-    // Feature Categorization
     final features = widget.character.features.toList();
-    
-    // Filter out generic "Fighting Style" container if a specific choice has been made
     final hasSpecificFightingStyle = features.any((f) => f.nameEn.startsWith('Fighting Style:'));
     if (hasSpecificFightingStyle) {
       features.removeWhere((f) => f.id == 'fighting_style');
     }
 
-    // 1. Resources: Have a resource pool
     final resourceFeatures = features.where((f) => f.resourcePool != null).toList();
-    
-    // 2. Passives: No pool, type is passive
     final passiveFeatures = features.where((f) => f.resourcePool == null && f.type == FeatureType.passive).toList();
-    
-    // 3. Actives: No pool, type is NOT passive (Action, Bonus Action, Reaction, etc.)
     final activeFeatures = features.where((f) => f.resourcePool == null && f.type != FeatureType.passive).toList();
 
     return Stack(
@@ -188,26 +233,22 @@ class _SpellsTabState extends State<SpellsTab> {
         ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // === RESOURCES ===
             if (resourceFeatures.isNotEmpty) ...[
               _buildSectionHeader(l10n.resources.toUpperCase()),
               ...resourceFeatures.map((feature) => _buildResourceFeature(feature, locale)).toList(),
               const SizedBox(height: 16),
             ],
 
-            // === ACTIVE ABILITIES ===
             if (activeFeatures.isNotEmpty) ...[
               _buildSectionHeader(l10n.activeAbilities.toUpperCase()),
               ...activeFeatures.map((feature) => _buildActiveFeature(feature, locale, l10n)).toList(),
               const SizedBox(height: 16),
             ],
 
-            // === MAGIC (Slots & Stats) ===
             _buildSectionHeader(l10n.magic.toUpperCase()),
             _buildMagicSection(context, l10n),
             const SizedBox(height: 16),
 
-            // === SPELLS LIST ===
             if (knownSpells.isEmpty)
               Center(child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -224,7 +265,6 @@ class _SpellsTabState extends State<SpellsTab> {
 
             const SizedBox(height: 16),
 
-            // === PASSIVE TRAITS ===
             if (passiveFeatures.isNotEmpty) ...[
               _buildSectionHeader(l10n.passiveTraits.toUpperCase()),
               Card(
@@ -248,11 +288,10 @@ class _SpellsTabState extends State<SpellsTab> {
               ),
             ],
 
-            const SizedBox(height: 80), // Bottom padding for FAB
+            const SizedBox(height: 80),
           ],
         ),
         
-        // Floating Action Button
         Positioned(
           right: 16,
           bottom: 16,
@@ -367,17 +406,13 @@ class _SpellsTabState extends State<SpellsTab> {
   Widget _buildActiveFeature(CharacterFeature feature, String locale, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
     
-    // Smart check for Channel Divinity usage
-    bool usesChannelDivinity = false;
-    CharacterFeature? cdPoolFeature;
-    
-    if (feature.nameEn.contains('Channel Divinity') || feature.descriptionEn.contains('Channel Divinity')) {
-      try {
-        cdPoolFeature = widget.character.features.firstWhere((f) => f.id == 'channel_divinity');
-        if (cdPoolFeature.resourcePool != null) {
-          usesChannelDivinity = true;
-        }
-      } catch (_) {}
+    // Find linked resource for display
+    String? resourceCost;
+    if (feature.consumption != null) {
+      final res = _findResourceFeature(feature.consumption!.resourceId);
+      if (res != null) {
+        resourceCost = '${feature.consumption!.amount} ${res.getName(locale)}';
+      }
     }
 
     return Card(
@@ -424,24 +459,22 @@ class _SpellsTabState extends State<SpellsTab> {
               const SizedBox(height: 8),
               Text(
                 feature.getDescription(locale), 
-                maxLines: usesChannelDivinity ? 2 : 4, 
+                maxLines: 2, 
                 overflow: TextOverflow.ellipsis, 
                 style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)
               ),
               
-              if (usesChannelDivinity && cdPoolFeature != null) ...[
+              if (resourceCost != null || (feature.nameEn.contains('Channel Divinity'))) ...[
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.tonalIcon(
-                    onPressed: cdPoolFeature.resourcePool!.currentUses > 0 
-                      ? () => setState(() { cdPoolFeature!.resourcePool!.use(1); widget.character.save(); }) 
-                      : null,
-                    icon: const Icon(Icons.auto_awesome, size: 16),
+                    onPressed: () => _useFeature(feature, locale, l10n),
+                    icon: const Icon(Icons.bolt, size: 16),
                     label: Text(
-                      cdPoolFeature.resourcePool!.currentUses > 0
-                      ? l10n.useChannelDivinity(cdPoolFeature.resourcePool!.currentUses)
-                      : l10n.noChannelDivinity
+                      resourceCost != null 
+                        ? 'Use ($resourceCost)' 
+                        : 'Use', // Fallback
                     ),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -458,12 +491,50 @@ class _SpellsTabState extends State<SpellsTab> {
 
   Widget _buildMagicSection(BuildContext context, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isPactMagic = SpellcastingService.getSpellcastingType(widget.character.characterClass) == 'pact_magic';
+    final isPreparedCaster = SpellcastingService.getSpellcastingType(widget.character.characterClass) == 'prepared';
+    final maxPrepared = SpellcastingService.getMaxPreparedSpells(widget.character);
+    final currentPrepared = widget.character.preparedSpells.length;
+
     return Card(
       elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            if (isPreparedCaster) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: currentPrepared > maxPrepared 
+                      ? colorScheme.errorContainer 
+                      : colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.auto_awesome, 
+                      size: 16, 
+                      color: currentPrepared > maxPrepared 
+                          ? colorScheme.onErrorContainer 
+                          : colorScheme.onSecondaryContainer
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      l10n.preparedSpellsCount(currentPrepared, maxPrepared),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: currentPrepared > maxPrepared 
+                            ? colorScheme.onErrorContainer 
+                            : colorScheme.onSecondaryContainer,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -474,53 +545,18 @@ class _SpellsTabState extends State<SpellsTab> {
                 _buildMagicStat(l10n.spellAttack, '+${SpellcastingService.getSpellAttackBonus(widget.character)}'),
               ],
             ),
+            
             if (widget.character.maxSpellSlots.any((s) => s > 0)) ...[
               const Divider(height: 32),
-              ...List.generate(9, (i) {
-                final level = i + 1;
-                if (i >= widget.character.maxSpellSlots.length) return const SizedBox.shrink();
-                final max = widget.character.maxSpellSlots[i];
-                if (max == 0) return const SizedBox.shrink();
-                
-                final curr = i < widget.character.spellSlots.length ? widget.character.spellSlots[i] : 0;
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      SizedBox(width: 40, child: Text(l10n.lvlShort(level), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey))),
-                      Expanded(
-                        child: Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: List.generate(max, (j) {
-                            final isUsed = j >= curr;
-                            return GestureDetector(
-                              onTap: () => setState(() {
-                                if (isUsed) widget.character.restoreSpellSlot(level);
-                                else widget.character.useSpellSlot(level);
-                              }),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                width: 28, height: 28,
-                                decoration: BoxDecoration(
-                                  color: isUsed ? colorScheme.surfaceContainerHighest : colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: isUsed ? colorScheme.outline : colorScheme.primary, 
-                                    width: 1.5
-                                  ),
-                                ),
-                                child: isUsed ? null : Icon(Icons.bolt, size: 18, color: colorScheme.onPrimary),
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
+              if (isPactMagic)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text('Pact Magic (Short Rest)', style: TextStyle(color: colorScheme.secondary, fontWeight: FontWeight.bold, fontSize: 12)),
+                ),
+              SpellSlotsWidget(
+                character: widget.character,
+                onChanged: () => setState(() => widget.character.save()),
+              ),
             ],
           ],
         ),
@@ -564,9 +600,7 @@ class _SpellsTabState extends State<SpellsTab> {
                leading: GestureDetector(
                  onTap: () {
                    setState(() {
-                      if (isPrepared) widget.character.preparedSpells.remove(spell.id);
-                      else widget.character.preparedSpells.add(spell.id);
-                      widget.character.save();
+                      SpellPreparationManager.togglePreparation(widget.character, spell, context);
                    });
                  },
                  child: Icon(

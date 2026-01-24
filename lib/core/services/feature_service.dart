@@ -86,10 +86,18 @@ class FeatureService {
     try {
       final String jsonString = await rootBundle.loadString(path);
       final List<dynamic> jsonList = json.decode(jsonString);
+      
+      final inferredClass = _inferClassFromPath(path);
 
       for (var jsonFeature in jsonList) {
         try {
           final feature = CharacterFeature.fromJson(jsonFeature);
+          
+          // Fix for missing associatedClass in JSON files
+          if (feature.associatedClass == null && inferredClass != null) {
+             feature.associatedClass = inferredClass;
+          }
+          
           _features[feature.id] = feature;
         } catch (e) {
           print('❌ Error parsing feature in $path: $e');
@@ -98,6 +106,52 @@ class FeatureService {
     } catch (e) {
       print('❌ Error reading feature file $path: $e');
     }
+  }
+
+  static String? _inferClassFromPath(String path) {
+    final filename = path.split('/').last.replaceAll('.json', '');
+    if (filename == 'racial_traits') return null;
+    if (filename == 'paladin_features') return 'Paladin';
+    
+    // Capitalize first letter: barbarian -> Barbarian
+    if (filename.isNotEmpty) {
+      return filename[0].toUpperCase() + filename.substring(1);
+    }
+    return null;
+  }
+
+  /// Get features available strictly at a specific level for a specific class/subclass
+  /// Used for Level Up preview to avoid showing features from other classes/subclasses
+  static List<CharacterFeature> getFeaturesForLevel({
+    required String classId,
+    required int level,
+    String? subclassId,
+  }) {
+    final normalizedClass = _normalizeClassName(classId);
+    final normalizedSubclass = subclassId != null ? _normalizeClassName(subclassId) : null;
+
+    return _features.values.where((f) {
+      // 1. Strict Level Check
+      if (f.minLevel != level) return false;
+
+      // 2. Strict Class Check
+      // If feature has no associated class, it's global (like Racial traits), 
+      // but usually we only want class features here.
+      if (f.associatedClass == null) return false;
+      
+      final featureClass = _normalizeClassName(f.associatedClass!);
+      if (featureClass != normalizedClass) return false;
+
+      // 3. Strict Subclass Check
+      // - If feature has NO subclass -> it is a base class feature (keep it)
+      // - If feature HAS subclass -> it MUST match the character's subclass
+      if (f.associatedSubclass != null) {
+        final featureSubclass = _normalizeClassName(f.associatedSubclass!);
+        if (featureSubclass != normalizedSubclass) return false;
+      }
+
+      return true;
+    }).toList();
   }
 
   /// Get all features available for a character at their current level

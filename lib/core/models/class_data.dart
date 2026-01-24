@@ -183,4 +183,6 @@ class SpellcastingInfo {
       type: json['type'],
     );
   }
+
+  bool get isPactMagic => type == 'pact';
 }

@@ -29,12 +29,13 @@ class SpellAdapter extends TypeAdapter<Spell> {
       ritual: fields[9] as bool,
       components: (fields[10] as List).cast<String>(),
       materialComponents: fields[11] as String?,
+      materialComponentsRu: fields[17] as String?,
       descriptionEn: fields[12] as String,
       descriptionRu: fields[13] as String,
       availableToClasses: (fields[14] as List).cast<String>(),
       atHigherLevelsEn: fields[15] as String?,
       atHigherLevelsRu: fields[16] as String?,
-    )..materialComponentsRu = fields[17] as String?;
+    );
   }
 
   @override

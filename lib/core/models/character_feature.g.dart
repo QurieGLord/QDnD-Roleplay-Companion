@@ -30,13 +30,14 @@ class CharacterFeatureAdapter extends TypeAdapter<CharacterFeature> {
       requiresRest: fields[10] as bool,
       actionEconomy: fields[11] as String?,
       iconName: fields[12] as String?,
+      consumption: fields[13] as FeatureConsumption?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CharacterFeature obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -62,7 +63,9 @@ class CharacterFeatureAdapter extends TypeAdapter<CharacterFeature> {
       ..writeByte(11)
       ..write(obj.actionEconomy)
       ..writeByte(12)
-      ..write(obj.iconName);
+      ..write(obj.iconName)
+      ..writeByte(13)
+      ..write(obj.consumption);
   }
 
   @override
@@ -72,6 +75,43 @@ class CharacterFeatureAdapter extends TypeAdapter<CharacterFeature> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is CharacterFeatureAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class FeatureConsumptionAdapter extends TypeAdapter<FeatureConsumption> {
+  @override
+  final int typeId = 8;
+
+  @override
+  FeatureConsumption read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return FeatureConsumption(
+      resourceId: fields[0] as String,
+      amount: fields[1] as int,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, FeatureConsumption obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.resourceId)
+      ..writeByte(1)
+      ..write(obj.amount);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FeatureConsumptionAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

@@ -45,6 +45,9 @@ class CharacterFeature extends HiveObject {
   @HiveField(12)
   String? iconName; // For UI display
 
+  @HiveField(13)
+  FeatureConsumption? consumption; // Links to another feature's resource pool
+
   CharacterFeature({
     required this.id,
     required this.nameEn,
@@ -59,6 +62,7 @@ class CharacterFeature extends HiveObject {
     this.requiresRest = false,
     this.actionEconomy,
     this.iconName,
+    this.consumption,
   });
 
   String getName(String locale) {
@@ -84,6 +88,7 @@ class CharacterFeature extends HiveObject {
       'requiresRest': requiresRest,
       'actionEconomy': actionEconomy,
       'iconName': iconName,
+      'consumption': consumption?.toJson(),
     };
   }
 
@@ -107,6 +112,32 @@ class CharacterFeature extends HiveObject {
       requiresRest: json['requiresRest'] ?? false,
       actionEconomy: json['actionEconomy'],
       iconName: json['iconName'],
+      consumption: json['consumption'] != null
+          ? FeatureConsumption.fromJson(json['consumption'])
+          : null,
+    );
+  }
+}
+
+@HiveType(typeId: 8)
+class FeatureConsumption extends HiveObject {
+  @HiveField(0)
+  String resourceId;
+
+  @HiveField(1)
+  int amount;
+
+  FeatureConsumption({required this.resourceId, required this.amount});
+
+  Map<String, dynamic> toJson() => {
+    'resourceId': resourceId,
+    'amount': amount,
+  };
+
+  factory FeatureConsumption.fromJson(Map<String, dynamic> json) {
+    return FeatureConsumption(
+      resourceId: json['resourceId'],
+      amount: json['amount'],
     );
   }
 }

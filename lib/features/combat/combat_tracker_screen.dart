@@ -7,7 +7,9 @@ import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/models/character.dart';
 import '../../core/models/condition.dart';
 import '../../core/services/storage_service.dart';
+import '../../core/services/spellcasting_service.dart';
 import 'widgets/combat_log_view.dart';
+import 'widgets/combat_spellcaster_sheet.dart';
 
 class CombatTrackerScreen extends StatefulWidget {
   final Character character;
@@ -248,6 +250,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
     final isInCombat = character.combatState.isInCombat;
     final hpPercent = (character.currentHp / character.maxHp).clamp(0.0, 1.0);
     final isDying = character.currentHp <= 0;
+    final isSpellcaster = SpellcastingService.isSpellcaster(character.characterClass);
 
     return Scaffold(
       backgroundColor: isInCombat ? colorScheme.surfaceContainerLow : theme.scaffoldBackgroundColor,
@@ -430,6 +433,10 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
               ),
             ),
 
+            const SizedBox(height: 16),
+            if (isSpellcaster)
+              _buildMagicButton(context, l10n, colorScheme),
+
             const Spacer(),
 
             // --- CONTROLS ---
@@ -494,6 +501,70 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                     ],
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMagicButton(BuildContext context, AppLocalizations l10n, ColorScheme colorScheme) {
+    // Count total slots
+    int totalSlots = 0;
+    int usedSlots = 0;
+    for (int i = 0; i < _character.maxSpellSlots.length; i++) {
+      totalSlots += _character.maxSpellSlots[i];
+      if (i < _character.spellSlots.length) {
+         usedSlots += _character.maxSpellSlots[i] - _character.spellSlots[i]; // spellSlots stores REMAINING
+      }
+    }
+    // Correct logic: spellSlots stores remaining. So used = max - remaining.
+    // Wait, spellSlots list stores REMAINING slots.
+    // Example: Max [4, 2]. Current [3, 2].
+    // Total Max = 6. Total Remaining = 5.
+    
+    int remaining = 0;
+    for(int i=0; i<_character.spellSlots.length; i++) {
+       remaining += _character.spellSlots[i];
+    }
+    
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      height: 56,
+      child: FilledButton.icon(
+        style: FilledButton.styleFrom(
+          backgroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.onPrimary,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => CombatSpellcasterSheet(
+              character: _character,
+              onStateChange: () => _save(),
+            ),
+          );
+        },
+        icon: const Icon(Icons.auto_fix_high),
+        label: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(l10n.castSpell.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: colorScheme.onPrimary.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                l10n.slotsRemaining(remaining), 
+                style: const TextStyle(fontSize: 12),
               ),
             ),
           ],

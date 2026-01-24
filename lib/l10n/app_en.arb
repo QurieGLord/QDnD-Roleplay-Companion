@@ -760,6 +760,13 @@
       "count": { "type": "int" }
     }
   },
+  "preparedSpellsCount": "Prepared: {current} / {max}",
+  "@preparedSpellsCount": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
   "spellAlmanacTitle": "Spell Almanac",
   "actionTypeFree": "Free Action",
   "featuresStepTitle": "Class Features",

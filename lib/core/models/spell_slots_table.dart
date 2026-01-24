@@ -23,9 +23,6 @@ class SpellSlotsTable {
     [4, 3, 3, 3, 3, 2, 2, 1, 1], // Level 20
   ];
 
-  // Warlock progression is tricky because slots upgrade level.
-  // TODO: Handle Warlock pact magic specifically if needed.
-
   /// Get spell slots for a given class level and caster type
   static List<int> getSlots(int level, String casterType) {
     if (level < 1 || level > 20) return [];
@@ -50,12 +47,59 @@ class SpellSlotsTable {
         return _fullCasterSlots[mappedLevel - 1];
         
       case 'pact':
-        // Simplified Warlock
-         // TODO: Implement proper warlock logic
-        return [];
+        return getPactSlots(level);
 
       default:
         return [];
     }
+  }
+
+  /// Calculates Pact Magic slots for Warlock.
+  /// Warlocks have a specific number of slots, which are always at the highest available level (up to 5th).
+  static List<int> getPactSlots(int level) {
+    if (level < 1 || level > 20) return [];
+
+    int slotCount;
+    int slotLevel;
+
+    if (level == 1) {
+      slotCount = 1;
+      slotLevel = 1;
+    } else {
+      // Determine slot level
+      // 1-2: 1st
+      // 3-4: 2nd
+      // 5-6: 3rd
+      // 7-8: 4th
+      // 9+: 5th
+      slotLevel = ((level + 1) / 2).floor();
+      if (slotLevel > 5) slotLevel = 5;
+
+      // Determine slot count
+      if (level < 2) {
+        slotCount = 1; 
+      } else if (level <= 10) {
+        slotCount = 2;
+      } else if (level <= 16) {
+        slotCount = 3;
+      } else {
+        slotCount = 4;
+      }
+    }
+
+    // Create a list representing slots. 
+    // Since Warlock slots are all of the same level, previous levels have 0 slots.
+    // e.g. Level 3 (2 slots of 2nd level) -> [0, 2]
+    List<int> slots = List.filled(slotLevel, 0);
+    slots[slotLevel - 1] = slotCount;
+    
+    return slots;
+  }
+
+  /// Returns the maximum spell level a character can learn/cast.
+  static int getMaxSlotLevel(int characterLevel, String casterType) {
+    final slots = getSlots(characterLevel, casterType);
+    if (slots.isEmpty) return 0;
+    return slots.length;
   }
 }
