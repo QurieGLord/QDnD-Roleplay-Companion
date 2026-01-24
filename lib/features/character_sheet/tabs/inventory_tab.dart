@@ -4,6 +4,7 @@ import '../../../core/models/character.dart';
 import '../../../core/models/item.dart';
 import '../../../core/utils/item_utils.dart';
 import '../../../shared/widgets/item_details_sheet.dart';
+import '../widgets/inventory_status_bar.dart';
 
 class InventoryTab extends StatefulWidget {
   final Character character;
@@ -89,9 +90,19 @@ class _InventoryTabState extends State<InventoryTab> {
       0.0,
       (sum, item) => sum + item.totalWeight,
     );
+    
+    final maxWeight = (widget.character.abilityScores.strength * 15).toDouble();
+    final attunedCount = widget.character.inventory
+        .where((i) => i.isAttuned && i.isEquipped) // User logic
+        .length;
 
     return Column(
       children: [
+        InventoryStatusBar(
+          currentWeight: totalWeight,
+          maxWeight: maxWeight,
+          attunedCount: attunedCount,
+        ),
         Container(
           color: theme.scaffoldBackgroundColor,
           child: Column(
@@ -302,9 +313,45 @@ class _InventoryTabState extends State<InventoryTab> {
               }
 
               final itemIndex = index - 1;
+              final item = filteredItems[itemIndex];
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildItemCard(context, filteredItems[itemIndex], locale, l10n),
+                child: Dismissible(
+                  key: Key(item.id),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.error,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    child: Icon(Icons.delete, color: theme.colorScheme.onError),
+                  ),
+                  confirmDismiss: (direction) async {
+                    return await showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text(l10n.delete),
+                        content: Text(l10n.deleteItemConfirmation(item.getName(locale))),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: Text(l10n.cancel),
+                          ),
+                          FilledButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            style: FilledButton.styleFrom(backgroundColor: theme.colorScheme.error),
+                            child: Text(l10n.delete),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  onDismissed: (direction) => _removeItem(item),
+                  child: _buildItemCard(context, item, locale, l10n),
+                ),
               );
             },
           ),
@@ -508,8 +555,46 @@ class _InventoryTabState extends State<InventoryTab> {
           Navigator.pop(context);
           _showItemDetails(context, item);
         },
+        onAttuneToggle: (value) {
+          Navigator.pop(context);
+          _toggleAttunement(item, value);
+        },
       ),
     );
+  }
+
+  void _toggleAttunement(Item item, bool value) async {
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Validation: Check limit if turning ON
+    if (value) {
+      final currentAttuned = widget.character.inventory
+          .where((i) => i.isAttuned && i.isEquipped)
+          .length;
+      
+      if (currentAttuned >= 3) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.attunementLimitReached), 
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
+        return;
+      }
+    }
+
+    // Find item
+    final index = widget.character.inventory.indexWhere((i) => i.id == item.id);
+    if (index == -1) return;
+
+    // Update
+    widget.character.inventory[index].isAttuned = value;
+    widget.character.updatedAt = DateTime.now();
+    await widget.character.save();
+
+    setState(() {});
   }
 
   void _toggleEquip(Item item) async {

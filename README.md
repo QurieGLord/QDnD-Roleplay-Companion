@@ -113,12 +113,13 @@ flutter run
 
 ## 🗺️ Roadmap
 
-### ✅ v1.9 (Magic & Combat Revamp)
+### ✅ v1.10 (Inventory & Polish)
+- **Inventory:** Encumbrance visualizer (Weight limit) & Attunement tracker.
+- **UX:** Swipe-to-delete items, better item details.
 - **Combat System:** Redesigned Combat Tracker with integrated Magic Sheet.
 - **Magic System:** Adaptive Spell Slots (Icons/Chips) & Preparation Logic.
 - **Level Up:** Strict feature filtering and subclass support.
-- **Localization:** Full EN/RU support for all new UI elements.
-- **Visuals:** 6 Color Themes (QMonokai, Gruvbox, etc.).
+- **Localization:** Full EN/RU support.
 
 ### 🔮 v2.0 (Planned)
 - [ ] Full Content Population (All Classes/Races)

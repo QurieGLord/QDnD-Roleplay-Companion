@@ -1710,6 +1710,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get clearFilters => 'Сбросить';
 
   @override
+  String get encumbrance => 'Нагрузка';
+
+  @override
+  String get attunement => 'Настройка';
+
+  @override
+  String get attunementLimitReached =>
+      'Все слоты настройки заняты (3/3). Снимите что-нибудь.';
+
+  @override
+  String deleteItemConfirmation(String name) {
+    return 'Выбросить $name?';
+  }
+
+  @override
   String spellsCount(int count) {
     return '$count заклинаний';
   }

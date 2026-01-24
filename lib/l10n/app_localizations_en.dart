@@ -1723,6 +1723,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearFilters => 'Clear filters';
 
   @override
+  String get encumbrance => 'Encumbrance';
+
+  @override
+  String get attunement => 'Attunement';
+
+  @override
+  String get attunementLimitReached =>
+      'Maximum attunement slots reached (3/3). Unequip something first.';
+
+  @override
+  String deleteItemConfirmation(String name) {
+    return 'Throw away $name?';
+  }
+
+  @override
   String spellsCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

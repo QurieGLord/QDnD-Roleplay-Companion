@@ -9,6 +9,7 @@ class ItemDetailsSheet extends StatelessWidget {
   final VoidCallback? onEquip;
   final VoidCallback? onRemove;
   final Function(int)? onQuantityChanged;
+  final Function(bool)? onAttuneToggle;
   
   // Catalog actions
   final VoidCallback? onAdd;
@@ -19,6 +20,7 @@ class ItemDetailsSheet extends StatelessWidget {
     this.onEquip,
     this.onRemove,
     this.onQuantityChanged,
+    this.onAttuneToggle,
     this.onAdd,
   });
 
@@ -66,6 +68,19 @@ class ItemDetailsSheet extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 24),
+
+                if (item.isMagical && onAttuneToggle != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: SwitchListTile(
+                      title: Text(l10n.attunement),
+                      subtitle: Text(item.isAttuned ? 'Attuned' : 'Not Attuned'), // Can localize if needed, or just use Switch state
+                      value: item.isAttuned,
+                      onChanged: onAttuneToggle,
+                      secondary: const Icon(Icons.auto_awesome),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
 
                 if (item.weaponProperties != null)
                   _buildWeaponProperties(context, item.weaponProperties!, l10n),
