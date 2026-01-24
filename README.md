@@ -49,11 +49,19 @@ Whether you're an experienced adventurer or a beginning hero, QD&D will become y
 
 ### 🎒 Inventory & Adventure
 - **Equipment:** Visual slots for weapons/armor with auto AC calculation.
+- **The Forge:** Powerful Item Creator with live preview, icon picker, and visual stats editor.
 - **Adventure Journal:** Rich text notes and quest tracking.
 - **Offline First:** 100% functional without internet.
 
+### 📚 External Content Management (DLC)
+- **Library Manager:** Import external content packs via XML (FC5 format).
+- **Unified Database:** Seamlessly merges built-in SRD content with your imported libraries.
+- **Source Tracking:** View items/spells by source pack with instant reload capabilities.
+- **Cleanup:** Easily remove specific compendiums without losing other data.
+
 ### 🌍 Localization
 - **Bilingual:** Full support for English and Russian languages (UI and Content).
+- **Smart Parsing:** Automatically detects and separates bilingual text in imported files (e.g. `English text ---RU--- Русский текст`).
 - **Dynamic Translation:** Automatically formats units (lb/kg, ft/m) and terms based on your preference.
 
 ---

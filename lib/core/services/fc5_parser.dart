@@ -1,9 +1,242 @@
 import 'package:xml/xml.dart';
 import '../models/character.dart';
 import '../models/ability_scores.dart';
+import '../models/item.dart';
+import '../models/spell.dart';
 import 'package:uuid/uuid.dart';
 
+class CompendiumData {
+  final List<Item> items;
+  final List<Spell> spells;
+
+  CompendiumData({required this.items, required this.spells});
+}
+
 class FC5Parser {
+  static Future<CompendiumData> parseCompendium(String xmlContent) async {
+    final document = XmlDocument.parse(xmlContent);
+    final items = <Item>[];
+    final spells = <Spell>[];
+
+    // Check root element
+    // Valid roots: <compendium>, <items>, <spells> (though usually compendium for mixed)
+    final root = document.rootElement;
+    print('🔧 FC5Parser: Parsing compendium with root <${root.name}>');
+
+    // Parse Items
+    final itemElements = root.findAllElements('item');
+    print('🔧 FC5Parser: Found ${itemElements.length} items to parse');
+    
+    for (var node in itemElements) {
+      try {
+        final fullName = node.findElements('name').first.innerText;
+        
+        String nameEn = fullName;
+        String nameRu = fullName;
+
+        if (fullName.contains('---RU---')) {
+          final parts = fullName.split('---RU---');
+          nameEn = parts[0].trim();
+          if (parts.length > 1) {
+            nameRu = parts[1].trim();
+          }
+        }
+
+        final typeCode = node.findElements('type').firstOrNull?.innerText ?? 'G';
+        final weightStr = node.findElements('weight').firstOrNull?.innerText ?? '0';
+        
+        // Combine text tags for description
+        final fullDescription = node.findAllElements('text').map((e) => e.innerText).join('\n').trim();
+        
+        String descriptionEn = fullDescription;
+        String descriptionRu = fullDescription;
+
+        if (fullDescription.contains('---RU---')) {
+          final parts = fullDescription.split('---RU---');
+          descriptionEn = parts[0].trim();
+          if (parts.length > 1) {
+            descriptionRu = parts[1].trim();
+          }
+        }
+        
+        // Parse type
+        ItemType type = ItemType.gear;
+        ArmorProperties? armorProps;
+        WeaponProperties? weaponProps;
+        
+        // Type mapping
+        // M: Melee Weapon, R: Ranged Weapon, ST: Staff/Rod? (treat as weapon if it has dmg)
+        // A: Armor, LA: Light, MA: Medium, HA: Heavy, S: Shield
+        // P: Potion, SC: Scroll, W: Wondrous
+        // G: Gear, $: Treasure/Money
+        
+        if (['M', 'R', 'ST'].contains(typeCode) || (typeCode == 'ST' && node.findElements('dmg1').isNotEmpty)) {
+          type = ItemType.weapon;
+          
+          final dmg1 = node.findElements('dmg1').firstOrNull?.innerText ?? '';
+          final dmgTypeStr = node.findElements('dmgType').firstOrNull?.innerText ?? '';
+          final properties = node.findElements('property').firstOrNull?.innerText ?? '';
+          
+          DamageType dmgType = DamageType.slashing;
+          if (dmgTypeStr.contains('piercing')) dmgType = DamageType.piercing;
+          else if (dmgTypeStr.contains('bludgeoning')) dmgType = DamageType.bludgeoning;
+          else if (dmgTypeStr.contains('fire')) dmgType = DamageType.fire;
+          else if (dmgTypeStr.contains('cold')) dmgType = DamageType.cold;
+          else if (dmgTypeStr.contains('lightning')) dmgType = DamageType.lightning;
+          else if (dmgTypeStr.contains('poison')) dmgType = DamageType.poison;
+          else if (dmgTypeStr.contains('acid')) dmgType = DamageType.acid;
+          else if (dmgTypeStr.contains('psychic')) dmgType = DamageType.psychic;
+          else if (dmgTypeStr.contains('necrotic')) dmgType = DamageType.necrotic;
+          else if (dmgTypeStr.contains('radiant')) dmgType = DamageType.radiant;
+          else if (dmgTypeStr.contains('thunder')) dmgType = DamageType.thunder;
+          else if (dmgTypeStr.contains('force')) dmgType = DamageType.force;
+
+          weaponProps = WeaponProperties(
+            damageDice: dmg1,
+            damageType: dmgType,
+            weaponTags: properties.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList(),
+          );
+        } else if (['A', 'LA', 'MA', 'HA', 'S'].contains(typeCode)) {
+          type = ItemType.armor;
+          
+          final acStr = node.findElements('ac').firstOrNull?.innerText ?? '10';
+          int ac = int.tryParse(acStr) ?? 10;
+          
+          ArmorType armorType = ArmorType.light;
+          if (typeCode == 'MA') armorType = ArmorType.medium;
+          if (typeCode == 'HA') armorType = ArmorType.heavy;
+          if (typeCode == 'S') armorType = ArmorType.shield;
+          
+          final stealthStr = node.findElements('stealth').firstOrNull?.innerText ?? '';
+          
+          armorProps = ArmorProperties(
+            baseAC: ac,
+            armorType: armorType,
+            addDexModifier: ['LA', 'MA'].contains(typeCode), // Light adds full, Medium adds up to 2
+            maxDexBonus: typeCode == 'MA' ? 2 : null,
+            stealthDisadvantage: stealthStr.toLowerCase().contains('disadvantage'),
+          );
+        } else if (['P', 'SC', 'W'].contains(typeCode)) {
+          type = ItemType.consumable;
+        } else if (typeCode == '\$') {
+          type = ItemType.treasure;
+        } else {
+          type = ItemType.gear;
+        }
+
+        final item = Item(
+          id: const Uuid().v4(),
+          nameEn: nameEn,
+          nameRu: nameRu,
+          descriptionEn: descriptionEn,
+          descriptionRu: descriptionRu,
+          type: type,
+          rarity: ItemRarity.common, // FC5 doesn't always specify rarity clearly in 'type'
+          weight: double.tryParse(weightStr) ?? 0.0,
+          weaponProperties: weaponProps,
+          armorProperties: armorProps,
+        );
+        
+        items.add(item);
+      } catch (e) {
+        print('⚠️ FC5Parser: Failed to parse item: $e');
+      }
+    }
+
+    // Parse Spells
+    final spellElements = root.findAllElements('spell');
+    print('🔧 FC5Parser: Found ${spellElements.length} spells to parse');
+
+    for (var node in spellElements) {
+      try {
+        final fullName = node.findElements('name').first.innerText;
+        
+        String nameEn = fullName;
+        String nameRu = fullName;
+
+        if (fullName.contains('---RU---')) {
+          final parts = fullName.split('---RU---');
+          nameEn = parts[0].trim();
+          if (parts.length > 1) {
+            nameRu = parts[1].trim();
+          }
+        }
+
+        final levelStr = node.findElements('level').firstOrNull?.innerText ?? '0';
+        final schoolCode = node.findElements('school').firstOrNull?.innerText ?? 'A';
+        final time = node.findElements('time').firstOrNull?.innerText ?? '';
+        final range = node.findElements('range').firstOrNull?.innerText ?? '';
+        final duration = node.findElements('duration').firstOrNull?.innerText ?? '';
+        final classesStr = node.findElements('classes').firstOrNull?.innerText ?? '';
+        final fullDescription = node.findAllElements('text').map((e) => e.innerText).join('\n').trim();
+        
+        String descriptionEn = fullDescription;
+        String descriptionRu = fullDescription;
+
+        if (fullDescription.contains('---RU---')) {
+          final parts = fullDescription.split('---RU---');
+          descriptionEn = parts[0].trim();
+          if (parts.length > 1) {
+            descriptionRu = parts[1].trim();
+          }
+        }
+
+        final componentsStr = node.findElements('components').firstOrNull?.innerText ?? '';
+        final ritualStr = node.findElements('ritual').firstOrNull?.innerText ?? 'NO';
+        
+        // School mapping
+        String school = 'Abjuration';
+        if (schoolCode == 'C') school = 'Conjuration';
+        if (schoolCode == 'D') school = 'Divination';
+        if (schoolCode == 'EN') school = 'Enchantment';
+        if (schoolCode == 'EV') school = 'Evocation';
+        if (schoolCode == 'I') school = 'Illusion';
+        if (schoolCode == 'N') school = 'Necromancy';
+        if (schoolCode == 'T') school = 'Transmutation';
+
+        // Components parsing
+        List<String> components = [];
+        if (componentsStr.contains('V')) components.add('V');
+        if (componentsStr.contains('S')) components.add('S');
+        if (componentsStr.contains('M')) components.add('M');
+
+        // Material components usually in text "(a pinch of dust)"
+        String? materials;
+        if (componentsStr.contains('(')) {
+          final start = componentsStr.indexOf('(');
+          final end = componentsStr.lastIndexOf(')');
+          if (end > start) {
+            materials = componentsStr.substring(start + 1, end);
+          }
+        }
+
+        final spell = Spell(
+          id: const Uuid().v4(),
+          nameEn: nameEn,
+          nameRu: nameRu,
+          level: int.tryParse(levelStr) ?? 0,
+          school: school,
+          castingTime: time,
+          range: range,
+          duration: duration,
+          concentration: duration.toLowerCase().contains('concentration'),
+          ritual: ritualStr.toUpperCase() == 'YES',
+          components: components,
+          materialComponents: materials,
+          descriptionEn: descriptionEn,
+          descriptionRu: descriptionRu,
+          availableToClasses: classesStr.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList(),
+        );
+
+        spells.add(spell);
+      } catch (e) {
+        print('⚠️ FC5Parser: Failed to parse spell: $e');
+      }
+    }
+
+    return CompendiumData(items: items, spells: spells);
+  }
+
   static Character parseXml(String xmlContent) {
     final document = XmlDocument.parse(xmlContent);
     print('🔧 FC5Parser: Root element = ${document.rootElement.name}');

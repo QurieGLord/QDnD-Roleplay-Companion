@@ -35,13 +35,14 @@ class SpellAdapter extends TypeAdapter<Spell> {
       availableToClasses: (fields[14] as List).cast<String>(),
       atHigherLevelsEn: fields[15] as String?,
       atHigherLevelsRu: fields[16] as String?,
+      sourceId: fields[18] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Spell obj) {
     writer
-      ..writeByte(18)
+      ..writeByte(19)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -77,7 +78,9 @@ class SpellAdapter extends TypeAdapter<Spell> {
       ..writeByte(15)
       ..write(obj.atHigherLevelsEn)
       ..writeByte(16)
-      ..write(obj.atHigherLevelsRu);
+      ..write(obj.atHigherLevelsRu)
+      ..writeByte(18)
+      ..write(obj.sourceId);
   }
 
   @override

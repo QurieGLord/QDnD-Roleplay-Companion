@@ -71,8 +71,8 @@ class ItemUtils {
       case ItemType.armor: return l10n.typeArmor;
       case ItemType.gear: return l10n.typeGear;
       case ItemType.consumable: return l10n.typeConsumable;
-      case ItemType.tool: return 'Инструменты'; // TODO: Add to l10n if missing
-      case ItemType.treasure: return 'Сокровища'; // TODO: Add to l10n if missing
+      case ItemType.tool: return l10n.typeTool;
+      case ItemType.treasure: return l10n.typeTreasure;
     }
   }
 

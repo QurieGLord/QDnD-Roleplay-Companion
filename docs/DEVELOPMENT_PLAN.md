@@ -135,6 +135,10 @@ class FC5Exporter {
 - [x] FC5 Import Fix: Filtered class features by `associatedClass` to prevent cross-class pollution.
 - [x] Strict Feature Filtering: Implemented `getFeaturesForLevel` to ensure Paladins don't get Fighter features on Level Up.
 - [x] Inventory Overhaul: Added Encumbrance bar, Attunement limits, and Swipe-to-Delete.
+- [x] Item Creation: Implemented "The Forge" with live preview and visual customization.
+- [x] Library Management: Created `LibraryManagerScreen` for DLC management (Import/Delete).
+- [x] Data Unification: Unified SRD and User content in `ItemService`/`SpellService`.
+- [x] Bilingual Support: `FC5Parser` now supports `---RU---` separator for dual-language content.
 - [ ] Spell Selection in Wizard: `CharacterCreationWizard` needs a step to write chosen spells.
 - [ ] Multiclass UI: `LevelUpScreen` currently assumes leveling up the *primary* class.
 - [ ] Content Population: Fill `assets/data/features/` for remaining classes.

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/services/theme_provider.dart';
 import '../../core/services/locale_provider.dart';
+import '../../core/services/import_service.dart';
 import '../../core/theme/app_palettes.dart';
+import 'library_manager_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -113,6 +117,30 @@ class SettingsScreen extends StatelessWidget {
                 onTap: () => themeProvider.setColorPreset(preset),
               );
             },
+          ),
+
+          const SizedBox(height: 32),
+          _buildSectionHeader(context, l10n.contentManagement.toUpperCase()),
+          const SizedBox(height: 16),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.library_books_outlined),
+                  title: Text(l10n.manageLibraries),
+                  subtitle: Text(l10n.manageLibrariesSubtitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LibraryManagerScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
 
           const SizedBox(height: 32),
