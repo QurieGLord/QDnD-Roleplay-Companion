@@ -1734,6 +1734,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String preparedSpellsCount(int current, int max) {
+    return 'Prepared: $current / $max';
+  }
+
+  @override
   String get spellAlmanacTitle => 'Spell Almanac';
 
   @override

@@ -1715,6 +1715,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String preparedSpellsCount(int current, int max) {
+    return 'Подготовлено: $current / $max';
+  }
+
+  @override
   String get spellAlmanacTitle => 'Альманах';
 
   @override

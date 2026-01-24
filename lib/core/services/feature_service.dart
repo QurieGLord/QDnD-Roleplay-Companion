@@ -120,6 +120,40 @@ class FeatureService {
     return null;
   }
 
+  /// Get features available strictly at a specific level for a specific class/subclass
+  /// Used for Level Up preview to avoid showing features from other classes/subclasses
+  static List<CharacterFeature> getFeaturesForLevel({
+    required String classId,
+    required int level,
+    String? subclassId,
+  }) {
+    final normalizedClass = _normalizeClassName(classId);
+    final normalizedSubclass = subclassId != null ? _normalizeClassName(subclassId) : null;
+
+    return _features.values.where((f) {
+      // 1. Strict Level Check
+      if (f.minLevel != level) return false;
+
+      // 2. Strict Class Check
+      // If feature has no associated class, it's global (like Racial traits), 
+      // but usually we only want class features here.
+      if (f.associatedClass == null) return false;
+      
+      final featureClass = _normalizeClassName(f.associatedClass!);
+      if (featureClass != normalizedClass) return false;
+
+      // 3. Strict Subclass Check
+      // - If feature has NO subclass -> it is a base class feature (keep it)
+      // - If feature HAS subclass -> it MUST match the character's subclass
+      if (f.associatedSubclass != null) {
+        final featureSubclass = _normalizeClassName(f.associatedSubclass!);
+        if (featureSubclass != normalizedSubclass) return false;
+      }
+
+      return true;
+    }).toList();
+  }
+
   /// Get all features available for a character at their current level
   static List<CharacterFeature> getFeaturesForCharacter(Character character) {
     final characterClassName = _normalizeClassName(character.characterClass);

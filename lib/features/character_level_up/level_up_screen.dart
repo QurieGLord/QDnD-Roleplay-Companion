@@ -68,26 +68,11 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
     if (_hpIncrease < 1) _hpIncrease = 1; // Min 1 HP gain
 
     // 4. Find New Features
-    // We need to temporarily spoof the level to get NEXT level features
-    // A bit hacky, but FeatureService doesn't support "getLevelFeatures" directly yet
-    final tempChar = Character(
-      id: 'temp',
-      name: 'temp',
-      race: widget.character.race,
-      characterClass: widget.character.characterClass,
-      subclass: widget.character.subclass,
+    _newFeatures = FeatureService.getFeaturesForLevel(
+      classId: widget.character.characterClass,
       level: _nextLevel,
-      maxHp: 0,
-      currentHp: 0,
-      abilityScores: widget.character.abilityScores,
-      spellSlots: [],
-      maxSpellSlots: [],
+      subclassId: widget.character.subclass,
     );
-    
-    final potentialFeatures = FeatureService.getFeaturesForCharacter(tempChar);
-    
-    // Filter only features that appear AT this level (minLevel == _nextLevel)
-    _newFeatures = potentialFeatures.where((f) => f.minLevel == _nextLevel).toList();
 
     // 5. Calculate Spell Slots
     if (_classData.spellcasting != null) {
@@ -180,15 +165,8 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
     }
 
     // 4. Add Features
-    for (var feature in _newFeatures) {
-      // Skip "container" features that were replaced by choices
-      if (feature.id == 'fighting_style') continue;
-
-      // Check duplicates
-      if (!char.features.any((f) => f.id == feature.id)) {
-        FeatureService.addFeaturesToCharacter(char); 
-      }
-    }
+    // We explicitly call addFeaturesToCharacter once to capture all strictly available features
+    FeatureService.addFeaturesToCharacter(char);
     
     // Explicitly reload features to catch subclass features if subclass was just set
     if (_selectedOptions.containsKey('subclass')) {
