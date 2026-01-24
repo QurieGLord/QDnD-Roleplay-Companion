@@ -46,5 +46,10 @@ app.*.map.json
 
 # Documentation & AI Context
 docs/Компендиум/
-GEMINI.md
 .claude/
+GEMINI.md
+CLAUDE.md
+SESSION_SUMMARY.md
+SESSION*_SUMMARY.md
+WORKTREE_INFO.md
+environment_report.md
