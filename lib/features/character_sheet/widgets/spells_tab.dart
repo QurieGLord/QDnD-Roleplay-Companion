@@ -7,6 +7,7 @@ import '../../../core/services/spell_service.dart';
 import '../../../core/services/spellcasting_service.dart';
 import '../../../core/services/storage_service.dart';
 import '../../../core/managers/spell_preparation_manager.dart';
+import 'spell_slots_widget.dart';
 import '../../spell_almanac/spell_almanac_screen.dart';
 import '../../../shared/widgets/spell_details_sheet.dart';
 import '../../../shared/widgets/feature_details_sheet.dart';
@@ -521,7 +522,7 @@ class _SpellsTabState extends State<SpellsTab> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Prepared: $currentPrepared / $maxPrepared',
+                      l10n.preparedSpellsCount(currentPrepared, maxPrepared),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: currentPrepared > maxPrepared 
@@ -552,52 +553,10 @@ class _SpellsTabState extends State<SpellsTab> {
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Text('Pact Magic (Short Rest)', style: TextStyle(color: colorScheme.secondary, fontWeight: FontWeight.bold, fontSize: 12)),
                 ),
-              ...List.generate(9, (i) {
-                final level = i + 1;
-                if (i >= widget.character.maxSpellSlots.length) return const SizedBox.shrink();
-                final max = widget.character.maxSpellSlots[i];
-                if (max == 0) return const SizedBox.shrink();
-                
-                final curr = i < widget.character.spellSlots.length ? widget.character.spellSlots[i] : 0;
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      SizedBox(width: 40, child: Text(l10n.lvlShort(level), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey))),
-                      Expanded(
-                        child: Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: List.generate(max, (j) {
-                            final isUsed = j >= curr;
-                            return GestureDetector(
-                              onTap: () => setState(() {
-                                if (isUsed) widget.character.restoreSpellSlot(level);
-                                else widget.character.useSpellSlot(level);
-                              }),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                width: isPactMagic ? 32 : 28, 
-                                height: isPactMagic ? 32 : 28,
-                                decoration: BoxDecoration(
-                                  color: isUsed ? colorScheme.surfaceContainerHighest : (isPactMagic ? Colors.purple : colorScheme.primary),
-                                  borderRadius: BorderRadius.circular(isPactMagic ? 16 : 8), // Circle for Pact
-                                  border: Border.all(
-                                    color: isUsed ? colorScheme.outline : (isPactMagic ? Colors.purple : colorScheme.primary), 
-                                    width: 1.5
-                                  ),
-                                ),
-                                child: isUsed ? null : Icon(Icons.bolt, size: isPactMagic ? 20 : 18, color: colorScheme.onPrimary),
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
+              SpellSlotsWidget(
+                character: widget.character,
+                onChanged: () => setState(() => widget.character.save()),
+              ),
             ],
           ],
         ),

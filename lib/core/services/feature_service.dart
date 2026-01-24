@@ -86,10 +86,18 @@ class FeatureService {
     try {
       final String jsonString = await rootBundle.loadString(path);
       final List<dynamic> jsonList = json.decode(jsonString);
+      
+      final inferredClass = _inferClassFromPath(path);
 
       for (var jsonFeature in jsonList) {
         try {
           final feature = CharacterFeature.fromJson(jsonFeature);
+          
+          // Fix for missing associatedClass in JSON files
+          if (feature.associatedClass == null && inferredClass != null) {
+             feature.associatedClass = inferredClass;
+          }
+          
           _features[feature.id] = feature;
         } catch (e) {
           print('❌ Error parsing feature in $path: $e');
@@ -98,6 +106,18 @@ class FeatureService {
     } catch (e) {
       print('❌ Error reading feature file $path: $e');
     }
+  }
+
+  static String? _inferClassFromPath(String path) {
+    final filename = path.split('/').last.replaceAll('.json', '');
+    if (filename == 'racial_traits') return null;
+    if (filename == 'paladin_features') return 'Paladin';
+    
+    // Capitalize first letter: barbarian -> Barbarian
+    if (filename.isNotEmpty) {
+      return filename[0].toUpperCase() + filename.substring(1);
+    }
+    return null;
   }
 
   /// Get all features available for a character at their current level

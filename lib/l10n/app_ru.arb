@@ -552,6 +552,7 @@
   "filterAllSchools": "Все школы",
   "clearFilters": "Сбросить",
   "spellsCount": "{count} заклинаний",
+  "preparedSpellsCount": "Подготовлено: {current} / {max}",
   "spellAlmanacTitle": "Альманах",
   "actionTypeFree": "Свободное действие",
   "featuresStepTitle": "Умения класса",
