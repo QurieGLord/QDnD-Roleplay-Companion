@@ -129,7 +129,7 @@ flutter run
 - **Level Up:** Strict feature filtering and subclass support.
 - **Localization:** Full EN/RU support.
 
-### ✅ v1.2 (Content & Creativity)
+### ✅ v1.11 (Content & Creativity)
 - **The Forge:** Custom Item Creator with visual preview and full stat control.
 - **Library Manager:** Import/Delete external content packs (XML) to expand your game.
 - **Unified Database:** Mix built-in content with your own homebrew seamlessly.
