@@ -134,6 +134,7 @@ class FC5Exporter {
 - [x] Adaptive Spell Slots: Implemented `SpellSlotsWidget` (Icons vs Chips modes).
 - [x] FC5 Import Fix: Filtered class features by `associatedClass` to prevent cross-class pollution.
 - [x] Strict Feature Filtering: Implemented `getFeaturesForLevel` to ensure Paladins don't get Fighter features on Level Up.
+- [x] Inventory Overhaul: Added Encumbrance bar, Attunement limits, and Swipe-to-Delete.
 - [ ] Spell Selection in Wizard: `CharacterCreationWizard` needs a step to write chosen spells.
 - [ ] Multiclass UI: `LevelUpScreen` currently assumes leveling up the *primary* class.
 - [ ] Content Population: Fill `assets/data/features/` for remaining classes.

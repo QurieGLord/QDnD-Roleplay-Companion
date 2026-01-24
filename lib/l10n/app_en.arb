@@ -754,6 +754,15 @@
   "filterAllLevels": "All Levels",
   "filterAllSchools": "All Schools",
   "clearFilters": "Clear filters",
+  "encumbrance": "Encumbrance",
+  "attunement": "Attunement",
+  "attunementLimitReached": "Maximum attunement slots reached (3/3). Unequip something first.",
+  "deleteItemConfirmation": "Throw away {name}?",
+  "@deleteItemConfirmation": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
   "spellsCount": "{count} spell{count, plural, =1{} other{s}}",
   "@spellsCount": {
     "placeholders": {

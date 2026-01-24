@@ -3344,6 +3344,30 @@ abstract class AppLocalizations {
   /// **'Clear filters'**
   String get clearFilters;
 
+  /// No description provided for @encumbrance.
+  ///
+  /// In en, this message translates to:
+  /// **'Encumbrance'**
+  String get encumbrance;
+
+  /// No description provided for @attunement.
+  ///
+  /// In en, this message translates to:
+  /// **'Attunement'**
+  String get attunement;
+
+  /// No description provided for @attunementLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum attunement slots reached (3/3). Unequip something first.'**
+  String get attunementLimitReached;
+
+  /// No description provided for @deleteItemConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Throw away {name}?'**
+  String deleteItemConfirmation(String name);
+
   /// No description provided for @spellsCount.
   ///
   /// In en, this message translates to:
