@@ -3799,6 +3799,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Max'**
   String get hpMax;
+
+  /// No description provided for @contentManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Content Management'**
+  String get contentManagement;
+
+  /// No description provided for @libraryManagerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Managed Libraries'**
+  String get libraryManagerTitle;
+
+  /// No description provided for @manageLibraries.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Libraries'**
+  String get manageLibraries;
+
+  /// No description provided for @manageLibrariesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import and manage external content (XML)'**
+  String get manageLibrariesSubtitle;
+
+  /// No description provided for @importXML.
+  ///
+  /// In en, this message translates to:
+  /// **'Import XML'**
+  String get importXML;
+
+  /// No description provided for @noLibraries.
+  ///
+  /// In en, this message translates to:
+  /// **'No imported libraries'**
+  String get noLibraries;
+
+  /// No description provided for @noLibrariesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to import content from FC5 XML files'**
+  String get noLibrariesHint;
+
+  /// No description provided for @libraryStats.
+  ///
+  /// In en, this message translates to:
+  /// **'{items} Items, {spells} Spells'**
+  String libraryStats(int items, int spells);
+
+  /// No description provided for @libraryImportedDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {date}'**
+  String libraryImportedDate(String date);
+
+  /// No description provided for @deleteLibraryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Library?'**
+  String get deleteLibraryTitle;
+
+  /// No description provided for @deleteLibraryMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will remove \"{name}\" and all associated content:\n\n• {items} Items\n• {spells} Spells\n\nThis action cannot be undone.'**
+  String deleteLibraryMessage(String name, int items, int spells);
+
+  /// No description provided for @libraryDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Library deleted successfully'**
+  String get libraryDeleted;
+
+  /// No description provided for @errorDeletingLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Error deleting library: {error}'**
+  String errorDeletingLibrary(String error);
+
+  /// No description provided for @forgeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Forge'**
+  String get forgeTitle;
+
+  /// No description provided for @identitySection.
+  ///
+  /// In en, this message translates to:
+  /// **'IDENTITY'**
+  String get identitySection;
+
+  /// No description provided for @characteristicsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'CHARACTERISTICS'**
+  String get characteristicsSection;
+
+  /// No description provided for @statsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'STATS'**
+  String get statsSection;
+
+  /// No description provided for @magicPropertiesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'MAGIC & PROPERTIES'**
+  String get magicPropertiesSection;
+
+  /// No description provided for @isMagical.
+  ///
+  /// In en, this message translates to:
+  /// **'Magical Item'**
+  String get isMagical;
+
+  /// No description provided for @requiresAttunement.
+  ///
+  /// In en, this message translates to:
+  /// **'Requires Attunement'**
+  String get requiresAttunement;
+
+  /// No description provided for @weaponStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Weapon Stats'**
+  String get weaponStats;
+
+  /// No description provided for @damageDice.
+  ///
+  /// In en, this message translates to:
+  /// **'Damage Dice'**
+  String get damageDice;
+
+  /// No description provided for @damageDiceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'1d8'**
+  String get damageDiceHint;
+
+  /// No description provided for @armorStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Armor Stats'**
+  String get armorStats;
+
+  /// No description provided for @addDexModifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Add DEX Modifier'**
+  String get addDexModifier;
+
+  /// No description provided for @stealthDisadvantage.
+  ///
+  /// In en, this message translates to:
+  /// **'Stealth Disadvantage'**
+  String get stealthDisadvantage;
+
+  /// No description provided for @forgeItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Forge Item'**
+  String get forgeItem;
+
+  /// No description provided for @itemExample.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Excalibur'**
+  String get itemExample;
+
+  /// No description provided for @typeTool.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools'**
+  String get typeTool;
+
+  /// No description provided for @typeTreasure.
+  ///
+  /// In en, this message translates to:
+  /// **'Treasure'**
+  String get typeTreasure;
 }
 
 class _AppLocalizationsDelegate

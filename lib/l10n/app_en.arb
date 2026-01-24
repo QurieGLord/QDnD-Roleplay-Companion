@@ -879,5 +879,58 @@
   "unnamed": "(Unnamed)",
   "basicInfo": "Basic Information",
   "level1Info": "Your character will be created at level 1. Additional features will be added based on your class and background.",
-  "hpMax": "Max"
+  "hpMax": "Max",
+  "contentManagement": "Content Management",
+  "libraryManagerTitle": "Managed Libraries",
+  "manageLibraries": "Manage Libraries",
+  "manageLibrariesSubtitle": "Import and manage external content (XML)",
+  "importXML": "Import XML",
+  "noLibraries": "No imported libraries",
+  "noLibrariesHint": "Tap + to import content from FC5 XML files",
+  "libraryStats": "{items} Items, {spells} Spells",
+  "@libraryStats": {
+    "placeholders": {
+      "items": { "type": "int" },
+      "spells": { "type": "int" }
+    }
+  },
+  "libraryImportedDate": "Imported {date}",
+  "@libraryImportedDate": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "deleteLibraryTitle": "Delete Library?",
+  "deleteLibraryMessage": "This will remove \"{name}\" and all associated content:\n\n• {items} Items\n• {spells} Spells\n\nThis action cannot be undone.",
+  "@deleteLibraryMessage": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "items": { "type": "int" },
+      "spells": { "type": "int" }
+    }
+  },
+  "libraryDeleted": "Library deleted successfully",
+  "errorDeletingLibrary": "Error deleting library: {error}",
+  "@errorDeletingLibrary": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "forgeTitle": "The Forge",
+  "identitySection": "IDENTITY",
+  "characteristicsSection": "CHARACTERISTICS",
+  "statsSection": "STATS",
+  "magicPropertiesSection": "MAGIC & PROPERTIES",
+  "isMagical": "Magical Item",
+  "requiresAttunement": "Requires Attunement",
+  "weaponStats": "Weapon Stats",
+  "damageDice": "Damage Dice",
+  "damageDiceHint": "1d8",
+  "armorStats": "Armor Stats",
+  "addDexModifier": "Add DEX Modifier",
+  "stealthDisadvantage": "Stealth Disadvantage",
+  "forgeItem": "Forge Item",
+  "itemExample": "e.g. Excalibur",
+  "typeTool": "Tools",
+  "typeTreasure": "Treasure"
 }

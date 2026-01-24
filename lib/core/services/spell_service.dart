@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../models/spell.dart';
+import 'storage_service.dart';
 
 class SpellService {
   static List<Spell>? _allSpells;
@@ -8,15 +9,37 @@ class SpellService {
   static Future<void> loadSpells() async {
     if (_allSpells != null) return;
 
+    _allSpells = [];
+
+    // 1. Load Standard Assets
     try {
       final jsonString = await rootBundle.loadString('assets/data/spells/paladin_spells.json');
       final List<dynamic> jsonList = json.decode(jsonString);
-      _allSpells = jsonList.map((json) => Spell.fromJson(json)).toList();
-      print('✅ Loaded ${_allSpells!.length} spells');
+      final assetSpells = jsonList.map((json) => Spell.fromJson(json)).toList();
+      _allSpells!.addAll(assetSpells);
+      print('✅ Loaded ${assetSpells.length} spells from assets');
     } catch (e) {
-      print('❌ Failed to load spells: $e');
-      _allSpells = [];
+      print('❌ Failed to load asset spells: $e');
     }
+
+    // 2. Load Custom Spells from Storage
+    try {
+      final storedSpells = StorageService.getAllSpells();
+      if (storedSpells.isNotEmpty) {
+        _allSpells!.addAll(storedSpells);
+        print('✅ Loaded ${storedSpells.length} spells from storage');
+      }
+    } catch (e) {
+      print('❌ Failed to load stored spells: $e');
+    }
+
+    print('✨ Total spells loaded: ${_allSpells!.length}');
+  }
+
+  static Future<void> reload() async {
+    print('🔄 SpellService: Reloading spells...');
+    _allSpells = null;
+    await loadSpells();
   }
 
   static List<Spell> getAllSpells() {

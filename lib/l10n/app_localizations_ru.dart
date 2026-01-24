@@ -1960,4 +1960,102 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get hpMax => 'Максимум';
+
+  @override
+  String get contentManagement => 'Управление контентом';
+
+  @override
+  String get libraryManagerTitle => 'Библиотеки контента';
+
+  @override
+  String get manageLibraries => 'Управление библиотеками';
+
+  @override
+  String get manageLibrariesSubtitle => 'Импорт внешнего контента (XML)';
+
+  @override
+  String get importXML => 'Импорт XML';
+
+  @override
+  String get noLibraries => 'Нет импортированных библиотек';
+
+  @override
+  String get noLibrariesHint => 'Нажмите +, чтобы импортировать файлы FC5 XML';
+
+  @override
+  String libraryStats(int items, int spells) {
+    return '$items предметов, $spells заклинаний';
+  }
+
+  @override
+  String libraryImportedDate(String date) {
+    return 'Импортировано $date';
+  }
+
+  @override
+  String get deleteLibraryTitle => 'Удалить библиотеку?';
+
+  @override
+  String deleteLibraryMessage(String name, int items, int spells) {
+    return 'Это удалит \"$name\" и весь связанный контент:\n\n• $items предметов\n• $spells заклинаний\n\nЭто действие нельзя отменить.';
+  }
+
+  @override
+  String get libraryDeleted => 'Библиотека успешно удалена';
+
+  @override
+  String errorDeletingLibrary(String error) {
+    return 'Ошибка удаления библиотеки: $error';
+  }
+
+  @override
+  String get forgeTitle => 'Кузница';
+
+  @override
+  String get identitySection => 'ИДЕНТИФИКАЦИЯ';
+
+  @override
+  String get characteristicsSection => 'ХАРАКТЕРИСТИКИ';
+
+  @override
+  String get statsSection => 'ПАРАМЕТРЫ';
+
+  @override
+  String get magicPropertiesSection => 'МАГИЯ И СВОЙСТВА';
+
+  @override
+  String get isMagical => 'Магический предмет';
+
+  @override
+  String get requiresAttunement => 'Требует настройки';
+
+  @override
+  String get weaponStats => 'Параметры оружия';
+
+  @override
+  String get damageDice => 'Кость урона';
+
+  @override
+  String get damageDiceHint => '1d8';
+
+  @override
+  String get armorStats => 'Параметры доспеха';
+
+  @override
+  String get addDexModifier => 'Добавить мод. ЛОВ';
+
+  @override
+  String get stealthDisadvantage => 'Помеха на скрытность';
+
+  @override
+  String get forgeItem => 'Создать';
+
+  @override
+  String get itemExample => 'напр. Экскалибур';
+
+  @override
+  String get typeTool => 'Инструменты';
+
+  @override
+  String get typeTreasure => 'Сокровища';
 }

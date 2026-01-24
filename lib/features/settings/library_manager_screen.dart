@@ -3,22 +3,27 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/models/compendium_source.dart';
 import '../../core/services/storage_service.dart';
 import '../../core/services/import_service.dart';
+import '../../core/services/item_service.dart';
+import '../../core/services/spell_service.dart';
 
 class LibraryManagerScreen extends StatelessWidget {
   const LibraryManagerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Managed Libraries'),
+        title: Text(l10n.libraryManagerTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            tooltip: 'Import XML',
+            tooltip: l10n.importXML,
             onPressed: () => _importFile(context),
           ),
         ],
@@ -36,12 +41,12 @@ class LibraryManagerScreen extends StatelessWidget {
                   Icon(Icons.library_books_outlined, size: 64, color: Theme.of(context).colorScheme.outline),
                   const SizedBox(height: 16),
                   Text(
-                    'No imported libraries',
+                    l10n.noLibraries,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Tap + to import content from FC5 XML files',
+                    l10n.noLibrariesHint,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.outline,
                     ),
@@ -71,9 +76,9 @@ class LibraryManagerScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 4),
-                      Text('${source.itemCount} Items, ${source.spellCount} Spells'),
+                      Text(l10n.libraryStats(source.itemCount, source.spellCount)),
                       Text(
-                        'Imported ${DateFormat.yMMMd().format(source.importedAt)}',
+                        l10n.libraryImportedDate(DateFormat.yMMMd().format(source.importedAt)),
                         style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.outline),
                       ),
                     ],
@@ -129,25 +134,23 @@ class LibraryManagerScreen extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, CompendiumSource source) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Library?'),
+        title: Text(l10n.deleteLibraryTitle),
         content: Text(
-          'This will remove "${source.name}" and all associated content:\n\n' 
-          '• ${source.itemCount} Items\n' 
-          '• ${source.spellCount} Spells\n\n' 
-          'This action cannot be undone.',
+          l10n.deleteLibraryMessage(source.name, source.itemCount, source.spellCount),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -158,16 +161,22 @@ class LibraryManagerScreen extends StatelessWidget {
       
       try {
         await StorageService.deleteSource(source.id);
+        
+        // Reload in-memory caches to reflect changes immediately
+        await ItemService.reload();
+        await SpellService.reload();
+
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Library deleted successfully')),
+          SnackBar(content: Text(l10n.libraryDeleted)),
         );
       } catch (e) {
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error deleting library: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(l10n.errorDeletingLibrary(e.toString())), backgroundColor: Colors.red),
         );
       }
     }
   }
 }
+

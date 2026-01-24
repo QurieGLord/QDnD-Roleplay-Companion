@@ -5,6 +5,8 @@ import '../../../core/models/item.dart';
 import '../../../core/utils/item_utils.dart';
 import '../../../shared/widgets/item_details_sheet.dart';
 import '../widgets/inventory_status_bar.dart';
+import '../../../core/services/item_service.dart';
+import '../../inventory/create_item_screen.dart';
 
 class InventoryTab extends StatefulWidget {
   final Character character;
@@ -96,268 +98,298 @@ class _InventoryTabState extends State<InventoryTab> {
         .where((i) => i.isAttuned && i.isEquipped) // User logic
         .length;
 
-    return Column(
-      children: [
-        InventoryStatusBar(
-          currentWeight: totalWeight,
-          maxWeight: maxWeight,
-          attunedCount: attunedCount,
-        ),
-        Container(
-          color: theme.scaffoldBackgroundColor,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: l10n.searchItems,
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() => _searchQuery = '');
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-                  ),
-                  onChanged: (value) => setState(() => _searchQuery = value),
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: l10n.sortBy,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _sortBy,
-                            isDense: true,
-                            items: [
-                              DropdownMenuItem(value: 'name', child: Text(l10n.sortName)),
-                              DropdownMenuItem(value: 'weight', child: Text(l10n.sortWeight)),
-                              DropdownMenuItem(value: 'value', child: Text(l10n.sortValue)),
-                              DropdownMenuItem(value: 'type', child: Text(l10n.sortType)),
-                            ],
-                            onChanged: (value) => setState(() => _sortBy = value!),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: l10n.filterEquipped,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _equipFilter,
-                            isDense: true,
-                            items: [
-                              DropdownMenuItem(value: 'all', child: Text(l10n.filterAll)),
-                              DropdownMenuItem(value: 'equipped', child: Text(l10n.filterEquipped)),
-                              DropdownMenuItem(value: 'unequipped', child: Text(l10n.filterUnequipped)),
-                            ],
-                            onChanged: (value) => setState(() => _equipFilter = value!),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    FilterChip(
-                      label: Text(l10n.filterAll),
-                      selected: _filterType == 'all',
-                      onSelected: (selected) {
-                        if (selected) setState(() => _filterType = 'all');
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    FilterChip(
-                      label: Text(l10n.typeWeapon),
-                      selected: _filterType == 'weapon',
-                      onSelected: (selected) {
-                        if (selected) setState(() => _filterType = 'weapon');
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    FilterChip(
-                      label: Text(l10n.typeArmor),
-                      selected: _filterType == 'armor',
-                      onSelected: (selected) {
-                        if (selected) setState(() => _filterType = 'armor');
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    FilterChip(
-                      label: Text(l10n.typeGear),
-                      selected: _filterType == 'gear',
-                      onSelected: (selected) {
-                        if (selected) setState(() => _filterType = 'gear');
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    FilterChip(
-                      label: Text(l10n.typeConsumable),
-                      selected: _filterType == 'consumable',
-                      onSelected: (selected) {
-                        if (selected) setState(() => _filterType = 'consumable');
-                      },
-                    ),
-                  ],
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                child: Row(
-                  children: [
-                    Icon(Icons.fitness_center, size: 16, color: theme.colorScheme.primary),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${l10n.totalWeight}: ${totalWeight.toStringAsFixed(1)} ${l10n.weightUnit}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-            ],
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _navigateToCreateItem(context),
+        child: const Icon(Icons.add),
+        tooltip: l10n.addItem,
+      ),
+      body: Column(
+        children: [
+          InventoryStatusBar(
+            currentWeight: totalWeight,
+            maxWeight: maxWeight,
+            attunedCount: attunedCount,
           ),
-        ),
+          Container(
+            color: theme.scaffoldBackgroundColor,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: l10n.searchItems,
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() => _searchQuery = '');
+                              },
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                    ),
+                    onChanged: (value) => setState(() => _searchQuery = value),
+                  ),
+                ),
 
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.only(top: 8, bottom: 80),
-            itemCount: filteredItems.length + 1,
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Card(
-                    elevation: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.monetization_on, size: 20, color: theme.colorScheme.primary),
-                              const SizedBox(width: 8),
-                              Text(
-                                l10n.currency,
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: l10n.sortBy,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _sortBy,
+                              isDense: true,
+                              items: [
+                                DropdownMenuItem(value: 'name', child: Text(l10n.sortName)),
+                                DropdownMenuItem(value: 'weight', child: Text(l10n.sortWeight)),
+                                DropdownMenuItem(value: 'value', child: Text(l10n.sortValue)),
+                                DropdownMenuItem(value: 'type', child: Text(l10n.sortType)),
+                              ],
+                              onChanged: (value) => setState(() => _sortBy = value!),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: l10n.filterEquipped,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _equipFilter,
+                              isDense: true,
+                              items: [
+                                DropdownMenuItem(value: 'all', child: Text(l10n.filterAll)),
+                                DropdownMenuItem(value: 'equipped', child: Text(l10n.filterEquipped)),
+                                DropdownMenuItem(value: 'unequipped', child: Text(l10n.filterUnequipped)),
+                              ],
+                              onChanged: (value) => setState(() => _equipFilter = value!),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      FilterChip(
+                        label: Text(l10n.filterAll),
+                        selected: _filterType == 'all',
+                        onSelected: (selected) {
+                          if (selected) setState(() => _filterType = 'all');
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      FilterChip(
+                        label: Text(l10n.typeWeapon),
+                        selected: _filterType == 'weapon',
+                        onSelected: (selected) {
+                          if (selected) setState(() => _filterType = 'weapon');
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      FilterChip(
+                        label: Text(l10n.typeArmor),
+                        selected: _filterType == 'armor',
+                        onSelected: (selected) {
+                          if (selected) setState(() => _filterType = 'armor');
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      FilterChip(
+                        label: Text(l10n.typeGear),
+                        selected: _filterType == 'gear',
+                        onSelected: (selected) {
+                          if (selected) setState(() => _filterType = 'gear');
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      FilterChip(
+                        label: Text(l10n.typeConsumable),
+                        selected: _filterType == 'consumable',
+                        onSelected: (selected) {
+                          if (selected) setState(() => _filterType = 'consumable');
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                  child: Row(
+                    children: [
+                      Icon(Icons.fitness_center, size: 16, color: theme.colorScheme.primary),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${l10n.totalWeight}: ${totalWeight.toStringAsFixed(1)} ${l10n.weightUnit}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+              ],
+            ),
+          ),
+
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.only(top: 8, bottom: 80),
+              itemCount: filteredItems.length + 1,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Card(
+                      elevation: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.monetization_on, size: 20, color: theme.colorScheme.primary),
+                                const SizedBox(width: 8),
+                                Text(
+                                  l10n.currency,
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              const Spacer(),
-                              IconButton(
-                                icon: const Icon(Icons.edit, size: 20),
-                                onPressed: () => _showEditCurrencyDialog(context, l10n),
-                                tooltip: l10n.edit,
-                                visualDensity: VisualDensity.compact,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(child: _buildCurrencyChip(theme, _getCurrencyLabel(l10n, 'PP'), widget.character.platinumPieces, Colors.grey.shade300, Colors.black87)),
-                              const SizedBox(width: 8),
-                              Expanded(child: _buildCurrencyChip(theme, _getCurrencyLabel(l10n, 'GP'), widget.character.goldPieces, Colors.amber.shade600, Colors.black87)),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(child: _buildCurrencyChip(theme, _getCurrencyLabel(l10n, 'SP'), widget.character.silverPieces, Colors.grey.shade400, Colors.black87)),
-                              const SizedBox(width: 8),
-                              Expanded(child: _buildCurrencyChip(theme, _getCurrencyLabel(l10n, 'CP'), widget.character.copperPieces, Colors.brown.shade400, Colors.white)),
-                            ],
-                          ),
-                        ],
+                                const Spacer(),
+                                IconButton(
+                                  icon: const Icon(Icons.edit, size: 20),
+                                  onPressed: () => _showEditCurrencyDialog(context, l10n),
+                                  tooltip: l10n.edit,
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(child: _buildCurrencyChip(theme, _getCurrencyLabel(l10n, 'PP'), widget.character.platinumPieces, Colors.grey.shade300, Colors.black87)),
+                                const SizedBox(width: 8),
+                                Expanded(child: _buildCurrencyChip(theme, _getCurrencyLabel(l10n, 'GP'), widget.character.goldPieces, Colors.amber.shade600, Colors.black87)),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(child: _buildCurrencyChip(theme, _getCurrencyLabel(l10n, 'SP'), widget.character.silverPieces, Colors.grey.shade400, Colors.black87)),
+                                const SizedBox(width: 8),
+                                Expanded(child: _buildCurrencyChip(theme, _getCurrencyLabel(l10n, 'CP'), widget.character.copperPieces, Colors.brown.shade400, Colors.white)),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
+                  );
+                }
+
+                final itemIndex = index - 1;
+                final item = filteredItems[itemIndex];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Dismissible(
+                    key: Key(item.id),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.error,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(right: 20),
+                      child: Icon(Icons.delete, color: theme.colorScheme.onError),
+                    ),
+                    confirmDismiss: (direction) async {
+                      return await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text(l10n.delete),
+                          content: Text(l10n.deleteItemConfirmation(item.getName(locale))),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: Text(l10n.cancel),
+                            ),
+                            FilledButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              style: FilledButton.styleFrom(backgroundColor: theme.colorScheme.error),
+                              child: Text(l10n.delete),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    onDismissed: (direction) => _removeItem(item),
+                    child: _buildItemCard(context, item, locale, l10n),
                   ),
                 );
-              }
-
-              final itemIndex = index - 1;
-              final item = filteredItems[itemIndex];
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Dismissible(
-                  key: Key(item.id),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.error,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.only(right: 20),
-                    child: Icon(Icons.delete, color: theme.colorScheme.onError),
-                  ),
-                  confirmDismiss: (direction) async {
-                    return await showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text(l10n.delete),
-                        content: Text(l10n.deleteItemConfirmation(item.getName(locale))),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            child: Text(l10n.cancel),
-                          ),
-                          FilledButton(
-                            onPressed: () => Navigator.of(context).pop(true),
-                            style: FilledButton.styleFrom(backgroundColor: theme.colorScheme.error),
-                            child: Text(l10n.delete),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  onDismissed: (direction) => _removeItem(item),
-                  child: _buildItemCard(context, item, locale, l10n),
-                ),
-              );
-            },
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+
+  void _navigateToCreateItem(BuildContext context) async {
+    final newItem = await Navigator.push<Item>(
+      context,
+      MaterialPageRoute(builder: (context) => const CreateItemScreen()),
+    );
+
+    if (newItem != null) {
+      widget.character.inventory.add(newItem);
+      widget.character.updatedAt = DateTime.now();
+      await widget.character.save();
+      setState(() {});
+      
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        final locale = Localizations.localeOf(context).languageCode;
+        ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text(l10n.itemAdded(newItem.getName(locale), newItem.quantity))),
+        );
+      }
+    }
   }
 
   Widget _buildEmptyState(AppLocalizations l10n) {

@@ -7,6 +7,7 @@ import 'fc5_parser.dart';
 import 'storage_service.dart';
 import 'feature_service.dart';
 import 'item_service.dart';
+import 'spell_service.dart';
 
 class ImportService {
   // Import from FC5 XML file
@@ -60,6 +61,8 @@ class ImportService {
 
       // Reload ItemService to reflect changes
       await ItemService.reload();
+      // Reload SpellService to reflect changes
+      await SpellService.reload();
 
       return 'Imported successfully: ${compendiumData.items.length} items, ${compendiumData.spells.length} spells.';
     } catch (e) {

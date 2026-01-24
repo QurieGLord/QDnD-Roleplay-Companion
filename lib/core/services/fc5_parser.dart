@@ -29,12 +29,35 @@ class FC5Parser {
     
     for (var node in itemElements) {
       try {
-        final name = node.findElements('name').first.innerText;
+        final fullName = node.findElements('name').first.innerText;
+        
+        String nameEn = fullName;
+        String nameRu = fullName;
+
+        if (fullName.contains('---RU---')) {
+          final parts = fullName.split('---RU---');
+          nameEn = parts[0].trim();
+          if (parts.length > 1) {
+            nameRu = parts[1].trim();
+          }
+        }
+
         final typeCode = node.findElements('type').firstOrNull?.innerText ?? 'G';
         final weightStr = node.findElements('weight').firstOrNull?.innerText ?? '0';
         
         // Combine text tags for description
-        final description = node.findAllElements('text').map((e) => e.innerText).join('\n').trim();
+        final fullDescription = node.findAllElements('text').map((e) => e.innerText).join('\n').trim();
+        
+        String descriptionEn = fullDescription;
+        String descriptionRu = fullDescription;
+
+        if (fullDescription.contains('---RU---')) {
+          final parts = fullDescription.split('---RU---');
+          descriptionEn = parts[0].trim();
+          if (parts.length > 1) {
+            descriptionRu = parts[1].trim();
+          }
+        }
         
         // Parse type
         ItemType type = ItemType.gear;
@@ -103,10 +126,10 @@ class FC5Parser {
 
         final item = Item(
           id: const Uuid().v4(),
-          nameEn: name,
-          nameRu: name, // Default to EN name, localization handled separately if needed
-          descriptionEn: description,
-          descriptionRu: description,
+          nameEn: nameEn,
+          nameRu: nameRu,
+          descriptionEn: descriptionEn,
+          descriptionRu: descriptionRu,
           type: type,
           rarity: ItemRarity.common, // FC5 doesn't always specify rarity clearly in 'type'
           weight: double.tryParse(weightStr) ?? 0.0,
@@ -126,14 +149,38 @@ class FC5Parser {
 
     for (var node in spellElements) {
       try {
-        final name = node.findElements('name').first.innerText;
+        final fullName = node.findElements('name').first.innerText;
+        
+        String nameEn = fullName;
+        String nameRu = fullName;
+
+        if (fullName.contains('---RU---')) {
+          final parts = fullName.split('---RU---');
+          nameEn = parts[0].trim();
+          if (parts.length > 1) {
+            nameRu = parts[1].trim();
+          }
+        }
+
         final levelStr = node.findElements('level').firstOrNull?.innerText ?? '0';
         final schoolCode = node.findElements('school').firstOrNull?.innerText ?? 'A';
         final time = node.findElements('time').firstOrNull?.innerText ?? '';
         final range = node.findElements('range').firstOrNull?.innerText ?? '';
         final duration = node.findElements('duration').firstOrNull?.innerText ?? '';
         final classesStr = node.findElements('classes').firstOrNull?.innerText ?? '';
-        final description = node.findAllElements('text').map((e) => e.innerText).join('\n').trim();
+        final fullDescription = node.findAllElements('text').map((e) => e.innerText).join('\n').trim();
+        
+        String descriptionEn = fullDescription;
+        String descriptionRu = fullDescription;
+
+        if (fullDescription.contains('---RU---')) {
+          final parts = fullDescription.split('---RU---');
+          descriptionEn = parts[0].trim();
+          if (parts.length > 1) {
+            descriptionRu = parts[1].trim();
+          }
+        }
+
         final componentsStr = node.findElements('components').firstOrNull?.innerText ?? '';
         final ritualStr = node.findElements('ritual').firstOrNull?.innerText ?? 'NO';
         
@@ -165,8 +212,8 @@ class FC5Parser {
 
         final spell = Spell(
           id: const Uuid().v4(),
-          nameEn: name,
-          nameRu: name,
+          nameEn: nameEn,
+          nameRu: nameRu,
           level: int.tryParse(levelStr) ?? 0,
           school: school,
           castingTime: time,
@@ -176,8 +223,8 @@ class FC5Parser {
           ritual: ritualStr.toUpperCase() == 'YES',
           components: components,
           materialComponents: materials,
-          descriptionEn: description,
-          descriptionRu: description,
+          descriptionEn: descriptionEn,
+          descriptionRu: descriptionRu,
           availableToClasses: classesStr.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList(),
         );
 

@@ -16,6 +16,7 @@ import 'widgets/stats_tab.dart';
 import 'widgets/spells_tab.dart';
 import 'tabs/inventory_tab.dart';
 import 'tabs/journal_tab.dart';
+import '../inventory/create_item_screen.dart';
 
 class CharacterSheetScreen extends StatefulWidget {
   final Character character;
@@ -387,11 +388,24 @@ class _AddItemDialogState extends State<_AddItemDialog> {
     return items;
   }
 
-  void _showCreateCustomItemDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => _CreateCustomItemDialog(character: widget.character, locale: widget.locale),
+  void _showCreateCustomItemDialog(BuildContext context) async {
+    final newItem = await Navigator.push<Item>(
+      context,
+      MaterialPageRoute(builder: (context) => const CreateItemScreen()),
     );
+
+    if (newItem != null) {
+      widget.character.inventory.add(newItem);
+      widget.character.updatedAt = DateTime.now();
+      await widget.character.save();
+      
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text(l10n.itemAdded(newItem.getName(widget.locale), newItem.quantity))),
+        );
+      }
+    }
   }
 
   Future<void> _showQuantityDialogForItem(Item item) async {
@@ -473,229 +487,6 @@ class _AddItemDialogState extends State<_AddItemDialog> {
             if (_selectedItems.isNotEmpty) Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: theme.colorScheme.surface, border: Border(top: BorderSide(color: theme.colorScheme.outlineVariant, width: 1))), child: SafeArea(top: false, child: FilledButton(onPressed: _addSelectedItemsToInventory, child: Text('${l10n.done} (${_selectedItems.length})')))),
         ]);
       },
-    );
-  }
-}
-
-class _CreateCustomItemDialog extends StatefulWidget {
-  final Character character;
-  final String locale;
-  const _CreateCustomItemDialog({required this.character, required this.locale});
-  @override
-  State<_CreateCustomItemDialog> createState() => _CreateCustomItemDialogState();
-}
-
-class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _descController = TextEditingController();
-  final _weightController = TextEditingController(text: '0');
-  final _valueController = TextEditingController(text: '0');
-  final _quantityController = TextEditingController(text: '1');
-  ItemType _selectedType = ItemType.gear;
-  ItemRarity _selectedRarity = ItemRarity.common;
-  String? _imagePath;
-
-  @override
-  void dispose() {
-    _nameController.dispose(); _descController.dispose(); _weightController.dispose(); _valueController.dispose(); _quantityController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _pickImage() async {
-    final l10n = AppLocalizations.of(context)!;
-    try {
-      final result = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: false);
-      if (result != null && result.files.isNotEmpty) setState(() => _imagePath = result.files.first.path);
-    } catch (e) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.errorLoadingImage(e.toString())), backgroundColor: Theme.of(context).colorScheme.error)); }
-  }
-
-  void _createItem() {
-    final l10n = AppLocalizations.of(context)!;
-    if (!_formKey.currentState!.validate()) return;
-    try {
-      final newItem = Item(id: 'custom_${Uuid().v4()}', nameEn: _nameController.text.trim(), nameRu: _nameController.text.trim(), descriptionEn: _descController.text.trim(), descriptionRu: _descController.text.trim(), type: _selectedType, rarity: _selectedRarity, quantity: int.tryParse(_quantityController.text) ?? 1, weight: double.tryParse(_weightController.text) ?? 0.0, valueInCopper: int.tryParse(_valueController.text) ?? 0, customImagePath: _imagePath, isEquipped: false, isAttuned: false);
-      widget.character.inventory.add(newItem); widget.character.updatedAt = DateTime.now(); widget.character.save(); Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.itemAdded(newItem.getName(widget.locale), newItem.quantity))));
-    } catch (e) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.errorCreatingItem(e.toString())), backgroundColor: Theme.of(context).colorScheme.error)); } 
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
-    return Dialog(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 600, maxHeight: 800),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.add_circle, color: theme.colorScheme.onPrimaryContainer),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      l10n.createCustomItem,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: theme.colorScheme.onPrimaryContainer,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: GestureDetector(
-                          onTap: _pickImage,
-                          child: Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: theme.colorScheme.outline, width: 2),
-                            ),
-                            child: _imagePath != null
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Image.file(File(_imagePath!), fit: BoxFit.cover),
-                                  )
-                                : Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.add_photo_alternate, size: 40, color: theme.colorScheme.onSurfaceVariant),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        l10n.addImage,
-                                        textAlign: TextAlign.center,
-                                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                                      ),
-                                    ],
-                                  ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: InputDecoration(
-                          labelText: l10n.itemName,
-                          border: const OutlineInputBorder(),
-                        ),
-                        validator: (v) => (v == null || v.isEmpty) ? l10n.enterItemName : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _descController,
-                        decoration: InputDecoration(
-                          labelText: l10n.itemDescription,
-                          border: const OutlineInputBorder(),
-                        ),
-                        maxLines: 3,
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<ItemType>(
-                        value: _selectedType,
-                        decoration: InputDecoration(
-                          labelText: l10n.itemType,
-                          border: const OutlineInputBorder(),
-                        ),
-                        items: ItemType.values.map((t) => DropdownMenuItem(value: t, child: Text(ItemUtils.getLocalizedTypeName(l10n, t)))).toList(),
-                        onChanged: (v) => setState(() => _selectedType = v!),
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<ItemRarity>(
-                        value: _selectedRarity,
-                        decoration: InputDecoration(
-                          labelText: l10n.itemRarity,
-                          border: const OutlineInputBorder(),
-                        ),
-                        items: ItemRarity.values.map((r) => DropdownMenuItem(value: r, child: Text(ItemUtils.getLocalizedRarityName(l10n, r)))).toList(),
-                        onChanged: (v) => setState(() => _selectedRarity = v!),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _weightController,
-                              decoration: InputDecoration(
-                                labelText: l10n.itemWeight,
-                                border: const OutlineInputBorder(),
-                              ),
-                              keyboardType: TextInputType.number,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _valueController,
-                              decoration: InputDecoration(
-                                labelText: l10n.itemValue,
-                                border: const OutlineInputBorder(),
-                              ),
-                              keyboardType: TextInputType.number,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _quantityController,
-                        decoration: InputDecoration(
-                          labelText: l10n.itemQuantity,
-                          border: const OutlineInputBorder(),
-                        ),
-                        keyboardType: TextInputType.number,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: theme.colorScheme.outlineVariant, width: 1),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(l10n.cancel),
-                  ),
-                  const SizedBox(width: 12),
-                  FilledButton.icon(
-                    onPressed: _createItem,
-                    icon: const Icon(Icons.check),
-                    label: Text(l10n.createItem),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

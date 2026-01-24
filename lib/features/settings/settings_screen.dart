@@ -120,15 +120,15 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: 32),
-          _buildSectionHeader(context, 'CONTENT MANAGEMENT'),
+          _buildSectionHeader(context, l10n.contentManagement.toUpperCase()),
           const SizedBox(height: 16),
           Card(
             child: Column(
               children: [
                 ListTile(
                   leading: const Icon(Icons.library_books_outlined),
-                  title: const Text('Manage Libraries'),
-                  subtitle: const Text('Import and manage external content (XML)'),
+                  title: Text(l10n.manageLibraries),
+                  subtitle: Text(l10n.manageLibrariesSubtitle),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     Navigator.push(

@@ -1980,4 +1980,103 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hpMax => 'Max';
+
+  @override
+  String get contentManagement => 'Content Management';
+
+  @override
+  String get libraryManagerTitle => 'Managed Libraries';
+
+  @override
+  String get manageLibraries => 'Manage Libraries';
+
+  @override
+  String get manageLibrariesSubtitle =>
+      'Import and manage external content (XML)';
+
+  @override
+  String get importXML => 'Import XML';
+
+  @override
+  String get noLibraries => 'No imported libraries';
+
+  @override
+  String get noLibrariesHint => 'Tap + to import content from FC5 XML files';
+
+  @override
+  String libraryStats(int items, int spells) {
+    return '$items Items, $spells Spells';
+  }
+
+  @override
+  String libraryImportedDate(String date) {
+    return 'Imported $date';
+  }
+
+  @override
+  String get deleteLibraryTitle => 'Delete Library?';
+
+  @override
+  String deleteLibraryMessage(String name, int items, int spells) {
+    return 'This will remove \"$name\" and all associated content:\n\n• $items Items\n• $spells Spells\n\nThis action cannot be undone.';
+  }
+
+  @override
+  String get libraryDeleted => 'Library deleted successfully';
+
+  @override
+  String errorDeletingLibrary(String error) {
+    return 'Error deleting library: $error';
+  }
+
+  @override
+  String get forgeTitle => 'The Forge';
+
+  @override
+  String get identitySection => 'IDENTITY';
+
+  @override
+  String get characteristicsSection => 'CHARACTERISTICS';
+
+  @override
+  String get statsSection => 'STATS';
+
+  @override
+  String get magicPropertiesSection => 'MAGIC & PROPERTIES';
+
+  @override
+  String get isMagical => 'Magical Item';
+
+  @override
+  String get requiresAttunement => 'Requires Attunement';
+
+  @override
+  String get weaponStats => 'Weapon Stats';
+
+  @override
+  String get damageDice => 'Damage Dice';
+
+  @override
+  String get damageDiceHint => '1d8';
+
+  @override
+  String get armorStats => 'Armor Stats';
+
+  @override
+  String get addDexModifier => 'Add DEX Modifier';
+
+  @override
+  String get stealthDisadvantage => 'Stealth Disadvantage';
+
+  @override
+  String get forgeItem => 'Forge Item';
+
+  @override
+  String get itemExample => 'e.g. Excalibur';
+
+  @override
+  String get typeTool => 'Tools';
+
+  @override
+  String get typeTreasure => 'Treasure';
 }

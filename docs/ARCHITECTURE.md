@@ -63,6 +63,7 @@ class Character {
 
 #### CompendiumSource
 ```dart
+@HiveType(typeId: 26)
 class CompendiumSource {
   String id;
   String name;
@@ -72,41 +73,31 @@ class CompendiumSource {
 }
 ```
 
-#### AbilityScores
-```dart
-class AbilityScores {
-  int strength;
-  int dexterity;
-  int constitution;
-  int intelligence;
-  int wisdom;
-  int charisma;
+---
 
-  // Modifiers (calculated)
-  int getModifier(AbilityType type);
+### Layer 8: Library Management System
 
-  // With bonuses from features/items
-  int getEffectiveScore(AbilityType type, Character character);
-}
+#### Unified Data Architecture
+QD&D uses a **Unified Data Strategy** to merge built-in content with imported user libraries (DLC).
+
+```
+[Assets (SRD JSON)]  -->  [ItemService / SpellService]  <--  [Hive Local DB (DLC)]
+                                      ^
+                                      | (Unified List)
+                                      |
+                                [UI Consumers]
 ```
 
-#### ClassLevel
-```dart
-class ClassLevel {
-  String classId;
-  String? subclassId;
-  int level;
+- **ItemService/SpellService**: On initialization, they load data from BOTH sources.
+- **Reloading**: `reload()` method allows instant updates after import/delete without app restart.
+- **Cascading Delete**: `StorageService.deleteSource(id)` automatically removes the source record AND all items/spells tagged with that `sourceId`.
 
-  // Hit points rolled for this level
-  int hitPointsGained;
-
-  // Choices made at this level
-  List<FeatureChoice> choices;
-
-  // Reference to class definition
-  ClassDefinition get classDefinition;
-}
-```
+#### Bilingual Support
+The `FC5Parser` supports smart bilingual field parsing using the `---RU---` separator.
+- **Input**: `<text>Fireball explodes! ---RU--- Огненный шар взрывается!</text>`
+- **Output**: 
+  - `descriptionEn`: "Fireball explodes!"
+  - `descriptionRu`: "Огненный шар взрывается!"
 
 ---
 
@@ -380,6 +371,7 @@ enum SpellKnowledgeType {
 ```dart
 class Spell {
   String id;
+  String? sourceId; // Link to CompendiumSource
   Map<String, String> localizedName;
   Map<String, String> localizedDescription;
 
@@ -522,6 +514,7 @@ class InventoryItem {
 
 class Item {
   String id;
+  String? sourceId; // Link to CompendiumSource
   Map<String, String> localizedName;
   Map<String, String> localizedDescription;
 
