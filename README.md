@@ -129,11 +129,17 @@ flutter run
 - **Level Up:** Strict feature filtering and subclass support.
 - **Localization:** Full EN/RU support.
 
+### ✅ v1.2 (Content & Creativity)
+- **The Forge:** Custom Item Creator with visual preview and full stat control.
+- **Library Manager:** Import/Delete external content packs (XML) to expand your game.
+- **Unified Database:** Mix built-in content with your own homebrew seamlessly.
+- **Smart Parsing:** Auto-detects bilingual content (English/Russian) in imported files.
+
 ### 🔮 v2.0 (Planned)
-- [ ] Full Content Population (All Classes/Races)
-- [ ] Multiclassing UI (Add Class)
 - [ ] Cloud Sync (Google Drive)
-- [ ] PDF Export
+- [ ] PDF Export (Character Sheet)
+- [ ] Multiclassing UI
+- [ ] DM Tools (Encounter Builder)
 
 ---
 
