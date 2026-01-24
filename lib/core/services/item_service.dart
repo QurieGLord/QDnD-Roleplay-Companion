@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../models/item.dart';
+import 'storage_service.dart';
 
 /// Service for managing D&D items (weapons, armor, gear)
 /// Loads items from JSON database and provides item templates
@@ -8,7 +9,7 @@ class ItemService {
   static List<Item> _itemTemplates = [];
   static bool _isInitialized = false;
 
-  /// Load all items from JSON database
+  /// Load all items from JSON database and Local Storage
   /// Should be called once during app initialization
   static Future<void> loadItems() async {
     if (_isInitialized) {
@@ -17,30 +18,55 @@ class ItemService {
     }
 
     try {
-      print('📦 ItemService: Loading items from JSON...');
+      print('📦 ItemService: Loading items from JSON and Storage...');
+      _itemTemplates = [];
 
-      // Load JSON file from assets
-      final String jsonString = await rootBundle.loadString('assets/data/items.json');
-      final List<dynamic> jsonList = json.decode(jsonString);
+      // 1. Load standard JSON items from assets
+      try {
+        final String jsonString = await rootBundle.loadString('assets/data/items.json');
+        final List<dynamic> jsonList = json.decode(jsonString);
 
-      // Parse each item
-      _itemTemplates = jsonList.map((json) {
-        return Item.fromJson(json as Map<String, dynamic>);
-      }).toList();
+        final assetItems = jsonList.map((json) {
+          return Item.fromJson(json as Map<String, dynamic>);
+        }).toList();
+        
+        _itemTemplates.addAll(assetItems);
+        print('   - Loaded ${assetItems.length} items from assets');
+      } catch (e) {
+        print('❌ ItemService: Failed to load asset items: $e');
+      }
+
+      // 2. Load custom items from Storage (e.g. imported from XML)
+      try {
+        final storedItems = StorageService.getAllItems();
+        if (storedItems.isNotEmpty) {
+          _itemTemplates.addAll(storedItems);
+          print('   - Loaded ${storedItems.length} items from storage');
+        }
+      } catch (e) {
+        print('❌ ItemService: Failed to load stored items: $e');
+      }
 
       _isInitialized = true;
 
-      print('✅ ItemService: Loaded ${_itemTemplates.length} item templates');
+      print('✅ ItemService: Total loaded ${_itemTemplates.length} item templates');
       print('   - Weapons: ${_itemTemplates.where((i) => i.type == ItemType.weapon).length}');
       print('   - Armor: ${_itemTemplates.where((i) => i.type == ItemType.armor).length}');
       print('   - Gear: ${_itemTemplates.where((i) => i.type == ItemType.gear).length}');
     } catch (e, stackTrace) {
-      print('❌ ItemService: Failed to load items: $e');
+      print('❌ ItemService: Fatal error loading items: $e');
       print('Stack trace: $stackTrace');
-      _itemTemplates = [];
+      // Don't clear templates here, keep what we managed to load
       _isInitialized = false;
       rethrow;
     }
+  }
+
+  /// Reload items (e.g. after import)
+  static Future<void> reload() async {
+    print('🔄 ItemService: Reloading items...');
+    _isInitialized = false;
+    await loadItems();
   }
 
   /// Get all item templates

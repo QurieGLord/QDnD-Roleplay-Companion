@@ -52,6 +52,11 @@ Whether you're an experienced adventurer or a beginning hero, QD&D will become y
 - **Adventure Journal:** Rich text notes and quest tracking.
 - **Offline First:** 100% functional without internet.
 
+### 📚 External Content Management (DLC)
+- **Library Manager:** Import external content packs via XML (FC5 format).
+- **Source Tracking:** View items/spells by source pack.
+- **Cleanup:** Easily remove specific compendiums without losing other data.
+
 ### 🌍 Localization
 - **Bilingual:** Full support for English and Russian languages (UI and Content).
 - **Dynamic Translation:** Automatically formats units (lb/kg, ft/m) and terms based on your preference.

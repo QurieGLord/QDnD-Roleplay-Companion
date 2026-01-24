@@ -16,6 +16,8 @@ import 'features/settings/settings_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  String? initError;
+
   try {
     // Initialize storage
     await StorageService.init();
@@ -34,6 +36,41 @@ void main() async {
   } catch (e, stackTrace) {
     print('❌ CRITICAL ERROR during initialization: $e');
     print(stackTrace);
+    initError = '$e\n$stackTrace';
+  }
+
+  if (initError != null) {
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          backgroundColor: Colors.red.shade900,
+          body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.error_outline, size: 64, color: Colors.white),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Initialization Failed',
+                      style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      initError,
+                      style: const TextStyle(color: Colors.white70, fontFamily: 'monospace'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    return;
   }
 
   runApp(

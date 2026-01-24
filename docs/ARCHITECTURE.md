@@ -61,6 +61,17 @@ class Character {
 }
 ```
 
+#### CompendiumSource
+```dart
+class CompendiumSource {
+  String id;
+  String name;
+  DateTime importedAt;
+  int itemCount;
+  int spellCount;
+}
+```
+
 #### AbilityScores
 ```dart
 class AbilityScores {

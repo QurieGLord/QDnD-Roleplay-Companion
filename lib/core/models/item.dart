@@ -57,6 +57,9 @@ class Item extends HiveObject {
   @HiveField(16)
   String? customImagePath; // Path to custom image for user-created items
 
+  @HiveField(17)
+  String? sourceId; // ID of the compendium source (if imported)
+
   Item({
     required this.id,
     required this.nameEn,
@@ -75,6 +78,7 @@ class Item extends HiveObject {
     this.isMagical = false,
     this.iconName,
     this.customImagePath,
+    this.sourceId,
   });
 
   String getName(String locale) {
@@ -110,6 +114,7 @@ class Item extends HiveObject {
       'isMagical': isMagical,
       'iconName': iconName,
       'customImagePath': customImagePath,
+      'sourceId': sourceId,
     };
   }
 
@@ -142,6 +147,7 @@ class Item extends HiveObject {
       isMagical: json['isMagical'] ?? false,
       iconName: json['iconName'],
       customImagePath: json['customImagePath'],
+      sourceId: json['sourceId'],
     );
   }
 }

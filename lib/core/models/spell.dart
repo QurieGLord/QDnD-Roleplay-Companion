@@ -58,6 +58,9 @@ class Spell extends HiveObject {
   @HiveField(16)
   String? atHigherLevelsRu;
 
+  @HiveField(18)
+  String? sourceId; // ID of the compendium source (if imported)
+
   Spell({
     required this.id,
     required this.nameEn,
@@ -77,6 +80,7 @@ class Spell extends HiveObject {
     required this.availableToClasses,
     this.atHigherLevelsEn,
     this.atHigherLevelsRu,
+    this.sourceId,
   });
 
   String getName(String locale) {
@@ -120,6 +124,7 @@ class Spell extends HiveObject {
       'availableToClasses': availableToClasses,
       'atHigherLevelsEn': atHigherLevelsEn,
       'atHigherLevelsRu': atHigherLevelsRu,
+      'sourceId': sourceId,
     };
   }
 
@@ -143,6 +148,7 @@ class Spell extends HiveObject {
       availableToClasses: List<String>.from(json['availableToClasses'] ?? []),
       atHigherLevelsEn: json['atHigherLevelsEn'] ?? json['atHigherLevels'], // Fallback for old key
       atHigherLevelsRu: json['atHigherLevelsRu'],
+      sourceId: json['sourceId'],
     );
   }
 }
