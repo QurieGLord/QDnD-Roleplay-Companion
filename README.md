@@ -113,12 +113,12 @@ flutter run
 
 ## 🗺️ Roadmap
 
-### ✅ v1.2 (Visuals & Themes)
-- 6 Color Themes (QMonokai, Gruvbox, etc.)
-- Redesigned Combat Tracker & Dice Roller
-- Complete Paladin Class
-- Level Up Wizard
-- Full Localization (EN/RU)
+### ✅ v1.9 (Magic & Combat Revamp)
+- **Combat System:** Redesigned Combat Tracker with integrated Magic Sheet.
+- **Magic System:** Adaptive Spell Slots (Icons/Chips) & Preparation Logic.
+- **Level Up:** Strict feature filtering and subclass support.
+- **Localization:** Full EN/RU support for all new UI elements.
+- **Visuals:** 6 Color Themes (QMonokai, Gruvbox, etc.).
 
 ### 🔮 v2.0 (Planned)
 - [ ] Full Content Population (All Classes/Races)
