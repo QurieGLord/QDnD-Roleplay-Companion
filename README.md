@@ -82,11 +82,11 @@ QD&D is built on a **Data-Driven Architecture**. This means you can add new cont
 
 | Character Sheet | Combat Tracker | Spells |
 |:-:|:-:|:-:|
-| ![Character Sheet](docs/screenshots/character_sheet.png) | ![Combat Tracker](docs/screenshots/combat.png) | ![Spells](docs/screenshots/spells.png) |
+| ![Character Sheet](docs/screenshots/character_sheet.jpg) | ![Combat Tracker](docs/screenshots/combat.jpg) | ![Spells](docs/screenshots/spells.jpg) |
 
-| Journal | Inventory | Level Up |
+| Inventory | Journal | Settings |
 |:-:|:-:|:-:|
-| ![Journal](docs/screenshots/journal.png) | ![Inventory](docs/screenshots/inventory.png) | ![Level Up](docs/screenshots/levelup.png) |
+| ![Inventory](docs/screenshots/inventory.jpg) | ![Journal](docs/screenshots/journal.jpg) | ![Settings](docs/screenshots/settings.jpg) |
 
 </div>
 
