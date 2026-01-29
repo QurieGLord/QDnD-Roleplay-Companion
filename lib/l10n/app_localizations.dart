@@ -2450,6 +2450,114 @@ abstract class AppLocalizations {
   /// **'Sacred Oath'**
   String get sacredOath;
 
+  /// No description provided for @primalPath.
+  ///
+  /// In en, this message translates to:
+  /// **'Primal Path'**
+  String get primalPath;
+
+  /// No description provided for @bardCollege.
+  ///
+  /// In en, this message translates to:
+  /// **'Bard College'**
+  String get bardCollege;
+
+  /// No description provided for @divineDomain.
+  ///
+  /// In en, this message translates to:
+  /// **'Divine Domain'**
+  String get divineDomain;
+
+  /// No description provided for @druidCircle.
+  ///
+  /// In en, this message translates to:
+  /// **'Druid Circle'**
+  String get druidCircle;
+
+  /// No description provided for @martialArchetype.
+  ///
+  /// In en, this message translates to:
+  /// **'Martial Archetype'**
+  String get martialArchetype;
+
+  /// No description provided for @monasticTradition.
+  ///
+  /// In en, this message translates to:
+  /// **'Monastic Tradition'**
+  String get monasticTradition;
+
+  /// No description provided for @rangerArchetype.
+  ///
+  /// In en, this message translates to:
+  /// **'Ranger Archetype'**
+  String get rangerArchetype;
+
+  /// No description provided for @roguishArchetype.
+  ///
+  /// In en, this message translates to:
+  /// **'Roguish Archetype'**
+  String get roguishArchetype;
+
+  /// No description provided for @sorcerousOrigin.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorcerous Origin'**
+  String get sorcerousOrigin;
+
+  /// No description provided for @otherworldlyPatron.
+  ///
+  /// In en, this message translates to:
+  /// **'Otherworldly Patron'**
+  String get otherworldlyPatron;
+
+  /// No description provided for @arcaneTradition.
+  ///
+  /// In en, this message translates to:
+  /// **'Arcane Tradition'**
+  String get arcaneTradition;
+
+  /// No description provided for @featureTypePassive.
+  ///
+  /// In en, this message translates to:
+  /// **'Passive'**
+  String get featureTypePassive;
+
+  /// No description provided for @featureTypeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Action'**
+  String get featureTypeAction;
+
+  /// No description provided for @featureTypeBonusAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus Action'**
+  String get featureTypeBonusAction;
+
+  /// No description provided for @featureTypeReaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reaction'**
+  String get featureTypeReaction;
+
+  /// No description provided for @featureTypeOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get featureTypeOther;
+
+  /// No description provided for @selectSubclass.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Subclass'**
+  String get selectSubclass;
+
+  /// No description provided for @selectSpecialization.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Specialization'**
+  String get selectSpecialization;
+
   /// No description provided for @classFeatures.
   ///
   /// In en, this message translates to:
@@ -3415,6 +3523,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Spells'**
   String get spellsStepTitle;
+
+  /// No description provided for @selectSpellsInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Select spells for your character (Level 0 & 1).'**
+  String get selectSpellsInstruction;
+
+  /// No description provided for @noSpellsFoundForClass.
+  ///
+  /// In en, this message translates to:
+  /// **'No spells found for {className}'**
+  String noSpellsFoundForClass(String className);
+
+  /// No description provided for @level1Spells.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 1 Spells'**
+  String get level1Spells;
 
   /// No description provided for @spellsStepPlaceholder.
   ///

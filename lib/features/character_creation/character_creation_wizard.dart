@@ -255,10 +255,10 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
         id: const Uuid().v4(),
         name: _state.name,
         avatarPath: _state.avatarPath,
-        race: _state.selectedRace!.getName(locale),
-        characterClass: _state.selectedClass!.getName(locale),
-        subclass: _state.selectedSubrace?.getName(locale),
-        background: _state.selectedBackground?.getName(locale),
+        race: _state.selectedRace!.id, // Store ID
+        characterClass: _state.selectedClass!.id, // Store ID
+        subclass: _state.selectedSubrace?.id, // Store ID
+        background: _state.selectedBackground?.id, // Store ID
         level: 1,
         maxHp: maxHp,
         currentHp: maxHp,
@@ -278,7 +278,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
         initiative: dexMod,
         proficientSkills: _state.selectedSkills,
         savingThrowProficiencies: _state.selectedClass!.savingThrowProficiencies,
-        knownSpells: [],
+        knownSpells: List.from(_state.selectedSpells), // Populate selected spells
         preparedSpells: [],
         maxPreparedSpells: maxPreparedSpells,
         features: [],
@@ -298,8 +298,20 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
         appearanceDescription: _state.appearanceDescription,
       );
 
-      // 5.5 Add class features
+      // 5.5 Add class features (Standard + Custom Class features)
       FeatureService.addFeaturesToCharacter(character);
+      
+      // Add features from selected class (Level 1)
+      final classFeatures = _state.selectedClass!.features[1];
+      if (classFeatures != null) {
+        // Avoid duplicates if FeatureService already added them (by ID)
+        final existingIds = character.features.map((f) => f.id).toSet();
+        for (var feature in classFeatures) {
+          if (!existingIds.contains(feature.id)) {
+            character.features.add(feature);
+          }
+        }
+      }
 
       // 6. Add starting equipment if selected
       if (_state.selectedEquipmentPackage == 'custom') {

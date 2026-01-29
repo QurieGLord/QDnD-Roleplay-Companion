@@ -153,7 +153,7 @@ class SettingsScreen extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.info_outline),
                   title: Text(l10n.version),
-                  subtitle: const Text('1.1.0 (Beta)'),
+                  subtitle: const Text('0.13.0 (Beta)'),
                 ),
                 const Divider(height: 1),
                 ListTile(

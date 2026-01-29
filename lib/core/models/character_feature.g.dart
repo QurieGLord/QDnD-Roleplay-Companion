@@ -31,13 +31,14 @@ class CharacterFeatureAdapter extends TypeAdapter<CharacterFeature> {
       actionEconomy: fields[11] as String?,
       iconName: fields[12] as String?,
       consumption: fields[13] as FeatureConsumption?,
+      sourceId: fields[14] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CharacterFeature obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -65,7 +66,9 @@ class CharacterFeatureAdapter extends TypeAdapter<CharacterFeature> {
       ..writeByte(12)
       ..write(obj.iconName)
       ..writeByte(13)
-      ..write(obj.consumption);
+      ..write(obj.consumption)
+      ..writeByte(14)
+      ..write(obj.sourceId);
   }
 
   @override
@@ -81,7 +84,7 @@ class CharacterFeatureAdapter extends TypeAdapter<CharacterFeature> {
 
 class FeatureConsumptionAdapter extends TypeAdapter<FeatureConsumption> {
   @override
-  final int typeId = 8;
+  final int typeId = 30;
 
   @override
   FeatureConsumption read(BinaryReader reader) {

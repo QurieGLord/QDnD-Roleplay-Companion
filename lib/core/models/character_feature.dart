@@ -48,6 +48,9 @@ class CharacterFeature extends HiveObject {
   @HiveField(13)
   FeatureConsumption? consumption; // Links to another feature's resource pool
 
+  @HiveField(14)
+  String? sourceId;
+
   CharacterFeature({
     required this.id,
     required this.nameEn,
@@ -63,6 +66,7 @@ class CharacterFeature extends HiveObject {
     this.actionEconomy,
     this.iconName,
     this.consumption,
+    this.sourceId,
   });
 
   String getName(String locale) {
@@ -119,7 +123,7 @@ class CharacterFeature extends HiveObject {
   }
 }
 
-@HiveType(typeId: 8)
+@HiveType(typeId: 30)
 class FeatureConsumption extends HiveObject {
   @HiveField(0)
   String resourceId;

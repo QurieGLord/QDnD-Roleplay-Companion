@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
+import '../services/character_data_service.dart';
 
 class SpellUtils {
   static Color getSchoolColor(String school, ColorScheme colorScheme) {
@@ -80,8 +81,18 @@ class SpellUtils {
   }
   
   static String getLocalizedClassName(BuildContext context, String className) {
-    // Map class names if needed, or rely on localized data if available.
-    // Assuming simple mapping for now.
+    // 1. Try dynamic lookup
+    try {
+      final classData = CharacterDataService.getClassById(className);
+      if (classData != null) {
+        final locale = Localizations.localeOf(context).languageCode;
+        return classData.getName(locale);
+      }
+    } catch (e) {
+      // Ignore
+    }
+
+    // 2. Fallback to hardcoded map
     final lower = className.toLowerCase();
     switch (lower) {
       case 'barbarian': return 'Варвар';

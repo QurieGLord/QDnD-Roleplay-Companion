@@ -464,7 +464,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
         ],
 
         // Traits
-        if (race.getTraits(locale).isNotEmpty) ...[
+        if (race.traits.isNotEmpty) ...[
           Text(
             l10n.racialTraits,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -472,7 +472,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
             ),
           ),
           const SizedBox(height: 4),
-          ...race.getTraits(locale).map((trait) => Padding(
+          ...race.traits.map((trait) => Padding(
             padding: const EdgeInsets.only(bottom: 4, left: 8),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,7 +480,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
                 Text('• ', style: TextStyle(color: textColor)),
                 Expanded(
                   child: Text(
-                    trait,
+                    trait.getName(locale),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: textColor.withValues(alpha: 0.8),
                     ),

@@ -25,7 +25,7 @@ void main() {
 </pc>
       ''';
 
-      final char = FC5Parser.parseXml(xml);
+      final char = FC5Parser.parseCharacter(xml);
 
       expect(char.name, 'Test Paladin');
       expect(char.characterClass, 'Paladin'); // Legacy field

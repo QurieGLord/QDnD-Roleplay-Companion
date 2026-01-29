@@ -1,7 +1,7 @@
 name: qd_and_d
 description: "QD&D - Your Roleplay Companion for D&D 5e"
 publish_to: 'none'
-version: 1.0.0+1
+version: 0.13.0
 
 environment:
   sdk: '>=3.5.0 <4.0.0'

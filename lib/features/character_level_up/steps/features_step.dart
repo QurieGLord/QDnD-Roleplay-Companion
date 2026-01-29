@@ -117,7 +117,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 ],
 
                 if (needsSubclass) ...[
-                  _buildSectionHeader(context, l10n.sacredOath),
+                  _buildSectionHeader(context, _getSubclassTitle(l10n, widget.classData.id)),
                   _buildSubclassChoice(context),
                   const SizedBox(height: 16),
                 ],
@@ -154,23 +154,67 @@ class _FeaturesStepState extends State<FeaturesStep> {
     return Column(
       children: widget.classData.subclasses.map((subclass) {
         final isSelected = _selections['subclass'] == subclass.id;
+        final colorScheme = Theme.of(context).colorScheme;
+        
         return Card(
           elevation: isSelected ? 4 : 1,
-          color: isSelected ? Theme.of(context).colorScheme.primaryContainer : null,
+          color: isSelected ? colorScheme.primaryContainer : null,
           margin: const EdgeInsets.only(bottom: 8),
-          child: RadioListTile<String>(
-            value: subclass.id,
-            groupValue: _selections['subclass'],
-            onChanged: (value) {
+          child: InkWell(
+            onTap: () {
               setState(() {
-                _selections['subclass'] = value!;
-                widget.onOptionSelected('subclass', value);
+                _selections['subclass'] = subclass.id;
+                widget.onOptionSelected('subclass', subclass.id);
               });
             },
-            title: Text(subclass.getName(locale), style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(subclass.getDescription(locale), maxLines: 2, overflow: TextOverflow.ellipsis),
-            secondary: Icon(isSelected ? Icons.check_circle : Icons.shield_outlined),
-            activeColor: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                   Radio<String>(
+                    value: subclass.id,
+                    groupValue: _selections['subclass'],
+                    onChanged: (value) {
+                      setState(() {
+                        _selections['subclass'] = value!;
+                        widget.onOptionSelected('subclass', value);
+                      });
+                    },
+                    activeColor: colorScheme.primary,
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          subclass.getName(locale),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          subclass.getDescription(locale),
+                          style: TextStyle(
+                            fontSize: 14,
+                             color: isSelected ? colorScheme.onPrimaryContainer.withOpacity(0.8) : colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (isSelected) 
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Icon(Icons.check_circle, color: colorScheme.primary),
+                    ),
+                ],
+              ),
+            ),
           ),
         );
       }).toList(),
@@ -214,6 +258,49 @@ class _FeaturesStepState extends State<FeaturesStep> {
     );
   }
 
+  String _getSubclassTitle(AppLocalizations l10n, String classId) {
+    switch (classId.toLowerCase()) {
+      case 'barbarian':
+      case 'варвар':
+        return l10n.primalPath;
+      case 'bard':
+      case 'бард':
+        return l10n.bardCollege;
+      case 'cleric':
+      case 'жрец':
+        return l10n.divineDomain;
+      case 'druid':
+      case 'друид':
+        return l10n.druidCircle;
+      case 'fighter':
+      case 'воин':
+        return l10n.martialArchetype;
+      case 'monk':
+      case 'монах':
+        return l10n.monasticTradition;
+      case 'paladin':
+      case 'паладин':
+        return l10n.sacredOath;
+      case 'ranger':
+      case 'следопыт':
+        return l10n.rangerArchetype;
+      case 'rogue':
+      case 'плут':
+        return l10n.roguishArchetype;
+      case 'sorcerer':
+      case 'чародей':
+        return l10n.sorcerousOrigin;
+      case 'warlock':
+      case 'колдун':
+        return l10n.otherworldlyPatron;
+      case 'wizard':
+      case 'волшебник':
+        return l10n.arcaneTradition;
+      default:
+        return l10n.selectSubclass;
+    }
+  }
+
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
@@ -229,7 +316,23 @@ class _FeaturesStepState extends State<FeaturesStep> {
     );
   }
 
+  String _getFeatureTypeLabel(AppLocalizations l10n, FeatureType type) {
+    switch (type) {
+      case FeatureType.passive:
+        return l10n.featureTypePassive;
+      case FeatureType.action:
+        return l10n.featureTypeAction;
+      case FeatureType.bonusAction:
+        return l10n.featureTypeBonusAction;
+      case FeatureType.reaction:
+        return l10n.featureTypeReaction;
+      default:
+        return l10n.featureTypeOther;
+    }
+  }
+
   Widget _buildFeatureCard(BuildContext context, CharacterFeature feature) {
+    final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
     IconData icon = Icons.star;
     if (feature.iconName != null) {
@@ -271,7 +374,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        feature.type.toString().split('.').last.toUpperCase(),
+                        _getFeatureTypeLabel(l10n, feature.type).toUpperCase(),
                         style: TextStyle(
                           fontSize: 10,
                           color: Theme.of(context).colorScheme.outline,

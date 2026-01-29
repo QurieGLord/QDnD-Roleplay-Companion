@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<compendium version="5">
+    <spell>
+        <name>Acid Arrow</name>
+        <level>2</level>
+        <school>Evocation</school>
+        <time>1 action</time>
+        <range>90 feet</range>
+        <components>V, S, M (powdered rhubarb leaf and an adder's stomach)</components>
+        <duration>Instantaneous</duration>
+        <classes>Wizard</classes>
+        <text>A shimmering green arrow streaks toward a target within range and bursts in a spray of acid. Make a ranged spell attack against the target. On a hit, the target takes 4d4 acid damage immediately and 2d4 acid damage at the end of its next turn. On a miss, the arrow splashes the target with acid for half as much of the initial damage and no damage at the end of its next turn.</text>
+        <text />
+        <text>At Higher Levels. When you cast this spell using a spell slot of 3rd level or higher, the damage (both initial and later) increases by 1d4 for each slot level above 2nd.</text>
+        <roll>4d4</roll>
+        <roll>2d4</roll>
+    </spell>
+
+    <item>
+        <name>Bag of Holding</name>
+        <type>Wondrous Item</type>
+        <weight>15.0</weight>
+        <rarity>Uncommon</rarity>
+        <text>This bag has an interior space considerably larger than its outside dimensions, roughly 2 feet in diameter at the mouth and 4 feet deep. The bag can hold up to 500 pounds, not exceeding a volume of 64 cubic feet. The bag weighs 15 pounds, regardless of its contents. Retrieving an item from the bag requires an action.</text>
+        <text>If the bag is overloaded, pierced, or torn, it ruptures and is destroyed, and its contents are scattered in the Astral Plane. If the bag is turned inside out, its contents spill forth, unharmed, but the bag must be put right before it can be used again. Breathing creatures inside the bag can survive up to a number of minutes equal to 10 divided by the number of creatures (minimum 1 minute), after which time they begin to suffocate.</text>
+        <magic>1</magic>
+    </item>
+
+    <race>
+        <name>Dwarf</name>
+        <size>M</size>
+        <speed>25</speed>
+        <ability>CON 2</ability>
+        <spellAbility />
+        <proficiency>Constitution</proficiency>
+        <trait>
+            <name>Darkvision</name>
+            <text>Accustomed to life underground, you have superior vision in dark and dim conditions. You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You can't discern color in darkness, only shades of gray.</text>
+        </trait>
+        <trait>
+            <name>Dwarven Resilience</name>
+            <text>You have advantage on saving throws against poison, and you have resistance against poison damage.</text>
+        </trait>
+    </race>
+
+    <class>
+        <name>Cleric</name>
+        <hd>8</hd>
+        <proficiency>Wisdom, Charisma, Light Armor, Medium Armor, Shields, Simple Weapons</proficiency>
+        <numSkills>2</numSkills>
+        <spellAbility>Wisdom</spellAbility>
+        <autolevel level="1">
+            <feature optional="YES">
+                <name>Divine Domain</name>
+                <text>Choose one domain related to your deity: Knowledge, Life, Light, Nature, Tempest, Trickery, or War. The Life domain is detailed at the end of the class description, and provides examples of gods associated with it. Your choice grants you domain spells and other features when you choose it at 1st level. It also grants you two additional ways to use Channel Divinity when you gain that feature at 2nd level, and additional benefits at 6th, 8th, and 17th levels.</text>
+            </feature>
+            <slots>2</slots>
+        </autolevel>
+        <autolevel level="2">
+            <feature>
+                <name>Channel Divinity</name>
+                <text>At 2nd level, you gain the ability to channel divine energy directly from your deity, using that energy to fuel magical effects. You start with two such effects: Turn Undead and an effect determined by your domain. Some domains grant you additional effects as you advance in levels, as noted in the domain description.</text>
+                <text>When you use your Channel Divinity, you choose which effect to create. You must then finish a short or long rest to use your Channel Divinity again.</text>
+            </feature>
+            <slots>3</slots>
+        </autolevel>
+    </class>
+
+    <background>
+        <name>Acolyte</name>
+        <proficiency>Insight, Religion</proficiency>
+        <trait>
+            <name>Shelter of the Faithful</name>
+            <text>As an acolyte, you command the respect of those who share your faith, and you can perform the religious ceremonies of your deity. You and your adventuring companions can expect to receive free healing and care at a temple, shrine, or other established presence of your faith, though you must provide any material components needed for spells.</text>
+        </trait>
+    </background>
+
+    <feat>
+        <name>Grappler</name>
+        <prerequisite>Strength 13 or higher</prerequisite>
+        <text>You've developed the skills necessary to hold your own in close-quarters grappling. You gain the following benefits:</text>
+        <text>• You have advantage on attack rolls against a creature you are grappling.</text>
+        <text>• You can use your action to try to pin a creature grappled by you. To do so, make another grapple check. If you succeed, you and the creature are both restrained until the grapple ends.</text>
+    </feat>
+</compendium>

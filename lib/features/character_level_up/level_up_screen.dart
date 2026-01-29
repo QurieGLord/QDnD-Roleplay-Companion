@@ -68,11 +68,48 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
     if (_hpIncrease < 1) _hpIncrease = 1; // Min 1 HP gain
 
     // 4. Find New Features
-    _newFeatures = FeatureService.getFeaturesForLevel(
+    final standardFeatures = FeatureService.getFeaturesForLevel(
       classId: widget.character.characterClass,
       level: _nextLevel,
       subclassId: widget.character.subclass,
     );
+    
+    // Get features from ClassData (XML)
+    final classFeatures = _classData.features[_nextLevel] ?? [];
+    
+    // Filter class features by subclass if applicable
+    final filteredClassFeatures = classFeatures.where((f) {
+       // If feature has no associated subclass, include it
+       if (f.associatedSubclass == null || f.associatedSubclass!.isEmpty) return true;
+       // If character has no subclass yet, exclude subclass features (unless we are at subclass level, handled by selection step?)
+       // Actually, features map usually contains all possibilities. 
+       // FeatureService.getFeaturesForLevel handles filtering. We should duplicate that logic or trust the UI to filter?
+       // The UI `FeaturesStep` might filter options. 
+       // But wait, `FeatureService` returns *available* features.
+       
+       // If character has a subclass, check match
+       if (widget.character.subclass != null) {
+          return f.associatedSubclass!.toLowerCase() == widget.character.subclass!.toLowerCase();
+       }
+       
+       // If no subclass selected yet, we might be at the level where we choose it.
+       // In that case, we might want to show them? Or wait until choice?
+       // Usually features for a subclass are added *after* choice.
+       return f.associatedSubclass == null; 
+    }).toList();
+    
+    // Merge
+    final allFeatures = [...standardFeatures];
+    final existingIds = standardFeatures.map((f) => f.id).toSet();
+    
+    for (var feature in filteredClassFeatures) {
+      if (!existingIds.contains(feature.id)) {
+        allFeatures.add(feature);
+        existingIds.add(feature.id);
+      }
+    }
+    
+    _newFeatures = allFeatures;
 
     // 5. Calculate Spell Slots
     if (_classData.spellcasting != null) {

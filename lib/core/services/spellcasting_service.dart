@@ -1,9 +1,21 @@
 import '../models/character.dart';
+import 'character_data_service.dart';
 
 /// Universal spellcasting mechanics calculator for ALL D&D 5e classes
 class SpellcastingService {
   /// Get the spellcasting ability for a class
   static String getSpellcastingAbility(String className) {
+    // 1. Try to find class data from loaded compendium/assets
+    try {
+      final classData = CharacterDataService.getClassById(className);
+      if (classData != null && classData.spellcasting != null) {
+        return classData.spellcasting!.ability.toLowerCase();
+      }
+    } catch (e) {
+      // Ignore lookup errors and fall back to hardcoded defaults
+    }
+
+    // 2. Fallback for standard classes if not loaded or missing info
     switch (className.toLowerCase()) {
       // Intelligence casters
       case 'wizard':

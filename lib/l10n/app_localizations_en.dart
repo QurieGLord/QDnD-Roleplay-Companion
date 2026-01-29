@@ -1232,6 +1232,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sacredOath => 'Sacred Oath';
 
   @override
+  String get primalPath => 'Primal Path';
+
+  @override
+  String get bardCollege => 'Bard College';
+
+  @override
+  String get divineDomain => 'Divine Domain';
+
+  @override
+  String get druidCircle => 'Druid Circle';
+
+  @override
+  String get martialArchetype => 'Martial Archetype';
+
+  @override
+  String get monasticTradition => 'Monastic Tradition';
+
+  @override
+  String get rangerArchetype => 'Ranger Archetype';
+
+  @override
+  String get roguishArchetype => 'Roguish Archetype';
+
+  @override
+  String get sorcerousOrigin => 'Sorcerous Origin';
+
+  @override
+  String get otherworldlyPatron => 'Otherworldly Patron';
+
+  @override
+  String get arcaneTradition => 'Arcane Tradition';
+
+  @override
+  String get featureTypePassive => 'Passive';
+
+  @override
+  String get featureTypeAction => 'Action';
+
+  @override
+  String get featureTypeBonusAction => 'Bonus Action';
+
+  @override
+  String get featureTypeReaction => 'Reaction';
+
+  @override
+  String get featureTypeOther => 'Other';
+
+  @override
+  String get selectSubclass => 'Select Subclass';
+
+  @override
+  String get selectSpecialization => 'Select Specialization';
+
+  @override
   String get classFeatures => 'Class Features';
 
   @override
@@ -1773,6 +1827,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get spellsStepTitle => 'Spells';
+
+  @override
+  String get selectSpellsInstruction =>
+      'Select spells for your character (Level 0 & 1).';
+
+  @override
+  String noSpellsFoundForClass(String className) {
+    return 'No spells found for $className';
+  }
+
+  @override
+  String get level1Spells => 'Level 1 Spells';
 
   @override
   String get spellsStepPlaceholder =>
