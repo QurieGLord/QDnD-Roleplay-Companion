@@ -20,15 +20,19 @@ class CompendiumSourceAdapter extends TypeAdapter<CompendiumSource> {
       id: fields[0] as String,
       name: fields[1] as String,
       importedAt: fields[2] as DateTime,
-      itemCount: fields[3] as int,
-      spellCount: fields[4] as int,
+      itemCount: fields[3] == null ? 0 : fields[3] as int,
+      spellCount: fields[4] == null ? 0 : fields[4] as int,
+      raceCount: fields[5] == null ? 0 : fields[5] as int,
+      classCount: fields[6] == null ? 0 : fields[6] as int,
+      backgroundCount: fields[7] == null ? 0 : fields[7] as int,
+      featCount: fields[8] == null ? 0 : fields[8] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, CompendiumSource obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,7 +42,15 @@ class CompendiumSourceAdapter extends TypeAdapter<CompendiumSource> {
       ..writeByte(3)
       ..write(obj.itemCount)
       ..writeByte(4)
-      ..write(obj.spellCount);
+      ..write(obj.spellCount)
+      ..writeByte(5)
+      ..write(obj.raceCount)
+      ..writeByte(6)
+      ..write(obj.classCount)
+      ..writeByte(7)
+      ..write(obj.backgroundCount)
+      ..writeByte(8)
+      ..write(obj.featCount);
   }
 
   @override

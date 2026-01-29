@@ -43,13 +43,3 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-
-# Documentation & AI Context
-docs/Компендиум/
-.claude/
-GEMINI.md
-CLAUDE.md
-SESSION_SUMMARY.md
-SESSION*_SUMMARY.md
-WORKTREE_INFO.md
-environment_report.md

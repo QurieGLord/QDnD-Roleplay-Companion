@@ -1,12 +1,35 @@
+import 'package:hive/hive.dart';
+
+part 'background_data.g.dart';
+
+@HiveType(typeId: 39)
 class BackgroundData {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final Map<String, String> name;
+
+  @HiveField(2)
   final Map<String, String> description;
+
+  @HiveField(3)
   final List<String> skillProficiencies;
+
+  @HiveField(4)
   final Map<String, List<String>> toolProficiencies; // Localized
+
+  @HiveField(5)
   final int languages; // Number of language choices
+
+  @HiveField(6)
   final BackgroundFeature feature;
+
+  @HiveField(7)
   final Map<String, List<String>> equipment; // Localized
+  
+  @HiveField(8)
+  final String? sourceId;
 
   BackgroundData({
     required this.id,
@@ -17,6 +40,7 @@ class BackgroundData {
     required this.languages,
     required this.feature,
     required this.equipment,
+    this.sourceId,
   });
 
   String getName(String locale) {
@@ -71,12 +95,17 @@ class BackgroundData {
       languages: json['languages'] ?? 0,
       feature: BackgroundFeature.fromJson(json['feature']),
       equipment: equip,
+      sourceId: json['sourceId'],
     );
   }
 }
 
+@HiveType(typeId: 40)
 class BackgroundFeature {
+  @HiveField(0)
   final Map<String, String> name;
+
+  @HiveField(1)
   final Map<String, String> description;
 
   BackgroundFeature({

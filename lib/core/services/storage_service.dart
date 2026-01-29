@@ -13,6 +13,9 @@ import '../models/condition.dart';
 import '../models/journal_note.dart';
 import '../models/quest.dart';
 import '../models/compendium_source.dart';
+import '../models/race_data.dart';
+import '../models/class_data.dart';
+import '../models/background_data.dart';
 
 class StorageService {
   static const String _characterBoxName = 'characters';
@@ -20,12 +23,20 @@ class StorageService {
   static const String _itemsBoxName = 'items_library';
   static const String _spellsBoxName = 'spells_library';
   static const String _sourcesBoxName = 'compendium_sources';
+  static const String _racesBoxName = 'races_library';
+  static const String _classesBoxName = 'classes_library';
+  static const String _backgroundsBoxName = 'backgrounds_library';
+  static const String _featsBoxName = 'feats_library';
 
   static late Box<Character> _characterBox;
   static late Box _settingsBox;
   static late Box<Item> _itemsBox;
   static late Box<Spell> _spellsBox;
   static late Box<CompendiumSource> _sourcesBox;
+  static late Box<RaceData> _racesBox;
+  static late Box<ClassData> _classesBox;
+  static late Box<BackgroundData> _backgroundsBox;
+  static late Box<CharacterFeature> _featsBox;
 
   static Future<void> init() async {
     await Hive.initFlutter();
@@ -40,6 +51,7 @@ class StorageService {
     Hive.registerAdapter(ResourcePoolAdapter());
     Hive.registerAdapter(FeatureTypeAdapter());
     Hive.registerAdapter(RecoveryTypeAdapter());
+    Hive.registerAdapter(FeatureConsumptionAdapter());
 
     // Register Item adapters
     Hive.registerAdapter(ItemAdapter());
@@ -52,6 +64,16 @@ class StorageService {
 
     // Register Compendium adapters
     Hive.registerAdapter(CompendiumSourceAdapter());
+    Hive.registerAdapter(RaceDataAdapter());
+    Hive.registerAdapter(SubraceDataAdapter());
+    Hive.registerAdapter(ClassDataAdapter());
+    Hive.registerAdapter(SubclassDataAdapter());
+    Hive.registerAdapter(ArmorProficienciesAdapter());
+    Hive.registerAdapter(WeaponProficienciesAdapter());
+    Hive.registerAdapter(SkillProficienciesAdapter());
+    Hive.registerAdapter(SpellcastingInfoAdapter());
+    Hive.registerAdapter(BackgroundDataAdapter());
+    Hive.registerAdapter(BackgroundFeatureAdapter());
 
     // Register Combat adapters
     Hive.registerAdapter(CombatStateAdapter());
@@ -73,6 +95,10 @@ class StorageService {
     _itemsBox = await Hive.openBox<Item>(_itemsBoxName);
     _spellsBox = await Hive.openBox<Spell>(_spellsBoxName);
     _sourcesBox = await Hive.openBox<CompendiumSource>(_sourcesBoxName);
+    _racesBox = await Hive.openBox<RaceData>(_racesBoxName);
+    _classesBox = await Hive.openBox<ClassData>(_classesBoxName);
+    _backgroundsBox = await Hive.openBox<BackgroundData>(_backgroundsBoxName);
+    _featsBox = await Hive.openBox<CharacterFeature>(_featsBoxName);
   }
 
   // Character CRUD operations
@@ -97,7 +123,7 @@ class StorageService {
     return _characterBox.watch();
   }
 
-  // Library Management (Items & Spells)
+  // Library Management (Items, Spells, Races, Classes, Backgrounds, Feats)
   static Future<void> saveItems(List<Item> items) async {
     final Map<String, Item> itemsMap = {
       for (var item in items) item.id: item
@@ -118,6 +144,50 @@ class StorageService {
 
   static List<Spell> getAllSpells() {
     return _spellsBox.values.toList();
+  }
+
+  static Future<void> saveRaces(List<RaceData> races) async {
+    final Map<String, RaceData> racesMap = {
+      for (var race in races) race.id: race
+    };
+    await _racesBox.putAll(racesMap);
+  }
+
+  static List<RaceData> getAllRaces() {
+    return _racesBox.values.toList();
+  }
+
+  static Future<void> saveClasses(List<ClassData> classes) async {
+    final Map<String, ClassData> classesMap = {
+      for (var charClass in classes) charClass.id: charClass
+    };
+    await _classesBox.putAll(classesMap);
+  }
+
+  static List<ClassData> getAllClasses() {
+    return _classesBox.values.toList();
+  }
+
+  static Future<void> saveBackgrounds(List<BackgroundData> backgrounds) async {
+    final Map<String, BackgroundData> bgMap = {
+      for (var bg in backgrounds) bg.id: bg
+    };
+    await _backgroundsBox.putAll(bgMap);
+  }
+
+  static List<BackgroundData> getAllBackgrounds() {
+    return _backgroundsBox.values.toList();
+  }
+
+  static Future<void> saveFeats(List<CharacterFeature> feats) async {
+    final Map<String, CharacterFeature> featsMap = {
+      for (var feat in feats) feat.id: feat
+    };
+    await _featsBox.putAll(featsMap);
+  }
+
+  static List<CharacterFeature> getAllFeats() {
+    return _featsBox.values.toList();
   }
 
   // Compendium Source Management
@@ -161,6 +231,50 @@ class StorageService {
     if (spellsToDelete.isNotEmpty) {
       await _spellsBox.deleteAll(spellsToDelete);
       print('🗑️ StorageService: Deleted ${spellsToDelete.length} spells for source $sourceId');
+    }
+
+    // 4. Delete associated races
+    final racesToDelete = _racesBox.values
+        .where((race) => race.sourceId == sourceId)
+        .map((race) => race.id)
+        .toList();
+    
+    if (racesToDelete.isNotEmpty) {
+      await _racesBox.deleteAll(racesToDelete);
+      print('🗑️ StorageService: Deleted ${racesToDelete.length} races for source $sourceId');
+    }
+
+    // 5. Delete associated classes
+    final classesToDelete = _classesBox.values
+        .where((cls) => cls.sourceId == sourceId)
+        .map((cls) => cls.id)
+        .toList();
+    
+    if (classesToDelete.isNotEmpty) {
+      await _classesBox.deleteAll(classesToDelete);
+      print('🗑️ StorageService: Deleted ${classesToDelete.length} classes for source $sourceId');
+    }
+
+    // 6. Delete associated backgrounds
+    final backgroundsToDelete = _backgroundsBox.values
+        .where((bg) => bg.sourceId == sourceId)
+        .map((bg) => bg.id)
+        .toList();
+    
+    if (backgroundsToDelete.isNotEmpty) {
+      await _backgroundsBox.deleteAll(backgroundsToDelete);
+      print('🗑️ StorageService: Deleted ${backgroundsToDelete.length} backgrounds for source $sourceId');
+    }
+
+    // 7. Delete associated feats
+    final featsToDelete = _featsBox.values
+        .where((feat) => feat.sourceId == sourceId)
+        .map((feat) => feat.id)
+        .toList();
+    
+    if (featsToDelete.isNotEmpty) {
+      await _featsBox.deleteAll(featsToDelete);
+      print('🗑️ StorageService: Deleted ${featsToDelete.length} feats for source $sourceId');
     }
   }
 

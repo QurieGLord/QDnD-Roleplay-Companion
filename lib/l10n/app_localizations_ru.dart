@@ -1227,6 +1227,60 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sacredOath => 'Священная клятва';
 
   @override
+  String get primalPath => 'Путь';
+
+  @override
+  String get bardCollege => 'Коллегия';
+
+  @override
+  String get divineDomain => 'Божественный домен';
+
+  @override
+  String get druidCircle => 'Круг';
+
+  @override
+  String get martialArchetype => 'Воинский архетип';
+
+  @override
+  String get monasticTradition => 'Монашеская традиция';
+
+  @override
+  String get rangerArchetype => 'Архетип следопыта';
+
+  @override
+  String get roguishArchetype => 'Плутовской архетип';
+
+  @override
+  String get sorcerousOrigin => 'Происхождение чародея';
+
+  @override
+  String get otherworldlyPatron => 'Потусторонний покровитель';
+
+  @override
+  String get arcaneTradition => 'Магическая традиция';
+
+  @override
+  String get featureTypePassive => 'Пассивно';
+
+  @override
+  String get featureTypeAction => 'Действие';
+
+  @override
+  String get featureTypeBonusAction => 'Бонус. действие';
+
+  @override
+  String get featureTypeReaction => 'Реакция';
+
+  @override
+  String get featureTypeOther => 'Другое';
+
+  @override
+  String get selectSubclass => 'Выбор подкласса';
+
+  @override
+  String get selectSpecialization => 'Выбор специализации';
+
+  @override
   String get classFeatures => 'Умения класса';
 
   @override
@@ -1753,6 +1807,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get spellsStepTitle => 'Заклинания';
+
+  @override
+  String get selectSpellsInstruction =>
+      'Select spells for your character (Level 0 & 1).';
+
+  @override
+  String noSpellsFoundForClass(String className) {
+    return 'No spells found for $className';
+  }
+
+  @override
+  String get level1Spells => 'Level 1 Spells';
 
   @override
   String get spellsStepPlaceholder =>

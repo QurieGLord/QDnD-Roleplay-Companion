@@ -1,16 +1,52 @@
+import 'package:hive/hive.dart';
+import 'package:xml/xml.dart';
+import 'character_feature.dart';
+
+part 'class_data.g.dart';
+
+@HiveType(typeId: 33)
 class ClassData {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final Map<String, String> name;
+
+  @HiveField(2)
   final Map<String, String> description;
+
+  @HiveField(3)
   final int hitDie;
+
+  @HiveField(4)
   final List<String> primaryAbilities;
+
+  @HiveField(5)
   final List<String> savingThrowProficiencies;
+
+  @HiveField(6)
   final ArmorProficiencies armorProficiencies;
+
+  @HiveField(7)
   final WeaponProficiencies weaponProficiencies;
+
+  @HiveField(8)
   final SkillProficiencies skillProficiencies;
+
+  @HiveField(9)
   final List<SubclassData> subclasses;
+
+  @HiveField(10)
   final int subclassLevel; // At what level you choose subclass
+
+  @HiveField(11)
   final SpellcastingInfo? spellcasting;
+
+  @HiveField(12)
+  final Map<int, List<CharacterFeature>> features;
+
+  @HiveField(13)
+  final String? sourceId;
 
   ClassData({
     required this.id,
@@ -25,6 +61,8 @@ class ClassData {
     required this.subclasses,
     required this.subclassLevel,
     this.spellcasting,
+    this.features = const {},
+    this.sourceId,
   });
 
   String getName(String locale) {
@@ -53,14 +91,83 @@ class ClassData {
       spellcasting: json['spellcasting'] != null
           ? SpellcastingInfo.fromJson(json['spellcasting'])
           : null,
+      features: {}, // JSON import usually doesn't have features in this map structure yet
+    );
+  }
+
+  factory ClassData.fromFC5(XmlElement element, String sourceId) {
+    final name = element.findElements('name').first.innerText;
+    final hdStr = element.findElements('hd').firstOrNull?.innerText ?? '8';
+    final hitDie = int.tryParse(hdStr) ?? 8;
+    
+    // Parse proficiencies is complex, simplifying for now
+    final primaryAbilities = <String>[];
+    
+    final features = <int, List<CharacterFeature>>{};
+    
+    for (var autolevel in element.findElements('autolevel')) {
+      final levelStr = autolevel.getAttribute('level');
+      if (levelStr == null) continue;
+      final level = int.tryParse(levelStr) ?? 0;
+      if (level == 0) continue;
+
+      if (!features.containsKey(level)) {
+        features[level] = [];
+      }
+
+      // Skip subclasses for now in features map, they are usually separate
+      if (autolevel.findElements('subclass').isNotEmpty) continue;
+
+      for (var feature in autolevel.findElements('feature')) {
+        final featureName = feature.findElements('name').firstOrNull?.innerText ?? '';
+        final featureText = feature.findElements('text').map((e) => e.innerText).join('\n');
+        
+        if (featureName.isNotEmpty) {
+           features[level]!.add(CharacterFeature(
+             id: 'fc5_cls_${name.toLowerCase()}_${featureName.toLowerCase().replaceAll(' ', '_')}_$level',
+             nameEn: featureName,
+             nameRu: featureName,
+             descriptionEn: featureText,
+             descriptionRu: featureText,
+             type: FeatureType.passive,
+             minLevel: level,
+             associatedClass: name,
+             sourceId: sourceId,
+           ));
+        }
+      }
+    }
+
+    return ClassData(
+      id: name.toLowerCase().replaceAll(' ', '_'),
+      name: {'en': name, 'ru': name},
+      description: {'en': 'Imported from FC5', 'ru': 'Импортировано из FC5'},
+      hitDie: hitDie,
+      primaryAbilities: primaryAbilities,
+      savingThrowProficiencies: [],
+      armorProficiencies: ArmorProficiencies(),
+      weaponProficiencies: WeaponProficiencies(),
+      skillProficiencies: SkillProficiencies(choose: 0, from: []),
+      subclasses: [],
+      subclassLevel: 3,
+      features: features,
+      sourceId: sourceId,
     );
   }
 }
 
+@HiveType(typeId: 35)
 class ArmorProficiencies {
+  @HiveField(0)
   final bool light;
+
+  @HiveField(1)
   final bool medium;
+
+  @HiveField(2)
   final bool heavy;
+
+  @HiveField(3)
   final bool shields;
 
   ArmorProficiencies({
@@ -91,9 +198,15 @@ class ArmorProficiencies {
   }
 }
 
+@HiveType(typeId: 36)
 class WeaponProficiencies {
+  @HiveField(0)
   final bool simple;
+
+  @HiveField(1)
   final bool martial;
+
+  @HiveField(2)
   final List<String> specific; // e.g., ["longsword", "shortsword"]
 
   WeaponProficiencies({
@@ -121,8 +234,12 @@ class WeaponProficiencies {
   }
 }
 
+@HiveType(typeId: 37)
 class SkillProficiencies {
+  @HiveField(0)
   final int choose;
+
+  @HiveField(1)
   final List<String> from;
 
   SkillProficiencies({
@@ -140,9 +257,15 @@ class SkillProficiencies {
   bool get isNotEmpty => from.isNotEmpty;
 }
 
+@HiveType(typeId: 34)
 class SubclassData {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final Map<String, String> name;
+
+  @HiveField(2)
   final Map<String, String> description;
 
   SubclassData({
@@ -168,8 +291,12 @@ class SubclassData {
   }
 }
 
+@HiveType(typeId: 38)
 class SpellcastingInfo {
+  @HiveField(0)
   final String ability; // 'intelligence', 'wisdom', 'charisma'
+
+  @HiveField(1)
   final String type; // 'full', 'half', 'third', 'pact'
 
   SpellcastingInfo({

@@ -1,5 +1,6 @@
 import '../models/character.dart';
 import '../models/spell.dart';
+import 'character_data_service.dart';
 
 /// Universal spell eligibility checker for ALL D&D 5e classes
 /// This service determines which spells a character can learn/prepare
@@ -123,6 +124,19 @@ class SpellEligibilityService {
     // Cantrips available at level 1 for all spellcasters
     if (spellLevel == 0) return 1;
 
+    // 1. Try dynamic lookup via CharacterDataService
+    final classData = CharacterDataService.getClassById(className);
+    if (classData != null && classData.spellcasting != null) {
+      final type = classData.spellcasting!.type;
+      switch (type) {
+        case 'full': return _fullCasterSpellLevelProgression[spellLevel] ?? 99;
+        case 'half': return _halfCasterSpellLevelProgression[spellLevel] ?? 99;
+        case 'third': return _thirdCasterSpellLevelProgression[spellLevel] ?? 99;
+        case 'pact': return _fullCasterSpellLevelProgression[spellLevel] ?? 99;
+        default: return 99;
+      }
+    }
+
     switch (className) {
       // FULL CASTERS (Wizard, Cleric, Druid, Bard, Sorcerer)
       case 'wizard':
@@ -198,6 +212,34 @@ class SpellEligibilityService {
 
   /// Determine spellcasting type for the class
   static SpellcastingType _getSpellcastingType(String className) {
+    // 1. Try dynamic lookup
+    final classData = CharacterDataService.getClassById(className);
+    if (classData != null && classData.spellcasting != null) {
+      final type = classData.spellcasting!.type;
+      // Map string type to enum
+      switch (type) {
+        case 'full':
+          if (classData.id == 'warlock') return SpellcastingType.pactMagic;
+          if (['wizard', 'cleric', 'druid', 'paladin', 'artificer'].contains(classData.id)) {
+             return SpellcastingType.prepared;
+          }
+          return SpellcastingType.known;
+          
+        case 'half':
+           if (classData.id == 'paladin') return SpellcastingType.prepared;
+           return SpellcastingType.known; 
+           
+        case 'third':
+           return SpellcastingType.known; 
+           
+        case 'pact':
+           return SpellcastingType.pactMagic;
+           
+        default:
+           return SpellcastingType.none;
+      }
+    }
+
     switch (className) {
       // Prepared casters (can prepare from full class list)
       case 'wizard':

@@ -121,7 +121,7 @@ flutter run
 
 ## 🗺️ Roadmap
 
-### ✅ v1.10 (Inventory & Polish)
+### ✅ v0.11 (Inventory & Polish)
 - **Inventory:** Encumbrance visualizer (Weight limit) & Attunement tracker.
 - **UX:** Swipe-to-delete items, better item details.
 - **Combat System:** Redesigned Combat Tracker with integrated Magic Sheet.
@@ -129,13 +129,19 @@ flutter run
 - **Level Up:** Strict feature filtering and subclass support.
 - **Localization:** Full EN/RU support.
 
-### ✅ v1.11 (Content & Creativity)
+### ✅ v0.13.0 (Class Features & Terminology)
+- **Improved FC5 Import:** Robust parsing of bilingual subclasses (English/Russian) and class features.
+- **D&D 5e Compliance:** Dynamic terminology for subclasses (Primal Path, Sacred Oath, Arcane Tradition, etc.).
+- **Smart Spell Eligibility:** Spells now correctly link to classes via standardized IDs.
+- **Bug Fixes:** Corrected "Passive" tag localization and subclass selection UI.
+
+### ✅ v0.12 (Content & Creativity)
 - **The Forge:** Custom Item Creator with visual preview and full stat control.
 - **Library Manager:** Import/Delete external content packs (XML) to expand your game.
 - **Unified Database:** Mix built-in content with your own homebrew seamlessly.
 - **Smart Parsing:** Auto-detects bilingual content (English/Russian) in imported files.
 
-### 🔮 v2.0 (Planned)
+### 🔮 v1.0 (Planned)
 - [ ] Cloud Sync (Google Drive)
 - [ ] PDF Export (Character Sheet)
 - [ ] Multiclassing UI

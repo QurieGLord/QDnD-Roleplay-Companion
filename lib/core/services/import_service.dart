@@ -8,12 +8,13 @@ import 'storage_service.dart';
 import 'feature_service.dart';
 import 'item_service.dart';
 import 'spell_service.dart';
+import 'character_data_service.dart';
 
 class ImportService {
   // Import from FC5 XML file
   static Future<Character> importFromFC5File(File file) async {
     final xmlContent = await file.readAsString();
-    final character = FC5Parser.parseXml(xmlContent);
+    final character = FC5Parser.parseCharacter(xmlContent);
 
     // Add class features to character
     FeatureService.addFeaturesToCharacter(character);
@@ -22,49 +23,62 @@ class ImportService {
     return character;
   }
 
-  // Import Compendium (Items & Spells) from FC5 XML file
+  // Import Compendium (Items, Spells, Races, Classes, etc.) from FC5 XML file
   static Future<String> importCompendiumFile(File file) async {
     try {
       final xmlContent = await file.readAsString();
-      final compendiumData = await FC5Parser.parseCompendium(xmlContent);
-      
       final sourceId = const Uuid().v4();
+      // Use parseCompendium for the universal import
+      final parseResult = await FC5Parser.parseCompendium(xmlContent, sourceId: sourceId);
+      
       final fileName = file.path.split(Platform.pathSeparator).last;
       
-      // Assign sourceId to all items and spells
-      for (var item in compendiumData.items) {
-        item.sourceId = sourceId;
-      }
-      
-      for (var spell in compendiumData.spells) {
-        spell.sourceId = sourceId;
-      }
-
       // Create and save source metadata
       final source = CompendiumSource(
         id: sourceId,
         name: fileName,
         importedAt: DateTime.now(),
-        itemCount: compendiumData.items.length,
-        spellCount: compendiumData.spells.length,
+        itemCount: parseResult.items.length,
+        spellCount: parseResult.spells.length,
+        raceCount: parseResult.races.length,
+        classCount: parseResult.classes.length,
+        backgroundCount: parseResult.backgrounds.length,
+        featCount: parseResult.feats.length,
       );
       
       await StorageService.saveSource(source);
 
-      if (compendiumData.items.isNotEmpty) {
-        await StorageService.saveItems(compendiumData.items);
+      if (parseResult.items.isNotEmpty) {
+        await StorageService.saveItems(parseResult.items);
       }
       
-      if (compendiumData.spells.isNotEmpty) {
-        await StorageService.saveSpells(compendiumData.spells);
+      if (parseResult.spells.isNotEmpty) {
+        await StorageService.saveSpells(parseResult.spells);
       }
 
-      // Reload ItemService to reflect changes
-      await ItemService.reload();
-      // Reload SpellService to reflect changes
-      await SpellService.reload();
+      if (parseResult.races.isNotEmpty) {
+        await StorageService.saveRaces(parseResult.races);
+      }
 
-      return 'Imported successfully: ${compendiumData.items.length} items, ${compendiumData.spells.length} spells.';
+      if (parseResult.classes.isNotEmpty) {
+        await StorageService.saveClasses(parseResult.classes);
+      }
+      
+      if (parseResult.backgrounds.isNotEmpty) {
+        await StorageService.saveBackgrounds(parseResult.backgrounds);
+      }
+      
+      if (parseResult.feats.isNotEmpty) {
+        await StorageService.saveFeats(parseResult.feats);
+      }
+
+      // Reload services to reflect changes
+      await ItemService.reload();
+      await SpellService.reload();
+      // CharacterDataService handles races/classes usually, now needs to handle backgrounds/feats too
+      await CharacterDataService.reload();
+
+      return 'Imported successfully: ${parseResult.items.length} items, ${parseResult.spells.length} spells, ${parseResult.races.length} races, ${parseResult.classes.length} classes, ${parseResult.backgrounds.length} backgrounds, ${parseResult.feats.length} feats.';
     } catch (e) {
       print('❌ ImportService: Failed to import compendium: $e');
       throw Exception('Failed to import compendium: $e');
@@ -74,7 +88,7 @@ class ImportService {
   // Import from asset (for testing with pal_example.xml)
   static Future<Character> importFromAsset(String assetPath) async {
     final xmlContent = await rootBundle.loadString(assetPath);
-    final character = FC5Parser.parseXml(xmlContent);
+    final character = FC5Parser.parseCharacter(xmlContent);
 
     // Add class features to character
     FeatureService.addFeaturesToCharacter(character);
