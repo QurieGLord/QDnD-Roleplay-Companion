@@ -53,6 +53,34 @@ class _SpellsTabState extends State<SpellsTab> {
   }
 
   void _useFeature(CharacterFeature feature, String locale, AppLocalizations l10n) {
+    // 0. Usage Cost Logic (New Standard)
+    if (feature.usageCostId != null) {
+      CharacterFeature? resource;
+      try {
+        // Find resource that starts with the usageCostId (e.g. channel-divinity -> channel-divinity-1-rest)
+        resource = widget.character.features.firstWhere((f) => f.id.startsWith(feature.usageCostId!));
+      } catch (_) {}
+
+      if (resource != null && resource.resourcePool != null) {
+        if (resource.resourcePool!.currentUses > 0) {
+          setState(() {
+            resource!.resourcePool!.use(1); 
+            widget.character.save();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('${feature.getName(locale)} used! (-1 ${resource.getName(locale)})'),
+            duration: const Duration(milliseconds: 1000),
+          ));
+        } else {
+           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+             content: Text('No charges left for ${resource.getName(locale)}!'),
+             backgroundColor: Theme.of(context).colorScheme.error
+           ));
+        }
+        return;
+      }
+    }
+
     // 1. Consumption Logic
     if (feature.consumption != null) {
       final resource = _findResourceFeature(feature.consumption!.resourceId);
@@ -76,8 +104,8 @@ class _SpellsTabState extends State<SpellsTab> {
       }
     }
 
-    // 2. Legacy Channel Divinity Logic
-    if (feature.nameEn.contains('Channel Divinity') || feature.descriptionEn.contains('Channel Divinity')) {
+    // 2. Legacy Channel Divinity Logic (Fallback)
+    if (feature.usageCostId == null && (feature.nameEn.contains('Channel Divinity') || feature.descriptionEn.contains('Channel Divinity'))) {
       try {
         final cdPoolFeature = widget.character.features.firstWhere((f) => f.id == 'channel_divinity');
         if (cdPoolFeature.resourcePool != null) {
@@ -413,6 +441,11 @@ class _SpellsTabState extends State<SpellsTab> {
       if (res != null) {
         resourceCost = '${feature.consumption!.amount} ${res.getName(locale)}';
       }
+    } else if (feature.usageCostId != null) {
+       try {
+        final res = widget.character.features.firstWhere((f) => f.id.startsWith(feature.usageCostId!));
+        resourceCost = '1 ${res.getName(locale)}';
+      } catch (_) {}
     }
 
     return Card(
@@ -464,7 +497,7 @@ class _SpellsTabState extends State<SpellsTab> {
                 style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)
               ),
               
-              if (resourceCost != null || (feature.nameEn.contains('Channel Divinity'))) ...[
+              if (resourceCost != null || feature.usageCostId != null || (feature.nameEn.contains('Channel Divinity'))) ...[
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
