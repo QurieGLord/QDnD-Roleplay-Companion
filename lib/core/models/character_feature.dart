@@ -51,6 +51,12 @@ class CharacterFeature extends HiveObject {
   @HiveField(14)
   String? sourceId;
 
+  @HiveField(15)
+  String? usageCostId; // ID of the resource this feature consumes
+
+  @HiveField(16)
+  String? usageInputMode; // 'slider', 'simple'
+
   CharacterFeature({
     required this.id,
     required this.nameEn,
@@ -67,6 +73,8 @@ class CharacterFeature extends HiveObject {
     this.iconName,
     this.consumption,
     this.sourceId,
+    this.usageCostId,
+    this.usageInputMode,
   });
 
   String getName(String locale) {
@@ -77,6 +85,15 @@ class CharacterFeature extends HiveObject {
     return locale == 'ru' ? descriptionRu : descriptionEn;
   }
 
+  bool get isAction => 
+      type == FeatureType.action || 
+      type == FeatureType.bonusAction || 
+      type == FeatureType.reaction || 
+      (type == FeatureType.free && usageCostId != null) ||
+      type == FeatureType.special;
+
+  bool get isResource => resourcePool != null;
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -84,7 +101,7 @@ class CharacterFeature extends HiveObject {
       'nameRu': nameRu,
       'descriptionEn': descriptionEn,
       'descriptionRu': descriptionRu,
-      'type': type.toString(),
+      'type': type.name, // Save as simple string
       'resourcePool': resourcePool?.toJson(),
       'minLevel': minLevel,
       'associatedClass': associatedClass,
@@ -93,6 +110,8 @@ class CharacterFeature extends HiveObject {
       'actionEconomy': actionEconomy,
       'iconName': iconName,
       'consumption': consumption?.toJson(),
+      'usageCostId': usageCostId,
+      'usageInputMode': usageInputMode,
     };
   }
 
@@ -103,10 +122,7 @@ class CharacterFeature extends HiveObject {
       nameRu: json['nameRu'],
       descriptionEn: json['descriptionEn'],
       descriptionRu: json['descriptionRu'],
-      type: FeatureType.values.firstWhere(
-        (e) => e.toString() == json['type'],
-        orElse: () => FeatureType.passive,
-      ),
+      type: _parseFeatureType(json['type']),
       resourcePool: json['resourcePool'] != null
           ? ResourcePool.fromJson(json['resourcePool'])
           : null,
@@ -119,7 +135,34 @@ class CharacterFeature extends HiveObject {
       consumption: json['consumption'] != null
           ? FeatureConsumption.fromJson(json['consumption'])
           : null,
+      usageCostId: json['usageCostId'],
+      usageInputMode: json['usageInputMode'],
     );
+  }
+
+  static FeatureType _parseFeatureType(String? typeStr) {
+    if (typeStr == null) return FeatureType.passive;
+    
+    // Normalize input (snake_case to camelCase mapping)
+    switch (typeStr) {
+      case 'action': return FeatureType.action;
+      case 'bonus_action': 
+      case 'bonusAction': return FeatureType.bonusAction;
+      case 'reaction': return FeatureType.reaction;
+      case 'resource_pool': 
+      case 'resourcePool': return FeatureType.resourcePool;
+      case 'free': return FeatureType.free;
+      case 'special': return FeatureType.special;
+      case 'toggle': return FeatureType.toggle;
+      case 'passive': return FeatureType.passive;
+      default: 
+        // Fallback for legacy data (FeatureType.action)
+        try {
+          return FeatureType.values.firstWhere((e) => e.toString() == typeStr);
+        } catch (_) {
+          return FeatureType.passive;
+        }
+    }
   }
 }
 
@@ -228,6 +271,12 @@ enum FeatureType {
 
   @HiveField(5)
   toggle,         // Can be turned on/off (Rage, Bladesong)
+
+  @HiveField(6)
+  free,           // Free action
+
+  @HiveField(7)
+  special,        // Special action type
 }
 
 /// How the resource pool recovers

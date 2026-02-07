@@ -28,7 +28,8 @@ class SkillsStep extends StatelessWidget {
   };
 
   String _getSkillName(String skillId, AppLocalizations l10n) {
-    switch (skillId) {
+    final normalizedKey = skillId.toLowerCase().replaceAll('-', '_');
+    switch (normalizedKey) {
       case 'acrobatics': return l10n.skillAcrobatics;
       case 'animal_handling': return l10n.skillAnimalHandling;
       case 'arcana': return l10n.skillArcana;
@@ -52,7 +53,8 @@ class SkillsStep extends StatelessWidget {
   }
 
   String _getSkillDesc(String skillId, AppLocalizations l10n) {
-    switch (skillId) {
+    final normalizedKey = skillId.toLowerCase().replaceAll('-', '_');
+    switch (normalizedKey) {
       case 'acrobatics': return l10n.skillAcrobaticsDesc;
       case 'animal_handling': return l10n.skillAnimalHandlingDesc;
       case 'arcana': return l10n.skillArcanaDesc;

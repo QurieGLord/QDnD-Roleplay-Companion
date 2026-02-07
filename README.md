@@ -66,10 +66,22 @@ Whether you're an experienced adventurer or a beginning hero, QD&D will become y
 
 ---
 
-## 🛠️ Architecture
+## 🛠️ Architecture & Data Flow
 
-QD&D is built on a **Data-Driven Architecture**. This means you can add new content without writing code!
+QD&D is built on a **Data-Driven Architecture**. The codebase acts as an engine, processing data fuels (JSON/XML) to generate gameplay mechanics dynamically.
 
+### 🔄 ETL Pipeline (Extract, Transform, Load)
+We use custom Dart scripts in `tool/` to generate optimized assets for the app:
+- **`tool/generate_features.dart`**: The core ETL script. It reads SRD data, applies hardcoded logic (e.g., Monk Ki consumption, Paladin resource pools), injects virtual actions (like "Use Lay on Hands"), and outputs a unified registry.
+- **Output:** `assets/data/features/srd_features.json`. This file contains the "truth" for all class features.
+
+### 🏗️ Data Models
+The `CharacterFeature` model (`lib/core/models/character_feature.dart`) is the backbone of the class system. Key fields include:
+- **`usageCostId`**: Links an Action (e.g., "Flurry of Blows") to a Resource Pool (e.g., "Ki"). The UI automatically handles the deduction logic.
+- **`usageInputMode`**: Defines the UI for spending resources (e.g., `'slider'` for granular spending like Lay on Hands, or simple tap for fixed costs).
+- **`consumption`**: Defines complex costs (e.g., "Spend 5 points").
+
+### 🧩 Content Injection
 - **Add Classes/Features:** Simply drop JSON files into `assets/data/features/`.
 - **Add Spells/Items:** Extend the database with your own homebrew content via JSON.
 - **Localization:** Built-in support for bilingual content (English/Russian).

@@ -129,10 +129,44 @@ class Spell extends HiveObject {
   }
 
   factory Spell.fromJson(Map<String, dynamic> json) {
+    // Handle nested name
+    String nameEn = json['nameEn'] ?? '';
+    String nameRu = json['nameRu'] ?? '';
+    if (json['name'] is Map) {
+      nameEn = json['name']['en'] ?? nameEn;
+      nameRu = json['name']['ru'] ?? nameRu;
+    }
+
+    // Handle nested description
+    String descEn = json['descriptionEn'] ?? '';
+    String descRu = json['descriptionRu'] ?? '';
+    if (json['description'] is Map) {
+      descEn = json['description']['en'] ?? descEn;
+      descRu = json['description']['ru'] ?? descRu;
+    }
+
+    // Handle nested materialComponents
+    String? matEn = json['materialComponents'] is String ? json['materialComponents'] : null;
+    String? matRu = json['materialComponentsRu'];
+    if (json['materialComponents'] is Map) {
+      matEn = json['materialComponents']['en'];
+      matRu = json['materialComponents']['ru'];
+    }
+
+    // Handle nested atHigherLevels
+    String? higherEn = json['atHigherLevelsEn'];
+    String? higherRu = json['atHigherLevelsRu'];
+    if (json['atHigherLevels'] is Map) {
+      higherEn = json['atHigherLevels']['en'];
+      higherRu = json['atHigherLevels']['ru'];
+    } else if (json['atHigherLevels'] is String) {
+       higherEn = json['atHigherLevels'];
+    }
+
     return Spell(
       id: json['id'],
-      nameEn: json['nameEn'],
-      nameRu: json['nameRu'],
+      nameEn: nameEn,
+      nameRu: nameRu,
       level: json['level'],
       school: json['school'],
       castingTime: json['castingTime'],
@@ -141,13 +175,13 @@ class Spell extends HiveObject {
       concentration: json['concentration'] ?? false,
       ritual: json['ritual'] ?? false,
       components: List<String>.from(json['components'] ?? []),
-      materialComponents: json['materialComponents'],
-      materialComponentsRu: json['materialComponentsRu'],
-      descriptionEn: json['descriptionEn'],
-      descriptionRu: json['descriptionRu'],
+      materialComponents: matEn,
+      materialComponentsRu: matRu,
+      descriptionEn: descEn,
+      descriptionRu: descRu,
       availableToClasses: List<String>.from(json['availableToClasses'] ?? []),
-      atHigherLevelsEn: json['atHigherLevelsEn'] ?? json['atHigherLevels'], // Fallback for old key
-      atHigherLevelsRu: json['atHigherLevelsRu'],
+      atHigherLevelsEn: higherEn,
+      atHigherLevelsRu: higherRu,
       sourceId: json['sourceId'],
     );
   }

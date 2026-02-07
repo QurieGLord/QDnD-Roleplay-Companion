@@ -103,10 +103,29 @@ class FeaturesSpellsStep extends StatelessWidget {
               const SizedBox(height: 16),
               
               if (features.isEmpty)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(l10n.noFeaturesAtLevel1),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24.0),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        size: 32,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.8),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.noFeaturesAtLevel1,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
                 )
               else
@@ -220,20 +239,58 @@ class FeaturesSpellsStep extends StatelessWidget {
                     final hasLevel1Slots = slots.isNotEmpty && slots[0] > 0;
 
                     if (classSpells.isEmpty) {
-                       return Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(l10n.noSpellsFoundForClass(state.selectedClass!.getName(locale))),
+                       return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(24.0),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.search_off,
+                              size: 32,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.8),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              l10n.noSpellsFoundForClass(state.selectedClass!.getName(locale)),
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }
 
                     // If no cantrips and no level 1 slots (e.g. Paladin Level 1), show message
                     if (level0Spells.isEmpty && !hasLevel1Slots) {
-                       return Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text("No spells available at level 1 for this class."), // Fallback string or add to arb
+                       return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(24.0),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.auto_fix_off, // Different icon for spells
+                              size: 32,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.8),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              locale == 'ru' ? 'Нет заклинаний на 1 уровне' : "No spells available at level 1",
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }

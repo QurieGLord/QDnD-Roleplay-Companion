@@ -13,19 +13,18 @@ class ReviewStep extends StatelessWidget {
   }
 
   String _getLocalizedSkill(AppLocalizations l10n, String skill) {
-    switch (skill.toLowerCase()) {
+    final normalizedKey = skill.toLowerCase().replaceAll('-', '_');
+    switch (normalizedKey) {
       case 'athletics': return l10n.skillAthletics;
       case 'acrobatics': return l10n.skillAcrobatics;
-      case 'sleight_of_hand': 
-      case 'sleight of hand': return l10n.skillSleightOfHand;
+      case 'sleight_of_hand': return l10n.skillSleightOfHand;
       case 'stealth': return l10n.skillStealth;
       case 'arcana': return l10n.skillArcana;
       case 'history': return l10n.skillHistory;
       case 'investigation': return l10n.skillInvestigation;
       case 'nature': return l10n.skillNature;
       case 'religion': return l10n.skillReligion;
-      case 'animal_handling':
-      case 'animal handling': return l10n.skillAnimalHandling;
+      case 'animal_handling': return l10n.skillAnimalHandling;
       case 'insight': return l10n.skillInsight;
       case 'medicine': return l10n.skillMedicine;
       case 'perception': return l10n.skillPerception;

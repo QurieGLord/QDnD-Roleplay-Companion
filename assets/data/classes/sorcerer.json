@@ -1,0 +1,275 @@
+{
+  "id": "sorcerer",
+  "name": {
+    "en": "Sorcerer",
+    "ru": "Чародей"
+  },
+  "description": {
+    "en": "A spellcaster who draws on inherent magic from a gift or bloodline.",
+    "ru": "Заклинатель, черпающий врожденную магию из дара или родословной."
+  },
+  "hitDie": 6,
+  "primaryAbilities": [
+    "charisma"
+  ],
+  "savingThrowProficiencies": [
+    "constitution",
+    "charisma"
+  ],
+  "armorProficiencies": {
+    "light": false,
+    "medium": false,
+    "heavy": false,
+    "shields": false
+  },
+  "weaponProficiencies": {
+    "simple": false,
+    "martial": false
+  },
+  "skillProficiencies": {
+    "choose": 2,
+    "from": [
+      "arcana",
+      "deception",
+      "insight",
+      "intimidation",
+      "persuasion",
+      "religion"
+    ]
+  },
+  "subclasses": [
+    {
+      "id": "draconic",
+      "name": {
+        "en": "Draconic",
+        "ru": "Наследие Драконьей Крови"
+      },
+      "description": {
+        "en": "Your innate magic comes from draconic magic that was mingled with your blood or that of your ancestors. Most often, sorcerers with this origin trace their descent back to a mighty sorcerer of ancient times who made a bargain with a dragon or who might even have claimed a dragon parent. Some of these bloodlines are well established in the world, but most are obscure. Any given sorcerer could be the first of a new bloodline, as a result of a pact or some other exceptional circumstance.",
+        "ru": "Ваша врожденная магия происходит от драконьей магии, которая была смешана с вашей кровью или кровью ваших предков. Чаще всего чародеи с этим происхождением прослеживают свою родословную до могущественного чародея древних времен, который заключил сделку с драконом или даже мог заявить о драконе-родителе. Некоторые из этих родословных хорошо известны в мире, но большинство из них малоизвестны. Любой данный чародей может стать первым в новой родословной в результате пакта или другого исключительного обстоятельства."
+      }
+    }
+  ],
+  "subclassLevel": 1,
+  "features": {
+    "1": [
+      {
+        "id": "dragon-ancestor",
+        "name": {
+          "en": "Dragon Ancestor",
+          "ru": "Драконий предок"
+        },
+        "description": {
+          "en": "At 1st level, you choose one type of dragon as your ancestor. The damage type associated with each dragon is used by features you gain later.\nYou can speak, read, and write Draconic. Additionally, whenever you make a Charisma check when interacting with dragons, your proficiency bonus is doubled if it applies to the check.",
+          "ru": "На 1-м уровне вы выбираете один тип дракона в качестве своего предка."
+        }
+      },
+      {
+        "id": "draconic-resilience",
+        "name": {
+          "en": "Draconic Resilience",
+          "ru": "Драконья устойчивость"
+        },
+        "description": {
+          "en": "As magic flows through your body, it causes physical traits of your dragon ancestors to emerge. At 1st level, your hit point maximum increases by 1 and increases by 1 again whenever you gain a level in this class.\nAdditionally, parts of your skin are covered by a thin sheen of dragon-like scales. When you aren't wearing armor, your AC equals 13 + your Dexterity modifier.",
+          "ru": "Магия, текущая через ваше тело, проявляет физические черты ваших драконьих предков."
+        }
+      }
+    ],
+    "2": [
+      {
+        "id": "font-of-magic",
+        "name": {
+          "en": "Font of Magic",
+          "ru": "Источник магии"
+        },
+        "description": {
+          "en": "At 2nd level, you tap into a deep wellspring of magic within yourself. This wellspring is represented by sorcery points, which allow you to create a variety of magical effects.\nSorcery Points\nYou have 2 sorcery points, and you gain more as you reach higher levels, as shown in the Sorcery Points column of the Sorcerer table. You can never have more sorcery points than shown on the table for your level. You regain all spent sorcery points when you finish a long rest.",
+          "ru": "На 2-м уровне вы подключаетесь к глубокому источнику магии внутри себя."
+        }
+      },
+      {
+        "id": "flexible-casting-creating-spell-slots",
+        "name": {
+          "en": "Flexible Casting: Creating Spell Slots",
+          "ru": "Гибкое накладывание: Создание ячеек"
+        },
+        "description": {
+          "en": "You can transform unexpended sorcery points into one spell slot as a bonus action on your turn. The Creating Spell Slots table shows the cost of creating a spell slot of a given level. You can create spell slots no higher in level than 5th. \nAny spell slot you create with this feature vanishes when you finish a long rest.",
+          "ru": "Вы можете трансформировать неизрасходованные единицы чародейства в одну ячейку заклинания бонусным действием в свой ход."
+        }
+      },
+      {
+        "id": "flexible-casting-converting-spell-slot",
+        "name": {
+          "en": "Flexible Casting: Converting Spell Slot",
+          "ru": "Гибкое накладывание: Преобразование"
+        },
+        "description": {
+          "en": "As a bonus action on your turn, you can expend one spell slot and gain a number of sorcery points equal to the slot's level..",
+          "ru": "Бонусным действием в свой ход вы можете потратить одну ячейку заклинания и получить количество единиц чародейства, равное уровню ячейки."
+        }
+      }
+    ],
+    "3": [
+      {
+        "id": "metamagic-1",
+        "name": {
+          "en": "Metamagic",
+          "ru": "Метамагия"
+        },
+        "description": {
+          "en": "At 3rd level, you gain the ability to twist your spells to suit your needs. You gain two of the following Metamagic options of your choice. You gain another one at 10th and 17th level.\nYou can use only one Metamagic option on a spell when you cast it, unless otherwise noted.",
+          "ru": "На 3-м уровне вы получаете способность изменять свои заклинания под свои нужды."
+        }
+      }
+    ],
+    "4": [
+      {
+        "id": "sorcerer-ability-score-improvement-1",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "6": [
+      {
+        "id": "elemental-affinity",
+        "name": {
+          "en": "Elemental Affinity",
+          "ru": "Сродство со стихией"
+        },
+        "description": {
+          "en": "Starting at 6th level, when you cast a spell that deals damage of the type associated with your draconic ancestry, you can add your Charisma modifier to one damage roll of that spell. At the same time, you can spend 1 sorcery point to gain resistance to that damage type for 1 hour.",
+          "ru": "Начиная с 6-го уровня, когда вы накладываете заклинание, наносящее урон типа, связанного с вашим драконьим предком, вы можете добавить ваш модификатор Харизмы к одному броску урона."
+        }
+      }
+    ],
+    "8": [
+      {
+        "id": "sorcerer-ability-score-improvement-2",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "10": [
+      {
+        "id": "metamagic-2",
+        "name": {
+          "en": "Metamagic",
+          "ru": "Метамагия"
+        },
+        "description": {
+          "en": "At 3rd level, you gain the ability to twist your spells to suit your needs. You gain two of the following Metamagic options of your choice. You gain another one at 10th and 17th level.\nYou can use only one Metamagic option on a spell when you cast it, unless otherwise noted.",
+          "ru": "На 3-м уровне вы получаете способность изменять свои заклинания под свои нужды."
+        }
+      }
+    ],
+    "12": [
+      {
+        "id": "sorcerer-ability-score-improvement-3",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "14": [
+      {
+        "id": "dragon-wings",
+        "name": {
+          "en": "Dragon Wings",
+          "ru": "Крылья дракона"
+        },
+        "description": {
+          "en": "At 14th level, you gain the ability to sprout a pair of dragon wings from your back, gaining a flying speed equal to your current speed. You can create these wings as a bonus action on your turn. They last until you dismiss them as a bonus action on your turn.\nYou can't manifest your wings while wearing armor unless the armor is made to accommodate them, and clothing not made to accommodate your wings might be destroyed when you manifest them.",
+          "ru": "На 14-м уровне вы получаете способность расправлять пару драконьих крыльев из своей спины, получая скорость полета, равную вашей текущей скорости."
+        }
+      }
+    ],
+    "16": [
+      {
+        "id": "sorcerer-ability-score-improvement-4",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "17": [
+      {
+        "id": "metamagic-3",
+        "name": {
+          "en": "Metamagic",
+          "ru": "Метамагия"
+        },
+        "description": {
+          "en": "At 3rd level, you gain the ability to twist your spells to suit your needs. You gain two of the following Metamagic options of your choice. You gain another one at 10th and 17th level.\nYou can use only one Metamagic option on a spell when you cast it, unless otherwise noted.",
+          "ru": "На 3-м уровне вы получаете способность изменять свои заклинания под свои нужды."
+        }
+      }
+    ],
+    "18": [
+      {
+        "id": "draconic-presence",
+        "name": {
+          "en": "Draconic Presence",
+          "ru": "Драконье присутствие"
+        },
+        "description": {
+          "en": "Beginning at 18th level, you can channel the dread presence of your dragon ancestor, causing those around you to become awestruck or frightened. As an action, you can spend 5 sorcery points to draw on this power and exude an aura of awe or fear (your choice) to a distance of 60 feet. For 1 minute or until you lose your concentration (as if you were casting a concentration spell), each hostile creature that starts its turn in this aura must succeed on a Wisdom saving throw or be charmed (if you chose awe) or frightened (if you chose fear) until the aura ends. A creature that succeeds on this saving throw is immune to your aura for 24 hours.",
+          "ru": "Начиная с 18-го уровня, вы можете направлять ужасающее присутствие вашего драконьего предка, заставляя окружающих испытывать благоговение или страх."
+        }
+      }
+    ],
+    "19": [
+      {
+        "id": "sorcerer-ability-score-improvement-5",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "20": [
+      {
+        "id": "sorcerous-restoration",
+        "name": {
+          "en": "Sorcerous Restoration",
+          "ru": "Чародейское восстановление"
+        },
+        "description": {
+          "en": "At 20th level, you regain 4 expended sorcery points whenever you finish a short rest.",
+          "ru": "На 20-м уровне вы восстанавливаете 4 потраченных единицы чародейства, когда заканчиваете короткий отдых."
+        }
+      }
+    ]
+  },
+  "spellcasting": {
+    "ability": "charisma",
+    "type": "full"
+  }
+}

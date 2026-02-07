@@ -1,0 +1,341 @@
+{
+  "id": "fighter",
+  "name": {
+    "en": "Fighter",
+    "ru": "Воин"
+  },
+  "description": {
+    "en": "A master of martial combat, skilled with a variety of weapons and armor.",
+    "ru": "Мастер боевых искусств, опытный во владении разнообразным оружием и доспехами."
+  },
+  "hitDie": 10,
+  "primaryAbilities": [
+    "strength",
+    "dexterity"
+  ],
+  "savingThrowProficiencies": [
+    "strength",
+    "constitution"
+  ],
+  "armorProficiencies": {
+    "light": false,
+    "medium": false,
+    "heavy": false,
+    "shields": true
+  },
+  "weaponProficiencies": {
+    "simple": true,
+    "martial": true
+  },
+  "skillProficiencies": {
+    "choose": 2,
+    "from": [
+      "acrobatics",
+      "animal-handling",
+      "athletics",
+      "history",
+      "insight",
+      "intimidation",
+      "perception",
+      "survival"
+    ]
+  },
+  "subclasses": [
+    {
+      "id": "champion",
+      "name": {
+        "en": "Champion",
+        "ru": "Чемпион"
+      },
+      "description": {
+        "en": "The archetypal Champion focuses on the development of raw physical power honed to deadly perfection. Those who model themselves on this archetype combine rigorous training with physical excellence to deal devastating blows.",
+        "ru": "Архетип Чемпиона фокусируется на развитии грубой физической силы, отточенной до смертельного совершенства. Те, кто следует этому архетипу, сочетают строгие тренировки с физическим превосходством, чтобы наносить сокрушительные удары."
+      }
+    }
+  ],
+  "subclassLevel": 3,
+  "features": {
+    "1": [
+      {
+        "id": "fighter-fighting-style",
+        "name": {
+          "en": "Fighting Style",
+          "ru": "Боевой стиль"
+        },
+        "description": {
+          "en": "You adopt a particular style of fighting as your specialty. Choose one of the following options. You can't take a Fighting Style option more than once, even if you later get to choose again.",
+          "ru": "На 1-м уровне вы принимаете стиль боя в качестве своей специальности."
+        }
+      },
+      {
+        "id": "second-wind",
+        "name": {
+          "en": "Second Wind",
+          "ru": "Второе дыхание"
+        },
+        "description": {
+          "en": "You have a limited well of stamina that you can draw on to protect yourself from harm. On your turn, you can use a bonus action to regain hit points equal to 1d10 + your fighter level. Once you use this feature, you must finish a short or long rest before you can use it again.",
+          "ru": "Вы обладаете ограниченным источником выносливости, который вы можете использовать, чтобы уберечь себя от опасности. В свой ход вы можете использовать бонусное действие, чтобы восстановить хиты в количестве, равном 1к10 + ваш уровень воина. Использовав это умение, вы должны завершить короткий или продолжительный отдых, чтобы использовать его снова."
+        }
+      }
+    ],
+    "2": [
+      {
+        "id": "action-surge-1-use",
+        "name": {
+          "en": "Action Surge (1 use)",
+          "ru": "Всплеск действий"
+        },
+        "description": {
+          "en": "Starting at 2nd level, you can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action on top of your regular action and a possible bonus action.\nOnce you use this feature, you must finish a short or long rest before you can use it again. Starting at 17th level, you can use it twice before a rest, but only once on the same turn.",
+          "ru": "Начиная со 2-го уровня, вы можете на мгновение превзойти свои обычные возможности. В свой ход вы можете совершить одно дополнительное действие поверх вашего обычного действия и возможного бонусного действия. Использовав это умение, вы должны завершить короткий или продолжительный отдых, чтобы использовать его снова."
+        }
+      }
+    ],
+    "3": [
+      {
+        "id": "improved-critical",
+        "name": {
+          "en": "Improved Critical",
+          "ru": "Улучшенный критический удар"
+        },
+        "description": {
+          "en": "Beginning when you choose this archetype at 3rd level, your weapon attacks score a critical hit on a roll of 19 or 20.",
+          "ru": "Ваши атаки оружием наносят критический удар при выпадении «19» или «20» на кости атаки."
+        }
+      }
+    ],
+    "4": [
+      {
+        "id": "fighter-ability-score-improvement-1",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 6-м, 8-м, 12-м, 14-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "5": [
+      {
+        "id": "extra-attack-1",
+        "name": {
+          "en": "Extra Attack",
+          "ru": "Дополнительная атака"
+        },
+        "description": {
+          "en": "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn. The number of attacks increases to three when you reach 11th level in this class and to four when you reach 20th level in this class.",
+          "ru": "Начиная с 5-го уровня, вы можете атаковать дважды, вместо одного раза, когда вы совершаете действие Атака в свой ход."
+        }
+      }
+    ],
+    "6": [
+      {
+        "id": "fighter-ability-score-improvement-2",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 6-м, 8-м, 12-м, 14-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "7": [
+      {
+        "id": "remarkable-athlete",
+        "name": {
+          "en": "Remarkable Athlete",
+          "ru": "Замечательный атлет"
+        },
+        "description": {
+          "en": "Starting at 7th level, you can add half your proficiency bonus (round up) to any Strength, Dexterity, or Constitution check you make that doesn't already use your proficiency bonus. In addition, when you make a running long jump, the distance you can cover increases by a number of feet equal to your Strength modifier.",
+          "ru": "Начиная с 7-го уровня, вы можете добавлять половину бонуса мастерства (округляя в большую сторону) к любой проверке Силы, Ловкости или Телосложения, которую вы совершаете, если она еще не использует ваш бонус мастерства.\nКроме того, когда вы совершаете прыжок в длину с разбега, дальность прыжка увеличивается на количество футов, равное вашему модификатору Силы."
+        }
+      }
+    ],
+    "8": [
+      {
+        "id": "fighter-ability-score-improvement-3",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 6-м, 8-м, 12-м, 14-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "9": [
+      {
+        "id": "indomitable-1-use",
+        "name": {
+          "en": "Indomitable (1 use)",
+          "ru": "Несгибаемый"
+        },
+        "description": {
+          "en": "Beginning at 9th level, you can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can't use this feature again until you finish a long rest. You can use this feature twice between long rests starting at 13th level and three times between long rests starting at 17th level.",
+          "ru": "Начиная с 9-го уровня, вы можете перебросить проваленный спасбросок. Если вы делаете это, вы должны использовать новый результат, и вы не можете использовать это умение снова, пока не закончите продолжительный отдых."
+        }
+      }
+    ],
+    "10": [
+      {
+        "id": "additional-fighting-style",
+        "name": {
+          "en": "Additional Fighting Style",
+          "ru": "Дополнительный боевой стиль"
+        },
+        "description": {
+          "en": "At 10th level, you can choose a second option from the Fighting Style class feature.",
+          "ru": "На 10-м уровне вы можете выбрать второй Боевой стиль из доступных вашему классу."
+        }
+      }
+    ],
+    "11": [
+      {
+        "id": "extra-attack-2",
+        "name": {
+          "en": "Extra Attack (2)",
+          "ru": "Дополнительная атака (2)"
+        },
+        "description": {
+          "en": "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn. The number of attacks increases to three when you reach 11th level in this class and to four when you reach 20th level in this class.",
+          "ru": "Начиная с 11-го уровня, вы можете атаковать трижды, вместо одного раза, когда вы совершаете действие Атака в свой ход."
+        }
+      }
+    ],
+    "12": [
+      {
+        "id": "fighter-ability-score-improvement-4",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 6-м, 8-м, 12-м, 14-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "13": [
+      {
+        "id": "indomitable-2-uses",
+        "name": {
+          "en": "Indomitable (2 uses)",
+          "ru": "Несгибаемый (2 использования)"
+        },
+        "description": {
+          "en": "Beginning at 9th level, you can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can't use this feature again until you finish a long rest. You can use this feature twice between long rests starting at 13th level and three times between long rests starting at 17th level.",
+          "ru": "Начиная с 13-го уровня, вы можете использовать умение Несгибаемый дважды между продолжительными отдыхами."
+        }
+      }
+    ],
+    "14": [
+      {
+        "id": "fighter-ability-score-improvement-5",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 6-м, 8-м, 12-м, 14-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "15": [
+      {
+        "id": "superior-critical",
+        "name": {
+          "en": "Superior Critical",
+          "ru": "Превосходный критический удар"
+        },
+        "description": {
+          "en": "Starting at 15th level, your weapon attacks score a critical hit on a roll of 18-20.",
+          "ru": "Начиная с 15-го уровня, ваши атаки оружием наносят критический удар при выпадении «18–20» на кости атаки."
+        }
+      }
+    ],
+    "16": [
+      {
+        "id": "fighter-ability-score-improvement-6",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 6-м, 8-м, 12-м, 14-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "17": [
+      {
+        "id": "action-surge-2-uses",
+        "name": {
+          "en": "Action Surge (2 uses)",
+          "ru": "Всплеск действий (2 использования)"
+        },
+        "description": {
+          "en": "Starting at 2nd level, you can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action on top of your regular action and a possible bonus action.\nOnce you use this feature, you must finish a short or long rest before you can use it again. Starting at 17th level, you can use it twice before a rest, but only once on the same turn.",
+          "ru": "Начиная с 17-го уровня, вы можете использовать Всплеск действий дважды между отдыхами, но не более одного раза за ход."
+        }
+      },
+      {
+        "id": "indomitable-3-uses",
+        "name": {
+          "en": "Indomitable (3 uses)",
+          "ru": "Несгибаемый (3 использования)"
+        },
+        "description": {
+          "en": "Beginning at 9th level, you can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can't use this feature again until you finish a long rest. You can use this feature twice between long rests starting at 13th level and three times between long rests starting at 17th level.",
+          "ru": "Начиная с 17-го уровня, вы можете использовать умение Несгибаемый трижды между продолжительными отдыхами."
+        }
+      }
+    ],
+    "18": [
+      {
+        "id": "survivor",
+        "name": {
+          "en": "Survivor",
+          "ru": "Уцелевший"
+        },
+        "description": {
+          "en": "At 18th level, you attain the pinnacle of resilience in battle. At the start of each of your turns, you regain hit points equal to 5 + your Constitution modifier if you have no more than half of your hit points left. You don't gain this benefit if you have 0 hit points.",
+          "ru": "На 18-м уровне вы достигаете вершины стойкости в бою. В начале каждого вашего хода вы восстанавливаете хиты, равные 5 + ваш модификатор Телосложения, если у вас осталось не более половины хитов. Вы не получаете этого преимущества, если у вас 0 хитов."
+        }
+      }
+    ],
+    "19": [
+      {
+        "id": "fighter-ability-score-improvement-7",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 6-м, 8-м, 12-м, 14-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "20": [
+      {
+        "id": "extra-attack-3",
+        "name": {
+          "en": "Extra Attack (3)",
+          "ru": "Дополнительная атака (3)"
+        },
+        "description": {
+          "en": "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn. The number of attacks increases to three when you reach 11th level in this class and to four when you reach 20th level in this class.",
+          "ru": "Начиная с 20-го уровня, вы можете атаковать четырежды, вместо одного раза, когда вы совершаете действие Атака в свой ход."
+        }
+      }
+    ]
+  }
+}

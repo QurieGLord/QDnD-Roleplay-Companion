@@ -5,12 +5,12 @@
     "nameRu": "Ярость",
     "descriptionEn": "In battle, you fight with primal ferocity. On your turn, you can enter a rage as a bonus action. While raging, you gain the following benefits if you aren't wearing heavy armor:\n- You have advantage on Strength checks and Strength saving throws.\n- When you make a melee weapon Attack using Strength, you gain a +2 bonus to the damage roll. This bonus increases as you level.\n- You have Resistance to bludgeoning, piercing, and slashing damage.\nIf you are able to cast Spells, you can't cast them or concentrate on them while raging.\nYour rage lasts for 1 minute. It ends early if you are knocked Unconscious or if Your Turn ends and you haven't attacked a hostile creature since your last turn or taken damage since then. You can also end your rage on Your Turn as a Bonus Action.\nOnce you have raged the maximum number of times for your barbarian level, you must finish a Long Rest before you can rage again. You may rage 2 times at 1st level, 3 at 3rd, 4 at 6th, 5 at 12th, and 6 at 17th.",
     "descriptionRu": "В бою вы сражаетесь с первобытной свирепостью. В свой ход вы можете впасть в ярость бонусным действием.\nВ состоянии ярости вы получаете следующие преимущества, если не носите тяжелую броню:\n- Вы совершаете с преимуществом проверки Силы и спасброски Силы.\n- Когда вы совершаете рукопашную атаку оружием, используя Силу, вы получаете бонус к урону, который увеличивается с вашим уровнем варвара.\n- Вы получаете сопротивление дробящему, колющему и рубящему урону.\nЕсли вы способны накладывать заклинания, вы не можете накладывать их или концентрироваться на них, пока находитесь в ярости.\nВаша ярость длится 1 минуту. Она прекращается раньше, если вы теряете сознание, или если ваш ход заканчивается, а вы с прошлого хода не атаковали враждебное существо и не получали урон. Вы также можете прекратить ярость в свой ход бонусным действием.\nВы можете впадать в ярость определенное количество раз (зависит от уровня), после чего должны закончить продолжительный отдых, чтобы восстановить потраченные использования.",
-    "type": "bonus_action",
+    "type": "resource_pool",
     "minLevel": 1,
     "associatedClass": "Barbarian",
     "associatedSubclass": null,
     "requiresRest": true,
-    "actionEconomy": "bonus_action",
+    "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": {
       "currentUses": 2,
@@ -18,7 +18,9 @@
       "recoveryType": "longRest",
       "calculationFormula": "level < 3 ? 2 : (level < 6 ? 3 : (level < 12 ? 4 : (level < 17 ? 5 : (level < 20 ? 6 : 99))))"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "barbarian-unarmored-defense",
@@ -34,7 +36,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "reckless-attack",
@@ -50,7 +54,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "danger-sense",
@@ -66,7 +72,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "primal-path",
@@ -82,7 +90,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "frenzy",
@@ -98,7 +108,9 @@
     "actionEconomy": "bonus_action",
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "barbarian-ability-score-improvement-1",
@@ -114,7 +126,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "barbarian-extra-attack",
@@ -130,7 +144,9 @@
     "actionEconomy": null,
     "iconName": "filter_2",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fast-movement",
@@ -146,7 +162,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "mindless-rage",
@@ -162,7 +180,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "primal-path-improvement-1",
@@ -178,7 +198,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "feral-instinct",
@@ -194,7 +216,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "barbarian-ability-score-improvement-2",
@@ -210,7 +234,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "brutal-critical-1-die",
@@ -226,7 +252,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "intimidating-presence",
@@ -242,7 +270,9 @@
     "actionEconomy": "action",
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "primal-path-improvement-2",
@@ -258,7 +288,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "relentless-rage",
@@ -274,7 +306,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "barbarian-ability-score-improvement-3",
@@ -290,7 +324,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "brutal-critical-2-dice",
@@ -306,7 +342,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "retaliation",
@@ -322,7 +360,9 @@
     "actionEconomy": "reaction",
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "primal-path-improvement-3",
@@ -338,7 +378,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "persistent-rage",
@@ -354,7 +396,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "barbarian-ability-score-improvement-4",
@@ -370,7 +414,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "brutal-critical-3-dice",
@@ -386,7 +432,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "indomitable-might",
@@ -402,7 +450,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "barbarian-ability-score-improvement-5",
@@ -418,7 +468,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "primal-champion",
@@ -434,7 +486,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "spellcasting-bard",
@@ -450,7 +504,9 @@
     "actionEconomy": null,
     "iconName": "auto_fix_high",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bardic-inspiration-d6",
@@ -458,12 +514,12 @@
     "nameRu": "Бардовское вдохновение (к6)",
     "descriptionEn": "You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die, a d6. Once within the next 10 minutes, the creature can roll the die and add the number rolled to one ability check, attack roll, or saving throw it makes. The creature can wait until after it rolls the d20 before deciding to use the Bardic Inspiration die, but must decide before the GM says whether the roll succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A creature can have only one Bardic Inspiration die at a time.\nYou can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain any expended uses when you finish a long rest. \nYour Bardic Inspiration die changes when you reach certain levels in this class. The die becomes a d8 at 5th level, a d10 at 10th level, and a d12 at 15th level.",
     "descriptionRu": "Вы можете вдохновлять других словами или музыкой. Бонусным действием в свой ход вы можете выбрать одно существо, отличное от вас, в пределах 60 футов, которое может вас слышать. Это существо получает одну кость Бардовского вдохновения, к6.",
-    "type": "bonus_action",
+    "type": "resource_pool",
     "minLevel": 1,
     "associatedClass": "Bard",
     "associatedSubclass": null,
     "requiresRest": true,
-    "actionEconomy": "bonus_action",
+    "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": {
       "currentUses": 1,
@@ -471,7 +527,9 @@
       "recoveryType": "longRest",
       "calculationFormula": "cha_mod"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "jack-of-all-trades",
@@ -487,7 +545,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "song-of-rest-d6",
@@ -503,7 +563,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bard-college",
@@ -519,7 +581,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bonus-proficiencies",
@@ -535,7 +599,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "cutting-words",
@@ -551,7 +617,9 @@
     "actionEconomy": "reaction",
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bard-expertise-1",
@@ -567,7 +635,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bard-ability-score-improvement-1",
@@ -583,7 +653,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bardic-inspiration-d8",
@@ -591,12 +663,12 @@
     "nameRu": "Бардовское вдохновение (к8)",
     "descriptionEn": "You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die, a d6. Once within the next 10 minutes, the creature can roll the die and add the number rolled to one ability check, attack roll, or saving throw it makes. The creature can wait until after it rolls the d20 before deciding to use the Bardic Inspiration die, but must decide before the GM says whether the roll succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A creature can have only one Bardic Inspiration die at a time.\nYou can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain any expended uses when you finish a long rest. \nYour Bardic Inspiration die changes when you reach certain levels in this class. The die becomes a d8 at 5th level, a d10 at 10th level, and a d12 at 15th level.",
     "descriptionRu": "Ваша кость Бардовского вдохновения становится к8 на 5-м уровне.",
-    "type": "bonus_action",
+    "type": "resource_pool",
     "minLevel": 5,
     "associatedClass": "Bard",
     "associatedSubclass": null,
     "requiresRest": true,
-    "actionEconomy": "bonus_action",
+    "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": {
       "currentUses": 1,
@@ -604,7 +676,9 @@
       "recoveryType": "shortRest",
       "calculationFormula": "cha_mod"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "font-of-inspiration",
@@ -620,7 +694,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "countercharm",
@@ -636,7 +712,9 @@
     "actionEconomy": "action",
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bard-college-improvement-1",
@@ -652,7 +730,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "additional-magical-secrets",
@@ -668,7 +748,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bard-ability-score-improvement-2",
@@ -684,7 +766,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "song-of-rest-d8",
@@ -700,7 +784,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bardic-inspiration-d10",
@@ -708,12 +794,12 @@
     "nameRu": "Бардовское вдохновение (к10)",
     "descriptionEn": "You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die, a d6. Once within the next 10 minutes, the creature can roll the die and add the number rolled to one ability check, attack roll, or saving throw it makes. The creature can wait until after it rolls the d20 before deciding to use the Bardic Inspiration die, but must decide before the GM says whether the roll succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A creature can have only one Bardic Inspiration die at a time.\nYou can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain any expended uses when you finish a long rest. \nYour Bardic Inspiration die changes when you reach certain levels in this class. The die becomes a d8 at 5th level, a d10 at 10th level, and a d12 at 15th level.",
     "descriptionRu": "Ваша кость Бардовского вдохновения становится к10 на 10-м уровне.",
-    "type": "bonus_action",
+    "type": "resource_pool",
     "minLevel": 10,
     "associatedClass": "Bard",
     "associatedSubclass": null,
     "requiresRest": true,
-    "actionEconomy": "bonus_action",
+    "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": {
       "currentUses": 1,
@@ -721,7 +807,9 @@
       "recoveryType": "shortRest",
       "calculationFormula": "cha_mod"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bard-expertise-2",
@@ -737,7 +825,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "magical-secrets-1",
@@ -753,7 +843,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bard-ability-score-improvement-3",
@@ -769,7 +861,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "song-of-rest-d10",
@@ -785,7 +879,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "magical-secrets-2",
@@ -801,7 +897,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bard-college-improvement-2",
@@ -817,7 +915,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "peerless-skill",
@@ -833,7 +933,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bardic-inspiration-d12",
@@ -841,12 +943,12 @@
     "nameRu": "Бардовское вдохновение (к12)",
     "descriptionEn": "You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die, a d6. Once within the next 10 minutes, the creature can roll the die and add the number rolled to one ability check, attack roll, or saving throw it makes. The creature can wait until after it rolls the d20 before deciding to use the Bardic Inspiration die, but must decide before the GM says whether the roll succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A creature can have only one Bardic Inspiration die at a time.\nYou can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain any expended uses when you finish a long rest. \nYour Bardic Inspiration die changes when you reach certain levels in this class. The die becomes a d8 at 5th level, a d10 at 10th level, and a d12 at 15th level.",
     "descriptionRu": "Ваша кость Бардовского вдохновения становится к12 на 15-м уровне.",
-    "type": "bonus_action",
+    "type": "resource_pool",
     "minLevel": 15,
     "associatedClass": "Bard",
     "associatedSubclass": null,
     "requiresRest": true,
-    "actionEconomy": "bonus_action",
+    "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": {
       "currentUses": 1,
@@ -854,7 +956,9 @@
       "recoveryType": "shortRest",
       "calculationFormula": "cha_mod"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bard-ability-score-improvement-4",
@@ -870,7 +974,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "song-of-rest-d12",
@@ -886,7 +992,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "magical-secrets-3",
@@ -902,7 +1010,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bard-ability-score-improvement-5",
@@ -918,7 +1028,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "superior-inspiration",
@@ -934,7 +1046,9 @@
     "actionEconomy": null,
     "iconName": "music_note",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "spellcasting-cleric",
@@ -950,7 +1064,9 @@
     "actionEconomy": null,
     "iconName": "auto_fix_high",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "divine-domain",
@@ -966,7 +1082,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "domain-spells-1",
@@ -982,7 +1100,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bonus-proficiency",
@@ -998,7 +1118,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "disciple-of-life",
@@ -1014,7 +1136,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "channel-divinity-1-rest",
@@ -1034,7 +1158,9 @@
       "maxUses": 1,
       "recoveryType": "shortRest"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "channel-divinity-turn-undead",
@@ -1050,7 +1176,9 @@
     "actionEconomy": "action",
     "iconName": "auto_awesome",
     "resourcePool": null,
-    "usageCostId": "channel-divinity"
+    "usageCostId": "channel-divinity",
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "divine-domain-improvement-1",
@@ -1066,7 +1194,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "channel-divinity-preserve-life",
@@ -1082,7 +1212,9 @@
     "actionEconomy": "action",
     "iconName": "auto_awesome",
     "resourcePool": null,
-    "usageCostId": "channel-divinity"
+    "usageCostId": "channel-divinity",
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "domain-spells-2",
@@ -1098,7 +1230,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "cleric-ability-score-improvement-1",
@@ -1114,7 +1248,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "domain-spells-3",
@@ -1130,7 +1266,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "destroy-undead-cr-1-2-or-below",
@@ -1146,7 +1284,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "channel-divinity-2-rest",
@@ -1166,7 +1306,9 @@
       "maxUses": 2,
       "recoveryType": "shortRest"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "divine-domain-improvement-2",
@@ -1182,7 +1324,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "blessed-healer",
@@ -1198,7 +1342,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "domain-spells-4",
@@ -1214,7 +1360,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "cleric-ability-score-improvement-2",
@@ -1230,7 +1378,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "destroy-undead-cr-1-or-below",
@@ -1246,7 +1396,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "divine-domain-improvement-3",
@@ -1262,7 +1414,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "divine-strike",
@@ -1278,7 +1432,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "domain-spells-5",
@@ -1294,7 +1450,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "divine-intervention",
@@ -1310,7 +1468,9 @@
     "actionEconomy": "action",
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "destroy-undead-cr-2-or-below",
@@ -1326,7 +1486,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "cleric-ability-score-improvement-3",
@@ -1342,7 +1504,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "destroy-undead-cr-3-or-below",
@@ -1358,7 +1522,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "cleric-ability-score-improvement-4",
@@ -1374,7 +1540,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "destroy-undead-cr-4-or-below",
@@ -1390,7 +1558,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "divine-domain-improvement-4",
@@ -1406,7 +1576,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "supreme-healing",
@@ -1422,7 +1594,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "channel-divinity-3-rest",
@@ -1442,7 +1616,9 @@
       "maxUses": 3,
       "recoveryType": "shortRest"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "cleric-ability-score-improvement-5",
@@ -1458,7 +1634,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "divine-intervention-improvement",
@@ -1474,7 +1652,9 @@
     "actionEconomy": null,
     "iconName": "health_and_safety",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "spellcasting-druid",
@@ -1490,7 +1670,9 @@
     "actionEconomy": null,
     "iconName": "auto_fix_high",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "druidic",
@@ -1506,7 +1688,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "wild-shape-cr-1-4-or-below-no-flying-or-swim-speed",
@@ -1522,7 +1706,9 @@
     "actionEconomy": "action",
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "druid-circle",
@@ -1538,7 +1724,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "circle-of-the-land",
@@ -1554,7 +1742,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "circle-of-the-land-arctic",
@@ -1570,7 +1760,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "circle-of-the-land-coast",
@@ -1586,7 +1778,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "circle-of-the-land-desert",
@@ -1602,7 +1796,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "circle-of-the-land-forest",
@@ -1618,7 +1814,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "circle-of-the-land-grassland",
@@ -1634,7 +1832,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "circle-of-the-land-mountain",
@@ -1650,7 +1850,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "circle-of-the-land-swamp",
@@ -1666,7 +1868,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "bonus-cantrip",
@@ -1682,7 +1886,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "natural-recovery",
@@ -1698,7 +1904,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "circle-spells-1",
@@ -1714,7 +1922,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "wild-shape-cr-1-2-or-below-no-flying-speed",
@@ -1730,7 +1940,9 @@
     "actionEconomy": "action",
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "druid-ability-score-improvement-1",
@@ -1746,7 +1958,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "circle-spells-2",
@@ -1762,7 +1976,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "druid-circle-improvement-1",
@@ -1778,7 +1994,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "druid-lands-stride",
@@ -1794,7 +2012,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "circle-spells-3",
@@ -1810,7 +2030,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "wild-shape-cr-1-or-below",
@@ -1826,7 +2048,9 @@
     "actionEconomy": "action",
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "druid-ability-score-improvement-2",
@@ -1842,7 +2066,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "circle-spells-4",
@@ -1858,7 +2084,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "druid-circle-improvement-2",
@@ -1874,7 +2102,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "natures-ward",
@@ -1890,7 +2120,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "druid-ability-score-improvement-3",
@@ -1906,7 +2138,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "druid-circle-improvement-3",
@@ -1922,7 +2156,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "natures-sanctuary",
@@ -1938,7 +2174,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "druid-ability-score-improvement-4",
@@ -1954,7 +2192,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "druid-timeless-body",
@@ -1970,7 +2210,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "beast-spells",
@@ -1986,7 +2228,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "druid-ability-score-improvement-5",
@@ -2002,7 +2246,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "archdruid",
@@ -2018,7 +2264,9 @@
     "actionEconomy": null,
     "iconName": "nature",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighter-fighting-style",
@@ -2034,7 +2282,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighter-fighting-style-archery",
@@ -2050,7 +2300,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighter-fighting-style-defense",
@@ -2066,7 +2318,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighter-fighting-style-dueling",
@@ -2082,7 +2336,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighter-fighting-style-great-weapon-fighting",
@@ -2098,7 +2354,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighter-fighting-style-protection",
@@ -2114,7 +2372,9 @@
     "actionEconomy": "reaction",
     "iconName": "security",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighter-fighting-style-two-weapon-fighting",
@@ -2130,7 +2390,9 @@
     "actionEconomy": null,
     "iconName": "call_split",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "second-wind",
@@ -2138,19 +2400,21 @@
     "nameRu": "Второе дыхание",
     "descriptionEn": "You have a limited well of stamina that you can draw on to protect yourself from harm. On your turn, you can use a bonus action to regain hit points equal to 1d10 + your fighter level. Once you use this feature, you must finish a short or long rest before you can use it again.",
     "descriptionRu": "Вы обладаете ограниченным источником выносливости, который вы можете использовать, чтобы уберечь себя от опасности. В свой ход вы можете использовать бонусное действие, чтобы восстановить хиты в количестве, равном 1к10 + ваш уровень воина. Использовав это умение, вы должны завершить короткий или продолжительный отдых, чтобы использовать его снова.",
-    "type": "bonus_action",
+    "type": "resource_pool",
     "minLevel": 1,
     "associatedClass": "Fighter",
     "associatedSubclass": null,
     "requiresRest": true,
-    "actionEconomy": "bonus_action",
+    "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": {
       "currentUses": 1,
       "maxUses": 1,
       "recoveryType": "shortRest"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "action-surge-1-use",
@@ -2158,19 +2422,21 @@
     "nameRu": "Всплеск действий",
     "descriptionEn": "Starting at 2nd level, you can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action on top of your regular action and a possible bonus action.\nOnce you use this feature, you must finish a short or long rest before you can use it again. Starting at 17th level, you can use it twice before a rest, but only once on the same turn.",
     "descriptionRu": "Начиная со 2-го уровня, вы можете на мгновение превзойти свои обычные возможности. В свой ход вы можете совершить одно дополнительное действие поверх вашего обычного действия и возможного бонусного действия. Использовав это умение, вы должны завершить короткий или продолжительный отдых, чтобы использовать его снова.",
-    "type": "free",
+    "type": "resource_pool",
     "minLevel": 2,
     "associatedClass": "Fighter",
     "associatedSubclass": null,
     "requiresRest": true,
-    "actionEconomy": "free",
+    "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": {
       "currentUses": 1,
       "maxUses": 1,
       "recoveryType": "shortRest"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "martial-archetype",
@@ -2186,7 +2452,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "improved-critical",
@@ -2202,7 +2470,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighter-ability-score-improvement-1",
@@ -2218,7 +2488,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "extra-attack-1",
@@ -2234,7 +2506,9 @@
     "actionEconomy": null,
     "iconName": "filter_2",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighter-ability-score-improvement-2",
@@ -2250,7 +2524,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "remarkable-athlete",
@@ -2266,7 +2542,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "martial-archetype-improvement-1",
@@ -2282,7 +2560,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighter-ability-score-improvement-3",
@@ -2298,7 +2578,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "indomitable-1-use",
@@ -2306,19 +2588,21 @@
     "nameRu": "Несгибаемый",
     "descriptionEn": "Beginning at 9th level, you can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can't use this feature again until you finish a long rest. You can use this feature twice between long rests starting at 13th level and three times between long rests starting at 17th level.",
     "descriptionRu": "Начиная с 9-го уровня, вы можете перебросить проваленный спасбросок. Если вы делаете это, вы должны использовать новый результат, и вы не можете использовать это умение снова, пока не закончите продолжительный отдых.",
-    "type": "free",
+    "type": "resource_pool",
     "minLevel": 9,
     "associatedClass": "Fighter",
     "associatedSubclass": null,
     "requiresRest": true,
-    "actionEconomy": "free",
+    "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": {
       "currentUses": 1,
       "maxUses": 1,
       "recoveryType": "longRest"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "additional-fighting-style",
@@ -2334,7 +2618,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "martial-archetype-improvement-2",
@@ -2350,7 +2636,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "extra-attack-2",
@@ -2366,7 +2654,9 @@
     "actionEconomy": null,
     "iconName": "filter_2",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighter-ability-score-improvement-4",
@@ -2382,7 +2672,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "indomitable-2-uses",
@@ -2390,19 +2682,21 @@
     "nameRu": "Несгибаемый (2 использования)",
     "descriptionEn": "Beginning at 9th level, you can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can't use this feature again until you finish a long rest. You can use this feature twice between long rests starting at 13th level and three times between long rests starting at 17th level.",
     "descriptionRu": "Начиная с 13-го уровня, вы можете использовать умение Несгибаемый дважды между продолжительными отдыхами.",
-    "type": "free",
+    "type": "resource_pool",
     "minLevel": 13,
     "associatedClass": "Fighter",
     "associatedSubclass": null,
     "requiresRest": true,
-    "actionEconomy": "free",
+    "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": {
       "currentUses": 2,
       "maxUses": 2,
       "recoveryType": "longRest"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighter-ability-score-improvement-5",
@@ -2418,7 +2712,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "superior-critical",
@@ -2434,7 +2730,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "martial-archetype-improvement-3",
@@ -2450,7 +2748,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighter-ability-score-improvement-6",
@@ -2466,7 +2766,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "action-surge-2-uses",
@@ -2474,19 +2776,21 @@
     "nameRu": "Всплеск действий (2 использования)",
     "descriptionEn": "Starting at 2nd level, you can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action on top of your regular action and a possible bonus action.\nOnce you use this feature, you must finish a short or long rest before you can use it again. Starting at 17th level, you can use it twice before a rest, but only once on the same turn.",
     "descriptionRu": "Начиная с 17-го уровня, вы можете использовать Всплеск действий дважды между отдыхами, но не более одного раза за ход.",
-    "type": "free",
+    "type": "resource_pool",
     "minLevel": 17,
     "associatedClass": "Fighter",
     "associatedSubclass": null,
     "requiresRest": true,
-    "actionEconomy": "free",
+    "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": {
       "currentUses": 2,
       "maxUses": 2,
       "recoveryType": "shortRest"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "indomitable-3-uses",
@@ -2494,19 +2798,21 @@
     "nameRu": "Несгибаемый (3 использования)",
     "descriptionEn": "Beginning at 9th level, you can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can't use this feature again until you finish a long rest. You can use this feature twice between long rests starting at 13th level and three times between long rests starting at 17th level.",
     "descriptionRu": "Начиная с 17-го уровня, вы можете использовать умение Несгибаемый трижды между продолжительными отдыхами.",
-    "type": "free",
+    "type": "resource_pool",
     "minLevel": 17,
     "associatedClass": "Fighter",
     "associatedSubclass": null,
     "requiresRest": true,
-    "actionEconomy": "free",
+    "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": {
       "currentUses": 3,
       "maxUses": 3,
       "recoveryType": "longRest"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "martial-archetype-improvement-4",
@@ -2522,7 +2828,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "survivor",
@@ -2538,7 +2846,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighter-ability-score-improvement-7",
@@ -2554,7 +2864,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "extra-attack-3",
@@ -2570,7 +2882,9 @@
     "actionEconomy": null,
     "iconName": "filter_2",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "monk-unarmored-defense",
@@ -2586,7 +2900,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "martial-arts",
@@ -2602,7 +2918,9 @@
     "actionEconomy": "bonus_action",
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ki",
@@ -2623,7 +2941,9 @@
       "recoveryType": "shortRest",
       "calculationFormula": "level"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "flurry-of-blows",
@@ -2639,7 +2959,9 @@
     "actionEconomy": "bonus_action",
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": "ki"
+    "usageCostId": "ki",
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "patient-defense",
@@ -2655,7 +2977,9 @@
     "actionEconomy": "bonus_action",
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": "ki"
+    "usageCostId": "ki",
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "step-of-the-wind",
@@ -2671,7 +2995,9 @@
     "actionEconomy": "bonus_action",
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": "ki"
+    "usageCostId": "ki",
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "unarmored-movement-1",
@@ -2687,7 +3013,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "monastic-tradition",
@@ -2703,7 +3031,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "deflect-missiles",
@@ -2719,7 +3049,9 @@
     "actionEconomy": "reaction",
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": "ki"
+    "usageCostId": "ki",
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "open-hand-technique",
@@ -2735,7 +3067,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "monk-ability-score-improvement-1",
@@ -2751,7 +3085,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "slow-fall",
@@ -2767,7 +3103,9 @@
     "actionEconomy": "reaction",
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "monk-extra-attack",
@@ -2783,7 +3121,9 @@
     "actionEconomy": null,
     "iconName": "filter_2",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "stunning-strike",
@@ -2799,7 +3139,9 @@
     "actionEconomy": "free",
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": "ki"
+    "usageCostId": "ki",
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ki-empowered-strikes",
@@ -2815,7 +3157,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "monastic-tradition-improvement-1",
@@ -2831,7 +3175,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "wholeness-of-body",
@@ -2847,7 +3193,9 @@
     "actionEconomy": "action",
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "monk-evasion",
@@ -2863,7 +3211,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "stillness-of-mind",
@@ -2879,7 +3229,9 @@
     "actionEconomy": "action",
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "monk-ability-score-improvement-2",
@@ -2895,7 +3247,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "unarmored-movement-2",
@@ -2911,7 +3265,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "purity-of-body",
@@ -2927,7 +3283,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "monastic-tradition-improvement-2",
@@ -2943,7 +3301,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "tranquility",
@@ -2959,7 +3319,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "monk-ability-score-improvement-3",
@@ -2975,7 +3337,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "tongue-of-the-sun-and-moon",
@@ -2991,7 +3355,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "diamond-soul",
@@ -3007,7 +3373,9 @@
     "actionEconomy": "free",
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": "ki"
+    "usageCostId": "ki",
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "monk-timeless-body",
@@ -3023,7 +3391,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "monk-ability-score-improvement-4",
@@ -3039,7 +3409,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "monastic-tradition-improvement-3",
@@ -3055,7 +3427,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "quivering-palm",
@@ -3071,7 +3445,9 @@
     "actionEconomy": "action",
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "empty-body",
@@ -3087,7 +3463,12 @@
     "actionEconomy": "action",
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": "ki"
+    "usageCostId": "ki",
+    "usageInputMode": null,
+    "consumption": {
+      "resourceId": "ki",
+      "amount": 4
+    }
   },
   {
     "id": "monk-ability-score-improvement-5",
@@ -3103,7 +3484,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "perfect-self",
@@ -3119,7 +3502,9 @@
     "actionEconomy": null,
     "iconName": "self_improvement",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "divine-sense",
@@ -3127,12 +3512,12 @@
     "nameRu": "Божественное Чувство",
     "descriptionEn": "The presence of strong evil registers on your senses like a noxious odor, and powerful good rings like heavenly music in your ears. As an action, you can open your awareness to detect such forces. Until the end of your next turn, you know the location of any celestial, fiend, or undead within 60 feet of you that is not behind total cover. You know the type (celestial, fiend, or undead) of any being whose presence you sense, but not its identity. Within the same radius, you also detect the presence of any place or object that has been consecrated or desecrated, as with the hallow spell.\nYou can use this feature a number of times equal to 1 + your Charisma modifier. When you finish a long rest, you regain all expended uses.",
     "descriptionRu": "Присутствие сильного зла регистрируется вашими чувствами как неприятный запах, а мощное добро звучит как небесная музыка в ваших ушах. В качестве действия вы можете открыть свое сознание для обнаружения таких сил. До конца вашего следующего хода вы знаете местонахождение любого небожителя, исчадия или нежити в пределах 60 футов от вас, которые не находятся за полным укрытием. Вы знаете тип (небожитель, исчадие или нежить) любого существа, чье присутствие вы чувствуете, но не его личность. В том же радиусе вы также обнаруживаете присутствие любого места или предмета, который был освящен или осквернен, как заклинанием святилище.\nВы можете использовать это умение количество раз, равное 1 + ваш модификатор Харизмы. Когда вы заканчиваете продолжительный отдых, вы восстанавливаете все потраченные использования.",
-    "type": "action",
+    "type": "resource_pool",
     "minLevel": 1,
     "associatedClass": "Paladin",
     "associatedSubclass": null,
     "requiresRest": true,
-    "actionEconomy": "action",
+    "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": {
       "currentUses": 1,
@@ -3140,7 +3525,9 @@
       "recoveryType": "longRest",
       "calculationFormula": "1 + cha_mod"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "lay-on-hands",
@@ -3148,12 +3535,12 @@
     "nameRu": "Наложение Рук",
     "descriptionEn": "Your blessed touch can heal wounds. You have a pool of healing power that replenishes when you take a long rest. With that pool, you can restore a total number of hit points equal to your paladin level x 5.\nAs an action, you can touch a creature and draw power from the pool to restore a number of hit points to that creature, up to the maximum amount remaining in your pool.\nAlternatively, you can expend 5 hit points from your pool of healing to cure the target of one disease or neutralize one poison affecting it. You can cure multiple diseases and neutralize multiple poisons with a single use of Lay on Hands, expending hit points separately for each one.\nThis feature has no effect on undead and constructs.",
     "descriptionRu": "Ваше благословенное прикосновение может исцелять раны. У вас есть запас целительной силы, который восстанавливается, когда вы совершаете продолжительный отдых. Из этого запаса вы можете восстановить общее количество хитов, равное вашему уровню паладина x 5.\nВ качестве действия вы можете коснуться существа и черпать силу из запаса, чтобы восстановить этому существу количество хитов, вплоть до максимального количества, оставшегося в вашем запасе.\nВ качестве альтернативы, вы можете потратить 5 хитов из вашего запаса исцеления, чтобы вылечить цель от одной болезни или нейтрализовать один яд, действующий на нее. Вы можете вылечить несколько болезней и нейтрализовать несколько ядов одним использованием Наложения Рук, тратя хиты отдельно для каждого из них.\nЭто умение не действует на нежить и конструктов.",
-    "type": "action",
+    "type": "resource_pool",
     "minLevel": 1,
     "associatedClass": "Paladin",
     "associatedSubclass": null,
     "requiresRest": true,
-    "actionEconomy": "action",
+    "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": {
       "currentUses": 5,
@@ -3161,7 +3548,9 @@
       "recoveryType": "longRest",
       "calculationFormula": "level * 5"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "paladin-fighting-style",
@@ -3177,7 +3566,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighting-style-defense",
@@ -3193,7 +3584,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighting-style-dueling",
@@ -3209,7 +3602,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighting-style-great-weapon-fighting",
@@ -3225,7 +3620,9 @@
     "actionEconomy": null,
     "iconName": "fitness_center",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fighting-style-protection",
@@ -3241,7 +3638,9 @@
     "actionEconomy": "reaction",
     "iconName": "security",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "spellcasting-paladin",
@@ -3257,7 +3656,9 @@
     "actionEconomy": null,
     "iconName": "auto_fix_high",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "divine-smite",
@@ -3273,7 +3674,9 @@
     "actionEconomy": "free",
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "divine-health",
@@ -3289,7 +3692,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sacred-oath",
@@ -3305,7 +3710,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "oath-spells",
@@ -3321,7 +3728,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "channel-divinity",
@@ -3341,7 +3750,9 @@
       "maxUses": 1,
       "recoveryType": "shortRest"
     },
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "channel-divinity-sacred-weapon",
@@ -3357,7 +3768,9 @@
     "actionEconomy": "action",
     "iconName": "auto_awesome",
     "resourcePool": null,
-    "usageCostId": "channel-divinity"
+    "usageCostId": "channel-divinity",
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "channel-divinity-turn-the-unholy",
@@ -3373,7 +3786,9 @@
     "actionEconomy": "action",
     "iconName": "auto_awesome",
     "resourcePool": null,
-    "usageCostId": "channel-divinity"
+    "usageCostId": "channel-divinity",
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "paladin-ability-score-improvement-1",
@@ -3389,7 +3804,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "paladin-extra-attack",
@@ -3405,7 +3822,9 @@
     "actionEconomy": null,
     "iconName": "filter_2",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "aura-of-protection",
@@ -3421,7 +3840,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sacred-oath-improvement-1",
@@ -3437,7 +3858,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "aura-of-devotion",
@@ -3453,7 +3876,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "paladin-ability-score-improvement-2",
@@ -3469,7 +3894,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "aura-of-courage",
@@ -3485,7 +3912,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "improved-divine-smite",
@@ -3501,7 +3930,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "paladin-ability-score-improvement-3",
@@ -3517,7 +3948,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "cleansing-touch",
@@ -3529,16 +3962,16 @@
     "minLevel": 14,
     "associatedClass": "Paladin",
     "associatedSubclass": null,
-    "requiresRest": true,
+    "requiresRest": false,
     "actionEconomy": "action",
     "iconName": "shield",
-    "resourcePool": {
-      "currentUses": 0,
-      "maxUses": 0,
-      "recoveryType": "longRest",
-      "calculationFormula": "cha_mod"
-    },
-    "usageCostId": null
+    "resourcePool": null,
+    "usageCostId": "lay-on-hands",
+    "usageInputMode": null,
+    "consumption": {
+      "resourceId": "lay-on-hands",
+      "amount": 5
+    }
   },
   {
     "id": "sacred-oath-improvement-2",
@@ -3554,7 +3987,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "purity-of-spirit",
@@ -3570,7 +4005,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "paladin-ability-score-improvement-4",
@@ -3586,7 +4023,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "aura-improvements",
@@ -3602,7 +4041,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "paladin-ability-score-improvement-5",
@@ -3618,7 +4059,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sacred-oath-improvement-3",
@@ -3634,7 +4077,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "holy-nimbus",
@@ -3650,7 +4095,9 @@
     "actionEconomy": "action",
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "favored-enemy-1-type",
@@ -3666,7 +4113,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "natural-explorer-1-terrain-type",
@@ -3682,7 +4131,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-fighting-style",
@@ -3698,7 +4149,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-fighting-style-archery",
@@ -3714,7 +4167,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-fighting-style-defense",
@@ -3730,7 +4185,9 @@
     "actionEconomy": null,
     "iconName": "shield",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-fighting-style-dueling",
@@ -3746,7 +4203,9 @@
     "actionEconomy": null,
     "iconName": "swords",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-fighting-style-two-weapon-fighting",
@@ -3762,7 +4221,9 @@
     "actionEconomy": null,
     "iconName": "call_split",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "spellcasting-ranger",
@@ -3778,7 +4239,9 @@
     "actionEconomy": null,
     "iconName": "auto_fix_high",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-archetype",
@@ -3794,7 +4257,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "hunters-prey",
@@ -3810,7 +4275,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "hunters-prey-colossus-slayer",
@@ -3826,7 +4293,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "hunters-prey-giant-killer",
@@ -3842,7 +4311,9 @@
     "actionEconomy": "reaction",
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "hunters-prey-horde-breaker",
@@ -3858,7 +4329,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "primeval-awareness",
@@ -3874,7 +4347,9 @@
     "actionEconomy": "action",
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-ability-score-improvement-1",
@@ -3890,7 +4365,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-extra-attack",
@@ -3906,7 +4383,9 @@
     "actionEconomy": null,
     "iconName": "filter_2",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "favored-enemy-2-types",
@@ -3922,7 +4401,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "natural-explorer-2-terrain-types",
@@ -3938,7 +4419,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-archetype-improvement-1",
@@ -3954,7 +4437,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "defensive-tactics",
@@ -3970,7 +4455,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "defensive-tactics-escape-the-horde",
@@ -3986,7 +4473,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "defensive-tactics-multiattack-defense",
@@ -4002,7 +4491,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "defensive-tactics-steel-will",
@@ -4018,7 +4509,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-ability-score-improvement-2",
@@ -4034,7 +4527,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-lands-stride",
@@ -4050,7 +4545,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "natural-explorer-3-terrain-types",
@@ -4066,7 +4563,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "hide-in-plain-sight",
@@ -4082,7 +4581,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-archetype-improvement-2",
@@ -4098,7 +4599,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "multiattack",
@@ -4114,7 +4617,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "multiattack-volley",
@@ -4130,7 +4635,9 @@
     "actionEconomy": "action",
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "multiattack-whirlwind-attack",
@@ -4146,7 +4653,9 @@
     "actionEconomy": "action",
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-ability-score-improvement-3",
@@ -4162,7 +4671,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "favored-enemy-3-enemies",
@@ -4178,7 +4689,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "vanish",
@@ -4194,7 +4707,9 @@
     "actionEconomy": "bonus_action",
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-archetype-improvement-3",
@@ -4210,7 +4725,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "superior-hunters-defense",
@@ -4226,7 +4743,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "superior-hunters-defense-evasion",
@@ -4242,7 +4761,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "superior-hunters-defense-stand-against-the-tide",
@@ -4258,7 +4779,9 @@
     "actionEconomy": "reaction",
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "superior-hunters-defense-uncanny-dodge",
@@ -4274,7 +4797,9 @@
     "actionEconomy": "reaction",
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-ability-score-improvement-4",
@@ -4290,7 +4815,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "feral-senses",
@@ -4306,7 +4833,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "ranger-ability-score-improvement-5",
@@ -4322,7 +4851,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "foe-slayer",
@@ -4338,7 +4869,9 @@
     "actionEconomy": null,
     "iconName": "gps_fixed",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "rogue-expertise-1",
@@ -4354,7 +4887,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sneak-attack",
@@ -4370,7 +4905,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "thieves-cant",
@@ -4386,7 +4923,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "cunning-action",
@@ -4402,7 +4941,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "roguish-archetype",
@@ -4418,7 +4959,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fast-hands",
@@ -4434,7 +4977,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "second-story-work",
@@ -4450,7 +4995,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "rogue-ability-score-improvement-1",
@@ -4466,7 +5013,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "uncanny-dodge",
@@ -4482,7 +5031,9 @@
     "actionEconomy": "reaction",
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "rogue-expertise-2",
@@ -4498,7 +5049,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "rogue-evasion",
@@ -4514,7 +5067,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "rogue-ability-score-improvement-2",
@@ -4530,7 +5085,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "roguish-archetype-improvement-1",
@@ -4546,7 +5103,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "supreme-sneak",
@@ -4562,7 +5121,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "rogue-ability-score-improvement-3",
@@ -4578,7 +5139,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "reliable-talent",
@@ -4594,7 +5157,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "rogue-ability-score-improvement-4",
@@ -4610,7 +5175,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "roguish-archetype-improvement-2",
@@ -4626,7 +5193,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "use-magic-device",
@@ -4642,7 +5211,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "blindsense",
@@ -4658,7 +5229,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "slippery-mind",
@@ -4674,7 +5247,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "rogue-ability-score-improvement-5",
@@ -4690,7 +5265,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "roguish-archetype-improvement-3",
@@ -4706,7 +5283,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "thiefs-reflexes",
@@ -4722,7 +5301,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "elusive",
@@ -4738,7 +5319,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "rogue-ability-score-improvement-6",
@@ -4754,7 +5337,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "stroke-of-luck",
@@ -4770,7 +5355,9 @@
     "actionEconomy": null,
     "iconName": "visibility_off",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "spellcasting-sorcerer",
@@ -4786,7 +5373,9 @@
     "actionEconomy": null,
     "iconName": "auto_fix_high",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sorcerous-origin",
@@ -4802,7 +5391,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "dragon-ancestor",
@@ -4818,7 +5409,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "dragon-ancestor-black---acid-damage",
@@ -4834,7 +5427,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "dragon-ancestor-blue---lightning-damage",
@@ -4850,7 +5445,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "dragon-ancestor-brass---fire-damage",
@@ -4866,7 +5463,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "dragon-ancestor-bronze---lightning-damage",
@@ -4882,7 +5481,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "dragon-ancestor-copper---acid-damage",
@@ -4898,7 +5499,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "dragon-ancestor-gold---fire-damage",
@@ -4914,7 +5517,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "dragon-ancestor-green---poison-damage",
@@ -4930,7 +5535,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "dragon-ancestor-red---fire-damage",
@@ -4946,7 +5553,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "dragon-ancestor-silver---cold-damage",
@@ -4962,7 +5571,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "dragon-ancestor-white---cold-damage",
@@ -4978,7 +5589,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "draconic-resilience",
@@ -4994,7 +5607,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "font-of-magic",
@@ -5010,7 +5625,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "flexible-casting-creating-spell-slots",
@@ -5026,7 +5643,9 @@
     "actionEconomy": "bonus_action",
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "flexible-casting-converting-spell-slot",
@@ -5042,7 +5661,9 @@
     "actionEconomy": "bonus_action",
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "metamagic-1",
@@ -5050,15 +5671,17 @@
     "nameRu": "Метамагия",
     "descriptionEn": "At 3rd level, you gain the ability to twist your spells to suit your needs. You gain two of the following Metamagic options of your choice. You gain another one at 10th and 17th level.\nYou can use only one Metamagic option on a spell when you cast it, unless otherwise noted.",
     "descriptionRu": "На 3-м уровне вы получаете способность изменять свои заклинания под свои нужды.",
-    "type": "passive",
+    "type": "free",
     "minLevel": 3,
     "associatedClass": "Sorcerer",
     "associatedSubclass": null,
     "requiresRest": false,
-    "actionEconomy": null,
+    "actionEconomy": "free",
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": "sorcery-points",
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "metamagic-careful-spell",
@@ -5074,7 +5697,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "metamagic-distant-spell",
@@ -5090,7 +5715,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "metamagic-empowered-spell",
@@ -5106,7 +5733,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "metamagic-extended-spell",
@@ -5122,7 +5751,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "metamagic-heightened-spell",
@@ -5138,7 +5769,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "metamagic-quickened-spell",
@@ -5154,7 +5787,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "metamagic-subtle-spell",
@@ -5170,7 +5805,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "metamagic-twinned-spell",
@@ -5186,7 +5823,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sorcerer-ability-score-improvement-1",
@@ -5202,7 +5841,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sorcerous-origin-improvement-1",
@@ -5218,7 +5859,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "elemental-affinity",
@@ -5234,7 +5877,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sorcerer-ability-score-improvement-2",
@@ -5250,7 +5895,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "metamagic-2",
@@ -5258,15 +5905,17 @@
     "nameRu": "Метамагия",
     "descriptionEn": "At 3rd level, you gain the ability to twist your spells to suit your needs. You gain two of the following Metamagic options of your choice. You gain another one at 10th and 17th level.\nYou can use only one Metamagic option on a spell when you cast it, unless otherwise noted.",
     "descriptionRu": "На 3-м уровне вы получаете способность изменять свои заклинания под свои нужды.",
-    "type": "passive",
+    "type": "free",
     "minLevel": 10,
     "associatedClass": "Sorcerer",
     "associatedSubclass": null,
     "requiresRest": false,
-    "actionEconomy": null,
+    "actionEconomy": "free",
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": "sorcery-points",
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sorcerer-ability-score-improvement-3",
@@ -5282,7 +5931,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sorcerous-origin-improvement-2",
@@ -5298,7 +5949,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "dragon-wings",
@@ -5314,7 +5967,9 @@
     "actionEconomy": "bonus_action",
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sorcerer-ability-score-improvement-4",
@@ -5330,7 +5985,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "metamagic-3",
@@ -5338,15 +5995,17 @@
     "nameRu": "Метамагия",
     "descriptionEn": "At 3rd level, you gain the ability to twist your spells to suit your needs. You gain two of the following Metamagic options of your choice. You gain another one at 10th and 17th level.\nYou can use only one Metamagic option on a spell when you cast it, unless otherwise noted.",
     "descriptionRu": "На 3-м уровне вы получаете способность изменять свои заклинания под свои нужды.",
-    "type": "passive",
+    "type": "free",
     "minLevel": 17,
     "associatedClass": "Sorcerer",
     "associatedSubclass": null,
     "requiresRest": false,
-    "actionEconomy": null,
+    "actionEconomy": "free",
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": "sorcery-points",
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sorcerous-origin-improvement-3",
@@ -5362,7 +6021,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "draconic-presence",
@@ -5378,7 +6039,9 @@
     "actionEconomy": "action",
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sorcerer-ability-score-improvement-5",
@@ -5394,7 +6057,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sorcerous-restoration",
@@ -5410,7 +6075,9 @@
     "actionEconomy": null,
     "iconName": "bolt",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "otherworldly-patron",
@@ -5426,7 +6093,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "dark-ones-blessing",
@@ -5442,7 +6111,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "pact-magic",
@@ -5458,7 +6129,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocations",
@@ -5474,7 +6147,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-agonizing-blast",
@@ -5490,7 +6165,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-armor-of-shadows",
@@ -5506,7 +6183,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-beast-speech",
@@ -5522,7 +6201,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-beguiling-influence",
@@ -5538,7 +6219,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-book-of-ancient-secrets",
@@ -5554,7 +6237,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-devils-sight",
@@ -5570,7 +6255,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-eldritch-sight",
@@ -5586,7 +6273,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-eldritch-spear",
@@ -5602,7 +6291,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-eyes-of-the-rune-keeper",
@@ -5618,7 +6309,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-fiendish-vigor",
@@ -5634,7 +6327,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-gaze-of-two-minds",
@@ -5650,7 +6345,9 @@
     "actionEconomy": "action",
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-mask-of-many-faces",
@@ -5666,7 +6363,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-misty-visions",
@@ -5682,7 +6381,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-repelling-blast",
@@ -5698,7 +6399,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-thief-of-five-fates",
@@ -5714,7 +6417,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-voice-of-the-chain-master",
@@ -5730,7 +6435,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-mire-the-mind",
@@ -5746,7 +6453,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-one-with-shadows",
@@ -5762,7 +6471,9 @@
     "actionEconomy": "action",
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-sign-of-ill-omen",
@@ -5778,7 +6489,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-thirsting-blade",
@@ -5794,7 +6507,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "otherworldly-patron-improvement-1",
@@ -5810,7 +6525,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-bewitching-whispers",
@@ -5826,7 +6543,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-dreadful-word",
@@ -5842,7 +6561,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-sculptor-of-flesh",
@@ -5858,7 +6579,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-ascendant-step",
@@ -5874,7 +6597,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-minions-of-chaos",
@@ -5890,7 +6615,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-otherworldly-leap",
@@ -5906,7 +6633,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-whispers-of-the-grave",
@@ -5922,7 +6651,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "otherworldly-patron-improvement-2",
@@ -5938,7 +6669,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-lifedrinker",
@@ -5954,7 +6687,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "otherworldly-patron-improvement-3",
@@ -5970,7 +6705,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-chains-of-carceri",
@@ -5986,7 +6723,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-master-of-myriad-forms",
@@ -6002,7 +6741,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-visions-of-distant-realms",
@@ -6018,7 +6759,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-invocation-witch-sight",
@@ -6034,7 +6777,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "pact-boon",
@@ -6050,7 +6795,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "pact-of-the-chain",
@@ -6066,7 +6813,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "pact-of-the-blade",
@@ -6082,7 +6831,9 @@
     "actionEconomy": "action",
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "pact-of-the-tome",
@@ -6098,7 +6849,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "warlock-ability-score-improvement-1",
@@ -6114,7 +6867,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "dark-ones-own-luck",
@@ -6130,7 +6885,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "warlock-ability-score-improvement-2",
@@ -6146,7 +6903,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "fiendish-resilience",
@@ -6162,7 +6921,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "mystic-arcanum-6th-level",
@@ -6178,7 +6939,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "warlock-ability-score-improvement-3",
@@ -6194,7 +6957,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "mystic-arcanum-7th-level",
@@ -6210,7 +6975,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "hurl-through-hell",
@@ -6226,7 +6993,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "mystic-arcanum-8th-level",
@@ -6242,7 +7011,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "warlock-ability-score-improvement-4",
@@ -6258,7 +7029,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "mystic-arcanum-9th-level",
@@ -6274,7 +7047,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "warlock-ability-score-improvement-5",
@@ -6290,7 +7065,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "eldritch-master",
@@ -6306,7 +7083,9 @@
     "actionEconomy": null,
     "iconName": "psychology",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "spellcasting-wizard",
@@ -6322,7 +7101,9 @@
     "actionEconomy": null,
     "iconName": "auto_fix_high",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "arcane-recovery",
@@ -6338,7 +7119,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "arcane-tradition",
@@ -6354,7 +7137,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "evocation-savant",
@@ -6370,7 +7155,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "sculpt-spells",
@@ -6386,7 +7173,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "wizard-ability-score-improvement-1",
@@ -6402,7 +7191,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "arcane-tradition-improvement-1",
@@ -6418,7 +7209,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "potent-cantrip",
@@ -6434,7 +7227,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "wizard-ability-score-improvement-2",
@@ -6450,7 +7245,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "arcane-tradition-improvement-2",
@@ -6466,7 +7263,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "empowered-evocation",
@@ -6482,7 +7281,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "wizard-ability-score-improvement-3",
@@ -6498,7 +7299,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "arcane-tradition-improvement-3",
@@ -6514,7 +7317,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "overchannel",
@@ -6530,7 +7335,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "wizard-ability-score-improvement-4",
@@ -6546,7 +7353,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "spell-mastery",
@@ -6562,7 +7371,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "wizard-ability-score-improvement-5",
@@ -6578,7 +7389,9 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
   },
   {
     "id": "signature-spell",
@@ -6594,6 +7407,98 @@
     "actionEconomy": null,
     "iconName": "menu_book",
     "resourcePool": null,
-    "usageCostId": null
+    "usageCostId": null,
+    "usageInputMode": null,
+    "consumption": null
+  },
+  {
+    "id": "rage-action",
+    "nameEn": "Rage",
+    "nameRu": "Ярость",
+    "descriptionEn": "Enter a rage as a bonus action.",
+    "descriptionRu": "Впасть в ярость бонусным действием.",
+    "type": "bonus_action",
+    "minLevel": 1,
+    "associatedClass": "Barbarian",
+    "requiresRest": false,
+    "actionEconomy": "bonus_action",
+    "iconName": "fitness_center",
+    "usageCostId": "rage",
+    "usageInputMode": null
+  },
+  {
+    "id": "bardic-inspiration-action",
+    "nameEn": "Bardic Inspiration",
+    "nameRu": "Бардовское Вдохновение",
+    "descriptionEn": "Use a bonus action to give a creature a Bardic Inspiration die.",
+    "descriptionRu": "Использовать бонусное действие, чтобы дать существу кость Бардовского Вдохновения.",
+    "type": "bonus_action",
+    "minLevel": 1,
+    "associatedClass": "Bard",
+    "requiresRest": false,
+    "actionEconomy": "bonus_action",
+    "iconName": "music_note",
+    "usageCostId": "bardic-inspiration",
+    "usageInputMode": null
+  },
+  {
+    "id": "wild-shape-action",
+    "nameEn": "Wild Shape",
+    "nameRu": "Дикий Облик",
+    "descriptionEn": "Magically assume the shape of a beast that you have seen before.",
+    "descriptionRu": "Магическим образом принять облик зверя, которого вы видели ранее.",
+    "type": "action",
+    "minLevel": 1,
+    "associatedClass": "Druid",
+    "requiresRest": false,
+    "actionEconomy": "action",
+    "iconName": "nature",
+    "usageCostId": "wild-shape",
+    "usageInputMode": null
+  },
+  {
+    "id": "second-wind-action",
+    "nameEn": "Second Wind",
+    "nameRu": "Второе Дыхание",
+    "descriptionEn": "Regain hit points equal to 1d10 + your fighter level.",
+    "descriptionRu": "Восстановить хиты в количестве, равном 1d10 + ваш уровень воина.",
+    "type": "bonus_action",
+    "minLevel": 1,
+    "associatedClass": "Fighter",
+    "requiresRest": false,
+    "actionEconomy": "bonus_action",
+    "iconName": "healing",
+    "usageCostId": "second-wind",
+    "usageInputMode": null
+  },
+  {
+    "id": "divine-sense-action",
+    "nameEn": "Divine Sense",
+    "nameRu": "Божественное Чувство",
+    "descriptionEn": "Detect celestial, fiend, or undead within 60 feet.",
+    "descriptionRu": "Обнаружить небожителей, исчадий или нежить в пределах 60 футов.",
+    "type": "action",
+    "minLevel": 1,
+    "associatedClass": "Paladin",
+    "requiresRest": false,
+    "actionEconomy": "action",
+    "iconName": "auto_awesome",
+    "usageCostId": "divine-sense",
+    "usageInputMode": null
+  },
+  {
+    "id": "lay-on-hands-action",
+    "nameEn": "Lay on Hands",
+    "nameRu": "Наложение Рук",
+    "descriptionEn": "Touch a creature to restore hit points from your pool.",
+    "descriptionRu": "Коснуться существа, чтобы восстановить хиты из вашего пула.",
+    "type": "action",
+    "minLevel": 1,
+    "associatedClass": "Paladin",
+    "requiresRest": false,
+    "actionEconomy": "action",
+    "iconName": "healing",
+    "usageCostId": "lay-on-hands",
+    "usageInputMode": "slider"
   }
 ]

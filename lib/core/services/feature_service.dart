@@ -51,20 +51,8 @@ class FeatureService {
     if (_initialized) return;
 
     try {
-      // Dynamically load ALL files in assets/data/features/
-      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-      final assetList = manifest.listAssets();
-
-      // Filter for files in the features directory
-      final featureFiles = assetList
-          .where((String key) => key.startsWith('assets/data/features/') && key.endsWith('.json'))
-          .toList();
-
-      print('📦 Found ${featureFiles.length} feature files to load.');
-
-      for (final path in featureFiles) {
-        await _loadFeaturesFromAsset(path);
-      }
+      // Load Unified Feature Registry
+      await _loadFeaturesFromAsset('assets/data/features/srd_features.json');
       
       // Load subclass specific features (keep hardcoded ONLY for complex logic not yet JSON-ified)
       _loadSubclassFeatures();
@@ -73,6 +61,7 @@ class FeatureService {
       // Fallback to hardcoded list if manifest fails (e.g. during testing or some build configurations)
       try {
         await _loadFeaturesFromAsset('assets/data/features/paladin_features.json');
+        _loadSubclassFeatures();
       } catch (e2) {
         print('❌ Error loading fallback features: $e2');
       }
@@ -87,17 +76,9 @@ class FeatureService {
       final String jsonString = await rootBundle.loadString(path);
       final List<dynamic> jsonList = json.decode(jsonString);
       
-      final inferredClass = _inferClassFromPath(path);
-
       for (var jsonFeature in jsonList) {
         try {
           final feature = CharacterFeature.fromJson(jsonFeature);
-          
-          // Fix for missing associatedClass in JSON files
-          if (feature.associatedClass == null && inferredClass != null) {
-             feature.associatedClass = inferredClass;
-          }
-          
           _features[feature.id] = feature;
         } catch (e) {
           print('❌ Error parsing feature in $path: $e');
@@ -108,17 +89,7 @@ class FeatureService {
     }
   }
 
-  static String? _inferClassFromPath(String path) {
-    final filename = path.split('/').last.replaceAll('.json', '');
-    if (filename == 'racial_traits') return null;
-    if (filename == 'paladin_features') return 'Paladin';
-    
-    // Capitalize first letter: barbarian -> Barbarian
-    if (filename.isNotEmpty) {
-      return filename[0].toUpperCase() + filename.substring(1);
-    }
-    return null;
-  }
+  // _inferClassFromPath removed (no longer needed)
 
   /// Get features available strictly at a specific level for a specific class/subclass
   /// Used for Level Up preview to avoid showing features from other classes/subclasses
@@ -303,6 +274,9 @@ class FeatureService {
           requiresRest: feature.requiresRest,
           actionEconomy: feature.actionEconomy,
           iconName: feature.iconName,
+          consumption: feature.consumption,
+          usageCostId: feature.usageCostId,
+          usageInputMode: feature.usageInputMode,
           resourcePool: feature.resourcePool != null
               ? ResourcePool(
                   currentUses: maxUses,
