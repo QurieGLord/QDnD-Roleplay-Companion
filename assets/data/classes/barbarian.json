@@ -1,0 +1,349 @@
+{
+  "id": "barbarian",
+  "name": {
+    "en": "Barbarian",
+    "ru": "Варвар"
+  },
+  "description": {
+    "en": "A fierce warrior of primitive background who can enter a battle rage.",
+    "ru": "Свирепый воин с примитивным прошлым, способный впадать в боевую ярость."
+  },
+  "hitDie": 12,
+  "primaryAbilities": [
+    "strength"
+  ],
+  "savingThrowProficiencies": [
+    "strength",
+    "constitution"
+  ],
+  "armorProficiencies": {
+    "light": true,
+    "medium": true,
+    "heavy": false,
+    "shields": true
+  },
+  "weaponProficiencies": {
+    "simple": true,
+    "martial": true
+  },
+  "skillProficiencies": {
+    "choose": 2,
+    "from": [
+      "animal-handling",
+      "athletics",
+      "intimidation",
+      "nature",
+      "perception",
+      "survival"
+    ]
+  },
+  "subclasses": [
+    {
+      "id": "berserker",
+      "name": {
+        "en": "Berserker",
+        "ru": "Путь Берсерка"
+      },
+      "description": {
+        "en": "For some barbarians, rage is a means to an end--that end being violence. The Path of the Berserker is a path of untrammeled fury, slick with blood. As you enter the berserker's rage, you thrill in the chaos of battle, heedless of your own health or well-being.",
+        "ru": "Для некоторых варваров ярость — это средство для достижения цели, и эта цель — насилие. Путь Берсерка — это путь необузданной ярости, залитый кровью. Когда вы впадаете в ярость берсерка, вы упиваетесь хаосом битвы, не заботясь о собственном здоровье или благополучии."
+      }
+    }
+  ],
+  "subclassLevel": 3,
+  "features": {
+    "1": [
+      {
+        "id": "rage",
+        "name": {
+          "en": "Rage",
+          "ru": "Ярость"
+        },
+        "description": {
+          "en": "In battle, you fight with primal ferocity. On your turn, you can enter a rage as a bonus action. While raging, you gain the following benefits if you aren't wearing heavy armor:\n- You have advantage on Strength checks and Strength saving throws.\n- When you make a melee weapon Attack using Strength, you gain a +2 bonus to the damage roll. This bonus increases as you level.\n- You have Resistance to bludgeoning, piercing, and slashing damage.\nIf you are able to cast Spells, you can't cast them or concentrate on them while raging.\nYour rage lasts for 1 minute. It ends early if you are knocked Unconscious or if Your Turn ends and you haven't attacked a hostile creature since your last turn or taken damage since then. You can also end your rage on Your Turn as a Bonus Action.\nOnce you have raged the maximum number of times for your barbarian level, you must finish a Long Rest before you can rage again. You may rage 2 times at 1st level, 3 at 3rd, 4 at 6th, 5 at 12th, and 6 at 17th.",
+          "ru": "В бою вы сражаетесь с первобытной свирепостью. В свой ход вы можете впасть в ярость бонусным действием.\nВ состоянии ярости вы получаете следующие преимущества, если не носите тяжелую броню:\n- Вы совершаете с преимуществом проверки Силы и спасброски Силы.\n- Когда вы совершаете рукопашную атаку оружием, используя Силу, вы получаете бонус к урону, который увеличивается с вашим уровнем варвара.\n- Вы получаете сопротивление дробящему, колющему и рубящему урону.\nЕсли вы способны накладывать заклинания, вы не можете накладывать их или концентрироваться на них, пока находитесь в ярости.\nВаша ярость длится 1 минуту. Она прекращается раньше, если вы теряете сознание, или если ваш ход заканчивается, а вы с прошлого хода не атаковали враждебное существо и не получали урон. Вы также можете прекратить ярость в свой ход бонусным действием.\nВы можете впадать в ярость определенное количество раз (зависит от уровня), после чего должны закончить продолжительный отдых, чтобы восстановить потраченные использования."
+        }
+      },
+      {
+        "id": "barbarian-unarmored-defense",
+        "name": {
+          "en": "Unarmored Defense",
+          "ru": "Защита без доспехов"
+        },
+        "description": {
+          "en": "While you are not wearing any armor, your Armor Class equals 10 + your Dexterity modifier + your Constitution modifier. You can use a shield and still gain this benefit.",
+          "ru": "Если вы не носите никой брони, ваш Класс Доспеха равен 10 + ваш модификатор Ловкости + ваш модификатор Телосложения. Вы можете использовать щит, не теряя этого преимущества."
+        }
+      }
+    ],
+    "2": [
+      {
+        "id": "reckless-attack",
+        "name": {
+          "en": "Reckless Attack",
+          "ru": "Безрассудная атака"
+        },
+        "description": {
+          "en": "Starting at 2nd level, you can throw aside all concern for defense to attack with fierce desperation. When you make your first attack on your turn, you can decide to attack recklessly. Doing so gives you advantage on melee weapon attack rolls using Strength during this turn, but attack rolls against you have advantage until your next turn.",
+          "ru": "Начиная со 2-го уровня, вы можете отбросить любую заботу о защите, чтобы атаковать с ожесточенным отчаянием. Когда вы совершаете первую атаку в свой ход, вы можете решить атаковать безрассудно. В этом случае вы совершаете с преимуществом рукопашные атаки оружием, использующие Силу, в течение этого хода, но броски атаки по вам совершаются с преимуществом до начала вашего следующего хода."
+        }
+      },
+      {
+        "id": "danger-sense",
+        "name": {
+          "en": "Danger Sense",
+          "ru": "Чувство опасности"
+        },
+        "description": {
+          "en": "At 2nd level, you gain an uncanny sense of when things nearby aren't as they should be, giving you an edge when you dodge away from danger. You have advantage on Dexterity saving throws against effects that you can see, such as traps and spells. To gain this benefit, you can't be blinded, deafened, or incapacitated.",
+          "ru": "На 2-м уровне вы получаете сверхъестественное чувство того, что что-то вокруг не так, что дает вам преимущество при уклонении от опасности. Вы совершаете с преимуществом спасброски Ловкости от эффектов, которые вы можете видеть, таких как ловушки и заклинания. Для использования этого преимущества вы не должны быть ослеплены, оглушены или недееспособны."
+        }
+      }
+    ],
+    "3": [
+      {
+        "id": "frenzy",
+        "name": {
+          "en": "Frenzy",
+          "ru": "Бешенство"
+        },
+        "description": {
+          "en": "Starting when you choose this path at 3rd level, you can go into a frenzy when you rage. If you do so, for the duration of your rage you can make a single melee weapon attack as a bonus action on each of your turns after this one. When your rage ends, you suffer one level of exhaustion (as described in appendix A).",
+          "ru": "Выбрав этот путь на 3-м уровне, вы можете впасть в бешенство, когда находитесь в ярости. Если вы делаете это, то до конца ярости вы можете совершать одну рукопашную атаку оружием бонусным действием в каждый свой ход после этого. Когда ваша ярость заканчивается, вы получаете один уровень истощения."
+        }
+      }
+    ],
+    "4": [
+      {
+        "id": "barbarian-ability-score-improvement-1",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1. Как обычно, вы не можете повысить значение характеристики выше 20, используя это умение."
+        }
+      }
+    ],
+    "5": [
+      {
+        "id": "barbarian-extra-attack",
+        "name": {
+          "en": "Extra Attack",
+          "ru": "Дополнительная атака"
+        },
+        "description": {
+          "en": "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn.",
+          "ru": "Начиная с 5-го уровня, вы можете атаковать дважды, вместо одного раза, когда вы совершаете действие Атака в свой ход."
+        }
+      },
+      {
+        "id": "fast-movement",
+        "name": {
+          "en": "Fast Movement",
+          "ru": "Быстрое передвижение"
+        },
+        "description": {
+          "en": "Starting at 5th level, your speed increases by 10 feet while you aren't wearing heavy armor.",
+          "ru": "Начиная с 5-го уровня, ваша скорость увеличивается на 10 футов, если вы не носите тяжелую броню."
+        }
+      }
+    ],
+    "6": [
+      {
+        "id": "mindless-rage",
+        "name": {
+          "en": "Mindless Rage",
+          "ru": "Бездумная ярость"
+        },
+        "description": {
+          "en": "Beginning at 6th level, you can't be charmed or frightened while raging. If you are charmed or frightened when you enter your rage, the effect is suspended for the duration of the rage.",
+          "ru": "Начиная с 6-го уровня, вы не можете быть очарованы или испуганы, пока находитесь в ярости. Если вы были очарованы или испуганы до того, как вошли в состояние ярости, действие эффекта приостанавливается до окончания ярости."
+        }
+      }
+    ],
+    "7": [
+      {
+        "id": "feral-instinct",
+        "name": {
+          "en": "Feral Instinct",
+          "ru": "Дикий инстинкт"
+        },
+        "description": {
+          "en": "By 7th level, your instincts are so honed that you have advantage on initiative rolls.\nAdditionally, if you are surprised at the beginning of combat and aren't incapacitated, you can act normally on your first turn, but only if you enter your rage before doing anything else on that turn.",
+          "ru": "К 7-му уровню ваши инстинкты настолько обостряются, что вы совершаете броски инициативы с преимуществом.\nКроме того, если вы были захвачены врасплох в начале боя и не являетесь недееспособным, вы можете действовать в свой первый ход нормально, но только если вы впадете в ярость раньше, чем сделаете что-либо еще в этот ход."
+        }
+      }
+    ],
+    "8": [
+      {
+        "id": "barbarian-ability-score-improvement-2",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1. Как обычно, вы не можете повысить значение характеристики выше 20, используя это умение."
+        }
+      }
+    ],
+    "9": [
+      {
+        "id": "brutal-critical-1-die",
+        "name": {
+          "en": "Brutal Critical (1 die)",
+          "ru": "Брутальный критический удар (1 кость)"
+        },
+        "description": {
+          "en": "Beginning at 9th level, you can roll one additional weapon damage die when determining the extra damage for a critical hit with a melee attack. This increases to two additional dice at 13th level and three additional dice at 17th level.",
+          "ru": "Начиная с 9-го уровня, вы можете бросить одну дополнительную кость урона оружия при определении дополнительного урона от критического попадания рукопашной атакой. Это количество возрастает до двух дополнительных костей на 13-м уровне и трёх на 17-м уровне."
+        }
+      }
+    ],
+    "10": [
+      {
+        "id": "intimidating-presence",
+        "name": {
+          "en": "Intimidating Presence",
+          "ru": "Устрашающее присутствие"
+        },
+        "description": {
+          "en": "Beginning at 10th level, you can use your action to frighten someone with your menacing presence. When you do so, choose one creature that you can see within 30 feet of you. If the creature can see or hear you, it must succeed on a Wisdom saving throw (DC equal to 8 + your proficiency bonus + your Charisma modifier) or be frightened of you until the end of your next turn. On subsequent turns, you can use your action to extend the duration of this effect on the frightened creature until the end of your next turn. This effect ends if the creature ends its turn out of line of sight or more than 60 feet away from you.\n If the creature succeeds on its saving throw, you can't use this feature on that creature again for 24 hours.",
+          "ru": "Начиная с 10-го уровня, вы можете действием пугать кого-либо своим угрожающим видом. Если вы делаете это, выберите одно существо в пределах 30 футов, которое вы можете видеть. Если существо может видеть или слышать вас, оно должно совершить спасбросок Мудрости (Сл равна 8 + ваш бонус мастерства + ваш модификатор Харизмы), иначе оно будет испугано вами до конца вашего следующего хода. В последующие ходы вы можете использовать свое действие, чтобы продлить продолжительность этого эффекта на испуганное существо до конца вашего следующего хода. Этот эффект заканчивается, если существо заканчивает свой ход вне линии обзора или более чем в 60 футах от вас.\nЕсли существо преуспело в спасброске, вы не можете использовать это умение на нем снова в течение 24 часов."
+        }
+      }
+    ],
+    "11": [
+      {
+        "id": "relentless-rage",
+        "name": {
+          "en": "Relentless Rage",
+          "ru": "Неумолимая ярость"
+        },
+        "description": {
+          "en": "Starting at 11th level, your rage can keep you fighting despite grievous wounds. If you drop to 0 hit points while you're raging and don't die outright, you can make a DC 10 Constitution saving throw. If you succeed, you drop to 1 hit point instead.\nEach time you use this feature after the first, the DC increases by 5. When you finish a short or long rest, the DC resets to 10.",
+          "ru": "Начиная с 11-го уровня, ваша ярость позволяет вам сражаться, несмотря на тяжелые раны. Если ваши хиты опускаются до 0, когда вы находитесь в ярости, и вы не умираете сразу, вы можете совершить спасбросок Телосложения со Сл 10. В случае успеха ваши хиты опускаются до 1.\nКаждый раз, когда вы используете эту способность повторно, Сл спасброска увеличивается на 5. Когда вы заканчиваете короткий или продолжительный отдых, Сл снова становится равной 10."
+        }
+      }
+    ],
+    "12": [
+      {
+        "id": "barbarian-ability-score-improvement-3",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1. Как обычно, вы не можете повысить значение характеристики выше 20, используя это умение."
+        }
+      }
+    ],
+    "13": [
+      {
+        "id": "brutal-critical-2-dice",
+        "name": {
+          "en": "Brutal Critical (2 dice)",
+          "ru": "Брутальный критический удар (2 кости)"
+        },
+        "description": {
+          "en": "Beginning at 9th level, you can roll one additional weapon damage die when determining the extra damage for a critical hit with a melee attack. This increases to two additional dice at 13th level and three additional dice at 17th level.",
+          "ru": "Начиная с 9-го уровня, вы можете бросить одну дополнительную кость урона оружия при определении дополнительного урона от критического попадания рукопашной атакой. Это количество возрастает до двух дополнительных костей на 13-м уровне и трёх на 17-м уровне."
+        }
+      }
+    ],
+    "14": [
+      {
+        "id": "retaliation",
+        "name": {
+          "en": "Retaliation",
+          "ru": "Возмездие"
+        },
+        "description": {
+          "en": "Starting at 14th level, when you take damage from a creature that is within 5 feet of you, you can use your reaction to make a melee weapon Attack against that creature.",
+          "ru": "Начиная с 14-го уровня, когда вы получаете урон от существа, находящегося в пределах 5 футов от вас, вы можете реакцией совершить рукопашную атаку оружием по этому существу."
+        }
+      }
+    ],
+    "15": [
+      {
+        "id": "persistent-rage",
+        "name": {
+          "en": "Persistent Rage",
+          "ru": "Стойкая ярость"
+        },
+        "description": {
+          "en": "Beginning at 15th level, your rage is so fierce that it ends early only if you fall unconscious or if you choose to end it.",
+          "ru": "Начиная с 15-го уровня, ваша ярость становится настолько сильной, что она заканчивается преждевременно только если вы теряете сознание или если вы сами решаете прекратить ее."
+        }
+      }
+    ],
+    "16": [
+      {
+        "id": "barbarian-ability-score-improvement-4",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1. Как обычно, вы не можете повысить значение характеристики выше 20, используя это умение."
+        }
+      }
+    ],
+    "17": [
+      {
+        "id": "brutal-critical-3-dice",
+        "name": {
+          "en": "Brutal Critical (3 dice)",
+          "ru": "Брутальный критический удар (3 кости)"
+        },
+        "description": {
+          "en": "Beginning at 9th level, you can roll one additional weapon damage die when determining the extra damage for a critical hit with a melee attack. This increases to two additional dice at 13th level and three additional dice at 17th level.",
+          "ru": "Начиная с 9-го уровня, вы можете бросить одну дополнительную кость урона оружия при определении дополнительного урона от критического попадания рукопашной атакой. Это количество возрастает до двух дополнительных костей на 13-м уровне и трёх на 17-м уровне."
+        }
+      }
+    ],
+    "18": [
+      {
+        "id": "indomitable-might",
+        "name": {
+          "en": "Indomitable Might",
+          "ru": "Неукротимая мощь"
+        },
+        "description": {
+          "en": "Beginning at 18th level, if your total for a Strength check is less than your Strength score, you can use that score in place of the total.",
+          "ru": "Начиная с 18-го уровня, если результат вашей проверки Силы оказался меньше значения вашей Силы, вы можете использовать значение характеристики вместо результата броска."
+        }
+      }
+    ],
+    "19": [
+      {
+        "id": "barbarian-ability-score-improvement-5",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1. Как обычно, вы не можете повысить значение характеристики выше 20, используя это умение."
+        }
+      }
+    ],
+    "20": [
+      {
+        "id": "primal-champion",
+        "name": {
+          "en": "Primal Champion",
+          "ru": "Первобытный чемпион"
+        },
+        "description": {
+          "en": "At 20th level, you embody the power of the wilds. Your Strength and Constitution scores increase by 4. Your maximum for those scores is now 24.",
+          "ru": "На 20-м уровне вы воплощаете силу дикой природы. Ваши значения Силы и Телосложения увеличиваются на 4. Ваш максимум для этих характеристик теперь равен 24."
+        }
+      }
+    ]
+  }
+}

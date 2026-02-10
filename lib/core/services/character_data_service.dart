@@ -58,19 +58,26 @@ class CharacterDataService {
   static Future<void> loadClasses() async {
     if (_classes != null) return;
 
+    final classIds = [
+      'barbarian', 'bard', 'cleric', 'druid', 'fighter', 'monk',
+      'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'
+    ];
+
     try {
       // Load asset classes
-      final paladinJson = await rootBundle.loadString('assets/data/classes/paladin.json');
-      final wizardJson = await rootBundle.loadString('assets/data/classes/wizard.json');
-      final clericJson = await rootBundle.loadString('assets/data/classes/cleric.json');
-      final rogueJson = await rootBundle.loadString('assets/data/classes/rogue.json');
+      final assetClassesFutures = classIds.map((id) async {
+        try {
+          final jsonStr = await rootBundle.loadString('assets/data/classes/$id.json');
+          return ClassData.fromJson(json.decode(jsonStr));
+        } catch (e) {
+          print('⚠️ Failed to load asset class $id: $e');
+          return null;
+        }
+      });
 
-      final assetClasses = [
-        ClassData.fromJson(json.decode(paladinJson)),
-        ClassData.fromJson(json.decode(wizardJson)),
-        ClassData.fromJson(json.decode(clericJson)),
-        ClassData.fromJson(json.decode(rogueJson)),
-      ];
+      final assetClasses = (await Future.wait(assetClassesFutures))
+          .whereType<ClassData>()
+          .toList();
 
       // Load storage classes
       final storageClasses = StorageService.getAllClasses();

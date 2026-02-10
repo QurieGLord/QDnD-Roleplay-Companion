@@ -28,6 +28,7 @@ class CharacterCreationWizard extends StatefulWidget {
 
 class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
   int _currentStep = 0;
+  bool _isSaving = false;
   final _state = CharacterCreationState();
 
   String _getStepTitle(int index, AppLocalizations l10n) {
@@ -55,7 +56,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
           title: Text(_getStepTitle(_currentStep, l10n)),
           leading: IconButton(
             icon: const Icon(Icons.close),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
           ),
         ),
         body: Column(
@@ -67,7 +68,10 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
             ),
             
             Expanded(
-              child: _buildStep(_currentStep),
+              child: IgnorePointer(
+                ignoring: _isSaving,
+                child: _buildStep(_currentStep),
+              ),
             ),
             
             // Navigation Buttons
@@ -79,7 +83,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
                   // Back Button
                   if (_currentStep > 0)
                     OutlinedButton(
-                      onPressed: _prevStep,
+                      onPressed: _isSaving ? null : _prevStep,
                       child: Text(l10n.back),
                     )
                   else
@@ -87,8 +91,14 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
 
                   // Next/Finish Button
                   FilledButton(
-                    onPressed: () => _nextStep(context),
-                    child: Text(_currentStep == 7 ? l10n.finish : l10n.next),
+                    onPressed: _isSaving ? null : () => _nextStep(context),
+                    child: _isSaving 
+                        ? const SizedBox(
+                            width: 20, 
+                            height: 20, 
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)
+                          )
+                        : Text(_currentStep == 7 ? l10n.finish : l10n.next),
                   ),
                 ],
               ),
@@ -157,12 +167,36 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       });
     } else {
       // Create character
-      await _createCharacter();
-      if (mounted) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.characterCreated)),
-        );
+      if (_isSaving) return;
+      
+      setState(() {
+        _isSaving = true;
+      });
+
+      try {
+        await _createCharacter();
+        
+        if (mounted) {
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.characterCreated)),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.errorCreatingCharacter(e.toString())),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isSaving = false;
+          });
+        }
       }
     }
   }
@@ -324,24 +358,11 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
 
       // 7. Save to database
       await StorageService.saveCharacter(character);
-
-      if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.characterCreatedName(character.name))),
-        );
-      }
+      
+      // Navigation is now handled by _nextStep
     } catch (e) {
-      if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.errorCreatingCharacter(e.toString())),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
+      // Re-throw to let _nextStep handle the error UI
+      throw Exception(e.toString());
     }
   }
 

@@ -9,125 +9,316 @@
     "ru": "Святой воин, связанный священной клятвой."
   },
   "hitDie": 10,
-  "primaryAbilities": ["strength", "charisma"],
-  "savingThrowProficiencies": ["wisdom", "charisma"],
+  "primaryAbilities": [
+    "strength",
+    "charisma"
+  ],
+  "savingThrowProficiencies": [
+    "wisdom",
+    "charisma"
+  ],
   "armorProficiencies": {
-    "light": true,
-    "medium": true,
-    "heavy": true,
+    "light": false,
+    "medium": false,
+    "heavy": false,
     "shields": true
   },
   "weaponProficiencies": {
     "simple": true,
-    "martial": true,
-    "specific": []
+    "martial": true
   },
   "skillProficiencies": {
     "choose": 2,
-    "from": ["athletics", "insight", "intimidation", "medicine", "persuasion", "religion"]
+    "from": [
+      "athletics",
+      "insight",
+      "intimidation",
+      "medicine",
+      "persuasion",
+      "religion"
+    ]
   },
   "subclasses": [
     {
-      "id": "oath_of_devotion",
+      "id": "devotion",
       "name": {
-        "en": "Oath of Devotion",
-        "ru": "Клятва преданности"
+        "en": "Devotion",
+        "ru": "Клятва Преданности"
       },
       "description": {
-        "en": "Paladins who uphold the loftiest ideals of justice and virtue.",
-        "ru": "Паладины, придерживающиеся высочайших идеалов справедливости и добродетели."
-      }
-    },
-    {
-      "id": "oath_of_conquest",
-      "name": {
-        "en": "Oath of Conquest",
-        "ru": "Клятва покорения"
-      },
-      "description": {
-        "en": "Paladins who seek glory in battle and subjugation of their enemies.",
-        "ru": "Паладины, стремящиеся к славе в битве и покорению врагов."
-      }
-    },
-    {
-      "id": "oath_of_vengeance",
-      "name": {
-        "en": "Oath of Vengeance",
-        "ru": "Клятва мести"
-      },
-      "description": {
-        "en": "Paladins who punish those who commit grievous sins.",
-        "ru": "Паладины, карающие тех, кто совершает тяжкие грехи."
-      }
-    },
-    {
-      "id": "oath_of_the_ancients",
-      "name": {
-        "en": "Oath of the Ancients",
-        "ru": "Клятва древних"
-      },
-      "description": {
-        "en": "Paladins who love the natural world and the light.",
-        "ru": "Паладины, любящие мир природы и свет."
-      }
-    },
-    {
-      "id": "oath_of_the_crown",
-      "name": {
-        "en": "Oath of the Crown",
-        "ru": "Клятва короны"
-      },
-      "description": {
-        "en": "Paladins who dedicate themselves to serving society and law.",
-        "ru": "Паладины, посвятившие себя служению обществу и закону."
-      }
-    },
-    {
-      "id": "oath_of_redemption",
-      "name": {
-        "en": "Oath of Redemption",
-        "ru": "Клятва искупления"
-      },
-      "description": {
-        "en": "Paladins who believe that anyone can turn to the light.",
-        "ru": "Паладины, верящие, что любой может обратиться к свету."
-      }
-    },
-    {
-      "id": "oath_of_glory",
-      "name": {
-        "en": "Oath of Glory",
-        "ru": "Клятва славы"
-      },
-      "description": {
-        "en": "Paladins who believe they are destined for glory.",
-        "ru": "Паладины, верящие, что им уготована слава."
-      }
-    },
-    {
-      "id": "oath_of_the_watchers",
-      "name": {
-        "en": "Oath of the Watchers",
-        "ru": "Клятва стражей"
-      },
-      "description": {
-        "en": "Paladins who protect the mortal realm from extraplanar threats.",
-        "ru": "Паладины, защищающие мир смертных от угроз из других планов."
-      }
-    },
-    {
-      "id": "oathbreaker",
-      "name": {
-        "en": "Oathbreaker",
-        "ru": "Клятвопреступник"
-      },
-      "description": {
-        "en": "A paladin who has broken their sacred oath to pursue some dark ambition.",
-        "ru": "Паладин, нарушивший свою священную клятву ради преследования темных амбиций."
+        "en": "The Oath of Devotion binds a paladin to the loftiest ideals of justice, virtue, and order. Sometimes called cavaliers, white knights, or holy warriors, these paladins meet the ideal of the knight in shining armor, acting with honor in pursuit of justice and the greater good. They hold themselves to the highest standards of conduct, and some, for better or worse, hold the rest of the world to the same standards. Many who swear this oath are devoted to gods of law and good and use their gods' tenets as the measure of their devotion. They hold angels--the perfect servants of good--as their ideals, and incorporate images of angelic wings into their helmets or coats of arms.",
+        "ru": "Клятва Преданности связывает паладина с высочайшими идеалами справедливости, добродетели и порядка. Иногда называемые кавалерами, белыми рыцарями или святыми воинами, эти паладины соответствуют идеалу рыцаря в сияющих доспехах, действующего с честью ради справедливости и всеобщего блага. Они придерживаются самых высоких стандартов поведения, и некоторые, к лучшему или к худшему, ожидают того же от остального мира. Многие, кто приносит эту клятву, преданы богам закона и добра и используют догматы своих богов как меру своей преданности. Они считают ангелов — совершенных слуг добра — своими идеалами и включают изображения ангельских крыльев в свои шлемы или гербы."
       }
     }
   ],
   "subclassLevel": 3,
+  "features": {
+    "1": [
+      {
+        "id": "divine-sense",
+        "name": {
+          "en": "Divine Sense",
+          "ru": "Божественное Чувство"
+        },
+        "description": {
+          "en": "The presence of strong evil registers on your senses like a noxious odor, and powerful good rings like heavenly music in your ears. As an action, you can open your awareness to detect such forces. Until the end of your next turn, you know the location of any celestial, fiend, or undead within 60 feet of you that is not behind total cover. You know the type (celestial, fiend, or undead) of any being whose presence you sense, but not its identity. Within the same radius, you also detect the presence of any place or object that has been consecrated or desecrated, as with the hallow spell.\nYou can use this feature a number of times equal to 1 + your Charisma modifier. When you finish a long rest, you regain all expended uses.",
+          "ru": "Присутствие сильного зла регистрируется вашими чувствами как неприятный запах, а мощное добро звучит как небесная музыка в ваших ушах. В качестве действия вы можете открыть свое сознание для обнаружения таких сил. До конца вашего следующего хода вы знаете местонахождение любого небожителя, исчадия или нежити в пределах 60 футов от вас, которые не находятся за полным укрытием. Вы знаете тип (небожитель, исчадие или нежить) любого существа, чье присутствие вы чувствуете, но не его личность. В том же радиусе вы также обнаруживаете присутствие любого места или предмета, который был освящен или осквернен, как заклинанием святилище.\nВы можете использовать это умение количество раз, равное 1 + ваш модификатор Харизмы. Когда вы заканчиваете продолжительный отдых, вы восстанавливаете все потраченные использования."
+        }
+      },
+      {
+        "id": "lay-on-hands",
+        "name": {
+          "en": "Lay on Hands",
+          "ru": "Наложение Рук"
+        },
+        "description": {
+          "en": "Your blessed touch can heal wounds. You have a pool of healing power that replenishes when you take a long rest. With that pool, you can restore a total number of hit points equal to your paladin level x 5.\nAs an action, you can touch a creature and draw power from the pool to restore a number of hit points to that creature, up to the maximum amount remaining in your pool.\nAlternatively, you can expend 5 hit points from your pool of healing to cure the target of one disease or neutralize one poison affecting it. You can cure multiple diseases and neutralize multiple poisons with a single use of Lay on Hands, expending hit points separately for each one.\nThis feature has no effect on undead and constructs.",
+          "ru": "Ваше благословенное прикосновение может исцелять раны. У вас есть запас целительной силы, который восстанавливается, когда вы совершаете продолжительный отдых. Из этого запаса вы можете восстановить общее количество хитов, равное вашему уровню паладина x 5.\nВ качестве действия вы можете коснуться существа и черпать силу из запаса, чтобы восстановить этому существу количество хитов, вплоть до максимального количества, оставшегося в вашем запасе.\nВ качестве альтернативы, вы можете потратить 5 хитов из вашего запаса исцеления, чтобы вылечить цель от одной болезни или нейтрализовать один яд, действующий на нее. Вы можете вылечить несколько болезней и нейтрализовать несколько ядов одним использованием Наложения Рук, тратя хиты отдельно для каждого из них.\nЭто умение не действует на нежить и конструктов."
+        }
+      }
+    ],
+    "2": [
+      {
+        "id": "paladin-fighting-style",
+        "name": {
+          "en": "Fighting Style",
+          "ru": "Боевой Стиль"
+        },
+        "description": {
+          "en": "At 2nd level, you adopt a style of fighting as your specialty. Choose one of the following options. You can't take a Fighting Style option more than once, even if you later get to choose again.",
+          "ru": "На 2-м уровне вы принимаете стиль боя в качестве своей специальности. Выберите один из следующих вариантов. Вы не можете выбрать вариант Боевого Стиля более одного раза, даже если позже у вас появится возможность выбрать снова."
+        }
+      },
+      {
+        "id": "spellcasting-paladin",
+        "name": {
+          "en": "Spellcasting: Paladin",
+          "ru": "Использование заклинаний: Паладин"
+        },
+        "description": {
+          "en": "By 2nd level, you have learned to draw on divine magic through meditation and prayer to cast spells as a cleric does.",
+          "ru": "К 2-му уровню вы научились черпать божественную магию через медитацию и молитву, чтобы накладывать заклинания, как это делает жрец."
+        }
+      },
+      {
+        "id": "divine-smite",
+        "name": {
+          "en": "Divine Smite",
+          "ru": "Божественная Кара"
+        },
+        "description": {
+          "en": "Starting at 2nd level, when you hit a creature with a melee weapon attack, you can expend one spell slot to deal radiant damage to the target, in addition to the weapon's damage. The extra damage is 2d8 for a 1st-level spell slot, plus 1d8 for each spell level higher than 1st, to a maximum of 5d8. The damage increases by 1d8 if the target is an undead or a fiend.",
+          "ru": "Начиная со 2-го уровня, когда вы попадаете по существу атакой рукопашным оружием, вы можете потратить одну ячейку заклинания, чтобы нанести цели урон излучением в дополнение к урону оружия. Дополнительный урон составляет 2к8 за ячейку заклинания 1-го уровня плюс 1к8 за каждый уровень заклинания выше 1-го, максимум до 5к8. Урон увеличивается на 1к8, если цель — нежить или исчадие."
+        }
+      }
+    ],
+    "3": [
+      {
+        "id": "channel-divinity-sacred-weapon",
+        "name": {
+          "en": "Channel Divinity: Sacred Weapon",
+          "ru": "Божественный Канал: Священное Оружие"
+        },
+        "description": {
+          "en": "As an action, you can imbue one weapon that you are holding with positive energy, using your Channel Divinity. For 1 minute, you add your Charisma modifier to attack rolls made with that weapon (with a minimum bonus of +1). The weapon also emits bright light in a 20-foot radius and dim light 20 feet beyond that. If the weapon is not already magical, it becomes magical for the duration.\nYou can end this effect on your turn as part of any other action. If you are no longer holding or carrying this weapon, or if you fall unconscious, this effect ends.",
+          "ru": "В качестве действия вы можете наполнить одно оружие, которое вы держите, позитивной энергией, используя свой Божественный Канал. В течение 1 минуты вы добавляете свой модификатор Харизмы к броскам атаки, совершаемым этим оружием (с минимальным бонусом +1). Оружие также излучает яркий свет в радиусе 20 футов и тусклый свет еще на 20 футов. Если оружие еще не является магическим, оно становится магическим на время действия.\nВы можете прекратить этот эффект в свой ход как часть любого другого действия. Если вы больше не держите и не несете это оружие, или если вы теряете сознание, этот эффект прекращается."
+        }
+      },
+      {
+        "id": "channel-divinity-turn-the-unholy",
+        "name": {
+          "en": "Channel Divinity: Turn the Unholy",
+          "ru": "Божественный Канал: Изгнание Нечестивых"
+        },
+        "description": {
+          "en": "As an action, you present your holy symbol and speak a prayer censuring fiends and undead, using your Channel Divinity. Each fiend or undead that can see or hear you within 30 feet of you must make a Wisdom saving throw. If the creature fails its saving throw, it is turned for 1 minute or until it takes damage.\nA turned creature must spend its turns trying to move as far away from you as it can, and it can't willingly move to a space within 30 feet of you. It also can't take reactions. For its action, it can use only the Dash action or try to escape from an effect that prevents it from moving. If there's nowhere to move, the creature can use the Dodge action.",
+          "ru": "В качестве действия вы демонстрируете свой святой символ и произносите молитву, порицающую исчадий и нежить, используя свой Божественный Канал. Каждое исчадие или нежить, которое может видеть или слышать вас в пределах 30 футов от вас, должно совершить спасбросок Мудрости. Если существо проваливает спасбросок, оно изгоняется на 1 минуту или пока не получит урон.\nИзгнанное существо должно тратить свои ходы, пытаясь уйти от вас как можно дальше, и оно не может добровольно переместиться в пространство в пределах 30 футов от вас. Оно также не может совершать реакции. В качестве действия оно может использовать только действие Рывок или пытаться вырваться из эффекта, который мешает ему двигаться. Если двигаться некуда, существо может использовать действие Уклонение."
+        }
+      }
+    ],
+    "4": [
+      {
+        "id": "paladin-ability-score-improvement-1",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1. Как обычно, вы не можете повысить значение характеристики выше 20, используя это умение."
+        }
+      }
+    ],
+    "5": [
+      {
+        "id": "paladin-extra-attack",
+        "name": {
+          "en": "Extra Attack",
+          "ru": "Дополнительная Атака"
+        },
+        "description": {
+          "en": "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn.",
+          "ru": "Начиная с 5-го уровня, вы можете атаковать дважды, вместо одного раза, когда вы совершаете действие Атака в свой ход."
+        }
+      }
+    ],
+    "6": [
+      {
+        "id": "aura-of-protection",
+        "name": {
+          "en": "Aura of Protection",
+          "ru": "Аура Защиты"
+        },
+        "description": {
+          "en": "Starting at 6th level, whenever you or a friendly creature within 10 feet of you must make a saving throw, the creature gains a bonus to the saving throw equal to your Charisma modifier (with a minimum bonus of +1). You must be conscious to grant this bonus.\nAt 18th level, the range of this aura increases to 30 feet.",
+          "ru": "Начиная с 6-го уровня, когда вы или дружественное существо в пределах 10 футов от вас должно совершить спасбросок, существо получает бонус к спасброску, равный вашему модификатору Харизмы (с минимальным бонусом +1). Вы должны быть в сознании, чтобы давать этот бонус.\nНа 18-м уровне радиус этой ауры увеличивается до 30 футов."
+        }
+      }
+    ],
+    "7": [
+      {
+        "id": "aura-of-devotion",
+        "name": {
+          "en": "Aura of Devotion",
+          "ru": "Аура Преданности"
+        },
+        "description": {
+          "en": "Starting at 7th level, you and friendly creatures within 10 feet of you can't be charmed while you are conscious.\nAt 18th level, the range of this aura increases to 30 feet.",
+          "ru": "Начиная с 7-го уровня, вы и дружественные существа в пределах 10 футов от вас не можете быть очарованы, пока вы находитесь в сознании.\nНа 18-м уровне радиус этой ауры увеличивается до 30 футов."
+        }
+      }
+    ],
+    "8": [
+      {
+        "id": "paladin-ability-score-improvement-2",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1. Как обычно, вы не можете повысить значение характеристики выше 20, используя это умение."
+        }
+      }
+    ],
+    "10": [
+      {
+        "id": "aura-of-courage",
+        "name": {
+          "en": "Aura of Courage",
+          "ru": "Аура Отваги"
+        },
+        "description": {
+          "en": "Starting at 10th level, you and friendly creatures within 10 feet of you can't be frightened while you are conscious.\nAt 18th level, the range of this aura increases to 30 feet.",
+          "ru": "Начиная с 10-го уровня, вы и дружественные существа в пределах 10 футов от вас не можете быть испуганы, пока вы находитесь в сознании.\nНа 18-м уровне радиус этой ауры увеличивается до 30 футов."
+        }
+      }
+    ],
+    "11": [
+      {
+        "id": "improved-divine-smite",
+        "name": {
+          "en": "Improved Divine Smite",
+          "ru": "Улучшенная Божественная Кара"
+        },
+        "description": {
+          "en": "By 11th level, you are so suffused with righteous might that all your melee weapon strikes carry divine power with them. Whenever you hit a creature with a melee weapon, the creature takes an extra 1d8 radiant damage. If you also use your Divine Smite with an attack, you add this damage to the extra damage of your Divine Smite.",
+          "ru": "К 11-му уровню вы настолько наполнены праведной мощью, что все ваши удары рукопашным оружием несут в себе божественную силу. Когда вы попадаете по существу рукопашным оружием, существо получает дополнительно 1к8 урона излучением. Если вы также используете свою Божественную Кару при атаке, вы добавляете этот урон к дополнительному урону вашей Божественной Кары."
+        }
+      }
+    ],
+    "12": [
+      {
+        "id": "paladin-ability-score-improvement-3",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1. Как обычно, вы не можете повысить значение характеристики выше 20, используя это умение."
+        }
+      }
+    ],
+    "14": [
+      {
+        "id": "cleansing-touch",
+        "name": {
+          "en": "Cleansing Touch",
+          "ru": "Очищающее Прикосновение"
+        },
+        "description": {
+          "en": "Beginning at 14th level, you can use your action to end one spell on yourself or on one willing creature that you touch.\nYou can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain expended uses when you finish a long rest.",
+          "ru": "Начиная с 14-го уровня, вы можете использовать свое действие, чтобы окончить одно заклинание на себе или на одном согласном существе, которого вы касаетесь.\nВы можете использовать это умение количество раз, равное вашему модификатору Харизмы (минимум один раз). Вы восстанавливаете потраченные использования, когда заканчиваете продолжительный отдых."
+        }
+      }
+    ],
+    "15": [
+      {
+        "id": "purity-of-spirit",
+        "name": {
+          "en": "Purity of Spirit",
+          "ru": "Чистота Духа"
+        },
+        "description": {
+          "en": "Beginning at 15th level, you are always under the effects of a protection from evil and good spell.",
+          "ru": "Начиная с 15-го уровня, вы всегда находитесь под действием заклинания защита от зла и добра."
+        }
+      }
+    ],
+    "16": [
+      {
+        "id": "paladin-ability-score-improvement-4",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1. Как обычно, вы не можете повысить значение характеристики выше 20, используя это умение."
+        }
+      }
+    ],
+    "18": [
+      {
+        "id": "aura-improvements",
+        "name": {
+          "en": "Aura improvements",
+          "ru": "Улучшение Аур"
+        },
+        "description": {
+          "en": "At 18th level, the range of your auras increase to 30 feet.",
+          "ru": "На 18-м уровне радиус ваших аур увеличивается до 30 футов."
+        }
+      }
+    ],
+    "19": [
+      {
+        "id": "paladin-ability-score-improvement-5",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1. Как обычно, вы не можете повысить значение характеристики выше 20, используя это умение."
+        }
+      }
+    ],
+    "20": [
+      {
+        "id": "holy-nimbus",
+        "name": {
+          "en": "Holy Nimbus",
+          "ru": "Святой Нимб"
+        },
+        "description": {
+          "en": "At 20th level, as an action, you can emanate an aura of sunlight. For 1 minute, bright light shines from you in a 30-foot radius, and dim light shines 30 feet beyond that.\nWhenever an enemy creature starts its turn in the bright light, the creature takes 10 radiant damage.\nIn addition, for the duration, you have advantage on saving throws against spells cast by fiends or undead.",
+          "ru": "На 20-м уровне в качестве действия вы можете излучать ауру солнечного света. В течение 1 минуты от вас исходит яркий свет в радиусе 30 футов и тусклый свет еще на 30 футов.\nКогда вражеское существо начинает свой ход в ярком свете, оно получает 10 урона излучением.\nКроме того, на время действия вы имеете преимущество в спасбросках против заклинаний, наложенных исчадиями или нежитью."
+        }
+      }
+    ]
+  },
   "spellcasting": {
     "ability": "charisma",
     "type": "half"

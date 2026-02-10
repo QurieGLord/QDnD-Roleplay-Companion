@@ -13,7 +13,7 @@ class SpellService {
 
     // 1. Load Standard Assets
     try {
-      final jsonString = await rootBundle.loadString('assets/data/spells/paladin_spells.json');
+      final jsonString = await rootBundle.loadString('assets/data/spells/srd_spells.json');
       final List<dynamic> jsonList = json.decode(jsonString);
       final assetSpells = jsonList.map((json) => Spell.fromJson(json)).toList();
       _allSpells!.addAll(assetSpells);

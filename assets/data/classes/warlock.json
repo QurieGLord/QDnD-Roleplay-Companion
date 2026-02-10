@@ -1,0 +1,269 @@
+{
+  "id": "warlock",
+  "name": {
+    "en": "Warlock",
+    "ru": "Колдун"
+  },
+  "description": {
+    "en": "A wielder of magic that is derived from a bargain with an extraplanar entity.",
+    "ru": "Владелец магии, полученной в результате сделки с внепланарной сущностью."
+  },
+  "hitDie": 8,
+  "primaryAbilities": [
+    "charisma"
+  ],
+  "savingThrowProficiencies": [
+    "wisdom",
+    "charisma"
+  ],
+  "armorProficiencies": {
+    "light": true,
+    "medium": false,
+    "heavy": false,
+    "shields": false
+  },
+  "weaponProficiencies": {
+    "simple": true,
+    "martial": false
+  },
+  "skillProficiencies": {
+    "choose": 2,
+    "from": [
+      "arcana",
+      "deception",
+      "history",
+      "intimidation",
+      "investigation",
+      "nature",
+      "religion"
+    ]
+  },
+  "subclasses": [
+    {
+      "id": "fiend",
+      "name": {
+        "en": "Fiend",
+        "ru": "Бестия"
+      },
+      "description": {
+        "en": "You have made a pact with a fiend from the lower planes of existence, a being whose aims are evil, even if you strive against those aims. Such beings desire the corruption or destruction of all things, ultimately including you. Fiends powerful enough to forge a pact include demon lords such as Demogorgon, Orcus, Fraz'Urb-luu, and Baphomet; archdevils such as Asmodeus, Dispater, Mephistopheles, and Belial; pit fiends and balors that are especially mighty; and ultroloths and other lords of the yugoloths.",
+        "ru": "Вы заключили договор с исчадием из нижних планов существования, существом, чьи цели злы, даже если вы боретесь против этих целей. Такие существа желают развращения или уничтожения всего сущего, включая, в конечном счете, и вас. Исчадия, достаточно могущественные, чтобы заключить договор, включают повелителей демонов, таких как Демогоргон, Оркус, Фраз-Урб-луу и Бафомет; архидьяволов, таких как Асмодей, Диспатер, Мефистофель и Белиал; особенно могущественных исчадий бездны и балоров; а также ультролотов и других повелителей юголотов."
+      }
+    }
+  ],
+  "subclassLevel": 1,
+  "features": {
+    "1": [
+      {
+        "id": "dark-ones-blessing",
+        "name": {
+          "en": "Dark One's Blessing",
+          "ru": "Благословение Темного"
+        },
+        "description": {
+          "en": "Starting at 1st level, when you reduce a hostile creature to 0 hit points, you gain temporary hit points equal to your Charisma modifier + your warlock level (minimum of 1).",
+          "ru": "Начиная с 1-го уровня, когда вы опускаете хиты враждебного существа до 0, вы получаете временные хиты, равные вашему модификатору Харизмы + ваш уровень колдуна."
+        }
+      }
+    ],
+    "2": [
+      {
+        "id": "eldritch-invocations",
+        "name": {
+          "en": "Eldritch Invocations",
+          "ru": "Таинственные воззвания"
+        },
+        "description": {
+          "en": "In your study of occult lore, you have unearthed eldritch invocations, fragments of forbidden knowledge that imbue you with an abiding magical ability.\nAt 2nd level, you gain two eldritch invocations of your choice. Your invocation options are detailed at the end of the class description. When you gain certain warlock levels, you gain additional invocations of your choice, as shown in the Invocations Known column of the Warlock table.\nAdditionally, when you gain a level in this class, you can choose one of the invocations you know and replace it with another invocation that you could learn at that level.",
+          "ru": "В ходе изучения оккультных знаний вы обнаружили таинственные воззвания, фрагменты запретных знаний, которые наделяют вас постоянной магической способностью."
+        }
+      }
+    ],
+    "3": [
+      {
+        "id": "pact-boon",
+        "name": {
+          "en": "Pact Boon",
+          "ru": "Предмет договора"
+        },
+        "description": {
+          "en": "At 3rd level, your otherworldly patron bestows a gift upon you for your loyal service. You gain one of the following features of your choice.",
+          "ru": "На 3-м уровне ваш потусторонний покровитель дарует вам подарок за вашу верную службу."
+        }
+      }
+    ],
+    "4": [
+      {
+        "id": "warlock-ability-score-improvement-1",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "6": [
+      {
+        "id": "dark-ones-own-luck",
+        "name": {
+          "en": "Dark One's Own Luck",
+          "ru": "Удача Темного"
+        },
+        "description": {
+          "en": "Starting at 6th level, you can call on your patron to alter fate in your favor. When you make an ability check or a saving throw, you can use this feature to add a d10 to your roll. You can do so after seeing the initial roll but before any of the roll's effects occur.\nOnce you use this feature, you can't use it again until you finish a short or long rest.",
+          "ru": "Начиная с 6-го уровня, вы можете призвать своего покровителя, чтобы изменить судьбу в свою пользу."
+        }
+      }
+    ],
+    "8": [
+      {
+        "id": "warlock-ability-score-improvement-2",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "10": [
+      {
+        "id": "fiendish-resilience",
+        "name": {
+          "en": "Fiendish Resilience",
+          "ru": "Стойкость исчадия"
+        },
+        "description": {
+          "en": "Starting at 10th level, you can choose one damage type when you finish a short or long rest. You gain resistance to that damage type until you choose a different one with this feature. Damage from magical weapons or silver weapons ignores this resistance.",
+          "ru": "Начиная с 10-го уровня, вы можете выбрать один тип урона, когда заканчиваете короткий или продолжительный отдых. Вы получаете сопротивление этому типу урона."
+        }
+      }
+    ],
+    "11": [
+      {
+        "id": "mystic-arcanum-6th-level",
+        "name": {
+          "en": "Mystic Arcanum (6th level)",
+          "ru": "Таинственный арканум (6-й уровень)"
+        },
+        "description": {
+          "en": "At 11th level, your patron bestows upon you a magical secret called an arcanum. Choose one 6th- level spell from the warlock spell list as this arcanum.\nYou can cast your arcanum spell once without expending a spell slot. You must finish a long rest before you can do so again.\nAt higher levels, you gain more warlock spells of your choice that can be cast in this way: one 7th- level spell at 13th level, one 8th-level spell at 15th level, and one 9th-level spell at 17th level. You regain all uses of your Mystic Arcanum when you finish a long rest.",
+          "ru": "На 11-м уровне ваш покровитель дарует вам магический секрет, называемый арканумом. Выберите одно заклинание 6-го уровня из списка заклинаний колдуна как этот арканум."
+        }
+      }
+    ],
+    "12": [
+      {
+        "id": "warlock-ability-score-improvement-3",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "13": [
+      {
+        "id": "mystic-arcanum-7th-level",
+        "name": {
+          "en": "Mystic Arcanum (7th level)",
+          "ru": "Таинственный арканум (7-й уровень)"
+        },
+        "description": {
+          "en": "At 11th level, your patron bestows upon you a magical secret called an arcanum. Choose one 6th- level spell from the warlock spell list as this arcanum.\nYou can cast your arcanum spell once without expending a spell slot. You must finish a long rest before you can do so again.\nAt higher levels, you gain more warlock spells of your choice that can be cast in this way: one 7th- level spell at 13th level, one 8th-level spell at 15th level, and one 9th-level spell at 17th level. You regain all uses of your Mystic Arcanum when you finish a long rest.",
+          "ru": "На 13-м уровне выберите одно заклинание 7-го уровня из списка заклинаний колдуна как этот арканум."
+        }
+      }
+    ],
+    "14": [
+      {
+        "id": "hurl-through-hell",
+        "name": {
+          "en": "Hurl Through Hell",
+          "ru": "Бросок сквозь ад"
+        },
+        "description": {
+          "en": "Starting at 14th level, when you hit a creature with an attack, you can use this feature to instantly transport the target through the lower planes. The creature disappears and hurtles through a nightmare landscape.\nAt the end of your next turn, the target returns to the space it previously occupied, or the nearest unoccupied space. If the target is not a fiend, it takes 10d10 psychic damage as it reels from its horrific experience.\nOnce you use this feature, you can't use it again until you finish a long rest.",
+          "ru": "Начиная с 14-го уровня, когда вы попадаете по существу атакой, вы можете использовать это умение, чтобы мгновенно перенести цель через нижние планы."
+        }
+      }
+    ],
+    "15": [
+      {
+        "id": "mystic-arcanum-8th-level",
+        "name": {
+          "en": "Mystic Arcanum (8th level)",
+          "ru": "Таинственный арканум (8-й уровень)"
+        },
+        "description": {
+          "en": "At 11th level, your patron bestows upon you a magical secret called an arcanum. Choose one 6th- level spell from the warlock spell list as this arcanum.\nYou can cast your arcanum spell once without expending a spell slot. You must finish a long rest before you can do so again.\nAt higher levels, you gain more warlock spells of your choice that can be cast in this way: one 7th- level spell at 13th level, one 8th-level spell at 15th level, and one 9th-level spell at 17th level. You regain all uses of your Mystic Arcanum when you finish a long rest.",
+          "ru": "На 15-м уровне выберите одно заклинание 8-го уровня из списка заклинаний колдуна как этот арканум."
+        }
+      }
+    ],
+    "16": [
+      {
+        "id": "warlock-ability-score-improvement-4",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "17": [
+      {
+        "id": "mystic-arcanum-9th-level",
+        "name": {
+          "en": "Mystic Arcanum (9th level)",
+          "ru": "Таинственный арканум (9-й уровень)"
+        },
+        "description": {
+          "en": "At 11th level, your patron bestows upon you a magical secret called an arcanum. Choose one 6th- level spell from the warlock spell list as this arcanum.\nYou can cast your arcanum spell once without expending a spell slot. You must finish a long rest before you can do so again.\nAt higher levels, you gain more warlock spells of your choice that can be cast in this way: one 7th- level spell at 13th level, one 8th-level spell at 15th level, and one 9th-level spell at 17th level. You regain all uses of your Mystic Arcanum when you finish a long rest.",
+          "ru": "На 17-м уровне выберите одно заклинание 9-го уровня из списка заклинаний колдуна как этот арканум."
+        }
+      }
+    ],
+    "19": [
+      {
+        "id": "warlock-ability-score-improvement-5",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "20": [
+      {
+        "id": "eldritch-master",
+        "name": {
+          "en": "Eldritch Master",
+          "ru": "Таинственный мастер"
+        },
+        "description": {
+          "en": "At 20th level, you can draw on your inner reserve of mystical power while entreating your patron to regain expended spell slots. You can spend 1 minute entreating your patron for aid to regain all your expended spell slots from your Pact Magic feature.\nOnce you regain spell slots with this feature, you must finish a long rest before you can do so again.",
+          "ru": "На 20-м уровне вы можете обратиться к своему внутреннему резерву мистической силы, умоляя своего покровителя восстановить потраченные ячейки заклинаний."
+        }
+      }
+    ]
+  },
+  "spellcasting": {
+    "ability": "charisma",
+    "type": "pact"
+  }
+}

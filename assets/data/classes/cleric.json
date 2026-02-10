@@ -6,11 +6,16 @@
   },
   "description": {
     "en": "A priestly champion who wields divine magic in service of a higher power.",
-    "ru": "Священный воин, использующий божественную магию в служении высшей силе."
+    "ru": "Жрец-воитель, владеющий божественной магией на службе высшим силам."
   },
   "hitDie": 8,
-  "primaryAbilities": ["wisdom"],
-  "savingThrowProficiencies": ["wisdom", "charisma"],
+  "primaryAbilities": [
+    "wisdom"
+  ],
+  "savingThrowProficiencies": [
+    "wisdom",
+    "charisma"
+  ],
   "armorProficiencies": {
     "light": true,
     "medium": true,
@@ -19,38 +24,290 @@
   },
   "weaponProficiencies": {
     "simple": true,
-    "martial": false,
-    "specific": []
+    "martial": false
   },
   "skillProficiencies": {
     "choose": 2,
-    "from": ["history", "insight", "medicine", "persuasion", "religion"]
+    "from": [
+      "history",
+      "insight",
+      "medicine",
+      "persuasion",
+      "religion"
+    ]
   },
   "subclasses": [
     {
-      "id": "life_domain",
+      "id": "life",
       "name": {
-        "en": "Life Domain",
-        "ru": "Домен жизни"
+        "en": "Life",
+        "ru": "Домен Жизни"
       },
       "description": {
-        "en": "The Life domain focuses on the vibrant positive energy that sustains all life.",
-        "ru": "Домен жизни сосредотачивается на яркой положительной энергии, поддерживающей всю жизнь."
-      }
-    },
-    {
-      "id": "war_domain",
-      "name": {
-        "en": "War Domain",
-        "ru": "Домен войны"
-      },
-      "description": {
-        "en": "War has many manifestations. It can make heroes of ordinary people and turn the tide of civilization.",
-        "ru": "Война имеет много проявлений. Она может сделать героев из обычных людей и повернуть ход цивилизации."
+        "en": "The Life domain focuses on the vibrant positive energy--one of the fundamental forces of the universe--that sustains all life. The gods of life promote vitality and health through healing the sick and wounded, caring for those in need, and driving away the forces of death and undeath. Almost any non-evil deity can claim influence over this domain, particularly agricultural deities, sun gods, gods of healing or endurance, and gods of home and community.",
+        "ru": "Домен Жизни фокусируется на яркой позитивной энергии — одной из фундаментальных сил вселенной, которая поддерживает все живое. Боги жизни способствуют жизненной силе и здоровью через исцеление больных и раненых, заботу о нуждающихся и изгнание сил смерти и нежити. Почти любое незлое божество может претендовать на влияние в этом домене, особенно сельскохозяйственные божества, боги солнца, боги исцеления или выносливости, а также боги домашнего очага и общины."
       }
     }
   ],
   "subclassLevel": 1,
+  "features": {
+    "1": [
+      {
+        "id": "bonus-proficiency",
+        "name": {
+          "en": "Bonus Proficiency",
+          "ru": "Дополнительное владение"
+        },
+        "description": {
+          "en": "When you choose this domain at 1st level, you gain proficiency with heavy armor.",
+          "ru": "Когда вы выбираете этот домен на 1-м уровне, вы получаете владение тяжелой броней."
+        }
+      },
+      {
+        "id": "disciple-of-life",
+        "name": {
+          "en": "Disciple of Life",
+          "ru": "Адепт жизни"
+        },
+        "description": {
+          "en": "Also starting at 1st level, your healing spells are more effective. Whenever you use a spell of 1st level or higher to restore hit points to a creature, the creature regains additional hit points equal to 2 + the spell's level.",
+          "ru": "Также начиная с 1-го уровня, ваши лечащие заклинания становятся более эффективными. Каждый раз, когда вы используете заклинание 1-го уровня или выше, чтобы восстановить хиты существу, это существо восстанавливает дополнительные хиты, равные 2 + уровень заклинания."
+        }
+      }
+    ],
+    "2": [
+      {
+        "id": "channel-divinity-preserve-life",
+        "name": {
+          "en": "Channel Divinity: Preserve Life",
+          "ru": "Божественный канал: Сохранение жизни"
+        },
+        "description": {
+          "en": "Starting at 2nd level, you can use your Channel Divinity to heal the badly injured.\nAs an action, you present your holy symbol and evoke healing energy that can restore a number of hit points equal to five times your cleric level.\nChoose any creatures within 30 feet of you, and divide those hit points among them. This feature can restore a creature to no more than half of its hit point maximum. You can't use this feature on an undead or a construct.",
+          "ru": "Начиная со 2-го уровня, вы можете использовать свой Божественный канал для лечения тяжело раненых.\nВ качестве действия вы демонстрируете свой святой символ и вызываете целительную энергию, которая может восстановить количество хитов, равное вашему уровню жреца, умноженному на 5.\nВыберите любых существ в пределах 30 футов от вас и распределите эти хиты между ними. Это умение не может восстановить существу хиты выше половины от его максимума хитов. Вы не можете использовать это умение на нежити или конструктах."
+        }
+      }
+    ],
+    "3": [
+      {
+        "id": "domain-spells-2",
+        "name": {
+          "en": "Domain Spells",
+          "ru": "Заклинания домена"
+        },
+        "description": {
+          "en": "Each domain has a list of spells--its domain spells--that you gain at the cleric levels noted in the domain description. Once you gain a domain spell, you always have it prepared, and it doesn't count against the number of spells you can prepare each day.\nIf you have a domain spell that doesn't appear on the cleric spell list, the spell is nonetheless a cleric spell for you.",
+          "ru": "Каждый домен имеет список заклинаний, которые вы получаете на уровнях жреца, указанных в описании домена."
+        }
+      }
+    ],
+    "4": [
+      {
+        "id": "cleric-ability-score-improvement-1",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1. Как обычно, вы не можете повысить значение характеристики выше 20, используя это умение."
+        }
+      }
+    ],
+    "5": [
+      {
+        "id": "domain-spells-3",
+        "name": {
+          "en": "Domain Spells",
+          "ru": "Заклинания домена"
+        },
+        "description": {
+          "en": "Each domain has a list of spells--its domain spells--that you gain at the cleric levels noted in the domain description. Once you gain a domain spell, you always have it prepared, and it doesn't count against the number of spells you can prepare each day.\nIf you have a domain spell that doesn't appear on the cleric spell list, the spell is nonetheless a cleric spell for you.",
+          "ru": "Каждый домен имеет список заклинаний, которые вы получаете на уровнях жреца, указанных в описании домена."
+        }
+      },
+      {
+        "id": "destroy-undead-cr-1-2-or-below",
+        "name": {
+          "en": "Destroy Undead (CR 1/2 or below)",
+          "ru": "Уничтожение нежити (Опасность 1/2 или ниже)"
+        },
+        "description": {
+          "en": "Starting at 5th level, when an undead fails its saving throw against your Turn Undead feature, the creature is instantly destroyed if its challenge rating is at or below a certain threshold.",
+          "ru": "Начиная с 5-го уровня, когда нежить проваливает спасбросок против вашего умения Изгнание нежити, существо мгновенно уничтожается, если его показатель опасности равен или ниже определенного порога."
+        }
+      }
+    ],
+    "6": [
+      {
+        "id": "blessed-healer",
+        "name": {
+          "en": "Blessed Healer",
+          "ru": "Благословенный целитель"
+        },
+        "description": {
+          "en": "Beginning at 6th level, the healing spells you cast on others heal you as well. When you cast a spell of 1st level or higher that restores hit points to a creature other than you, you regain hit points equal to 2 + the spell's level.",
+          "ru": "Начиная с 6-го уровня, лечащие заклинания, которые вы накладываете на других, лечат и вас. Когда вы накладываете заклинание 1-го уровня или выше, которое восстанавливает хиты существу, отличному от вас, вы восстанавливаете себе хиты, равные 2 + уровень заклинания."
+        }
+      }
+    ],
+    "7": [
+      {
+        "id": "domain-spells-4",
+        "name": {
+          "en": "Domain Spells",
+          "ru": "Заклинания домена"
+        },
+        "description": {
+          "en": "Each domain has a list of spells--its domain spells--that you gain at the cleric levels noted in the domain description. Once you gain a domain spell, you always have it prepared, and it doesn't count against the number of spells you can prepare each day.\nIf you have a domain spell that doesn't appear on the cleric spell list, the spell is nonetheless a cleric spell for you.",
+          "ru": "Каждый домен имеет список заклинаний, которые вы получаете на уровнях жреца, указанных в описании домена."
+        }
+      }
+    ],
+    "8": [
+      {
+        "id": "divine-strike",
+        "name": {
+          "en": "Divine Strike",
+          "ru": "Божественный удар"
+        },
+        "description": {
+          "en": "At 8th level, you gain the ability to infuse your weapon strikes with divine energy. Once on each of your turns when you hit a creature with a weapon attack, you can cause the attack to deal an extra 1d8 radiant damage to the target. When you reach 14th level, the extra damage increases to 2d8.",
+          "ru": "На 8-м уровне вы получаете способность наполнять удары своим оружием божественной энергией. Один раз в каждый свой ход, когда вы попадаете по существу атакой оружием, вы можете нанести цели дополнительный урон излучением 1к8. Когда вы достигаете 14-го уровня, дополнительный урон увеличивается до 2к8."
+        }
+      }
+    ],
+    "9": [
+      {
+        "id": "domain-spells-5",
+        "name": {
+          "en": "Domain Spells",
+          "ru": "Заклинания домена"
+        },
+        "description": {
+          "en": "Each domain has a list of spells--its domain spells--that you gain at the cleric levels noted in the domain description. Once you gain a domain spell, you always have it prepared, and it doesn't count against the number of spells you can prepare each day.\nIf you have a domain spell that doesn't appear on the cleric spell list, the spell is nonetheless a cleric spell for you.",
+          "ru": "Каждый домен имеет список заклинаний, которые вы получаете на уровнях жреца, указанных в описании домена."
+        }
+      }
+    ],
+    "10": [
+      {
+        "id": "divine-intervention",
+        "name": {
+          "en": "Divine Intervention",
+          "ru": "Божественное вмешательство"
+        },
+        "description": {
+          "en": "Beginning at 10th level, you can call on your deity to intervene on your behalf when your need is great.\nImploring your deity's aid requires you to use your action. Describe the assistance you seek, and roll percentile dice. If you roll a number equal to or lower than your cleric level, your deity intervenes. The GM chooses the nature of the intervention; the effect of any cleric spell or cleric domain spell would be appropriate.\nIf your deity intervenes, you can't use this feature again for 7 days. Otherwise, you can use it again after you finish a long rest.\nAt 20th level, your call for intervention succeeds automatically, no roll required.",
+          "ru": "Начиная с 10-го уровня, вы можете призвать свое божество вмешаться от вашего имени, когда ваша нужда велика.\nМольба о помощи требует действия. Опишите помощь, которую вы ищете, и бросьте процентные кости. Если выпадает число, равное или меньшее вашего уровня жреца, ваше божество вмешивается. Мастер выбирает природу вмешательства; эффект любого заклинания жреца или заклинания домена жреца будет уместным."
+        }
+      }
+    ],
+    "11": [
+      {
+        "id": "destroy-undead-cr-2-or-below",
+        "name": {
+          "en": "Destroy Undead (CR 2 or below)",
+          "ru": "Уничтожение нежити (Опасность 2 или ниже)"
+        },
+        "description": {
+          "en": "Starting at 5th level, when an undead fails its saving throw against your Turn Undead feature, the creature is instantly destroyed if its challenge rating is at or below a certain threshold.",
+          "ru": "Начиная с 11-го уровня, когда нежить проваливает спасбросок против вашего умения Изгнание нежити, существо мгновенно уничтожается, если его показатель опасности равен 2 или ниже."
+        }
+      }
+    ],
+    "12": [
+      {
+        "id": "cleric-ability-score-improvement-3",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1. Как обычно, вы не можете повысить значение характеристики выше 20, используя это умение."
+        }
+      }
+    ],
+    "14": [
+      {
+        "id": "destroy-undead-cr-3-or-below",
+        "name": {
+          "en": "Destroy Undead (CR 3 or below)",
+          "ru": "Уничтожение нежити (Опасность 3 или ниже)"
+        },
+        "description": {
+          "en": "Starting at 5th level, when an undead fails its saving throw against your Turn Undead feature, the creature is instantly destroyed if its challenge rating is at or below a certain threshold.",
+          "ru": "Начиная с 14-го уровня, когда нежить проваливает спасбросок против вашего умения Изгнание нежити, существо мгновенно уничтожается, если его показатель опасности равен 3 или ниже."
+        }
+      }
+    ],
+    "16": [
+      {
+        "id": "cleric-ability-score-improvement-4",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1. Как обычно, вы не можете повысить значение характеристики выше 20, используя это умение."
+        }
+      }
+    ],
+    "17": [
+      {
+        "id": "supreme-healing",
+        "name": {
+          "en": "Supreme Healing",
+          "ru": "Высшее исцеление"
+        },
+        "description": {
+          "en": "Starting at 17th level, when you would normally roll one or more dice to restore hit points with a spell, you instead use the highest number possible for each die. For example, instead of restoring 2d6 hit points to a creature, you restore 12.",
+          "ru": "Начиная с 17-го уровня, когда вы обычно бросаете одну или несколько костей для восстановления хитов с помощью заклинания, вы вместо этого используете максимально возможное значение для каждой кости. Например, вместо того чтобы восстанавливать 2к6 хитов существу, вы восстанавливаете 12."
+        }
+      }
+    ],
+    "18": [
+      {
+        "id": "channel-divinity-3-rest",
+        "name": {
+          "en": "Channel Divinity (3/rest)",
+          "ru": "Божественный канал (3/отдых)"
+        },
+        "description": {
+          "en": "Beginning at 6th level, you can use your Channel Divinity twice between rests, and beginning at 18th level, you can use it three times between rests. When you finish a short or long rest, you regain your expended uses.",
+          "ru": "Начиная с 18-го уровня, вы можете использовать Божественный канал трижды между отдыхами."
+        }
+      }
+    ],
+    "19": [
+      {
+        "id": "cleric-ability-score-improvement-5",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1. Как обычно, вы не можете повысить значение характеристики выше 20, используя это умение."
+        }
+      }
+    ],
+    "20": [
+      {
+        "id": "divine-intervention-improvement",
+        "name": {
+          "en": "Divine Intervention Improvement",
+          "ru": "Улучшенное божественное вмешательство"
+        },
+        "description": {
+          "en": "At 20th level, your call for intervention succeeds automatically, no roll required.",
+          "ru": "На 20-м уровне ваш призыв о вмешательстве удается автоматически."
+        }
+      }
+    ]
+  },
   "spellcasting": {
     "ability": "wisdom",
     "type": "full"

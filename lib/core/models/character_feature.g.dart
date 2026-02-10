@@ -32,13 +32,14 @@ class CharacterFeatureAdapter extends TypeAdapter<CharacterFeature> {
       iconName: fields[12] as String?,
       consumption: fields[13] as FeatureConsumption?,
       sourceId: fields[14] as String?,
+      usageCostId: fields[15] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CharacterFeature obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -68,7 +69,9 @@ class CharacterFeatureAdapter extends TypeAdapter<CharacterFeature> {
       ..writeByte(13)
       ..write(obj.consumption)
       ..writeByte(14)
-      ..write(obj.sourceId);
+      ..write(obj.sourceId)
+      ..writeByte(15)
+      ..write(obj.usageCostId);
   }
 
   @override
@@ -181,6 +184,10 @@ class FeatureTypeAdapter extends TypeAdapter<FeatureType> {
         return FeatureType.resourcePool;
       case 5:
         return FeatureType.toggle;
+      case 6:
+        return FeatureType.free;
+      case 7:
+        return FeatureType.special;
       default:
         return FeatureType.passive;
     }
@@ -206,6 +213,12 @@ class FeatureTypeAdapter extends TypeAdapter<FeatureType> {
         break;
       case FeatureType.toggle:
         writer.writeByte(5);
+        break;
+      case FeatureType.free:
+        writer.writeByte(6);
+        break;
+      case FeatureType.special:
+        writer.writeByte(7);
         break;
     }
   }

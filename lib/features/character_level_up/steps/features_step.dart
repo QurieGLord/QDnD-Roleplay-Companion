@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character_feature.dart';
 import '../../../core/models/class_data.dart';
+import '../../../core/services/feature_service.dart';
 
 class FeaturesStep extends StatefulWidget {
   final List<CharacterFeature> newFeatures;
@@ -30,13 +31,52 @@ class FeaturesStep extends StatefulWidget {
 class _FeaturesStepState extends State<FeaturesStep> {
   final Map<String, String> _selections = {}; // featureId -> optionId
 
-  // Fighting Styles (Hardcoded for now as they aren't in JSON structure yet)
-  final List<Map<String, String>> _fightingStyles = [
-    {'id': 'defense', 'name': 'Defense', 'desc': '+1 bonus to AC while wearing armor'},
-    {'id': 'dueling', 'name': 'Dueling', 'desc': '+2 damage with one-handed melee weapon'},
-    {'id': 'great_weapon', 'name': 'Great Weapon Fighting', 'desc': 'Reroll 1 or 2 on damage dice for two-handed weapons'},
-    {'id': 'protection', 'name': 'Protection', 'desc': 'Use reaction to impose disadvantage on attack against ally'},
-  ];
+  // Mapping from internal ID to SRD Feature ID
+  static const Map<String, String> _styleIdMap = {
+    'archery': 'fighting-style-archery',
+    'defense': 'fighting-style-defense',
+    'dueling': 'fighting-style-dueling',
+    'great_weapon': 'fighting-style-great-weapon-fighting',
+    'protection': 'fighting-style-protection',
+    'two_weapon': 'fighting-style-two-weapon-fighting',
+  };
+
+  // Available styles per class
+  static const Map<String, List<String>> _classStyles = {
+    'fighter': ['archery', 'defense', 'dueling', 'great_weapon', 'protection', 'two_weapon'],
+    'paladin': ['defense', 'dueling', 'great_weapon', 'protection'],
+    'ranger': ['archery', 'defense', 'dueling', 'two_weapon'],
+  };
+
+  List<Map<String, String>> _getFightingStyles(BuildContext context) {
+    final classId = widget.classData.id.toLowerCase();
+    final availableIds = _classStyles[classId] ?? _classStyles['fighter']!; // Fallback to all
+    
+    final locale = Localizations.localeOf(context).languageCode;
+    final List<Map<String, String>> result = [];
+
+    for (var styleId in availableIds) {
+      final featureId = _styleIdMap[styleId];
+      if (featureId != null) {
+        final feature = FeatureService.getFeatureById(featureId);
+        if (feature != null) {
+          result.add({
+            'id': styleId,
+            'name': feature.getName(locale),
+            'desc': feature.getDescription(locale),
+          });
+        } else {
+           // Fallback if feature not found in service (should not happen if assets generated)
+           result.add({
+             'id': styleId, 
+             'name': styleId.toUpperCase(), 
+             'desc': 'Style description not found'
+           });
+        }
+      }
+    }
+    return result;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +89,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
          widget.newSpellSlots.asMap().entries.any((e) => e.value > (widget.oldSpellSlots.length > e.key ? widget.oldSpellSlots[e.key] : 0)));
 
     // Determine required choices
-    bool needsFightingStyle = widget.newFeatures.any((f) => f.id == 'fighting_style');
+    bool needsFightingStyle = widget.newFeatures.any((f) => f.id.contains('fighting-style'));
     bool needsSubclass = widget.nextLevel == widget.classData.subclassLevel;
 
     bool allChoicesMade = true;
@@ -125,7 +165,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 if (widget.newFeatures.isNotEmpty) ...[
                   _buildSectionHeader(context, l10n.classFeatures),
                   ...widget.newFeatures.map((feature) {
-                    if (feature.id == 'fighting_style') {
+                    if (feature.id.contains('fighting-style')) {
                       return _buildFightingStyleChoice(context, feature, l10n);
                     }
                     return _buildFeatureCard(context, feature);
@@ -232,7 +272,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
           padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
           child: Text(l10n.chooseFightingStyle, style: const TextStyle(fontWeight: FontWeight.bold)),
         ),
-        ..._fightingStyles.map((style) {
+        ..._getFightingStyles(context).map((style) {
           final isSelected = _selections['fighting_style'] == style['id'];
           return Card(
             elevation: isSelected ? 4 : 1,

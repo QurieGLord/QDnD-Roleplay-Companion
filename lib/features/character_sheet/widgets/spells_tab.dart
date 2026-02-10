@@ -53,31 +53,84 @@ class _SpellsTabState extends State<SpellsTab> {
   }
 
   void _useFeature(CharacterFeature feature, String locale, AppLocalizations l10n) {
-    // 1. Consumption Logic
-    if (feature.consumption != null) {
-      final resource = _findResourceFeature(feature.consumption!.resourceId);
-      if (resource != null && resource.resourcePool != null) {
-        if (resource.resourcePool!.currentUses >= feature.consumption!.amount) {
-          setState(() {
-            resource.resourcePool!.use(feature.consumption!.amount);
-            widget.character.save();
-          });
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('${feature.getName(locale)} used!'),
-            duration: const Duration(milliseconds: 1000),
-          ));
-        } else {
-           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-             content: Text('Not enough ${resource.getName(locale)}!'), 
-             backgroundColor: Theme.of(context).colorScheme.error
-           ));
-        }
-        return;
-      }
+    // 0. Find Linked Resource
+    CharacterFeature? resource;
+    if (feature.usageCostId != null) {
+      try {
+        // Smart Resource Search (Fuzzy Matching)
+        resource = widget.character.features.firstWhere(
+          (f) {
+            final match = f.resourcePool != null && (
+              f.id == feature.usageCostId || 
+              f.id.endsWith('-${feature.usageCostId}') || 
+              f.id.startsWith('${feature.usageCostId}-') ||
+              (feature.usageCostId == 'ki' && f.id.contains('ki'))
+            );
+            return match;
+          }
+        );
+      } catch (_) {}
+    } else if (feature.consumption != null) {
+       resource = _findResourceFeature(feature.consumption!.resourceId);
     }
 
-    // 2. Legacy Channel Divinity Logic
-    if (feature.nameEn.contains('Channel Divinity') || feature.descriptionEn.contains('Channel Divinity')) {
+    // Fallback for missing usageCostId on Channel Divinity
+    if (resource == null && feature.usageCostId == null && feature.id.startsWith('channel-divinity-')) {
+       try {
+         resource = widget.character.features.firstWhere(
+           (f) => f.resourcePool != null && (f.id == 'channel-divinity' || f.id.startsWith('channel-divinity-1-rest'))
+         );
+       } catch (_) {}
+    }
+
+    // 1. Validate Resource
+    if (resource == null || resource.resourcePool == null) {
+       // Fallback for legacy Channel Divinity
+       if (feature.nameEn.contains('Channel Divinity')) {
+          _useLegacyChannelDivinity(l10n);
+       }
+       return;
+    }
+
+    final pool = resource.resourcePool!;
+
+    // 2. Granular Spending (Slider)
+    if (feature.usageInputMode == 'slider') {
+      if (pool.currentUses <= 0) {
+         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+             content: Text('No charges left for ${resource.getName(locale)}!'),
+             backgroundColor: Theme.of(context).colorScheme.error
+         ));
+         return;
+      }
+      _showUsageDialog(context, feature, resource, locale);
+      return;
+    }
+
+    // 3. Simple Spending (Fixed Cost)
+    int cost = 1;
+    if (feature.consumption != null) {
+      cost = feature.consumption!.amount;
+    }
+
+    if (pool.currentUses >= cost) {
+      setState(() {
+        pool.use(cost);
+        widget.character.save();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('${feature.getName(locale)} used! (-$cost ${resource.getName(locale)})'),
+        duration: const Duration(milliseconds: 1000),
+      ));
+    } else {
+       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+         content: Text('Not enough ${resource.getName(locale)} (Need $cost)!'), 
+         backgroundColor: Theme.of(context).colorScheme.error
+       ));
+    }
+  }
+
+  void _useLegacyChannelDivinity(AppLocalizations l10n) {
       try {
         final cdPoolFeature = widget.character.features.firstWhere((f) => f.id == 'channel_divinity');
         if (cdPoolFeature.resourcePool != null) {
@@ -98,7 +151,61 @@ class _SpellsTabState extends State<SpellsTab> {
            }
         }
       } catch (_) {}
-    }
+  }
+
+  void _showUsageDialog(BuildContext context, CharacterFeature feature, CharacterFeature resource, String locale) {
+    int spendAmount = 1;
+    final max = resource.resourcePool!.currentUses;
+    
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text('Spend ${resource.getName(locale)}'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('How many points to use for ${feature.getName(locale)}?'),
+                  const SizedBox(height: 16),
+                  Text('$spendAmount / $max', style: Theme.of(context).textTheme.headlineMedium),
+                  Slider(
+                    value: spendAmount.toDouble(),
+                    min: 1,
+                    max: max.toDouble(),
+                    divisions: max > 1 ? max - 1 : 1,
+                    label: spendAmount.toString(),
+                    onChanged: (value) {
+                      setDialogState(() => spendAmount = value.round());
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    setState(() {
+                      resource.resourcePool!.use(spendAmount);
+                      widget.character.save();
+                    });
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('${feature.getName(locale)} used! (-$spendAmount ${resource.getName(locale)})'),
+                    ));
+                  },
+                  child: const Text('Spend'),
+                ),
+              ],
+            );
+          }
+        );
+      },
+    );
   }
 
   void _showCastSpellDialog(Spell spell, String locale, AppLocalizations l10n) {
@@ -413,6 +520,18 @@ class _SpellsTabState extends State<SpellsTab> {
       if (res != null) {
         resourceCost = '${feature.consumption!.amount} ${res.getName(locale)}';
       }
+    } else if (feature.usageCostId != null) {
+       try {
+        final res = widget.character.features.firstWhere(
+          (f) => f.resourcePool != null && (
+            f.id == feature.usageCostId || 
+            f.id.endsWith('-${feature.usageCostId}') || 
+            f.id.startsWith('${feature.usageCostId}-') ||
+            (feature.usageCostId == 'ki' && f.id.contains('ki'))
+          ),
+        );
+        resourceCost = '1 ${res.getName(locale)}';
+      } catch (_) {}
     }
 
     return Card(
@@ -464,7 +583,7 @@ class _SpellsTabState extends State<SpellsTab> {
                 style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)
               ),
               
-              if (resourceCost != null || (feature.nameEn.contains('Channel Divinity'))) ...[
+              if (resourceCost != null || feature.isAction || feature.usageCostId != null || (feature.nameEn.contains('Channel Divinity'))) ...[
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
