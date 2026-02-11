@@ -676,5 +676,13 @@
   "forgeItem": "Создать",
   "itemExample": "напр. Экскалибур",
   "typeTool": "Инструменты",
-  "typeTreasure": "Сокровища"
+  "typeTreasure": "Сокровища",
+  "selectSubclass": "Выберите подкласс",
+  "cantripsTab": "Заговоры ({current}/{max})",
+  "level1TabKnown": "1-й круг ({current}/{max})",
+  "level1TabAll": "1-й круг (Все)",
+  "noSpellsAtLevel1": "Нет доступных заклинаний 1-го круга",
+  "selectSpellsInstruction": "Выберите заклинания для вашего персонажа (Заговоры и 1-й круг).",
+  "useAction": "Использовать",
+  "useActionCost": "Использовать ({cost})"
 }

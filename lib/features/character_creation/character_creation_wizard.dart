@@ -291,7 +291,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
         avatarPath: _state.avatarPath,
         race: _state.selectedRace!.id, // Store ID
         characterClass: _state.selectedClass!.id, // Store ID
-        subclass: _state.selectedSubrace?.id, // Store ID
+        subclass: _state.selectedSubclass?.id, // Store ID (Class Subclass)
         background: _state.selectedBackground?.id, // Store ID
         level: 1,
         maxHp: maxHp,

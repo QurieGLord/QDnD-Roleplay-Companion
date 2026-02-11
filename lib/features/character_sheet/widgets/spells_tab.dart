@@ -592,8 +592,8 @@ class _SpellsTabState extends State<SpellsTab> {
                     icon: const Icon(Icons.bolt, size: 16),
                     label: Text(
                       resourceCost != null 
-                        ? 'Use ($resourceCost)' 
-                        : 'Use', // Fallback
+                        ? l10n.useActionCost(resourceCost) 
+                        : l10n.useAction, 
                     ),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 10),

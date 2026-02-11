@@ -2145,4 +2145,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get typeTreasure => 'Treasure';
+
+  @override
+  String cantripsTab(int current, int max) {
+    return 'Cantrips ($current/$max)';
+  }
+
+  @override
+  String level1TabKnown(int current, int max) {
+    return 'Level 1 ($current/$max)';
+  }
+
+  @override
+  String get level1TabAll => 'Level 1 (All)';
+
+  @override
+  String get noSpellsAtLevel1 => 'No spells available at level 1';
+
+  @override
+  String get useAction => 'Use';
+
+  @override
+  String useActionCost(int cost) {
+    return 'Use ($cost)';
+  }
 }
