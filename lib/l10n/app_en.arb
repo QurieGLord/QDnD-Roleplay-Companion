@@ -980,7 +980,7 @@
   "useActionCost": "Use ({cost})",
   "@useActionCost": {
     "placeholders": {
-      "cost": { "type": "int" }
+      "cost": { "type": "String" }
     }
   }
 }

@@ -4140,7 +4140,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Use ({cost})'**
-  String useActionCost(int cost);
+  String useActionCost(String cost);
 }
 
 class _AppLocalizationsDelegate

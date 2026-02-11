@@ -2145,7 +2145,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get useAction => 'Использовать';
 
   @override
-  String useActionCost(int cost) {
+  String useActionCost(String cost) {
     return 'Использовать ($cost)';
   }
 }
