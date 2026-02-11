@@ -3482,6 +3482,12 @@ abstract class AppLocalizations {
   /// **'{count} spell{count, plural, =1{} other{s}}'**
   String spellsCount(int count);
 
+  /// No description provided for @preparedSpells.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepared'**
+  String get preparedSpells;
+
   /// No description provided for @preparedSpellsCount.
   ///
   /// In en, this message translates to:

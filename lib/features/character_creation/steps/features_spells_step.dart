@@ -662,6 +662,7 @@ class FeaturesSpellsStep extends StatelessWidget {
                         level0Spells.isEmpty 
                             ? Center(child: Text(l10n.noSpellsFound))
                             : ListView(
+                                padding: const EdgeInsets.only(bottom: 80),
                                 children: level0Spells.map((spell) {
                                   final isSelected = state.selectedSpells.contains(spell.id);
                                   // Disable if not selected AND limit reached
@@ -682,6 +683,7 @@ class FeaturesSpellsStep extends StatelessWidget {
                         level1Spells.isEmpty 
                             ? Center(child: Text(l10n.noSpellsFound))
                             : ListView(
+                                padding: const EdgeInsets.only(bottom: 80),
                                 children: level1Spells.map((spell) {
                                   final isSelected = state.selectedSpells.contains(spell.id);
                                   // Disable if not selected AND limit reached (unless unlimited)

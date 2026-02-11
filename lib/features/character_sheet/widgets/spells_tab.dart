@@ -5,7 +5,6 @@ import '../../../core/models/spell.dart';
 import '../../../core/models/character_feature.dart';
 import '../../../core/services/spell_service.dart';
 import '../../../core/services/spellcasting_service.dart';
-import '../../../core/services/storage_service.dart';
 import '../../../core/managers/spell_preparation_manager.dart';
 import 'spell_slots_widget.dart';
 import '../../spell_almanac/spell_almanac_screen.dart';
@@ -22,7 +21,12 @@ class SpellsTab extends StatefulWidget {
   State<SpellsTab> createState() => _SpellsTabState();
 }
 
-class _SpellsTabState extends State<SpellsTab> {
+class _SpellsTabState extends State<SpellsTab> with AutomaticKeepAliveClientMixin {
+  final Map<int, bool> _expandedLevels = {};
+
+  @override
+  bool get wantKeepAlive => true;
+
   String _getLocalizedActionEconomy(AppLocalizations l10n, String economy) {
     final lower = economy.toLowerCase();
     if (lower.contains('bonus')) return l10n.actionTypeBonus;
@@ -311,17 +315,43 @@ class _SpellsTabState extends State<SpellsTab> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final colorScheme = Theme.of(context).colorScheme;
     final locale = Localizations.localeOf(context).languageCode;
     final l10n = AppLocalizations.of(context)!;
+    
+    // 1. Determine which spells to display
+    final classId = widget.character.characterClass.toLowerCase();
+    final isWizard = classId == 'wizard';
+    final isPreparedCaster = SpellcastingService.getSpellcastingType(classId) == 'prepared';
 
-    final knownSpells = widget.character.knownSpells
-        .map((id) => SpellService.getSpellById(id))
-        .whereType<Spell>()
-        .toList();
+    // Calculate max spell level available
+    int maxSpellLevel = 0;
+    // For Pact Magic (Warlock), slots are all same level, but maxSpellSlots usually has length = max level?
+    // Actually standard slots: index 0 = Level 1.
+    for (int i = 0; i < widget.character.maxSpellSlots.length; i++) {
+       if (widget.character.maxSpellSlots[i] > 0) {
+         maxSpellLevel = i + 1;
+       }
+    }
+
+    List<Spell> displaySpells;
+    if (isPreparedCaster && !isWizard) {
+      // Cleric, Druid, Paladin: Show ALL class spells, but filtered by slot level
+      // Also always include Cantrips (Level 0)
+      displaySpells = SpellService.getSpellsForClass(classId)
+          .where((s) => s.level == 0 || s.level <= maxSpellLevel)
+          .toList();
+    } else {
+      // Wizard, Bard, Sorcerer, etc: Show KNOWN spells (Spellbook)
+      displaySpells = widget.character.knownSpells
+          .map((id) => SpellService.getSpellById(id))
+          .whereType<Spell>()
+          .toList();
+    }
 
     final spellsByLevel = <int, List<Spell>>{};
-    for (var spell in knownSpells) {
+    for (var spell in displaySpells) {
       spellsByLevel.putIfAbsent(spell.level, () => []).add(spell);
     }
 
@@ -337,65 +367,74 @@ class _SpellsTabState extends State<SpellsTab> {
 
     return Stack(
       children: [
-        ListView(
-          padding: const EdgeInsets.all(16),
+        Column(
           children: [
-            if (resourceFeatures.isNotEmpty) ...[
-              _buildSectionHeader(l10n.resources.toUpperCase()),
-              ...resourceFeatures.map((feature) => _buildResourceFeature(feature, locale)).toList(),
-              const SizedBox(height: 16),
-            ],
-
-            if (activeFeatures.isNotEmpty) ...[
-              _buildSectionHeader(l10n.activeAbilities.toUpperCase()),
-              ...activeFeatures.map((feature) => _buildActiveFeature(feature, locale, l10n)).toList(),
-              const SizedBox(height: 16),
-            ],
-
-            _buildSectionHeader(l10n.magic.toUpperCase()),
-            _buildMagicSection(context, l10n),
-            const SizedBox(height: 16),
-
-            if (knownSpells.isEmpty)
-              Center(child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Icon(Icons.auto_fix_off, size: 48, color: colorScheme.onSurface.withOpacity(0.3)),
-                    const SizedBox(height: 8),
-                    Text(l10n.noSpellsLearned, style: TextStyle(color: colorScheme.onSurface.withOpacity(0.5))),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  if (resourceFeatures.isNotEmpty) ...[
+                    _buildSectionHeader(l10n.resources.toUpperCase()),
+                    ...resourceFeatures.map((feature) => _buildResourceFeature(feature, locale)).toList(),
+                    const SizedBox(height: 16),
                   ],
-                ),
-              ))
-            else
-              ...(spellsByLevel.keys.toList()..sort()).map((level) => _buildSpellLevelGroup(level, spellsByLevel[level]!, locale, l10n)).toList(),
 
-            const SizedBox(height: 16),
+                  if (activeFeatures.isNotEmpty) ...[
+                    _buildSectionHeader(l10n.activeAbilities.toUpperCase()),
+                    ...activeFeatures.map((feature) => _buildActiveFeature(feature, locale, l10n)).toList(),
+                    const SizedBox(height: 16),
+                  ],
 
-            if (passiveFeatures.isNotEmpty) ...[
-              _buildSectionHeader(l10n.passiveTraits.toUpperCase()),
-              Card(
-                elevation: 1,
-                child: ExpansionTile(
-                  title: Text('${passiveFeatures.length} ${l10n.passiveTraits}'),
-                  subtitle: Text(
-                    passiveFeatures.map((f) => f.getName(locale)).join(', '),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                  _buildSectionHeader(
+                    l10n.magic.toUpperCase(),
+                    trailing: _buildPreparationCounter(context, l10n),
                   ),
-                  leading: Icon(Icons.psychology, color: colorScheme.secondary),
-                  children: passiveFeatures.map((feature) => ListTile(
-                    title: Text(feature.getName(locale), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                    subtitle: Text(feature.getDescription(locale), style: const TextStyle(fontSize: 12)),
-                    dense: true,
-                    leading: Icon(_getFeatureIcon(feature.iconName), size: 18, color: colorScheme.secondary.withOpacity(0.7)),
-                  )).toList(),
-                ),
-              ),
-            ],
+                  _buildMagicSection(context, l10n, showCounter: false), // Disable old counter
+                  const SizedBox(height: 16),
 
-            const SizedBox(height: 80),
+                  if (displaySpells.isEmpty)
+                    Center(child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Icon(Icons.auto_fix_off, size: 48, color: colorScheme.onSurface.withOpacity(0.3)),
+                          const SizedBox(height: 8),
+                          Text(l10n.noSpellsLearned, style: TextStyle(color: colorScheme.onSurface.withOpacity(0.5))),
+                        ],
+                      ),
+                    ))
+                  else
+                    ...(spellsByLevel.keys.toList()..sort()).map((level) => _buildSpellLevelGroup(level, spellsByLevel[level]!, locale, l10n)).toList(),
+
+                  const SizedBox(height: 16),
+
+                  if (passiveFeatures.isNotEmpty) ...[
+                    _buildSectionHeader(l10n.passiveTraits.toUpperCase()),
+                    Card(
+                      elevation: 1,
+                      child: ExpansionTile(
+                        title: Text('${passiveFeatures.length} ${l10n.passiveTraits}'),
+                        subtitle: Text(
+                          passiveFeatures.map((f) => f.getName(locale)).join(', '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                        ),
+                        leading: Icon(Icons.psychology, color: colorScheme.secondary),
+                        children: passiveFeatures.map((feature) => ListTile(
+                          title: Text(feature.getName(locale), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          subtitle: Text(feature.getDescription(locale), style: const TextStyle(fontSize: 12)),
+                          dense: true,
+                          leading: Icon(_getFeatureIcon(feature.iconName), size: 18, color: colorScheme.secondary.withOpacity(0.7)),
+                        )).toList(),
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 80),
+                ],
+              ),
+            ),
           ],
         ),
         
@@ -418,22 +457,70 @@ class _SpellsTabState extends State<SpellsTab> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, {Widget? trailing}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w900,
-          color: Theme.of(context).colorScheme.primary,
-          letterSpacing: 1.5,
-        ),
+      padding: const EdgeInsets.only(bottom: 8.0, left: 4.0, right: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+              color: Theme.of(context).colorScheme.primary,
+              letterSpacing: 1.5,
+            ),
+          ),
+          if (trailing != null) trailing,
+        ],
       ),
     );
   }
 
+  Widget? _buildPreparationCounter(BuildContext context, AppLocalizations l10n) {
+    final classId = widget.character.characterClass.toLowerCase();
+    final isPreparedCaster = SpellcastingService.getSpellcastingType(classId) == 'prepared';
+    if (!isPreparedCaster) return null;
+
+    final colorScheme = Theme.of(context).colorScheme;
+    final maxPrepared = SpellcastingService.getMaxPreparedSpells(widget.character);
+    
+    int currentPrepared = 0;
+    for (final id in widget.character.preparedSpells) {
+       final s = SpellService.getSpellById(id);
+       if (s != null && s.level > 0) currentPrepared++;
+    }
+
+    final isOverLimit = currentPrepared > maxPrepared;
+    final isFull = currentPrepared == maxPrepared;
+    final color = isOverLimit ? colorScheme.error : (isFull ? colorScheme.primary : colorScheme.onSurfaceVariant);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Text(
+            '${l10n.preparedSpells.toUpperCase()}: ',
+            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color.withValues(alpha: 0.8)),
+          ),
+          Text(
+            '$currentPrepared/$maxPrepared',
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: color),
+          ),
+        ],
+      ),
+    );
+  }
+
+
   Widget _buildResourceFeature(CharacterFeature feature, String locale) {
+    // ... (unchanged)
     final pool = feature.resourcePool!;
     final colorScheme = Theme.of(context).colorScheme;
     
@@ -608,10 +695,10 @@ class _SpellsTabState extends State<SpellsTab> {
     );
   }
 
-  Widget _buildMagicSection(BuildContext context, AppLocalizations l10n) {
+  Widget _buildMagicSection(BuildContext context, AppLocalizations l10n, {bool showCounter = true}) {
     final colorScheme = Theme.of(context).colorScheme;
     final isPactMagic = SpellcastingService.getSpellcastingType(widget.character.characterClass) == 'pact_magic';
-    final isPreparedCaster = SpellcastingService.getSpellcastingType(widget.character.characterClass) == 'prepared';
+    // isPreparedCaster check removed as we handle it via showCounter or header
     final maxPrepared = SpellcastingService.getMaxPreparedSpells(widget.character);
     final currentPrepared = widget.character.preparedSpells.length;
 
@@ -621,7 +708,7 @@ class _SpellsTabState extends State<SpellsTab> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            if (isPreparedCaster) ...[
+            if (showCounter) ...[
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
@@ -695,14 +782,25 @@ class _SpellsTabState extends State<SpellsTab> {
 
   Widget _buildSpellLevelGroup(int level, List<Spell> spells, String locale, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Text(level == 0 ? l10n.cantrips.toUpperCase() : l10n.levelLabel(level).toUpperCase(), style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+    final title = level == 0 ? l10n.cantrips.toUpperCase() : l10n.levelLabel(level).toUpperCase();
+    
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        key: PageStorageKey('spell_level_$level'),
+        initiallyExpanded: _expandedLevels[level] ?? true,
+        onExpansionChanged: (expanded) => _expandedLevels[level] = expanded,
+        tilePadding: EdgeInsets.zero,
+        title: Text(
+          title, 
+          style: TextStyle(
+            color: colorScheme.primary, 
+            fontWeight: FontWeight.bold, 
+            letterSpacing: 1.0,
+            fontSize: 14
+          )
         ),
-        ...spells.map((spell) {
+        children: spells.map((spell) {
            final isPrepared = widget.character.preparedSpells.contains(spell.id);
            final canCast = spell.level == 0 || (spell.level <= widget.character.spellSlots.length && widget.character.spellSlots[spell.level - 1] > 0);
            
@@ -719,7 +817,15 @@ class _SpellsTabState extends State<SpellsTab> {
                leading: GestureDetector(
                  onTap: () {
                    setState(() {
-                      SpellPreparationManager.togglePreparation(widget.character, spell, context);
+                      final success = SpellPreparationManager.togglePreparation(widget.character, spell, context);
+                      if (!success) {
+                         ScaffoldMessenger.of(context).showSnackBar(
+                           SnackBar(
+                             content: Text('Cannot prepare more spells! Limit reached.'), // Using hardcoded English as fallback or use a suitable l10n key if found
+                             backgroundColor: Theme.of(context).colorScheme.error,
+                           )
+                         );
+                      }
                    });
                  },
                  child: Icon(
@@ -733,7 +839,7 @@ class _SpellsTabState extends State<SpellsTab> {
                trailing: IconButton(
                  icon: const Icon(Icons.auto_fix_high),
                  onPressed: canCast ? () => _showCastSpellDialog(spell, locale, l10n) : null,
-                 color: canCast ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.2),
+                 color: canCast ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.2),
                  tooltip: l10n.castSpell,
                ),
                onTap: () => showModalBottomSheet(
@@ -756,8 +862,7 @@ class _SpellsTabState extends State<SpellsTab> {
              ),
            );
         }).toList(),
-        const SizedBox(height: 8),
-      ],
+      ),
     );
   }
 

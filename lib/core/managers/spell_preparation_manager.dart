@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/character.dart';
 import '../models/spell.dart';
 import '../services/spellcasting_service.dart';
+import '../services/spell_service.dart';
 
 class SpellPreparationManager {
   /// Toggles the prepared status of a spell for a character.
@@ -39,7 +40,6 @@ class SpellPreparationManager {
     // 2. For 'prepared' casters (Wizard, Cleric, Druid, Paladin), check limits
     if (casterType == 'prepared') {
       final maxPrepared = SpellcastingService.getMaxPreparedSpells(character);
-      final currentPrepared = character.preparedSpells.length;
 
       // Always allow Cantrips (Level 0) to be "prepared" (though usually they are just known)
       // D&D 5e: Cantrips are not prepared, they are known. 
@@ -51,44 +51,25 @@ class SpellPreparationManager {
          return true;
       }
 
-      // Check count (excluding cantrips from the current count if necessary, 
-      // but usually 'preparedSpells' list should only contain leveled spells for prepared casters).
-      // Let's assume preparedSpells might contain cantrips if the user added them there.
-      // We should count only leveled spells against the limit.
-      // However, retrieving all spell objects to check levels is expensive here without a cache.
-      // For now, let's assume the standard list logic. 
-      // A better approach: Filter character.preparedSpells by checking if they are leveled spells.
-      // Since we don't have easy synchronous access to all spell objects by ID here without SpellService,
-      // and SpellService.getSpellById might be sync or async (it looks sync in previous file).
+      // Check count (excluding cantrips from the current count)
+      // Filter prepared spells to find only those with level > 0
+      int preparedLeveledCount = 0;
+      for (final id in character.preparedSpells) {
+        final preparedSpell = SpellService.getSpellById(id);
+        if (preparedSpell != null && preparedSpell.level > 0) {
+          preparedLeveledCount++;
+        }
+      }
       
-      // Strict check:
-      if (currentPrepared >= maxPrepared) {
+      // Strict check
+      if (preparedLeveledCount >= maxPrepared) {
         // Validation Failed
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Cannot prepare more spells! (Max: $maxPrepared)'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-        // Optional: Haptic feedback could be added here if a plugin was available
         return false;
       }
 
       // Validation Passed
       character.preparedSpells.add(spell.id);
       character.save();
-      
-      final locale = Localizations.localeOf(context).languageCode;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Prepared ${spell.getName(locale)} (${currentPrepared + 1}/$maxPrepared)'),
-          backgroundColor: Theme.of(context).colorScheme.secondary,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(milliseconds: 1000),
-        ),
-      );
       return true;
     }
 
