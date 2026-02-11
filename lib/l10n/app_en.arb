@@ -958,5 +958,29 @@
   "forgeItem": "Forge Item",
   "itemExample": "e.g. Excalibur",
   "typeTool": "Tools",
-  "typeTreasure": "Treasure"
+  "typeTreasure": "Treasure",
+  "selectSubclass": "Select Subclass",
+  "cantripsTab": "Cantrips ({current}/{max})",
+  "@cantripsTab": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "level1TabKnown": "Level 1 ({current}/{max})",
+  "@level1TabKnown": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "level1TabAll": "Level 1 (All)",
+  "noSpellsAtLevel1": "No spells available at level 1",
+  "useAction": "Use",
+  "useActionCost": "Use ({cost})",
+  "@useActionCost": {
+    "placeholders": {
+      "cost": { "type": "int" }
+    }
+  }
 }

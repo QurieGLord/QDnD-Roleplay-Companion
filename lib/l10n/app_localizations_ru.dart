@@ -1275,7 +1275,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get featureTypeOther => 'Другое';
 
   @override
-  String get selectSubclass => 'Выбор подкласса';
+  String get selectSubclass => 'Выберите подкласс';
 
   @override
   String get selectSpecialization => 'Выбор специализации';
@@ -1810,7 +1810,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get selectSpellsInstruction =>
-      'Select spells for your character (Level 0 & 1).';
+      'Выберите заклинания для вашего персонажа (Заговоры и 1-й круг).';
 
   @override
   String noSpellsFoundForClass(String className) {
@@ -2124,4 +2124,28 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get typeTreasure => 'Сокровища';
+
+  @override
+  String cantripsTab(int current, int max) {
+    return 'Заговоры ($current/$max)';
+  }
+
+  @override
+  String level1TabKnown(int current, int max) {
+    return '1-й круг ($current/$max)';
+  }
+
+  @override
+  String get level1TabAll => '1-й круг (Все)';
+
+  @override
+  String get noSpellsAtLevel1 => 'Нет доступных заклинаний 1-го круга';
+
+  @override
+  String get useAction => 'Использовать';
+
+  @override
+  String useActionCost(int cost) {
+    return 'Использовать ($cost)';
+  }
 }

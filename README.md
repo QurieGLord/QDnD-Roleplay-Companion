@@ -32,20 +32,20 @@ Whether you're an experienced adventurer or a beginning hero, QD&D will become y
 - **Dice Roller:** 3D-like physics animations for satisfying rolls.
 
 ### 🎭 Character Management
-- **Creation Wizard:** Step-by-step character creation with instant feature preview.
+- **Creation Wizard:** Step-by-step character creation. **NEW:** Now supports Level 1 Subclasses (Cleric, Sorcerer, Warlock).
 - **Level Up Wizard:** Interactive leveling with choice support (Subclass, Fighting Style).
 - **Universal System:** Supports all 13 official classes via data-driven architecture.
 - **Fight Club 5 Import:** Seamlessly migrate your characters from XML.
+
+### 🔮 Magic & Spells
+- **Smart Spell Manager:** Tracks "Known Spells" vs "Prepared Spells" limits automatically.
+- **Spell Slots:** Interactive trackers that auto-scale with level.
+- **Class Features:** Smart tracking of resources (e.g., Lay on Hands, Ki Points) and active abilities.
 
 ### ⚔️ Combat System
 - **Combat Tracker:** Initiative, rounds, and turn management with a visual dashboard.
 - **Vitality:** Quick HP adjustments with shake animations, Death Saves, and Temporary HP.
 - **Conditions:** Track all 13 conditions with detailed tooltips.
-
-### 🔮 Magic & Spells
-- **Spellbook:** Manage known and prepared spells with filtering.
-- **Spell Slots:** Interactive trackers that auto-scale with level.
-- **Class Features:** Smart tracking of resources (e.g., Lay on Hands) and active abilities.
 
 ### 🎒 Inventory & Adventure
 - **Equipment:** Visual slots for weapons/armor with auto AC calculation.
@@ -60,9 +60,83 @@ Whether you're an experienced adventurer or a beginning hero, QD&D will become y
 - **Cleanup:** Easily remove specific compendiums without losing other data.
 
 ### 🌍 Localization
-- **Bilingual:** Full support for English and Russian languages (UI and Content).
+- **Bilingual:** Full support for **English** and **Russian** languages (UI and Content).
 - **Smart Parsing:** Automatically detects and separates bilingual text in imported files (e.g. `English text ---RU--- Русский текст`).
-- **Dynamic Translation:** Automatically formats units (lb/kg, ft/m) and terms based on your preference.
+- **Dynamic Translation:** Uses official D&D terminology (SRD/Hobby World).
+
+---
+
+## 📱 Screenshots
+
+<div align="center">
+
+| Character Sheet | Combat Tracker | Spells |
+|:-:|:-:|:-:|
+| ![Character Sheet](docs/screenshots/character_sheet.png) | ![Combat Tracker](docs/screenshots/combat.png) | ![Spells](docs/screenshots/spells.png) |
+
+| Journal | Inventory | Level Up |
+|:-:|:-:|:-:|
+| ![Journal](docs/screenshots/journal.png) | ![Inventory](docs/screenshots/inventory.png) | ![Level Up](docs/screenshots/levelup.png) |
+
+</div>
+
+---
+
+## 🚀 Getting Started
+
+### Installation
+
+1. **Download APK** from [Releases](https://github.com/QurieGLord/QDnD-Roleplay-Companion/releases)
+2. **Install** on Android device (Android 7.0+)
+3. **Launch** and start your adventure!
+
+### Building from Source
+
+```bash
+# Clone the repository
+git clone [https://github.com/QurieGLord/QDnD-Roleplay-Companion.git](https://github.com/QurieGLord/QDnD-Roleplay-Companion.git)
+
+# Install dependencies
+flutter pub get
+
+# Generate code (Hive adapters & Localization)
+flutter pub run build_runner build --delete-conflicting-outputs
+flutter gen-l10n
+
+# Run
+flutter run
+
+---
+
+## 🗺️ Roadmap
+
+### ✅ v0.11 (Inventory & Polish)
+- **Inventory:** Encumbrance visualizer (Weight limit) & Attunement tracker.
+- **UX:** Swipe-to-delete items, better item details.
+- **Combat System:** Redesigned Combat Tracker with integrated Magic Sheet.
+- **Localization:** Full EN/RU support.
+
+### ✅ v0.12 (Content & Creativity)
+- **The Forge:** Custom Item Creator with visual preview and full stat control.
+- **Library Manager:** Import/Delete external content packs (XML) to expand your game.
+- **Unified Database:** Mix built-in content with your own homebrew seamlessly.
+
+### ✅ v0.13 (Class Features & Terminology)
+- **Improved FC5 Import:** Robust parsing of bilingual subclasses (English/Russian) and class features.
+- **D&D 5e Compliance:** Dynamic terminology for subclasses (Primal Path, Sacred Oath, Arcane Tradition, etc.).
+- **Smart Spell Eligibility:** Spells now correctly link to classes via standardized IDs.
+- **Bug Fixes:** Corrected "Passive" tag localization and subclass selection UI.
+
+### 🚧 v0.14 (The Wizard Update) - *Current Work*
+- **Features using:** Added features using with resource pints spending to Spells tab.
+- **Spell Manager:** Strict limits for Cantrips/Spells Known (Bard, Sorcerer, etc.).
+- **Subclass UX:** Subclass selection to Features step; Level 1 support for Clerics/Warlocks.
+
+### 🔮 v1.0 (Planned)
+- [ ] Cloud Sync (Google Drive)
+- [ ] PDF Export (Character Sheet)
+- [ ] Multiclassing UI
+- [ ] DM Tools (Encounter Builder)
 
 ---
 
@@ -85,79 +159,6 @@ The `CharacterFeature` model (`lib/core/models/character_feature.dart`) is the b
 - **Add Classes/Features:** Simply drop JSON files into `assets/data/features/`.
 - **Add Spells/Items:** Extend the database with your own homebrew content via JSON.
 - **Localization:** Built-in support for bilingual content (English/Russian).
-
----
-
-## 📱 Screenshots
-
-<div align="center">
-
-| Character Sheet | Combat Tracker | Spells |
-|:-:|:-:|:-:|
-| ![Character Sheet](docs/screenshots/character_sheet.jpg) | ![Combat Tracker](docs/screenshots/combat.jpg) | ![Spells](docs/screenshots/spells.jpg) |
-
-| Inventory | Journal | Settings |
-|:-:|:-:|:-:|
-| ![Inventory](docs/screenshots/inventory.jpg) | ![Journal](docs/screenshots/journal.jpg) | ![Settings](docs/screenshots/settings.jpg) |
-
-</div>
-
----
-
-## 🚀 Getting Started
-
-### Installation
-
-1. **Download APK** from [Releases](https://github.com/QurieGLord/QDnD-Roleplay-Companion/releases)
-2. **Install** on Android device (Android 7.0+)
-3. **Launch** and start your adventure!
-
-### Building from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/QurieGLord/QDnD-Roleplay-Companion.git
-
-# Install dependencies
-flutter pub get
-
-# Generate code (Hive adapters & Localization)
-flutter pub run build_runner build --delete-conflicting-outputs
-flutter gen-l10n
-
-# Run
-flutter run
-```
-
----
-
-## 🗺️ Roadmap
-
-### ✅ v0.11 (Inventory & Polish)
-- **Inventory:** Encumbrance visualizer (Weight limit) & Attunement tracker.
-- **UX:** Swipe-to-delete items, better item details.
-- **Combat System:** Redesigned Combat Tracker with integrated Magic Sheet.
-- **Magic System:** Adaptive Spell Slots (Icons/Chips) & Preparation Logic.
-- **Level Up:** Strict feature filtering and subclass support.
-- **Localization:** Full EN/RU support.
-
-### ✅ v0.13.0 (Class Features & Terminology)
-- **Improved FC5 Import:** Robust parsing of bilingual subclasses (English/Russian) and class features.
-- **D&D 5e Compliance:** Dynamic terminology for subclasses (Primal Path, Sacred Oath, Arcane Tradition, etc.).
-- **Smart Spell Eligibility:** Spells now correctly link to classes via standardized IDs.
-- **Bug Fixes:** Corrected "Passive" tag localization and subclass selection UI.
-
-### ✅ v0.12 (Content & Creativity)
-- **The Forge:** Custom Item Creator with visual preview and full stat control.
-- **Library Manager:** Import/Delete external content packs (XML) to expand your game.
-- **Unified Database:** Mix built-in content with your own homebrew seamlessly.
-- **Smart Parsing:** Auto-detects bilingual content (English/Russian) in imported files.
-
-### 🔮 v1.0 (Planned)
-- [ ] Cloud Sync (Google Drive)
-- [ ] PDF Export (Character Sheet)
-- [ ] Multiclassing UI
-- [ ] DM Tools (Encounter Builder)
 
 ---
 

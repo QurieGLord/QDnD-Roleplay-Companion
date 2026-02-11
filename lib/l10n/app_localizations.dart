@@ -4105,6 +4105,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Treasure'**
   String get typeTreasure;
+
+  /// No description provided for @cantripsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Cantrips ({current}/{max})'**
+  String cantripsTab(int current, int max);
+
+  /// No description provided for @level1TabKnown.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 1 ({current}/{max})'**
+  String level1TabKnown(int current, int max);
+
+  /// No description provided for @level1TabAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 1 (All)'**
+  String get level1TabAll;
+
+  /// No description provided for @noSpellsAtLevel1.
+  ///
+  /// In en, this message translates to:
+  /// **'No spells available at level 1'**
+  String get noSpellsAtLevel1;
+
+  /// No description provided for @useAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get useAction;
+
+  /// No description provided for @useActionCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Use ({cost})'**
+  String useActionCost(int cost);
 }
 
 class _AppLocalizationsDelegate

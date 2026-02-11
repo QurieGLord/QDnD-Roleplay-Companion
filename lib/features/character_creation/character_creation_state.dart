@@ -85,6 +85,34 @@ class CharacterCreationState extends ChangeNotifier {
     return selectedSkills.length == selectedClass!.skillProficiencies.choose;
   }
 
+  SpellLimits getSpellLimits() {
+    if (selectedClass == null) return SpellLimits(0, 0);
+    
+    // Level 1 Limits for standard SRD classes
+    // Note: This logic can be moved to a service or JSON later
+    switch (selectedClass!.id) {
+      case 'bard':
+        return SpellLimits(2, 4); // 2 Cantrips, 4 Known
+      case 'cleric':
+        return SpellLimits(3, 999); // 3 Cantrips, All Lvl 1 available (Prepared)
+      case 'druid':
+        return SpellLimits(2, 999); // 2 Cantrips, All Lvl 1 available (Prepared)
+      case 'sorcerer':
+        return SpellLimits(4, 2); // 4 Cantrips, 2 Known
+      case 'warlock':
+        return SpellLimits(2, 2); // 2 Cantrips, 2 Known
+      case 'wizard':
+        return SpellLimits(3, 6); // 3 Cantrips, 6 in Spellbook
+      default:
+        // Paladin, Ranger, Fighter, etc. usually don't have spells at lvl 1
+        // But for safety/custom classes, we can allow 0 or generic
+        if (selectedClass!.spellcasting != null) {
+          return SpellLimits(2, 2); // Generic fallback
+        }
+        return SpellLimits(0, 0);
+    }
+  }
+
   void toggleSpell(String spellId) {
     if (selectedSpells.contains(spellId)) {
       selectedSpells.remove(spellId);
@@ -189,6 +217,11 @@ class CharacterCreationState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateSubclass(SubclassData? subclass) {
+    selectedSubclass = subclass;
+    notifyListeners();
+  }
+
   void updateAbilityScore(String ability, int value) {
     abilityScores[ability] = value;
     notifyListeners();
@@ -267,4 +300,11 @@ class CharacterCreationState extends ChangeNotifier {
     selectedBackground = null;
     notifyListeners();
   }
+}
+
+class SpellLimits {
+  final int cantrips;
+  final int spellsKnown; // If 999, it means "All Available/Prepared"
+
+  SpellLimits(this.cantrips, this.spellsKnown);
 }
