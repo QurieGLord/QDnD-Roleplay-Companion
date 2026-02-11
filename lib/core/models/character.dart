@@ -180,6 +180,9 @@ class Character extends HiveObject {
   @HiveField(52)
   List<CharacterClass> classes;
 
+  @HiveField(53)
+  List<String> expertSkills;
+
   Character({
     required this.id,
     required this.name,
@@ -234,6 +237,7 @@ class Character extends HiveObject {
     List<JournalNote>? journalNotes,
     List<Quest>? quests,
     List<CharacterClass>? classes,
+    List<String>? expertSkills,
   })  : knownSpells = knownSpells ?? [],
         preparedSpells = preparedSpells ?? [],
         features = features ?? [],
@@ -246,6 +250,7 @@ class Character extends HiveObject {
         journalNotes = journalNotes ?? [],
         quests = quests ?? [],
         classes = classes ?? [],
+        expertSkills = expertSkills ?? [],
         createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now() {
           // Migration/Sync Logic:
@@ -330,6 +335,7 @@ class Character extends HiveObject {
       'platinumPieces': platinumPieces,
       'journalNotes': journalNotes.map((n) => n.toJson()).toList(),
       'quests': quests.map((q) => q.toJson()).toList(),
+      'expertSkills': expertSkills,
     };
   }
 

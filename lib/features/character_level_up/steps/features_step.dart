@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
+import '../../../core/models/character.dart';
 import '../../../core/models/character_feature.dart';
 import '../../../core/models/class_data.dart';
 import '../../../core/services/feature_service.dart';
 
 class FeaturesStep extends StatefulWidget {
+  final Character character;
   final List<CharacterFeature> newFeatures;
   final List<int> newSpellSlots;
   final List<int> oldSpellSlots;
@@ -12,9 +14,11 @@ class FeaturesStep extends StatefulWidget {
   final ClassData classData;
   final int nextLevel;
   final Function(String featureId, String optionId) onOptionSelected;
+  final Function(Set<String> expertSkills) onExpertiseChanged;
 
   const FeaturesStep({
     Key? key,
+    required this.character,
     required this.newFeatures,
     required this.newSpellSlots,
     required this.oldSpellSlots,
@@ -22,6 +26,7 @@ class FeaturesStep extends StatefulWidget {
     required this.classData,
     required this.nextLevel,
     required this.onOptionSelected,
+    required this.onExpertiseChanged,
   }) : super(key: key);
 
   @override
@@ -30,6 +35,39 @@ class FeaturesStep extends StatefulWidget {
 
 class _FeaturesStepState extends State<FeaturesStep> {
   final Map<String, String> _selections = {}; // featureId -> optionId
+  final Set<String> _selectedExpertise = {};
+
+  static const List<String> _allSkills = [
+    'acrobatics', 'animal_handling', 'arcana', 'athletics', 'deception',
+    'history', 'insight', 'intimidation', 'investigation', 'medicine',
+    'nature', 'perception', 'performance', 'persuasion', 'religion',
+    'sleight_of_hand', 'stealth', 'survival'
+  ];
+
+  String _getLocalizedSkill(BuildContext context, String skillId) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (skillId.toLowerCase()) {
+      case 'acrobatics': return l10n.skillAcrobatics;
+      case 'animal_handling': return l10n.skillAnimalHandling;
+      case 'arcana': return l10n.skillArcana;
+      case 'athletics': return l10n.skillAthletics;
+      case 'deception': return l10n.skillDeception;
+      case 'history': return l10n.skillHistory;
+      case 'insight': return l10n.skillInsight;
+      case 'intimidation': return l10n.skillIntimidation;
+      case 'investigation': return l10n.skillInvestigation;
+      case 'medicine': return l10n.skillMedicine;
+      case 'nature': return l10n.skillNature;
+      case 'perception': return l10n.skillPerception;
+      case 'performance': return l10n.skillPerformance;
+      case 'persuasion': return l10n.skillPersuasion;
+      case 'religion': return l10n.skillReligion;
+      case 'sleight_of_hand': return l10n.skillSleightOfHand;
+      case 'stealth': return l10n.skillStealth;
+      case 'survival': return l10n.skillSurvival;
+      default: return skillId;
+    }
+  }
 
   // Mapping from internal ID to SRD Feature ID
   static const Map<String, String> _styleIdMap = {
@@ -91,10 +129,23 @@ class _FeaturesStepState extends State<FeaturesStep> {
     // Determine required choices
     bool needsFightingStyle = widget.newFeatures.any((f) => f.id.contains('fighting-style'));
     bool needsSubclass = widget.nextLevel == widget.classData.subclassLevel;
+    
+    // Expertise Logic
+    bool needsExpertise = false;
+    int expertiseCount = 2;
+    final classId = widget.classData.id.toLowerCase();
+    
+    if (classId == 'bard' || classId == 'бард') {
+      if (widget.nextLevel == 3 || widget.nextLevel == 10) needsExpertise = true;
+    }
+    if (classId == 'rogue' || classId == 'плут') {
+      if (widget.nextLevel == 6) needsExpertise = true;
+    }
 
     bool allChoicesMade = true;
     if (needsFightingStyle && !_selections.containsKey('fighting_style')) allChoicesMade = false;
     if (needsSubclass && !_selections.containsKey('subclass')) allChoicesMade = false;
+    if (needsExpertise && _selectedExpertise.length != expertiseCount) allChoicesMade = false;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -119,7 +170,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
           Expanded(
             child: ListView(
               children: [
-                if (widget.newFeatures.isEmpty && !hasSpellChanges && !needsSubclass)
+                if (widget.newFeatures.isEmpty && !hasSpellChanges && !needsSubclass && !needsExpertise)
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.all(32.0),
@@ -161,6 +212,12 @@ class _FeaturesStepState extends State<FeaturesStep> {
                   _buildSubclassChoice(context),
                   const SizedBox(height: 16),
                 ],
+                
+                if (needsExpertise) ...[
+                  _buildSectionHeader(context, l10n.expertise),
+                  _buildExpertiseSelection(context, expertiseCount, l10n),
+                  const SizedBox(height: 16),
+                ],
 
                 if (widget.newFeatures.isNotEmpty) ...[
                   _buildSectionHeader(context, l10n.classFeatures),
@@ -185,6 +242,62 @@ class _FeaturesStepState extends State<FeaturesStep> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildExpertiseSelection(BuildContext context, int count, AppLocalizations l10n) {
+    // Only allow selecting from PROFICIENT skills that are NOT already expert
+    final proficientSkills = widget.character.proficientSkills;
+    final existingExpertise = widget.character.expertSkills;
+    
+    // Candidates: proficient AND NOT already expert
+    final candidates = proficientSkills.where((s) => !existingExpertise.contains(s)).toList();
+    
+    final selectedCount = _selectedExpertise.length;
+
+    return Card(
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${l10n.expertise} ($selectedCount/$count)',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.chooseSkills(count, ''),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: candidates.map((skillId) {
+                final isSelected = _selectedExpertise.contains(skillId);
+                final canSelect = isSelected || selectedCount < count;
+                
+                return FilterChip(
+                  label: Text(_getLocalizedSkill(context, skillId)),
+                  selected: isSelected,
+                  onSelected: canSelect ? (selected) {
+                    setState(() {
+                      if (selected) {
+                        _selectedExpertise.add(skillId);
+                      } else {
+                        _selectedExpertise.remove(skillId);
+                      }
+                      widget.onExpertiseChanged(_selectedExpertise);
+                    });
+                  } : null,
+                );
+              }).toList(),
+            ),
+          ],
+        ),
       ),
     );
   }

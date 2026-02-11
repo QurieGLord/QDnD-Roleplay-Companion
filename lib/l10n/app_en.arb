@@ -806,6 +806,9 @@
   "noFeaturesAtLevel1": "No features available at level 1 for this class.",
   "spellsStepTitle": "Spells",
   "selectSpellsInstruction": "Select spells for your character (Level 0 & 1).",
+  "selectSkillsInstruction": "Select your skill proficiencies.",
+  "selectSkillsFirst": "Please select skills first",
+  "expertise": "Expertise",
   "noSpellsFoundForClass": "No spells found for {className}",
   "@noSpellsFoundForClass": {
     "placeholders": {

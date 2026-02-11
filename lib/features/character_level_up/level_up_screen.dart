@@ -37,6 +37,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
   
   // Selections
   final Map<String, String> _selectedOptions = {};
+  final Set<String> _selectedExpertise = {};
   
   bool _isLoading = true;
 
@@ -81,20 +82,10 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
     final filteredClassFeatures = classFeatures.where((f) {
        // If feature has no associated subclass, include it
        if (f.associatedSubclass == null || f.associatedSubclass!.isEmpty) return true;
-       // If character has no subclass yet, exclude subclass features (unless we are at subclass level, handled by selection step?)
-       // Actually, features map usually contains all possibilities. 
-       // FeatureService.getFeaturesForLevel handles filtering. We should duplicate that logic or trust the UI to filter?
-       // The UI `FeaturesStep` might filter options. 
-       // But wait, `FeatureService` returns *available* features.
-       
        // If character has a subclass, check match
        if (widget.character.subclass != null) {
           return f.associatedSubclass!.toLowerCase() == widget.character.subclass!.toLowerCase();
        }
-       
-       // If no subclass selected yet, we might be at the level where we choose it.
-       // In that case, we might want to show them? Or wait until choice?
-       // Usually features for a subclass are added *after* choice.
        return f.associatedSubclass == null; 
     }).toList();
     
@@ -201,6 +192,11 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       ));
     }
 
+    // Save Expertise
+    if (_selectedExpertise.isNotEmpty) {
+      char.expertSkills.addAll(_selectedExpertise);
+    }
+
     // 4. Add Features
     // We explicitly call addFeaturesToCharacter once to capture all strictly available features
     FeatureService.addFeaturesToCharacter(char);
@@ -255,6 +251,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
             onAverage: _onHpAverageTaken,
           ),
           FeaturesStep(
+            character: widget.character, // Pass character for known skills
             newFeatures: _newFeatures,
             newSpellSlots: _newSpellSlots,
             oldSpellSlots: _oldSpellSlots,
@@ -263,6 +260,12 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
             onOptionSelected: (featureId, optionId) {
               setState(() {
                 _selectedOptions[featureId] = optionId;
+              });
+            },
+            onExpertiseChanged: (expertSkills) {
+              setState(() {
+                _selectedExpertise.clear();
+                _selectedExpertise.addAll(expertSkills);
               });
             },
             onNext: _nextPage,

@@ -160,6 +160,11 @@ flutter run
 - **Features using:** Features using UI with resource points spending on character's Spells tab.
 - **Bug fixes:** Fixed some translation bugs.
 
+### ✅ v0.15 (Expertise & Choices)
+- **Expertise System:** Full support for Double Proficiency (Rogue/Bard) with distinct visual indicators (Double Ring).
+- **Complex Choices:** UI for selecting sub-options within features (Fighting Style, Draconic Ancestry) during character creation.
+- **Skill Engine:** Correct calculation of 2x Proficiency bonuses in the Stats tab.
+
 ### 🔮 v0.2.0 (Class Abilities Factory) - *Current Work*
 
 ### 🔮 v1.0 (Planned)

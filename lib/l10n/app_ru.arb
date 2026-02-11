@@ -683,6 +683,9 @@
   "level1TabAll": "1-й круг (Все)",
   "noSpellsAtLevel1": "Нет доступных заклинаний 1-го круга",
   "selectSpellsInstruction": "Выберите заклинания для вашего персонажа (Заговоры и 1-й круг).",
+  "selectSkillsInstruction": "Выберите навыки, которыми вы владеете.",
+  "selectSkillsFirst": "Сначала выберите навыки",
+  "expertise": "Компетентность",
   "useAction": "Использовать",
   "useActionCost": "Использовать ({cost})"
 }

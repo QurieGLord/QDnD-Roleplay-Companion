@@ -4,8 +4,8 @@ import 'package:uuid/uuid.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/models/character.dart';
 import '../../core/models/ability_scores.dart';
+import '../../core/models/character_feature.dart';
 import '../../core/models/item.dart';
-import '../../core/constants/enums.dart';
 import '../../core/services/storage_service.dart';
 import '../../core/services/item_service.dart';
 import '../../core/services/feature_service.dart';
@@ -133,29 +133,6 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
     }
   }
 
-  bool _canProceed() {
-    switch (_currentStep) {
-      case 0:
-        return _state.isStep1Valid;
-      case 1:
-        return _state.isStep2Valid;
-      case 2:
-        return _state.isStep3Valid;
-      case 3:
-        return _state.isStepFeaturesValid; // Features & Spells
-      case 4:
-        return true; // Equipment
-      case 5:
-        return _state.isStep4Valid; // Background (was step 4)
-      case 6:
-        return _state.isStep5Valid; // Skills (was step 5)
-      case 7:
-        return _state.isStep6Valid; // Review
-      default:
-        return false;
-    }
-  }
-
   void _nextStep(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     if (_currentStep < 7) {
@@ -203,8 +180,6 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
 
   Future<void> _createCharacter() async {
     try {
-      final locale = Localizations.localeOf(context).languageCode;
-
       // 1. Calculate final ability scores WITH racial bonuses
       final finalScores = <String, int>{};
       _state.abilityScores.forEach((ability, baseScore) {
@@ -311,6 +286,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
         speed: _state.selectedRace!.speed,
         initiative: dexMod,
         proficientSkills: _state.selectedSkills,
+        expertSkills: _state.selectedExpertise.toList(),
         savingThrowProficiencies: _state.selectedClass!.savingThrowProficiencies,
         knownSpells: List.from(_state.selectedSpells), // Populate selected spells
         preparedSpells: [],
@@ -347,6 +323,65 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
         }
       }
 
+      // 5.6 ADD Selected Options (Fix for "Optional" features like Fighting Styles)
+      // Some features (like Fighting Styles) are marked as 'Optional' class in JSON
+      // so FeatureService.addFeaturesToCharacter skips them. We must add them manually if selected.
+      for (var optionId in _state.selectedFeatureOptions.values) {
+        // Check if already added
+        if (!character.features.any((f) => f.id == optionId)) {
+          final feature = FeatureService.getFeatureById(optionId);
+          if (feature != null) {
+            // Add a COPY of the feature
+            // (We might need to calculate max uses if applicable, but usually these are passive)
+             final featureCopy = CharacterFeature(
+              id: feature.id,
+              nameEn: feature.nameEn,
+              nameRu: feature.nameRu,
+              descriptionEn: feature.descriptionEn,
+              descriptionRu: feature.descriptionRu,
+              type: feature.type,
+              minLevel: feature.minLevel,
+              associatedClass: feature.associatedClass,
+              associatedSubclass: feature.associatedSubclass,
+              requiresRest: feature.requiresRest,
+              actionEconomy: feature.actionEconomy,
+              iconName: feature.iconName,
+              consumption: feature.consumption,
+              usageCostId: feature.usageCostId,
+              usageInputMode: feature.usageInputMode,
+              resourcePool: feature.resourcePool != null
+                  ? ResourcePool(
+                      currentUses: feature.resourcePool!.maxUses, // Assuming full on add
+                      maxUses: feature.resourcePool!.maxUses,
+                      recoveryType: feature.resourcePool!.recoveryType,
+                      calculationFormula: feature.resourcePool!.calculationFormula,
+                    )
+                  : null,
+            );
+            character.features.add(featureCopy);
+          }
+        }
+      }
+
+      // 5.7 PRUNE Unselected Options (Fix for "Add All" bug)
+      // We need to remove features that are "options" but were NOT selected by the user.
+      final selectedOptions = _state.selectedFeatureOptions.values.toSet();
+      
+      character.features.removeWhere((feature) {
+        // Fighting Styles: Remove specific styles if not selected
+        // Pattern: contains 'fighting-style' BUT is not the generic parent (which usually ends in 'fighting-style' like 'fighter-fighting-style')
+        if (feature.id.contains('fighting-style') && !feature.id.endsWith('fighting-style')) {
+           return !selectedOptions.contains(feature.id);
+        }
+        
+        // Draconic Ancestry: Remove specific ancestries if not selected
+        if (feature.id.startsWith('dragon-ancestor-')) {
+          return !selectedOptions.contains(feature.id);
+        }
+
+        return false;
+      });
+
       // 6. Add starting equipment if selected
       if (_state.selectedEquipmentPackage == 'custom') {
         // Add custom equipment
@@ -363,36 +398,6 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
     } catch (e) {
       // Re-throw to let _nextStep handle the error UI
       throw Exception(e.toString());
-    }
-  }
-
-  void _confirmCancel() {
-    final l10n = AppLocalizations.of(context)!;
-    if (_state.name.isNotEmpty ||
-        _state.selectedRace != null ||
-        _state.selectedClass != null) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(l10n.cancelCharacterCreationTitle),
-          content: Text(l10n.cancelCharacterCreationMessage),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.continueEditing),
-            ),
-            FilledButton(
-              onPressed: () {
-                Navigator.pop(context); // Close dialog
-                Navigator.pop(context); // Close wizard
-              },
-              child: Text(l10n.discard),
-            ),
-          ],
-        ),
-      );
-    } else {
-      Navigator.pop(context);
     }
   }
 
