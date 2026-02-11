@@ -5,6 +5,7 @@ import '../../../core/models/class_data.dart';
 import '../../../core/models/character_feature.dart';
 import '../../../core/services/character_data_service.dart';
 import '../../../core/services/feature_service.dart';
+import '../../../core/services/spellcasting_service.dart';
 import '../../../core/models/spell_slots_table.dart';
 import 'steps/hp_increase_step.dart';
 import 'steps/features_step.dart';
@@ -34,6 +35,10 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
   List<int> _newSpellSlots = [];
   List<int> _oldSpellSlots = [];
   bool _hasNewSpellSlots = false;
+  
+  // Step 3: Spells
+  int _spellsToLearn = 0;
+  List<String> _selectedSpells = [];
   
   // Selections
   final Map<String, String> _selectedOptions = {};
@@ -126,6 +131,19 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       }
       _newSpellSlots = newSlots;
     }
+    
+    // 6. Calculate Spells to Learn
+    // Wizard: 2
+    // Known Casters: Delta
+    if (widget.character.characterClass.toLowerCase() == 'wizard') {
+      _spellsToLearn = 2;
+    } else {
+      final currentKnown = SpellcastingService.getSpellsKnownCount(widget.character.characterClass, widget.character.level);
+      final nextKnown = SpellcastingService.getSpellsKnownCount(widget.character.characterClass, _nextLevel);
+      if (nextKnown > currentKnown) {
+        _spellsToLearn = nextKnown - currentKnown;
+      }
+    }
 
     setState(() {
       _isLoading = false;
@@ -196,6 +214,11 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
     if (_selectedExpertise.isNotEmpty) {
       char.expertSkills.addAll(_selectedExpertise);
     }
+    
+    // Save New Spells
+    if (_selectedSpells.isNotEmpty) {
+      char.knownSpells.addAll(_selectedSpells);
+    }
 
     // 4. Add Features
     // We explicitly call addFeaturesToCharacter once to capture all strictly available features
@@ -257,6 +280,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
             oldSpellSlots: _oldSpellSlots,
             classData: _classData,
             nextLevel: _nextLevel,
+            spellsToLearnCount: _spellsToLearn,
             onOptionSelected: (featureId, optionId) {
               setState(() {
                 _selectedOptions[featureId] = optionId;
@@ -267,6 +291,9 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
                 _selectedExpertise.clear();
                 _selectedExpertise.addAll(expertSkills);
               });
+            },
+            onSpellsSelected: (spells) {
+              setState(() => _selectedSpells = spells);
             },
             onNext: _nextPage,
           ),

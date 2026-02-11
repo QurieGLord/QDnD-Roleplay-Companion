@@ -574,6 +574,7 @@
   "attunementLimitReached": "Все слоты настройки заняты (3/3). Снимите что-нибудь.",
   "deleteItemConfirmation": "Выбросить {name}?",
   "spellsCount": "{count} заклинаний",
+  "preparedSpells": "Подготовлено",
   "preparedSpellsCount": "Подготовлено: {current} / {max}",
   "spellAlmanacTitle": "Альманах",
   "actionTypeFree": "Свободное действие",

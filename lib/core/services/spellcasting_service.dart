@@ -150,4 +150,52 @@ class SpellcastingService {
         return 'none';
     }
   }
+
+  /// Get total spells known for a specific class and level (for "Known" casters)
+  /// Returns 0 for Prepared casters (who know all or use spellbook).
+  static int getSpellsKnownCount(String className, int level) {
+    if (level < 1) return 0;
+    
+    switch (className.toLowerCase()) {
+      case 'bard':
+        // Bard: 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 15, 16, 18, 19, 19, 20, 22, 22, 22
+        const table = [4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 15, 16, 18, 19, 19, 20, 22, 22, 22];
+        return table[level - 1];
+
+      case 'sorcerer':
+        // Sorcerer: 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 12, 13, 13, 14, 14, 15, 15, 15, 15
+        const table = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 12, 13, 13, 14, 14, 15, 15, 15, 15];
+        return table[level - 1];
+
+      case 'warlock':
+        // Warlock: 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15
+        const table = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15];
+        return table[level - 1];
+
+      case 'ranger':
+        // Ranger: 0, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11
+        const table = [0, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11];
+        return table[level - 1];
+
+      case 'rogue': // Arcane Trickster
+      case 'arcane trickster':
+        // AT: 0, 0, 3, 4, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10, 11, 11, 11, 12, 13
+        const table = [0, 0, 3, 4, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10, 11, 11, 11, 12, 13];
+        return table[level - 1];
+
+      case 'fighter': // Eldritch Knight
+      case 'eldritch knight':
+         // EK: 0, 0, 3, 4, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10, 11, 11, 11, 12, 13 (Same as AT)
+         const table = [0, 0, 3, 4, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10, 11, 11, 11, 12, 13];
+         return table[level - 1];
+
+      case 'wizard':
+        // Wizard starts with 6, gains 2 per level.
+        // This is a minimum; they can add more via scribing.
+        return 6 + (level - 1) * 2;
+
+      default:
+        return 0;
+    }
+  }
 }

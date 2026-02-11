@@ -1784,6 +1784,9 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get preparedSpells => 'Подготовлено';
+
+  @override
   String preparedSpellsCount(int current, int max) {
     return 'Подготовлено: $current / $max';
   }

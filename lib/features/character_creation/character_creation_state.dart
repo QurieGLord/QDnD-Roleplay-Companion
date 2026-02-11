@@ -122,7 +122,8 @@ class CharacterCreationState extends ChangeNotifier {
     
     // Level 1 Limits for standard SRD classes
     // Note: This logic can be moved to a service or JSON later
-    switch (selectedClass!.id) {
+    final classId = selectedClass!.id.toLowerCase();
+    switch (classId) {
       case 'bard':
         return SpellLimits(2, 4); // 2 Cantrips, 4 Known
       case 'cleric':

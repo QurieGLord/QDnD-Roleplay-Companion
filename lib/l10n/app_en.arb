@@ -787,6 +787,7 @@
       "count": { "type": "int" }
     }
   },
+  "preparedSpells": "Prepared",
   "preparedSpellsCount": "Prepared: {current} / {max}",
   "@preparedSpellsCount": {
     "placeholders": {
