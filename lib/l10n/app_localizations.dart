@@ -3530,6 +3530,24 @@ abstract class AppLocalizations {
   /// **'Select spells for your character (Level 0 & 1).'**
   String get selectSpellsInstruction;
 
+  /// No description provided for @selectSkillsInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your skill proficiencies.'**
+  String get selectSkillsInstruction;
+
+  /// No description provided for @selectSkillsFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select skills first'**
+  String get selectSkillsFirst;
+
+  /// No description provided for @expertise.
+  ///
+  /// In en, this message translates to:
+  /// **'Expertise'**
+  String get expertise;
+
   /// No description provided for @noSpellsFoundForClass.
   ///
   /// In en, this message translates to:

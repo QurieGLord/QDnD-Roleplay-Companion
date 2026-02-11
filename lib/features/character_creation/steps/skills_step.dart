@@ -273,6 +273,63 @@ class SkillsStep extends StatelessWidget {
             ),
           );
         }),
+
+        if (state.selectedClass?.id.toLowerCase() == 'rogue' || 
+            state.selectedClass?.id.toLowerCase() == 'плут')
+          _buildExpertiseSection(context, state, theme, l10n),
+      ],
+    );
+  }
+
+  Widget _buildExpertiseSection(BuildContext context, CharacterCreationState state, ThemeData theme, AppLocalizations l10n) {
+    const maxExpertise = 2;
+    final selectedCount = state.selectedExpertise.length;
+    final proficientSkills = state.selectedSkills;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(height: 48),
+        Text(
+          l10n.expertise,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          // "Choose 2 of your skill proficiencies."
+          // Ideally use localized string
+          Localizations.localeOf(context).languageCode == 'ru' 
+              ? "Выберите 2 навыка для компетентности (удвоенный бонус мастерства)." 
+              : "Choose 2 of your skill proficiencies to gain double proficiency bonus.",
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 16),
+        
+        if (proficientSkills.isEmpty)
+           Text(
+             l10n.selectSkillsFirst,
+             style: TextStyle(color: theme.colorScheme.error),
+           )
+        else
+           Wrap(
+             spacing: 8,
+             runSpacing: 8,
+             children: proficientSkills.map((skillId) {
+               final isSelected = state.selectedExpertise.contains(skillId);
+               final canSelect = isSelected || selectedCount < maxExpertise;
+               
+               return FilterChip(
+                 label: Text(_getSkillName(skillId, l10n)),
+                 selected: isSelected,
+                 onSelected: canSelect ? (val) => state.toggleExpertise(skillId) : null,
+                 avatar: isSelected ? const Icon(Icons.check, size: 18) : null,
+               );
+             }).toList(),
+           ),
       ],
     );
   }

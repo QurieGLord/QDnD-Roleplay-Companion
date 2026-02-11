@@ -49,6 +49,8 @@ class CharacterCreationState extends ChangeNotifier {
 
   // Step 3.5: Features & Spells (New)
   List<String> selectedSpells = []; // IDs of selected spells
+  Map<String, String> selectedFeatureOptions = {}; // featureId (e.g. 'fighting_style') -> optionId
+  Set<String> selectedExpertise = {}; // IDs of skills selected for expertise
 
   // Step 4: Skills
   List<String> selectedSkills = [];
@@ -74,7 +76,27 @@ class CharacterCreationState extends ChangeNotifier {
   bool get isStep5Valid => _validateSkills();
   bool get isStep6Valid => true; // Review всегда валиден если дошли до него
 
-  bool get isStepFeaturesValid => true; // Placeholder: Add validation logic if class requires spell selection
+  bool get isStepFeaturesValid {
+    if (selectedClass == null) return false;
+    
+    final classId = selectedClass!.id.toLowerCase();
+    final subclassId = selectedSubclass?.id.toLowerCase() ?? '';
+    
+    // Fighter: Fighting Style (Level 1)
+    if (classId == 'fighter' || classId == 'воин') {
+       bool hasFightingStyle = selectedFeatureOptions.values.any((v) => v.contains('fighting-style'));
+       if (!hasFightingStyle) return false;
+    }
+    
+    // Sorcerer: Draconic Bloodline (Level 1)
+    if ((classId == 'sorcerer' || classId == 'чародей') && 
+        (subclassId.contains('draconic') || subclassId.contains('дракон'))) {
+       bool hasAncestry = selectedFeatureOptions.values.any((v) => v.contains('dragon-ancestor'));
+       if (!hasAncestry) return false;
+    }
+    
+    return true; 
+  }
 
   bool _validateAbilityScores() {
     return abilityScores.values.every((score) => score >= 3 && score <= 18);
@@ -82,7 +104,17 @@ class CharacterCreationState extends ChangeNotifier {
 
   bool _validateSkills() {
     if (selectedClass == null) return false;
-    return selectedSkills.length == selectedClass!.skillProficiencies.choose;
+    bool skillsValid = selectedSkills.length == selectedClass!.skillProficiencies.choose;
+    
+    if (!skillsValid) return false;
+
+    // Rogue Expertise Validation (Level 1)
+    final classId = selectedClass!.id.toLowerCase();
+    if (classId == 'rogue' || classId == 'плут') {
+      if (selectedExpertise.length != 2) return false;
+    }
+
+    return true;
   }
 
   SpellLimits getSpellLimits() {
@@ -118,6 +150,20 @@ class CharacterCreationState extends ChangeNotifier {
       selectedSpells.remove(spellId);
     } else {
       selectedSpells.add(spellId);
+    }
+    notifyListeners();
+  }
+
+  void selectFeatureOption(String featureId, String optionId) {
+    selectedFeatureOptions[featureId] = optionId;
+    notifyListeners();
+  }
+
+  void toggleExpertise(String skillId) {
+    if (selectedExpertise.contains(skillId)) {
+      selectedExpertise.remove(skillId);
+    } else {
+      selectedExpertise.add(skillId);
     }
     notifyListeners();
   }
@@ -298,6 +344,8 @@ class CharacterCreationState extends ChangeNotifier {
     selectedEquipmentPackage = null;
     customEquipmentQuantities.clear();
     selectedBackground = null;
+    selectedFeatureOptions.clear();
+    selectedExpertise.clear();
     notifyListeners();
   }
 }

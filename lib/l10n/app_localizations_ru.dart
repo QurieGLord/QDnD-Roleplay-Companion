@@ -1813,6 +1813,16 @@ class AppLocalizationsRu extends AppLocalizations {
       'Выберите заклинания для вашего персонажа (Заговоры и 1-й круг).';
 
   @override
+  String get selectSkillsInstruction =>
+      'Выберите навыки, которыми вы владеете.';
+
+  @override
+  String get selectSkillsFirst => 'Сначала выберите навыки';
+
+  @override
+  String get expertise => 'Компетентность';
+
+  @override
   String noSpellsFoundForClass(String className) {
     return 'No spells found for $className';
   }

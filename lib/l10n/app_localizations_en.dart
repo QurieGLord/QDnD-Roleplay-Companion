@@ -1833,6 +1833,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'Select spells for your character (Level 0 & 1).';
 
   @override
+  String get selectSkillsInstruction => 'Select your skill proficiencies.';
+
+  @override
+  String get selectSkillsFirst => 'Please select skills first';
+
+  @override
+  String get expertise => 'Expertise';
+
+  @override
   String noSpellsFoundForClass(String className) {
     return 'No spells found for $className';
   }

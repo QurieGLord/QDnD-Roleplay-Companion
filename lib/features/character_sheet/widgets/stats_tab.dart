@@ -223,8 +223,26 @@ class StatsTab extends StatelessWidget {
           case 'Charisma': mod = character.abilityScores.charismaModifier; break;
         }
 
-        final isProficient = character.proficientSkills.map((s) => s.toLowerCase()).contains(skillKey.toLowerCase());
-        final totalMod = mod + (isProficient ? character.proficiencyBonus : 0);
+        // Check proficiency and expertise
+        // We need to match skillKey (e.g. "Animal Handling") to ID (e.g. "animal_handling")
+        final skillId = skillKey.toLowerCase().replaceAll(' ', '_');
+        
+        final isProficient = character.proficientSkills.contains(skillId);
+        final isExpert = character.expertSkills.contains(skillId);
+        
+        // Bonus calculation:
+        // Proficiency = +ProfBonus
+        // Expertise = +2 * ProfBonus (if proficient, which is implied by rules but we check isExpert)
+        // Jack of All Trades (Bard) = + floor(ProfBonus/2) (Not implemented yet generic logic)
+        
+        int bonus = 0;
+        if (isExpert) {
+          bonus = character.proficiencyBonus * 2;
+        } else if (isProficient) {
+          bonus = character.proficiencyBonus;
+        }
+        
+        final totalMod = mod + bonus;
 
         return _buildSkillRow(
             context, 
@@ -232,17 +250,28 @@ class StatsTab extends StatelessWidget {
             totalMod, 
             isProficient, 
             l10n,
+            isExpert: isExpert,
             abilityLabel: _getAbilityAbbr(l10n, ability)
         );
       }).toList(),
     );
   }
 
-  Widget _buildSkillRow(BuildContext context, String name, int modifier, bool isProficient, AppLocalizations l10n, {bool isSave = false, String? abilityLabel}) {
+  Widget _buildSkillRow(
+    BuildContext context, 
+    String name, 
+    int modifier, 
+    bool isProficient, 
+    AppLocalizations l10n, 
+    {bool isSave = false, bool isExpert = false, String? abilityLabel}
+  ) {
     final colorScheme = Theme.of(context).colorScheme;
     final title = isSave 
       ? '${l10n.saveLabel} ${abilityLabel ?? name}' 
       : '$name ${l10n.check}';
+    
+    // Visuals for Expertise vs Proficiency
+    // Expertise: Double circle or distinct icon
     
     return InkWell(
       onTap: () => showDiceRoller(context, title: title, modifier: modifier),
@@ -251,27 +280,65 @@ class StatsTab extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         margin: const EdgeInsets.only(bottom: 4),
         decoration: BoxDecoration(
-          color: isProficient ? colorScheme.secondaryContainer.withOpacity(0.3) : null,
+          color: (isProficient || isExpert) ? colorScheme.secondaryContainer.withOpacity(0.3) : null,
           borderRadius: BorderRadius.circular(8),
-          border: isProficient ? Border.all(color: colorScheme.secondary.withOpacity(0.2)) : null,
+          border: (isProficient || isExpert) ? Border.all(color: colorScheme.secondary.withOpacity(0.2)) : null,
         ),
         child: Row(
           children: [
-            Container(
-              width: 12, 
-              height: 12,
-              decoration: BoxDecoration(
-                color: isProficient ? colorScheme.primary : Colors.transparent,
-                shape: BoxShape.circle,
-                border: Border.all(color: isProficient ? colorScheme.primary : colorScheme.outline, width: 1.5),
+            // Proficiency Indicator
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Outer circle (always visible if proficient)
+                  if (isProficient || isExpert)
+                    Container(
+                      width: 12, 
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: isProficient ? colorScheme.primary : Colors.transparent,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: colorScheme.primary, width: 1.5),
+                      ),
+                    )
+                  else
+                    Container(
+                      width: 12, 
+                      height: 12,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: colorScheme.outline, width: 1.5),
+                      ),
+                    ),
+                    
+                  // Expertise Indicator (Outer ring or star)
+                  if (isExpert)
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: colorScheme.primary, width: 1.5),
+                      ),
+                    ),
+                ],
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 4),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name, style: TextStyle(fontWeight: isProficient ? FontWeight.bold : FontWeight.normal, fontSize: 15)),
+                  Text(
+                    name, 
+                    style: TextStyle(
+                      fontWeight: (isProficient || isExpert) ? FontWeight.bold : FontWeight.normal, 
+                      fontSize: 15
+                    )
+                  ),
                   if (abilityLabel != null)
                     Text(abilityLabel, style: TextStyle(fontSize: 10, color: colorScheme.onSurfaceVariant)),
                 ],
@@ -282,7 +349,7 @@ class StatsTab extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
-                color: isProficient ? colorScheme.primary : colorScheme.onSurface,
+                color: (isProficient || isExpert) ? colorScheme.primary : colorScheme.onSurface,
               ),
             ),
             const SizedBox(width: 8),
