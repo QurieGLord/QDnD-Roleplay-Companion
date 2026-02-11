@@ -2166,7 +2166,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get useAction => 'Use';
 
   @override
-  String useActionCost(int cost) {
+  String useActionCost(String cost) {
     return 'Use ($cost)';
   }
 }
