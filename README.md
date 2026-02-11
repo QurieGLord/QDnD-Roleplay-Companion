@@ -154,6 +154,14 @@ flutter run
 - **Unified Database:** Mix built-in content with your own homebrew seamlessly.
 - **Smart Parsing:** Auto-detects bilingual content (English/Russian) in imported files.
 
+### ✅ v0.14 (The Wizard Update)
+- **Spell Manager:** Strict limits for Cantrips/Spells Known (Bard, Sorcerer, etc.).
+- **Subclass UX:** Subclass selection to Features step of Character creating wizard.  Level 1 support for Clerics/Warlocks.
+- **Features using:** Features using UI with resource points spending on character's Spells tab.
+- **Bug fixes:** Fixed some translation bugs.
+
+### 🔮 v0.2.0 (Class Abilities Factory) - *Current Work*
+
 ### 🔮 v1.0 (Planned)
 - [ ] Cloud Sync (Google Drive)
 - [ ] PDF Export (Character Sheet)
