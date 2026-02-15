@@ -12,16 +12,16 @@ import '../../../shared/widgets/spell_details_sheet.dart';
 import '../../../shared/widgets/feature_details_sheet.dart';
 import '../../../core/utils/spell_utils.dart';
 
-class SpellsTab extends StatefulWidget {
+class AbilitiesTab extends StatefulWidget {
   final Character character;
 
-  const SpellsTab({super.key, required this.character});
+  const AbilitiesTab({super.key, required this.character});
 
   @override
-  State<SpellsTab> createState() => _SpellsTabState();
+  State<AbilitiesTab> createState() => _AbilitiesTabState();
 }
 
-class _SpellsTabState extends State<SpellsTab> with AutomaticKeepAliveClientMixin {
+class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClientMixin {
   final Map<int, bool> _expandedLevels = {};
 
   @override
@@ -325,6 +325,14 @@ class _SpellsTabState extends State<SpellsTab> with AutomaticKeepAliveClientMixi
     final isWizard = classId == 'wizard';
     final isPreparedCaster = SpellcastingService.getSpellcastingType(classId) == 'prepared';
 
+    // Gatekeeper: Check if character is a caster
+    final hasSpellSlots = widget.character.maxSpellSlots.any((s) => s > 0);
+    final hasKnownSpells = widget.character.knownSpells.isNotEmpty;
+    final isCasterClass = SpellcastingService.isSpellcaster(classId);
+    
+    // Show magic section if they have slots, know spells, or are a caster class
+    final showMagicSection = hasSpellSlots || hasKnownSpells || isCasterClass;
+
     // Calculate max spell level available
     int maxSpellLevel = 0;
     // For Pact Magic (Warlock), slots are all same level, but maxSpellSlots usually has length = max level?
@@ -335,19 +343,21 @@ class _SpellsTabState extends State<SpellsTab> with AutomaticKeepAliveClientMixi
        }
     }
 
-    List<Spell> displaySpells;
-    if (isPreparedCaster && !isWizard) {
-      // Cleric, Druid, Paladin: Show ALL class spells, but filtered by slot level
-      // Also always include Cantrips (Level 0)
-      displaySpells = SpellService.getSpellsForClass(classId)
-          .where((s) => s.level == 0 || s.level <= maxSpellLevel)
-          .toList();
-    } else {
-      // Wizard, Bard, Sorcerer, etc: Show KNOWN spells (Spellbook)
-      displaySpells = widget.character.knownSpells
-          .map((id) => SpellService.getSpellById(id))
-          .whereType<Spell>()
-          .toList();
+    List<Spell> displaySpells = [];
+    if (showMagicSection) {
+      if (isPreparedCaster && !isWizard) {
+        // Cleric, Druid, Paladin: Show ALL class spells, but filtered by slot level
+        // Also always include Cantrips (Level 0)
+        displaySpells = SpellService.getSpellsForClass(classId)
+            .where((s) => s.level == 0 || s.level <= maxSpellLevel)
+            .toList();
+      } else {
+        // Wizard, Bard, Sorcerer, etc: Show KNOWN spells (Spellbook)
+        displaySpells = widget.character.knownSpells
+            .map((id) => SpellService.getSpellById(id))
+            .whereType<Spell>()
+            .toList();
+      }
     }
 
     final spellsByLevel = <int, List<Spell>>{};
@@ -385,28 +395,30 @@ class _SpellsTabState extends State<SpellsTab> with AutomaticKeepAliveClientMixi
                     const SizedBox(height: 16),
                   ],
 
-                  _buildSectionHeader(
-                    l10n.magic.toUpperCase(),
-                    trailing: _buildPreparationCounter(context, l10n),
-                  ),
-                  _buildMagicSection(context, l10n, showCounter: false), // Disable old counter
-                  const SizedBox(height: 16),
+                  if (showMagicSection) ...[
+                    _buildSectionHeader(
+                      l10n.magic.toUpperCase(),
+                      trailing: _buildPreparationCounter(context, l10n),
+                    ),
+                    _buildMagicSection(context, l10n, showCounter: false), // Disable old counter
+                    const SizedBox(height: 16),
 
-                  if (displaySpells.isEmpty)
-                    Center(child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          Icon(Icons.auto_fix_off, size: 48, color: colorScheme.onSurface.withOpacity(0.3)),
-                          const SizedBox(height: 8),
-                          Text(l10n.noSpellsLearned, style: TextStyle(color: colorScheme.onSurface.withOpacity(0.5))),
-                        ],
-                      ),
-                    ))
-                  else
-                    ...(spellsByLevel.keys.toList()..sort()).map((level) => _buildSpellLevelGroup(level, spellsByLevel[level]!, locale, l10n)).toList(),
+                    if (displaySpells.isEmpty)
+                      Center(child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            Icon(Icons.auto_fix_off, size: 48, color: colorScheme.onSurface.withOpacity(0.3)),
+                            const SizedBox(height: 8),
+                            Text(l10n.noSpellsLearned, style: TextStyle(color: colorScheme.onSurface.withOpacity(0.5))),
+                          ],
+                        ),
+                      ))
+                    else
+                      ...(spellsByLevel.keys.toList()..sort()).map((level) => _buildSpellLevelGroup(level, spellsByLevel[level]!, locale, l10n)).toList(),
 
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
+                  ],
 
                   if (passiveFeatures.isNotEmpty) ...[
                     _buildSectionHeader(l10n.passiveTraits.toUpperCase()),
@@ -438,21 +450,22 @@ class _SpellsTabState extends State<SpellsTab> with AutomaticKeepAliveClientMixi
           ],
         ),
         
-        Positioned(
-          right: 16,
-          bottom: 16,
-          child: FloatingActionButton.extended(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => SpellAlmanacScreen(character: widget.character),
-                ),
-              ).then((_) => setState(() {}));
-            },
-            icon: const Icon(Icons.library_books),
-            label: Text(l10n.spellAlmanac),
+        if (showMagicSection)
+          Positioned(
+            right: 16,
+            bottom: 16,
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => SpellAlmanacScreen(character: widget.character),
+                  ),
+                ).then((_) => setState(() {}));
+              },
+              icon: const Icon(Icons.library_books),
+              label: Text(l10n.spellAlmanac),
+            ),
           ),
-        ),
       ],
     );
   }

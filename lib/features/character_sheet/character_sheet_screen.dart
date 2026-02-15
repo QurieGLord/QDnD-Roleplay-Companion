@@ -13,7 +13,7 @@ import '../../shared/widgets/item_details_sheet.dart';
 import 'widgets/expandable_character_card.dart';
 import 'widgets/overview_tab.dart';
 import 'widgets/stats_tab.dart';
-import 'widgets/spells_tab.dart';
+import 'widgets/abilities_tab.dart';
 import 'tabs/inventory_tab.dart';
 import 'tabs/journal_tab.dart';
 import '../inventory/create_item_screen.dart';
@@ -168,7 +168,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
                   onCharacterUpdated: () => setState(() {}),
                 ),
                 StatsTab(character: widget.character),
-                SpellsTab(character: widget.character),
+                AbilitiesTab(character: widget.character),
                 InventoryTab(character: widget.character),
                 JournalTab(character: widget.character),
               ],
