@@ -33,7 +33,8 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
 
   // --- Safe Helpers ---
 
-  String _getLocalizedActionEconomy(AppLocalizations l10n, String economy) {
+  String _getLocalizedActionEconomy(AppLocalizations l10n, String? economy) {
+    if (economy == null) return '';
     try {
       final lower = economy.toLowerCase();
       if (lower.contains('bonus')) return l10n.actionTypeBonus;
@@ -61,8 +62,6 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
 
   // --- Deep Search & Filtering ---
 
-  /// Aggressive Deduplication: Returns true if the feature is handled by a dedicated widget
-  /// or should otherwise be hidden from the general list.
   bool _shouldShowInList(CharacterFeature feature) {
     final id = feature.id.toLowerCase();
     final name = feature.nameEn.toLowerCase();
@@ -86,7 +85,9 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
       // 1. Exact ID Match first
       for (final keyword in keywords) {
         try {
-          return list.firstWhere((f) => f.id == keyword);
+          // Use cast to nullable to avoid potential issues if list contains nulls (though unlikely for features)
+          final match = list.where((f) => f.id == keyword).firstOrNull;
+          if (match != null) return match;
         } catch (_) {}
       }
 
@@ -119,7 +120,7 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
 
   CharacterFeature? _findResourceFeature(String id) {
     try {
-      return widget.character.features.firstWhere((f) => f.id == id);
+      return widget.character.features.where((f) => f.id == id).firstOrNull;
     } catch (_) {
       return null;
     }
@@ -155,7 +156,7 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
       if (feature.usageCostId != null) {
         try {
           // Deep resource search
-          resource = widget.character.features.firstWhere(
+          resource = widget.character.features.where(
             (f) {
               if (f.resourcePool == null) return false;
               final fId = f.id.toLowerCase();
@@ -165,7 +166,7 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
                      fId.startsWith('$costId-') ||
                      (costId == 'ki' && fId.contains('ki'));
             }
-          );
+          ).firstOrNull;
         } catch (_) {}
       } else if (feature.consumption != null) {
          resource = _findResourceFeature(feature.consumption!.resourceId);
@@ -174,9 +175,9 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
       // Special Case: Channel Divinity
       if (resource == null && feature.id.startsWith('channel-divinity-')) {
          try {
-           resource = widget.character.features.firstWhere(
+           resource = widget.character.features.where(
              (f) => f.resourcePool != null && (f.id == 'channel-divinity' || f.id.startsWith('channel-divinity-1-rest'))
-           );
+           ).firstOrNull;
          } catch (_) {}
       }
 
@@ -231,9 +232,9 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
 
   void _useLegacyChannelDivinity(AppLocalizations l10n) {
       try {
-        final cdPoolFeature = widget.character.features.firstWhere((f) => f.id == 'channel_divinity');
-        if (cdPoolFeature.resourcePool != null) {
-           if (cdPoolFeature.resourcePool!.currentUses > 0) {
+        final cdPoolFeature = widget.character.features.where((f) => f.id == 'channel_divinity').firstOrNull;
+        if (cdPoolFeature?.resourcePool != null) {
+           if (cdPoolFeature!.resourcePool!.currentUses > 0) {
              setState(() {
                cdPoolFeature.resourcePool!.use(1);
                widget.character.save();
@@ -254,7 +255,7 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
 
   void _showUsageDialog(BuildContext context, CharacterFeature feature, CharacterFeature resource, String locale) {
     int spendAmount = 1;
-    final max = resource.resourcePool!.currentUses;
+    final max = resource.resourcePool?.currentUses ?? 0;
     
     showDialog(
       context: context,
@@ -289,7 +290,7 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
                 FilledButton(
                   onPressed: () {
                     setState(() {
-                      resource.resourcePool!.use(spendAmount);
+                      resource.resourcePool?.use(spendAmount);
                       widget.character.save();
                     });
                     Navigator.pop(context);
@@ -465,13 +466,6 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
       final fighterSecondWind = _findFeatureDeep(allFeatures, ['second_wind', 'second wind']);
       final fighterIndomitable = _findFeatureDeep(allFeatures, ['indomitable']);
 
-      debugPrint('AbilitiesTab Search Report:');
-      debugPrint(' - Ki: ${monkKiFeature?.id}');
-      debugPrint(' - Rage: ${barbarianRageFeature?.id}');
-      debugPrint(' - Action Surge: ${fighterActionSurge?.id}');
-      debugPrint(' - Second Wind: ${fighterSecondWind?.id}');
-      debugPrint(' - Indomitable: ${fighterIndomitable?.id}');
-
       // Filter lists for general display
       final resourceFeatures = allFeatures.where((f) => 
         f.resourcePool != null && _shouldShowInList(f)
@@ -487,12 +481,34 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
       
       final passiveFeatures = _deduplicateFeatures(rawPassiveFeatures);
 
+      // Check for empty state
+      final isEmpty = resourceFeatures.isEmpty && 
+                      activeFeatures.isEmpty && 
+                      !showMagicSection && 
+                      passiveFeatures.isEmpty &&
+                      monkKiFeature == null &&
+                      barbarianRageFeature == null &&
+                      rogueSneakAttack == null &&
+                      fighterSecondWind == null &&
+                      fighterActionSurge == null;
+
       return Stack(
         children: [
           Column(
             children: [
               Expanded(
-                child: ListView(
+                child: isEmpty 
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.library_books_outlined, size: 64, color: colorScheme.outlineVariant),
+                        const SizedBox(height: 16),
+                        Text(locale == 'ru' ? 'Нет умений' : 'No traits', style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                      ],
+                    ),
+                  )
+                : ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
                     // --- Class Specific Dashboards ---
@@ -695,7 +711,10 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
 
 
   Widget _buildResourceFeature(CharacterFeature feature, String locale) {
-    final pool = feature.resourcePool!;
+    // FORCE SAFE: Access resourcePool carefully
+    final pool = feature.resourcePool;
+    if (pool == null) return const SizedBox.shrink();
+
     final colorScheme = Theme.of(context).colorScheme;
     
     return Card(
@@ -783,15 +802,17 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
       }
     } else if (feature.usageCostId != null) {
        try {
-        final res = widget.character.features.firstWhere(
+        final res = widget.character.features.where(
           (f) => f.resourcePool != null && (
             f.id == feature.usageCostId || 
             f.id.endsWith('-${feature.usageCostId}') || 
             f.id.startsWith('${feature.usageCostId}-') ||
             (feature.usageCostId == 'ki' && f.id.contains('ki'))
           ),
-        );
-        resourceCost = '1 ${res.getName(locale)}';
+        ).firstOrNull;
+        if (res != null) {
+          resourceCost = '1 ${res.getName(locale)}';
+        }
       } catch (_) {}
     }
 

@@ -4267,6 +4267,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reroll Saving Throw!'**
   String get rerollSave;
+
+  /// No description provided for @noTraits.
+  ///
+  /// In en, this message translates to:
+  /// **'No traits'**
+  String get noTraits;
 }
 
 class _AppLocalizationsDelegate

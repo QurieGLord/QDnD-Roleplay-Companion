@@ -124,7 +124,9 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
 
   Widget _buildSecondWindRow(BuildContext context, AppLocalizations l10n, ColorScheme colorScheme, int level) {
     final feature = widget.secondWindFeature!;
-    final pool = feature.resourcePool!;
+    final pool = feature.resourcePool;
+    if (pool == null) return const SizedBox.shrink();
+
     final isAvailable = pool.currentUses > 0;
     
     return Row(
@@ -175,7 +177,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
                 padding: EdgeInsets.zero,
               ),
               icon: const Icon(Icons.flash_on, size: 16),
-              label: Text(l10n.healShort), // "Heal" / "Хил"
+              label: Text(l10n.healShort),
             ),
           )
         else
@@ -191,7 +193,8 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
 
   Widget _buildActionSurgeRow(BuildContext context, AppLocalizations l10n, ColorScheme colorScheme) {
     final feature = widget.actionSurgeFeature!;
-    final pool = feature.resourcePool!;
+    final pool = feature.resourcePool;
+    if (pool == null) return const SizedBox.shrink();
     
     return Row(
       children: [
@@ -221,22 +224,42 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
           ),
         ),
         
+        // Interactive Tokens
         Row(
           mainAxisSize: MainAxisSize.min,
           children: List.generate(pool.maxUses, (index) {
              final isAvailable = index < pool.currentUses;
              return Padding(
                padding: const EdgeInsets.only(left: 8.0),
-               child: Switch(
-                 value: isAvailable,
-                 onChanged: (val) {
-                   if (val && !isAvailable) {
-                     _restoreResource(feature); 
-                   } else if (!val && isAvailable) {
-                     _useResource(feature); 
+               child: GestureDetector(
+                 onTap: () {
+                   if (isAvailable) {
+                     _useResource(feature, customMessage: l10n.actionSurge);
+                   } else {
+                     _restoreResource(feature);
                    }
                  },
-                 activeColor: Colors.amber.shade700,
+                 child: AnimatedContainer(
+                   duration: const Duration(milliseconds: 300),
+                   width: 36,
+                   height: 36,
+                   decoration: BoxDecoration(
+                     color: isAvailable ? Colors.amber.shade600 : Colors.transparent,
+                     shape: BoxShape.circle,
+                     border: Border.all(
+                       color: isAvailable ? Colors.amber.shade600 : colorScheme.outline.withOpacity(0.5),
+                       width: 2,
+                     ),
+                     boxShadow: isAvailable ? [
+                       BoxShadow(color: Colors.amber.shade600.withOpacity(0.4), blurRadius: 6, spreadRadius: 1)
+                     ] : [],
+                   ),
+                   child: Icon(
+                     isAvailable ? Icons.bolt : Icons.bolt_outlined,
+                     size: 20,
+                     color: isAvailable ? Colors.white : colorScheme.outline,
+                   ),
+                 ),
                ),
              );
           }),
@@ -247,7 +270,8 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
 
   Widget _buildIndomitableRow(BuildContext context, AppLocalizations l10n, ColorScheme colorScheme) {
     final feature = widget.indomitableFeature!;
-    final pool = feature.resourcePool!;
+    final pool = feature.resourcePool;
+    if (pool == null) return const SizedBox.shrink();
     
     return Row(
       children: [
@@ -277,7 +301,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
           ),
         ),
         
-        // Interactive Markers
+        // Interactive Tokens
         Row(
           mainAxisSize: MainAxisSize.min,
           children: List.generate(pool.maxUses, (index) {
@@ -294,22 +318,24 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
                  },
                  child: AnimatedContainer(
                    duration: const Duration(milliseconds: 300),
-                   width: 32,
-                   height: 32,
+                   width: 36,
+                   height: 36,
                    decoration: BoxDecoration(
                      color: isAvailable ? Colors.indigo : Colors.transparent,
                      shape: BoxShape.circle,
                      border: Border.all(
-                       color: isAvailable ? Colors.indigo : colorScheme.outline,
+                       color: isAvailable ? Colors.indigo : colorScheme.outline.withOpacity(0.5),
                        width: 2,
                      ),
                      boxShadow: isAvailable ? [
                        BoxShadow(color: Colors.indigo.withOpacity(0.4), blurRadius: 4)
                      ] : [],
                    ),
-                   child: isAvailable 
-                       ? const Icon(Icons.shield, size: 16, color: Colors.white)
-                       : null,
+                   child: Icon(
+                     isAvailable ? Icons.shield : Icons.shield_outlined,
+                     size: 18,
+                     color: isAvailable ? Colors.white : colorScheme.outline,
+                   ),
                  ),
                ),
              );

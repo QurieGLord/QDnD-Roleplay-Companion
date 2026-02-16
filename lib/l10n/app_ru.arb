@@ -705,5 +705,6 @@
   "rageInactive": "Спокоен",
   "healShort": "Хил",
   "indomitable": "Несгибаемый",
-  "rerollSave": "Переброс спасброска!"
+  "rerollSave": "Переброс спасброска!",
+  "noTraits": "Нет умений"
 }

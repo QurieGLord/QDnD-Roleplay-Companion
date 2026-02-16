@@ -2236,4 +2236,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rerollSave => 'Reroll Saving Throw!';
+
+  @override
+  String get noTraits => 'No traits';
 }

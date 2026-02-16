@@ -1003,5 +1003,6 @@
   "rageInactive": "Inactive",
   "healShort": "Heal",
   "indomitable": "Indomitable",
-  "rerollSave": "Reroll Saving Throw!"
+  "rerollSave": "Reroll Saving Throw!",
+  "noTraits": "No traits"
 }

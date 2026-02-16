@@ -2216,4 +2216,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get rerollSave => 'Переброс спасброска!';
+
+  @override
+  String get noTraits => 'Нет умений';
 }
