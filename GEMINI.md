@@ -90,6 +90,10 @@
     *   **Deep Search:** Added robust `_findFeatureDeep` to locate features (Action Surge, Second Wind) using multiple strategies (ID, name, substring).
     *   **Aggressive Deduplication:** Created `_shouldShowInList` to hide features already displayed in class dashboards (Rage, Ki, Action Surge).
     *   **Class Widgets:** Verified and integrated `FighterCombatWidget` and `RageControlWidget` with correct logic.
+*   **Abilities Tab Fixes (Phase 5.5):**
+    *   **Crash Fix:** Removed all force-unwraps (`!`) in `AbilitiesTab` to prevent `Null check operator` errors (specifically for Barbarian).
+    *   **Fighter UI:** Replaced `Switch` widgets with interactive token icons (Lightning/Shield) for Action Surge and Indomitable to match the visual style.
+    *   **Empty State:** Added a graceful "No traits" state for characters with no active/passive features.
 
 ### Pending Technical Tasks
 *   **Localization QA & Fixes (High Priority):** Systematic audit of the UI to fix hardcoded strings, grammar errors, layout overflows, and incorrect dynamic formatting logic. The infrastructure is ready, but the content quality needs a full pass.
