@@ -4165,6 +4165,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use ({cost})'**
   String useActionCost(String cost);
+
+  /// No description provided for @kiPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Ki Points'**
+  String get kiPoints;
+
+  /// No description provided for @martialArtsDie.
+  ///
+  /// In en, this message translates to:
+  /// **'Martial Arts Die'**
+  String get martialArtsDie;
+
+  /// No description provided for @rage.
+  ///
+  /// In en, this message translates to:
+  /// **'Rage'**
+  String get rage;
+
+  /// No description provided for @rageDamage.
+  ///
+  /// In en, this message translates to:
+  /// **'Rage Damage'**
+  String get rageDamage;
+
+  /// No description provided for @raging.
+  ///
+  /// In en, this message translates to:
+  /// **'Raging'**
+  String get raging;
+
+  /// No description provided for @sneakAttack.
+  ///
+  /// In en, this message translates to:
+  /// **'Sneak Attack'**
+  String get sneakAttack;
+
+  /// No description provided for @sneakAttackDamage.
+  ///
+  /// In en, this message translates to:
+  /// **'Damage'**
+  String get sneakAttackDamage;
+
+  /// No description provided for @secondWind.
+  ///
+  /// In en, this message translates to:
+  /// **'Second Wind'**
+  String get secondWind;
+
+  /// No description provided for @actionSurge.
+  ///
+  /// In en, this message translates to:
+  /// **'Action Surge'**
+  String get actionSurge;
+
+  /// No description provided for @healing.
+  ///
+  /// In en, this message translates to:
+  /// **'Healing'**
+  String get healing;
+
+  /// No description provided for @fighterTactics.
+  ///
+  /// In en, this message translates to:
+  /// **'Combat Tactics'**
+  String get fighterTactics;
+
+  /// No description provided for @sneakAttackRoll.
+  ///
+  /// In en, this message translates to:
+  /// **'Sneak Attack: {total} ({dice})'**
+  String sneakAttackRoll(Object dice, Object total);
+
+  /// No description provided for @kiStrikeRoll.
+  ///
+  /// In en, this message translates to:
+  /// **'Ki Strike: {total} ({dice})'**
+  String kiStrikeRoll(Object dice, Object total);
+
+  /// No description provided for @rageInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get rageInactive;
+
+  /// No description provided for @healShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Heal'**
+  String get healShort;
+
+  /// No description provided for @indomitable.
+  ///
+  /// In en, this message translates to:
+  /// **'Indomitable'**
+  String get indomitable;
+
+  /// No description provided for @rerollSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Reroll Saving Throw!'**
+  String get rerollSave;
 }
 
 class _AppLocalizationsDelegate

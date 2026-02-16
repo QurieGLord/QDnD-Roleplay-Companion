@@ -688,5 +688,22 @@
   "selectSkillsFirst": "Сначала выберите навыки",
   "expertise": "Компетентность",
   "useAction": "Использовать",
-  "useActionCost": "Использовать ({cost})"
+  "useActionCost": "Использовать ({cost})",
+  "kiPoints": "Очки Ци",
+  "martialArtsDie": "Кость БИ",
+  "rage": "Ярость",
+  "rageDamage": "Урон ярости",
+  "raging": "В ярости",
+  "sneakAttack": "Скрытая атака",
+  "sneakAttackDamage": "Урон",
+  "secondWind": "Второе дыхание",
+  "actionSurge": "Всплеск действий",
+  "healing": "Лечение",
+  "fighterTactics": "Боевая тактика",
+  "sneakAttackRoll": "Скрытая атака: {total} ({dice})",
+  "kiStrikeRoll": "Удар Ци: {total} ({dice})",
+  "rageInactive": "Спокоен",
+  "healShort": "Хил",
+  "indomitable": "Несгибаемый",
+  "rerollSave": "Переброс спасброска!"
 }

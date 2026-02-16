@@ -2161,4 +2161,59 @@ class AppLocalizationsRu extends AppLocalizations {
   String useActionCost(String cost) {
     return 'Использовать ($cost)';
   }
+
+  @override
+  String get kiPoints => 'Очки Ци';
+
+  @override
+  String get martialArtsDie => 'Кость БИ';
+
+  @override
+  String get rage => 'Ярость';
+
+  @override
+  String get rageDamage => 'Урон ярости';
+
+  @override
+  String get raging => 'В ярости';
+
+  @override
+  String get sneakAttack => 'Скрытая атака';
+
+  @override
+  String get sneakAttackDamage => 'Урон';
+
+  @override
+  String get secondWind => 'Второе дыхание';
+
+  @override
+  String get actionSurge => 'Всплеск действий';
+
+  @override
+  String get healing => 'Лечение';
+
+  @override
+  String get fighterTactics => 'Боевая тактика';
+
+  @override
+  String sneakAttackRoll(Object dice, Object total) {
+    return 'Скрытая атака: $total ($dice)';
+  }
+
+  @override
+  String kiStrikeRoll(Object dice, Object total) {
+    return 'Удар Ци: $total ($dice)';
+  }
+
+  @override
+  String get rageInactive => 'Спокоен';
+
+  @override
+  String get healShort => 'Хил';
+
+  @override
+  String get indomitable => 'Несгибаемый';
+
+  @override
+  String get rerollSave => 'Переброс спасброска!';
 }

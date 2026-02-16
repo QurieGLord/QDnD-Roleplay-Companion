@@ -986,5 +986,22 @@
     "placeholders": {
       "cost": { "type": "String" }
     }
-  }
+  },
+  "kiPoints": "Ki Points",
+  "martialArtsDie": "Martial Arts Die",
+  "rage": "Rage",
+  "rageDamage": "Rage Damage",
+  "raging": "Raging",
+  "sneakAttack": "Sneak Attack",
+  "sneakAttackDamage": "Damage",
+  "secondWind": "Second Wind",
+  "actionSurge": "Action Surge",
+  "healing": "Healing",
+  "fighterTactics": "Combat Tactics",
+  "sneakAttackRoll": "Sneak Attack: {total} ({dice})",
+  "kiStrikeRoll": "Ki Strike: {total} ({dice})",
+  "rageInactive": "Inactive",
+  "healShort": "Heal",
+  "indomitable": "Indomitable",
+  "rerollSave": "Reroll Saving Throw!"
 }

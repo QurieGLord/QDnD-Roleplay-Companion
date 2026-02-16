@@ -11,6 +11,10 @@ import '../../spell_almanac/spell_almanac_screen.dart';
 import '../../../shared/widgets/spell_details_sheet.dart';
 import '../../../shared/widgets/feature_details_sheet.dart';
 import '../../../core/utils/spell_utils.dart';
+import 'class_widgets/ki_tracker_widget.dart';
+import 'class_widgets/rage_control_widget.dart';
+import 'class_widgets/rogue_tools_widget.dart';
+import 'class_widgets/fighter_combat_widget.dart';
 
 class AbilitiesTab extends StatefulWidget {
   final Character character;
@@ -27,13 +31,20 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
   @override
   bool get wantKeepAlive => true;
 
+  // --- Safe Helpers ---
+
   String _getLocalizedActionEconomy(AppLocalizations l10n, String economy) {
-    final lower = economy.toLowerCase();
-    if (lower.contains('bonus')) return l10n.actionTypeBonus;
-    if (lower.contains('reaction')) return l10n.actionTypeReaction;
-    if (lower.contains('action')) return l10n.actionTypeAction;
-    if (lower.contains('free')) return l10n.actionTypeFree;
-    return economy;
+    try {
+      final lower = economy.toLowerCase();
+      if (lower.contains('bonus')) return l10n.actionTypeBonus;
+      if (lower.contains('reaction')) return l10n.actionTypeReaction;
+      if (lower.contains('action')) return l10n.actionTypeAction;
+      if (lower.contains('free')) return l10n.actionTypeFree;
+      return economy;
+    } catch (e) {
+      debugPrint('Error localizing action economy: $e');
+      return economy;
+    }
   }
 
   String _getAbilityAbbr(AppLocalizations l10n, String key) {
@@ -48,6 +59,64 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
     }
   }
 
+  // --- Deep Search & Filtering ---
+
+  /// Aggressive Deduplication: Returns true if the feature is handled by a dedicated widget
+  /// or should otherwise be hidden from the general list.
+  bool _shouldShowInList(CharacterFeature feature) {
+    final id = feature.id.toLowerCase();
+    final name = feature.nameEn.toLowerCase();
+
+    // Dedicated Widget Handling
+    if (id.contains('action_surge') || name.contains('action surge')) return false;
+    if (id.contains('second_wind') || name.contains('second wind')) return false;
+    if (id.contains('indomitable')) return false;
+    if (id.contains('rage') || name == 'rage') return false;
+    if (id.contains('ki') || name.startsWith('ki')) return false;
+    if (id.contains('sneak_attack') || name.contains('sneak attack')) return false;
+    
+    // Hide "Fighting Style" grouping feature if it exists (usually just a header)
+    if (id == 'fighting_style') return false;
+
+    return true;
+  }
+
+  CharacterFeature? _findFeatureDeep(List<CharacterFeature> list, List<String> keywords) {
+    try {
+      // 1. Exact ID Match first
+      for (final keyword in keywords) {
+        try {
+          return list.firstWhere((f) => f.id == keyword);
+        } catch (_) {}
+      }
+
+      // 2. Contains ID
+      for (final keyword in keywords) {
+        try {
+          // Sort by level descending to get the best version
+          final candidates = list.where((f) => f.id.contains(keyword)).toList();
+          candidates.sort((a, b) => b.minLevel.compareTo(a.minLevel));
+          if (candidates.isNotEmpty) return candidates.first;
+        } catch (_) {}
+      }
+
+      // 3. Name Match
+      for (final keyword in keywords) {
+        try {
+          final cleanKeyword = keyword.replaceAll('_', ' ');
+          final candidates = list.where((f) => f.nameEn.toLowerCase().contains(cleanKeyword)).toList();
+          candidates.sort((a, b) => b.minLevel.compareTo(a.minLevel));
+          if (candidates.isNotEmpty) return candidates.first;
+        } catch (_) {}
+      }
+      
+      return null;
+    } catch (e) {
+      debugPrint('Deep search failed: $e');
+      return null;
+    }
+  }
+
   CharacterFeature? _findResourceFeature(String id) {
     try {
       return widget.character.features.firstWhere((f) => f.id == id);
@@ -56,81 +125,107 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
     }
   }
 
+  List<CharacterFeature> _deduplicateFeatures(List<CharacterFeature> list) {
+    final Map<String, CharacterFeature> bestFeatures = {};
+    
+    for (final feature in list) {
+      String baseId = feature.id;
+      final regex = RegExp(r'_(\d+)$');
+      if (regex.hasMatch(baseId)) {
+        baseId = baseId.replaceAll(regex, '');
+      }
+      
+      if (!bestFeatures.containsKey(baseId)) {
+        bestFeatures[baseId] = feature;
+      } else {
+        if (feature.minLevel > bestFeatures[baseId]!.minLevel) {
+          bestFeatures[baseId] = feature;
+        }
+      }
+    }
+    return bestFeatures.values.toList();
+  }
+
+  // --- Actions ---
+
   void _useFeature(CharacterFeature feature, String locale, AppLocalizations l10n) {
-    // 0. Find Linked Resource
-    CharacterFeature? resource;
-    if (feature.usageCostId != null) {
-      try {
-        // Smart Resource Search (Fuzzy Matching)
-        resource = widget.character.features.firstWhere(
-          (f) {
-            final match = f.resourcePool != null && (
-              f.id == feature.usageCostId || 
-              f.id.endsWith('-${feature.usageCostId}') || 
-              f.id.startsWith('${feature.usageCostId}-') ||
-              (feature.usageCostId == 'ki' && f.id.contains('ki'))
-            );
-            return match;
-          }
-        );
-      } catch (_) {}
-    } else if (feature.consumption != null) {
-       resource = _findResourceFeature(feature.consumption!.resourceId);
-    }
+    try {
+      // 0. Find Linked Resource
+      CharacterFeature? resource;
+      if (feature.usageCostId != null) {
+        try {
+          // Deep resource search
+          resource = widget.character.features.firstWhere(
+            (f) {
+              if (f.resourcePool == null) return false;
+              final fId = f.id.toLowerCase();
+              final costId = feature.usageCostId!.toLowerCase();
+              return fId == costId || 
+                     fId.endsWith('-$costId') || 
+                     fId.startsWith('$costId-') ||
+                     (costId == 'ki' && fId.contains('ki'));
+            }
+          );
+        } catch (_) {}
+      } else if (feature.consumption != null) {
+         resource = _findResourceFeature(feature.consumption!.resourceId);
+      }
 
-    // Fallback for missing usageCostId on Channel Divinity
-    if (resource == null && feature.usageCostId == null && feature.id.startsWith('channel-divinity-')) {
-       try {
-         resource = widget.character.features.firstWhere(
-           (f) => f.resourcePool != null && (f.id == 'channel-divinity' || f.id.startsWith('channel-divinity-1-rest'))
-         );
-       } catch (_) {}
-    }
+      // Special Case: Channel Divinity
+      if (resource == null && feature.id.startsWith('channel-divinity-')) {
+         try {
+           resource = widget.character.features.firstWhere(
+             (f) => f.resourcePool != null && (f.id == 'channel-divinity' || f.id.startsWith('channel-divinity-1-rest'))
+           );
+         } catch (_) {}
+      }
 
-    // 1. Validate Resource
-    if (resource == null || resource.resourcePool == null) {
-       // Fallback for legacy Channel Divinity
-       if (feature.nameEn.contains('Channel Divinity')) {
-          _useLegacyChannelDivinity(l10n);
-       }
-       return;
-    }
-
-    final pool = resource.resourcePool!;
-
-    // 2. Granular Spending (Slider)
-    if (feature.usageInputMode == 'slider') {
-      if (pool.currentUses <= 0) {
-         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-             content: Text('No charges left for ${resource.getName(locale)}!'),
-             backgroundColor: Theme.of(context).colorScheme.error
-         ));
+      // 1. Validate Resource
+      if (resource == null || resource.resourcePool == null) {
+         if (feature.nameEn.contains('Channel Divinity')) {
+            _useLegacyChannelDivinity(l10n);
+         }
          return;
       }
-      _showUsageDialog(context, feature, resource, locale);
-      return;
-    }
 
-    // 3. Simple Spending (Fixed Cost)
-    int cost = 1;
-    if (feature.consumption != null) {
-      cost = feature.consumption!.amount;
-    }
+      final pool = resource.resourcePool!;
 
-    if (pool.currentUses >= cost) {
-      setState(() {
-        pool.use(cost);
-        widget.character.save();
-      });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('${feature.getName(locale)} used! (-$cost ${resource.getName(locale)})'),
-        duration: const Duration(milliseconds: 1000),
-      ));
-    } else {
-       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-         content: Text('Not enough ${resource.getName(locale)} (Need $cost)!'), 
-         backgroundColor: Theme.of(context).colorScheme.error
-       ));
+      // 2. Granular Spending (Slider)
+      if (feature.usageInputMode == 'slider') {
+        if (pool.currentUses <= 0) {
+           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+               content: Text('No charges left for ${resource.getName(locale)}!'),
+               backgroundColor: Theme.of(context).colorScheme.error
+           ));
+           return;
+        }
+        _showUsageDialog(context, feature, resource, locale);
+        return;
+      }
+
+      // 3. Simple Spending
+      int cost = 1;
+      if (feature.consumption != null) {
+        cost = feature.consumption!.amount;
+      }
+
+      if (pool.currentUses >= cost) {
+        setState(() {
+          pool.use(cost);
+          widget.character.save();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('${feature.getName(locale)} used! (-$cost ${resource.getName(locale)})'),
+          duration: const Duration(milliseconds: 1000),
+        ));
+      } else {
+         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+           content: Text('Not enough ${resource.getName(locale)} (Need $cost)!'), 
+           backgroundColor: Theme.of(context).colorScheme.error
+         ));
+      }
+    } catch (e) {
+      debugPrint('Error using feature: $e');
     }
   }
 
@@ -313,6 +408,8 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
     });
   }
 
+  // --- Build Methods ---
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -320,154 +417,215 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
     final locale = Localizations.localeOf(context).languageCode;
     final l10n = AppLocalizations.of(context)!;
     
-    // 1. Determine which spells to display
-    final classId = widget.character.characterClass.toLowerCase();
-    final isWizard = classId == 'wizard';
-    final isPreparedCaster = SpellcastingService.getSpellcastingType(classId) == 'prepared';
+    // SAFE MODE: Wrap entire build logic in try-catch to prevent grey screen
+    try {
+      // 1. Setup Spells
+      final classId = widget.character.characterClass.toLowerCase();
+      final isWizard = classId == 'wizard';
+      final isPreparedCaster = SpellcastingService.getSpellcastingType(classId) == 'prepared';
+      final hasSpellSlots = widget.character.maxSpellSlots.any((s) => s > 0);
+      final hasKnownSpells = widget.character.knownSpells.isNotEmpty;
+      final showMagicSection = hasSpellSlots || hasKnownSpells;
 
-    // Gatekeeper: Check if character is a caster
-    final hasSpellSlots = widget.character.maxSpellSlots.any((s) => s > 0);
-    final hasKnownSpells = widget.character.knownSpells.isNotEmpty;
-    final isCasterClass = SpellcastingService.isSpellcaster(classId);
-    
-    // Show magic section if they have slots, know spells, or are a caster class
-    final showMagicSection = hasSpellSlots || hasKnownSpells || isCasterClass;
-
-    // Calculate max spell level available
-    int maxSpellLevel = 0;
-    // For Pact Magic (Warlock), slots are all same level, but maxSpellSlots usually has length = max level?
-    // Actually standard slots: index 0 = Level 1.
-    for (int i = 0; i < widget.character.maxSpellSlots.length; i++) {
-       if (widget.character.maxSpellSlots[i] > 0) {
-         maxSpellLevel = i + 1;
-       }
-    }
-
-    List<Spell> displaySpells = [];
-    if (showMagicSection) {
-      if (isPreparedCaster && !isWizard) {
-        // Cleric, Druid, Paladin: Show ALL class spells, but filtered by slot level
-        // Also always include Cantrips (Level 0)
-        displaySpells = SpellService.getSpellsForClass(classId)
-            .where((s) => s.level == 0 || s.level <= maxSpellLevel)
-            .toList();
-      } else {
-        // Wizard, Bard, Sorcerer, etc: Show KNOWN spells (Spellbook)
-        displaySpells = widget.character.knownSpells
-            .map((id) => SpellService.getSpellById(id))
-            .whereType<Spell>()
-            .toList();
+      int maxSpellLevel = 0;
+      for (int i = 0; i < widget.character.maxSpellSlots.length; i++) {
+         if (widget.character.maxSpellSlots[i] > 0) {
+           maxSpellLevel = i + 1;
+         }
       }
-    }
 
-    final spellsByLevel = <int, List<Spell>>{};
-    for (var spell in displaySpells) {
-      spellsByLevel.putIfAbsent(spell.level, () => []).add(spell);
-    }
+      List<Spell> displaySpells = [];
+      if (showMagicSection) {
+        if (isPreparedCaster && !isWizard) {
+          displaySpells = SpellService.getSpellsForClass(classId)
+              .where((s) => s.level == 0 || s.level <= maxSpellLevel)
+              .toList();
+        } else {
+          displaySpells = widget.character.knownSpells
+              .map((id) => SpellService.getSpellById(id))
+              .whereType<Spell>()
+              .toList();
+        }
+      }
 
-    final features = widget.character.features.toList();
-    final hasSpecificFightingStyle = features.any((f) => f.nameEn.startsWith('Fighting Style:'));
-    if (hasSpecificFightingStyle) {
-      features.removeWhere((f) => f.id == 'fighting_style');
-    }
+      final spellsByLevel = <int, List<Spell>>{};
+      for (var spell in displaySpells) {
+        spellsByLevel.putIfAbsent(spell.level, () => []).add(spell);
+      }
 
-    final resourceFeatures = features.where((f) => f.resourcePool != null).toList();
-    final passiveFeatures = features.where((f) => f.resourcePool == null && f.type == FeatureType.passive).toList();
-    final activeFeatures = features.where((f) => f.resourcePool == null && f.type != FeatureType.passive).toList();
+      // 2. Setup Features
+      final allFeatures = widget.character.features;
+      
+      // Deep Search for Class Widgets
+      final monkKiFeature = _findFeatureDeep(allFeatures, ['ki']);
+      final barbarianRageFeature = _findFeatureDeep(allFeatures, ['rage', 'barbarian_rage']);
+      final rogueSneakAttack = _findFeatureDeep(allFeatures, ['sneak_attack']);
+      
+      final fighterActionSurge = _findFeatureDeep(allFeatures, ['action_surge', 'action surge']);
+      final fighterSecondWind = _findFeatureDeep(allFeatures, ['second_wind', 'second wind']);
+      final fighterIndomitable = _findFeatureDeep(allFeatures, ['indomitable']);
 
-    return Stack(
-      children: [
-        Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  if (resourceFeatures.isNotEmpty) ...[
-                    _buildSectionHeader(l10n.resources.toUpperCase()),
-                    ...resourceFeatures.map((feature) => _buildResourceFeature(feature, locale)).toList(),
-                    const SizedBox(height: 16),
-                  ],
+      debugPrint('AbilitiesTab Search Report:');
+      debugPrint(' - Ki: ${monkKiFeature?.id}');
+      debugPrint(' - Rage: ${barbarianRageFeature?.id}');
+      debugPrint(' - Action Surge: ${fighterActionSurge?.id}');
+      debugPrint(' - Second Wind: ${fighterSecondWind?.id}');
+      debugPrint(' - Indomitable: ${fighterIndomitable?.id}');
 
-                  if (activeFeatures.isNotEmpty) ...[
-                    _buildSectionHeader(l10n.activeAbilities.toUpperCase()),
-                    ...activeFeatures.map((feature) => _buildActiveFeature(feature, locale, l10n)).toList(),
-                    const SizedBox(height: 16),
-                  ],
+      // Filter lists for general display
+      final resourceFeatures = allFeatures.where((f) => 
+        f.resourcePool != null && _shouldShowInList(f)
+      ).toList();
 
-                  if (showMagicSection) ...[
-                    _buildSectionHeader(
-                      l10n.magic.toUpperCase(),
-                      trailing: _buildPreparationCounter(context, l10n),
-                    ),
-                    _buildMagicSection(context, l10n, showCounter: false), // Disable old counter
-                    const SizedBox(height: 16),
+      final activeFeatures = allFeatures.where((f) => 
+        f.resourcePool == null && f.type != FeatureType.passive && _shouldShowInList(f)
+      ).toList();
 
-                    if (displaySpells.isEmpty)
-                      Center(child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            Icon(Icons.auto_fix_off, size: 48, color: colorScheme.onSurface.withOpacity(0.3)),
-                            const SizedBox(height: 8),
-                            Text(l10n.noSpellsLearned, style: TextStyle(color: colorScheme.onSurface.withOpacity(0.5))),
-                          ],
-                        ),
-                      ))
-                    else
-                      ...(spellsByLevel.keys.toList()..sort()).map((level) => _buildSpellLevelGroup(level, spellsByLevel[level]!, locale, l10n)).toList(),
+      final rawPassiveFeatures = allFeatures.where((f) => 
+        f.resourcePool == null && f.type == FeatureType.passive && _shouldShowInList(f)
+      ).toList();
+      
+      final passiveFeatures = _deduplicateFeatures(rawPassiveFeatures);
 
-                    const SizedBox(height: 16),
-                  ],
+      return Stack(
+        children: [
+          Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    // --- Class Specific Dashboards ---
+                    if (monkKiFeature != null)
+                      _safeBuildWidget(() => KiTrackerWidget(
+                        character: widget.character,
+                        kiFeature: monkKiFeature,
+                        onChanged: () => setState(() {}),
+                      )),
+                      
+                    if (barbarianRageFeature != null)
+                      _safeBuildWidget(() => RageControlWidget(
+                        character: widget.character,
+                        rageFeature: barbarianRageFeature,
+                        onChanged: () => setState(() {}),
+                      )),
 
-                  if (passiveFeatures.isNotEmpty) ...[
-                    _buildSectionHeader(l10n.passiveTraits.toUpperCase()),
-                    Card(
-                      elevation: 1,
-                      child: ExpansionTile(
-                        title: Text('${passiveFeatures.length} ${l10n.passiveTraits}'),
-                        subtitle: Text(
-                          passiveFeatures.map((f) => f.getName(locale)).join(', '),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
-                        ),
-                        leading: Icon(Icons.psychology, color: colorScheme.secondary),
-                        children: passiveFeatures.map((feature) => ListTile(
-                          title: Text(feature.getName(locale), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                          subtitle: Text(feature.getDescription(locale), style: const TextStyle(fontSize: 12)),
-                          dense: true,
-                          leading: Icon(_getFeatureIcon(feature.iconName), size: 18, color: colorScheme.secondary.withOpacity(0.7)),
-                        )).toList(),
+                    if (rogueSneakAttack != null)
+                      _safeBuildWidget(() => RogueToolsWidget(character: widget.character)),
+                    
+                    if (fighterSecondWind != null || fighterActionSurge != null || fighterIndomitable != null)
+                      _safeBuildWidget(() => FighterCombatWidget(
+                        character: widget.character,
+                        secondWindFeature: fighterSecondWind,
+                        actionSurgeFeature: fighterActionSurge,
+                        indomitableFeature: fighterIndomitable,
+                        onChanged: () => setState(() {}),
+                      )),
+
+                    // --- General Lists ---
+
+                    if (resourceFeatures.isNotEmpty) ...[
+                      _buildSectionHeader(l10n.resources.toUpperCase()),
+                      ...resourceFeatures.map((f) => _safeBuildWidget(() => _buildResourceFeature(f, locale))),
+                      const SizedBox(height: 16),
+                    ],
+
+                    if (activeFeatures.isNotEmpty) ...[
+                      _buildSectionHeader(l10n.activeAbilities.toUpperCase()),
+                      ...activeFeatures.map((f) => _safeBuildWidget(() => _buildActiveFeature(f, locale, l10n))),
+                      const SizedBox(height: 16),
+                    ],
+
+                    if (showMagicSection) ...[
+                      _buildSectionHeader(
+                        l10n.magic.toUpperCase(),
+                        trailing: _buildPreparationCounter(context, l10n),
                       ),
-                    ),
-                  ],
+                      _buildMagicSection(context, l10n, showCounter: false),
+                      const SizedBox(height: 16),
 
-                  const SizedBox(height: 80),
-                ],
+                      if (displaySpells.isEmpty)
+                        Center(child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              Icon(Icons.auto_fix_off, size: 48, color: colorScheme.onSurface.withOpacity(0.3)),
+                              const SizedBox(height: 8),
+                              Text(l10n.noSpellsLearned, style: TextStyle(color: colorScheme.onSurface.withOpacity(0.5))),
+                            ],
+                          ),
+                        ))
+                      else
+                        ...(spellsByLevel.keys.toList()..sort()).map((level) => _buildSpellLevelGroup(level, spellsByLevel[level]!, locale, l10n)).toList(),
+
+                      const SizedBox(height: 16),
+                    ],
+
+                    if (passiveFeatures.isNotEmpty) ...[
+                      _buildSectionHeader(l10n.passiveTraits.toUpperCase()),
+                      Card(
+                        elevation: 1,
+                        child: ExpansionTile(
+                          title: Text('${passiveFeatures.length} ${l10n.passiveTraits}'),
+                          subtitle: Text(
+                            passiveFeatures.map((f) => f.getName(locale)).join(', '),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                          ),
+                          leading: Icon(Icons.psychology, color: colorScheme.secondary),
+                          children: passiveFeatures.map((feature) => _safeBuildWidget(() => ListTile(
+                            title: Text(feature.getName(locale), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            subtitle: Text(feature.getDescription(locale), style: const TextStyle(fontSize: 12)),
+                            dense: true,
+                            leading: Icon(_getFeatureIcon(feature.iconName), size: 18, color: colorScheme.secondary.withOpacity(0.7)),
+                          ))).toList(),
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 80),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          
+          if (showMagicSection)
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => SpellAlmanacScreen(character: widget.character),
+                    ),
+                  ).then((_) => setState(() {}));
+                },
+                icon: const Icon(Icons.library_books),
+                label: Text(l10n.spellAlmanac),
               ),
             ),
-          ],
-        ),
-        
-        if (showMagicSection)
-          Positioned(
-            right: 16,
-            bottom: 16,
-            child: FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => SpellAlmanacScreen(character: widget.character),
-                  ),
-                ).then((_) => setState(() {}));
-              },
-              icon: const Icon(Icons.library_books),
-              label: Text(l10n.spellAlmanac),
-            ),
-          ),
-      ],
-    );
+        ],
+      );
+    } catch (e, stack) {
+      debugPrint('CRITICAL ERROR in AbilitiesTab.build: $e');
+      debugPrint(stack.toString());
+      return Center(
+        child: Text('Error loading abilities: $e', style: TextStyle(color: colorScheme.error)),
+      );
+    }
+  }
+
+  /// Wraps a widget builder in try-catch to prevent one bad item from crashing the whole list
+  Widget _safeBuildWidget(Widget Function() builder) {
+    try {
+      return builder();
+    } catch (e) {
+      debugPrint('Error building widget item: $e');
+      return const SizedBox.shrink();
+    }
   }
 
   Widget _buildSectionHeader(String title, {Widget? trailing}) {
@@ -492,48 +650,51 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
   }
 
   Widget? _buildPreparationCounter(BuildContext context, AppLocalizations l10n) {
-    final classId = widget.character.characterClass.toLowerCase();
-    final isPreparedCaster = SpellcastingService.getSpellcastingType(classId) == 'prepared';
-    if (!isPreparedCaster) return null;
+    try {
+      final classId = widget.character.characterClass.toLowerCase();
+      final isPreparedCaster = SpellcastingService.getSpellcastingType(classId) == 'prepared';
+      if (!isPreparedCaster) return null;
 
-    final colorScheme = Theme.of(context).colorScheme;
-    final maxPrepared = SpellcastingService.getMaxPreparedSpells(widget.character);
-    
-    int currentPrepared = 0;
-    for (final id in widget.character.preparedSpells) {
-       final s = SpellService.getSpellById(id);
-       if (s != null && s.level > 0) currentPrepared++;
+      final colorScheme = Theme.of(context).colorScheme;
+      final maxPrepared = SpellcastingService.getMaxPreparedSpells(widget.character);
+      
+      int currentPrepared = 0;
+      for (final id in widget.character.preparedSpells) {
+         final s = SpellService.getSpellById(id);
+         if (s != null && s.level > 0) currentPrepared++;
+      }
+
+      final isOverLimit = currentPrepared > maxPrepared;
+      final isFull = currentPrepared == maxPrepared;
+      final color = isOverLimit ? colorScheme.error : (isFull ? colorScheme.primary : colorScheme.onSurfaceVariant);
+
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Text(
+              '${l10n.preparedSpells.toUpperCase()}: ',
+              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color.withValues(alpha: 0.8)),
+            ),
+            Text(
+              '$currentPrepared/$maxPrepared',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: color),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      return null;
     }
-
-    final isOverLimit = currentPrepared > maxPrepared;
-    final isFull = currentPrepared == maxPrepared;
-    final color = isOverLimit ? colorScheme.error : (isFull ? colorScheme.primary : colorScheme.onSurfaceVariant);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          Text(
-            '${l10n.preparedSpells.toUpperCase()}: ',
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color.withValues(alpha: 0.8)),
-          ),
-          Text(
-            '$currentPrepared/$maxPrepared',
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: color),
-          ),
-        ],
-      ),
-    );
   }
 
 
   Widget _buildResourceFeature(CharacterFeature feature, String locale) {
-    // ... (unchanged)
     final pool = feature.resourcePool!;
     final colorScheme = Theme.of(context).colorScheme;
     
@@ -711,7 +872,6 @@ class _AbilitiesTabState extends State<AbilitiesTab> with AutomaticKeepAliveClie
   Widget _buildMagicSection(BuildContext context, AppLocalizations l10n, {bool showCounter = true}) {
     final colorScheme = Theme.of(context).colorScheme;
     final isPactMagic = SpellcastingService.getSpellcastingType(widget.character.characterClass) == 'pact_magic';
-    // isPreparedCaster check removed as we handle it via showCounter or header
     final maxPrepared = SpellcastingService.getMaxPreparedSpells(widget.character);
     final currentPrepared = widget.character.preparedSpells.length;
 

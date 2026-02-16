@@ -2181,4 +2181,59 @@ class AppLocalizationsEn extends AppLocalizations {
   String useActionCost(String cost) {
     return 'Use ($cost)';
   }
+
+  @override
+  String get kiPoints => 'Ki Points';
+
+  @override
+  String get martialArtsDie => 'Martial Arts Die';
+
+  @override
+  String get rage => 'Rage';
+
+  @override
+  String get rageDamage => 'Rage Damage';
+
+  @override
+  String get raging => 'Raging';
+
+  @override
+  String get sneakAttack => 'Sneak Attack';
+
+  @override
+  String get sneakAttackDamage => 'Damage';
+
+  @override
+  String get secondWind => 'Second Wind';
+
+  @override
+  String get actionSurge => 'Action Surge';
+
+  @override
+  String get healing => 'Healing';
+
+  @override
+  String get fighterTactics => 'Combat Tactics';
+
+  @override
+  String sneakAttackRoll(Object dice, Object total) {
+    return 'Sneak Attack: $total ($dice)';
+  }
+
+  @override
+  String kiStrikeRoll(Object dice, Object total) {
+    return 'Ki Strike: $total ($dice)';
+  }
+
+  @override
+  String get rageInactive => 'Inactive';
+
+  @override
+  String get healShort => 'Heal';
+
+  @override
+  String get indomitable => 'Indomitable';
+
+  @override
+  String get rerollSave => 'Reroll Saving Throw!';
 }
