@@ -63,7 +63,8 @@ class RaceData {
 
   factory RaceData.fromJson(Map<String, dynamic> json) {
     // Support both "abilityScoreIncrease" and "abilityScoreIncreases" for compatibility
-    final abilityScores = json['abilityScoreIncreases'] ?? json['abilityScoreIncrease'] ?? {};
+    final abilityScores =
+        json['abilityScoreIncreases'] ?? json['abilityScoreIncrease'] ?? {};
 
     // Parse traits - convert old format to CharacterFeature
     List<CharacterFeature> parsedTraits = [];
@@ -79,30 +80,30 @@ class RaceData {
         final ruTraits = List<String>.from(traitsJson['ru'] ?? []);
 
         for (int i = 0; i < enTraits.length; i++) {
-            parsedTraits.add(CharacterFeature(
-                id: 'trait_${enTraits[i].toLowerCase().replaceAll(' ', '_')}',
-                nameEn: enTraits[i],
-                nameRu: i < ruTraits.length ? ruTraits[i] : enTraits[i],
-                descriptionEn: enTraits[i], // JSON traits were just names/short desc
-                descriptionRu: i < ruTraits.length ? ruTraits[i] : enTraits[i],
-                type: FeatureType.passive,
-                minLevel: 1,
-            ));
+          parsedTraits.add(CharacterFeature(
+            id: 'trait_${enTraits[i].toLowerCase().replaceAll(' ', '_')}',
+            nameEn: enTraits[i],
+            nameRu: i < ruTraits.length ? ruTraits[i] : enTraits[i],
+            descriptionEn:
+                enTraits[i], // JSON traits were just names/short desc
+            descriptionRu: i < ruTraits.length ? ruTraits[i] : enTraits[i],
+            type: FeatureType.passive,
+            minLevel: 1,
+          ));
         }
-
       } else if (traitsJson is List) {
         // Simple format: [...]
-         for (var t in traitsJson) {
-            parsedTraits.add(CharacterFeature(
-                id: 'trait_${t.toString().toLowerCase().replaceAll(' ', '_')}',
-                nameEn: t.toString(),
-                nameRu: t.toString(),
-                descriptionEn: t.toString(),
-                descriptionRu: t.toString(),
-                type: FeatureType.passive,
-                minLevel: 1,
-            ));
-         }
+        for (var t in traitsJson) {
+          parsedTraits.add(CharacterFeature(
+            id: 'trait_${t.toString().toLowerCase().replaceAll(' ', '_')}',
+            nameEn: t.toString(),
+            nameRu: t.toString(),
+            descriptionEn: t.toString(),
+            descriptionRu: t.toString(),
+            type: FeatureType.passive,
+            minLevel: 1,
+          ));
+        }
       }
     }
 
@@ -116,23 +117,29 @@ class RaceData {
       proficiencies: List<String>.from(json['proficiencies'] ?? []),
       traits: parsedTraits,
       subraces: (json['subraces'] as List?)
-          ?.map((s) => SubraceData.fromJson(s))
-          .toList() ?? [],
+              ?.map((s) => SubraceData.fromJson(s))
+              .toList() ??
+          [],
       size: json['size'] ?? 'Medium',
     );
   }
 
   factory RaceData.fromFC5(XmlElement element, String sourceId) {
     final name = element.findElements('name').first.innerText;
-    final size = element.findElements('size').firstOrNull?.innerText ?? 'Medium';
-    final speedStr = element.findElements('speed').firstOrNull?.innerText ?? '30';
-    final speed = int.tryParse(speedStr.replaceAll(RegExp(r'[^0-9]'), '')) ?? 30;
+    final size =
+        element.findElements('size').firstOrNull?.innerText ?? 'Medium';
+    final speedStr =
+        element.findElements('speed').firstOrNull?.innerText ?? '30';
+    final speed =
+        int.tryParse(speedStr.replaceAll(RegExp(r'[^0-9]'), '')) ?? 30;
 
     final traits = <CharacterFeature>[];
     for (var traitElement in element.findElements('trait')) {
-      final traitName = traitElement.findElements('name').firstOrNull?.innerText ?? '';
-      final traitText = traitElement.findElements('text').map((e) => e.innerText).join('\n');
-      
+      final traitName =
+          traitElement.findElements('name').firstOrNull?.innerText ?? '';
+      final traitText =
+          traitElement.findElements('text').map((e) => e.innerText).join('\n');
+
       if (traitName.isNotEmpty) {
         traits.add(CharacterFeature(
           id: 'fc5_${traitName.toLowerCase().replaceAll(' ', '_')}_${DateTime.now().millisecondsSinceEpoch}',
@@ -189,38 +196,39 @@ class SubraceData {
   }
 
   factory SubraceData.fromJson(Map<String, dynamic> json) {
-    final abilityScores = json['additionalAbilityScores'] ?? json['abilityScoreIncrease'] ?? {};
+    final abilityScores =
+        json['additionalAbilityScores'] ?? json['abilityScoreIncrease'] ?? {};
 
     List<CharacterFeature> parsedTraits = [];
     final traitsJson = json['additionalTraits'] ?? json['traits'];
-    
+
     if (traitsJson != null) {
       if (traitsJson is Map) {
         final enTraits = List<String>.from(traitsJson['en'] ?? []);
         final ruTraits = List<String>.from(traitsJson['ru'] ?? []);
         for (int i = 0; i < enTraits.length; i++) {
-            parsedTraits.add(CharacterFeature(
-                id: 'subtrait_${enTraits[i].toLowerCase().replaceAll(' ', '_')}',
-                nameEn: enTraits[i],
-                nameRu: i < ruTraits.length ? ruTraits[i] : enTraits[i],
-                descriptionEn: enTraits[i],
-                descriptionRu: i < ruTraits.length ? ruTraits[i] : enTraits[i],
-                type: FeatureType.passive,
-                minLevel: 1,
-            ));
+          parsedTraits.add(CharacterFeature(
+            id: 'subtrait_${enTraits[i].toLowerCase().replaceAll(' ', '_')}',
+            nameEn: enTraits[i],
+            nameRu: i < ruTraits.length ? ruTraits[i] : enTraits[i],
+            descriptionEn: enTraits[i],
+            descriptionRu: i < ruTraits.length ? ruTraits[i] : enTraits[i],
+            type: FeatureType.passive,
+            minLevel: 1,
+          ));
         }
       } else if (traitsJson is List) {
-         for (var t in traitsJson) {
-            parsedTraits.add(CharacterFeature(
-                id: 'subtrait_${t.toString().toLowerCase().replaceAll(' ', '_')}',
-                nameEn: t.toString(),
-                nameRu: t.toString(),
-                descriptionEn: t.toString(),
-                descriptionRu: t.toString(),
-                type: FeatureType.passive,
-                minLevel: 1,
-            ));
-         }
+        for (var t in traitsJson) {
+          parsedTraits.add(CharacterFeature(
+            id: 'subtrait_${t.toString().toLowerCase().replaceAll(' ', '_')}',
+            nameEn: t.toString(),
+            nameRu: t.toString(),
+            descriptionEn: t.toString(),
+            descriptionRu: t.toString(),
+            type: FeatureType.passive,
+            minLevel: 1,
+          ));
+        }
       }
     }
 

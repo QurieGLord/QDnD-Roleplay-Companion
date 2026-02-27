@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../core/models/character.dart';
 import '../../core/services/storage_service.dart';
@@ -19,12 +18,12 @@ class CharacterEditScreen extends StatefulWidget {
 
 class _CharacterEditScreenState extends State<CharacterEditScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   // Controllers
   late final TextEditingController _nameController;
   late final TextEditingController _ageController;
   late final TextEditingController _backstoryController;
-  
+
   // Traits
   late final TextEditingController _traitsController;
   late final TextEditingController _idealsController;
@@ -38,7 +37,7 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
   String? _selectedEyes;
   String? _selectedSkin;
   String? _selectedHair;
-  
+
   bool _isDirty = false;
 
   @override
@@ -46,9 +45,11 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
     super.initState();
     _nameController = TextEditingController(text: widget.character.name);
     _ageController = TextEditingController(text: widget.character.age);
-    _backstoryController = TextEditingController(text: widget.character.backstory);
-    
-    _traitsController = TextEditingController(text: widget.character.personalityTraits);
+    _backstoryController =
+        TextEditingController(text: widget.character.backstory);
+
+    _traitsController =
+        TextEditingController(text: widget.character.personalityTraits);
     _idealsController = TextEditingController(text: widget.character.ideals);
     _bondsController = TextEditingController(text: widget.character.bonds);
     _flawsController = TextEditingController(text: widget.character.flaws);
@@ -63,7 +64,7 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
     void markDirty() {
       if (!_isDirty) setState(() => _isDirty = true);
     }
-    
+
     _nameController.addListener(markDirty);
     _ageController.addListener(markDirty);
     _backstoryController.addListener(markDirty);
@@ -114,7 +115,7 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
       // Update character fields
       widget.character.name = _nameController.text.trim();
       widget.character.avatarPath = _avatarPath;
-      
+
       // Appearance
       widget.character.age = _ageController.text.trim();
       widget.character.height = _selectedHeight;
@@ -122,14 +123,14 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
       widget.character.eyes = _selectedEyes;
       widget.character.skin = _selectedSkin;
       widget.character.hair = _selectedHair;
-      
+
       // Story & Traits
       widget.character.backstory = _backstoryController.text.trim();
       widget.character.personalityTraits = _traitsController.text.trim();
       widget.character.ideals = _idealsController.text.trim();
       widget.character.bonds = _bondsController.text.trim();
       widget.character.flaws = _flawsController.text.trim();
-      
+
       widget.character.updatedAt = DateTime.now();
 
       // Persist
@@ -139,7 +140,7 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
         Navigator.of(context).pop(true);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Character updated successfully'),
+            content: const Text('Character updated successfully'),
             backgroundColor: Theme.of(context).colorScheme.primary,
             behavior: SnackBarBehavior.floating,
           ),
@@ -218,7 +219,9 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                                       return Icon(
                                         Icons.person,
                                         size: 60,
-                                        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                                        color: theme
+                                            .colorScheme.onSurfaceVariant
+                                            .withOpacity(0.5),
                                       );
                                     },
                                   ),
@@ -226,7 +229,8 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                               : Icon(
                                   Icons.person,
                                   size: 60,
-                                  color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                                  color: theme.colorScheme.onSurfaceVariant
+                                      .withOpacity(0.5),
                                 ),
                         ),
                       ),
@@ -274,7 +278,8 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                 labelText: 'Character Name',
                 border: const OutlineInputBorder(),
                 filled: true,
-                fillColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                fillColor:
+                    theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
                 prefixIcon: const Icon(Icons.person_outline),
               ),
               style: theme.textTheme.titleMedium,
@@ -330,7 +335,8 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
             // ================= PERSONALITY SECTION =================
             _buildSectionHeader(context, 'Personality', Icons.psychology),
             const SizedBox(height: 16),
-            _buildTextArea('Personality Traits', _traitsController, minLines: 2),
+            _buildTextArea('Personality Traits', _traitsController,
+                minLines: 2),
             const SizedBox(height: 12),
             _buildTextArea('Ideals', _idealsController, minLines: 2),
             const SizedBox(height: 12),
@@ -362,7 +368,8 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, IconData icon) {
+  Widget _buildSectionHeader(
+      BuildContext context, String title, IconData icon) {
     final theme = Theme.of(context);
     return Row(
       children: [
@@ -386,7 +393,8 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
     );
   }
 
-  Widget _buildTextArea(String label, TextEditingController controller, {int minLines = 1}) {
+  Widget _buildTextArea(String label, TextEditingController controller,
+      {int minLines = 1}) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
@@ -421,12 +429,15 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
   }
 
   Widget _buildHeightPicker(BuildContext context, ThemeData theme) {
-    final currentHeight = int.tryParse((_selectedHeight ?? '').replaceAll(RegExp(r'[^\d]'), '')) ?? 170;
+    final currentHeight = int.tryParse(
+            (_selectedHeight ?? '').replaceAll(RegExp(r'[^\d]'), '')) ??
+        170;
 
     return InkWell(
       onTap: () async {
         int selectedHeight = currentHeight.clamp(50, 250);
-        final FixedExtentScrollController scrollController = FixedExtentScrollController(
+        final FixedExtentScrollController scrollController =
+            FixedExtentScrollController(
           initialItem: selectedHeight - 50,
         );
 
@@ -463,11 +474,14 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                                 return Center(
                                   child: Text(
                                     '$value',
-                                    style: theme.textTheme.headlineSmall?.copyWith(
+                                    style:
+                                        theme.textTheme.headlineSmall?.copyWith(
                                       color: isSelected
                                           ? theme.colorScheme.primary
                                           : theme.colorScheme.onSurfaceVariant,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                     ),
                                   ),
                                 );
@@ -538,7 +552,8 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                 ],
               ),
             ),
-            Icon(Icons.arrow_drop_down, size: 18, color: theme.colorScheme.onSurfaceVariant),
+            Icon(Icons.arrow_drop_down,
+                size: 18, color: theme.colorScheme.onSurfaceVariant),
           ],
         ),
       ),
@@ -546,12 +561,15 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
   }
 
   Widget _buildWeightPicker(BuildContext context, ThemeData theme) {
-    final currentWeight = int.tryParse((_selectedWeight ?? '').replaceAll(RegExp(r'[^\d]'), '')) ?? 70;
+    final currentWeight = int.tryParse(
+            (_selectedWeight ?? '').replaceAll(RegExp(r'[^\d]'), '')) ??
+        70;
 
     return InkWell(
       onTap: () async {
         int selectedWeight = currentWeight.clamp(10, 300);
-        final FixedExtentScrollController scrollController = FixedExtentScrollController(
+        final FixedExtentScrollController scrollController =
+            FixedExtentScrollController(
           initialItem: selectedWeight - 10,
         );
 
@@ -588,11 +606,14 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                                 return Center(
                                   child: Text(
                                     '$value',
-                                    style: theme.textTheme.headlineSmall?.copyWith(
+                                    style:
+                                        theme.textTheme.headlineSmall?.copyWith(
                                       color: isSelected
                                           ? theme.colorScheme.primary
                                           : theme.colorScheme.onSurfaceVariant,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                     ),
                                   ),
                                 );
@@ -663,7 +684,8 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                 ],
               ),
             ),
-            Icon(Icons.arrow_drop_down, size: 18, color: theme.colorScheme.onSurfaceVariant),
+            Icon(Icons.arrow_drop_down,
+                size: 18, color: theme.colorScheme.onSurfaceVariant),
           ],
         ),
       ),
@@ -672,11 +694,21 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
 
   Widget _buildEyesPicker(BuildContext context, ThemeData theme) {
     return _buildColorPicker(
-      context, 
-      theme, 
-      'Eyes', 
-      _selectedEyes, 
-      ['Amber', 'Blue', 'Brown', 'Gray', 'Green', 'Hazel', 'Red', 'Violet', 'Custom'],
+      context,
+      theme,
+      'Eyes',
+      _selectedEyes,
+      [
+        'Amber',
+        'Blue',
+        'Brown',
+        'Gray',
+        'Green',
+        'Hazel',
+        'Red',
+        'Violet',
+        'Custom'
+      ],
       {
         'Amber': const Color(0xFFFFBF00),
         'Blue': const Color(0xFF4169E1),
@@ -688,17 +720,30 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
         'Violet': const Color(0xFF8B00FF),
         'Custom': Colors.grey,
       },
-      (val) => setState(() { _selectedEyes = val; _isDirty = true; }),
+      (val) => setState(() {
+        _selectedEyes = val;
+        _isDirty = true;
+      }),
     );
   }
 
   Widget _buildSkinPicker(BuildContext context, ThemeData theme) {
     return _buildColorPicker(
-      context, 
-      theme, 
-      'Skin', 
-      _selectedSkin, 
-      ['Pale', 'Fair', 'Light', 'Medium', 'Tan', 'Brown', 'Dark', 'Ebony', 'Custom'],
+      context,
+      theme,
+      'Skin',
+      _selectedSkin,
+      [
+        'Pale',
+        'Fair',
+        'Light',
+        'Medium',
+        'Tan',
+        'Brown',
+        'Dark',
+        'Ebony',
+        'Custom'
+      ],
       {
         'Pale': const Color(0xFFFFF0E1),
         'Fair': const Color(0xFFFFE4C4),
@@ -710,17 +755,30 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
         'Ebony': const Color(0xFF4A3728),
         'Custom': Colors.grey,
       },
-      (val) => setState(() { _selectedSkin = val; _isDirty = true; }),
+      (val) => setState(() {
+        _selectedSkin = val;
+        _isDirty = true;
+      }),
     );
   }
 
   Widget _buildHairPicker(BuildContext context, ThemeData theme) {
     return _buildColorPicker(
-      context, 
-      theme, 
-      'Hair', 
-      _selectedHair, 
-      ['Auburn', 'Black', 'Blonde', 'Brown', 'Gray', 'Red', 'White', 'Bald', 'Custom'],
+      context,
+      theme,
+      'Hair',
+      _selectedHair,
+      [
+        'Auburn',
+        'Black',
+        'Blonde',
+        'Brown',
+        'Gray',
+        'Red',
+        'White',
+        'Bald',
+        'Custom'
+      ],
       {
         'Auburn': const Color(0xFFA52A2A),
         'Black': const Color(0xFF000000),
@@ -732,16 +790,19 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
         'Bald': Colors.transparent,
         'Custom': Colors.grey,
       },
-      (val) => setState(() { _selectedHair = val; _isDirty = true; }),
+      (val) => setState(() {
+        _selectedHair = val;
+        _isDirty = true;
+      }),
     );
   }
 
   Widget _buildColorPicker(
-    BuildContext context, 
-    ThemeData theme, 
-    String label, 
-    String? currentValue, 
-    List<String> options, 
+    BuildContext context,
+    ThemeData theme,
+    String label,
+    String? currentValue,
+    List<String> options,
     Map<String, Color> colors,
     Function(String) onChanged,
   ) {
@@ -782,14 +843,16 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                             width: 1,
                           ),
                         ),
-                        child: color == 'Bald' 
-                            ? Icon(Icons.block, size: 16, color: theme.colorScheme.error) 
+                        child: color == 'Bald'
+                            ? Icon(Icons.block,
+                                size: 16, color: theme.colorScheme.error)
                             : null,
                       ),
                       const SizedBox(width: 12),
                       Expanded(child: Text(color)),
                       if (currentValue == color)
-                        Icon(Icons.check, color: theme.colorScheme.primary, size: 20),
+                        Icon(Icons.check,
+                            color: theme.colorScheme.primary, size: 20),
                     ],
                   ),
                 );
@@ -832,14 +895,16 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                 ],
               ),
             ),
-            Icon(Icons.arrow_drop_down, size: 18, color: theme.colorScheme.onSurfaceVariant),
+            Icon(Icons.arrow_drop_down,
+                size: 18, color: theme.colorScheme.onSurfaceVariant),
           ],
         ),
       ),
     );
   }
 
-  Future<String?> _showCustomInputDialog(BuildContext context, String title, String hint) async {
+  Future<String?> _showCustomInputDialog(
+      BuildContext context, String title, String hint) async {
     final controller = TextEditingController();
     return showDialog<String>(
       context: context,

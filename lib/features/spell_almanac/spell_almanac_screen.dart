@@ -33,10 +33,12 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
     if (widget.character != null) {
       switch (_availabilityFilter) {
         case SpellAvailabilityFilter.canLearnNow:
-          spells = SpellEligibilityService.getLearnableSpells(widget.character!, spells);
+          spells = SpellEligibilityService.getLearnableSpells(
+              widget.character!, spells);
           break;
         case SpellAvailabilityFilter.availableToClass:
-          spells = SpellEligibilityService.getAvailableSpells(widget.character!, spells);
+          spells = SpellEligibilityService.getAvailableSpells(
+              widget.character!, spells);
           break;
         case SpellAvailabilityFilter.all:
           // No filtering
@@ -47,15 +49,19 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
     // 2. Apply search
     if (_searchQuery.isNotEmpty) {
       spells = spells.where((spell) {
-        return spell.getName(locale).toLowerCase().contains(_searchQuery.toLowerCase());
+        return spell
+            .getName(locale)
+            .toLowerCase()
+            .contains(_searchQuery.toLowerCase());
       }).toList();
     }
 
     // 3. Apply class filter
     if (_filterClass != null) {
-      spells = spells.where((spell) =>
-        spell.availableToClasses.any((c) => c.toLowerCase() == _filterClass!.toLowerCase())
-      ).toList();
+      spells = spells
+          .where((spell) => spell.availableToClasses
+              .any((c) => c.toLowerCase() == _filterClass!.toLowerCase()))
+          .toList();
     }
 
     // 4. Apply level filter
@@ -70,7 +76,9 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
 
     // 6. Apply concentration filter
     if (_filterConcentration != null) {
-      spells = spells.where((spell) => spell.concentration == _filterConcentration).toList();
+      spells = spells
+          .where((spell) => spell.concentration == _filterConcentration)
+          .toList();
     }
 
     // 7. Apply ritual filter
@@ -97,7 +105,8 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
       builder: (context) => SpellDetailsSheet(
         spell: spell,
         character: widget.character,
-        onToggleKnown: () => _toggleKnownSpell(spell, AppLocalizations.of(context)!),
+        onToggleKnown: () =>
+            _toggleKnownSpell(spell, AppLocalizations.of(context)!),
       ),
     );
   }
@@ -150,12 +159,31 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
         _filterClass != null ||
         _filterConcentration != null ||
         _filterRitual != null ||
-        (widget.character != null && _availabilityFilter != SpellAvailabilityFilter.all);
+        (widget.character != null &&
+            _availabilityFilter != SpellAvailabilityFilter.all);
   }
 
   void _showFilters(AppLocalizations l10n) {
-    final allClasses = ['Wizard', 'Cleric', 'Druid', 'Bard', 'Sorcerer', 'Paladin', 'Ranger', 'Warlock'];
-    final allSchools = ['Abjuration', 'Conjuration', 'Divination', 'Enchantment', 'Evocation', 'Illusion', 'Necromancy', 'Transmutation'];
+    final allClasses = [
+      'Wizard',
+      'Cleric',
+      'Druid',
+      'Bard',
+      'Sorcerer',
+      'Paladin',
+      'Ranger',
+      'Warlock'
+    ];
+    final allSchools = [
+      'Abjuration',
+      'Conjuration',
+      'Divination',
+      'Enchantment',
+      'Evocation',
+      'Illusion',
+      'Necromancy',
+      'Transmutation'
+    ];
 
     showModalBottomSheet(
       context: context,
@@ -170,45 +198,56 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l10n.filters, style: Theme.of(context).textTheme.titleLarge),
+                    Text(l10n.filters,
+                        style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: 16),
-
                     if (widget.character != null) ...[
-                      Text('${l10n.filterAvailability} (${widget.character!.name})', style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                          '${l10n.filterAvailability} (${widget.character!.name})',
+                          style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,
                         children: [
                           FilterChip(
                             label: Text(l10n.filterAllSpells),
-                            selected: _availabilityFilter == SpellAvailabilityFilter.all,
+                            selected: _availabilityFilter ==
+                                SpellAvailabilityFilter.all,
                             onSelected: (selected) {
-                              setModalState(() => _availabilityFilter = SpellAvailabilityFilter.all);
-                              setState(() => _availabilityFilter = SpellAvailabilityFilter.all);
+                              setModalState(() => _availabilityFilter =
+                                  SpellAvailabilityFilter.all);
+                              setState(() => _availabilityFilter =
+                                  SpellAvailabilityFilter.all);
                             },
                           ),
                           FilterChip(
                             label: Text(l10n.filterCanLearnNow),
-                            selected: _availabilityFilter == SpellAvailabilityFilter.canLearnNow,
+                            selected: _availabilityFilter ==
+                                SpellAvailabilityFilter.canLearnNow,
                             onSelected: (selected) {
-                              setModalState(() => _availabilityFilter = SpellAvailabilityFilter.canLearnNow);
-                              setState(() => _availabilityFilter = SpellAvailabilityFilter.canLearnNow);
+                              setModalState(() => _availabilityFilter =
+                                  SpellAvailabilityFilter.canLearnNow);
+                              setState(() => _availabilityFilter =
+                                  SpellAvailabilityFilter.canLearnNow);
                             },
                           ),
                           FilterChip(
                             label: Text(l10n.filterAvailableToClass),
-                            selected: _availabilityFilter == SpellAvailabilityFilter.availableToClass,
+                            selected: _availabilityFilter ==
+                                SpellAvailabilityFilter.availableToClass,
                             onSelected: (selected) {
-                              setModalState(() => _availabilityFilter = SpellAvailabilityFilter.availableToClass);
-                              setState(() => _availabilityFilter = SpellAvailabilityFilter.availableToClass);
+                              setModalState(() => _availabilityFilter =
+                                  SpellAvailabilityFilter.availableToClass);
+                              setState(() => _availabilityFilter =
+                                  SpellAvailabilityFilter.availableToClass);
                             },
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
                     ],
-
-                    Text(l10n.filterClass, style: Theme.of(context).textTheme.titleMedium),
+                    Text(l10n.filterClass,
+                        style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
@@ -223,20 +262,22 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                         ),
                         ...allClasses.map((className) {
                           return FilterChip(
-                            label: Text(SpellUtils.getLocalizedClassName(context, className)),
+                            label: Text(SpellUtils.getLocalizedClassName(
+                                context, className)),
                             selected: _filterClass == className,
                             onSelected: (selected) {
-                              setModalState(() => _filterClass = selected ? className : null);
-                              setState(() => _filterClass = selected ? className : null);
+                              setModalState(() =>
+                                  _filterClass = selected ? className : null);
+                              setState(() =>
+                                  _filterClass = selected ? className : null);
                             },
                           );
                         }),
                       ],
                     ),
-
                     const SizedBox(height: 16),
-
-                    Text(l10n.filterLevel, style: Theme.of(context).textTheme.titleMedium),
+                    Text(l10n.filterLevel,
+                        style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
@@ -251,20 +292,23 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                         ),
                         ...List.generate(10, (i) {
                           return FilterChip(
-                            label: Text(i == 0 ? l10n.cantrips : '${l10n.levelShort} $i'),
+                            label: Text(i == 0
+                                ? l10n.cantrips
+                                : '${l10n.levelShort} $i'),
                             selected: _filterLevel == i,
                             onSelected: (selected) {
-                              setModalState(() => _filterLevel = selected ? i : null);
-                              setState(() => _filterLevel = selected ? i : null);
+                              setModalState(
+                                  () => _filterLevel = selected ? i : null);
+                              setState(
+                                  () => _filterLevel = selected ? i : null);
                             },
                           );
                         }),
                       ],
                     ),
-
                     const SizedBox(height: 16),
-
-                    Text(l10n.filterSchool, style: Theme.of(context).textTheme.titleMedium),
+                    Text(l10n.filterSchool,
+                        style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
@@ -279,19 +323,20 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                         ),
                         ...allSchools.map((school) {
                           return FilterChip(
-                            label: Text(SpellUtils.getLocalizedSchool(l10n, school)),
+                            label: Text(
+                                SpellUtils.getLocalizedSchool(l10n, school)),
                             selected: _filterSchool == school,
                             onSelected: (selected) {
-                              setModalState(() => _filterSchool = selected ? school : null);
-                              setState(() => _filterSchool = selected ? school : null);
+                              setModalState(() =>
+                                  _filterSchool = selected ? school : null);
+                              setState(() =>
+                                  _filterSchool = selected ? school : null);
                             },
                           );
                         }),
                       ],
                     ),
-
                     const SizedBox(height: 16),
-
                     Row(
                       children: [
                         Expanded(
@@ -318,9 +363,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 16),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -374,7 +417,9 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.character != null ? '${l10n.spellAlmanacTitle} - ${widget.character!.name}' : l10n.spellAlmanacTitle),
+        title: Text(widget.character != null
+            ? '${l10n.spellAlmanacTitle} - ${widget.character!.name}'
+            : l10n.spellAlmanacTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
@@ -397,7 +442,6 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
               onChanged: (value) => setState(() => _searchQuery = value),
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -429,20 +473,23 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
               ],
             ),
           ),
-
           const SizedBox(height: 8),
-
           Expanded(
             child: filteredSpells.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.search_off, size: 64, color: colorScheme.onSurface.withOpacity(0.3)),
+                        Icon(Icons.search_off,
+                            size: 64,
+                            color: colorScheme.onSurface.withOpacity(0.3)),
                         const SizedBox(height: 16),
-                        Text(l10n.noSpellsFound, style: Theme.of(context).textTheme.titleMedium),
+                        Text(l10n.noSpellsFound,
+                            style: Theme.of(context).textTheme.titleMedium),
                         const SizedBox(height: 8),
-                        Text(l10n.tryAdjustingFilters, style: TextStyle(color: colorScheme.onSurface.withOpacity(0.6))),
+                        Text(l10n.tryAdjustingFilters,
+                            style: TextStyle(
+                                color: colorScheme.onSurface.withOpacity(0.6))),
                       ],
                     ),
                   )
@@ -461,13 +508,17 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                             child: Row(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
                                     color: colorScheme.primaryContainer,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    level == 0 ? l10n.cantrips.toUpperCase() : '${l10n.levelShort} $level'.toUpperCase(),
+                                    level == 0
+                                        ? l10n.cantrips.toUpperCase()
+                                        : '${l10n.levelShort} $level'
+                                            .toUpperCase(),
                                     style: TextStyle(
                                       color: colorScheme.onPrimaryContainer,
                                       fontWeight: FontWeight.bold,
@@ -480,17 +531,18 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                                 Text(
                                   l10n.spellsCount(spells.length),
                                   style: TextStyle(
-                                    color: colorScheme.onSurface.withOpacity(0.6),
+                                    color:
+                                        colorScheme.onSurface.withOpacity(0.6),
                                     fontSize: 12,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-
                           ...spells.map((spell) {
                             final eligibility = widget.character != null
-                                ? SpellEligibilityService.checkEligibility(widget.character!, spell)
+                                ? SpellEligibilityService.checkEligibility(
+                                    widget.character!, spell)
                                 : null;
 
                             return Card(
@@ -500,7 +552,8 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                                   width: 40,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    color: SpellUtils.getSchoolColor(spell.school, colorScheme),
+                                    color: SpellUtils.getSchoolColor(
+                                        spell.school, colorScheme),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Center(
@@ -526,15 +579,19 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                                         padding: EdgeInsets.only(right: 8),
                                         child: Icon(Icons.book, size: 14),
                                       ),
-                                    Expanded(child: Text(SpellUtils.getLocalizedSchool(l10n, spell.school))),
+                                    Expanded(
+                                        child: Text(
+                                            SpellUtils.getLocalizedSchool(
+                                                l10n, spell.school))),
                                   ],
                                 ),
-                                trailing: eligibility != null ? _buildEligibilityIcon(eligibility) : null,
+                                trailing: eligibility != null
+                                    ? _buildEligibilityIcon(eligibility)
+                                    : null,
                                 onTap: () => _showSpellDetails(spell),
                               ),
                             );
                           }),
-
                           const SizedBox(height: 8),
                         ],
                       );

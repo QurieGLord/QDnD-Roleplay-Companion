@@ -50,7 +50,8 @@ class _JournalTabState extends State<JournalTab> {
       final matchesSearch = _searchQuery.isEmpty ||
           quest.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           quest.description.toLowerCase().contains(_searchQuery.toLowerCase());
-      final matchesFilter = _questFilter == null || quest.status == _questFilter;
+      final matchesFilter =
+          _questFilter == null || quest.status == _questFilter;
       return matchesSearch && matchesFilter;
     }).toList();
 
@@ -92,9 +93,11 @@ class _JournalTabState extends State<JournalTab> {
                     : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: theme.colorScheme.outlineVariant),
+                  borderSide:
+                      BorderSide(color: theme.colorScheme.outlineVariant),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
                 filled: true,
                 fillColor: theme.colorScheme.surfaceContainerLow,
               ),
@@ -108,7 +111,7 @@ class _JournalTabState extends State<JournalTab> {
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
             child: Row(
               children: [
-                Icon(Icons.flag, size: 20, color: Colors.orange),
+                const Icon(Icons.flag, size: 20, color: Colors.orange),
                 const SizedBox(width: 8),
                 Text(
                   l10n.quests,
@@ -121,7 +124,8 @@ class _JournalTabState extends State<JournalTab> {
                 IconButton.filledTonal(
                   onPressed: _addQuest,
                   icon: const Icon(Icons.add, size: 18),
-                  constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+                  constraints:
+                      const BoxConstraints.tightFor(width: 32, height: 32),
                   tooltip: l10n.addQuest,
                 ),
               ],
@@ -139,7 +143,8 @@ class _JournalTabState extends State<JournalTab> {
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
+                  border: Border.all(
+                      color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
                 ),
                 child: Center(
                   child: Text(
@@ -162,7 +167,8 @@ class _JournalTabState extends State<JournalTab> {
                   return QuestCard(
                     quest: quest,
                     onTap: () => _editQuest(quest),
-                    onStatusChange: (status) => _changeQuestStatus(quest, status),
+                    onStatusChange: (status) =>
+                        _changeQuestStatus(quest, status),
                     onDelete: () => _deleteQuest(quest),
                   );
                 },
@@ -190,7 +196,8 @@ class _JournalTabState extends State<JournalTab> {
                 IconButton.filledTonal(
                   onPressed: _addNote,
                   icon: const Icon(Icons.add, size: 18),
-                  constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+                  constraints:
+                      const BoxConstraints.tightFor(width: 32, height: 32),
                   tooltip: l10n.addNote,
                 ),
               ],
@@ -208,7 +215,8 @@ class _JournalTabState extends State<JournalTab> {
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
+                  border: Border.all(
+                      color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
                 ),
                 child: Center(
                   child: Text(
@@ -223,7 +231,8 @@ class _JournalTabState extends State<JournalTab> {
           )
         else
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 100), // Bottom padding for safe area
+            padding: const EdgeInsets.fromLTRB(
+                16, 0, 16, 100), // Bottom padding for safe area
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {

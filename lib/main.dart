@@ -51,16 +51,21 @@ void main() async {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.error_outline, size: 64, color: Colors.white),
+                    const Icon(Icons.error_outline,
+                        size: 64, color: Colors.white),
                     const SizedBox(height: 16),
                     const Text(
                       'Initialization Failed',
-                      style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       initError,
-                      style: const TextStyle(color: Colors.white70, fontFamily: 'monospace'),
+                      style: const TextStyle(
+                          color: Colors.white70, fontFamily: 'monospace'),
                     ),
                   ],
                 ),

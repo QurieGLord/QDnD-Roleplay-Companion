@@ -18,18 +18,30 @@ class FeatureDetailsSheet extends StatelessWidget {
 
   IconData _getFeatureIcon(String? iconName) {
     switch (iconName) {
-      case 'healing': return Icons.favorite;
-      case 'visibility': return Icons.visibility;
-      case 'flash_on': return Icons.flash_on;
-      case 'swords': return Icons.shield;
-      case 'auto_fix_high': return Icons.auto_fix_high;
-      case 'health_and_safety': return Icons.health_and_safety;
-      case 'auto_awesome': return Icons.auto_awesome;
-      case 'filter_2': return Icons.filter_2;
-      case 'security': return Icons.security;
-      case 'back_hand': return Icons.back_hand;
-      case 'wifi_tethering': return Icons.wifi_tethering;
-      default: return Icons.star;
+      case 'healing':
+        return Icons.favorite;
+      case 'visibility':
+        return Icons.visibility;
+      case 'flash_on':
+        return Icons.flash_on;
+      case 'swords':
+        return Icons.shield;
+      case 'auto_fix_high':
+        return Icons.auto_fix_high;
+      case 'health_and_safety':
+        return Icons.health_and_safety;
+      case 'auto_awesome':
+        return Icons.auto_awesome;
+      case 'filter_2':
+        return Icons.filter_2;
+      case 'security':
+        return Icons.security;
+      case 'back_hand':
+        return Icons.back_hand;
+      case 'wifi_tethering':
+        return Icons.wifi_tethering;
+      default:
+        return Icons.star;
     }
   }
 
@@ -61,7 +73,8 @@ class FeatureDetailsSheet extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: Center(
-                      child: Icon(_getFeatureIcon(feature.iconName), color: colorScheme.onSecondaryContainer, size: 24),
+                      child: Icon(_getFeatureIcon(feature.iconName),
+                          color: colorScheme.onSecondaryContainer, size: 24),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -71,14 +84,22 @@ class FeatureDetailsSheet extends StatelessWidget {
                       children: [
                         Text(
                           feature.getName(locale),
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                         if (feature.actionEconomy != null)
                           Text(
-                            _getLocalizedActionEconomy(l10n, feature.actionEconomy!).toUpperCase(),
-                            style: TextStyle(color: colorScheme.secondary, fontWeight: FontWeight.bold, letterSpacing: 1.0),
+                            _getLocalizedActionEconomy(
+                                    l10n, feature.actionEconomy!)
+                                .toUpperCase(),
+                            style: TextStyle(
+                                color: colorScheme.secondary,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.0),
                           ),
                       ],
                     ),
@@ -97,13 +118,17 @@ class FeatureDetailsSheet extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Current Uses', style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+                        Text('Current Uses',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onSurfaceVariant)),
                         Text(
                           '${feature.resourcePool!.currentUses} / ${feature.resourcePool!.maxUses}',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.primary,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.primary,
+                                  ),
                         ),
                       ],
                     ),
@@ -118,7 +143,10 @@ class FeatureDetailsSheet extends StatelessWidget {
               // Description
               Text(
                 feature.getDescription(locale),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.copyWith(height: 1.5),
               ),
             ],
           ),

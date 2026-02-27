@@ -498,12 +498,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get channelDivinity => 'Channel Divinity';
+
+  @override
   String useChannelDivinity(int count) {
     return 'Use Channel Divinity ($count left)';
   }
 
   @override
   String get noChannelDivinity => 'No Channel Divinity charges';
+
+  @override
+  String get noWildShapeCharges => 'No Wild Shape charges';
 
   @override
   String get schoolAbjuration => 'Abjuration';
@@ -2181,4 +2187,279 @@ class AppLocalizationsEn extends AppLocalizations {
   String useActionCost(String cost) {
     return 'Use ($cost)';
   }
+
+  @override
+  String get kiPoints => 'Ki Points';
+
+  @override
+  String get martialArtsDie => 'Martial Arts Die';
+
+  @override
+  String get rage => 'Rage';
+
+  @override
+  String get rageDamage => 'Rage Damage';
+
+  @override
+  String get raging => 'Raging';
+
+  @override
+  String get sneakAttack => 'Sneak Attack';
+
+  @override
+  String get sneakAttackDamage => 'Damage';
+
+  @override
+  String get secondWind => 'Second Wind';
+
+  @override
+  String get actionSurge => 'Action Surge';
+
+  @override
+  String get healing => 'Healing';
+
+  @override
+  String get fighterTactics => 'Combat Tactics';
+
+  @override
+  String sneakAttackRoll(Object dice, Object total) {
+    return 'Sneak Attack: $total ($dice)';
+  }
+
+  @override
+  String kiStrikeRoll(Object dice, Object total) {
+    return 'Ki Strike: $total ($dice)';
+  }
+
+  @override
+  String get rageInactive => 'Inactive';
+
+  @override
+  String get healShort => 'Heal';
+
+  @override
+  String get indomitable => 'Indomitable';
+
+  @override
+  String get rerollSave => 'Reroll Saving Throw!';
+
+  @override
+  String get noTraits => 'No traits';
+
+  @override
+  String get martialArts => 'Martial Arts';
+
+  @override
+  String get bardicInspiration => 'Bardic Inspiration';
+
+  @override
+  String get wildShape => 'Wild Shape';
+
+  @override
+  String get wildShapeDuration => 'Duration';
+
+  @override
+  String get wildShapeMaxCR => 'Max CR';
+
+  @override
+  String get wildShapeRestrictions => 'Restrictions';
+
+  @override
+  String get noRestrictions => 'No restrictions';
+
+  @override
+  String get noFlying => 'No flying';
+
+  @override
+  String get noFlyingSwimming => 'No flying/swimming';
+
+  @override
+  String get transform => 'Transform';
+
+  @override
+  String get revertForm => 'Revert to True Form';
+
+  @override
+  String get beastHP => 'Beast HP';
+
+  @override
+  String get beastName => 'Beast Name';
+
+  @override
+  String get naturalRecovery => 'Natural Recovery';
+
+  @override
+  String get recoverSpellSlots => 'Recover Spell Slots';
+
+  @override
+  String selectSlotsToRecover(int max) {
+    return 'Select slots to recover (Max levels: $max)';
+  }
+
+  @override
+  String get currentSpellSlots => 'Current Spell Slots';
+
+  @override
+  String get tapToUse => 'Tap note to use/restore charge';
+
+  @override
+  String get used => 'Used';
+
+  @override
+  String get allSpellSlotsFull => 'All spell slots are full';
+
+  @override
+  String get arcaneRecovery => 'Arcane Recovery';
+
+  @override
+  String get traditionEvocation => 'School of Evocation';
+
+  @override
+  String get traditionAbjuration => 'School of Abjuration';
+
+  @override
+  String get traditionConjuration => 'School of Conjuration';
+
+  @override
+  String get traditionDivination => 'School of Divination';
+
+  @override
+  String get traditionEnchantment => 'School of Enchantment';
+
+  @override
+  String get traditionIllusion => 'School of Illusion';
+
+  @override
+  String get traditionNecromancy => 'School of Necromancy';
+
+  @override
+  String get traditionTransmutation => 'School of Transmutation';
+
+  @override
+  String get channelDivinityRules =>
+      'You gain the ability to channel divine energy directly from your deity, using that energy to fuel magical effects. You start with two such effects: Turn Undead and an effect determined by your domain. Some domains grant you additional effects as you advance in levels, as noted in the domain description.\n\nWhen you use your Channel Divinity, you choose which effect to create. You must then finish a short or long rest to use your Channel Divinity again.\n\nSome Channel Divinity effects require saving throws. When you use such an effect from this class, the DC equals your cleric spell save DC.';
+
+  @override
+  String get domainLife => 'Life Domain';
+
+  @override
+  String get domainLight => 'Light Domain';
+
+  @override
+  String get domainKnowledge => 'Knowledge Domain';
+
+  @override
+  String get domainNature => 'Nature Domain';
+
+  @override
+  String get domainTempest => 'Tempest Domain';
+
+  @override
+  String get domainTrickery => 'Trickery Domain';
+
+  @override
+  String get domainWar => 'War Domain';
+
+  @override
+  String get domainDeath => 'Death Domain';
+
+  @override
+  String get oathDevotion => 'Oath of Devotion';
+
+  @override
+  String get oathAncients => 'Oath of the Ancients';
+
+  @override
+  String get oathVengeance => 'Oath of Vengeance';
+
+  @override
+  String get oathConquest => 'Oath of Conquest';
+
+  @override
+  String get oathRedemption => 'Oath of Redemption';
+
+  @override
+  String get divineIntervention => 'Divine Intervention';
+
+  @override
+  String get divineInterventionRules =>
+      'You can call on your deity to intervene on your behalf when your need is great.\n\nImploring your deity\'s aid requires you to use your action. Describe the assistance you seek, and roll percentile dice. If you roll a number equal to or lower than your cleric level, your deity intervenes. The DM chooses the nature of the intervention; the effect of any cleric spell or cleric domain spell would be appropriate.\n\nIf your deity intervenes, you can\'t use this feature again for 7 days. Otherwise, you can use it again after you finish a long rest.\n\nAt 20th level, your call for intervention succeeds automatically, no roll required.';
+
+  @override
+  String get turnUndead => 'Turn Undead';
+
+  @override
+  String get destroyUndead => 'Destroy Undead';
+
+  @override
+  String get maxCR => 'Max CR';
+
+  @override
+  String get usedChannelDivinity =>
+      'Used Turn/Destroy Undead (Channel Divinity spent)';
+
+  @override
+  String get turnUndeadRules =>
+      'As an action, you present your holy symbol and speak a prayer censuring the undead. Each undead that can see or hear you within 30 feet of you must make a Wisdom saving throw. If the creature fails its saving throw, it is turned for 1 minute or until it takes any damage.\n\nA turned creature must spend its turns trying to move as far away from you as it can, and it can\'t willingly move to a space within 30 feet of you. It also can\'t take reactions. For its action, it can use only the Dash action or try to escape from an effect that prevents it from moving. If there\'s nowhere to move, the creature can use the Dodge action.';
+
+  @override
+  String get destroyUndeadRules =>
+      'When an undead fails its saving throw against your Turn Undead feature, the creature is instantly destroyed if its challenge rating is at or below a certain threshold, as shown in the Destroy Undead table.';
+
+  @override
+  String get callUponDeity => 'Call upon Deity';
+
+  @override
+  String get resetCooldown => 'Reset 7-day Cooldown';
+
+  @override
+  String get interventionSuccess => 'Success! The gods have heard your prayer!';
+
+  @override
+  String get interventionFailure => 'The deity did not respond to your call.';
+
+  @override
+  String interventionRollResult(Object value) {
+    return 'Rolled: $value';
+  }
+
+  @override
+  String get hunterArchetype => 'ARCHETYPE';
+
+  @override
+  String get huntersMarkTracker => 'Hunter\'s Mark';
+
+  @override
+  String get markTargetName => 'Target Name';
+
+  @override
+  String get markBonusDesc => '+1d6 damage / Advantage';
+
+  @override
+  String get moveMark => 'Move Mark';
+
+  @override
+  String get hideInPlainSight => 'Hide in Plain Sight';
+
+  @override
+  String get hideInPlainSightDesc => '+10 to Stealth while not moving';
+
+  @override
+  String get markActivate => 'Activate';
+
+  @override
+  String get markDrop => 'Deactivate';
+
+  @override
+  String get markDurationHint =>
+      'A 3rd-level mark lasts 8 hours, 5th-level lasts 24 hours.';
+
+  @override
+  String get markSlotChoose => 'Choose a spell slot to cast Hunter\'s Mark';
+
+  @override
+  String get hideSpentMinute => 'Spent 1 minute to camouflage';
+
+  @override
+  String get spellNotFound => 'Spell not found in the database';
 }

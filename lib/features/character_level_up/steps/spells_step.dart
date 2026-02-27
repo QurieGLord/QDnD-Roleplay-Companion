@@ -37,13 +37,13 @@ class _SpellsStepState extends State<SpellsStep> {
 
   Future<void> _loadAvailableSpells() async {
     final classId = widget.character.characterClass;
-    
+
     // 1. Get all spells for class
     final allClassSpells = SpellService.getSpellsForClass(classId);
-    
+
     // 2. Determine Max Slot Level at Next Level
     // (Logic omitted for brevity, focusing on availability)
-    
+
     // Heuristic for now (until we refactor Slot Logic into Service):
     // Standard Full Caster Progression:
     // Lvl 1-2: 1st
@@ -51,20 +51,22 @@ class _SpellsStepState extends State<SpellsStep> {
     // Lvl 5-6: 3rd
     // ...
     // Formula: ceil(Level / 2) for Full Casters.
-    
+
     // TODO: Pass maxSpellLevel from parent for 100% accuracy.
     // For now, let's assume filtering happens via "Known Spells" logic (users can pick what they want, but usually valid ones).
     // Actually, restricting is better.
-    
+
     // Let's just load ALL class spells for now, and rely on the user or visual cues.
     // Or filter by (Level <= 9).
-    
+
     // Filter out already known spells
     final knownIds = widget.character.knownSpells.toSet();
-    
+
     _availableSpells = allClassSpells.where((s) {
       if (knownIds.contains(s.id)) return false;
-      if (s.level == 0) return true; // Cantrips always available? (Usually handled separately)
+      if (s.level == 0) {
+        return true; // Cantrips always available? (Usually handled separately)
+      }
       return true; // Filter by level later if needed
     }).toList();
 
@@ -137,7 +139,9 @@ class _SpellsStepState extends State<SpellsStep> {
               Text(
                 remaining > 0 ? 'Choose $remaining more' : 'All selected!',
                 style: TextStyle(
-                  color: remaining > 0 ? theme.colorScheme.primary : theme.colorScheme.tertiary,
+                  color: remaining > 0
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.tertiary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -151,7 +155,7 @@ class _SpellsStepState extends State<SpellsStep> {
             itemBuilder: (context, index) {
               final level = sortedLevels[index];
               final spells = spellsByLevel[level]!;
-              
+
               return ExpansionTile(
                 initiallyExpanded: index == 0, // Expand lowest level by default
                 title: Text(
@@ -161,10 +165,11 @@ class _SpellsStepState extends State<SpellsStep> {
                 children: spells.map((spell) {
                   final isSelected = _selectedSpells.contains(spell.id);
                   final isDisabled = !isSelected && remaining <= 0;
-                  
+
                   return CheckboxListTile(
                     value: isSelected,
-                    onChanged: isDisabled ? null : (_) => _toggleSpell(spell.id),
+                    onChanged:
+                        isDisabled ? null : (_) => _toggleSpell(spell.id),
                     title: Text(spell.getName(locale)),
                     subtitle: Text(
                       spell.school, // Should be localized ideally

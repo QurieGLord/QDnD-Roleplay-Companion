@@ -11,18 +11,18 @@ class SummaryStep extends StatelessWidget {
   final VoidCallback onConfirm;
 
   const SummaryStep({
-    Key? key,
+    super.key,
     required this.character,
     required this.nextLevel,
     required this.hpIncrease,
     required this.newFeatures,
     required this.onConfirm,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -30,7 +30,6 @@ class SummaryStep extends StatelessWidget {
         children: [
           const Icon(Icons.check_circle, size: 80, color: Colors.green),
           const SizedBox(height: 24),
-          
           Text(
             l10n.levelUpReady,
             style: Theme.of(context).textTheme.headlineMedium,
@@ -41,17 +40,22 @@ class SummaryStep extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 32),
-          
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  _buildRow(context, l10n.levelShort, '${character.level}', '$nextLevel'),
+                  _buildRow(context, l10n.levelShort, '${character.level}',
+                      '$nextLevel'),
                   const Divider(),
-                  _buildRow(context, l10n.hitPoints, '${character.maxHp}', '${character.maxHp + hpIncrease} (+$hpIncrease)'),
+                  _buildRow(context, l10n.hitPoints, '${character.maxHp}',
+                      '${character.maxHp + hpIncrease} (+$hpIncrease)'),
                   const Divider(),
-                  _buildRow(context, l10n.proficiencyPROF, _formatBonus(character.proficiencyBonus), _formatBonus(_calculateProficiency(nextLevel))),
+                  _buildRow(
+                      context,
+                      l10n.proficiencyPROF,
+                      _formatBonus(character.proficiencyBonus),
+                      _formatBonus(_calculateProficiency(nextLevel))),
                   if (newFeatures.isNotEmpty) ...[
                     const Divider(),
                     Padding(
@@ -60,7 +64,9 @@ class SummaryStep extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(l10n.newFeaturesLabel),
-                          Text('${newFeatures.length}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                          Text('${newFeatures.length}',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -69,9 +75,7 @@ class SummaryStep extends StatelessWidget {
               ),
             ),
           ),
-          
           const Spacer(),
-          
           SizedBox(
             width: double.infinity,
             child: FilledButton(
@@ -87,8 +91,9 @@ class SummaryStep extends StatelessWidget {
       ),
     );
   }
-  
-  Widget _buildRow(BuildContext context, String label, String oldVal, String newVal) {
+
+  Widget _buildRow(
+      BuildContext context, String label, String oldVal, String newVal) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -102,18 +107,20 @@ class SummaryStep extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
                 child: Icon(Icons.arrow_forward, size: 16, color: Colors.grey),
               ),
-              Text(newVal, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(newVal,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16)),
             ],
           ),
         ],
       ),
     );
   }
-  
+
   String _formatBonus(int bonus) {
     return bonus >= 0 ? '+$bonus' : '$bonus';
   }
-  
+
   int _calculateProficiency(int level) {
     return ((level - 1) / 4).ceil() + 2;
   }

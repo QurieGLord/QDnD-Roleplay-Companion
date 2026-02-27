@@ -1,9 +1,12 @@
+<<<<<<< HEAD
 # Инструкции для Gemini
 
 *   **Язык общения:** Используй русский язык для коммуникации.
 *   **Качество работы:** Стремись к высокому качеству выполнения задач, доводя дело до конца.
 *   **Контекст проекта:** Мы разрабатываем масштабный D&D проект, который должен качественно реализовывать все многообразие механик и баз данных D&D 5e.
 
+=======
+>>>>>>> gemini
 # GEMINI.md
 
 ## 1. Project Overview
@@ -18,6 +21,10 @@
     *   Uses `AssetManifest.loadFromAssetBundle` to scan the `assets/data/features/` directory at runtime. This allows adding new class features by simply dropping a JSON file, without code changes.
     *   **Fallback:** Has a hardcoded fallback to `paladin_features.json` if the manifest scan fails (e.g., in some test environments).
     *   **Model:** Maps JSON to `CharacterFeature` (Hive TypeId 4). Handles complex fields like `resourcePool` (for Lay on Hands) and `actionEconomy` (Action/Bonus/Reaction).
+<<<<<<< HEAD
+=======
+    *   **Resource Consumption:** Features can now link to a resource pool via `usageCostId`. For example, "Turn the Unholy" (Action) automatically consumes "Channel Divinity" (Resource).
+>>>>>>> gemini
 
 ### B. Theming Engine (`feat/theme`)
 *   **Architecture:** `ThemeProvider` (ChangeNotifier) + `AppPalettes` (Static Data).
@@ -65,6 +72,7 @@
     flutter gen-l10n
     ```
 
+<<<<<<< HEAD
 ## 4. Current Status (v1.6 - "Wizard Localization Finalized")
 
 ### Recent Localization Efforts (Retrospective)
@@ -100,6 +108,48 @@
 *   **Keys:** Ensure `AppLocalizations` has keys for any new UI terms.
 
 ### B. Definition of Done (DoD)
+=======
+## 4. Current Status (v1.3 - "Localization & Polish")
+
+### Completed Tasks
+*   **Localization:**
+    *   Full Russian translation (`app_ru.arb`) for all UI elements.
+    *   Dynamic formatter for units (imperial -> metric visual conversion).
+    *   Locale toggler in Settings.
+*   **UI Overhaul:**
+    *   **Character Card:**
+        *   Fixed width inconsistency (removed excess padding).
+        *   Implemented `Listener`-based swipe gestures (Threshold 6px).
+        *   Updated colors to use `secondaryContainer` (Cyan/Milk/Green depending on theme) for distinct visual hierarchy.
+    *   **Navigation:**
+        *   Navbar colors synced with Character Card.
+        *   Smooth hide animation.
+    *   **Scroll Physics:** Implemented scroll holding during card gestures and auto-reset on tab switch.
+    *   **Class Dashboards:**
+        *   **Monk (Phase 7):** Fixed logic bug where Max Ki was incorrect. Added dynamic level-based calculation. Redesigned UI with "Yin-Yang" tokens and Martial Arts Die button.
+        *   **Barbarian:** Added `RageControlWidget` with Rage state toggle, visual glow effects, and Rage Damage calculator (+2 to +4).
+        *   **Rogue (Phase 3):** Added `RogueToolsWidget` displaying Sneak Attack damage (Xd6).
+        *   **Fighter (Phase 7):** "Command Center" Redesign. Moved to spacious list layout. Replaced traffic-light colors with strict theme coloring. Added "Lightning" and "Shield" tokens for Action Surge/Indomitable.
+        *   **Integration:** Replaced generic resource rows with these dashboards in `AbilitiesTab` and implemented filtering to prevent duplicates.
+*   **Features Engine:**
+    *   Implemented `usageCostId` logic. Action features (e.g. "Flurry of Blows") now correctly find and consume their resource pool ("Ki") in the UI.
+    *   Updated generator to map Monk features to Ki.
+*   **Abilities Tab Rewrite (Phase 5, 5.5, 6):**
+    *   **Safe Mode:** Implemented `try-catch` blocks and `_safeBuildWidget` to prevent crashes.
+    *   **Deep Search:** Added robust feature finding.
+    *   **Ghost Widget Fix:** Barbarian no longer sees Fighter dashboard.
+    *   **Crash Fix:** Removed force-unwraps (`!`) to prevent NPEs.
+
+### Pending Technical Tasks
+*   **Localization QA & Fixes (High Priority):** Systematic audit of the UI to fix hardcoded strings, grammar errors, layout overflows, and incorrect dynamic formatting logic.
+*   **Spell Selection Logic:** `CharacterCreationWizard` needs a step to write chosen spells to `Character.knownSpells`.
+*   **Multiclass UI:** `LevelUpScreen` currently assumes leveling up the *primary* class. Needs a "Add New Class" flow.
+*   **Content Population:** Fill `assets/data/features/` for remaining classes (Barbarian, Fighter, Rogue are currently empty placeholders).
+
+## 5. Operational Guidelines (User Mandates)
+
+### A. Definition of Done (DoD)
+>>>>>>> gemini
 Before confirming a task completion, you MUST:
 1.  **Summary:** Briefly list changed files and logic.
 2.  **Verification:** Autonomous execution of `flutter build apk --release`.
@@ -107,6 +157,7 @@ Before confirming a task completion, you MUST:
     *   *Failure:* Fix silently and retry.
     *   *Success:* Append the last lines of the build log to the response.
 
+<<<<<<< HEAD
 ### B. Merge Protocol
 Upon user confirmation ("Success"/"Accepted"):
 1.  **Update Docs:** Update `GEMINI.md` (this file), `docs/DEVELOPMENT_PLAN.md`, and `README.md` (if applicable).
@@ -115,3 +166,9 @@ Upon user confirmation ("Success"/"Accepted"):
     *   `git commit -m "feat(scope): message"`
     *   `git push origin gemini`
 3.  **Next:** Proceed to the next backlog item.
+=======
+### B. Core Rules (Constitution)
+1.  **Prime Directive:** Do NOT generate `git` commands (add, commit, push) automatically. The user handles version control.
+2.  **Environment:** Assume Windows environment.
+3.  **D&D Glossary:** Adhere to standard 5e terminology (SRD).
+>>>>>>> gemini

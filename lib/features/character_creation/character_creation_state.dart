@@ -49,7 +49,8 @@ class CharacterCreationState extends ChangeNotifier {
 
   // Step 3.5: Features & Spells (New)
   List<String> selectedSpells = []; // IDs of selected spells
-  Map<String, String> selectedFeatureOptions = {}; // featureId (e.g. 'fighting_style') -> optionId
+  Map<String, String> selectedFeatureOptions =
+      {}; // featureId (e.g. 'fighting_style') -> optionId
   Set<String> selectedExpertise = {}; // IDs of skills selected for expertise
 
   // Step 4: Skills
@@ -57,7 +58,8 @@ class CharacterCreationState extends ChangeNotifier {
 
   // Step 4: Equipment
   String? selectedEquipmentPackage; // 'standard', 'alternative', or 'custom'
-  Map<String, int> customEquipmentQuantities = {}; // Item ID -> Quantity for custom equipment
+  Map<String, int> customEquipmentQuantities =
+      {}; // Item ID -> Quantity for custom equipment
 
   // Step 5: Background
   BackgroundData? selectedBackground;
@@ -78,24 +80,33 @@ class CharacterCreationState extends ChangeNotifier {
 
   bool get isStepFeaturesValid {
     if (selectedClass == null) return false;
-    
+
     final classId = selectedClass!.id.toLowerCase();
     final subclassId = selectedSubclass?.id.toLowerCase() ?? '';
-    
+
     // Fighter: Fighting Style (Level 1)
     if (classId == 'fighter' || classId == 'воин') {
-       bool hasFightingStyle = selectedFeatureOptions.values.any((v) => v.contains('fighting-style'));
-       if (!hasFightingStyle) return false;
+      bool hasFightingStyle = selectedFeatureOptions.values
+          .any((v) => v.contains('fighting-style'));
+      if (!hasFightingStyle) return false;
     }
-    
+
     // Sorcerer: Draconic Bloodline (Level 1)
-    if ((classId == 'sorcerer' || classId == 'чародей') && 
+    if ((classId == 'sorcerer' || classId == 'чародей') &&
         (subclassId.contains('draconic') || subclassId.contains('дракон'))) {
-       bool hasAncestry = selectedFeatureOptions.values.any((v) => v.contains('dragon-ancestor'));
-       if (!hasAncestry) return false;
+      bool hasAncestry = selectedFeatureOptions.values
+          .any((v) => v.contains('dragon-ancestor'));
+      if (!hasAncestry) return false;
     }
-    
-    return true; 
+
+    // Ranger: Favored Enemy and Natural Explorer (Level 1)
+    if (classId == 'ranger' || classId == 'следопыт') {
+      bool hasFavoredEnemy = selectedFeatureOptions.containsKey('favored_enemy');
+      bool hasNaturalExplorer = selectedFeatureOptions.containsKey('natural_explorer');
+      if (!hasFavoredEnemy || !hasNaturalExplorer) return false;
+    }
+
+    return true;
   }
 
   bool _validateAbilityScores() {
@@ -104,8 +115,9 @@ class CharacterCreationState extends ChangeNotifier {
 
   bool _validateSkills() {
     if (selectedClass == null) return false;
-    bool skillsValid = selectedSkills.length == selectedClass!.skillProficiencies.choose;
-    
+    bool skillsValid =
+        selectedSkills.length == selectedClass!.skillProficiencies.choose;
+
     if (!skillsValid) return false;
 
     // Rogue Expertise Validation (Level 1)
@@ -119,7 +131,7 @@ class CharacterCreationState extends ChangeNotifier {
 
   SpellLimits getSpellLimits() {
     if (selectedClass == null) return SpellLimits(0, 0);
-    
+
     // Level 1 Limits for standard SRD classes
     // Note: This logic can be moved to a service or JSON later
     final classId = selectedClass!.id.toLowerCase();
@@ -127,9 +139,11 @@ class CharacterCreationState extends ChangeNotifier {
       case 'bard':
         return SpellLimits(2, 4); // 2 Cantrips, 4 Known
       case 'cleric':
-        return SpellLimits(3, 999); // 3 Cantrips, All Lvl 1 available (Prepared)
+        return SpellLimits(
+            3, 999); // 3 Cantrips, All Lvl 1 available (Prepared)
       case 'druid':
-        return SpellLimits(2, 999); // 2 Cantrips, All Lvl 1 available (Prepared)
+        return SpellLimits(
+            2, 999); // 2 Cantrips, All Lvl 1 available (Prepared)
       case 'sorcerer':
         return SpellLimits(4, 2); // 4 Cantrips, 2 Known
       case 'warlock':

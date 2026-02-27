@@ -10,82 +10,121 @@ class StatsTab extends StatelessWidget {
 
   String _getAbilityName(AppLocalizations l10n, String key) {
     switch (key.toLowerCase()) {
-      case 'strength': return l10n.abilityStr;
-      case 'dexterity': return l10n.abilityDex;
-      case 'constitution': return l10n.abilityCon;
-      case 'intelligence': return l10n.abilityInt;
-      case 'wisdom': return l10n.abilityWis;
-      case 'charisma': return l10n.abilityCha;
-      default: return key;
+      case 'strength':
+        return l10n.abilityStr;
+      case 'dexterity':
+        return l10n.abilityDex;
+      case 'constitution':
+        return l10n.abilityCon;
+      case 'intelligence':
+        return l10n.abilityInt;
+      case 'wisdom':
+        return l10n.abilityWis;
+      case 'charisma':
+        return l10n.abilityCha;
+      default:
+        return key;
     }
   }
 
   String _getSkillName(AppLocalizations l10n, String key) {
     switch (key.replaceAll(' ', '').toLowerCase()) {
-      case 'athletics': return l10n.skillAthletics;
-      case 'acrobatics': return l10n.skillAcrobatics;
-      case 'sleightofhand': return l10n.skillSleightOfHand;
-      case 'stealth': return l10n.skillStealth;
-      case 'arcana': return l10n.skillArcana;
-      case 'history': return l10n.skillHistory;
-      case 'investigation': return l10n.skillInvestigation;
-      case 'nature': return l10n.skillNature;
-      case 'religion': return l10n.skillReligion;
-      case 'animalhandling': return l10n.skillAnimalHandling;
-      case 'insight': return l10n.skillInsight;
-      case 'medicine': return l10n.skillMedicine;
-      case 'perception': return l10n.skillPerception;
-      case 'survival': return l10n.skillSurvival;
-      case 'deception': return l10n.skillDeception;
-      case 'intimidation': return l10n.skillIntimidation;
-      case 'performance': return l10n.skillPerformance;
-      case 'persuasion': return l10n.skillPersuasion;
-      default: return key;
+      case 'athletics':
+        return l10n.skillAthletics;
+      case 'acrobatics':
+        return l10n.skillAcrobatics;
+      case 'sleightofhand':
+        return l10n.skillSleightOfHand;
+      case 'stealth':
+        return l10n.skillStealth;
+      case 'arcana':
+        return l10n.skillArcana;
+      case 'history':
+        return l10n.skillHistory;
+      case 'investigation':
+        return l10n.skillInvestigation;
+      case 'nature':
+        return l10n.skillNature;
+      case 'religion':
+        return l10n.skillReligion;
+      case 'animalhandling':
+        return l10n.skillAnimalHandling;
+      case 'insight':
+        return l10n.skillInsight;
+      case 'medicine':
+        return l10n.skillMedicine;
+      case 'perception':
+        return l10n.skillPerception;
+      case 'survival':
+        return l10n.skillSurvival;
+      case 'deception':
+        return l10n.skillDeception;
+      case 'intimidation':
+        return l10n.skillIntimidation;
+      case 'performance':
+        return l10n.skillPerformance;
+      case 'persuasion':
+        return l10n.skillPersuasion;
+      default:
+        return key;
     }
   }
 
   String _getAbilityAbbr(AppLocalizations l10n, String key) {
     switch (key.toLowerCase()) {
-      case 'strength': return l10n.abilityStrAbbr;
-      case 'dexterity': return l10n.abilityDexAbbr;
-      case 'constitution': return l10n.abilityConAbbr;
-      case 'intelligence': return l10n.abilityIntAbbr;
-      case 'wisdom': return l10n.abilityWisAbbr;
-      case 'charisma': return l10n.abilityChaAbbr;
-      default: return key.length >= 3 ? key.substring(0, 3).toUpperCase() : key.toUpperCase();
+      case 'strength':
+        return l10n.abilityStrAbbr;
+      case 'dexterity':
+        return l10n.abilityDexAbbr;
+      case 'constitution':
+        return l10n.abilityConAbbr;
+      case 'intelligence':
+        return l10n.abilityIntAbbr;
+      case 'wisdom':
+        return l10n.abilityWisAbbr;
+      case 'charisma':
+        return l10n.abilityChaAbbr;
+      default:
+        return key.length >= 3
+            ? key.substring(0, 3).toUpperCase()
+            : key.toUpperCase();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         // 1. Ability Scores Grid
-        _buildSectionHeader(context, l10n.abilities.toUpperCase(), Icons.accessibility_new),
+        _buildSectionHeader(
+            context, l10n.abilities.toUpperCase(), Icons.accessibility_new),
         const SizedBox(height: 12),
         _buildAbilityScoresGrid(context, l10n),
         const SizedBox(height: 24),
 
         // 2. Saving Throws
-        _buildSectionHeader(context, l10n.savingThrows.toUpperCase(), Icons.shield),
+        _buildSectionHeader(
+            context, l10n.savingThrows.toUpperCase(), Icons.shield),
         const SizedBox(height: 12),
         _buildSavingThrowsList(context, l10n),
         const SizedBox(height: 24),
 
         // 3. Skills
-        _buildSectionHeader(context, l10n.skills.toUpperCase(), Icons.psychology),
+        _buildSectionHeader(
+            context, l10n.skills.toUpperCase(), Icons.psychology),
         const SizedBox(height: 12),
         _buildSkillsList(context, l10n),
-        
+
         const SizedBox(height: 80),
       ],
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, IconData icon) {
+  Widget _buildSectionHeader(
+      BuildContext context, String title, IconData icon) {
     final colorScheme = Theme.of(context).colorScheme;
     return Row(
       children: [
@@ -94,10 +133,10 @@ class StatsTab extends StatelessWidget {
         Text(
           title,
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            color: colorScheme.primary,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
+                color: colorScheme.primary,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
         ),
         const SizedBox(width: 8),
         Expanded(child: Divider(color: colorScheme.primary.withOpacity(0.2))),
@@ -114,27 +153,69 @@ class StatsTab extends StatelessWidget {
       crossAxisSpacing: 8,
       childAspectRatio: 0.85,
       children: [
-        _buildAbilityCard(context, l10n.abilityStrAbbr, l10n.abilityStr, character.abilityScores.strength, character.abilityScores.strengthModifier, l10n),
-        _buildAbilityCard(context, l10n.abilityDexAbbr, l10n.abilityDex, character.abilityScores.dexterity, character.abilityScores.dexterityModifier, l10n),
-        _buildAbilityCard(context, l10n.abilityConAbbr, l10n.abilityCon, character.abilityScores.constitution, character.abilityScores.constitutionModifier, l10n),
-        _buildAbilityCard(context, l10n.abilityIntAbbr, l10n.abilityInt, character.abilityScores.intelligence, character.abilityScores.intelligenceModifier, l10n),
-        _buildAbilityCard(context, l10n.abilityWisAbbr, l10n.abilityWis, character.abilityScores.wisdom, character.abilityScores.wisdomModifier, l10n),
-        _buildAbilityCard(context, l10n.abilityChaAbbr, l10n.abilityCha, character.abilityScores.charisma, character.abilityScores.charismaModifier, l10n),
+        _buildAbilityCard(
+            context,
+            l10n.abilityStrAbbr,
+            l10n.abilityStr,
+            character.abilityScores.strength,
+            character.abilityScores.strengthModifier,
+            l10n),
+        _buildAbilityCard(
+            context,
+            l10n.abilityDexAbbr,
+            l10n.abilityDex,
+            character.abilityScores.dexterity,
+            character.abilityScores.dexterityModifier,
+            l10n),
+        _buildAbilityCard(
+            context,
+            l10n.abilityConAbbr,
+            l10n.abilityCon,
+            character.abilityScores.constitution,
+            character.abilityScores.constitutionModifier,
+            l10n),
+        _buildAbilityCard(
+            context,
+            l10n.abilityIntAbbr,
+            l10n.abilityInt,
+            character.abilityScores.intelligence,
+            character.abilityScores.intelligenceModifier,
+            l10n),
+        _buildAbilityCard(
+            context,
+            l10n.abilityWisAbbr,
+            l10n.abilityWis,
+            character.abilityScores.wisdom,
+            character.abilityScores.wisdomModifier,
+            l10n),
+        _buildAbilityCard(
+            context,
+            l10n.abilityChaAbbr,
+            l10n.abilityCha,
+            character.abilityScores.charisma,
+            character.abilityScores.charismaModifier,
+            l10n),
       ],
     );
   }
 
-  Widget _buildAbilityCard(BuildContext context, String abbr, String full, int score, int modifier, AppLocalizations l10n) {
+  Widget _buildAbilityCard(BuildContext context, String abbr, String full,
+      int score, int modifier, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
     return Card(
       elevation: 2,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => showDiceRoller(context, title: '${l10n.check} $abbr', modifier: modifier),
+        onTap: () => showDiceRoller(context,
+            title: '${l10n.check} $abbr', modifier: modifier),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(abbr, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.secondary)),
+            Text(abbr,
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.secondary)),
             const SizedBox(height: 4),
             Container(
               width: 48,
@@ -146,12 +227,17 @@ class StatsTab extends StatelessWidget {
               child: Center(
                 child: Text(
                   modifier >= 0 ? '+$modifier' : '$modifier',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: colorScheme.onSecondaryContainer),
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSecondaryContainer),
                 ),
               ),
             ),
             const SizedBox(height: 4),
-            Text('$score', style: TextStyle(fontSize: 14, color: colorScheme.onSurfaceVariant)),
+            Text('$score',
+                style: TextStyle(
+                    fontSize: 14, color: colorScheme.onSurfaceVariant)),
           ],
         ),
       ),
@@ -170,14 +256,17 @@ class StatsTab extends StatelessWidget {
 
     return Column(
       children: saves.entries.map((entry) {
-        final isProficient = character.savingThrowProficiencies.map((s) => s.toLowerCase()).contains(entry.key.toLowerCase());
-        final totalMod = entry.value + (isProficient ? character.proficiencyBonus : 0);
+        final isProficient = character.savingThrowProficiencies
+            .map((s) => s.toLowerCase())
+            .contains(entry.key.toLowerCase());
+        final totalMod =
+            entry.value + (isProficient ? character.proficiencyBonus : 0);
         return _buildSkillRow(
-          context, 
-          _getAbilityName(l10n, entry.key), 
-          totalMod, 
-          isProficient, 
-          l10n, 
+          context,
+          _getAbilityName(l10n, entry.key),
+          totalMod,
+          isProficient,
+          l10n,
           isSave: true,
           abilityLabel: _getAbilityAbbr(l10n, entry.key),
         );
@@ -211,68 +300,69 @@ class StatsTab extends StatelessWidget {
       children: skillsMap.entries.map((entry) {
         final skillKey = entry.key; // English key
         final ability = entry.value;
-        
+
         // Get ability mod
         int mod = 0;
-        switch(ability) {
-          case 'Strength': mod = character.abilityScores.strengthModifier; break;
-          case 'Dexterity': mod = character.abilityScores.dexterityModifier; break;
-          case 'Constitution': mod = character.abilityScores.constitutionModifier; break;
-          case 'Intelligence': mod = character.abilityScores.intelligenceModifier; break;
-          case 'Wisdom': mod = character.abilityScores.wisdomModifier; break;
-          case 'Charisma': mod = character.abilityScores.charismaModifier; break;
+        switch (ability) {
+          case 'Strength':
+            mod = character.abilityScores.strengthModifier;
+            break;
+          case 'Dexterity':
+            mod = character.abilityScores.dexterityModifier;
+            break;
+          case 'Constitution':
+            mod = character.abilityScores.constitutionModifier;
+            break;
+          case 'Intelligence':
+            mod = character.abilityScores.intelligenceModifier;
+            break;
+          case 'Wisdom':
+            mod = character.abilityScores.wisdomModifier;
+            break;
+          case 'Charisma':
+            mod = character.abilityScores.charismaModifier;
+            break;
         }
 
         // Check proficiency and expertise
         // We need to match skillKey (e.g. "Animal Handling") to ID (e.g. "animal_handling")
         final skillId = skillKey.toLowerCase().replaceAll(' ', '_');
-        
+
         final isProficient = character.proficientSkills.contains(skillId);
         final isExpert = character.expertSkills.contains(skillId);
-        
+
         // Bonus calculation:
         // Proficiency = +ProfBonus
         // Expertise = +2 * ProfBonus (if proficient, which is implied by rules but we check isExpert)
         // Jack of All Trades (Bard) = + floor(ProfBonus/2) (Not implemented yet generic logic)
-        
+
         int bonus = 0;
         if (isExpert) {
           bonus = character.proficiencyBonus * 2;
         } else if (isProficient) {
           bonus = character.proficiencyBonus;
         }
-        
+
         final totalMod = mod + bonus;
 
-        return _buildSkillRow(
-            context, 
-            _getSkillName(l10n, skillKey), 
-            totalMod, 
-            isProficient, 
-            l10n,
-            isExpert: isExpert,
-            abilityLabel: _getAbilityAbbr(l10n, ability)
-        );
+        return _buildSkillRow(context, _getSkillName(l10n, skillKey), totalMod,
+            isProficient, l10n,
+            isExpert: isExpert, abilityLabel: _getAbilityAbbr(l10n, ability));
       }).toList(),
     );
   }
 
-  Widget _buildSkillRow(
-    BuildContext context, 
-    String name, 
-    int modifier, 
-    bool isProficient, 
-    AppLocalizations l10n, 
-    {bool isSave = false, bool isExpert = false, String? abilityLabel}
-  ) {
+  Widget _buildSkillRow(BuildContext context, String name, int modifier,
+      bool isProficient, AppLocalizations l10n,
+      {bool isSave = false, bool isExpert = false, String? abilityLabel}) {
     final colorScheme = Theme.of(context).colorScheme;
-    final title = isSave 
-      ? '${l10n.saveLabel} ${abilityLabel ?? name}' 
-      : '$name ${l10n.check}';
-    
+    final title = isSave
+        ? '${l10n.saveLabel} ${abilityLabel ?? name}'
+        : '$name ${l10n.check}';
+
     // Visuals for Expertise vs Proficiency
     // Expertise: Double circle or distinct icon
-    
+
     return InkWell(
       onTap: () => showDiceRoller(context, title: title, modifier: modifier),
       borderRadius: BorderRadius.circular(8),
@@ -280,9 +370,13 @@ class StatsTab extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         margin: const EdgeInsets.only(bottom: 4),
         decoration: BoxDecoration(
-          color: (isProficient || isExpert) ? colorScheme.secondaryContainer.withOpacity(0.3) : null,
+          color: (isProficient || isExpert)
+              ? colorScheme.secondaryContainer.withOpacity(0.3)
+              : null,
           borderRadius: BorderRadius.circular(8),
-          border: (isProficient || isExpert) ? Border.all(color: colorScheme.secondary.withOpacity(0.2)) : null,
+          border: (isProficient || isExpert)
+              ? Border.all(color: colorScheme.secondary.withOpacity(0.2))
+              : null,
         ),
         child: Row(
           children: [
@@ -296,24 +390,28 @@ class StatsTab extends StatelessWidget {
                   // Outer circle (always visible if proficient)
                   if (isProficient || isExpert)
                     Container(
-                      width: 12, 
+                      width: 12,
                       height: 12,
                       decoration: BoxDecoration(
-                        color: isProficient ? colorScheme.primary : Colors.transparent,
+                        color: isProficient
+                            ? colorScheme.primary
+                            : Colors.transparent,
                         shape: BoxShape.circle,
-                        border: Border.all(color: colorScheme.primary, width: 1.5),
+                        border:
+                            Border.all(color: colorScheme.primary, width: 1.5),
                       ),
                     )
                   else
                     Container(
-                      width: 12, 
+                      width: 12,
                       height: 12,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: colorScheme.outline, width: 1.5),
+                        border:
+                            Border.all(color: colorScheme.outline, width: 1.5),
                       ),
                     ),
-                    
+
                   // Expertise Indicator (Outer ring or star)
                   if (isExpert)
                     Container(
@@ -321,7 +419,8 @@ class StatsTab extends StatelessWidget {
                       height: 20,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: colorScheme.primary, width: 1.5),
+                        border:
+                            Border.all(color: colorScheme.primary, width: 1.5),
                       ),
                     ),
                 ],
@@ -332,15 +431,16 @@ class StatsTab extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    name, 
-                    style: TextStyle(
-                      fontWeight: (isProficient || isExpert) ? FontWeight.bold : FontWeight.normal, 
-                      fontSize: 15
-                    )
-                  ),
+                  Text(name,
+                      style: TextStyle(
+                          fontWeight: (isProficient || isExpert)
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          fontSize: 15)),
                   if (abilityLabel != null)
-                    Text(abilityLabel, style: TextStyle(fontSize: 10, color: colorScheme.onSurfaceVariant)),
+                    Text(abilityLabel,
+                        style: TextStyle(
+                            fontSize: 10, color: colorScheme.onSurfaceVariant)),
                 ],
               ),
             ),
@@ -349,7 +449,9 @@ class StatsTab extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
-                color: (isProficient || isExpert) ? colorScheme.primary : colorScheme.onSurface,
+                color: (isProficient || isExpert)
+                    ? colorScheme.primary
+                    : colorScheme.onSurface,
               ),
             ),
             const SizedBox(width: 8),

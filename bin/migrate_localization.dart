@@ -16,7 +16,7 @@ final Map<String, String> coreTerms = {
   'Sorcerer': 'Чародей',
   'Warlock': 'Колдун',
   'Wizard': 'Волшебник',
-  
+
   // Races
   'Human': 'Человек',
   'Elf': 'Эльф',
@@ -71,7 +71,7 @@ final Map<String, String> coreTerms = {
   'veryRare': 'Очень редкий',
   'legendary': 'Легендарный',
   'artifact': 'Артефакт',
-  
+
   // Damage Types
   'slashing': 'Рубящий',
   'piercing': 'Колющий',
@@ -90,14 +90,17 @@ final Map<String, String> coreTerms = {
 
 void main() {
   print('🚀 Starting localization migration...');
-  
+
   final dataDir = Directory('assets/data');
   if (!dataDir.existsSync()) {
     print('❌ Data directory not found!');
     return;
   }
 
-  final files = dataDir.listSync(recursive: true).whereType<File>().where((f) => f.path.endsWith('.json'));
+  final files = dataDir
+      .listSync(recursive: true)
+      .whereType<File>()
+      .where((f) => f.path.endsWith('.json'));
 
   for (final file in files) {
     processFile(file);
@@ -141,16 +144,15 @@ bool migrateItem(Map<String, dynamic> item) {
 
   // 1. Migrate Name
   if (item.containsKey('nameEn')) {
-    if (!item.containsKey('nameRu') || item['nameRu'] == null || item['nameRu'] == '') {
+    if (!item.containsKey('nameRu') ||
+        item['nameRu'] == null ||
+        item['nameRu'] == '') {
       final enName = item['nameEn'].toString();
       // Try dictionary match first
       String? translation = coreTerms[enName];
-      
+
       // If not found, try partial match for known patterns (e.g. "Potion of Healing")
-      if (translation == null) {
-          // Simple heuristics or just copy EN
-          translation = enName; 
-      }
+      translation ??= enName;
 
       item['nameRu'] = translation;
       changed = true;
@@ -159,7 +161,9 @@ bool migrateItem(Map<String, dynamic> item) {
 
   // 2. Migrate Description
   if (item.containsKey('descriptionEn')) {
-    if (!item.containsKey('descriptionRu') || item['descriptionRu'] == null || item['descriptionRu'] == '') {
+    if (!item.containsKey('descriptionRu') ||
+        item['descriptionRu'] == null ||
+        item['descriptionRu'] == '') {
       item['descriptionRu'] = item['descriptionEn']; // Fallback copy
       changed = true;
     }
@@ -188,12 +192,12 @@ bool migrateObject(Map<String, dynamic> obj) {
       changed = true;
     }
   }
-  
+
   // Recursively check for subclasses or sub-features
   if (obj.containsKey('subclasses') && obj['subclasses'] is List) {
-     for (var sub in obj['subclasses']) {
-       if (migrateObject(sub)) changed = true;
-     }
+    for (var sub in obj['subclasses']) {
+      if (migrateObject(sub)) changed = true;
+    }
   }
 
   return changed;

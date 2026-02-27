@@ -125,9 +125,7 @@ class StorageService {
 
   // Library Management (Items, Spells, Races, Classes, Backgrounds, Feats)
   static Future<void> saveItems(List<Item> items) async {
-    final Map<String, Item> itemsMap = {
-      for (var item in items) item.id: item
-    };
+    final Map<String, Item> itemsMap = {for (var item in items) item.id: item};
     await _itemsBox.putAll(itemsMap);
   }
 
@@ -216,10 +214,11 @@ class StorageService {
         .where((item) => item.sourceId == sourceId)
         .map((item) => item.id)
         .toList();
-    
+
     if (itemsToDelete.isNotEmpty) {
       await _itemsBox.deleteAll(itemsToDelete);
-      print('🗑️ StorageService: Deleted ${itemsToDelete.length} items for source $sourceId');
+      print(
+          '🗑️ StorageService: Deleted ${itemsToDelete.length} items for source $sourceId');
     }
 
     // 3. Delete associated spells
@@ -227,10 +226,11 @@ class StorageService {
         .where((spell) => spell.sourceId == sourceId)
         .map((spell) => spell.id)
         .toList();
-    
+
     if (spellsToDelete.isNotEmpty) {
       await _spellsBox.deleteAll(spellsToDelete);
-      print('🗑️ StorageService: Deleted ${spellsToDelete.length} spells for source $sourceId');
+      print(
+          '🗑️ StorageService: Deleted ${spellsToDelete.length} spells for source $sourceId');
     }
 
     // 4. Delete associated races
@@ -238,10 +238,11 @@ class StorageService {
         .where((race) => race.sourceId == sourceId)
         .map((race) => race.id)
         .toList();
-    
+
     if (racesToDelete.isNotEmpty) {
       await _racesBox.deleteAll(racesToDelete);
-      print('🗑️ StorageService: Deleted ${racesToDelete.length} races for source $sourceId');
+      print(
+          '🗑️ StorageService: Deleted ${racesToDelete.length} races for source $sourceId');
     }
 
     // 5. Delete associated classes
@@ -249,10 +250,11 @@ class StorageService {
         .where((cls) => cls.sourceId == sourceId)
         .map((cls) => cls.id)
         .toList();
-    
+
     if (classesToDelete.isNotEmpty) {
       await _classesBox.deleteAll(classesToDelete);
-      print('🗑️ StorageService: Deleted ${classesToDelete.length} classes for source $sourceId');
+      print(
+          '🗑️ StorageService: Deleted ${classesToDelete.length} classes for source $sourceId');
     }
 
     // 6. Delete associated backgrounds
@@ -260,10 +262,11 @@ class StorageService {
         .where((bg) => bg.sourceId == sourceId)
         .map((bg) => bg.id)
         .toList();
-    
+
     if (backgroundsToDelete.isNotEmpty) {
       await _backgroundsBox.deleteAll(backgroundsToDelete);
-      print('🗑️ StorageService: Deleted ${backgroundsToDelete.length} backgrounds for source $sourceId');
+      print(
+          '🗑️ StorageService: Deleted ${backgroundsToDelete.length} backgrounds for source $sourceId');
     }
 
     // 7. Delete associated feats
@@ -271,10 +274,11 @@ class StorageService {
         .where((feat) => feat.sourceId == sourceId)
         .map((feat) => feat.id)
         .toList();
-    
+
     if (featsToDelete.isNotEmpty) {
       await _featsBox.deleteAll(featsToDelete);
-      print('🗑️ StorageService: Deleted ${featsToDelete.length} feats for source $sourceId');
+      print(
+          '🗑️ StorageService: Deleted ${featsToDelete.length} feats for source $sourceId');
     }
   }
 

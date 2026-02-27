@@ -33,31 +33,42 @@ class SpellUtils {
     var lower = value.toLowerCase().trim();
 
     // --- PRIORITY CHECKS (Complex patterns & Exact matches) ---
-    
+
     // Handle "Concentration, up to X" pattern
     if (lower.contains('concentration')) {
-       var rest = value.replaceAll(RegExp(r'Concentration,\s*', caseSensitive: false), '');
-       if (rest.toLowerCase().contains('up to')) {
-         rest = rest.replaceAll(RegExp(r'up to', caseSensitive: false), 'вплоть до');
-       }
-       rest = getLocalizedValue(l10n, rest);
-       return '${l10n.concentration}, $rest';
+      var rest = value.replaceAll(
+          RegExp(r'Concentration,\s*', caseSensitive: false), '');
+      if (rest.toLowerCase().contains('up to')) {
+        rest = rest.replaceAll(
+            RegExp(r'up to', caseSensitive: false), 'вплоть до');
+      }
+      rest = getLocalizedValue(l10n, rest);
+      return '${l10n.concentration}, $rest';
     }
-    
+
     if (lower.contains('up to')) {
-      value = value.replaceAll(RegExp(r'up to', caseSensitive: false), 'вплоть до');
+      value =
+          value.replaceAll(RegExp(r'up to', caseSensitive: false), 'вплоть до');
       return getLocalizedValue(l10n, value);
     }
 
     // Duration special cases
-    if (lower == 'instantaneous') return 'Мгновенная'; // Should ideally be in l10n
+    if (lower == 'instantaneous') {
+      return 'Мгновенная'; // Should ideally be in l10n
+    }
     if (lower == 'until dispelled') return 'Пока не рассеется';
     if (lower == 'special') return 'Особое';
 
     // Casting Time special cases
-    if (lower.contains('1 action') || lower == '1 action') return '1 ${l10n.actionTypeAction.toLowerCase()}';
-    if (lower.contains('1 bonus action')) return '1 ${l10n.actionTypeBonus.toLowerCase()}';
-    if (lower.contains('1 reaction')) return '1 ${l10n.actionTypeReaction.toLowerCase()}';
+    if (lower.contains('1 action') || lower == '1 action') {
+      return '1 ${l10n.actionTypeAction.toLowerCase()}';
+    }
+    if (lower.contains('1 bonus action')) {
+      return '1 ${l10n.actionTypeBonus.toLowerCase()}';
+    }
+    if (lower.contains('1 reaction')) {
+      return '1 ${l10n.actionTypeReaction.toLowerCase()}';
+    }
 
     // Range special cases
     if (lower == 'self') return 'На себя';
@@ -75,11 +86,13 @@ class SpellUtils {
     // Distance units
     if (lower.contains('feet')) return value.replaceAll('feet', 'фт.');
     if (lower.contains('foot')) return value.replaceAll('foot', 'фт.');
-    if (lower.contains('radius')) return value.replaceAll('radius', 'радиус').replaceAll('feet', 'фт.');
+    if (lower.contains('radius')) {
+      return value.replaceAll('radius', 'радиус').replaceAll('feet', 'фт.');
+    }
 
     return value;
   }
-  
+
   static String getLocalizedClassName(BuildContext context, String className) {
     // 1. Try dynamic lookup
     try {
@@ -95,20 +108,34 @@ class SpellUtils {
     // 2. Fallback to hardcoded map
     final lower = className.toLowerCase();
     switch (lower) {
-      case 'barbarian': return 'Варвар';
-      case 'bard': return 'Бард';
-      case 'cleric': return 'Жрец';
-      case 'druid': return 'Друид';
-      case 'fighter': return 'Воин';
-      case 'monk': return 'Монах';
-      case 'paladin': return 'Паладин';
-      case 'ranger': return 'Следопыт';
-      case 'rogue': return 'Плут';
-      case 'sorcerer': return 'Чародей';
-      case 'warlock': return 'Колдун';
-      case 'wizard': return 'Волшебник';
-      case 'artificer': return 'Изобретатель';
-      default: return className;
+      case 'barbarian':
+        return 'Варвар';
+      case 'bard':
+        return 'Бард';
+      case 'cleric':
+        return 'Жрец';
+      case 'druid':
+        return 'Друид';
+      case 'fighter':
+        return 'Воин';
+      case 'monk':
+        return 'Монах';
+      case 'paladin':
+        return 'Паладин';
+      case 'ranger':
+        return 'Следопыт';
+      case 'rogue':
+        return 'Плут';
+      case 'sorcerer':
+        return 'Чародей';
+      case 'warlock':
+        return 'Колдун';
+      case 'wizard':
+        return 'Волшебник';
+      case 'artificer':
+        return 'Изобретатель';
+      default:
+        return className;
     }
   }
 }

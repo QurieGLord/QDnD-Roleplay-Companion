@@ -34,7 +34,8 @@ class CharacterFeature extends HiveObject {
   String? associatedClass; // e.g., "Paladin", "Monk"
 
   @HiveField(9)
-  String? associatedSubclass; // e.g., "Oath of Devotion", "Way of the Open Hand"
+  String?
+      associatedSubclass; // e.g., "Oath of Devotion", "Way of the Open Hand"
 
   @HiveField(10)
   bool requiresRest; // Does it require a rest to use?
@@ -85,10 +86,10 @@ class CharacterFeature extends HiveObject {
     return locale == 'ru' ? descriptionRu : descriptionEn;
   }
 
-  bool get isAction => 
-      type == FeatureType.action || 
-      type == FeatureType.bonusAction || 
-      type == FeatureType.reaction || 
+  bool get isAction =>
+      type == FeatureType.action ||
+      type == FeatureType.bonusAction ||
+      type == FeatureType.reaction ||
       (type == FeatureType.free && usageCostId != null) ||
       type == FeatureType.special;
 
@@ -142,20 +143,28 @@ class CharacterFeature extends HiveObject {
 
   static FeatureType _parseFeatureType(String? typeStr) {
     if (typeStr == null) return FeatureType.passive;
-    
+
     // Normalize input (snake_case to camelCase mapping)
     switch (typeStr) {
-      case 'action': return FeatureType.action;
-      case 'bonus_action': 
-      case 'bonusAction': return FeatureType.bonusAction;
-      case 'reaction': return FeatureType.reaction;
-      case 'resource_pool': 
-      case 'resourcePool': return FeatureType.resourcePool;
-      case 'free': return FeatureType.free;
-      case 'special': return FeatureType.special;
-      case 'toggle': return FeatureType.toggle;
-      case 'passive': return FeatureType.passive;
-      default: 
+      case 'action':
+        return FeatureType.action;
+      case 'bonus_action':
+      case 'bonusAction':
+        return FeatureType.bonusAction;
+      case 'reaction':
+        return FeatureType.reaction;
+      case 'resource_pool':
+      case 'resourcePool':
+        return FeatureType.resourcePool;
+      case 'free':
+        return FeatureType.free;
+      case 'special':
+        return FeatureType.special;
+      case 'toggle':
+        return FeatureType.toggle;
+      case 'passive':
+        return FeatureType.passive;
+      default:
         // Fallback for legacy data (FeatureType.action)
         try {
           return FeatureType.values.firstWhere((e) => e.toString() == typeStr);
@@ -177,9 +186,9 @@ class FeatureConsumption extends HiveObject {
   FeatureConsumption({required this.resourceId, required this.amount});
 
   Map<String, dynamic> toJson() => {
-    'resourceId': resourceId,
-    'amount': amount,
-  };
+        'resourceId': resourceId,
+        'amount': amount,
+      };
 
   factory FeatureConsumption.fromJson(Map<String, dynamic> json) {
     return FeatureConsumption(
@@ -202,7 +211,8 @@ class ResourcePool extends HiveObject {
   RecoveryType recoveryType; // short_rest, long_rest, dawn, per_turn
 
   @HiveField(3)
-  String? calculationFormula; // e.g., "level * 5" for Lay on Hands, "1 + cha_mod" for Divine Sense
+  String?
+      calculationFormula; // e.g., "level * 5" for Lay on Hands, "1 + cha_mod" for Divine Sense
 
   ResourcePool({
     required this.currentUses,
@@ -255,48 +265,48 @@ class ResourcePool extends HiveObject {
 @HiveType(typeId: 6)
 enum FeatureType {
   @HiveField(0)
-  passive,        // Always active (Unarmored Defense, Danger Sense)
+  passive, // Always active (Unarmored Defense, Danger Sense)
 
   @HiveField(1)
-  action,         // Takes an action (Attack, Dash, Channel Divinity)
+  action, // Takes an action (Attack, Dash, Channel Divinity)
 
   @HiveField(2)
-  bonusAction,    // Takes bonus action (Rage, Cunning Action)
+  bonusAction, // Takes bonus action (Rage, Cunning Action)
 
   @HiveField(3)
-  reaction,       // Takes reaction (Opportunity Attack, Shield spell)
+  reaction, // Takes reaction (Opportunity Attack, Shield spell)
 
   @HiveField(4)
-  resourcePool,   // Has limited uses (Ki Points, Sorcery Points, Lay on Hands)
+  resourcePool, // Has limited uses (Ki Points, Sorcery Points, Lay on Hands)
 
   @HiveField(5)
-  toggle,         // Can be turned on/off (Rage, Bladesong)
+  toggle, // Can be turned on/off (Rage, Bladesong)
 
   @HiveField(6)
-  free,           // Free action
+  free, // Free action
 
   @HiveField(7)
-  special,        // Special action type
+  special, // Special action type
 }
 
 /// How the resource pool recovers
 @HiveType(typeId: 7)
 enum RecoveryType {
   @HiveField(0)
-  shortRest,      // Recovers on short or long rest
+  shortRest, // Recovers on short or long rest
 
   @HiveField(1)
-  longRest,       // Recovers only on long rest
+  longRest, // Recovers only on long rest
 
   @HiveField(2)
-  dawn,           // Recovers at dawn (some features)
+  dawn, // Recovers at dawn (some features)
 
   @HiveField(3)
-  perTurn,        // Recovers each turn (some reactions)
+  perTurn, // Recovers each turn (some reactions)
 
   @HiveField(4)
-  recharge,       // Recharge on specific roll (dragon breath)
+  recharge, // Recharge on specific roll (dragon breath)
 
   @HiveField(5)
-  manual,         // Must be manually restored
+  manual, // Must be manually restored
 }

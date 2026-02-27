@@ -30,7 +30,8 @@ class SpellEligibilityService {
   }
 
   /// Check if a character can learn/prepare a given spell
-  static SpellEligibilityResult checkEligibility(Character character, Spell spell) {
+  static SpellEligibilityResult checkEligibility(
+      Character character, Spell spell) {
     final className = _normalizeClassName(character.characterClass);
     final charLevel = character.level;
 
@@ -39,7 +40,8 @@ class SpellEligibilityService {
       return SpellEligibilityResult(
         canLearn: false,
         reason: 'Spell not available to ${character.characterClass}',
-        reasonRu: 'Заклинание недоступно для класса ${character.characterClass}',
+        reasonRu:
+            'Заклинание недоступно для класса ${character.characterClass}',
       );
     }
 
@@ -71,7 +73,8 @@ class SpellEligibilityService {
   }
 
   /// Get all spells available to a character (for Almanac filtering)
-  static List<Spell> getAvailableSpells(Character character, List<Spell> allSpells) {
+  static List<Spell> getAvailableSpells(
+      Character character, List<Spell> allSpells) {
     return allSpells.where((spell) {
       final result = checkEligibility(character, spell);
       return result.canLearn || result.canLearnAtLevel != null;
@@ -79,7 +82,8 @@ class SpellEligibilityService {
   }
 
   /// Get spells available to learn RIGHT NOW (current level)
-  static List<Spell> getLearnableSpells(Character character, List<Spell> allSpells) {
+  static List<Spell> getLearnableSpells(
+      Character character, List<Spell> allSpells) {
     return allSpells.where((spell) {
       final result = checkEligibility(character, spell);
       return result.canLearn;
@@ -87,7 +91,8 @@ class SpellEligibilityService {
   }
 
   /// Get spells that will be available in the future
-  static List<Spell> getFutureSpells(Character character, List<Spell> allSpells) {
+  static List<Spell> getFutureSpells(
+      Character character, List<Spell> allSpells) {
     return allSpells.where((spell) {
       final result = checkEligibility(character, spell);
       return !result.canLearn && result.canLearnAtLevel != null;
@@ -101,15 +106,20 @@ class SpellEligibilityService {
   /// Check if spell is in the class's spell list
   static bool _isSpellAvailableToClass(Spell spell, Character character) {
     final normalizedClassName = _normalizeClassName(character.characterClass);
-    final normalizedSubclass = character.subclass != null ? _normalizeClassName(character.subclass!) : null;
+    final normalizedSubclass = character.subclass != null
+        ? _normalizeClassName(character.subclass!)
+        : null;
 
     // Check base class availability
-    if (spell.availableToClasses.any((c) => _normalizeClassName(c) == normalizedClassName)) {
+    if (spell.availableToClasses
+        .any((c) => _normalizeClassName(c) == normalizedClassName)) {
       return true;
     }
 
     // Check subclass availability (e.g., "Eldritch Knight", "Arcane Trickster")
-    if (normalizedSubclass != null && spell.availableToClasses.any((c) => _normalizeClassName(c) == normalizedSubclass)) {
+    if (normalizedSubclass != null &&
+        spell.availableToClasses
+            .any((c) => _normalizeClassName(c) == normalizedSubclass)) {
       return true;
     }
 
@@ -129,11 +139,16 @@ class SpellEligibilityService {
     if (classData != null && classData.spellcasting != null) {
       final type = classData.spellcasting!.type;
       switch (type) {
-        case 'full': return _fullCasterSpellLevelProgression[spellLevel] ?? 99;
-        case 'half': return _halfCasterSpellLevelProgression[spellLevel] ?? 99;
-        case 'third': return _thirdCasterSpellLevelProgression[spellLevel] ?? 99;
-        case 'pact': return _fullCasterSpellLevelProgression[spellLevel] ?? 99;
-        default: return 99;
+        case 'full':
+          return _fullCasterSpellLevelProgression[spellLevel] ?? 99;
+        case 'half':
+          return _halfCasterSpellLevelProgression[spellLevel] ?? 99;
+        case 'third':
+          return _thirdCasterSpellLevelProgression[spellLevel] ?? 99;
+        case 'pact':
+          return _fullCasterSpellLevelProgression[spellLevel] ?? 99;
+        default:
+          return 99;
       }
     }
 
@@ -168,7 +183,8 @@ class SpellEligibilityService {
   }
 
   /// Check subclass-specific school restrictions
-  static SpellEligibilityResult _checkSubclassRestrictions(Character character, Spell spell) {
+  static SpellEligibilityResult _checkSubclassRestrictions(
+      Character character, Spell spell) {
     final subclass = character.subclass?.toLowerCase();
 
     // Arcane Trickster: Most spells must be Illusion or Enchantment
@@ -176,15 +192,20 @@ class SpellEligibilityService {
       // At 3rd, 8th, 14th, 20th level they can learn ANY wizard spell
       final flexLevels = [3, 8, 14, 20];
       if (flexLevels.contains(character.level)) {
-        return SpellEligibilityResult(canLearn: true, reason: 'Free choice level', reasonRu: 'Уровень свободного выбора');
+        return SpellEligibilityResult(
+            canLearn: true,
+            reason: 'Free choice level',
+            reasonRu: 'Уровень свободного выбора');
       }
 
       // Otherwise must be Illusion or Enchantment
       if (spell.school != 'Illusion' && spell.school != 'Enchantment') {
         return SpellEligibilityResult(
           canLearn: false,
-          reason: 'Arcane Trickster: Must be Illusion or Enchantment (except at levels 3, 8, 14, 20)',
-          reasonRu: 'Таинственный плут: Только школы Иллюзии и Очарования (кроме уровней 3, 8, 14, 20)',
+          reason:
+              'Arcane Trickster: Must be Illusion or Enchantment (except at levels 3, 8, 14, 20)',
+          reasonRu:
+              'Таинственный плут: Только школы Иллюзии и Очарования (кроме уровней 3, 8, 14, 20)',
         );
       }
     }
@@ -194,15 +215,20 @@ class SpellEligibilityService {
       // At 3rd, 8th, 14th, 20th level they can learn ANY wizard spell
       final flexLevels = [3, 8, 14, 20];
       if (flexLevels.contains(character.level)) {
-        return SpellEligibilityResult(canLearn: true, reason: 'Free choice level', reasonRu: 'Уровень свободного выбора');
+        return SpellEligibilityResult(
+            canLearn: true,
+            reason: 'Free choice level',
+            reasonRu: 'Уровень свободного выбора');
       }
 
       // Otherwise must be Abjuration or Evocation
       if (spell.school != 'Abjuration' && spell.school != 'Evocation') {
         return SpellEligibilityResult(
           canLearn: false,
-          reason: 'Eldritch Knight: Must be Abjuration or Evocation (except at levels 3, 8, 14, 20)',
-          reasonRu: 'Мистический рыцарь: Только школы Ограждения и Воплощения (кроме уровней 3, 8, 14, 20)',
+          reason:
+              'Eldritch Knight: Must be Abjuration or Evocation (except at levels 3, 8, 14, 20)',
+          reasonRu:
+              'Мистический рыцарь: Только школы Ограждения и Воплощения (кроме уровней 3, 8, 14, 20)',
         );
       }
     }
@@ -220,23 +246,24 @@ class SpellEligibilityService {
       switch (type) {
         case 'full':
           if (classData.id == 'warlock') return SpellcastingType.pactMagic;
-          if (['wizard', 'cleric', 'druid', 'paladin', 'artificer'].contains(classData.id)) {
-             return SpellcastingType.prepared;
+          if (['wizard', 'cleric', 'druid', 'paladin', 'artificer']
+              .contains(classData.id)) {
+            return SpellcastingType.prepared;
           }
           return SpellcastingType.known;
-          
+
         case 'half':
-           if (classData.id == 'paladin') return SpellcastingType.prepared;
-           return SpellcastingType.known; 
-           
+          if (classData.id == 'paladin') return SpellcastingType.prepared;
+          return SpellcastingType.known;
+
         case 'third':
-           return SpellcastingType.known; 
-           
+          return SpellcastingType.known;
+
         case 'pact':
-           return SpellcastingType.pactMagic;
-           
+          return SpellcastingType.pactMagic;
+
         default:
-           return SpellcastingType.none;
+          return SpellcastingType.none;
       }
     }
 
@@ -281,11 +308,11 @@ class SpellEligibilityService {
 
   /// Full caster spell level progression (Wizard, Cleric, Druid, Bard, Sorcerer, Warlock)
   static const Map<int, int> _fullCasterSpellLevelProgression = {
-    1: 1,  // 1st level spells at character level 1
-    2: 3,  // 2nd level spells at character level 3
-    3: 5,  // 3rd level spells at character level 5
-    4: 7,  // 4th level spells at character level 7
-    5: 9,  // 5th level spells at character level 9
+    1: 1, // 1st level spells at character level 1
+    2: 3, // 2nd level spells at character level 3
+    3: 5, // 3rd level spells at character level 5
+    4: 7, // 4th level spells at character level 7
+    5: 9, // 5th level spells at character level 9
     6: 11, // 6th level spells at character level 11
     7: 13, // 7th level spells at character level 13
     8: 15, // 8th level spells at character level 15
@@ -294,17 +321,17 @@ class SpellEligibilityService {
 
   /// Half caster spell level progression (Paladin, Ranger)
   static const Map<int, int> _halfCasterSpellLevelProgression = {
-    1: 2,  // 1st level spells at character level 2
-    2: 5,  // 2nd level spells at character level 5
-    3: 9,  // 3rd level spells at character level 9
+    1: 2, // 1st level spells at character level 2
+    2: 5, // 2nd level spells at character level 5
+    3: 9, // 3rd level spells at character level 9
     4: 13, // 4th level spells at character level 13
     5: 17, // 5th level spells at character level 17
   };
 
   /// Third caster spell level progression (Eldritch Knight, Arcane Trickster)
   static const Map<int, int> _thirdCasterSpellLevelProgression = {
-    1: 3,  // 1st level spells at character level 3
-    2: 7,  // 2nd level spells at character level 7
+    1: 3, // 1st level spells at character level 3
+    2: 7, // 2nd level spells at character level 7
     3: 13, // 3rd level spells at character level 13
     4: 19, // 4th level spells at character level 19
   };
@@ -317,7 +344,8 @@ class SpellEligibilityService {
 /// Result of spell eligibility check
 class SpellEligibilityResult {
   final bool canLearn;
-  final int? canLearnAtLevel; // If not learnable now, at what level it becomes available
+  final int?
+      canLearnAtLevel; // If not learnable now, at what level it becomes available
   final String reason;
   final String reasonRu;
   final SpellcastingType? spellcastingType;
@@ -335,8 +363,8 @@ class SpellEligibilityResult {
 
 /// Type of spellcasting system used by the class
 enum SpellcastingType {
-  none,       // Non-spellcaster (Barbarian, Fighter, Rogue - base classes)
-  prepared,   // Prepared casters: Wizard, Cleric, Druid, Paladin
-  known,      // Known casters: Bard, Sorcerer, Ranger, Warlock, Eldritch Knight, Arcane Trickster
-  pactMagic,  // Warlock's unique system
+  none, // Non-spellcaster (Barbarian, Fighter, Rogue - base classes)
+  prepared, // Prepared casters: Wizard, Cleric, Druid, Paladin
+  known, // Known casters: Bard, Sorcerer, Ranger, Warlock, Eldritch Knight, Arcane Trickster
+  pactMagic, // Warlock's unique system
 }

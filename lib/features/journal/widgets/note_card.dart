@@ -93,9 +93,11 @@ class NoteCard extends StatelessWidget {
                   const Spacer(),
                   if (note.tags.isNotEmpty)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.secondaryContainer.withOpacity(0.5),
+                        color: theme.colorScheme.secondaryContainer
+                            .withOpacity(0.5),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -112,6 +114,9 @@ class NoteCard extends StatelessWidget {
           ),
         ),
       ),
-    ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad);
+    )
+        .animate()
+        .fadeIn(duration: 300.ms)
+        .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad);
   }
 }

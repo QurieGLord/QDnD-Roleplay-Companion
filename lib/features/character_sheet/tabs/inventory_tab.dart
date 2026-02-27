@@ -5,7 +5,6 @@ import '../../../core/models/item.dart';
 import '../../../core/utils/item_utils.dart';
 import '../../../shared/widgets/item_details_sheet.dart';
 import '../widgets/inventory_status_bar.dart';
-import '../../../core/services/item_service.dart';
 import '../../inventory/create_item_screen.dart';
 
 class InventoryTab extends StatefulWidget {
@@ -21,7 +20,8 @@ class InventoryTab extends StatefulWidget {
 }
 
 class _InventoryTabState extends State<InventoryTab> {
-  String _filterType = 'all'; // all, weapon, armor, gear, consumable, tool, treasure
+  String _filterType =
+      'all'; // all, weapon, armor, gear, consumable, tool, treasure
   String _equipFilter = 'all'; // all, equipped, unequipped
   String _sortBy = 'name'; // name, weight, value, type
   String _searchQuery = '';
@@ -35,11 +35,16 @@ class _InventoryTabState extends State<InventoryTab> {
 
   String _getCurrencyLabel(AppLocalizations l10n, String currency) {
     switch (currency.toLowerCase()) {
-      case 'pp': return l10n.currencyPP_short;
-      case 'gp': return l10n.currencyGP_short;
-      case 'sp': return l10n.currencySP_short;
-      case 'cp': return l10n.currencyCP_short;
-      default: return currency;
+      case 'pp':
+        return l10n.currencyPP_short;
+      case 'gp':
+        return l10n.currencyGP_short;
+      case 'sp':
+        return l10n.currencySP_short;
+      case 'cp':
+        return l10n.currencyCP_short;
+      default:
+        return currency;
     }
   }
 
@@ -56,7 +61,8 @@ class _InventoryTabState extends State<InventoryTab> {
         (type) => type.toString().split('.').last == _filterType,
         orElse: () => ItemType.gear,
       );
-      filteredItems = filteredItems.where((item) => item.type == itemType).toList();
+      filteredItems =
+          filteredItems.where((item) => item.type == itemType).toList();
     }
 
     if (_equipFilter == 'equipped') {
@@ -92,7 +98,7 @@ class _InventoryTabState extends State<InventoryTab> {
       0.0,
       (sum, item) => sum + item.totalWeight,
     );
-    
+
     final maxWeight = (widget.character.abilityScores.strength * 15).toDouble();
     final attunedCount = widget.character.inventory
         .where((i) => i.isAttuned && i.isEquipped) // User logic
@@ -102,8 +108,8 @@ class _InventoryTabState extends State<InventoryTab> {
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToCreateItem(context),
-        child: const Icon(Icons.add),
         tooltip: l10n.addItem,
+        child: const Icon(Icons.add),
       ),
       body: Column(
         children: [
@@ -135,12 +141,12 @@ class _InventoryTabState extends State<InventoryTab> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 0, horizontal: 12),
                     ),
                     onChanged: (value) => setState(() => _searchQuery = value),
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
@@ -149,20 +155,29 @@ class _InventoryTabState extends State<InventoryTab> {
                         child: InputDecorator(
                           decoration: InputDecoration(
                             labelText: l10n.sortBy,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 4),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
                               value: _sortBy,
                               isDense: true,
                               items: [
-                                DropdownMenuItem(value: 'name', child: Text(l10n.sortName)),
-                                DropdownMenuItem(value: 'weight', child: Text(l10n.sortWeight)),
-                                DropdownMenuItem(value: 'value', child: Text(l10n.sortValue)),
-                                DropdownMenuItem(value: 'type', child: Text(l10n.sortType)),
+                                DropdownMenuItem(
+                                    value: 'name', child: Text(l10n.sortName)),
+                                DropdownMenuItem(
+                                    value: 'weight',
+                                    child: Text(l10n.sortWeight)),
+                                DropdownMenuItem(
+                                    value: 'value',
+                                    child: Text(l10n.sortValue)),
+                                DropdownMenuItem(
+                                    value: 'type', child: Text(l10n.sortType)),
                               ],
-                              onChanged: (value) => setState(() => _sortBy = value!),
+                              onChanged: (value) =>
+                                  setState(() => _sortBy = value!),
                             ),
                           ),
                         ),
@@ -172,19 +187,27 @@ class _InventoryTabState extends State<InventoryTab> {
                         child: InputDecorator(
                           decoration: InputDecoration(
                             labelText: l10n.filterEquipped,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 4),
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
                               value: _equipFilter,
                               isDense: true,
                               items: [
-                                DropdownMenuItem(value: 'all', child: Text(l10n.filterAll)),
-                                DropdownMenuItem(value: 'equipped', child: Text(l10n.filterEquipped)),
-                                DropdownMenuItem(value: 'unequipped', child: Text(l10n.filterUnequipped)),
+                                DropdownMenuItem(
+                                    value: 'all', child: Text(l10n.filterAll)),
+                                DropdownMenuItem(
+                                    value: 'equipped',
+                                    child: Text(l10n.filterEquipped)),
+                                DropdownMenuItem(
+                                    value: 'unequipped',
+                                    child: Text(l10n.filterUnequipped)),
                               ],
-                              onChanged: (value) => setState(() => _equipFilter = value!),
+                              onChanged: (value) =>
+                                  setState(() => _equipFilter = value!),
                             ),
                           ),
                         ),
@@ -192,9 +215,7 @@ class _InventoryTabState extends State<InventoryTab> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 8),
-
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -236,18 +257,20 @@ class _InventoryTabState extends State<InventoryTab> {
                         label: Text(l10n.typeConsumable),
                         selected: _filterType == 'consumable',
                         onSelected: (selected) {
-                          if (selected) setState(() => _filterType = 'consumable');
+                          if (selected) {
+                            setState(() => _filterType = 'consumable');
+                          }
                         },
                       ),
                     ],
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                   child: Row(
                     children: [
-                      Icon(Icons.fitness_center, size: 16, color: theme.colorScheme.primary),
+                      Icon(Icons.fitness_center,
+                          size: 16, color: theme.colorScheme.primary),
                       const SizedBox(width: 8),
                       Text(
                         '${l10n.totalWeight}: ${totalWeight.toStringAsFixed(1)} ${l10n.weightUnit}',
@@ -263,7 +286,6 @@ class _InventoryTabState extends State<InventoryTab> {
               ],
             ),
           ),
-
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.only(top: 8, bottom: 80),
@@ -271,7 +293,8 @@ class _InventoryTabState extends State<InventoryTab> {
               itemBuilder: (context, index) {
                 if (index == 0) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Card(
                       elevation: 2,
                       child: Padding(
@@ -281,7 +304,8 @@ class _InventoryTabState extends State<InventoryTab> {
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.monetization_on, size: 20, color: theme.colorScheme.primary),
+                                Icon(Icons.monetization_on,
+                                    size: 20, color: theme.colorScheme.primary),
                                 const SizedBox(width: 8),
                                 Text(
                                   l10n.currency,
@@ -292,7 +316,8 @@ class _InventoryTabState extends State<InventoryTab> {
                                 const Spacer(),
                                 IconButton(
                                   icon: const Icon(Icons.edit, size: 20),
-                                  onPressed: () => _showEditCurrencyDialog(context, l10n),
+                                  onPressed: () =>
+                                      _showEditCurrencyDialog(context, l10n),
                                   tooltip: l10n.edit,
                                   visualDensity: VisualDensity.compact,
                                 ),
@@ -301,17 +326,41 @@ class _InventoryTabState extends State<InventoryTab> {
                             const SizedBox(height: 12),
                             Row(
                               children: [
-                                Expanded(child: _buildCurrencyChip(theme, _getCurrencyLabel(l10n, 'PP'), widget.character.platinumPieces, Colors.grey.shade300, Colors.black87)),
+                                Expanded(
+                                    child: _buildCurrencyChip(
+                                        theme,
+                                        _getCurrencyLabel(l10n, 'PP'),
+                                        widget.character.platinumPieces,
+                                        Colors.grey.shade300,
+                                        Colors.black87)),
                                 const SizedBox(width: 8),
-                                Expanded(child: _buildCurrencyChip(theme, _getCurrencyLabel(l10n, 'GP'), widget.character.goldPieces, Colors.amber.shade600, Colors.black87)),
+                                Expanded(
+                                    child: _buildCurrencyChip(
+                                        theme,
+                                        _getCurrencyLabel(l10n, 'GP'),
+                                        widget.character.goldPieces,
+                                        Colors.amber.shade600,
+                                        Colors.black87)),
                               ],
                             ),
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                Expanded(child: _buildCurrencyChip(theme, _getCurrencyLabel(l10n, 'SP'), widget.character.silverPieces, Colors.grey.shade400, Colors.black87)),
+                                Expanded(
+                                    child: _buildCurrencyChip(
+                                        theme,
+                                        _getCurrencyLabel(l10n, 'SP'),
+                                        widget.character.silverPieces,
+                                        Colors.grey.shade400,
+                                        Colors.black87)),
                                 const SizedBox(width: 8),
-                                Expanded(child: _buildCurrencyChip(theme, _getCurrencyLabel(l10n, 'CP'), widget.character.copperPieces, Colors.brown.shade400, Colors.white)),
+                                Expanded(
+                                    child: _buildCurrencyChip(
+                                        theme,
+                                        _getCurrencyLabel(l10n, 'CP'),
+                                        widget.character.copperPieces,
+                                        Colors.brown.shade400,
+                                        Colors.white)),
                               ],
                             ),
                           ],
@@ -336,14 +385,16 @@ class _InventoryTabState extends State<InventoryTab> {
                       ),
                       alignment: Alignment.centerRight,
                       padding: const EdgeInsets.only(right: 20),
-                      child: Icon(Icons.delete, color: theme.colorScheme.onError),
+                      child:
+                          Icon(Icons.delete, color: theme.colorScheme.onError),
                     ),
                     confirmDismiss: (direction) async {
                       return await showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
                           title: Text(l10n.delete),
-                          content: Text(l10n.deleteItemConfirmation(item.getName(locale))),
+                          content: Text(l10n
+                              .deleteItemConfirmation(item.getName(locale))),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.of(context).pop(false),
@@ -351,7 +402,8 @@ class _InventoryTabState extends State<InventoryTab> {
                             ),
                             FilledButton(
                               onPressed: () => Navigator.of(context).pop(true),
-                              style: FilledButton.styleFrom(backgroundColor: theme.colorScheme.error),
+                              style: FilledButton.styleFrom(
+                                  backgroundColor: theme.colorScheme.error),
                               child: Text(l10n.delete),
                             ),
                           ],
@@ -381,12 +433,14 @@ class _InventoryTabState extends State<InventoryTab> {
       widget.character.updatedAt = DateTime.now();
       await widget.character.save();
       setState(() {});
-      
+
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
         final locale = Localizations.localeOf(context).languageCode;
         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text(l10n.itemAdded(newItem.getName(locale), newItem.quantity))),
+          SnackBar(
+              content: Text(
+                  l10n.itemAdded(newItem.getName(locale), newItem.quantity))),
         );
       }
     }
@@ -425,7 +479,8 @@ class _InventoryTabState extends State<InventoryTab> {
     );
   }
 
-  Widget _buildItemCard(BuildContext context, Item item, String locale, AppLocalizations l10n) {
+  Widget _buildItemCard(
+      BuildContext context, Item item, String locale, AppLocalizations l10n) {
     final theme = Theme.of(context);
 
     return Card(
@@ -453,9 +508,7 @@ class _InventoryTabState extends State<InventoryTab> {
                       : theme.colorScheme.onSurfaceVariant,
                 ),
               ),
-
               const SizedBox(width: 12),
-
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -518,7 +571,8 @@ class _InventoryTabState extends State<InventoryTab> {
                           const SizedBox(width: 12),
                         ],
                         Icon(Icons.fitness_center,
-                            size: 14, color: theme.colorScheme.onSurfaceVariant),
+                            size: 14,
+                            color: theme.colorScheme.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Text(
                           '${item.totalWeight.toStringAsFixed(1)} ${l10n.weightUnit}',
@@ -528,16 +582,21 @@ class _InventoryTabState extends State<InventoryTab> {
                         ),
                       ],
                     ),
-                    if (item.weaponProperties != null && item.weaponProperties!.weaponTags.isNotEmpty) ...[
+                    if (item.weaponProperties != null &&
+                        item.weaponProperties!.weaponTags.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Wrap(
                         spacing: 4,
                         runSpacing: 4,
-                        children: item.weaponProperties!.weaponTags.take(3).map((tag) {
+                        children: item.weaponProperties!.weaponTags
+                            .take(3)
+                            .map((tag) {
                           return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.secondaryContainer.withOpacity(0.5),
+                              color: theme.colorScheme.secondaryContainer
+                                  .withOpacity(0.5),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -554,7 +613,6 @@ class _InventoryTabState extends State<InventoryTab> {
                   ],
                 ),
               ),
-
               if (item.isEquipped)
                 Icon(
                   Icons.check_circle,
@@ -597,18 +655,18 @@ class _InventoryTabState extends State<InventoryTab> {
 
   void _toggleAttunement(Item item, bool value) async {
     final l10n = AppLocalizations.of(context)!;
-    
+
     // Validation: Check limit if turning ON
     if (value) {
       final currentAttuned = widget.character.inventory
           .where((i) => i.isAttuned && i.isEquipped)
           .length;
-      
+
       if (currentAttuned >= 3) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(l10n.attunementLimitReached), 
+              content: Text(l10n.attunementLimitReached),
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
@@ -712,7 +770,8 @@ class _InventoryTabState extends State<InventoryTab> {
     setState(() {});
   }
 
-  Widget _buildCurrencyChip(ThemeData theme, String label, int amount, Color bgColor, Color textColor) {
+  Widget _buildCurrencyChip(ThemeData theme, String label, int amount,
+      Color bgColor, Color textColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -747,10 +806,14 @@ class _InventoryTabState extends State<InventoryTab> {
   }
 
   void _showEditCurrencyDialog(BuildContext context, AppLocalizations l10n) {
-    final ppController = TextEditingController(text: '${widget.character.platinumPieces}');
-    final gpController = TextEditingController(text: '${widget.character.goldPieces}');
-    final spController = TextEditingController(text: '${widget.character.silverPieces}');
-    final cpController = TextEditingController(text: '${widget.character.copperPieces}');
+    final ppController =
+        TextEditingController(text: '${widget.character.platinumPieces}');
+    final gpController =
+        TextEditingController(text: '${widget.character.goldPieces}');
+    final spController =
+        TextEditingController(text: '${widget.character.silverPieces}');
+    final cpController =
+        TextEditingController(text: '${widget.character.copperPieces}');
 
     showDialog(
       context: context,
@@ -766,7 +829,8 @@ class _InventoryTabState extends State<InventoryTab> {
                 decoration: InputDecoration(
                   labelText: l10n.currencyPP,
                   border: const OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.monetization_on, color: Colors.grey.shade300),
+                  prefixIcon:
+                      Icon(Icons.monetization_on, color: Colors.grey.shade300),
                 ),
               ),
               const SizedBox(height: 12),
@@ -776,7 +840,8 @@ class _InventoryTabState extends State<InventoryTab> {
                 decoration: InputDecoration(
                   labelText: l10n.currencyGP,
                   border: const OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.monetization_on, color: Colors.amber.shade600),
+                  prefixIcon:
+                      Icon(Icons.monetization_on, color: Colors.amber.shade600),
                 ),
               ),
               const SizedBox(height: 12),
@@ -786,7 +851,8 @@ class _InventoryTabState extends State<InventoryTab> {
                 decoration: InputDecoration(
                   labelText: l10n.currencySP,
                   border: const OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.monetization_on, color: Colors.grey.shade400),
+                  prefixIcon:
+                      Icon(Icons.monetization_on, color: Colors.grey.shade400),
                 ),
               ),
               const SizedBox(height: 12),
@@ -796,7 +862,8 @@ class _InventoryTabState extends State<InventoryTab> {
                 decoration: InputDecoration(
                   labelText: l10n.currencyCP,
                   border: const OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.monetization_on, color: Colors.brown.shade400),
+                  prefixIcon:
+                      Icon(Icons.monetization_on, color: Colors.brown.shade400),
                 ),
               ),
             ],
@@ -810,10 +877,14 @@ class _InventoryTabState extends State<InventoryTab> {
           FilledButton(
             onPressed: () async {
               // Update currency values
-              widget.character.platinumPieces = int.tryParse(ppController.text) ?? 0;
-              widget.character.goldPieces = int.tryParse(gpController.text) ?? 0;
-              widget.character.silverPieces = int.tryParse(spController.text) ?? 0;
-              widget.character.copperPieces = int.tryParse(cpController.text) ?? 0;
+              widget.character.platinumPieces =
+                  int.tryParse(ppController.text) ?? 0;
+              widget.character.goldPieces =
+                  int.tryParse(gpController.text) ?? 0;
+              widget.character.silverPieces =
+                  int.tryParse(spController.text) ?? 0;
+              widget.character.copperPieces =
+                  int.tryParse(cpController.text) ?? 0;
 
               // Save to database
               widget.character.updatedAt = DateTime.now();

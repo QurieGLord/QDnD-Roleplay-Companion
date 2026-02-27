@@ -1016,6 +1016,12 @@ abstract class AppLocalizations {
   /// **'Lvl {level}'**
   String lvlShort(int level);
 
+  /// No description provided for @channelDivinity.
+  ///
+  /// In en, this message translates to:
+  /// **'Channel Divinity'**
+  String get channelDivinity;
+
   /// No description provided for @useChannelDivinity.
   ///
   /// In en, this message translates to:
@@ -1027,6 +1033,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No Channel Divinity charges'**
   String get noChannelDivinity;
+
+  /// No description provided for @noWildShapeCharges.
+  ///
+  /// In en, this message translates to:
+  /// **'No Wild Shape charges'**
+  String get noWildShapeCharges;
 
   /// No description provided for @schoolAbjuration.
   ///
@@ -4165,6 +4177,528 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use ({cost})'**
   String useActionCost(String cost);
+
+  /// No description provided for @kiPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Ki Points'**
+  String get kiPoints;
+
+  /// No description provided for @martialArtsDie.
+  ///
+  /// In en, this message translates to:
+  /// **'Martial Arts Die'**
+  String get martialArtsDie;
+
+  /// No description provided for @rage.
+  ///
+  /// In en, this message translates to:
+  /// **'Rage'**
+  String get rage;
+
+  /// No description provided for @rageDamage.
+  ///
+  /// In en, this message translates to:
+  /// **'Rage Damage'**
+  String get rageDamage;
+
+  /// No description provided for @raging.
+  ///
+  /// In en, this message translates to:
+  /// **'Raging'**
+  String get raging;
+
+  /// No description provided for @sneakAttack.
+  ///
+  /// In en, this message translates to:
+  /// **'Sneak Attack'**
+  String get sneakAttack;
+
+  /// No description provided for @sneakAttackDamage.
+  ///
+  /// In en, this message translates to:
+  /// **'Damage'**
+  String get sneakAttackDamage;
+
+  /// No description provided for @secondWind.
+  ///
+  /// In en, this message translates to:
+  /// **'Second Wind'**
+  String get secondWind;
+
+  /// No description provided for @actionSurge.
+  ///
+  /// In en, this message translates to:
+  /// **'Action Surge'**
+  String get actionSurge;
+
+  /// No description provided for @healing.
+  ///
+  /// In en, this message translates to:
+  /// **'Healing'**
+  String get healing;
+
+  /// No description provided for @fighterTactics.
+  ///
+  /// In en, this message translates to:
+  /// **'Combat Tactics'**
+  String get fighterTactics;
+
+  /// No description provided for @sneakAttackRoll.
+  ///
+  /// In en, this message translates to:
+  /// **'Sneak Attack: {total} ({dice})'**
+  String sneakAttackRoll(Object dice, Object total);
+
+  /// No description provided for @kiStrikeRoll.
+  ///
+  /// In en, this message translates to:
+  /// **'Ki Strike: {total} ({dice})'**
+  String kiStrikeRoll(Object dice, Object total);
+
+  /// No description provided for @rageInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get rageInactive;
+
+  /// No description provided for @healShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Heal'**
+  String get healShort;
+
+  /// No description provided for @indomitable.
+  ///
+  /// In en, this message translates to:
+  /// **'Indomitable'**
+  String get indomitable;
+
+  /// No description provided for @rerollSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Reroll Saving Throw!'**
+  String get rerollSave;
+
+  /// No description provided for @noTraits.
+  ///
+  /// In en, this message translates to:
+  /// **'No traits'**
+  String get noTraits;
+
+  /// No description provided for @martialArts.
+  ///
+  /// In en, this message translates to:
+  /// **'Martial Arts'**
+  String get martialArts;
+
+  /// No description provided for @bardicInspiration.
+  ///
+  /// In en, this message translates to:
+  /// **'Bardic Inspiration'**
+  String get bardicInspiration;
+
+  /// No description provided for @wildShape.
+  ///
+  /// In en, this message translates to:
+  /// **'Wild Shape'**
+  String get wildShape;
+
+  /// No description provided for @wildShapeDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get wildShapeDuration;
+
+  /// No description provided for @wildShapeMaxCR.
+  ///
+  /// In en, this message translates to:
+  /// **'Max CR'**
+  String get wildShapeMaxCR;
+
+  /// No description provided for @wildShapeRestrictions.
+  ///
+  /// In en, this message translates to:
+  /// **'Restrictions'**
+  String get wildShapeRestrictions;
+
+  /// No description provided for @noRestrictions.
+  ///
+  /// In en, this message translates to:
+  /// **'No restrictions'**
+  String get noRestrictions;
+
+  /// No description provided for @noFlying.
+  ///
+  /// In en, this message translates to:
+  /// **'No flying'**
+  String get noFlying;
+
+  /// No description provided for @noFlyingSwimming.
+  ///
+  /// In en, this message translates to:
+  /// **'No flying/swimming'**
+  String get noFlyingSwimming;
+
+  /// No description provided for @transform.
+  ///
+  /// In en, this message translates to:
+  /// **'Transform'**
+  String get transform;
+
+  /// No description provided for @revertForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert to True Form'**
+  String get revertForm;
+
+  /// No description provided for @beastHP.
+  ///
+  /// In en, this message translates to:
+  /// **'Beast HP'**
+  String get beastHP;
+
+  /// No description provided for @beastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Beast Name'**
+  String get beastName;
+
+  /// No description provided for @naturalRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Natural Recovery'**
+  String get naturalRecovery;
+
+  /// No description provided for @recoverSpellSlots.
+  ///
+  /// In en, this message translates to:
+  /// **'Recover Spell Slots'**
+  String get recoverSpellSlots;
+
+  /// No description provided for @selectSlotsToRecover.
+  ///
+  /// In en, this message translates to:
+  /// **'Select slots to recover (Max levels: {max})'**
+  String selectSlotsToRecover(int max);
+
+  /// No description provided for @currentSpellSlots.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Spell Slots'**
+  String get currentSpellSlots;
+
+  /// No description provided for @tapToUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap note to use/restore charge'**
+  String get tapToUse;
+
+  /// No description provided for @used.
+  ///
+  /// In en, this message translates to:
+  /// **'Used'**
+  String get used;
+
+  /// No description provided for @allSpellSlotsFull.
+  ///
+  /// In en, this message translates to:
+  /// **'All spell slots are full'**
+  String get allSpellSlotsFull;
+
+  /// No description provided for @arcaneRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Arcane Recovery'**
+  String get arcaneRecovery;
+
+  /// No description provided for @traditionEvocation.
+  ///
+  /// In en, this message translates to:
+  /// **'School of Evocation'**
+  String get traditionEvocation;
+
+  /// No description provided for @traditionAbjuration.
+  ///
+  /// In en, this message translates to:
+  /// **'School of Abjuration'**
+  String get traditionAbjuration;
+
+  /// No description provided for @traditionConjuration.
+  ///
+  /// In en, this message translates to:
+  /// **'School of Conjuration'**
+  String get traditionConjuration;
+
+  /// No description provided for @traditionDivination.
+  ///
+  /// In en, this message translates to:
+  /// **'School of Divination'**
+  String get traditionDivination;
+
+  /// No description provided for @traditionEnchantment.
+  ///
+  /// In en, this message translates to:
+  /// **'School of Enchantment'**
+  String get traditionEnchantment;
+
+  /// No description provided for @traditionIllusion.
+  ///
+  /// In en, this message translates to:
+  /// **'School of Illusion'**
+  String get traditionIllusion;
+
+  /// No description provided for @traditionNecromancy.
+  ///
+  /// In en, this message translates to:
+  /// **'School of Necromancy'**
+  String get traditionNecromancy;
+
+  /// No description provided for @traditionTransmutation.
+  ///
+  /// In en, this message translates to:
+  /// **'School of Transmutation'**
+  String get traditionTransmutation;
+
+  /// No description provided for @channelDivinityRules.
+  ///
+  /// In en, this message translates to:
+  /// **'You gain the ability to channel divine energy directly from your deity, using that energy to fuel magical effects. You start with two such effects: Turn Undead and an effect determined by your domain. Some domains grant you additional effects as you advance in levels, as noted in the domain description.\n\nWhen you use your Channel Divinity, you choose which effect to create. You must then finish a short or long rest to use your Channel Divinity again.\n\nSome Channel Divinity effects require saving throws. When you use such an effect from this class, the DC equals your cleric spell save DC.'**
+  String get channelDivinityRules;
+
+  /// No description provided for @domainLife.
+  ///
+  /// In en, this message translates to:
+  /// **'Life Domain'**
+  String get domainLife;
+
+  /// No description provided for @domainLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Domain'**
+  String get domainLight;
+
+  /// No description provided for @domainKnowledge.
+  ///
+  /// In en, this message translates to:
+  /// **'Knowledge Domain'**
+  String get domainKnowledge;
+
+  /// No description provided for @domainNature.
+  ///
+  /// In en, this message translates to:
+  /// **'Nature Domain'**
+  String get domainNature;
+
+  /// No description provided for @domainTempest.
+  ///
+  /// In en, this message translates to:
+  /// **'Tempest Domain'**
+  String get domainTempest;
+
+  /// No description provided for @domainTrickery.
+  ///
+  /// In en, this message translates to:
+  /// **'Trickery Domain'**
+  String get domainTrickery;
+
+  /// No description provided for @domainWar.
+  ///
+  /// In en, this message translates to:
+  /// **'War Domain'**
+  String get domainWar;
+
+  /// No description provided for @domainDeath.
+  ///
+  /// In en, this message translates to:
+  /// **'Death Domain'**
+  String get domainDeath;
+
+  /// No description provided for @oathDevotion.
+  ///
+  /// In en, this message translates to:
+  /// **'Oath of Devotion'**
+  String get oathDevotion;
+
+  /// No description provided for @oathAncients.
+  ///
+  /// In en, this message translates to:
+  /// **'Oath of the Ancients'**
+  String get oathAncients;
+
+  /// No description provided for @oathVengeance.
+  ///
+  /// In en, this message translates to:
+  /// **'Oath of Vengeance'**
+  String get oathVengeance;
+
+  /// No description provided for @oathConquest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oath of Conquest'**
+  String get oathConquest;
+
+  /// No description provided for @oathRedemption.
+  ///
+  /// In en, this message translates to:
+  /// **'Oath of Redemption'**
+  String get oathRedemption;
+
+  /// No description provided for @divineIntervention.
+  ///
+  /// In en, this message translates to:
+  /// **'Divine Intervention'**
+  String get divineIntervention;
+
+  /// No description provided for @divineInterventionRules.
+  ///
+  /// In en, this message translates to:
+  /// **'You can call on your deity to intervene on your behalf when your need is great.\n\nImploring your deity\'s aid requires you to use your action. Describe the assistance you seek, and roll percentile dice. If you roll a number equal to or lower than your cleric level, your deity intervenes. The DM chooses the nature of the intervention; the effect of any cleric spell or cleric domain spell would be appropriate.\n\nIf your deity intervenes, you can\'t use this feature again for 7 days. Otherwise, you can use it again after you finish a long rest.\n\nAt 20th level, your call for intervention succeeds automatically, no roll required.'**
+  String get divineInterventionRules;
+
+  /// No description provided for @turnUndead.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn Undead'**
+  String get turnUndead;
+
+  /// No description provided for @destroyUndead.
+  ///
+  /// In en, this message translates to:
+  /// **'Destroy Undead'**
+  String get destroyUndead;
+
+  /// No description provided for @maxCR.
+  ///
+  /// In en, this message translates to:
+  /// **'Max CR'**
+  String get maxCR;
+
+  /// No description provided for @usedChannelDivinity.
+  ///
+  /// In en, this message translates to:
+  /// **'Used Turn/Destroy Undead (Channel Divinity spent)'**
+  String get usedChannelDivinity;
+
+  /// No description provided for @turnUndeadRules.
+  ///
+  /// In en, this message translates to:
+  /// **'As an action, you present your holy symbol and speak a prayer censuring the undead. Each undead that can see or hear you within 30 feet of you must make a Wisdom saving throw. If the creature fails its saving throw, it is turned for 1 minute or until it takes any damage.\n\nA turned creature must spend its turns trying to move as far away from you as it can, and it can\'t willingly move to a space within 30 feet of you. It also can\'t take reactions. For its action, it can use only the Dash action or try to escape from an effect that prevents it from moving. If there\'s nowhere to move, the creature can use the Dodge action.'**
+  String get turnUndeadRules;
+
+  /// No description provided for @destroyUndeadRules.
+  ///
+  /// In en, this message translates to:
+  /// **'When an undead fails its saving throw against your Turn Undead feature, the creature is instantly destroyed if its challenge rating is at or below a certain threshold, as shown in the Destroy Undead table.'**
+  String get destroyUndeadRules;
+
+  /// No description provided for @callUponDeity.
+  ///
+  /// In en, this message translates to:
+  /// **'Call upon Deity'**
+  String get callUponDeity;
+
+  /// No description provided for @resetCooldown.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset 7-day Cooldown'**
+  String get resetCooldown;
+
+  /// No description provided for @interventionSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Success! The gods have heard your prayer!'**
+  String get interventionSuccess;
+
+  /// No description provided for @interventionFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'The deity did not respond to your call.'**
+  String get interventionFailure;
+
+  /// No description provided for @interventionRollResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Rolled: {value}'**
+  String interventionRollResult(Object value);
+
+  /// No description provided for @hunterArchetype.
+  ///
+  /// In en, this message translates to:
+  /// **'ARCHETYPE'**
+  String get hunterArchetype;
+
+  /// No description provided for @huntersMarkTracker.
+  ///
+  /// In en, this message translates to:
+  /// **'Hunter\'s Mark'**
+  String get huntersMarkTracker;
+
+  /// No description provided for @markTargetName.
+  ///
+  /// In en, this message translates to:
+  /// **'Target Name'**
+  String get markTargetName;
+
+  /// No description provided for @markBonusDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'+1d6 damage / Advantage'**
+  String get markBonusDesc;
+
+  /// No description provided for @moveMark.
+  ///
+  /// In en, this message translates to:
+  /// **'Move Mark'**
+  String get moveMark;
+
+  /// No description provided for @hideInPlainSight.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide in Plain Sight'**
+  String get hideInPlainSight;
+
+  /// No description provided for @hideInPlainSightDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'+10 to Stealth while not moving'**
+  String get hideInPlainSightDesc;
+
+  /// No description provided for @markActivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate'**
+  String get markActivate;
+
+  /// No description provided for @markDrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get markDrop;
+
+  /// No description provided for @markDurationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A 3rd-level mark lasts 8 hours, 5th-level lasts 24 hours.'**
+  String get markDurationHint;
+
+  /// No description provided for @markSlotChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a spell slot to cast Hunter\'s Mark'**
+  String get markSlotChoose;
+
+  /// No description provided for @hideSpentMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent 1 minute to camouflage'**
+  String get hideSpentMinute;
+
+  /// No description provided for @spellNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Spell not found in the database'**
+  String get spellNotFound;
 }
 
 class _AppLocalizationsDelegate

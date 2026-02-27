@@ -13,7 +13,8 @@ class SpellService {
 
     // 1. Load Standard Assets
     try {
-      final jsonString = await rootBundle.loadString('assets/data/spells/srd_spells.json');
+      final jsonString =
+          await rootBundle.loadString('assets/data/spells/srd_spells.json');
       final List<dynamic> jsonList = json.decode(jsonString);
       final assetSpells = jsonList.map((json) => Spell.fromJson(json)).toList();
       _allSpells!.addAll(assetSpells);
@@ -56,8 +57,10 @@ class SpellService {
 
   static List<Spell> getSpellsForClass(String className) {
     return _allSpells?.where((spell) {
-      return spell.availableToClasses.any((c) => c.toLowerCase() == className.toLowerCase());
-    }).toList() ?? [];
+          return spell.availableToClasses
+              .any((c) => c.toLowerCase() == className.toLowerCase());
+        }).toList() ??
+        [];
   }
 
   static List<Spell> getSpellsByLevel(int level) {
@@ -67,9 +70,10 @@ class SpellService {
   static List<Spell> searchSpells(String query) {
     final lowerQuery = query.toLowerCase();
     return _allSpells?.where((spell) {
-      return spell.nameEn.toLowerCase().contains(lowerQuery) ||
-          spell.nameRu.toLowerCase().contains(lowerQuery);
-    }).toList() ?? [];
+          return spell.nameEn.toLowerCase().contains(lowerQuery) ||
+              spell.nameRu.toLowerCase().contains(lowerQuery);
+        }).toList() ??
+        [];
   }
 
   static List<Spell> filterSpells({
@@ -83,7 +87,8 @@ class SpellService {
 
     if (className != null) {
       filtered = filtered.where((spell) {
-        return spell.availableToClasses.any((c) => c.toLowerCase() == className.toLowerCase());
+        return spell.availableToClasses
+            .any((c) => c.toLowerCase() == className.toLowerCase());
       }).toList();
     }
 
@@ -96,7 +101,9 @@ class SpellService {
     }
 
     if (concentration != null) {
-      filtered = filtered.where((spell) => spell.concentration == concentration).toList();
+      filtered = filtered
+          .where((spell) => spell.concentration == concentration)
+          .toList();
     }
 
     if (ritual != null) {

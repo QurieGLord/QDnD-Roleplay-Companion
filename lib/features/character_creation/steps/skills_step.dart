@@ -30,50 +30,88 @@ class SkillsStep extends StatelessWidget {
   String _getSkillName(String skillId, AppLocalizations l10n) {
     final normalizedKey = skillId.toLowerCase().replaceAll('-', '_');
     switch (normalizedKey) {
-      case 'acrobatics': return l10n.skillAcrobatics;
-      case 'animal_handling': return l10n.skillAnimalHandling;
-      case 'arcana': return l10n.skillArcana;
-      case 'athletics': return l10n.skillAthletics;
-      case 'deception': return l10n.skillDeception;
-      case 'history': return l10n.skillHistory;
-      case 'insight': return l10n.skillInsight;
-      case 'intimidation': return l10n.skillIntimidation;
-      case 'investigation': return l10n.skillInvestigation;
-      case 'medicine': return l10n.skillMedicine;
-      case 'nature': return l10n.skillNature;
-      case 'perception': return l10n.skillPerception;
-      case 'performance': return l10n.skillPerformance;
-      case 'persuasion': return l10n.skillPersuasion;
-      case 'religion': return l10n.skillReligion;
-      case 'sleight_of_hand': return l10n.skillSleightOfHand;
-      case 'stealth': return l10n.skillStealth;
-      case 'survival': return l10n.skillSurvival;
-      default: return skillId;
+      case 'acrobatics':
+        return l10n.skillAcrobatics;
+      case 'animal_handling':
+        return l10n.skillAnimalHandling;
+      case 'arcana':
+        return l10n.skillArcana;
+      case 'athletics':
+        return l10n.skillAthletics;
+      case 'deception':
+        return l10n.skillDeception;
+      case 'history':
+        return l10n.skillHistory;
+      case 'insight':
+        return l10n.skillInsight;
+      case 'intimidation':
+        return l10n.skillIntimidation;
+      case 'investigation':
+        return l10n.skillInvestigation;
+      case 'medicine':
+        return l10n.skillMedicine;
+      case 'nature':
+        return l10n.skillNature;
+      case 'perception':
+        return l10n.skillPerception;
+      case 'performance':
+        return l10n.skillPerformance;
+      case 'persuasion':
+        return l10n.skillPersuasion;
+      case 'religion':
+        return l10n.skillReligion;
+      case 'sleight_of_hand':
+        return l10n.skillSleightOfHand;
+      case 'stealth':
+        return l10n.skillStealth;
+      case 'survival':
+        return l10n.skillSurvival;
+      default:
+        return skillId;
     }
   }
 
   String _getSkillDesc(String skillId, AppLocalizations l10n) {
     final normalizedKey = skillId.toLowerCase().replaceAll('-', '_');
     switch (normalizedKey) {
-      case 'acrobatics': return l10n.skillAcrobaticsDesc;
-      case 'animal_handling': return l10n.skillAnimalHandlingDesc;
-      case 'arcana': return l10n.skillArcanaDesc;
-      case 'athletics': return l10n.skillAthleticsDesc;
-      case 'deception': return l10n.skillDeceptionDesc;
-      case 'history': return l10n.skillHistoryDesc;
-      case 'insight': return l10n.skillInsightDesc;
-      case 'intimidation': return l10n.skillIntimidationDesc;
-      case 'investigation': return l10n.skillInvestigationDesc;
-      case 'medicine': return l10n.skillMedicineDesc;
-      case 'nature': return l10n.skillNatureDesc;
-      case 'perception': return l10n.skillPerceptionDesc;
-      case 'performance': return l10n.skillPerformanceDesc;
-      case 'persuasion': return l10n.skillPersuasionDesc;
-      case 'religion': return l10n.skillReligionDesc;
-      case 'sleight_of_hand': return l10n.skillSleightOfHandDesc;
-      case 'stealth': return l10n.skillStealthDesc;
-      case 'survival': return l10n.skillSurvivalDesc;
-      default: return '';
+      case 'acrobatics':
+        return l10n.skillAcrobaticsDesc;
+      case 'animal_handling':
+        return l10n.skillAnimalHandlingDesc;
+      case 'arcana':
+        return l10n.skillArcanaDesc;
+      case 'athletics':
+        return l10n.skillAthleticsDesc;
+      case 'deception':
+        return l10n.skillDeceptionDesc;
+      case 'history':
+        return l10n.skillHistoryDesc;
+      case 'insight':
+        return l10n.skillInsightDesc;
+      case 'intimidation':
+        return l10n.skillIntimidationDesc;
+      case 'investigation':
+        return l10n.skillInvestigationDesc;
+      case 'medicine':
+        return l10n.skillMedicineDesc;
+      case 'nature':
+        return l10n.skillNatureDesc;
+      case 'perception':
+        return l10n.skillPerceptionDesc;
+      case 'performance':
+        return l10n.skillPerformanceDesc;
+      case 'persuasion':
+        return l10n.skillPersuasionDesc;
+      case 'religion':
+        return l10n.skillReligionDesc;
+      case 'sleight_of_hand':
+        return l10n.skillSleightOfHandDesc;
+      case 'stealth':
+        return l10n.skillStealthDesc;
+      case 'survival':
+        return l10n.skillSurvivalDesc;
+      default:
+        return '';
     }
   }
 
@@ -120,7 +158,8 @@ class SkillsStep extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          l10n.selectSkillProficiencies(maxSkills, state.selectedClass!.getName(locale)),
+          l10n.selectSkillProficiencies(
+              maxSkills, state.selectedClass!.getName(locale)),
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
@@ -173,8 +212,10 @@ class SkillsStep extends StatelessWidget {
                 LinearProgressIndicator(
                   value: selectedCount / maxSkills,
                   backgroundColor: isComplete
-                      ? theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.2)
-                      : theme.colorScheme.onSecondaryContainer.withValues(alpha: 0.2),
+                      ? theme.colorScheme.onPrimaryContainer
+                          .withValues(alpha: 0.2)
+                      : theme.colorScheme.onSecondaryContainer
+                          .withValues(alpha: 0.2),
                   color: isComplete
                       ? theme.colorScheme.onPrimaryContainer
                       : theme.colorScheme.onSecondaryContainer,
@@ -195,9 +236,7 @@ class SkillsStep extends StatelessWidget {
 
           return Card(
             elevation: isSelected ? 4 : 1,
-            color: isSelected
-                ? theme.colorScheme.primaryContainer
-                : null,
+            color: isSelected ? theme.colorScheme.primaryContainer : null,
             margin: const EdgeInsets.only(bottom: 12),
             child: InkWell(
               onTap: canSelect ? () => state.toggleSkill(skill) : null,
@@ -213,7 +252,8 @@ class SkillsStep extends StatelessWidget {
                           ? theme.colorScheme.onPrimaryContainer
                           : canSelect
                               ? theme.colorScheme.onSurfaceVariant
-                              : theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                              : theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.3),
                       size: 28,
                     ),
                     const SizedBox(width: 16),
@@ -222,7 +262,8 @@ class SkillsStep extends StatelessWidget {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.15)
+                            ? theme.colorScheme.onPrimaryContainer
+                                .withValues(alpha: 0.15)
                             : theme.colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -233,7 +274,8 @@ class SkillsStep extends StatelessWidget {
                             ? theme.colorScheme.onPrimaryContainer
                             : canSelect
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                                : theme.colorScheme.onSurface
+                                    .withValues(alpha: 0.4),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -250,7 +292,8 @@ class SkillsStep extends StatelessWidget {
                                   ? theme.colorScheme.onPrimaryContainer
                                   : canSelect
                                       ? null
-                                      : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                                      : theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.5),
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -258,10 +301,12 @@ class SkillsStep extends StatelessWidget {
                             _getSkillDesc(skill, l10n),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: isSelected
-                                  ? theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.8)
+                                  ? theme.colorScheme.onPrimaryContainer
+                                      .withValues(alpha: 0.8)
                                   : canSelect
                                       ? theme.colorScheme.onSurfaceVariant
-                                      : theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                                      : theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.4),
                             ),
                           ),
                         ],
@@ -274,14 +319,15 @@ class SkillsStep extends StatelessWidget {
           );
         }),
 
-        if (state.selectedClass?.id.toLowerCase() == 'rogue' || 
+        if (state.selectedClass?.id.toLowerCase() == 'rogue' ||
             state.selectedClass?.id.toLowerCase() == 'плут')
           _buildExpertiseSection(context, state, theme, l10n),
       ],
     );
   }
 
-  Widget _buildExpertiseSection(BuildContext context, CharacterCreationState state, ThemeData theme, AppLocalizations l10n) {
+  Widget _buildExpertiseSection(BuildContext context,
+      CharacterCreationState state, ThemeData theme, AppLocalizations l10n) {
     const maxExpertise = 2;
     final selectedCount = state.selectedExpertise.length;
     final proficientSkills = state.selectedSkills;
@@ -300,36 +346,36 @@ class SkillsStep extends StatelessWidget {
         Text(
           // "Choose 2 of your skill proficiencies."
           // Ideally use localized string
-          Localizations.localeOf(context).languageCode == 'ru' 
-              ? "Выберите 2 навыка для компетентности (удвоенный бонус мастерства)." 
+          Localizations.localeOf(context).languageCode == 'ru'
+              ? "Выберите 2 навыка для компетентности (удвоенный бонус мастерства)."
               : "Choose 2 of your skill proficiencies to gain double proficiency bonus.",
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 16),
-        
         if (proficientSkills.isEmpty)
-           Text(
-             l10n.selectSkillsFirst,
-             style: TextStyle(color: theme.colorScheme.error),
-           )
+          Text(
+            l10n.selectSkillsFirst,
+            style: TextStyle(color: theme.colorScheme.error),
+          )
         else
-           Wrap(
-             spacing: 8,
-             runSpacing: 8,
-             children: proficientSkills.map((skillId) {
-               final isSelected = state.selectedExpertise.contains(skillId);
-               final canSelect = isSelected || selectedCount < maxExpertise;
-               
-               return FilterChip(
-                 label: Text(_getSkillName(skillId, l10n)),
-                 selected: isSelected,
-                 onSelected: canSelect ? (val) => state.toggleExpertise(skillId) : null,
-                 avatar: isSelected ? const Icon(Icons.check, size: 18) : null,
-               );
-             }).toList(),
-           ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: proficientSkills.map((skillId) {
+              final isSelected = state.selectedExpertise.contains(skillId);
+              final canSelect = isSelected || selectedCount < maxExpertise;
+
+              return FilterChip(
+                label: Text(_getSkillName(skillId, l10n)),
+                selected: isSelected,
+                onSelected:
+                    canSelect ? (val) => state.toggleExpertise(skillId) : null,
+                avatar: isSelected ? const Icon(Icons.check, size: 18) : null,
+              );
+            }).toList(),
+          ),
       ],
     );
   }

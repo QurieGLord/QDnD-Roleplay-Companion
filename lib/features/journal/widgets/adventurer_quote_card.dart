@@ -41,7 +41,7 @@ class AdventurerQuoteCard extends StatelessWidget {
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).languageCode;
     final quotes = locale == 'ru' ? _quotesRu : _quotes;
-    
+
     final quote = quotes[Random().nextInt(quotes.length)];
 
     return Card(

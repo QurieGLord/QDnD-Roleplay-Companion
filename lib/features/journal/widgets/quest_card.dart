@@ -52,7 +52,7 @@ class QuestCard extends StatelessWidget {
                     color: statusColor,
                   ),
                   const SizedBox(width: 8),
-                  
+
                   // Title
                   Expanded(
                     child: Text(
@@ -77,9 +77,11 @@ class QuestCard extends StatelessWidget {
                     height: 24,
                     child: PopupMenuButton<QuestStatus>(
                       padding: EdgeInsets.zero,
-                      icon: Icon(Icons.more_horiz, size: 16, color: theme.colorScheme.outline),
+                      icon: Icon(Icons.more_horiz,
+                          size: 16, color: theme.colorScheme.outline),
                       onSelected: onStatusChange,
-                      itemBuilder: (context) => QuestStatus.values.map((status) {
+                      itemBuilder: (context) =>
+                          QuestStatus.values.map((status) {
                         return PopupMenuItem(
                           value: status,
                           height: 32,
@@ -88,7 +90,9 @@ class QuestCard extends StatelessWidget {
                               Icon(status.icon, size: 16, color: status.color),
                               const SizedBox(width: 8),
                               Text(
-                                locale == 'ru' ? status.displayNameRu : status.displayName,
+                                locale == 'ru'
+                                    ? status.displayNameRu
+                                    : status.displayName,
                                 style: theme.textTheme.bodySmall,
                               ),
                             ],
@@ -101,7 +105,8 @@ class QuestCard extends StatelessWidget {
               ),
 
               // Progress Bar (if active)
-              if (quest.status == QuestStatus.active && quest.objectives.isNotEmpty) ...[
+              if (quest.status == QuestStatus.active &&
+                  quest.objectives.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(2),
@@ -125,6 +130,9 @@ class QuestCard extends StatelessWidget {
           ),
         ),
       ),
-    ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad);
+    )
+        .animate()
+        .fadeIn(duration: 300.ms)
+        .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad);
   }
 }

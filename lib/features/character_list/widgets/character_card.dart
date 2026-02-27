@@ -26,7 +26,8 @@ class CharacterCard extends StatelessWidget {
     }
   }
 
-  String _getLocalizedSubclassName(BuildContext context, String className, String subclassName) {
+  String _getLocalizedSubclassName(
+      BuildContext context, String className, String subclassName) {
     try {
       final locale = Localizations.localeOf(context).languageCode;
       final classData = CharacterDataService.getClassById(className);
@@ -49,9 +50,11 @@ class CharacterCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     // Localize dynamic fields
-    final localizedClassName = _getLocalizedClassName(context, character.characterClass);
-    final localizedSubclass = character.subclass != null 
-        ? _getLocalizedSubclassName(context, character.characterClass, character.subclass!)
+    final localizedClassName =
+        _getLocalizedClassName(context, character.characterClass);
+    final localizedSubclass = character.subclass != null
+        ? _getLocalizedSubclassName(
+            context, character.characterClass, character.subclass!)
         : null;
 
     return Card(

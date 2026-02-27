@@ -75,7 +75,8 @@ class _SplashScreenState extends State<SplashScreen>
                 // Removed "QD&D" Text
                 Text(
                   'Roleplay Companion',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith( // Slightly larger subtitle
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        // Slightly larger subtitle
                         color: Theme.of(context)
                             .colorScheme
                             .onSurface

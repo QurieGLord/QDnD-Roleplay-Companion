@@ -132,9 +132,7 @@ class HpManagerCard extends StatelessWidget {
     final maxHp = character.maxHp;
     final temporaryHp = character.temporaryHp;
 
-    final hpPercentage = maxHp > 0
-        ? (currentHp / maxHp).clamp(0.0, 1.0)
-        : 0.0;
+    final hpPercentage = maxHp > 0 ? (currentHp / maxHp).clamp(0.0, 1.0) : 0.0;
 
     Color getHpColor() {
       if (hpPercentage > 0.5) return Colors.green;
@@ -181,7 +179,8 @@ class HpManagerCard extends StatelessWidget {
             if (temporaryHp > 0) ...[
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.tertiaryContainer,
                   borderRadius: BorderRadius.circular(12),

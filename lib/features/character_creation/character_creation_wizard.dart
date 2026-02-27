@@ -23,7 +23,8 @@ class CharacterCreationWizard extends StatefulWidget {
   const CharacterCreationWizard({super.key});
 
   @override
-  State<CharacterCreationWizard> createState() => _CharacterCreationWizardState();
+  State<CharacterCreationWizard> createState() =>
+      _CharacterCreationWizardState();
 }
 
 class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
@@ -33,22 +34,31 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
 
   String _getStepTitle(int index, AppLocalizations l10n) {
     switch (index) {
-      case 0: return l10n.stepBasicInfo;
-      case 1: return l10n.stepRaceClass;
-      case 2: return l10n.stepAbilities;
-      case 3: return l10n.stepFeatures;
-      case 4: return l10n.stepEquipment;
-      case 5: return l10n.stepBackground;
-      case 6: return l10n.stepSkills;
-      case 7: return l10n.stepReview;
-      default: return '';
+      case 0:
+        return l10n.stepBasicInfo;
+      case 1:
+        return l10n.stepRaceClass;
+      case 2:
+        return l10n.stepAbilities;
+      case 3:
+        return l10n.stepFeatures;
+      case 4:
+        return l10n.stepEquipment;
+      case 5:
+        return l10n.stepBackground;
+      case 6:
+        return l10n.stepSkills;
+      case 7:
+        return l10n.stepReview;
+      default:
+        return '';
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return ChangeNotifierProvider.value(
       value: _state,
       child: Scaffold(
@@ -64,16 +74,17 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
             // Progress Indicator
             LinearProgressIndicator(
               value: (_currentStep + 1) / 8,
-              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              backgroundColor:
+                  Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
-            
+
             Expanded(
               child: IgnorePointer(
                 ignoring: _isSaving,
                 child: _buildStep(_currentStep),
               ),
             ),
-            
+
             // Navigation Buttons
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -92,12 +103,12 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
                   // Next/Finish Button
                   FilledButton(
                     onPressed: _isSaving ? null : () => _nextStep(context),
-                    child: _isSaving 
+                    child: _isSaving
                         ? const SizedBox(
-                            width: 20, 
-                            height: 20, 
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)
-                          )
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white))
                         : Text(_currentStep == 7 ? l10n.finish : l10n.next),
                   ),
                 ],
@@ -109,19 +120,26 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
     );
   }
 
-
-
   Widget _buildStep(int step) {
     switch (step) {
-      case 0: return const BasicInfoStep();
-      case 1: return const RaceClassStep();
-      case 2: return const AbilityScoresStep();
-      case 3: return const FeaturesSpellsStep();
-      case 4: return const EquipmentStep();
-      case 5: return const BackgroundStep();
-      case 6: return const SkillsStep();
-      case 7: return const ReviewStep();
-      default: return const SizedBox.shrink();
+      case 0:
+        return const BasicInfoStep();
+      case 1:
+        return const RaceClassStep();
+      case 2:
+        return const AbilityScoresStep();
+      case 3:
+        return const FeaturesSpellsStep();
+      case 4:
+        return const EquipmentStep();
+      case 5:
+        return const BackgroundStep();
+      case 6:
+        return const SkillsStep();
+      case 7:
+        return const ReviewStep();
+      default:
+        return const SizedBox.shrink();
     }
   }
 
@@ -138,21 +156,21 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
     if (_currentStep < 7) {
       // Validate current step
       // Note: validation logic depends on state getters which are fine
-      
+
       setState(() {
         _currentStep++;
       });
     } else {
       // Create character
       if (_isSaving) return;
-      
+
       setState(() {
         _isSaving = true;
       });
 
       try {
         await _createCharacter();
-        
+
         if (mounted) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
@@ -287,8 +305,12 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
         initiative: dexMod,
         proficientSkills: _state.selectedSkills,
         expertSkills: _state.selectedExpertise.toList(),
-        savingThrowProficiencies: _state.selectedClass!.savingThrowProficiencies,
-        knownSpells: List.from(_state.selectedSpells), // Populate selected spells
+        favoredEnemies: _state.selectedFeatureOptions['favored_enemy'] != null ? [_state.selectedFeatureOptions['favored_enemy']!] : [],
+        naturalExplorers: _state.selectedFeatureOptions['natural_explorer'] != null ? [_state.selectedFeatureOptions['natural_explorer']!] : [],
+        savingThrowProficiencies:
+            _state.selectedClass!.savingThrowProficiencies,
+        knownSpells:
+            List.from(_state.selectedSpells), // Populate selected spells
         preparedSpells: [],
         maxPreparedSpells: maxPreparedSpells,
         features: [],
@@ -310,7 +332,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
 
       // 5.5 Add class features (Standard + Custom Class features)
       FeatureService.addFeaturesToCharacter(character);
-      
+
       // Add features from selected class (Level 1)
       final classFeatures = _state.selectedClass!.features[1];
       if (classFeatures != null) {
@@ -333,7 +355,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
           if (feature != null) {
             // Add a COPY of the feature
             // (We might need to calculate max uses if applicable, but usually these are passive)
-             final featureCopy = CharacterFeature(
+            final featureCopy = CharacterFeature(
               id: feature.id,
               nameEn: feature.nameEn,
               nameRu: feature.nameRu,
@@ -351,10 +373,12 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
               usageInputMode: feature.usageInputMode,
               resourcePool: feature.resourcePool != null
                   ? ResourcePool(
-                      currentUses: feature.resourcePool!.maxUses, // Assuming full on add
+                      currentUses:
+                          feature.resourcePool!.maxUses, // Assuming full on add
                       maxUses: feature.resourcePool!.maxUses,
                       recoveryType: feature.resourcePool!.recoveryType,
-                      calculationFormula: feature.resourcePool!.calculationFormula,
+                      calculationFormula:
+                          feature.resourcePool!.calculationFormula,
                     )
                   : null,
             );
@@ -366,14 +390,15 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       // 5.7 PRUNE Unselected Options (Fix for "Add All" bug)
       // We need to remove features that are "options" but were NOT selected by the user.
       final selectedOptions = _state.selectedFeatureOptions.values.toSet();
-      
+
       character.features.removeWhere((feature) {
         // Fighting Styles: Remove specific styles if not selected
         // Pattern: contains 'fighting-style' BUT is not the generic parent (which usually ends in 'fighting-style' like 'fighter-fighting-style')
-        if (feature.id.contains('fighting-style') && !feature.id.endsWith('fighting-style')) {
-           return !selectedOptions.contains(feature.id);
+        if (feature.id.contains('fighting-style') &&
+            !feature.id.endsWith('fighting-style')) {
+          return !selectedOptions.contains(feature.id);
         }
-        
+
         // Draconic Ancestry: Remove specific ancestries if not selected
         if (feature.id.startsWith('dragon-ancestor-')) {
           return !selectedOptions.contains(feature.id);
@@ -388,12 +413,13 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
         await _addCustomEquipment(character, _state.customEquipmentQuantities);
       } else if (_state.selectedEquipmentPackage != null) {
         // Add standard/alternative package
-        await _addStartingEquipment(character, _state.selectedClass!.id, _state.selectedEquipmentPackage!);
+        await _addStartingEquipment(character, _state.selectedClass!.id,
+            _state.selectedEquipmentPackage!);
       }
 
       // 7. Save to database
       await StorageService.saveCharacter(character);
-      
+
       // Navigation is now handled by _nextStep
     } catch (e) {
       // Re-throw to let _nextStep handle the error UI
@@ -402,7 +428,8 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
   }
 
   /// Add starting equipment based on class and selected package
-  Future<void> _addStartingEquipment(Character character, String classId, String packageId) async {
+  Future<void> _addStartingEquipment(
+      Character character, String classId, String packageId) async {
     final equipment = _getEquipmentForPackage(classId, packageId);
 
     for (var itemId in equipment) {
@@ -420,7 +447,8 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
   }
 
   /// Add custom equipment from item IDs with quantities
-  Future<void> _addCustomEquipment(Character character, Map<String, int> itemQuantities) async {
+  Future<void> _addCustomEquipment(
+      Character character, Map<String, int> itemQuantities) async {
     for (var entry in itemQuantities.entries) {
       final itemId = entry.key;
       final quantity = entry.value;
@@ -472,27 +500,75 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
     switch (classId) {
       case 'paladin':
         return isAlternative
-            ? ['scale_mail', 'longsword', 'javelin', 'holy_symbol', 'priests_pack']
-            : ['chain_mail', 'longsword', 'shield', 'holy_symbol', 'explorers_pack'];
+            ? [
+                'scale_mail',
+                'longsword',
+                'javelin',
+                'holy_symbol',
+                'priests_pack'
+              ]
+            : [
+                'chain_mail',
+                'longsword',
+                'shield',
+                'holy_symbol',
+                'explorers_pack'
+              ];
       case 'wizard':
         return isAlternative
             ? ['dagger', 'dagger', 'arcane_focus', 'scholars_pack']
             : ['quarterstaff', 'dagger', 'component_pouch', 'scholars_pack'];
       case 'fighter':
         return isAlternative
-            ? ['leather_armor', 'longbow', 'shortsword', 'shortsword', 'dungeons_pack']
-            : ['chain_mail', 'longsword', 'shield', 'crossbow_light', 'explorers_pack'];
+            ? [
+                'leather_armor',
+                'longbow',
+                'shortsword',
+                'shortsword',
+                'dungeons_pack'
+              ]
+            : [
+                'chain_mail',
+                'longsword',
+                'shield',
+                'crossbow_light',
+                'explorers_pack'
+              ];
       case 'rogue':
         return isAlternative
-            ? ['leather_armor', 'rapier', 'shortbow', 'thieves_tools', 'dungeons_pack']
-            : ['leather_armor', 'shortsword', 'dagger', 'thieves_tools', 'burglars_pack'];
+            ? [
+                'leather_armor',
+                'rapier',
+                'shortbow',
+                'thieves_tools',
+                'dungeons_pack'
+              ]
+            : [
+                'leather_armor',
+                'shortsword',
+                'dagger',
+                'thieves_tools',
+                'burglars_pack'
+              ];
       case 'cleric':
         return isAlternative
-            ? ['scale_mail', 'warhammer', 'shield', 'holy_symbol', 'explorers_pack']
+            ? [
+                'scale_mail',
+                'warhammer',
+                'shield',
+                'holy_symbol',
+                'explorers_pack'
+              ]
             : ['chain_mail', 'mace', 'shield', 'holy_symbol', 'priests_pack'];
       case 'ranger':
         return isAlternative
-            ? ['scale_mail', 'shortsword', 'shortsword', 'longbow', 'dungeons_pack']
+            ? [
+                'scale_mail',
+                'shortsword',
+                'shortsword',
+                'longbow',
+                'dungeons_pack'
+              ]
             : ['leather_armor', 'longbow', 'shortsword', 'explorers_pack'];
       default:
         return ['leather_armor', 'dagger', 'explorers_pack'];
@@ -510,7 +586,9 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
     Item? equippedShield;
 
     for (var item in character.inventory) {
-      if (item.isEquipped && item.type == ItemType.armor && item.armorProperties != null) {
+      if (item.isEquipped &&
+          item.type == ItemType.armor &&
+          item.armorProperties != null) {
         if (item.armorProperties!.armorType == ArmorType.shield) {
           equippedShield = item;
         } else {

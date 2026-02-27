@@ -9,25 +9,44 @@ class BackgroundStep extends StatelessWidget {
 
   String _getSkillName(String skillId, AppLocalizations l10n) {
     switch (skillId) {
-      case 'acrobatics': return l10n.skillAcrobatics;
-      case 'animal_handling': return l10n.skillAnimalHandling;
-      case 'arcana': return l10n.skillArcana;
-      case 'athletics': return l10n.skillAthletics;
-      case 'deception': return l10n.skillDeception;
-      case 'history': return l10n.skillHistory;
-      case 'insight': return l10n.skillInsight;
-      case 'intimidation': return l10n.skillIntimidation;
-      case 'investigation': return l10n.skillInvestigation;
-      case 'medicine': return l10n.skillMedicine;
-      case 'nature': return l10n.skillNature;
-      case 'perception': return l10n.skillPerception;
-      case 'performance': return l10n.skillPerformance;
-      case 'persuasion': return l10n.skillPersuasion;
-      case 'religion': return l10n.skillReligion;
-      case 'sleight_of_hand': return l10n.skillSleightOfHand;
-      case 'stealth': return l10n.skillStealth;
-      case 'survival': return l10n.skillSurvival;
-      default: return skillId;
+      case 'acrobatics':
+        return l10n.skillAcrobatics;
+      case 'animal_handling':
+        return l10n.skillAnimalHandling;
+      case 'arcana':
+        return l10n.skillArcana;
+      case 'athletics':
+        return l10n.skillAthletics;
+      case 'deception':
+        return l10n.skillDeception;
+      case 'history':
+        return l10n.skillHistory;
+      case 'insight':
+        return l10n.skillInsight;
+      case 'intimidation':
+        return l10n.skillIntimidation;
+      case 'investigation':
+        return l10n.skillInvestigation;
+      case 'medicine':
+        return l10n.skillMedicine;
+      case 'nature':
+        return l10n.skillNature;
+      case 'perception':
+        return l10n.skillPerception;
+      case 'performance':
+        return l10n.skillPerformance;
+      case 'persuasion':
+        return l10n.skillPersuasion;
+      case 'religion':
+        return l10n.skillReligion;
+      case 'sleight_of_hand':
+        return l10n.skillSleightOfHand;
+      case 'stealth':
+        return l10n.skillStealth;
+      case 'survival':
+        return l10n.skillSurvival;
+      default:
+        return skillId;
     }
   }
 
@@ -49,11 +68,10 @@ class BackgroundStep extends StatelessWidget {
         Text(
           l10n.backgroundDescription,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
         ),
         const SizedBox(height: 24),
-
         if (backgrounds.isEmpty)
           Card(
             child: Padding(
@@ -80,18 +98,25 @@ class BackgroundStep extends StatelessWidget {
                       Row(
                         children: [
                           Icon(
-                            isSelected ? Icons.check_circle : Icons.circle_outlined,
+                            isSelected
+                                ? Icons.check_circle
+                                : Icons.circle_outlined,
                             color: isSelected
                                 ? Theme.of(context).colorScheme.tertiary
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                           ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: Text(
                               background.getName(locale),
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
                           ),
                         ],
@@ -108,10 +133,14 @@ class BackgroundStep extends StatelessWidget {
                           children: background.skillProficiencies.map((skill) {
                             return Chip(
                               label: Text(_getSkillName(skill, l10n)),
-                              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .secondaryContainer,
                               labelStyle: TextStyle(
                                 fontSize: 12,
-                                color: Theme.of(context).colorScheme.onSecondaryContainer,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSecondaryContainer,
                               ),
                             );
                           }).toList(),

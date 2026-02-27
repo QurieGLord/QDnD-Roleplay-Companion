@@ -17,7 +17,7 @@ class AppPalettes {
   /// Returns the ColorScheme for the given preset and brightness mode
   static ColorScheme getScheme(AppColorPreset preset, Brightness brightness) {
     final isDark = brightness == Brightness.dark;
-    
+
     switch (preset) {
       case AppColorPreset.qMonokai:
         return isDark ? _qMonokaiDark : _qMonokaiLight;
@@ -39,36 +39,36 @@ class AppPalettes {
   // ===========================================================================
   static const _qMonokaiDark = ColorScheme(
     brightness: Brightness.dark,
-    
+
     // Accents
     primary: Color(0xFFD33B47), // Magenta
     onPrimary: Color(0xFFF7F3E8), // FG
-    
+
     secondary: Color(0xFF8ED9D4), // Cyan (Promoted to Secondary)
     onSecondary: Color(0xFF00363D), // Dark teal text for contrast
-    
+
     tertiary: Color(0xFFC3D62D), // Green (Demoted to Tertiary)
     onTertiary: Color(0xFF2A3300), // Dark green text for contrast
-    
+
     // Containers
-    primaryContainer: Color(0xFFD33B47), 
-    onPrimaryContainer: Color(0xFFF7F3E8), 
-    
-    secondaryContainer: Color(0xFF8ED9D4), 
+    primaryContainer: Color(0xFFD33B47),
+    onPrimaryContainer: Color(0xFFF7F3E8),
+
+    secondaryContainer: Color(0xFF8ED9D4),
     onSecondaryContainer: Color(0xFF00363D),
-    
+
     tertiaryContainer: Color(0xFFC3D62D),
     onTertiaryContainer: Color(0xFF2A3300),
 
     // Base
     surface: Color(0xFF272822), // Background (Classic Warm Monokai)
     onSurface: Color(0xFFF7F3E8), // FG
-    
+
     // Variations
     surfaceContainerHighest: Color(0xFF816E53), // Comment color
     outline: Color(0xFF816E53), // Comment
     outlineVariant: Color(0xFF816E53),
-    
+
     error: Color(0xFFD33B47), // Magenta as Error
     onError: Color(0xFFF7F3E8),
   );

@@ -30,11 +30,11 @@ class SpellSlotsTable {
     switch (casterType.toLowerCase()) {
       case 'full':
         return _fullCasterSlots[level - 1];
-      
+
       case 'half':
         // Paladins and Rangers start at level 2
         if (level < 2) return [];
-        
+
         // Formula: ceil(level / 2) equivalent in full caster table
         final mappedLevel = (level / 2).ceil();
         return _fullCasterSlots[mappedLevel - 1];
@@ -45,8 +45,9 @@ class SpellSlotsTable {
         if (level < 3) return [];
         final mappedLevel = (level / 3).ceil();
         return _fullCasterSlots[mappedLevel - 1];
-        
+
       case 'pact':
+      case 'pact_magic':
         return getPactSlots(level);
 
       default:
@@ -59,40 +60,39 @@ class SpellSlotsTable {
   static List<int> getPactSlots(int level) {
     if (level < 1 || level > 20) return [];
 
-    int slotCount;
-    int slotLevel;
-
-    if (level == 1) {
-      slotCount = 1;
-      slotLevel = 1;
+    // Точный расчет УРОВНЯ ячейки магии договора
+    int pactSlotLevel;
+    if (level <= 2) {
+      pactSlotLevel = 1;
+    } else if (level <= 4) {
+      pactSlotLevel = 2;
+    } else if (level <= 6) {
+      pactSlotLevel = 3;
+    } else if (level <= 8) {
+      pactSlotLevel = 4;
     } else {
-      // Determine slot level
-      // 1-2: 1st
-      // 3-4: 2nd
-      // 5-6: 3rd
-      // 7-8: 4th
-      // 9+: 5th
-      slotLevel = ((level + 1) / 2).floor();
-      if (slotLevel > 5) slotLevel = 5;
-
-      // Determine slot count
-      if (level < 2) {
-        slotCount = 1; 
-      } else if (level <= 10) {
-        slotCount = 2;
-      } else if (level <= 16) {
-        slotCount = 3;
-      } else {
-        slotCount = 4;
-      }
+      pactSlotLevel = 5; // Уровень ячейки НИКОГДА не превышает 5
     }
 
-    // Create a list representing slots. 
-    // Since Warlock slots are all of the same level, previous levels have 0 slots.
-    // e.g. Level 3 (2 slots of 2nd level) -> [0, 2]
-    List<int> slots = List.filled(slotLevel, 0);
-    slots[slotLevel - 1] = slotCount;
-    
+    // Точный расчет КОЛИЧЕСТВА ячеек магии договора
+    int maxPactSlots;
+    if (level == 1) {
+      maxPactSlots = 1;
+    } else if (level >= 2 && level <= 10) {
+      maxPactSlots = 2;
+    } else if (level >= 11 && level <= 16) {
+      maxPactSlots = 3;
+    } else {
+      maxPactSlots = 4; // На 20 уровне их ровно 4
+    }
+
+    // Create a list representing slots.
+    // The list size must be exactly 'pactSlotLevel' to represent that highest level is available.
+    List<int> slots = List.filled(pactSlotLevel, 0);
+    if (pactSlotLevel > 0) {
+      slots[pactSlotLevel - 1] = maxPactSlots;
+    }
+
     return slots;
   }
 

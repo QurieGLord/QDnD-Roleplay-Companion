@@ -29,10 +29,11 @@ class ImportService {
       final xmlContent = await file.readAsString();
       final sourceId = const Uuid().v4();
       // Use parseCompendium for the universal import
-      final parseResult = await FC5Parser.parseCompendium(xmlContent, sourceId: sourceId);
-      
+      final parseResult =
+          await FC5Parser.parseCompendium(xmlContent, sourceId: sourceId);
+
       final fileName = file.path.split(Platform.pathSeparator).last;
-      
+
       // Create and save source metadata
       final source = CompendiumSource(
         id: sourceId,
@@ -45,13 +46,13 @@ class ImportService {
         backgroundCount: parseResult.backgrounds.length,
         featCount: parseResult.feats.length,
       );
-      
+
       await StorageService.saveSource(source);
 
       if (parseResult.items.isNotEmpty) {
         await StorageService.saveItems(parseResult.items);
       }
-      
+
       if (parseResult.spells.isNotEmpty) {
         await StorageService.saveSpells(parseResult.spells);
       }
@@ -63,11 +64,11 @@ class ImportService {
       if (parseResult.classes.isNotEmpty) {
         await StorageService.saveClasses(parseResult.classes);
       }
-      
+
       if (parseResult.backgrounds.isNotEmpty) {
         await StorageService.saveBackgrounds(parseResult.backgrounds);
       }
-      
+
       if (parseResult.feats.isNotEmpty) {
         await StorageService.saveFeats(parseResult.feats);
       }
