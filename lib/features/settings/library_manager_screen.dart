@@ -32,13 +32,14 @@ class LibraryManagerScreen extends StatelessWidget {
         valueListenable: StorageService.getSourcesListenable(),
         builder: (context, box, child) {
           final sources = box.values.toList();
-          
+
           if (sources.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.library_books_outlined, size: 64, color: Theme.of(context).colorScheme.outline),
+                  Icon(Icons.library_books_outlined,
+                      size: 64, color: Theme.of(context).colorScheme.outline),
                   const SizedBox(height: 16),
                   Text(
                     l10n.noLibraries,
@@ -48,8 +49,8 @@ class LibraryManagerScreen extends StatelessWidget {
                   Text(
                     l10n.noLibrariesHint,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                   ),
                 ],
               ),
@@ -68,18 +69,26 @@ class LibraryManagerScreen extends StatelessWidget {
                 clipBehavior: Clip.antiAlias,
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                    child: Icon(Icons.folder_zip, color: Theme.of(context).colorScheme.onPrimaryContainer),
+                    backgroundColor:
+                        Theme.of(context).colorScheme.primaryContainer,
+                    child: Icon(Icons.folder_zip,
+                        color:
+                            Theme.of(context).colorScheme.onPrimaryContainer),
                   ),
-                  title: Text(source.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  title: Text(source.name,
+                      maxLines: 1, overflow: TextOverflow.ellipsis),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 4),
-                      Text(l10n.libraryStats(source.itemCount, source.spellCount)),
+                      Text(l10n.libraryStats(
+                          source.itemCount, source.spellCount)),
                       Text(
-                        l10n.libraryImportedDate(DateFormat.yMMMd().format(source.importedAt)),
-                        style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.outline),
+                        l10n.libraryImportedDate(
+                            DateFormat.yMMMd().format(source.importedAt)),
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.outline),
                       ),
                     ],
                   ),
@@ -105,7 +114,7 @@ class LibraryManagerScreen extends StatelessWidget {
 
     if (result != null && result.files.single.path != null) {
       final file = File(result.files.single.path!);
-      
+
       if (!context.mounted) return;
       showDialog(
         context: context,
@@ -115,17 +124,17 @@ class LibraryManagerScreen extends StatelessWidget {
 
       try {
         final message = await ImportService.importCompendiumFile(file);
-        
+
         if (!context.mounted) return;
         Navigator.pop(context); // Close loader
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message)),
         );
       } catch (e) {
         if (!context.mounted) return;
         Navigator.pop(context); // Close loader
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
@@ -133,14 +142,16 @@ class LibraryManagerScreen extends StatelessWidget {
     }
   }
 
-  Future<void> _confirmDelete(BuildContext context, CompendiumSource source) async {
+  Future<void> _confirmDelete(
+      BuildContext context, CompendiumSource source) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.deleteLibraryTitle),
         content: Text(
-          l10n.deleteLibraryMessage(source.name, source.itemCount, source.spellCount),
+          l10n.deleteLibraryMessage(
+              source.name, source.itemCount, source.spellCount),
         ),
         actions: [
           TextButton(
@@ -158,10 +169,10 @@ class LibraryManagerScreen extends StatelessWidget {
 
     if (confirmed == true) {
       if (!context.mounted) return;
-      
+
       try {
         await StorageService.deleteSource(source.id);
-        
+
         // Reload in-memory caches to reflect changes immediately
         await ItemService.reload();
         await SpellService.reload();
@@ -173,10 +184,11 @@ class LibraryManagerScreen extends StatelessWidget {
       } catch (e) {
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.errorDeletingLibrary(e.toString())), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text(l10n.errorDeletingLibrary(e.toString())),
+              backgroundColor: Colors.red),
         );
       }
     }
   }
 }
-

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
@@ -82,7 +81,8 @@ class DiceRollerModal extends StatefulWidget {
   State<DiceRollerModal> createState() => _DiceRollerModalState();
 }
 
-class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderStateMixin {
+class _DiceRollerModalState extends State<DiceRollerModal>
+    with TickerProviderStateMixin {
   late DiceType _selectedDice;
   late int _modifier;
   AdvantageType _advantage = AdvantageType.none;
@@ -93,7 +93,7 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
   late AnimationController _colorController;
   late Animation<double> _rotationAnimation;
   late Animation<double> _scaleAnimation;
-  
+
   bool _isRolling = false;
   int _displayedNumber = 1;
   Timer? _rollTimer;
@@ -109,7 +109,7 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     _colorController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -121,9 +121,18 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
     );
 
     _scaleAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.7).chain(CurveTween(curve: Curves.easeOut)), weight: 20),
-      TweenSequenceItem(tween: Tween(begin: 0.7, end: 1.1).chain(CurveTween(curve: Curves.easeInOut)), weight: 60),
-      TweenSequenceItem(tween: Tween(begin: 1.1, end: 1.0).chain(CurveTween(curve: Curves.elasticOut)), weight: 20),
+      TweenSequenceItem(
+          tween: Tween(begin: 1.0, end: 0.7)
+              .chain(CurveTween(curve: Curves.easeOut)),
+          weight: 20),
+      TweenSequenceItem(
+          tween: Tween(begin: 0.7, end: 1.1)
+              .chain(CurveTween(curve: Curves.easeInOut)),
+          weight: 60),
+      TweenSequenceItem(
+          tween: Tween(begin: 1.1, end: 1.0)
+              .chain(CurveTween(curve: Curves.elasticOut)),
+          weight: 20),
     ]).animate(_rollController);
   }
 
@@ -141,15 +150,15 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
     setState(() {
       _isRolling = true;
     });
-    
+
     HapticFeedback.selectionClick();
     _rollController.reset();
     _colorController.reset();
     _rollController.forward();
-    
+
     int cycles = 0;
     final random = Random();
-    
+
     _rollTimer = Timer.periodic(const Duration(milliseconds: 40), (timer) {
       if (mounted) {
         setState(() {
@@ -158,18 +167,24 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
       }
       cycles++;
       if (cycles > 15) {
-         timer.cancel();
-         _slowDownTicks(random);
+        timer.cancel();
+        _slowDownTicks(random);
       }
     });
   }
 
   void _slowDownTicks(Random random) async {
     await Future.delayed(const Duration(milliseconds: 80));
-    if (mounted) setState(() => _displayedNumber = random.nextInt(_selectedDice.sides) + 1);
-    
+    if (mounted) {
+      setState(
+          () => _displayedNumber = random.nextInt(_selectedDice.sides) + 1);
+    }
+
     await Future.delayed(const Duration(milliseconds: 120));
-    if (mounted) setState(() => _displayedNumber = random.nextInt(_selectedDice.sides) + 1);
+    if (mounted) {
+      setState(
+          () => _displayedNumber = random.nextInt(_selectedDice.sides) + 1);
+    }
 
     await Future.delayed(const Duration(milliseconds: 200));
     if (mounted) _finalizeRoll(random);
@@ -185,24 +200,28 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
     } else {
       rolls.add(random.nextInt(_selectedDice.sides) + 1);
       rolls.add(random.nextInt(_selectedDice.sides) + 1);
-      resultVal = _advantage == AdvantageType.advantage ? rolls.reduce(max) : rolls.reduce(min);
+      resultVal = _advantage == AdvantageType.advantage
+          ? rolls.reduce(max)
+          : rolls.reduce(min);
     }
 
     setState(() {
       _displayedNumber = resultVal;
       _isRolling = false;
-      
-      _history.insert(0, DiceRoll(
-        result: resultVal,
-        total: resultVal + _modifier,
-        type: _selectedDice,
-        modifier: _modifier,
-        rawRolls: rolls,
-        advantage: _advantage,
-        timestamp: DateTime.now(),
-      ));
+
+      _history.insert(
+          0,
+          DiceRoll(
+            result: resultVal,
+            total: resultVal + _modifier,
+            type: _selectedDice,
+            modifier: _modifier,
+            rawRolls: rolls,
+            advantage: _advantage,
+            timestamp: DateTime.now(),
+          ));
     });
-    
+
     _colorController.forward();
     HapticFeedback.heavyImpact();
   }
@@ -219,11 +238,14 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
     final activeTextColor = colorScheme.onTertiaryContainer;
 
     return Container(
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
+      constraints:
+          BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20)
+        ],
       ),
       child: SafeArea(
         child: Column(
@@ -234,7 +256,10 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Text(widget.title ?? l10n.diceRoller, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold))),
+                  Expanded(
+                      child: Text(widget.title ?? l10n.diceRoller,
+                          style: theme.textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold))),
                   IconButton.filledTonal(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.close),
@@ -252,20 +277,25 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Spacer(),
-                  
+
                   // THE DIE
                   GestureDetector(
                     onTap: _rollDice,
                     child: AnimatedBuilder(
-                      animation: Listenable.merge([_rollController, _colorController]),
+                      animation:
+                          Listenable.merge([_rollController, _colorController]),
                       builder: (context, child) {
-                        final currentColor = Color.lerp(baseColor, activeColor, _colorController.value)!;
-                        final currentTextColor = Color.lerp(textColor, activeTextColor, _colorController.value)!;
+                        final currentColor = Color.lerp(
+                            baseColor, activeColor, _colorController.value)!;
+                        final currentTextColor = Color.lerp(textColor,
+                            activeTextColor, _colorController.value)!;
                         final rotation = _rotationAnimation.value * pi * 4;
-                        
+
                         return Transform(
                           alignment: Alignment.center,
-                          transform: Matrix4.identity()..rotateZ(rotation)..scale(_scaleAnimation.value),
+                          transform: Matrix4.identity()
+                            ..rotateZ(rotation)
+                            ..scale(_scaleAnimation.value),
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
@@ -282,7 +312,9 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                                 child: Text(
                                   '$_displayedNumber',
                                   style: TextStyle(
-                                    fontSize: _getFontSizeForDice(_selectedDice) * 0.85,
+                                    fontSize:
+                                        _getFontSizeForDice(_selectedDice) *
+                                            0.85,
                                     fontWeight: FontWeight.w900,
                                     color: currentTextColor,
                                     height: 1.0,
@@ -297,24 +329,26 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                   ),
 
                   const SizedBox(height: 24),
-                  
+
                   // Result Text
                   AnimatedBuilder(
-                    animation: _colorController,
-                    builder: (context, _) {
-                      return Text(
-                        _isRolling 
-                            ? l10n.rolling 
-                            : (_history.isNotEmpty ? l10n.total(_history.first.total) : l10n.tapToRoll),
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color.lerp(colorScheme.onSurfaceVariant, activeColor, _colorController.value),
-                        ),
-                      );
-                    }
-                  ),
-                  
+                      animation: _colorController,
+                      builder: (context, _) {
+                        return Text(
+                          _isRolling
+                              ? l10n.rolling
+                              : (_history.isNotEmpty
+                                  ? l10n.total(_history.first.total)
+                                  : l10n.tapToRoll),
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Color.lerp(colorScheme.onSurfaceVariant,
+                                activeColor, _colorController.value),
+                          ),
+                        );
+                      }),
+
                   const Spacer(),
                 ],
               ),
@@ -325,13 +359,15 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(32)),
               ),
               child: Column(
                 children: [
                   // Row 1: Modifier
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
@@ -340,23 +376,34 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(l10n.modifier, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                        Text(l10n.modifier,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 14)),
                         Row(
                           children: [
                             InkWell(
-                              onTap: () => setState(() => _modifier--), 
-                              borderRadius: BorderRadius.circular(20),
-                              child: const Padding(padding: EdgeInsets.all(8.0), child: Icon(Icons.remove_circle_outline, size: 24))
-                            ),
+                                onTap: () => setState(() => _modifier--),
+                                borderRadius: BorderRadius.circular(20),
+                                child: const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Icon(Icons.remove_circle_outline,
+                                        size: 24))),
                             SizedBox(
                               width: 40,
-                              child: Text('${_modifier >= 0 ? '+' : ''}$_modifier', textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                              child: Text(
+                                  '${_modifier >= 0 ? '+' : ''}$_modifier',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20)),
                             ),
                             InkWell(
-                              onTap: () => setState(() => _modifier++),
-                              borderRadius: BorderRadius.circular(20), 
-                              child: const Padding(padding: EdgeInsets.all(8.0), child: Icon(Icons.add_circle_outline, size: 24))
-                            ),
+                                onTap: () => setState(() => _modifier++),
+                                borderRadius: BorderRadius.circular(20),
+                                child: const Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Icon(Icons.add_circle_outline,
+                                        size: 24))),
                           ],
                         ),
                       ],
@@ -370,17 +417,28 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                     width: double.infinity,
                     child: SegmentedButton<AdvantageType>(
                       segments: [
-                        ButtonSegment(value: AdvantageType.disadvantage, label: Text(l10n.disadvantage), icon: const Icon(Icons.keyboard_double_arrow_down, size: 16)),
-                        const ButtonSegment(value: AdvantageType.none, label: Text('-')),
-                        ButtonSegment(value: AdvantageType.advantage, label: Text(l10n.advantage), icon: const Icon(Icons.keyboard_double_arrow_up, size: 16)),
+                        ButtonSegment(
+                            value: AdvantageType.disadvantage,
+                            label: Text(l10n.disadvantage),
+                            icon: const Icon(Icons.keyboard_double_arrow_down,
+                                size: 16)),
+                        const ButtonSegment(
+                            value: AdvantageType.none, label: Text('-')),
+                        ButtonSegment(
+                            value: AdvantageType.advantage,
+                            label: Text(l10n.advantage),
+                            icon: const Icon(Icons.keyboard_double_arrow_up,
+                                size: 16)),
                       ],
                       selected: {_advantage},
-                      onSelectionChanged: (val) => setState(() => _advantage = val.first),
+                      onSelectionChanged: (val) =>
+                          setState(() => _advantage = val.first),
                       showSelectedIcon: false,
                       style: ButtonStyle(
                         visualDensity: VisualDensity.standard,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 0)),
+                        padding: WidgetStateProperty.all(
+                            const EdgeInsets.symmetric(vertical: 0)),
                       ),
                     ),
                   ),
@@ -410,10 +468,14 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                             duration: const Duration(milliseconds: 200),
                             width: 48,
                             decoration: BoxDecoration(
-                              color: isSelected ? colorScheme.primary : colorScheme.surface,
+                              color: isSelected
+                                  ? colorScheme.primary
+                                  : colorScheme.surface,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: isSelected ? colorScheme.primary : colorScheme.outlineVariant,
+                                color: isSelected
+                                    ? colorScheme.primary
+                                    : colorScheme.outlineVariant,
                               ),
                             ),
                             alignment: Alignment.center,
@@ -421,7 +483,9 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
                               dice.label,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+                                color: isSelected
+                                    ? colorScheme.onPrimary
+                                    : colorScheme.onSurface,
                               ),
                             ),
                           ),
@@ -440,13 +504,20 @@ class _DiceRollerModalState extends State<DiceRollerModal> with TickerProviderSt
 
   double _getFontSizeForDice(DiceType type) {
     switch (type) {
-      case DiceType.d4: return 40;
-      case DiceType.d8: return 48;
-      case DiceType.d10: return 48;
-      case DiceType.d12: return 52;
-      case DiceType.d20: return 52;
-      case DiceType.d100: return 44;
-      default: return 64;
+      case DiceType.d4:
+        return 40;
+      case DiceType.d8:
+        return 48;
+      case DiceType.d10:
+        return 48;
+      case DiceType.d12:
+        return 52;
+      case DiceType.d20:
+        return 52;
+      case DiceType.d100:
+        return 44;
+      default:
+        return 64;
     }
   }
 }
@@ -484,12 +555,16 @@ class DiceShapePainter extends CustomPainter {
     switch (type) {
       case DiceType.d4:
         final adjustedCenter = Offset(center.dx, center.dy + radius * 0.2);
-        final angle = -pi / 2; 
+        const angle = -pi / 2;
         for (int i = 0; i < 3; i++) {
           final theta = angle + (i * 2 * pi / 3);
           final x = adjustedCenter.dx + radius * cos(theta);
           final y = adjustedCenter.dy + radius * sin(theta);
-          if (i == 0) path.moveTo(x, y); else path.lineTo(x, y);
+          if (i == 0) {
+            path.moveTo(x, y);
+          } else {
+            path.lineTo(x, y);
+          }
         }
         path.close();
         break;
@@ -507,9 +582,14 @@ class DiceShapePainter extends CustomPainter {
         path.close();
         canvas.drawPath(path, paint);
         canvas.drawPath(path, outlinePaint);
-        canvas.drawLine(center, Offset(center.dx, center.dy - radius), outlinePaint..strokeWidth = strokeWidth/2);
-        canvas.drawLine(center, Offset(center.dx, center.dy + radius), outlinePaint..strokeWidth = strokeWidth/2);
-        canvas.drawLine(Offset(center.dx - radius * 0.7, center.dy), Offset(center.dx + radius * 0.7, center.dy), outlinePaint..strokeWidth = strokeWidth/2);
+        canvas.drawLine(center, Offset(center.dx, center.dy - radius),
+            outlinePaint..strokeWidth = strokeWidth / 2);
+        canvas.drawLine(center, Offset(center.dx, center.dy + radius),
+            outlinePaint..strokeWidth = strokeWidth / 2);
+        canvas.drawLine(
+            Offset(center.dx - radius * 0.7, center.dy),
+            Offset(center.dx + radius * 0.7, center.dy),
+            outlinePaint..strokeWidth = strokeWidth / 2);
         return;
 
       case DiceType.d10:
@@ -521,30 +601,46 @@ class DiceShapePainter extends CustomPainter {
         path.close();
         canvas.drawPath(path, paint);
         canvas.drawPath(path, outlinePaint);
-        canvas.drawLine(center, Offset(center.dx, center.dy - radius), outlinePaint..strokeWidth = strokeWidth/2);
-        canvas.drawLine(center, Offset(center.dx, center.dy + radius), outlinePaint..strokeWidth = strokeWidth/2);
-        canvas.drawLine(Offset(center.dx - radius * 0.7, center.dy - radius * 0.2), center, outlinePaint..strokeWidth = strokeWidth/2);
-        canvas.drawLine(Offset(center.dx + radius * 0.7, center.dy - radius * 0.2), center, outlinePaint..strokeWidth = strokeWidth/2);
+        canvas.drawLine(center, Offset(center.dx, center.dy - radius),
+            outlinePaint..strokeWidth = strokeWidth / 2);
+        canvas.drawLine(center, Offset(center.dx, center.dy + radius),
+            outlinePaint..strokeWidth = strokeWidth / 2);
+        canvas.drawLine(
+            Offset(center.dx - radius * 0.7, center.dy - radius * 0.2),
+            center,
+            outlinePaint..strokeWidth = strokeWidth / 2);
+        canvas.drawLine(
+            Offset(center.dx + radius * 0.7, center.dy - radius * 0.2),
+            center,
+            outlinePaint..strokeWidth = strokeWidth / 2);
         return;
 
       case DiceType.d12:
-        final angle = -pi / 2;
+        const angle = -pi / 2;
         for (int i = 0; i < 5; i++) {
           final theta = angle + (i * 2 * pi / 5);
           final x = center.dx + radius * cos(theta);
           final y = center.dy + radius * sin(theta);
-          if (i == 0) path.moveTo(x, y); else path.lineTo(x, y);
+          if (i == 0) {
+            path.moveTo(x, y);
+          } else {
+            path.lineTo(x, y);
+          }
         }
         path.close();
         break;
 
       case DiceType.d20:
-        final angle = pi / 6; 
+        const angle = pi / 6;
         for (int i = 0; i < 6; i++) {
           final theta = angle + (i * 2 * pi / 6);
           final x = center.dx + radius * cos(theta);
           final y = center.dy + radius * sin(theta);
-          if (i == 0) path.moveTo(x, y); else path.lineTo(x, y);
+          if (i == 0) {
+            path.moveTo(x, y);
+          } else {
+            path.lineTo(x, y);
+          }
         }
         path.close();
         break;

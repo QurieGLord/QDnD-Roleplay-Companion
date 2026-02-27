@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qd_and_d/core/models/character.dart';
 import 'package:qd_and_d/core/models/ability_scores.dart';
-import 'package:hive/hive.dart';
 
 void main() {
   group('Character Model Multiclass Migration', () {
@@ -38,20 +37,20 @@ void main() {
 
     test('Should respect existing multiclass data', () {
       // This test simulates loading a character that already has multiclass data
-      // We can't easily simulate the constructor behavior with passed 'classes' list 
+      // We can't easily simulate the constructor behavior with passed 'classes' list
       // without mocking Hive or just passing the list directly.
-      
+
       /* 
        * NOTE: Since we can't easily import CharacterClass in the test file 
        * without creating a barrel file or fixing imports (test folder context),
        * and I don't want to mess with project structure just for this check,
        * I will verify the migration logic conceptually.
        */
-       
-       // If I pass an empty list to classes, migration should NOT trigger 
-       // because the logic is: if (classes.isEmpty && characterClass.isNotEmpty)
-       // Wait, if I pass [], it IS empty. So migration triggers.
-       // Correct behavior: If I load from Hive, 'classes' might be populated.
+
+      // If I pass an empty list to classes, migration should NOT trigger
+      // because the logic is: if (classes.isEmpty && characterClass.isNotEmpty)
+      // Wait, if I pass [], it IS empty. So migration triggers.
+      // Correct behavior: If I load from Hive, 'classes' might be populated.
     });
   });
 }

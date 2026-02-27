@@ -492,12 +492,18 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get channelDivinity => 'Божественный канал';
+
+  @override
   String useChannelDivinity(int count) {
     return 'Исп. Бож. канал (осталось: $count)';
   }
 
   @override
   String get noChannelDivinity => 'Нет зарядов Бож. канала';
+
+  @override
+  String get noWildShapeCharges => 'Нет зарядов Дикого облика';
 
   @override
   String get schoolAbjuration => 'Ограждение';
@@ -1236,7 +1242,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get divineDomain => 'Божественный домен';
 
   @override
-  String get druidCircle => 'Круг';
+  String get druidCircle => 'Круг Друидов';
 
   @override
   String get martialArchetype => 'Воинский архетип';
@@ -2219,4 +2225,221 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noTraits => 'Нет умений';
+
+  @override
+  String get martialArts => 'Боевые искусства';
+
+  @override
+  String get bardicInspiration => 'Бардовское вдохновение';
+
+  @override
+  String get wildShape => 'Дикий облик';
+
+  @override
+  String get wildShapeDuration => 'Длительность';
+
+  @override
+  String get wildShapeMaxCR => 'Макс. ПО';
+
+  @override
+  String get wildShapeRestrictions => 'Ограничения';
+
+  @override
+  String get noRestrictions => 'Нет ограничений';
+
+  @override
+  String get noFlying => 'Без полета';
+
+  @override
+  String get noFlyingSwimming => 'Без полета/плавания';
+
+  @override
+  String get transform => 'Принять облик';
+
+  @override
+  String get revertForm => 'Вернуться в истинный облик';
+
+  @override
+  String get beastHP => 'ХП зверя';
+
+  @override
+  String get beastName => 'Название облика';
+
+  @override
+  String get naturalRecovery => 'Естественное восстановление';
+
+  @override
+  String get recoverSpellSlots => 'Восстановить ячейки';
+
+  @override
+  String selectSlotsToRecover(int max) {
+    return 'Выберите ячейки (Макс. уровней: $max)';
+  }
+
+  @override
+  String get currentSpellSlots => 'Текущие ячейки';
+
+  @override
+  String get tapToUse => 'Нажмите на ноту для использования/восстановления';
+
+  @override
+  String get used => 'Потрачено';
+
+  @override
+  String get allSpellSlotsFull => 'Все ячейки магии полны';
+
+  @override
+  String get arcaneRecovery => 'Арканное восстановление';
+
+  @override
+  String get traditionEvocation => 'Школа Эвокации';
+
+  @override
+  String get traditionAbjuration => 'Школа Ограждения';
+
+  @override
+  String get traditionConjuration => 'Школа Вызова';
+
+  @override
+  String get traditionDivination => 'Школа Прорицания';
+
+  @override
+  String get traditionEnchantment => 'Школа Очарования';
+
+  @override
+  String get traditionIllusion => 'Школа Иллюзии';
+
+  @override
+  String get traditionNecromancy => 'Школа Некромантии';
+
+  @override
+  String get traditionTransmutation => 'Школа Преобразования';
+
+  @override
+  String get channelDivinityRules =>
+      'Вы получаете возможность черпать божественную энергию прямо от своего божества, используя её для подпитки магических эффектов. Вы начинаете с двумя такими эффектами: Изгнание нежити и эффектом, определяемым вашим доменом. Некоторые домены дают вам дополнительные эффекты по мере повышения уровня, как указано в описании домена.\n\nКогда вы используете Божественный канал, вы выбираете, какой эффект создать. Затем вы должны завершить короткий или длительный отдых, чтобы снова использовать Божественный канал.\n\nНекоторые эффекты Божественного канала требуют спасбросков. Когда вы используете такой эффект этого класса, Сл. равна Сл. спасброска от ваших заклинаний жреца.';
+
+  @override
+  String get domainLife => 'Домен Жизни';
+
+  @override
+  String get domainLight => 'Домен Света';
+
+  @override
+  String get domainKnowledge => 'Домен Знаний';
+
+  @override
+  String get domainNature => 'Домен Природы';
+
+  @override
+  String get domainTempest => 'Домен Бури';
+
+  @override
+  String get domainTrickery => 'Домен Обмана';
+
+  @override
+  String get domainWar => 'Домен Войны';
+
+  @override
+  String get domainDeath => 'Домен Смерти';
+
+  @override
+  String get oathDevotion => 'Клятва Преданности';
+
+  @override
+  String get oathAncients => 'Клятва Древних';
+
+  @override
+  String get oathVengeance => 'Клятва Мщения';
+
+  @override
+  String get oathConquest => 'Клятва Завоевания';
+
+  @override
+  String get oathRedemption => 'Клятва Искупления';
+
+  @override
+  String get divineIntervention => 'Божественное вмешательство';
+
+  @override
+  String get divineInterventionRules =>
+      'Вы можете воззвать к своему божеству, чтобы оно вмешалось от вашего имени, когда вы в этом остро нуждаетесь.\n\nВзывание к помощи божества требует совершения действия. Вы описываете помощь, которую ищете, и бросаете процентные кости. Если выпавшее число не больше вашего уровня жреца, божество вмешивается. Характер вмешательства выбирает Мастер; уместным будет эффект любого заклинания жреца или заклинания домена.\n\nЕсли божество вмешалось, вы не можете использовать эту способность снова в течение 7 дней. В противном случае вы можете использовать её снова после завершения продолжительного отдыха.\n\nНа 20-м уровне ваш призыв о вмешательстве преуспевает автоматически, бросок не требуется.';
+
+  @override
+  String get turnUndead => 'Изгнание нежити';
+
+  @override
+  String get destroyUndead => 'Уничтожение нежити';
+
+  @override
+  String get maxCR => 'Макс ПО';
+
+  @override
+  String get usedChannelDivinity =>
+      'Изгнание нежити использовано (Потрачен Божественный канал)';
+
+  @override
+  String get turnUndeadRules =>
+      'Действием вы демонстрируете свой священный символ и произносите молитву, порицающую нежить. Каждая нежить, которая может видеть или слышать вас в пределах 30 футов, должна пройти спасбросок Мудрости. Если существо проваливает спасбросок, оно становится «изгнанным» на 1 минуту или пока не получит урон.\n\nИзгнанное существо должно тратить свои ходы на то, чтобы удалиться от вас как можно дальше, и оно не может добровольно переместиться в пространство, находящееся в пределах 30 футов от вас. Оно также не может совершать реакции. В качестве действия оно может использовать только Рывок или пытаться освободиться от эффекта, препятствующего его передвижению. Если двигаться некуда, существо может использовать действие Уклонение.';
+
+  @override
+  String get destroyUndeadRules =>
+      'Если нежить проваливает спасбросок против вашего умения «Изгнание нежити», она мгновенно уничтожается, если её показатель опасности не превышает определенный порог, указанный в таблице «Уничтожение нежити».';
+
+  @override
+  String get callUponDeity => 'Воззвать к божеству';
+
+  @override
+  String get resetCooldown => 'Сбросить откат (7 дней)';
+
+  @override
+  String get interventionSuccess => 'Успех! Боги услышали вашу молитву!';
+
+  @override
+  String get interventionFailure => 'Божество не ответило на ваш зов.';
+
+  @override
+  String interventionRollResult(Object value) {
+    return 'Выпало: $value';
+  }
+
+  @override
+  String get hunterArchetype => 'АРХЕТИП';
+
+  @override
+  String get huntersMarkTracker => 'Метка охотника';
+
+  @override
+  String get markTargetName => 'Имя цели';
+
+  @override
+  String get markBonusDesc => '+1d6 урона / Преимущество';
+
+  @override
+  String get moveMark => 'Переместить';
+
+  @override
+  String get hideInPlainSight => 'Маскировка';
+
+  @override
+  String get hideInPlainSightDesc => '+10 к Скрытности, пока не двигаетесь';
+
+  @override
+  String get markActivate => 'Активировать';
+
+  @override
+  String get markDrop => 'Снять метку';
+
+  @override
+  String get markDurationHint =>
+      'Метка от 3-го круга длится 8 часов, от 5-го - 24 часа.';
+
+  @override
+  String get markSlotChoose => 'Выберите ячейку для наложения Метки охотника';
+
+  @override
+  String get hideSpentMinute => 'Потрачена 1 минута на маскировку';
+
+  @override
+  String get spellNotFound => 'Заклинание не найдено в базе';
 }

@@ -77,26 +77,22 @@
         *   Smooth hide animation.
     *   **Scroll Physics:** Implemented scroll holding during card gestures and auto-reset on tab switch.
     *   **Class Dashboards:**
-        *   **Monk:** Added `KiTrackerWidget` with animated Ki points and Martial Arts Die calculator (d4-d10).
+        *   **Monk (Phase 7):** Fixed logic bug where Max Ki was incorrect. Added dynamic level-based calculation. Redesigned UI with "Yin-Yang" tokens and Martial Arts Die button.
         *   **Barbarian:** Added `RageControlWidget` with Rage state toggle, visual glow effects, and Rage Damage calculator (+2 to +4).
         *   **Rogue (Phase 3):** Added `RogueToolsWidget` displaying Sneak Attack damage (Xd6).
-        *   **Fighter (Phase 3):** Added `FighterCombatWidget` for Second Wind (Healing tracker) and Action Surge (Toggle).
+        *   **Fighter (Phase 7):** "Command Center" Redesign. Moved to spacious list layout. Replaced traffic-light colors with strict theme coloring. Added "Lightning" and "Shield" tokens for Action Surge/Indomitable.
         *   **Integration:** Replaced generic resource rows with these dashboards in `AbilitiesTab` and implemented filtering to prevent duplicates.
 *   **Features Engine:**
     *   Implemented `usageCostId` logic. Action features (e.g. "Flurry of Blows") now correctly find and consume their resource pool ("Ki") in the UI.
     *   Updated generator to map Monk features to Ki.
-*   **Abilities Tab Rewrite (Phase 5):**
-    *   **Safe Mode:** Implemented `try-catch` blocks and `_safeBuildWidget` to prevent crashes (grey screen) from individual faulty features.
-    *   **Deep Search:** Added robust `_findFeatureDeep` to locate features (Action Surge, Second Wind) using multiple strategies (ID, name, substring).
-    *   **Aggressive Deduplication:** Created `_shouldShowInList` to hide features already displayed in class dashboards (Rage, Ki, Action Surge).
-    *   **Class Widgets:** Verified and integrated `FighterCombatWidget` and `RageControlWidget` with correct logic.
-*   **Abilities Tab Fixes (Phase 5.5):**
-    *   **Crash Fix:** Removed all force-unwraps (`!`) in `AbilitiesTab` to prevent `Null check operator` errors (specifically for Barbarian).
-    *   **Fighter UI:** Replaced `Switch` widgets with interactive token icons (Lightning/Shield) for Action Surge and Indomitable to match the visual style.
-    *   **Empty State:** Added a graceful "No traits" state for characters with no active/passive features.
+*   **Abilities Tab Rewrite (Phase 5, 5.5, 6):**
+    *   **Safe Mode:** Implemented `try-catch` blocks and `_safeBuildWidget` to prevent crashes.
+    *   **Deep Search:** Added robust feature finding.
+    *   **Ghost Widget Fix:** Barbarian no longer sees Fighter dashboard.
+    *   **Crash Fix:** Removed force-unwraps (`!`) to prevent NPEs.
 
 ### Pending Technical Tasks
-*   **Localization QA & Fixes (High Priority):** Systematic audit of the UI to fix hardcoded strings, grammar errors, layout overflows, and incorrect dynamic formatting logic. The infrastructure is ready, but the content quality needs a full pass.
+*   **Localization QA & Fixes (High Priority):** Systematic audit of the UI to fix hardcoded strings, grammar errors, layout overflows, and incorrect dynamic formatting logic.
 *   **Spell Selection Logic:** `CharacterCreationWizard` needs a step to write chosen spells to `Character.knownSpells`.
 *   **Multiclass UI:** `LevelUpScreen` currently assumes leveling up the *primary* class. Needs a "Add New Class" flow.
 *   **Content Population:** Fill `assets/data/features/` for remaining classes (Barbarian, Fighter, Rogue are currently empty placeholders).
@@ -111,11 +107,7 @@ Before confirming a task completion, you MUST:
     *   *Failure:* Fix silently and retry.
     *   *Success:* Append the last lines of the build log to the response.
 
-### B. Merge Protocol
-Upon user confirmation ("Success"/"Accepted"):
-1.  **Update Docs:** Update `GEMINI.md` (this file), `docs/DEVELOPMENT_PLAN.md`, and `README.md` (if applicable).
-2.  **Git:**
-    *   `git add .`
-    *   `git commit -m "feat(scope): message"`
-    *   `git push origin gemini`
-3.  **Next:** Proceed to the next backlog item.
+### B. Core Rules (Constitution)
+1.  **Prime Directive:** Do NOT generate `git` commands (add, commit, push) automatically. The user handles version control.
+2.  **Environment:** Assume Windows environment.
+3.  **D&D Glossary:** Adhere to standard 5e terminology (SRD).

@@ -44,3 +44,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 GEMINI.md
+
+# Documentation
+docs/paladin-widget-example.png

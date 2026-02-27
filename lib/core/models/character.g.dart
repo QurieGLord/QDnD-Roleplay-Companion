@@ -70,13 +70,37 @@ class CharacterAdapter extends TypeAdapter<Character> {
       journalNotes: (fields[50] as List?)?.cast<JournalNote>(),
       quests: (fields[51] as List?)?.cast<Quest>(),
       classes: (fields[52] as List?)?.cast<CharacterClass>(),
+      expertSkills: (fields[53] as List?)?.cast<String>(),
+      wildShapeCharges: fields[54] == null ? 2 : fields[54] as int,
+      naturalRecoveryUsed: fields[55] == null ? false : fields[55] as bool,
+      isWildShaped: fields[56] == null ? false : fields[56] as bool,
+      arcaneRecoveryUsed: fields[57] == null ? false : fields[57] as bool,
+      spellMasterySpells:
+          fields[58] == null ? [] : (fields[58] as List?)?.cast<String>(),
+      signatureSpells:
+          fields[59] == null ? [] : (fields[59] as List?)?.cast<String>(),
+      signatureSpellsUsed:
+          fields[60] == null ? {} : (fields[60] as Map?)?.cast<String, bool>(),
+      channelDivinityCharges: fields[61] == null ? 0 : fields[61] as int,
+      divineInterventionUsed: fields[62] == null ? false : fields[62] as bool,
+      favoredEnemies:
+          fields[63] == null ? [] : (fields[63] as List?)?.cast<String>(),
+      naturalExplorers:
+          fields[64] == null ? [] : (fields[64] as List?)?.cast<String>(),
+      beastName: fields[65] as String?,
+      beastMaxHp: fields[66] as int?,
+      beastCurrentHp: fields[67] as int?,
+      beastIcon: fields[68] as String?,
+      isHuntersMarkActive: fields[69] == null ? false : fields[69] as bool,
+      huntersMarkTarget: fields[70] as String?,
+      isHiddenInPlainSight: fields[71] == null ? false : fields[71] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Character obj) {
     writer
-      ..writeByte(53)
+      ..writeByte(72)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -182,7 +206,45 @@ class CharacterAdapter extends TypeAdapter<Character> {
       ..writeByte(51)
       ..write(obj.quests)
       ..writeByte(52)
-      ..write(obj.classes);
+      ..write(obj.classes)
+      ..writeByte(53)
+      ..write(obj.expertSkills)
+      ..writeByte(54)
+      ..write(obj.wildShapeCharges)
+      ..writeByte(55)
+      ..write(obj.naturalRecoveryUsed)
+      ..writeByte(56)
+      ..write(obj.isWildShaped)
+      ..writeByte(57)
+      ..write(obj.arcaneRecoveryUsed)
+      ..writeByte(58)
+      ..write(obj.spellMasterySpells)
+      ..writeByte(59)
+      ..write(obj.signatureSpells)
+      ..writeByte(60)
+      ..write(obj.signatureSpellsUsed)
+      ..writeByte(61)
+      ..write(obj.channelDivinityCharges)
+      ..writeByte(62)
+      ..write(obj.divineInterventionUsed)
+      ..writeByte(63)
+      ..write(obj.favoredEnemies)
+      ..writeByte(64)
+      ..write(obj.naturalExplorers)
+      ..writeByte(65)
+      ..write(obj.beastName)
+      ..writeByte(66)
+      ..write(obj.beastMaxHp)
+      ..writeByte(67)
+      ..write(obj.beastCurrentHp)
+      ..writeByte(68)
+      ..write(obj.beastIcon)
+      ..writeByte(69)
+      ..write(obj.isHuntersMarkActive)
+      ..writeByte(70)
+      ..write(obj.huntersMarkTarget)
+      ..writeByte(71)
+      ..write(obj.isHiddenInPlainSight);
   }
 
   @override

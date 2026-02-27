@@ -80,10 +80,14 @@ class ClassData {
       description: Map<String, String>.from(json['description']),
       hitDie: json['hitDie'],
       primaryAbilities: List<String>.from(json['primaryAbilities']),
-      savingThrowProficiencies: List<String>.from(json['savingThrowProficiencies']),
-      armorProficiencies: ArmorProficiencies.fromJson(json['armorProficiencies']),
-      weaponProficiencies: WeaponProficiencies.fromJson(json['weaponProficiencies']),
-      skillProficiencies: SkillProficiencies.fromJson(json['skillProficiencies']),
+      savingThrowProficiencies:
+          List<String>.from(json['savingThrowProficiencies']),
+      armorProficiencies:
+          ArmorProficiencies.fromJson(json['armorProficiencies']),
+      weaponProficiencies:
+          WeaponProficiencies.fromJson(json['weaponProficiencies']),
+      skillProficiencies:
+          SkillProficiencies.fromJson(json['skillProficiencies']),
       subclasses: (json['subclasses'] as List)
           .map((s) => SubclassData.fromJson(s))
           .toList(),
@@ -99,12 +103,12 @@ class ClassData {
     final name = element.findElements('name').first.innerText;
     final hdStr = element.findElements('hd').firstOrNull?.innerText ?? '8';
     final hitDie = int.tryParse(hdStr) ?? 8;
-    
+
     // Parse proficiencies is complex, simplifying for now
     final primaryAbilities = <String>[];
-    
+
     final features = <int, List<CharacterFeature>>{};
-    
+
     for (var autolevel in element.findElements('autolevel')) {
       final levelStr = autolevel.getAttribute('level');
       if (levelStr == null) continue;
@@ -119,21 +123,23 @@ class ClassData {
       if (autolevel.findElements('subclass').isNotEmpty) continue;
 
       for (var feature in autolevel.findElements('feature')) {
-        final featureName = feature.findElements('name').firstOrNull?.innerText ?? '';
-        final featureText = feature.findElements('text').map((e) => e.innerText).join('\n');
-        
+        final featureName =
+            feature.findElements('name').firstOrNull?.innerText ?? '';
+        final featureText =
+            feature.findElements('text').map((e) => e.innerText).join('\n');
+
         if (featureName.isNotEmpty) {
-           features[level]!.add(CharacterFeature(
-             id: 'fc5_cls_${name.toLowerCase()}_${featureName.toLowerCase().replaceAll(' ', '_')}_$level',
-             nameEn: featureName,
-             nameRu: featureName,
-             descriptionEn: featureText,
-             descriptionRu: featureText,
-             type: FeatureType.passive,
-             minLevel: level,
-             associatedClass: name,
-             sourceId: sourceId,
-           ));
+          features[level]!.add(CharacterFeature(
+            id: 'fc5_cls_${name.toLowerCase()}_${featureName.toLowerCase().replaceAll(' ', '_')}_$level',
+            nameEn: featureName,
+            nameRu: featureName,
+            descriptionEn: featureText,
+            descriptionRu: featureText,
+            type: FeatureType.passive,
+            minLevel: level,
+            associatedClass: name,
+            sourceId: sourceId,
+          ));
         }
       }
     }

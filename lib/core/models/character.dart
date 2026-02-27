@@ -9,6 +9,8 @@ import 'death_saves.dart';
 import 'condition.dart';
 import 'journal_note.dart';
 import 'quest.dart';
+import 'spell_slots_table.dart';
+import '../services/spellcasting_service.dart';
 
 part 'character.g.dart';
 
@@ -108,7 +110,8 @@ class Character extends HiveObject {
   int maxPreparedSpells; // Calculated: modifier + half level
 
   @HiveField(30)
-  List<CharacterFeature> features; // Class features (Lay on Hands, Channel Divinity, etc.)
+  List<CharacterFeature>
+      features; // Class features (Lay on Hands, Channel Divinity, etc.)
 
   @HiveField(31)
   List<Item> inventory; // Character's inventory (weapons, armor, gear, etc.)
@@ -183,6 +186,60 @@ class Character extends HiveObject {
   @HiveField(53)
   List<String> expertSkills;
 
+  @HiveField(54, defaultValue: 2)
+  int wildShapeCharges;
+
+  @HiveField(55, defaultValue: false)
+  bool naturalRecoveryUsed;
+
+  @HiveField(56, defaultValue: false)
+  bool isWildShaped;
+
+  @HiveField(57, defaultValue: false)
+  bool arcaneRecoveryUsed;
+
+  @HiveField(58, defaultValue: [])
+  List<String> spellMasterySpells;
+
+  @HiveField(59, defaultValue: [])
+  List<String> signatureSpells;
+
+  @HiveField(60, defaultValue: {})
+  Map<String, bool> signatureSpellsUsed;
+
+  @HiveField(61, defaultValue: 0)
+  int channelDivinityCharges;
+
+  @HiveField(62, defaultValue: false)
+  bool divineInterventionUsed;
+
+  @HiveField(63, defaultValue: [])
+  List<String> favoredEnemies;
+
+  @HiveField(64, defaultValue: [])
+  List<String> naturalExplorers;
+
+  @HiveField(65)
+  String? beastName;
+
+  @HiveField(66)
+  int? beastMaxHp;
+
+  @HiveField(67)
+  int? beastCurrentHp;
+
+  @HiveField(68)
+  String? beastIcon;
+
+  @HiveField(69, defaultValue: false)
+  bool isHuntersMarkActive;
+
+  @HiveField(70)
+  String? huntersMarkTarget;
+
+  @HiveField(71, defaultValue: false)
+  bool isHiddenInPlainSight;
+
   Character({
     required this.id,
     required this.name,
@@ -238,6 +295,24 @@ class Character extends HiveObject {
     List<Quest>? quests,
     List<CharacterClass>? classes,
     List<String>? expertSkills,
+    this.wildShapeCharges = 2,
+    this.naturalRecoveryUsed = false,
+    this.isWildShaped = false,
+    this.arcaneRecoveryUsed = false,
+    List<String>? spellMasterySpells,
+    List<String>? signatureSpells,
+    Map<String, bool>? signatureSpellsUsed,
+    this.channelDivinityCharges = 0,
+    this.divineInterventionUsed = false,
+    List<String>? favoredEnemies,
+    List<String>? naturalExplorers,
+    this.beastName,
+    this.beastMaxHp,
+    this.beastCurrentHp,
+    this.beastIcon,
+    this.isHuntersMarkActive = false,
+    this.huntersMarkTarget,
+    this.isHiddenInPlainSight = false,
   })  : knownSpells = knownSpells ?? [],
         preparedSpells = preparedSpells ?? [],
         features = features ?? [],
@@ -251,20 +326,25 @@ class Character extends HiveObject {
         quests = quests ?? [],
         classes = classes ?? [],
         expertSkills = expertSkills ?? [],
+        spellMasterySpells = spellMasterySpells ?? [],
+        signatureSpells = signatureSpells ?? [],
+        signatureSpellsUsed = signatureSpellsUsed ?? {},
+        favoredEnemies = favoredEnemies ?? [],
+        naturalExplorers = naturalExplorers ?? [],
         createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now() {
-          // Migration/Sync Logic:
-          // If classes list is empty but we have legacy single class data, populate it.
-          if (this.classes.isEmpty && this.characterClass.isNotEmpty) {
-            this.classes.add(CharacterClass(
-              id: this.characterClass.toLowerCase(),
-              name: this.characterClass,
-              level: this.level,
-              subclass: this.subclass,
-              isPrimary: true,
-            ));
-          }
-        }
+    // Migration/Sync Logic:
+    // If classes list is empty but we have legacy single class data, populate it.
+    if (this.classes.isEmpty && characterClass.isNotEmpty) {
+      this.classes.add(CharacterClass(
+            id: characterClass.toLowerCase(),
+            name: characterClass,
+            level: level,
+            subclass: subclass,
+            isPrimary: true,
+          ));
+    }
+  }
 
   // Calculate proficiency bonus based on level
   int get proficiencyBonus {
@@ -279,6 +359,20 @@ class Character extends HiveObject {
   // Format modifier with + or -
   String formatModifier(int modifier) {
     return modifier >= 0 ? '+$modifier' : '$modifier';
+  }
+
+  int getMaxChannelDivinityCharges() {
+    final classId = characterClass.toLowerCase();
+    if (classId == 'cleric' || classId == 'жрец') {
+      if (level < 2) return 0;
+      if (level < 6) return 1;
+      if (level < 18) return 2;
+      return 3;
+    }
+    if (classId == 'paladin' || classId == 'паладин') {
+      return level >= 3 ? 1 : 0;
+    }
+    return 0;
   }
 
   Map<String, dynamic> toJson() {
@@ -336,6 +430,23 @@ class Character extends HiveObject {
       'journalNotes': journalNotes.map((n) => n.toJson()).toList(),
       'quests': quests.map((q) => q.toJson()).toList(),
       'expertSkills': expertSkills,
+      'wildShapeCharges': wildShapeCharges,
+      'naturalRecoveryUsed': naturalRecoveryUsed,
+      'isWildShaped': isWildShaped,
+      'spellMasterySpells': spellMasterySpells,
+      'signatureSpells': signatureSpells,
+      'signatureSpellsUsed': signatureSpellsUsed,
+      'channelDivinityCharges': channelDivinityCharges,
+      'divineInterventionUsed': divineInterventionUsed,
+      'favoredEnemies': favoredEnemies,
+      'naturalExplorers': naturalExplorers,
+      'beastName': beastName,
+      'beastMaxHp': beastMaxHp,
+      'beastCurrentHp': beastCurrentHp,
+      'beastIcon': beastIcon,
+      'isHuntersMarkActive': isHuntersMarkActive,
+      'huntersMarkTarget': huntersMarkTarget,
+      'isHiddenInPlainSight': isHiddenInPlainSight,
     };
   }
 
@@ -427,8 +538,26 @@ class Character extends HiveObject {
     temporaryHp = 0;
 
     // Restore all spell slots
-    for (int i = 0; i < maxSpellSlots.length; i++) {
-      spellSlots[i] = maxSpellSlots[i];
+    // STRICT WARLOCK FIX: Override logic for Warlocks
+    if (SpellcastingService.getSpellcastingType(characterClass) == 'pact_magic') {
+       final pactSlots = SpellSlotsTable.getPactSlots(level);
+       // Grow array if needed
+       while (spellSlots.length < pactSlots.length) {
+         spellSlots.add(0);
+       }
+       
+       for (int i = 0; i < pactSlots.length; i++) {
+         if (pactSlots[i] > 0) {
+            spellSlots[i] = pactSlots[i];
+         } else {
+            // Optional: clear non-pact slots to avoid confusion
+            if (i < spellSlots.length) spellSlots[i] = 0;
+         }
+       }
+    } else {
+      for (int i = 0; i < maxSpellSlots.length; i++) {
+        spellSlots[i] = maxSpellSlots[i];
+      }
     }
 
     // Restore all features that recover on long rest
@@ -440,6 +569,22 @@ class Character extends HiveObject {
         }
       }
     }
+
+    // Druid: Restore Wild Shape and Natural Recovery
+    wildShapeCharges = 2; // Fixed for SRD Druid
+    naturalRecoveryUsed = false;
+    isWildShaped = false; // Revert if sleeping
+
+    // Wizard: Restore Arcane Recovery
+    arcaneRecoveryUsed = false;
+    
+    // Wizard: Restore Signature Spells
+    signatureSpellsUsed.forEach((key, value) {
+      signatureSpellsUsed[key] = false;
+    });
+
+    // Reset Channel Divinity Charges
+    channelDivinityCharges = getMaxChannelDivinityCharges();
 
     // Restore hit dice (half of max, minimum 1)
     final toRestore = (maxHitDice / 2).ceil();
@@ -467,6 +612,35 @@ class Character extends HiveObject {
         }
       }
     }
+
+    // Warlocks restore spell slots on short rest
+    if (SpellcastingService.getSpellcastingType(characterClass) == 'pact_magic') {
+       final pactSlots = SpellSlotsTable.getPactSlots(level);
+       // Grow array if needed
+       while (spellSlots.length < pactSlots.length) {
+         spellSlots.add(0);
+       }
+       
+       for (int i = 0; i < pactSlots.length; i++) {
+         if (pactSlots[i] > 0) {
+            spellSlots[i] = pactSlots[i];
+         } else {
+            if (i < spellSlots.length) spellSlots[i] = 0;
+         }
+       }
+    }
+
+    // Druid: Restore Wild Shape on Short Rest
+    // "You regain expended uses when you finish a short or long rest."
+    wildShapeCharges = 2;
+
+    // Wizard: Restore Signature Spells
+    signatureSpellsUsed.forEach((key, value) {
+      signatureSpellsUsed[key] = false;
+    });
+
+    // Reset Channel Divinity Charges
+    channelDivinityCharges = getMaxChannelDivinityCharges();
 
     updatedAt = DateTime.now();
     // Note: Save manually after calling this method
@@ -628,7 +802,9 @@ class Character extends HiveObject {
     Item? equippedShield;
 
     for (var item in inventory) {
-      if (item.isEquipped && item.type == ItemType.armor && item.armorProperties != null) {
+      if (item.isEquipped &&
+          item.type == ItemType.armor &&
+          item.armorProperties != null) {
         if (item.armorProperties!.armorType == ArmorType.shield) {
           equippedShield = item;
         } else {

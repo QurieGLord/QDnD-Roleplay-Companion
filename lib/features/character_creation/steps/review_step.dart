@@ -15,25 +15,44 @@ class ReviewStep extends StatelessWidget {
   String _getLocalizedSkill(AppLocalizations l10n, String skill) {
     final normalizedKey = skill.toLowerCase().replaceAll('-', '_');
     switch (normalizedKey) {
-      case 'athletics': return l10n.skillAthletics;
-      case 'acrobatics': return l10n.skillAcrobatics;
-      case 'sleight_of_hand': return l10n.skillSleightOfHand;
-      case 'stealth': return l10n.skillStealth;
-      case 'arcana': return l10n.skillArcana;
-      case 'history': return l10n.skillHistory;
-      case 'investigation': return l10n.skillInvestigation;
-      case 'nature': return l10n.skillNature;
-      case 'religion': return l10n.skillReligion;
-      case 'animal_handling': return l10n.skillAnimalHandling;
-      case 'insight': return l10n.skillInsight;
-      case 'medicine': return l10n.skillMedicine;
-      case 'perception': return l10n.skillPerception;
-      case 'survival': return l10n.skillSurvival;
-      case 'deception': return l10n.skillDeception;
-      case 'intimidation': return l10n.skillIntimidation;
-      case 'performance': return l10n.skillPerformance;
-      case 'persuasion': return l10n.skillPersuasion;
-      default: return skill;
+      case 'athletics':
+        return l10n.skillAthletics;
+      case 'acrobatics':
+        return l10n.skillAcrobatics;
+      case 'sleight_of_hand':
+        return l10n.skillSleightOfHand;
+      case 'stealth':
+        return l10n.skillStealth;
+      case 'arcana':
+        return l10n.skillArcana;
+      case 'history':
+        return l10n.skillHistory;
+      case 'investigation':
+        return l10n.skillInvestigation;
+      case 'nature':
+        return l10n.skillNature;
+      case 'religion':
+        return l10n.skillReligion;
+      case 'animal_handling':
+        return l10n.skillAnimalHandling;
+      case 'insight':
+        return l10n.skillInsight;
+      case 'medicine':
+        return l10n.skillMedicine;
+      case 'perception':
+        return l10n.skillPerception;
+      case 'survival':
+        return l10n.skillSurvival;
+      case 'deception':
+        return l10n.skillDeception;
+      case 'intimidation':
+        return l10n.skillIntimidation;
+      case 'performance':
+        return l10n.skillPerformance;
+      case 'persuasion':
+        return l10n.skillPersuasion;
+      default:
+        return skill;
     }
   }
 
@@ -99,16 +118,19 @@ class ReviewStep extends StatelessWidget {
                 Text(
                   l10n.reviewChoices,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+                    color: theme.colorScheme.onPrimaryContainer
+                        .withValues(alpha: 0.8),
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
                 // Character Name Hero
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.15),
+                    color: theme.colorScheme.onPrimaryContainer
+                        .withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -120,7 +142,8 @@ class ReviewStep extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                if (state.selectedRace != null && state.selectedClass != null) ...[
+                if (state.selectedRace != null &&
+                    state.selectedClass != null) ...[
                   const SizedBox(height: 12),
                   Text(
                     '${state.selectedRace!.getName(locale)} ${state.selectedClass!.getName(locale)}',
@@ -142,10 +165,13 @@ class ReviewStep extends StatelessWidget {
           l10n.basicInfo,
           [
             _buildInfoRow(context, l10n.charName, state.name),
-            _buildInfoRow(context, l10n.race, state.selectedRace?.getName(locale) ?? '—'),
-            _buildInfoRow(context, l10n.classLabel, state.selectedClass?.getName(locale) ?? '—'),
+            _buildInfoRow(
+                context, l10n.race, state.selectedRace?.getName(locale) ?? '—'),
+            _buildInfoRow(context, l10n.classLabel,
+                state.selectedClass?.getName(locale) ?? '—'),
             if (state.selectedBackground != null)
-              _buildInfoRow(context, l10n.background, state.selectedBackground!.getName(locale)),
+              _buildInfoRow(context, l10n.background,
+                  state.selectedBackground!.getName(locale)),
           ],
         ),
 
@@ -160,7 +186,10 @@ class ReviewStep extends StatelessWidget {
 
         // Skills Section
         if (state.selectedSkills.isNotEmpty) ...[
-          _buildSectionHeader(context, '${l10n.skillProficiencies} (${state.selectedSkills.length})', Icons.stars),
+          _buildSectionHeader(
+              context,
+              '${l10n.skillProficiencies} (${state.selectedSkills.length})',
+              Icons.stars),
           const SizedBox(height: 12),
           Card(
             child: Padding(
@@ -170,7 +199,8 @@ class ReviewStep extends StatelessWidget {
                 runSpacing: 8,
                 children: state.selectedSkills.map((skill) {
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.secondaryContainer,
                       borderRadius: BorderRadius.circular(8),
@@ -280,7 +310,8 @@ class ReviewStep extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, IconData icon) {
+  Widget _buildSectionHeader(
+      BuildContext context, String title, IconData icon) {
     final theme = Theme.of(context);
     return Row(
       children: [
@@ -296,7 +327,8 @@ class ReviewStep extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(BuildContext context, String title, List<Widget> children) {
+  Widget _buildSection(
+      BuildContext context, String title, List<Widget> children) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -306,9 +338,9 @@ class ReviewStep extends StatelessWidget {
             Text(
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
             ),
             const Divider(),
             ...children,
@@ -318,7 +350,8 @@ class ReviewStep extends StatelessWidget {
     );
   }
 
-  Widget _buildAbilityScoresGrid(BuildContext context, CharacterCreationState state, AppLocalizations l10n) {
+  Widget _buildAbilityScoresGrid(BuildContext context,
+      CharacterCreationState state, AppLocalizations l10n) {
     final theme = Theme.of(context);
     final abilities = [
       ('strength', l10n.abilityStrAbbr, l10n.abilityStr, Icons.fitness_center),
@@ -345,7 +378,8 @@ class ReviewStep extends StatelessWidget {
         final racialBonus = state.selectedRace?.abilityScoreIncreases[key] ?? 0;
         final finalScore = baseScore + racialBonus;
         final finalModifier = (finalScore ~/ 2) - 5;
-        final modifierStr = finalModifier >= 0 ? '+$finalModifier' : '$finalModifier';
+        final modifierStr =
+            finalModifier >= 0 ? '+$finalModifier' : '$finalModifier';
 
         return Card(
           elevation: 2,
@@ -384,7 +418,8 @@ class ReviewStep extends StatelessWidget {
                 if (racialBonus > 0) ...[
                   const SizedBox(height: 1),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.tertiaryContainer,
                       borderRadius: BorderRadius.circular(3),
@@ -426,17 +461,17 @@ class ReviewStep extends StatelessWidget {
             Text(
               value,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: textColor.withValues(alpha: 0.8),
-                fontWeight: FontWeight.w500,
-              ),
+                    color: textColor.withValues(alpha: 0.8),
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
           ],
         ),
@@ -453,14 +488,14 @@ class ReviewStep extends StatelessWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
           Text(
             value,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
         ],
       ),

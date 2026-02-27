@@ -23,6 +23,40 @@ class KiTrackerWidget extends StatefulWidget {
 }
 
 class _KiTrackerWidgetState extends State<KiTrackerWidget> {
+  int _calculateMaxKi() {
+    int monkLevel = 0;
+
+    // 1. Search in classes list
+    if (widget.character.classes.isNotEmpty) {
+      for (var cls in widget.character.classes) {
+        if (cls.id.toLowerCase().contains('monk') ||
+            cls.name.toLowerCase().contains('monk')) {
+          monkLevel = cls.level;
+          break;
+        }
+      }
+    }
+
+    // 2. Fallback logic
+    if (monkLevel == 0) {
+      if (widget.character.characterClass.toLowerCase().contains('monk')) {
+        monkLevel = widget.character.level;
+      } else if (widget.character.classes.length == 1) {
+        monkLevel = widget.character.level;
+      }
+    }
+
+    // 3. NUCLEAR OPTION
+    if (monkLevel <= 1 && widget.character.level > 1) {
+      monkLevel = widget.character.level;
+    }
+
+    // Safety: Ensure at least 1
+    if (monkLevel == 0) monkLevel = 1;
+
+    return monkLevel;
+  }
+
   int _getMartialArtsDie(int level) {
     if (level >= 17) return 10;
     if (level >= 11) return 8;
@@ -32,19 +66,23 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
 
   void _rollMartialArtsDie() {
     HapticFeedback.mediumImpact();
-    final dieSize = _getMartialArtsDie(widget.character.level);
+    int monkLevel = _calculateMaxKi();
+    final dieSize = _getMartialArtsDie(monkLevel);
     final result = Random().nextInt(dieSize) + 1;
-    final l10n = AppLocalizations.of(context)!;
-    
+    final l10n = AppLocalizations.of(context);
+
+    if (l10n == null) return;
+
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.sports_mma, color: Colors.white), // Martial arts icon
+            const Icon(Icons.sports_mma, color: Colors.white),
             const SizedBox(width: 12),
             Text(
-              l10n.kiStrikeRoll(result, DiceUtils.formatDice('1d$dieSize', context)),
+              l10n.kiStrikeRoll(
+                  result, DiceUtils.formatDice('1d$dieSize', context)),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ],
@@ -56,168 +94,215 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
     );
   }
 
-  void _modifyKi(int index) {
-    final pool = widget.kiFeature.resourcePool!;
-    final isRecovering = index >= pool.currentUses;
+  void _restoreKi(int maxKi) {
+    final pool = widget.kiFeature.resourcePool;
+    if (pool == null) return;
 
-    setState(() {
-      if (isRecovering) {
-        // Recover up to this index (1-based count)
-        final target = index + 1;
-        final diff = target - pool.currentUses;
-        if (diff > 0) pool.restore(diff);
-      } else {
-        // Consume logic
-        if (pool.currentUses == index + 1) {
-          pool.use(1); // Toggle off the top one
-        } else {
-          // Set to this level
-          final diff = pool.currentUses - (index + 1);
-          if (diff > 0) pool.use(diff);
-        }
-      }
-      widget.character.save();
-      widget.onChanged?.call();
-    });
+    if (pool.maxUses != maxKi) pool.maxUses = maxKi;
+
+    if (!pool.isFull) {
+      HapticFeedback.selectionClick();
+      setState(() {
+        pool.restore(1);
+        widget.character.save();
+        widget.onChanged?.call();
+      });
+    }
+  }
+
+  void _spendKi(int maxKi) {
+    final pool = widget.kiFeature.resourcePool;
+    if (pool == null) return;
+
+    if (pool.maxUses != maxKi) pool.maxUses = maxKi;
+
+    if (pool.currentUses > 0) {
+      HapticFeedback.lightImpact();
+      setState(() {
+        pool.use(1);
+        widget.character.save();
+        widget.onChanged?.call();
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final pool = widget.kiFeature.resourcePool!;
-    final l10n = AppLocalizations.of(context)!;
+    final pool = widget.kiFeature.resourcePool;
+    if (pool == null) return const SizedBox.shrink();
+
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
     final colorScheme = Theme.of(context).colorScheme;
-    final dieSize = _getMartialArtsDie(widget.character.level);
+
+    final maxKi = _calculateMaxKi();
+    final dieSize = _getMartialArtsDie(maxKi);
+    final progress = maxKi > 0 ? pool.currentUses / maxKi : 0.0;
 
     return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      color: Colors.transparent,
+      margin: const EdgeInsets.only(bottom: 16, top: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: colorScheme.outline, width: 1),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // LEFT ZONE: Ki Source
+            Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
+                Stack(
+                  alignment: Alignment.center,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(8),
+                    SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: TweenAnimationBuilder<double>(
+                        tween: Tween<double>(begin: 0, end: progress),
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeOutCubic,
+                        builder: (context, value, _) {
+                          return CircularProgressIndicator(
+                            value: value,
+                            strokeWidth: 10,
+                            backgroundColor:
+                                colorScheme.surfaceContainerHighest,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                colorScheme.primary),
+                            strokeCap: StrokeCap.round,
+                          );
+                        },
                       ),
-                      child: Icon(Icons.auto_awesome, color: colorScheme.onPrimaryContainer, size: 20),
                     ),
-                    const SizedBox(width: 12),
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          l10n.kiPoints,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
+                          '${pool.currentUses}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineLarge
+                              ?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                color: colorScheme.onSurface,
+                                height: 1.0,
                               ),
                         ),
                         Text(
-                          '${l10n.levelShort} ${widget.character.level} ${l10n.classLabel}', 
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
+                          locale == 'ru' ? 'ЦИ' : 'KI',
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.0,
+                                  ),
                         ),
                       ],
                     ),
                   ],
                 ),
-                InkWell(
-                  onTap: _rollMartialArtsDie,
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: colorScheme.secondaryContainer,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: colorScheme.outlineVariant),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.casino, size: 16, color: colorScheme.onSecondaryContainer),
-                        const SizedBox(width: 6),
-                        Text(
-                          DiceUtils.formatDice('1d$dieSize', context),
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onSecondaryContainer,
-                          ),
+                const SizedBox(height: 12),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: pool.isEmpty ? null : () => _spendKi(maxKi),
+                        icon: const Icon(Icons.remove, size: 20),
+                        visualDensity: VisualDensity.compact,
+                        constraints:
+                            const BoxConstraints(minWidth: 32, minHeight: 32),
+                        style: IconButton.styleFrom(
+                          backgroundColor: colorScheme.surface,
+                          foregroundColor: colorScheme.primary,
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 12),
+                      IconButton(
+                        onPressed: pool.isFull ? null : () => _restoreKi(maxKi),
+                        icon: const Icon(Icons.add, size: 20),
+                        visualDensity: VisualDensity.compact,
+                        constraints:
+                            const BoxConstraints(minWidth: 32, minHeight: 32),
+                        style: IconButton.styleFrom(
+                          backgroundColor: colorScheme.surface,
+                          foregroundColor: colorScheme.primary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            Center(
-              child: Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                alignment: WrapAlignment.center,
-                children: List.generate(pool.maxUses, (index) {
-                  final isActive = index < pool.currentUses;
-                  return GestureDetector(
-                    onTap: () => _modifyKi(index),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutBack,
-                      width: 32,
-                      height: 32,
+
+            // RIGHT ZONE: The Strike
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _rollMartialArtsDie,
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: isActive ? colorScheme.primary : Colors.transparent,
+                        color: colorScheme.secondaryContainer,
+                        borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: isActive ? colorScheme.primary : colorScheme.outline,
-                          width: 2,
-                        ),
-                        boxShadow: isActive
-                            ? [
-                                BoxShadow(
-                                  color: colorScheme.primary.withOpacity(0.4),
-                                  blurRadius: 8,
-                                  spreadRadius: 2,
-                                )
-                              ]
-                            : [],
+                            color:
+                                colorScheme.secondary.withValues(alpha: 0.3)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: colorScheme.secondary.withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
                       ),
-                      child: Center(
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 200),
-                          transitionBuilder: (Widget child, Animation<double> animation) {
-                             return ScaleTransition(scale: animation, child: child);
-                          },
-                          child: isActive
-                              ? Icon(Icons.bolt, key: const ValueKey('active'), size: 18, color: colorScheme.onPrimary)
-                              : const SizedBox(key: ValueKey('inactive')),
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.casino_outlined,
+                              size: 24,
+                              color: colorScheme.onSecondaryContainer),
+                          const SizedBox(width: 12),
+                          Text(
+                            DiceUtils.formatDice('1d$dieSize', context),
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: colorScheme.onSecondaryContainer,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                }),
-              ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  l10n?.martialArts.toUpperCase() ?? 'MARTIAL ARTS',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                        letterSpacing: 1.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Align(
-               alignment: Alignment.centerRight,
-               child: Text(
-                 '${pool.currentUses} / ${pool.maxUses}',
-                 style: TextStyle(
-                   color: colorScheme.onSurfaceVariant,
-                   fontWeight: FontWeight.bold,
-                   fontSize: 12,
-                 ),
-               ),
-             ),
           ],
         ),
       ),

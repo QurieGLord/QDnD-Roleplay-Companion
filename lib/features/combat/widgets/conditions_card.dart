@@ -111,7 +111,6 @@ class ConditionsCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-
             if (!hasConditions)
               Center(
                 child: Padding(

@@ -61,7 +61,9 @@ class _EquipmentStepState extends State<EquipmentStep> {
             isSelected: state.selectedEquipmentPackage == 'standard' ||
                 state.selectedEquipmentPackage == null,
             onTap: () {
-              context.read<CharacterCreationState>().updateEquipmentPackage('standard');
+              context
+                  .read<CharacterCreationState>()
+                  .updateEquipmentPackage('standard');
             },
           ),
 
@@ -76,7 +78,9 @@ class _EquipmentStepState extends State<EquipmentStep> {
             icon: Icons.swap_horiz,
             isSelected: state.selectedEquipmentPackage == 'alternative',
             onTap: () {
-              context.read<CharacterCreationState>().updateEquipmentPackage('alternative');
+              context
+                  .read<CharacterCreationState>()
+                  .updateEquipmentPackage('alternative');
             },
           ),
 
@@ -91,7 +95,9 @@ class _EquipmentStepState extends State<EquipmentStep> {
             icon: Icons.edit,
             isSelected: state.selectedEquipmentPackage == 'custom',
             onTap: () {
-              context.read<CharacterCreationState>().updateEquipmentPackage('custom');
+              context
+                  .read<CharacterCreationState>()
+                  .updateEquipmentPackage('custom');
             },
           ),
 
@@ -108,8 +114,7 @@ class _EquipmentStepState extends State<EquipmentStep> {
   }
 
   Widget _buildPackageCard(
-    BuildContext context,
-    {
+    BuildContext context, {
     required String packageId,
     required String title,
     required String subtitle,
@@ -157,7 +162,8 @@ class _EquipmentStepState extends State<EquipmentStep> {
                       subtitle,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: isSelected
-                            ? theme.colorScheme.onPrimaryContainer.withOpacity(0.8)
+                            ? theme.colorScheme.onPrimaryContainer
+                                .withOpacity(0.8)
                             : theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
@@ -220,7 +226,8 @@ class _EquipmentStepState extends State<EquipmentStep> {
                     Icon(
                       Icons.inventory_2_outlined,
                       size: 48,
-                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                      color:
+                          theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -233,7 +240,8 @@ class _EquipmentStepState extends State<EquipmentStep> {
                     Text(
                       l10n.tapToAddItems,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                        color:
+                            theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
                       ),
                     ),
                   ],
@@ -264,7 +272,9 @@ class _EquipmentStepState extends State<EquipmentStep> {
                 trailing: IconButton(
                   icon: const Icon(Icons.delete_outline),
                   onPressed: () {
-                    context.read<CharacterCreationState>().removeCustomEquipment(itemId);
+                    context
+                        .read<CharacterCreationState>()
+                        .removeCustomEquipment(itemId);
                   },
                 ),
               ),
@@ -288,7 +298,7 @@ class _EquipmentStepState extends State<EquipmentStep> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    l10n.packageCustomDesc, 
+                    l10n.packageCustomDesc,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -456,7 +466,8 @@ class _EquipmentStepState extends State<EquipmentStep> {
     );
   }
 
-  void _showItemCatalog(BuildContext context, CharacterCreationState state, String locale, AppLocalizations l10n) {
+  void _showItemCatalog(BuildContext context, CharacterCreationState state,
+      String locale, AppLocalizations l10n) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -466,7 +477,8 @@ class _EquipmentStepState extends State<EquipmentStep> {
         l10n: l10n,
         onAddItem: (String itemId) async {
           // Show quantity dialog
-          final quantity = await _showQuantityDialog(context, itemId, locale, l10n);
+          final quantity =
+              await _showQuantityDialog(context, itemId, locale, l10n);
           if (quantity != null && quantity > 0 && context.mounted) {
             // Add item with quantity
             state.addCustomEquipment(itemId, quantity: quantity);
@@ -487,7 +499,8 @@ class _EquipmentStepState extends State<EquipmentStep> {
     );
   }
 
-  Future<int?> _showQuantityDialog(BuildContext context, String itemId, String locale, AppLocalizations l10n) async {
+  Future<int?> _showQuantityDialog(BuildContext context, String itemId,
+      String locale, AppLocalizations l10n) async {
     final item = ItemService.getItemById(itemId);
     if (item == null) return null;
 
@@ -559,7 +572,8 @@ class _EquipmentStepState extends State<EquipmentStep> {
     }
   }
 
-  List<String> _getDefaultWeapons(String classId, String packageId, String locale) {
+  List<String> _getDefaultWeapons(
+      String classId, String packageId, String locale) {
     final isAlternative = packageId == 'alternative';
 
     final weapons = {
@@ -627,10 +641,13 @@ class _EquipmentStepState extends State<EquipmentStep> {
 
     final packageKey = isAlternative ? 'alternative' : 'standard';
     return weapons[classId]?[packageKey]?[locale] ??
-        (locale == 'ru' ? ['Простое оружие', 'Резервное оружие'] : ['Simple weapon', 'Backup weapon']);
+        (locale == 'ru'
+            ? ['Простое оружие', 'Резервное оружие']
+            : ['Simple weapon', 'Backup weapon']);
   }
 
-  List<String> _getDefaultArmor(String classId, String packageId, String locale) {
+  List<String> _getDefaultArmor(
+      String classId, String packageId, String locale) {
     final isAlternative = packageId == 'alternative';
 
     final armor = {
@@ -698,17 +715,24 @@ class _EquipmentStepState extends State<EquipmentStep> {
 
     final packageKey = isAlternative ? 'alternative' : 'standard';
     return armor[classId]?[packageKey]?[locale] ??
-        (locale == 'ru' ? ['Лёгкая броня или без доспехов'] : ['Light armor or no armor']);
+        (locale == 'ru'
+            ? ['Лёгкая броня или без доспехов']
+            : ['Light armor or no armor']);
   }
 
-  List<String> _getDefaultTools(String classId, String packageId, String locale) {
+  List<String> _getDefaultTools(
+      String classId, String packageId, String locale) {
     final isAlternative = packageId == 'alternative';
 
     final tools = {
       'paladin': {
         'standard': {
           'en': ['Explorer\'s Pack', 'Bedroll', 'Rations (10 days)'],
-          'ru': ['Набор путешественника', 'Спальный мешок', 'Рационы (10 дней)'],
+          'ru': [
+            'Набор путешественника',
+            'Спальный мешок',
+            'Рационы (10 дней)'
+          ],
         },
         'alternative': {
           'en': ['Priest\'s Pack', 'Prayer Book'],
@@ -718,7 +742,11 @@ class _EquipmentStepState extends State<EquipmentStep> {
       'fighter': {
         'standard': {
           'en': ['Explorer\'s Pack', 'Bedroll', 'Rations (10 days)'],
-          'ru': ['Набор путешественника', 'Спальный мешок', 'Рационы (10 дней)'],
+          'ru': [
+            'Набор путешественника',
+            'Спальный мешок',
+            'Рационы (10 дней)'
+          ],
         },
         'alternative': {
           'en': ['Dungeoneer\'s Pack', 'Crowbar', 'Rope (50 feet)'],
@@ -758,7 +786,11 @@ class _EquipmentStepState extends State<EquipmentStep> {
       'ranger': {
         'standard': {
           'en': ['Explorer\'s Pack', 'Rope (50 feet)', 'Hunting Trap'],
-          'ru': ['Набор путешественника', 'Верёвка (50 футов)', 'Охотничья ловушка'],
+          'ru': [
+            'Набор путешественника',
+            'Верёвка (50 футов)',
+            'Охотничья ловушка'
+          ],
         },
         'alternative': {
           'en': ['Dungeoneer\'s Pack', 'Rope (50 feet)', 'Grappling Hook'],
@@ -769,7 +801,9 @@ class _EquipmentStepState extends State<EquipmentStep> {
 
     final packageKey = isAlternative ? 'alternative' : 'standard';
     return tools[classId]?[packageKey]?[locale] ??
-        (locale == 'ru' ? ['Набор приключенца', 'Верёвка', 'Факел (10)'] : ['Adventurer\'s Pack', 'Rope', 'Torch (10)']);
+        (locale == 'ru'
+            ? ['Набор приключенца', 'Верёвка', 'Факел (10)']
+            : ['Adventurer\'s Pack', 'Rope', 'Torch (10)']);
   }
 }
 
@@ -822,23 +856,35 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
 
   IconData _getItemIcon(ItemType type) {
     switch (type) {
-      case ItemType.weapon: return Icons.gavel;
-      case ItemType.armor: return Icons.shield;
-      case ItemType.gear: return Icons.backpack;
-      case ItemType.consumable: return Icons.local_drink;
-      case ItemType.tool: return Icons.build;
-      case ItemType.treasure: return Icons.diamond;
+      case ItemType.weapon:
+        return Icons.gavel;
+      case ItemType.armor:
+        return Icons.shield;
+      case ItemType.gear:
+        return Icons.backpack;
+      case ItemType.consumable:
+        return Icons.local_drink;
+      case ItemType.tool:
+        return Icons.build;
+      case ItemType.treasure:
+        return Icons.diamond;
     }
   }
 
   String _getCategoryName(ItemType type) {
     switch (type) {
-      case ItemType.weapon: return widget.l10n.typeWeapon;
-      case ItemType.armor: return widget.l10n.typeArmor;
-      case ItemType.gear: return widget.l10n.typeGear;
-      case ItemType.consumable: return widget.l10n.typeConsumable;
-      case ItemType.tool: return 'Инструменты';
-      case ItemType.treasure: return 'Сокровища';
+      case ItemType.weapon:
+        return widget.l10n.typeWeapon;
+      case ItemType.armor:
+        return widget.l10n.typeArmor;
+      case ItemType.gear:
+        return widget.l10n.typeGear;
+      case ItemType.consumable:
+        return widget.l10n.typeConsumable;
+      case ItemType.tool:
+        return 'Инструменты';
+      case ItemType.treasure:
+        return 'Сокровища';
     }
   }
 
@@ -869,18 +915,27 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: theme.colorScheme.outlineVariant, width: 1)),
+                border: Border(
+                    bottom: BorderSide(
+                        color: theme.colorScheme.outlineVariant, width: 1)),
               ),
               child: Row(
                 children: [
-                  Expanded(child: Text(widget.l10n.itemCatalog, style: theme.textTheme.headlineSmall)),
+                  Expanded(
+                      child: Text(widget.l10n.itemCatalog,
+                          style: theme.textTheme.headlineSmall)),
                   FilledButton.icon(
-                    onPressed: () { Navigator.pop(context); _showCreateCustomItemDialog(context); },
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _showCreateCustomItemDialog(context);
+                    },
                     icon: const Icon(Icons.add),
                     label: Text(widget.l10n.createItem),
                   ),
                   const SizedBox(width: 8),
-                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                  IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context)),
                 ],
               ),
             ),
@@ -891,8 +946,18 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                 decoration: InputDecoration(
                   hintText: widget.l10n.searchItems,
                   prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchQuery.isNotEmpty ? IconButton(icon: const Icon(Icons.clear), onPressed: () { setState(() { _searchController.clear(); _searchQuery = ''; }); }) : null,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            setState(() {
+                              _searchController.clear();
+                              _searchQuery = '';
+                            });
+                          })
+                      : null,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 onChanged: (value) => setState(() => _searchQuery = value),
               ),
@@ -908,47 +973,109 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                     child: FilterChip(
                       label: Text(widget.l10n.filterAll),
                       selected: _selectedCategory == null,
-                      onSelected: (_) => setState(() => _selectedCategory = null),
+                      onSelected: (_) =>
+                          setState(() => _selectedCategory = null),
                     ),
                   ),
                   ...ItemType.values.map((type) => Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: FilterChip(
-                      avatar: Icon(_getItemIcon(type), size: 18),
-                      label: Text(_getCategoryName(type)),
-                      selected: _selectedCategory == type,
-                      onSelected: (_) => setState(() => _selectedCategory = type),
-                    ),
-                  )),
+                        padding: const EdgeInsets.only(right: 8),
+                        child: FilterChip(
+                          avatar: Icon(_getItemIcon(type), size: 18),
+                          label: Text(_getCategoryName(type)),
+                          selected: _selectedCategory == type,
+                          onSelected: (_) =>
+                              setState(() => _selectedCategory = type),
+                        ),
+                      )),
                 ],
               ),
             ),
             const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Align(alignment: Alignment.centerLeft, child: Text(widget.l10n.foundItems(filteredItems.length, widget.state.customEquipmentQuantities.length), style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant))),
+              child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                      widget.l10n.foundItems(filteredItems.length,
+                          widget.state.customEquipmentQuantities.length),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant))),
             ),
             const SizedBox(height: 8),
             Expanded(
               child: filteredItems.isEmpty
-                  ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.inventory_2_outlined, size: 64, color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5)), const SizedBox(height: 16), Text(widget.l10n.noItemsFound, style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant))]))
+                  ? Center(
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                          Icon(Icons.inventory_2_outlined,
+                              size: 64,
+                              color: theme.colorScheme.onSurfaceVariant
+                                  .withOpacity(0.5)),
+                          const SizedBox(height: 16),
+                          Text(widget.l10n.noItemsFound,
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant))
+                        ]))
                   : ListView.builder(
                       controller: scrollController,
                       padding: const EdgeInsets.all(16),
                       itemCount: filteredItems.length,
                       itemBuilder: (context, index) {
                         final item = filteredItems[index];
-                        final isSelected = widget.state.customEquipmentQuantities.containsKey(item.id);
-                        final quantity = isSelected ? widget.state.customEquipmentQuantities[item.id] ?? 1 : 0;
+                        final isSelected = widget
+                            .state.customEquipmentQuantities
+                            .containsKey(item.id);
+                        final quantity = isSelected
+                            ? widget.state.customEquipmentQuantities[item.id] ??
+                                1
+                            : 0;
                         return Card(
                           margin: const EdgeInsets.only(bottom: 8),
-                          color: isSelected ? theme.colorScheme.primaryContainer : null,
+                          color: isSelected
+                              ? theme.colorScheme.primaryContainer
+                              : null,
                           child: ListTile(
-                            leading: Badge(label: Text('$quantity'), isLabelVisible: isSelected && quantity > 0, backgroundColor: theme.colorScheme.secondary, textColor: theme.colorScheme.onSecondary, child: Icon(_getItemIcon(item.type), color: isSelected ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.primary)),
-                            title: Text(item.getName(widget.locale), style: TextStyle(color: isSelected ? theme.colorScheme.onPrimaryContainer : null)),
-                            subtitle: Text(item.getDescription(widget.locale), maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: isSelected ? theme.colorScheme.onPrimaryContainer.withOpacity(0.7) : null)),
-                            trailing: Checkbox(value: isSelected, onChanged: (_) { if (isSelected) { setState(() => widget.state.removeCustomEquipment(item.id)); } else { widget.onAddItem(item.id); } }),
-                            onTap: () { if (isSelected) { setState(() => widget.state.removeCustomEquipment(item.id)); } else { widget.onAddItem(item.id); } },
+                            leading: Badge(
+                                label: Text('$quantity'),
+                                isLabelVisible: isSelected && quantity > 0,
+                                backgroundColor: theme.colorScheme.secondary,
+                                textColor: theme.colorScheme.onSecondary,
+                                child: Icon(_getItemIcon(item.type),
+                                    color: isSelected
+                                        ? theme.colorScheme.onPrimaryContainer
+                                        : theme.colorScheme.primary)),
+                            title: Text(item.getName(widget.locale),
+                                style: TextStyle(
+                                    color: isSelected
+                                        ? theme.colorScheme.onPrimaryContainer
+                                        : null)),
+                            subtitle: Text(item.getDescription(widget.locale),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    color: isSelected
+                                        ? theme.colorScheme.onPrimaryContainer
+                                            .withOpacity(0.7)
+                                        : null)),
+                            trailing: Checkbox(
+                                value: isSelected,
+                                onChanged: (_) {
+                                  if (isSelected) {
+                                    setState(() => widget.state
+                                        .removeCustomEquipment(item.id));
+                                  } else {
+                                    widget.onAddItem(item.id);
+                                  }
+                                }),
+                            onTap: () {
+                              if (isSelected) {
+                                setState(() => widget.state
+                                    .removeCustomEquipment(item.id));
+                              } else {
+                                widget.onAddItem(item.id);
+                              }
+                            },
                           ),
                         );
                       },
@@ -956,8 +1083,19 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
             ),
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: theme.colorScheme.surface, border: Border(top: BorderSide(color: theme.colorScheme.outlineVariant, width: 1))),
-              child: SafeArea(top: false, child: FilledButton(onPressed: widget.state.customEquipmentQuantities.isEmpty ? null : () => Navigator.pop(context), child: Text('${widget.l10n.done} (${widget.state.customEquipmentQuantities.length})'))),
+              decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  border: Border(
+                      top: BorderSide(
+                          color: theme.colorScheme.outlineVariant, width: 1))),
+              child: SafeArea(
+                  top: false,
+                  child: FilledButton(
+                      onPressed: widget.state.customEquipmentQuantities.isEmpty
+                          ? null
+                          : () => Navigator.pop(context),
+                      child: Text(
+                          '${widget.l10n.done} (${widget.state.customEquipmentQuantities.length})'))),
             ),
           ],
         );
@@ -971,10 +1109,12 @@ class _CreateCustomItemDialog extends StatefulWidget {
   final String locale;
   final AppLocalizations l10n;
 
-  const _CreateCustomItemDialog({required this.state, required this.locale, required this.l10n});
+  const _CreateCustomItemDialog(
+      {required this.state, required this.locale, required this.l10n});
 
   @override
-  State<_CreateCustomItemDialog> createState() => _CreateCustomItemDialogState();
+  State<_CreateCustomItemDialog> createState() =>
+      _CreateCustomItemDialogState();
 }
 
 class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
@@ -1000,32 +1140,51 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
 
   Future<void> _pickImage() async {
     try {
-      final result = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: false);
-      if (result != null && result.files.isNotEmpty) setState(() => _imagePath = result.files.first.path);
+      final result = await FilePicker.platform
+          .pickFiles(type: FileType.image, allowMultiple: false);
+      if (result != null && result.files.isNotEmpty) {
+        setState(() => _imagePath = result.files.first.path);
+      }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(widget.l10n.errorLoadingImage(e.toString())), backgroundColor: Theme.of(context).colorScheme.error));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(widget.l10n.errorLoadingImage(e.toString())),
+            backgroundColor: Theme.of(context).colorScheme.error));
+      }
     }
   }
 
   String _getTypeName(ItemType type) {
     switch (type) {
-      case ItemType.weapon: return widget.l10n.typeWeapon;
-      case ItemType.armor: return widget.l10n.typeArmor;
-      case ItemType.gear: return widget.l10n.typeGear;
-      case ItemType.consumable: return widget.l10n.typeConsumable;
-      case ItemType.tool: return 'Инструменты'; // TODO
-      case ItemType.treasure: return 'Сокровища'; // TODO
+      case ItemType.weapon:
+        return widget.l10n.typeWeapon;
+      case ItemType.armor:
+        return widget.l10n.typeArmor;
+      case ItemType.gear:
+        return widget.l10n.typeGear;
+      case ItemType.consumable:
+        return widget.l10n.typeConsumable;
+      case ItemType.tool:
+        return 'Инструменты'; // TODO
+      case ItemType.treasure:
+        return 'Сокровища'; // TODO
     }
   }
 
   String _getRarityName(ItemRarity rarity) {
     switch (rarity) {
-      case ItemRarity.common: return widget.l10n.rarityCommon;
-      case ItemRarity.uncommon: return widget.l10n.rarityUncommon;
-      case ItemRarity.rare: return widget.l10n.rarityRare;
-      case ItemRarity.veryRare: return widget.l10n.rarityVeryRare;
-      case ItemRarity.legendary: return widget.l10n.rarityLegendary;
-      case ItemRarity.artifact: return widget.l10n.rarityArtifact;
+      case ItemRarity.common:
+        return widget.l10n.rarityCommon;
+      case ItemRarity.uncommon:
+        return widget.l10n.rarityUncommon;
+      case ItemRarity.rare:
+        return widget.l10n.rarityRare;
+      case ItemRarity.veryRare:
+        return widget.l10n.rarityVeryRare;
+      case ItemRarity.legendary:
+        return widget.l10n.rarityLegendary;
+      case ItemRarity.artifact:
+        return widget.l10n.rarityArtifact;
     }
   }
 
@@ -1037,9 +1196,12 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
       final customItemId = 'custom_${const Uuid().v4()}';
       widget.state.addCustomEquipment(customItemId, quantity: quantity);
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(widget.l10n.itemAdded(name, quantity))));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(widget.l10n.itemAdded(name, quantity))));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(widget.l10n.errorCreatingItem(e.toString())), backgroundColor: Theme.of(context).colorScheme.error));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(widget.l10n.errorCreatingItem(e.toString())),
+          backgroundColor: Theme.of(context).colorScheme.error));
     }
   }
 
@@ -1051,23 +1213,179 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
         constraints: const BoxConstraints(maxWidth: 600, maxHeight: 800),
         child: Column(
           children: [
-            Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: theme.colorScheme.primaryContainer, borderRadius: const BorderRadius.vertical(top: Radius.circular(28))), child: Row(children: [Icon(Icons.add_circle, color: theme.colorScheme.onPrimaryContainer), const SizedBox(width: 12), Expanded(child: Text(widget.l10n.createCustomItem, style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.onPrimaryContainer))), IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context))])),
-            Expanded(child: SingleChildScrollView(padding: const EdgeInsets.all(24), child: Form(key: _formKey, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Center(child: GestureDetector(onTap: _pickImage, child: Container(width: 120, height: 120, decoration: BoxDecoration(color: theme.colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(12), border: Border.all(color: theme.colorScheme.outline, width: 2)), child: _imagePath != null ? ClipRRect(borderRadius: BorderRadius.circular(10), child: Image.file(File(_imagePath!), fit: BoxFit.cover)) : Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.add_photo_alternate, size: 40, color: theme.colorScheme.onSurfaceVariant), const SizedBox(height: 8), Text(widget.l10n.addImage, textAlign: TextAlign.center, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant))])))),
-              const SizedBox(height: 24),
-              TextFormField(controller: _nameController, decoration: InputDecoration(labelText: widget.l10n.itemName, hintText: widget.l10n.itemNameHint, border: const OutlineInputBorder()), validator: (value) => value == null || value.trim().isEmpty ? widget.l10n.enterItemName : null),
-              const SizedBox(height: 16),
-              TextFormField(controller: _descController, decoration: InputDecoration(labelText: widget.l10n.itemDescription, hintText: widget.l10n.itemDescriptionHint, border: const OutlineInputBorder()), maxLines: 3),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<ItemType>(value: _selectedType, decoration: InputDecoration(labelText: widget.l10n.itemType, border: const OutlineInputBorder()), items: ItemType.values.map((type) => DropdownMenuItem(value: type, child: Text(_getTypeName(type)))).toList(), onChanged: (value) { if (value != null) setState(() => _selectedType = value); }),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<ItemRarity>(value: _selectedRarity, decoration: InputDecoration(labelText: widget.l10n.itemRarity, border: const OutlineInputBorder()), items: ItemRarity.values.map((rarity) => DropdownMenuItem(value: rarity, child: Text(_getRarityName(rarity)))).toList(), onChanged: (value) { if (value != null) setState(() => _selectedRarity = value); }),
-              const SizedBox(height: 16),
-              Row(children: [Expanded(child: TextFormField(controller: _weightController, decoration: InputDecoration(labelText: '${widget.l10n.itemWeight} (${widget.l10n.weightUnit})', border: const OutlineInputBorder()), keyboardType: const TextInputType.numberWithOptions(decimal: true))), const SizedBox(width: 16), Expanded(child: TextFormField(controller: _valueController, decoration: InputDecoration(labelText: '${widget.l10n.itemValue} (cp)', border: const OutlineInputBorder()), keyboardType: TextInputType.number))]),
-              const SizedBox(height: 16),
-              TextFormField(controller: _quantityController, decoration: InputDecoration(labelText: widget.l10n.itemQuantity, border: const OutlineInputBorder()), keyboardType: TextInputType.number, validator: (value) { final qty = int.tryParse(value ?? ''); return qty == null || qty < 1 ? widget.l10n.minQuantity1 : null; }),
-            ])))),
-            Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(border: Border(top: BorderSide(color: theme.colorScheme.outlineVariant, width: 1))), child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [TextButton(onPressed: () => Navigator.pop(context), child: Text(widget.l10n.cancel)), const SizedBox(width: 12), FilledButton.icon(onPressed: _createItem, icon: const Icon(Icons.check), label: Text(widget.l10n.createItem))])),
+            Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(28))),
+                child: Row(children: [
+                  Icon(Icons.add_circle,
+                      color: theme.colorScheme.onPrimaryContainer),
+                  const SizedBox(width: 12),
+                  Expanded(
+                      child: Text(widget.l10n.createCustomItem,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                              color: theme.colorScheme.onPrimaryContainer))),
+                  IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context))
+                ])),
+            Expanded(
+                child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: Form(
+                        key: _formKey,
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Center(
+                                  child: GestureDetector(
+                                      onTap: _pickImage,
+                                      child: Container(
+                                          width: 120,
+                                          height: 120,
+                                          decoration: BoxDecoration(
+                                              color: theme.colorScheme
+                                                  .surfaceContainerHighest,
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              border: Border.all(
+                                                  color:
+                                                      theme.colorScheme.outline,
+                                                  width: 2)),
+                                          child: _imagePath != null
+                                              ? ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  child: Image.file(
+                                                      File(_imagePath!),
+                                                      fit: BoxFit.cover))
+                                              : Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                      Icon(
+                                                          Icons
+                                                              .add_photo_alternate,
+                                                          size: 40,
+                                                          color: theme
+                                                              .colorScheme
+                                                              .onSurfaceVariant),
+                                                      const SizedBox(height: 8),
+                                                      Text(widget.l10n.addImage,
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: theme.textTheme
+                                                              .bodySmall
+                                                              ?.copyWith(
+                                                                  color: theme
+                                                                      .colorScheme
+                                                                      .onSurfaceVariant))
+                                                    ])))),
+                              const SizedBox(height: 24),
+                              TextFormField(
+                                  controller: _nameController,
+                                  decoration: InputDecoration(
+                                      labelText: widget.l10n.itemName,
+                                      hintText: widget.l10n.itemNameHint,
+                                      border: const OutlineInputBorder()),
+                                  validator: (value) =>
+                                      value == null || value.trim().isEmpty
+                                          ? widget.l10n.enterItemName
+                                          : null),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                  controller: _descController,
+                                  decoration: InputDecoration(
+                                      labelText: widget.l10n.itemDescription,
+                                      hintText: widget.l10n.itemDescriptionHint,
+                                      border: const OutlineInputBorder()),
+                                  maxLines: 3),
+                              const SizedBox(height: 16),
+                              DropdownButtonFormField<ItemType>(
+                                  initialValue: _selectedType,
+                                  decoration: InputDecoration(
+                                      labelText: widget.l10n.itemType,
+                                      border: const OutlineInputBorder()),
+                                  items: ItemType.values
+                                      .map((type) => DropdownMenuItem(
+                                          value: type,
+                                          child: Text(_getTypeName(type))))
+                                      .toList(),
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      setState(() => _selectedType = value);
+                                    }
+                                  }),
+                              const SizedBox(height: 16),
+                              DropdownButtonFormField<ItemRarity>(
+                                  initialValue: _selectedRarity,
+                                  decoration: InputDecoration(
+                                      labelText: widget.l10n.itemRarity,
+                                      border: const OutlineInputBorder()),
+                                  items: ItemRarity.values
+                                      .map((rarity) => DropdownMenuItem(
+                                          value: rarity,
+                                          child: Text(_getRarityName(rarity))))
+                                      .toList(),
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      setState(() => _selectedRarity = value);
+                                    }
+                                  }),
+                              const SizedBox(height: 16),
+                              Row(children: [
+                                Expanded(
+                                    child: TextFormField(
+                                        controller: _weightController,
+                                        decoration: InputDecoration(
+                                            labelText:
+                                                '${widget.l10n.itemWeight} (${widget.l10n.weightUnit})',
+                                            border: const OutlineInputBorder()),
+                                        keyboardType: const TextInputType
+                                            .numberWithOptions(decimal: true))),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                    child: TextFormField(
+                                        controller: _valueController,
+                                        decoration: InputDecoration(
+                                            labelText:
+                                                '${widget.l10n.itemValue} (cp)',
+                                            border: const OutlineInputBorder()),
+                                        keyboardType: TextInputType.number))
+                              ]),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                  controller: _quantityController,
+                                  decoration: InputDecoration(
+                                      labelText: widget.l10n.itemQuantity,
+                                      border: const OutlineInputBorder()),
+                                  keyboardType: TextInputType.number,
+                                  validator: (value) {
+                                    final qty = int.tryParse(value ?? '');
+                                    return qty == null || qty < 1
+                                        ? widget.l10n.minQuantity1
+                                        : null;
+                                  }),
+                            ])))),
+            Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                    border: Border(
+                        top: BorderSide(
+                            color: theme.colorScheme.outlineVariant,
+                            width: 1))),
+                child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(widget.l10n.cancel)),
+                  const SizedBox(width: 12),
+                  FilledButton.icon(
+                      onPressed: _createItem,
+                      icon: const Icon(Icons.check),
+                      label: Text(widget.l10n.createItem))
+                ])),
           ],
         ),
       ),

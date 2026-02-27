@@ -18,20 +18,34 @@ class OverviewTab extends StatelessWidget {
 
   String _getDamageTypeLabel(AppLocalizations l10n, String type) {
     switch (type.toLowerCase()) {
-      case 'slashing': return l10n.damageTypeSlashing;
-      case 'piercing': return l10n.damageTypePiercing;
-      case 'bludgeoning': return l10n.damageTypeBludgeoning;
-      case 'acid': return l10n.damageTypeAcid;
-      case 'cold': return l10n.damageTypeCold;
-      case 'fire': return l10n.damageTypeFire;
-      case 'force': return l10n.damageTypeForce;
-      case 'lightning': return l10n.damageTypeLightning;
-      case 'necrotic': return l10n.damageTypeNecrotic;
-      case 'poison': return l10n.damageTypePoison;
-      case 'psychic': return l10n.damageTypePsychic;
-      case 'radiant': return l10n.damageTypeRadiant;
-      case 'thunder': return l10n.damageTypeThunder;
-      default: return l10n.damageTypePhysical;
+      case 'slashing':
+        return l10n.damageTypeSlashing;
+      case 'piercing':
+        return l10n.damageTypePiercing;
+      case 'bludgeoning':
+        return l10n.damageTypeBludgeoning;
+      case 'acid':
+        return l10n.damageTypeAcid;
+      case 'cold':
+        return l10n.damageTypeCold;
+      case 'fire':
+        return l10n.damageTypeFire;
+      case 'force':
+        return l10n.damageTypeForce;
+      case 'lightning':
+        return l10n.damageTypeLightning;
+      case 'necrotic':
+        return l10n.damageTypeNecrotic;
+      case 'poison':
+        return l10n.damageTypePoison;
+      case 'psychic':
+        return l10n.damageTypePsychic;
+      case 'radiant':
+        return l10n.damageTypeRadiant;
+      case 'thunder':
+        return l10n.damageTypeThunder;
+      default:
+        return l10n.damageTypePhysical;
     }
   }
 
@@ -48,7 +62,8 @@ class OverviewTab extends StatelessWidget {
         Card(
           elevation: 2,
           margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -59,7 +74,11 @@ class OverviewTab extends StatelessWidget {
                   children: [
                     Icon(Icons.security, color: colorScheme.primary),
                     const SizedBox(width: 12),
-                    Text(l10n.combatStats.toUpperCase(), style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2, color: colorScheme.primary)),
+                    Text(l10n.combatStats.toUpperCase(),
+                        style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                            color: colorScheme.primary)),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -71,20 +90,49 @@ class OverviewTab extends StatelessWidget {
                 // 2. Vital Stats Grid
                 Row(
                   children: [
-                    Expanded(child: _buildStatCard(context, l10n.armorClassAC, '${character.armorClass}', Icons.shield_outlined, colorScheme.secondary)),
+                    Expanded(
+                        child: _buildStatCard(
+                            context,
+                            l10n.armorClassAC,
+                            '${character.armorClass}',
+                            Icons.shield_outlined,
+                            colorScheme.secondary)),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildStatCard(context, l10n.initiativeINIT, character.formatModifier(character.initiativeBonus), Icons.flash_on, colorScheme.tertiary, onTap: () => showDiceRoller(context, title: l10n.rollInitiative, modifier: character.initiativeBonus))),
+                    Expanded(
+                        child: _buildStatCard(
+                            context,
+                            l10n.initiativeINIT,
+                            character.formatModifier(character.initiativeBonus),
+                            Icons.flash_on,
+                            colorScheme.tertiary,
+                            onTap: () => showDiceRoller(context,
+                                title: l10n.rollInitiative,
+                                modifier: character.initiativeBonus))),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildStatCard(context, l10n.speedSPEED, '${character.speed}', Icons.directions_run, colorScheme.surfaceTint)),
+                    Expanded(
+                        child: _buildStatCard(
+                            context,
+                            l10n.speedSPEED,
+                            '${character.speed}',
+                            Icons.directions_run,
+                            colorScheme.surfaceTint)),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildStatCard(context, l10n.proficiencyPROF, '+${character.proficiencyBonus}', Icons.school, colorScheme.outline)),
+                    Expanded(
+                        child: _buildStatCard(
+                            context,
+                            l10n.proficiencyPROF,
+                            '+${character.proficiencyBonus}',
+                            Icons.school,
+                            colorScheme.outline)),
                   ],
                 ),
 
                 const SizedBox(height: 24),
-                
+
                 // 3. Attacks
-                Text(l10n.weaponsAttacks, style: theme.textTheme.labelLarge?.copyWith(color: colorScheme.onSurfaceVariant)),
+                Text(l10n.weaponsAttacks,
+                    style: theme.textTheme.labelLarge
+                        ?.copyWith(color: colorScheme.onSurfaceVariant)),
                 const SizedBox(height: 12),
                 _buildAttacksList(context, l10n),
               ],
@@ -102,7 +150,8 @@ class OverviewTab extends StatelessWidget {
                 onPressed: () => _showRestDialog(context, short: true),
                 icon: const Icon(Icons.coffee, size: 18),
                 label: Text(l10n.shortRest),
-                style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16)),
               ),
             ),
             const SizedBox(width: 12),
@@ -111,14 +160,15 @@ class OverviewTab extends StatelessWidget {
                 onPressed: () => _showRestDialog(context, short: false),
                 icon: const Icon(Icons.hotel, size: 18),
                 label: Text(l10n.longRest),
-                style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16)),
               ),
             ),
           ],
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         FilledButton.icon(
           onPressed: () async {
             await Navigator.push(
@@ -146,21 +196,38 @@ class OverviewTab extends StatelessWidget {
   Widget _buildHpBar(BuildContext context, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
     final hpPercent = (character.currentHp / character.maxHp).clamp(0.0, 1.0);
-    
+
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(l10n.hitPoints, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+            Text(l10n.hitPoints,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurfaceVariant)),
             RichText(
               text: TextSpan(
-                style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16),
                 children: [
-                  TextSpan(text: '${character.currentHp}', style: TextStyle(fontSize: 24, color: hpPercent < 0.3 ? colorScheme.error : colorScheme.primary)),
-                  TextSpan(text: '/${character.maxHp}', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 16)),
+                  TextSpan(
+                      text: '${character.currentHp}',
+                      style: TextStyle(
+                          fontSize: 24,
+                          color: hpPercent < 0.3
+                              ? colorScheme.error
+                              : colorScheme.primary)),
+                  TextSpan(
+                      text: '/${character.maxHp}',
+                      style: TextStyle(
+                          color: colorScheme.onSurfaceVariant, fontSize: 16)),
                   if (character.temporaryHp > 0)
-                    TextSpan(text: ' +${character.temporaryHp}', style: TextStyle(color: colorScheme.tertiary)),
+                    TextSpan(
+                        text: ' +${character.temporaryHp}',
+                        style: TextStyle(color: colorScheme.tertiary)),
                 ],
               ),
             ),
@@ -173,14 +240,18 @@ class OverviewTab extends StatelessWidget {
             value: hpPercent,
             minHeight: 12,
             backgroundColor: colorScheme.surfaceContainerHighest,
-            color: hpPercent < 0.3 ? colorScheme.error : (hpPercent > 0.5 ? colorScheme.primary : Colors.amber),
+            color: hpPercent < 0.3
+                ? colorScheme.error
+                : (hpPercent > 0.5 ? colorScheme.primary : Colors.amber),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String label, String value, IconData icon, Color color, {VoidCallback? onTap}) {
+  Widget _buildStatCard(BuildContext context, String label, String value,
+      IconData icon, Color color,
+      {VoidCallback? onTap}) {
     final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
@@ -196,8 +267,16 @@ class OverviewTab extends StatelessWidget {
           children: [
             Icon(icon, size: 20, color: color),
             const SizedBox(height: 4),
-            Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: colorScheme.onSurface)),
-            Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+            Text(value,
+                style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 18,
+                    color: colorScheme.onSurface)),
+            Text(label,
+                style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurfaceVariant)),
           ],
         ),
       ),
@@ -205,7 +284,9 @@ class OverviewTab extends StatelessWidget {
   }
 
   Widget _buildAttacksList(BuildContext context, AppLocalizations l10n) {
-    final weapons = character.inventory.where((i) => i.isEquipped && i.type == ItemType.weapon).toList();
+    final weapons = character.inventory
+        .where((i) => i.isEquipped && i.type == ItemType.weapon)
+        .toList();
     final colorScheme = Theme.of(context).colorScheme;
     final locale = Localizations.localeOf(context).languageCode;
 
@@ -213,14 +294,9 @@ class OverviewTab extends StatelessWidget {
       final strMod = character.abilityScores.strengthModifier;
       final hitBonus = strMod + character.proficiencyBonus;
       final damage = 1 + strMod;
-      return _buildAttackCard(
-        context, 
-        l10n.unarmedStrike, 
-        hitBonus, 
-        '$damage', 
-        l10n.damageTypeBludgeoning, 
-        icon: Icons.back_hand
-      );
+      return _buildAttackCard(context, l10n.unarmedStrike, hitBonus, '$damage',
+          l10n.damageTypeBludgeoning,
+          icon: Icons.back_hand);
     }
 
     return Column(
@@ -228,32 +304,33 @@ class OverviewTab extends StatelessWidget {
         final strMod = character.abilityScores.strengthModifier;
         final dexMod = character.abilityScores.dexterityModifier;
         final bool isRanged = weapon.weaponProperties?.range != null;
-        final bool isFinesse = weapon.weaponProperties?.weaponTags.contains('finesse') ?? false;
-        final mod = (isRanged || (isFinesse && dexMod > strMod)) ? dexMod : strMod;
-        
+        final bool isFinesse =
+            weapon.weaponProperties?.weaponTags.contains('finesse') ?? false;
+        final mod =
+            (isRanged || (isFinesse && dexMod > strMod)) ? dexMod : strMod;
+
         final hitBonus = mod + character.proficiencyBonus;
         final damageDice = weapon.weaponProperties?.damageDice ?? '1d4';
-        
-        final rawDamageType = weapon.weaponProperties?.damageType.name ?? 'physical';
+
+        final rawDamageType =
+            weapon.weaponProperties?.damageType.name ?? 'physical';
         final damageType = _getDamageTypeLabel(l10n, rawDamageType);
-        
-        final damageModStr = mod != 0 ? (mod > 0 ? ' + $mod' : ' - ${mod.abs()}') : '';
-        
-        return _buildAttackCard(
-          context, 
-          weapon.getName(locale), 
-          hitBonus, 
-          '$damageDice$damageModStr', 
-          damageType
-        );
+
+        final damageModStr =
+            mod != 0 ? (mod > 0 ? ' + $mod' : ' - ${mod.abs()}') : '';
+
+        return _buildAttackCard(context, weapon.getName(locale), hitBonus,
+            '$damageDice$damageModStr', damageType);
       }).toList(),
     );
   }
 
-  Widget _buildAttackCard(BuildContext context, String name, int hitBonus, String damage, String type, {IconData icon = Icons.sports_martial_arts}) {
+  Widget _buildAttackCard(BuildContext context, String name, int hitBonus,
+      String damage, String type,
+      {IconData icon = Icons.sports_martial_arts}) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -268,31 +345,37 @@ class OverviewTab extends StatelessWidget {
             // Header: Name and Type
             Row(
               children: [
-                Icon(icon, size: 18, color: colorScheme.primary.withOpacity(0.7)),
+                Icon(icon,
+                    size: 18, color: colorScheme.primary.withOpacity(0.7)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     name,
-                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w800, fontSize: 16),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     type.toUpperCase(),
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant),
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurfaceVariant),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Action Buttons
             Row(
               children: [
@@ -302,7 +385,9 @@ class OverviewTab extends StatelessWidget {
                     color: colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(12),
                     child: InkWell(
-                      onTap: () => showDiceRoller(context, title: '${l10n.spellAttack} ($name)', modifier: hitBonus),
+                      onTap: () => showDiceRoller(context,
+                          title: '${l10n.spellAttack} ($name)',
+                          modifier: hitBonus),
                       borderRadius: BorderRadius.circular(12),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -310,12 +395,20 @@ class OverviewTab extends StatelessWidget {
                           children: [
                             Text(
                               l10n.hit.toUpperCase(),
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1, color: colorScheme.onPrimaryContainer.withOpacity(0.6)),
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1,
+                                  color: colorScheme.onPrimaryContainer
+                                      .withOpacity(0.6)),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               character.formatModifier(hitBonus),
-                              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: colorScheme.onPrimaryContainer),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 20,
+                                  color: colorScheme.onPrimaryContainer),
                             ),
                           ],
                         ),
@@ -324,14 +417,17 @@ class OverviewTab extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                
+
                 // Damage Roll Button
                 Expanded(
                   child: Material(
                     color: colorScheme.secondaryContainer,
                     borderRadius: BorderRadius.circular(12),
                     child: InkWell(
-                      onTap: () => showDiceRoller(context, title: '${l10n.damage} ($name)', modifier: 0), // Modifier 0 because dice formula handles it
+                      onTap: () => showDiceRoller(context,
+                          title: '${l10n.damage} ($name)',
+                          modifier:
+                              0), // Modifier 0 because dice formula handles it
                       borderRadius: BorderRadius.circular(12),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -339,12 +435,20 @@ class OverviewTab extends StatelessWidget {
                           children: [
                             Text(
                               l10n.dmg.toUpperCase(),
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1, color: colorScheme.onSecondaryContainer.withOpacity(0.6)),
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1,
+                                  color: colorScheme.onSecondaryContainer
+                                      .withOpacity(0.6)),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               damage,
-                              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: colorScheme.onSecondaryContainer),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 20,
+                                  color: colorScheme.onSecondaryContainer),
                             ),
                           ],
                         ),
@@ -360,25 +464,43 @@ class OverviewTab extends StatelessWidget {
     );
   }
 
-  Future<void> _showRestDialog(BuildContext context, {required bool short}) async {
+  Future<void> _showRestDialog(BuildContext context,
+      {required bool short}) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(children: [Icon(short ? Icons.coffee : Icons.hotel), const SizedBox(width: 12), Text(short ? l10n.shortRest : l10n.longRest)]),
-        content: Text(short ? l10n.shortRestDescription : l10n.longRestDescription),
+        title: Row(children: [
+          Icon(short ? Icons.coffee : Icons.hotel),
+          const SizedBox(width: 12),
+          Text(short ? l10n.shortRest : l10n.longRest)
+        ]),
+        content:
+            Text(short ? l10n.shortRestDescription : l10n.longRestDescription),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.cancel)),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l10n.rest)),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.cancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.rest)),
         ],
       ),
     );
 
     if (confirmed == true) {
-      if (short) character.shortRest(); else character.longRest();
+      if (short) {
+        character.shortRest();
+      } else {
+        character.longRest();
+      }
       await StorageService.saveCharacter(character);
       onCharacterUpdated?.call();
-      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.restedSuccess), duration: const Duration(seconds: 2)));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(l10n.restedSuccess),
+            duration: const Duration(seconds: 2)));
+      }
     }
   }
 }

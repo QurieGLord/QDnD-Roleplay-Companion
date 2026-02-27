@@ -26,7 +26,8 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.note?.title ?? '');
-    _contentController = TextEditingController(text: widget.note?.content ?? '');
+    _contentController =
+        TextEditingController(text: widget.note?.content ?? '');
     _tagController = TextEditingController();
     _selectedCategory = widget.note?.category ?? NoteCategory.general;
     _isPinned = widget.note?.isPinned ?? false;
@@ -96,7 +97,8 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
       isPinned: _isPinned,
       imagePath: _imagePath,
       tags: _tags,
-      createdAt: widget.note?.createdAt, // Preserve original creation date if editing
+      createdAt:
+          widget.note?.createdAt, // Preserve original creation date if editing
       updatedAt: DateTime.now(),
     );
 
@@ -115,7 +117,7 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
             icon: const Icon(Icons.close),
             onPressed: () => Navigator.pop(context),
           ),
-          title: Text(widget.note == null 
+          title: Text(widget.note == null
               ? (locale == 'ru' ? 'Новая заметка' : 'New Note')
               : (locale == 'ru' ? 'Редактировать' : 'Edit Note')),
           actions: [
@@ -149,25 +151,29 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
                 ),
                 textCapitalization: TextCapitalization.sentences,
               ),
-              
+
               const SizedBox(height: 16),
 
               // Category Dropdown
               DropdownButtonFormField<NoteCategory>(
-                value: _selectedCategory,
+                initialValue: _selectedCategory,
                 decoration: InputDecoration(
                   labelText: locale == 'ru' ? 'Категория' : 'Category',
                   border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
                 items: NoteCategory.values.map((cat) {
                   return DropdownMenuItem(
                     value: cat,
                     child: Row(
                       children: [
-                        Icon(cat.icon, size: 18, color: cat.getColor(theme.colorScheme)),
+                        Icon(cat.icon,
+                            size: 18, color: cat.getColor(theme.colorScheme)),
                         const SizedBox(width: 8),
-                        Text(locale == 'ru' ? cat.displayNameRu : cat.displayName),
+                        Text(locale == 'ru'
+                            ? cat.displayNameRu
+                            : cat.displayName),
                       ],
                     ),
                   );
@@ -217,10 +223,13 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
                 maxLines: null,
                 minLines: 10,
                 decoration: InputDecoration(
-                  hintText: locale == 'ru' ? 'Напишите что-нибудь...' : 'Write something...',
+                  hintText: locale == 'ru'
+                      ? 'Напишите что-нибудь...'
+                      : 'Write something...',
                   border: InputBorder.none,
                   filled: true,
-                  fillColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                  fillColor: theme.colorScheme.surfaceContainerHighest
+                      .withOpacity(0.3),
                 ),
               ),
 

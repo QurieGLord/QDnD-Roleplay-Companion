@@ -21,7 +21,8 @@ class _QuestEditorDialogState extends State<QuestEditorDialog> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.quest?.title ?? '');
-    _descController = TextEditingController(text: widget.quest?.description ?? '');
+    _descController =
+        TextEditingController(text: widget.quest?.description ?? '');
     _status = widget.quest?.status ?? QuestStatus.active;
     // Deep copy objectives so we don't modify the original object directly until saved
     _objectives = widget.quest?.objectives
@@ -31,7 +32,7 @@ class _QuestEditorDialogState extends State<QuestEditorDialog> {
                 ))
             .toList() ??
         [];
-    
+
     // Add an empty objective if list is empty for better UX
     if (_objectives.isEmpty) {
       _objectives.add(QuestObjective(description: ''));
@@ -66,9 +67,8 @@ class _QuestEditorDialogState extends State<QuestEditorDialog> {
     }
 
     // Filter out empty objectives
-    final validObjectives = _objectives
-        .where((o) => o.description.trim().isNotEmpty)
-        .toList();
+    final validObjectives =
+        _objectives.where((o) => o.description.trim().isNotEmpty).toList();
 
     final quest = Quest(
       id: widget.quest?.id ?? const Uuid().v4(),
@@ -77,7 +77,9 @@ class _QuestEditorDialogState extends State<QuestEditorDialog> {
       status: _status,
       objectives: validObjectives,
       createdAt: widget.quest?.createdAt,
-      completedAt: _status == QuestStatus.completed ? DateTime.now() : widget.quest?.completedAt,
+      completedAt: _status == QuestStatus.completed
+          ? DateTime.now()
+          : widget.quest?.completedAt,
     );
 
     Navigator.pop(context, quest);
@@ -95,7 +97,7 @@ class _QuestEditorDialogState extends State<QuestEditorDialog> {
             icon: const Icon(Icons.close),
             onPressed: () => Navigator.pop(context),
           ),
-          title: Text(widget.quest == null 
+          title: Text(widget.quest == null
               ? (locale == 'ru' ? 'Новый квест' : 'New Quest')
               : (locale == 'ru' ? 'Редактировать' : 'Edit Quest')),
           actions: [
@@ -123,12 +125,12 @@ class _QuestEditorDialogState extends State<QuestEditorDialog> {
                 ),
                 textCapitalization: TextCapitalization.sentences,
               ),
-              
+
               const SizedBox(height: 16),
 
               // Status Dropdown
               DropdownButtonFormField<QuestStatus>(
-                value: _status,
+                initialValue: _status,
                 decoration: InputDecoration(
                   labelText: locale == 'ru' ? 'Статус' : 'Status',
                   border: const OutlineInputBorder(),
@@ -140,7 +142,9 @@ class _QuestEditorDialogState extends State<QuestEditorDialog> {
                       children: [
                         Icon(status.icon, size: 18, color: status.color),
                         const SizedBox(width: 8),
-                        Text(locale == 'ru' ? status.displayNameRu : status.displayName),
+                        Text(locale == 'ru'
+                            ? status.displayNameRu
+                            : status.displayName),
                       ],
                     ),
                   );
@@ -182,7 +186,7 @@ class _QuestEditorDialogState extends State<QuestEditorDialog> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 8),
 
               // Objectives List
@@ -205,9 +209,12 @@ class _QuestEditorDialogState extends State<QuestEditorDialog> {
                         child: TextFormField(
                           initialValue: objective.description,
                           decoration: InputDecoration(
-                            hintText: locale == 'ru' ? 'Описание задачи...' : 'Objective description...',
+                            hintText: locale == 'ru'
+                                ? 'Описание задачи...'
+                                : 'Objective description...',
                             border: const OutlineInputBorder(),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                           ),
                           onChanged: (val) {
                             objective.description = val;

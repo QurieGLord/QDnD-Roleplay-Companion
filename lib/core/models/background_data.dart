@@ -27,7 +27,7 @@ class BackgroundData {
 
   @HiveField(7)
   final Map<String, List<String>> equipment; // Localized
-  
+
   @HiveField(8)
   final String? sourceId;
 

@@ -9,18 +9,19 @@ class HpIncreaseStep extends StatefulWidget {
   final VoidCallback onAverage;
 
   const HpIncreaseStep({
-    Key? key,
+    super.key,
     required this.hitDie,
     required this.conMod,
     required this.onRoll,
     required this.onAverage,
-  }) : super(key: key);
+  });
 
   @override
   State<HpIncreaseStep> createState() => _HpIncreaseStepState();
 }
 
-class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProviderStateMixin {
+class _HpIncreaseStepState extends State<HpIncreaseStep>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   int _currentRollDisplay = 1;
   bool _isRolling = false;
@@ -50,13 +51,13 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
     setState(() {
       _isRolling = true;
     });
-    
+
     _controller.forward(from: 0).then((_) {
       final finalRoll = Random().nextInt(widget.hitDie) + 1;
       setState(() {
         _currentRollDisplay = finalRoll;
       });
-      
+
       Future.delayed(const Duration(milliseconds: 800), () {
         widget.onRoll(finalRoll);
       });
@@ -70,7 +71,7 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
     final l10n = AppLocalizations.of(context)!;
     final avgValue = (widget.hitDie / 2).floor() + 1;
     final totalAvg = avgValue + widget.conMod;
-    
+
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -90,7 +91,7 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
             ),
           ),
           const Spacer(),
-          
+
           // Main Visual
           Center(
             child: Container(
@@ -101,23 +102,27 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: _isRolling 
-                  ? RotationTransition(
-                      turns: CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
-                      child: Icon(Icons.casino, size: 80, color: colorScheme.primary),
-                    )
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.favorite, size: 48, color: colorScheme.primary),
-                        const SizedBox(height: 8),
-                        Text('d${widget.hitDie}', style: theme.textTheme.titleLarge),
-                      ],
-                    ),
+                child: _isRolling
+                    ? RotationTransition(
+                        turns: CurvedAnimation(
+                            parent: _controller, curve: Curves.elasticOut),
+                        child: Icon(Icons.casino,
+                            size: 80, color: colorScheme.primary),
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.favorite,
+                              size: 48, color: colorScheme.primary),
+                          const SizedBox(height: 8),
+                          Text('d${widget.hitDie}',
+                              style: theme.textTheme.titleLarge),
+                        ],
+                      ),
               ),
             ),
           ),
-          
+
           if (_isRolling) ...[
             const SizedBox(height: 32),
             Text(
@@ -130,7 +135,7 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
           ],
 
           const Spacer(),
-          
+
           if (!_isRolling)
             Row(
               children: [
@@ -146,7 +151,8 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
-                            Text(l10n.average, style: theme.textTheme.labelLarge),
+                            Text(l10n.average,
+                                style: theme.textTheme.labelLarge),
                             const SizedBox(height: 8),
                             Text(
                               '+$totalAvg',
@@ -155,7 +161,8 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(l10n.safeChoice, style: theme.textTheme.bodySmall),
+                            Text(l10n.safeChoice,
+                                style: theme.textTheme.bodySmall),
                           ],
                         ),
                       ),
@@ -176,11 +183,17 @@ class _HpIncreaseStepState extends State<HpIncreaseStep> with SingleTickerProvid
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
-                            Text(l10n.roll, style: theme.textTheme.labelLarge?.copyWith(color: colorScheme.onPrimary)),
+                            Text(l10n.roll,
+                                style: theme.textTheme.labelLarge
+                                    ?.copyWith(color: colorScheme.onPrimary)),
                             const SizedBox(height: 8),
-                            Icon(Icons.casino, size: 36, color: colorScheme.onPrimary),
+                            Icon(Icons.casino,
+                                size: 36, color: colorScheme.onPrimary),
                             const SizedBox(height: 4),
-                            Text(l10n.riskIt, style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onPrimary.withValues(alpha: 0.8))),
+                            Text(l10n.riskIt,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onPrimary
+                                        .withValues(alpha: 0.8))),
                           ],
                         ),
                       ),

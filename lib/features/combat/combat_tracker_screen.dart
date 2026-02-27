@@ -23,9 +23,10 @@ class CombatTrackerScreen extends StatefulWidget {
   State<CombatTrackerScreen> createState() => _CombatTrackerScreenState();
 }
 
-class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerProviderStateMixin {
+class _CombatTrackerScreenState extends State<CombatTrackerScreen>
+    with TickerProviderStateMixin {
   late Character _character;
-  
+
   // Animations
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
@@ -36,12 +37,18 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
   void initState() {
     super.initState();
     _character = widget.character;
-    
-    _shakeController = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
-    _shakeAnimation = Tween<double>(begin: 0, end: 10).chain(CurveTween(curve: Curves.elasticIn)).animate(_shakeController);
-    
-    _pulseController = AnimationController(duration: const Duration(seconds: 2), vsync: this)..repeat(reverse: true);
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+
+    _shakeController = AnimationController(
+        duration: const Duration(milliseconds: 500), vsync: this);
+    _shakeAnimation = Tween<double>(begin: 0, end: 10)
+        .chain(CurveTween(curve: Curves.elasticIn))
+        .animate(_shakeController);
+
+    _pulseController =
+        AnimationController(duration: const Duration(seconds: 2), vsync: this)
+          ..repeat(reverse: true);
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+        CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
   }
 
   @override
@@ -63,20 +70,34 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
 
   String _getConditionName(AppLocalizations l10n, ConditionType type) {
     switch (type) {
-      case ConditionType.blinded: return l10n.conditionBlinded;
-      case ConditionType.charmed: return l10n.conditionCharmed;
-      case ConditionType.deafened: return l10n.conditionDeafened;
-      case ConditionType.frightened: return l10n.conditionFrightened;
-      case ConditionType.grappled: return l10n.conditionGrappled;
-      case ConditionType.incapacitated: return l10n.conditionIncapacitated;
-      case ConditionType.invisible: return l10n.conditionInvisible;
-      case ConditionType.paralyzed: return l10n.conditionParalyzed;
-      case ConditionType.petrified: return l10n.conditionPetrified;
-      case ConditionType.poisoned: return l10n.conditionPoisoned;
-      case ConditionType.prone: return l10n.conditionProne;
-      case ConditionType.restrained: return l10n.conditionRestrained;
-      case ConditionType.stunned: return l10n.conditionStunned;
-      case ConditionType.unconscious: return l10n.conditionUnconscious;
+      case ConditionType.blinded:
+        return l10n.conditionBlinded;
+      case ConditionType.charmed:
+        return l10n.conditionCharmed;
+      case ConditionType.deafened:
+        return l10n.conditionDeafened;
+      case ConditionType.frightened:
+        return l10n.conditionFrightened;
+      case ConditionType.grappled:
+        return l10n.conditionGrappled;
+      case ConditionType.incapacitated:
+        return l10n.conditionIncapacitated;
+      case ConditionType.invisible:
+        return l10n.conditionInvisible;
+      case ConditionType.paralyzed:
+        return l10n.conditionParalyzed;
+      case ConditionType.petrified:
+        return l10n.conditionPetrified;
+      case ConditionType.poisoned:
+        return l10n.conditionPoisoned;
+      case ConditionType.prone:
+        return l10n.conditionProne;
+      case ConditionType.restrained:
+        return l10n.conditionRestrained;
+      case ConditionType.stunned:
+        return l10n.conditionStunned;
+      case ConditionType.unconscious:
+        return l10n.conditionUnconscious;
     }
   }
 
@@ -90,11 +111,14 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
           children: [
             const Icon(Icons.sports_martial_arts, size: 48),
             const SizedBox(height: 16),
-            Text('${l10n.modifier}: ${_character.formatModifier(_character.initiativeBonus)}'),
+            Text(
+                '${l10n.modifier}: ${_character.formatModifier(_character.initiativeBonus)}'),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.cancel)),
           FilledButton(
             onPressed: () async {
               final d20 = Random().nextInt(20) + 1;
@@ -117,7 +141,9 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
         title: Text(l10n.endCombat),
         content: Text(l10n.endCombatConfirm),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.cancel)),
           FilledButton(
             onPressed: () async {
               Navigator.pop(context);
@@ -137,13 +163,18 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
       context: context,
       isScrollControlled: true,
       builder: (context) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 20, top: 20, left: 20, right: 20),
+        padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            top: 20,
+            left: 20,
+            right: 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(heal ? l10n.heal : l10n.takeDamage, style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: heal ? Colors.green : Colors.red, fontWeight: FontWeight.bold
-            )),
+            Text(heal ? l10n.heal : l10n.takeDamage,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: heal ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
             TextField(
               controller: controller,
@@ -153,32 +184,37 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
               style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               decoration: InputDecoration(
                 hintText: '0',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                prefixIcon: heal ? const Icon(Icons.add) : const Icon(Icons.remove),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                prefixIcon:
+                    heal ? const Icon(Icons.add) : const Icon(Icons.remove),
               ),
             ),
             const SizedBox(height: 20),
             Row(
               children: [
-                if (!heal) 
+                if (!heal)
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () async {
                         final amount = int.tryParse(controller.text) ?? 0;
                         if (amount > 0) {
                           Navigator.pop(context);
-                          await _character.takeDamage(amount); // Handle temp HP internally
+                          await _character
+                              .takeDamage(amount); // Handle temp HP internally
                           _triggerShake();
                           _save();
                         }
                       },
-                      child: Text(l10n.tempHp), 
+                      child: Text(l10n.tempHp),
                     ),
                   ),
                 if (!heal) const SizedBox(width: 12),
                 Expanded(
                   child: FilledButton(
-                    style: FilledButton.styleFrom(backgroundColor: heal ? Colors.green : Colors.red, minimumSize: const Size(0, 56)),
+                    style: FilledButton.styleFrom(
+                        backgroundColor: heal ? Colors.green : Colors.red,
+                        minimumSize: const Size(0, 56)),
                     onPressed: () async {
                       final amount = int.tryParse(controller.text) ?? 0;
                       if (amount > 0) {
@@ -192,7 +228,9 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                         _save();
                       }
                     },
-                    child: Text(heal ? l10n.heal.toUpperCase() : l10n.takeDamage.toUpperCase()),
+                    child: Text(heal
+                        ? l10n.heal.toUpperCase()
+                        : l10n.takeDamage.toUpperCase()),
                   ),
                 ),
               ],
@@ -221,7 +259,9 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
           final isActive = _character.activeConditions.contains(c);
           return ListTile(
             title: Text(_getConditionName(l10n, c)),
-            trailing: isActive ? const Icon(Icons.check_circle, color: Colors.green) : null,
+            trailing: isActive
+                ? const Icon(Icons.check_circle, color: Colors.green)
+                : null,
             onTap: () {
               _toggleCondition(c);
               Navigator.pop(context);
@@ -250,10 +290,13 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
     final isInCombat = character.combatState.isInCombat;
     final hpPercent = (character.currentHp / character.maxHp).clamp(0.0, 1.0);
     final isDying = character.currentHp <= 0;
-    final isSpellcaster = SpellcastingService.isSpellcaster(character.characterClass);
+    final isSpellcaster =
+        SpellcastingService.isSpellcaster(character.characterClass);
 
     return Scaffold(
-      backgroundColor: isInCombat ? colorScheme.surfaceContainerLow : theme.scaffoldBackgroundColor,
+      backgroundColor: isInCombat
+          ? colorScheme.surfaceContainerLow
+          : theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(character.name),
         centerTitle: true,
@@ -268,9 +311,9 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () => showModalBottomSheet(
-              context: context, 
-              builder: (_) => CombatLogView(combatLog: character.combatState.combatLog)
-            ),
+                context: context,
+                builder: (_) =>
+                    CombatLogView(combatLog: character.combatState.combatLog)),
           ),
         ],
       ),
@@ -278,7 +321,9 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
         animation: _shakeAnimation,
         builder: (context, child) {
           return Transform.translate(
-            offset: Offset(sin(_shakeController.value * pi * 10) * _shakeAnimation.value, 0),
+            offset: Offset(
+                sin(_shakeController.value * pi * 10) * _shakeAnimation.value,
+                0),
             child: child,
           );
         },
@@ -290,9 +335,17 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildHeaderStat(l10n.initiativeINIT, '${character.combatState.initiative}', Icons.flash_on, colorScheme.tertiary),
+                  _buildHeaderStat(
+                      l10n.initiativeINIT,
+                      '${character.combatState.initiative}',
+                      Icons.flash_on,
+                      colorScheme.tertiary),
                   if (isInCombat)
-                    _buildHeaderStat('ROUND', '${character.combatState.currentRound}', Icons.refresh, colorScheme.primary),
+                    _buildHeaderStat(
+                        'ROUND',
+                        '${character.combatState.currentRound}',
+                        Icons.refresh,
+                        colorScheme.primary),
                 ],
               ),
             ),
@@ -313,7 +366,10 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                       color: colorScheme.surface,
                       boxShadow: [
                         BoxShadow(
-                          color: (isDying ? colorScheme.error : colorScheme.primary).withOpacity(0.15),
+                          color: (isDying
+                                  ? colorScheme.error
+                                  : colorScheme.primary)
+                              .withOpacity(0.15),
                           blurRadius: 30,
                           spreadRadius: 5,
                         )
@@ -328,7 +384,9 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                       value: hpPercent,
                       strokeWidth: 12,
                       backgroundColor: colorScheme.surfaceContainerHighest,
-                      color: isDying ? colorScheme.error : (hpPercent > 0.5 ? Colors.green : Colors.amber),
+                      color: isDying
+                          ? colorScheme.error
+                          : (hpPercent > 0.5 ? Colors.green : Colors.amber),
                       strokeCap: StrokeCap.round,
                     ),
                   ),
@@ -337,18 +395,33 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (isDying) ...[
-                        const Icon(Icons.dangerous, size: 40, color: Colors.grey),
+                        const Icon(Icons.dangerous,
+                            size: 40, color: Colors.grey),
                         const SizedBox(height: 4),
-                        Text(l10n.conditionUnconscious.toUpperCase(), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: colorScheme.error, letterSpacing: 1.0)),
+                        Text(l10n.conditionUnconscious.toUpperCase(),
+                            style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.error,
+                                letterSpacing: 1.0)),
                       ] else ...[
-                        Icon(Icons.favorite, size: 24, color: colorScheme.error.withOpacity(0.8)),
+                        Icon(Icons.favorite,
+                            size: 24,
+                            color: colorScheme.error.withOpacity(0.8)),
                         Text(
                           '${character.currentHp}',
-                          style: TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: colorScheme.onSurface, height: 1),
+                          style: TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.w900,
+                              color: colorScheme.onSurface,
+                              height: 1),
                         ),
                         Text(
                           '/${character.maxHp}',
-                          style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w500),
                         ),
                       ],
                     ],
@@ -368,18 +441,24 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                   if (character.temporaryHp > 0)
                     Container(
                       margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
-                        color: colorScheme.secondaryContainer, 
+                        color: colorScheme.secondaryContainer,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: colorScheme.secondary),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.shield, size: 16, color: colorScheme.onSecondaryContainer),
+                          Icon(Icons.shield,
+                              size: 16,
+                              color: colorScheme.onSecondaryContainer),
                           const SizedBox(width: 8),
-                          Text('${character.temporaryHp} ${l10n.tempHp}', style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSecondaryContainer)),
+                          Text('${character.temporaryHp} ${l10n.tempHp}',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onSecondaryContainer)),
                         ],
                       ),
                     ),
@@ -390,14 +469,18 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                       spacing: 8,
                       runSpacing: 8,
                       alignment: WrapAlignment.center,
-                      children: character.activeConditions.map((c) => Chip(
-                        label: Text(_getConditionName(l10n, c)),
-                        backgroundColor: colorScheme.errorContainer,
-                        labelStyle: TextStyle(color: colorScheme.onErrorContainer, fontSize: 12),
-                        padding: EdgeInsets.zero,
-                        visualDensity: VisualDensity.compact,
-                        onDeleted: () => _toggleCondition(c),
-                      )).toList(),
+                      children: character.activeConditions
+                          .map((c) => Chip(
+                                label: Text(_getConditionName(l10n, c)),
+                                backgroundColor: colorScheme.errorContainer,
+                                labelStyle: TextStyle(
+                                    color: colorScheme.onErrorContainer,
+                                    fontSize: 12),
+                                padding: EdgeInsets.zero,
+                                visualDensity: VisualDensity.compact,
+                                onDeleted: () => _toggleCondition(c),
+                              ))
+                          .toList(),
                     ),
 
                   // Death Saves
@@ -408,21 +491,40 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                       decoration: BoxDecoration(
                         color: colorScheme.surfaceContainerHigh,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: colorScheme.error.withOpacity(0.5)),
+                        border: Border.all(
+                            color: colorScheme.error.withOpacity(0.5)),
                       ),
                       child: Column(
                         children: [
-                          Text(l10n.deathSaves.toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.error, fontSize: 10, letterSpacing: 1.2)),
+                          Text(l10n.deathSaves.toUpperCase(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.error,
+                                  fontSize: 10,
+                                  letterSpacing: 1.2)),
                           const SizedBox(height: 8),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              _buildDeathSaveRow(l10n.successes, character.deathSaves.successes, Icons.check_circle, Colors.green, () async {
-                                character.deathSaves.addSuccess(); await _save();
+                              _buildDeathSaveRow(
+                                  l10n.successes,
+                                  character.deathSaves.successes,
+                                  Icons.check_circle,
+                                  Colors.green, () async {
+                                character.deathSaves.addSuccess();
+                                await _save();
                               }),
-                              Container(width: 1, height: 30, color: colorScheme.outlineVariant),
-                              _buildDeathSaveRow(l10n.failures, character.deathSaves.failures, Icons.cancel, colorScheme.error, () async {
-                                character.deathSaves.addFailure(); await _save();
+                              Container(
+                                  width: 1,
+                                  height: 30,
+                                  color: colorScheme.outlineVariant),
+                              _buildDeathSaveRow(
+                                  l10n.failures,
+                                  character.deathSaves.failures,
+                                  Icons.cancel,
+                                  colorScheme.error, () async {
+                                character.deathSaves.addFailure();
+                                await _save();
                               }),
                             ],
                           ),
@@ -434,8 +536,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
             ),
 
             const SizedBox(height: 16),
-            if (isSpellcaster)
-              _buildMagicButton(context, l10n, colorScheme),
+            if (isSpellcaster) _buildMagicButton(context, l10n, colorScheme),
 
             const Spacer(),
 
@@ -449,22 +550,20 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                     children: [
                       Expanded(
                         child: _buildActionButton(
-                          context, 
-                          l10n.takeDamage.toUpperCase(), 
-                          Icons.broken_image, 
-                          colorScheme.error, 
-                          () => _modifyHP(false, l10n)
-                        ),
+                            context,
+                            l10n.takeDamage.toUpperCase(),
+                            Icons.broken_image,
+                            colorScheme.error,
+                            () => _modifyHP(false, l10n)),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: _buildActionButton(
-                          context, 
-                          l10n.heal.toUpperCase(), 
-                          Icons.healing, 
-                          Colors.green, 
-                          () => _modifyHP(true, l10n)
-                        ),
+                            context,
+                            l10n.heal.toUpperCase(),
+                            Icons.healing,
+                            Colors.green,
+                            () => _modifyHP(true, l10n)),
                       ),
                     ],
                   ),
@@ -477,26 +576,32 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                           onPressed: () => _showConditionsDialog(l10n),
                           icon: const Icon(Icons.sick_outlined),
                           label: Text(l10n.condition),
-                          style: OutlinedButton.styleFrom(minimumSize: const Size(0, 56)),
+                          style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(0, 56)),
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: isInCombat
-                          ? FilledButton.tonalIcon(
-                              onPressed: () {
-                                setState(() { character.combatState.currentRound++; _save(); });
-                              },
-                              icon: const Icon(Icons.skip_next),
-                              label: Text(l10n.nextRound),
-                              style: FilledButton.styleFrom(minimumSize: const Size(0, 56)),
-                            )
-                          : FilledButton.icon(
-                              onPressed: () => _startCombat(l10n),
-                              icon: const Icon(Icons.play_arrow),
-                              label: Text(l10n.startCombat),
-                              style: FilledButton.styleFrom(minimumSize: const Size(0, 56)),
-                            ),
+                            ? FilledButton.tonalIcon(
+                                onPressed: () {
+                                  setState(() {
+                                    character.combatState.currentRound++;
+                                    _save();
+                                  });
+                                },
+                                icon: const Icon(Icons.skip_next),
+                                label: Text(l10n.nextRound),
+                                style: FilledButton.styleFrom(
+                                    minimumSize: const Size(0, 56)),
+                              )
+                            : FilledButton.icon(
+                                onPressed: () => _startCombat(l10n),
+                                icon: const Icon(Icons.play_arrow),
+                                label: Text(l10n.startCombat),
+                                style: FilledButton.styleFrom(
+                                    minimumSize: const Size(0, 56)),
+                              ),
                       ),
                     ],
                   ),
@@ -509,26 +614,28 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
     );
   }
 
-  Widget _buildMagicButton(BuildContext context, AppLocalizations l10n, ColorScheme colorScheme) {
+  Widget _buildMagicButton(
+      BuildContext context, AppLocalizations l10n, ColorScheme colorScheme) {
     // Count total slots
     int totalSlots = 0;
     int usedSlots = 0;
     for (int i = 0; i < _character.maxSpellSlots.length; i++) {
       totalSlots += _character.maxSpellSlots[i];
       if (i < _character.spellSlots.length) {
-         usedSlots += _character.maxSpellSlots[i] - _character.spellSlots[i]; // spellSlots stores REMAINING
+        usedSlots += _character.maxSpellSlots[i] -
+            _character.spellSlots[i]; // spellSlots stores REMAINING
       }
     }
     // Correct logic: spellSlots stores remaining. So used = max - remaining.
     // Wait, spellSlots list stores REMAINING slots.
     // Example: Max [4, 2]. Current [3, 2].
     // Total Max = 6. Total Remaining = 5.
-    
+
     int remaining = 0;
-    for(int i=0; i<_character.spellSlots.length; i++) {
-       remaining += _character.spellSlots[i];
+    for (int i = 0; i < _character.spellSlots.length; i++) {
+      remaining += _character.spellSlots[i];
     }
-    
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
@@ -537,7 +644,8 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
         style: FilledButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
         onPressed: () {
           showModalBottomSheet(
@@ -554,7 +662,9 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
         label: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(l10n.castSpell.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.0)),
+            Text(l10n.castSpell.toUpperCase(),
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, letterSpacing: 1.0)),
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -563,7 +673,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                l10n.slotsRemaining(remaining), 
+                l10n.slotsRemaining(remaining),
                 style: const TextStyle(fontSize: 12),
               ),
             ),
@@ -573,17 +683,23 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
     );
   }
 
-  Widget _buildHeaderStat(String label, String value, IconData icon, Color color) {
+  Widget _buildHeaderStat(
+      String label, String value, IconData icon, Color color) {
     return Column(
       children: [
         Icon(icon, color: color, size: 20),
-        Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: color)),
-        Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+        Text(value,
+            style: TextStyle(
+                fontSize: 24, fontWeight: FontWeight.w900, color: color)),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
       ],
     );
   }
 
-  Widget _buildActionButton(BuildContext context, String label, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildActionButton(BuildContext context, String label, IconData icon,
+      Color color, VoidCallback onTap) {
     return Material(
       color: color.withOpacity(0.15),
       borderRadius: BorderRadius.circular(20),
@@ -598,7 +714,8 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
             children: [
               Icon(icon, color: color, size: 32),
               const SizedBox(height: 4),
-              Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: color)),
+              Text(label,
+                  style: TextStyle(fontWeight: FontWeight.bold, color: color)),
             ],
           ),
         ),
@@ -606,21 +723,24 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> with TickerPr
     );
   }
 
-  Widget _buildDeathSaveRow(String label, int count, IconData icon, Color color, VoidCallback onAdd) {
+  Widget _buildDeathSaveRow(
+      String label, int count, IconData icon, Color color, VoidCallback onAdd) {
     return Column(
       children: [
         Text(label, style: const TextStyle(fontSize: 12)),
         const SizedBox(height: 4),
         Row(
-          children: List.generate(3, (i) => IconButton(
-            onPressed: onAdd,
-            icon: Icon(
-              i < count ? icon : Icons.check_box_outline_blank,
-              color: i < count ? color : Colors.grey,
-            ),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-          )),
+          children: List.generate(
+              3,
+              (i) => IconButton(
+                    onPressed: onAdd,
+                    icon: Icon(
+                      i < count ? icon : Icons.check_box_outline_blank,
+                      color: i < count ? color : Colors.grey,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  )),
         ),
       ],
     );

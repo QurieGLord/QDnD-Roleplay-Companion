@@ -34,8 +34,10 @@ class CharacterDataService {
 
     try {
       // Load asset races
-      final humanJson = await rootBundle.loadString('assets/data/races/human.json');
-      final dwarfJson = await rootBundle.loadString('assets/data/races/dwarf.json');
+      final humanJson =
+          await rootBundle.loadString('assets/data/races/human.json');
+      final dwarfJson =
+          await rootBundle.loadString('assets/data/races/dwarf.json');
       final elfJson = await rootBundle.loadString('assets/data/races/elf.json');
 
       final assetRaces = [
@@ -46,9 +48,10 @@ class CharacterDataService {
 
       // Load storage races
       final storageRaces = StorageService.getAllRaces();
-      
+
       _races = [...assetRaces, ...storageRaces];
-      print('✅ Loaded ${_races!.length} races (${assetRaces.length} assets + ${storageRaces.length} custom)');
+      print(
+          '✅ Loaded ${_races!.length} races (${assetRaces.length} assets + ${storageRaces.length} custom)');
     } catch (e) {
       print('❌ Failed to load races: $e');
       _races = [];
@@ -59,15 +62,26 @@ class CharacterDataService {
     if (_classes != null) return;
 
     final classIds = [
-      'barbarian', 'bard', 'cleric', 'druid', 'fighter', 'monk',
-      'paladin', 'ranger', 'rogue', 'sorcerer', 'warlock', 'wizard'
+      'barbarian',
+      'bard',
+      'cleric',
+      'druid',
+      'fighter',
+      'monk',
+      'paladin',
+      'ranger',
+      'rogue',
+      'sorcerer',
+      'warlock',
+      'wizard'
     ];
 
     try {
       // Load asset classes
       final assetClassesFutures = classIds.map((id) async {
         try {
-          final jsonStr = await rootBundle.loadString('assets/data/classes/$id.json');
+          final jsonStr =
+              await rootBundle.loadString('assets/data/classes/$id.json');
           return ClassData.fromJson(json.decode(jsonStr));
         } catch (e) {
           print('⚠️ Failed to load asset class $id: $e');
@@ -83,7 +97,8 @@ class CharacterDataService {
       final storageClasses = StorageService.getAllClasses();
 
       _classes = [...assetClasses, ...storageClasses];
-      print('✅ Loaded ${_classes!.length} classes (${assetClasses.length} assets + ${storageClasses.length} custom)');
+      print(
+          '✅ Loaded ${_classes!.length} classes (${assetClasses.length} assets + ${storageClasses.length} custom)');
     } catch (e) {
       print('❌ Failed to load classes: $e');
       _classes = [];
@@ -94,9 +109,12 @@ class CharacterDataService {
     if (_backgrounds != null) return;
 
     try {
-      final acolyteJson = await rootBundle.loadString('assets/data/backgrounds/acolyte.json');
-      final soldierJson = await rootBundle.loadString('assets/data/backgrounds/soldier.json');
-      final folkHeroJson = await rootBundle.loadString('assets/data/backgrounds/folk_hero.json');
+      final acolyteJson =
+          await rootBundle.loadString('assets/data/backgrounds/acolyte.json');
+      final soldierJson =
+          await rootBundle.loadString('assets/data/backgrounds/soldier.json');
+      final folkHeroJson =
+          await rootBundle.loadString('assets/data/backgrounds/folk_hero.json');
 
       final assetBackgrounds = [
         BackgroundData.fromJson(json.decode(acolyteJson)),
@@ -107,7 +125,8 @@ class CharacterDataService {
       final storageBackgrounds = StorageService.getAllBackgrounds();
 
       _backgrounds = [...assetBackgrounds, ...storageBackgrounds];
-      print('✅ Loaded ${_backgrounds!.length} backgrounds (${assetBackgrounds.length} assets + ${storageBackgrounds.length} custom)');
+      print(
+          '✅ Loaded ${_backgrounds!.length} backgrounds (${assetBackgrounds.length} assets + ${storageBackgrounds.length} custom)');
     } catch (e) {
       print('❌ Failed to load backgrounds: $e');
       _backgrounds = [];
@@ -137,34 +156,60 @@ class CharacterDataService {
     // Simple mapping for common Russian names
     switch (lower) {
       // Classes
-      case 'паладин': return 'paladin';
-      case 'воин': return 'fighter';
-      case 'варвар': return 'barbarian';
-      case 'монах': return 'monk';
-      case 'плут': return 'rogue';
-      case 'следопыт': return 'ranger';
-      case 'друид': return 'druid';
-      case 'жрец': return 'cleric';
-      case 'волшебник': return 'wizard';
-      case 'чародей': return 'sorcerer';
-      case 'колдун': return 'warlock';
-      case 'бард': return 'bard';
-      case 'изобретатель': return 'artificer';
+      case 'паладин':
+        return 'paladin';
+      case 'воин':
+        return 'fighter';
+      case 'варвар':
+        return 'barbarian';
+      case 'монах':
+        return 'monk';
+      case 'плут':
+        return 'rogue';
+      case 'следопыт':
+        return 'ranger';
+      case 'друид':
+        return 'druid';
+      case 'жрец':
+        return 'cleric';
+      case 'волшебник':
+        return 'wizard';
+      case 'чародей':
+        return 'sorcerer';
+      case 'колдун':
+        return 'warlock';
+      case 'бард':
+        return 'bard';
+      case 'изобретатель':
+        return 'artificer';
       // Races
-      case 'человек': return 'human';
-      case 'эльф': return 'elf';
-      case 'дварф': return 'dwarf';
-      case 'гном': return 'gnome';
-      case 'полурослик': return 'halfling';
-      case 'драконорожденный': return 'dragonborn';
-      case 'тифлинг': return 'tiefling';
-      case 'полуорк': return 'half_orc';
-      case 'полуэльф': return 'half_elf';
+      case 'человек':
+        return 'human';
+      case 'эльф':
+        return 'elf';
+      case 'дварф':
+        return 'dwarf';
+      case 'гном':
+        return 'gnome';
+      case 'полурослик':
+        return 'halfling';
+      case 'драконорожденный':
+        return 'dragonborn';
+      case 'тифлинг':
+        return 'tiefling';
+      case 'полуорк':
+        return 'half_orc';
+      case 'полуэльф':
+        return 'half_elf';
       // Backgrounds
-      case 'прислужник': return 'acolyte';
-      case 'солдат': return 'soldier';
-      case 'народный герой': return 'folk_hero';
-      default: return lower;
+      case 'прислужник':
+        return 'acolyte';
+      case 'солдат':
+        return 'soldier';
+      case 'народный герой':
+        return 'folk_hero';
+      default:
+        return lower;
     }
   }
 
@@ -172,26 +217,29 @@ class CharacterDataService {
     if (_races == null) return null;
     final targetId = _normalizeId(idOrName);
     return _races!.firstWhere(
-      (r) => r.id == targetId || r.name.values.any((val) => val.toLowerCase() == targetId), 
-      orElse: () => throw Exception('Race not found: $idOrName')
-    );
+        (r) =>
+            r.id == targetId ||
+            r.name.values.any((val) => val.toLowerCase() == targetId),
+        orElse: () => throw Exception('Race not found: $idOrName'));
   }
 
   static ClassData? getClassById(String idOrName) {
     if (_classes == null) return null;
     final targetId = _normalizeId(idOrName);
     return _classes!.firstWhere(
-      (c) => c.id == targetId || c.name.values.any((val) => val.toLowerCase() == targetId), 
-      orElse: () => throw Exception('Class not found: $idOrName')
-    );
+        (c) =>
+            c.id == targetId ||
+            c.name.values.any((val) => val.toLowerCase() == targetId),
+        orElse: () => throw Exception('Class not found: $idOrName'));
   }
 
   static BackgroundData? getBackgroundById(String idOrName) {
     if (_backgrounds == null) return null;
     final targetId = _normalizeId(idOrName);
     return _backgrounds!.firstWhere(
-      (b) => b.id == targetId || b.name.values.any((val) => val.toLowerCase() == targetId), 
-      orElse: () => throw Exception('Background not found: $idOrName')
-    );
+        (b) =>
+            b.id == targetId ||
+            b.name.values.any((val) => val.toLowerCase() == targetId),
+        orElse: () => throw Exception('Background not found: $idOrName'));
   }
 }

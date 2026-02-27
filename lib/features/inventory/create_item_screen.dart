@@ -19,14 +19,14 @@ class CreateItemScreen extends StatefulWidget {
 
 class _CreateItemScreenState extends State<CreateItemScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   // Controllers
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
   final _weightController = TextEditingController(text: '0');
   final _valueController = TextEditingController(text: '0');
   final _quantityController = TextEditingController(text: '1');
-  
+
   // Weapon/Armor specific
   final _damageDiceController = TextEditingController(text: '1d6');
   final _acController = TextEditingController(text: '10');
@@ -51,7 +51,7 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
     'consumable': Icons.local_drink,
     'tool': Icons.build,
     'treasure': Icons.diamond,
-    'sword': Icons.pages, 
+    'sword': Icons.pages,
     'scroll': Icons.menu_book,
     'food': Icons.restaurant,
     'gold': Icons.monetization_on,
@@ -103,11 +103,12 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
             actions: [
               IconButton(
                 icon: const Icon(Icons.check),
-                onPressed: _nameController.text.trim().isNotEmpty ? _saveItem : null,
+                onPressed:
+                    _nameController.text.trim().isNotEmpty ? _saveItem : null,
               ),
             ],
           ),
-          
+
           // Live Preview Section
           SliverToBoxAdapter(
             child: _buildLivePreview(theme, l10n),
@@ -130,7 +131,8 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                       decoration: InputDecoration(
                         labelText: l10n.itemName,
                         hintText: l10n.itemExample,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         prefixIcon: const Icon(Icons.edit),
                       ),
                       textCapitalization: TextCapitalization.sentences,
@@ -140,7 +142,8 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                       controller: _descController,
                       decoration: InputDecoration(
                         labelText: l10n.itemDescription,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         alignLabelWithHint: true,
                       ),
                       maxLines: 3,
@@ -153,23 +156,26 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                         children: _availableIcons.entries.map((entry) {
                           final isSelected = _selectedIcon == entry.key;
                           return GestureDetector(
-                            onTap: () => setState(() => _selectedIcon = entry.key),
+                            onTap: () =>
+                                setState(() => _selectedIcon = entry.key),
                             child: Container(
                               width: 60,
                               margin: const EdgeInsets.only(right: 12),
                               decoration: BoxDecoration(
-                                color: isSelected 
-                                    ? theme.colorScheme.primaryContainer 
+                                color: isSelected
+                                    ? theme.colorScheme.primaryContainer
                                     : theme.colorScheme.surfaceContainerHighest,
                                 shape: BoxShape.circle,
-                                border: isSelected 
-                                    ? Border.all(color: theme.colorScheme.primary, width: 2)
+                                border: isSelected
+                                    ? Border.all(
+                                        color: theme.colorScheme.primary,
+                                        width: 2)
                                     : null,
                               ),
                               child: Icon(
                                 entry.value,
-                                color: isSelected 
-                                    ? theme.colorScheme.onPrimaryContainer 
+                                color: isSelected
+                                    ? theme.colorScheme.onPrimaryContainer
                                     : theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
@@ -190,7 +196,8 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                       runSpacing: 8,
                       children: ItemType.values.map((type) {
                         return ChoiceChip(
-                          label: Text(ItemUtils.getLocalizedTypeName(l10n, type)),
+                          label:
+                              Text(ItemUtils.getLocalizedTypeName(l10n, type)),
                           selected: _selectedType == type,
                           onSelected: (selected) {
                             if (selected) setState(() => _selectedType = type);
@@ -209,13 +216,17 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                           label: Text(
                             ItemUtils.getLocalizedRarityName(l10n, rarity),
                             style: TextStyle(
-                              color: _selectedRarity == rarity ? Colors.white : null,
+                              color: _selectedRarity == rarity
+                                  ? Colors.white
+                                  : null,
                             ),
                           ),
                           selected: _selectedRarity == rarity,
                           selectedColor: _getRarityColor(rarity),
                           onSelected: (selected) {
-                            if (selected) setState(() => _selectedRarity = rarity);
+                            if (selected) {
+                              setState(() => _selectedRarity = rarity);
+                            }
                           },
                         );
                       }).toList(),
@@ -231,11 +242,13 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                         Expanded(
                           child: TextFormField(
                             controller: _weightController,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
                             decoration: InputDecoration(
                               labelText: l10n.itemWeight,
                               suffixText: l10n.weightUnit,
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12)),
                             ),
                           ),
                         ),
@@ -246,21 +259,28 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               labelText: l10n.quantity,
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12)),
                               prefixIcon: IconButton(
                                 icon: const Icon(Icons.remove),
                                 onPressed: () {
-                                  int current = int.tryParse(_quantityController.text) ?? 1;
+                                  int current =
+                                      int.tryParse(_quantityController.text) ??
+                                          1;
                                   if (current > 1) {
-                                    _quantityController.text = (current - 1).toString();
+                                    _quantityController.text =
+                                        (current - 1).toString();
                                   }
                                 },
                               ),
                               suffixIcon: IconButton(
                                 icon: const Icon(Icons.add),
                                 onPressed: () {
-                                  int current = int.tryParse(_quantityController.text) ?? 1;
-                                  _quantityController.text = (current + 1).toString();
+                                  int current =
+                                      int.tryParse(_quantityController.text) ??
+                                          1;
+                                  _quantityController.text =
+                                      (current + 1).toString();
                                 },
                               ),
                             ),
@@ -279,7 +299,8 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               labelText: l10n.itemValue,
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12)),
                             ),
                           ),
                         ),
@@ -287,13 +308,24 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                         Expanded(
                           flex: 1,
                           child: DropdownButtonFormField<String>(
-                            value: _selectedCurrency,
+                            initialValue: _selectedCurrency,
                             decoration: InputDecoration(
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
                             ),
-                            items: [l10n.currencyGP_short.toUpperCase(), l10n.currencySP_short.toUpperCase(), l10n.currencyCP_short.toUpperCase(), l10n.currencyPP_short.toUpperCase()].map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
-                            onChanged: (v) => setState(() => _selectedCurrency = v!),
+                            items: [
+                              l10n.currencyGP_short.toUpperCase(),
+                              l10n.currencySP_short.toUpperCase(),
+                              l10n.currencyCP_short.toUpperCase(),
+                              l10n.currencyPP_short.toUpperCase()
+                            ]
+                                .map((c) =>
+                                    DropdownMenuItem(value: c, child: Text(c)))
+                                .toList(),
+                            onChanged: (v) =>
+                                setState(() => _selectedCurrency = v!),
                           ),
                         ),
                       ],
@@ -308,15 +340,19 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                       title: Text(l10n.isMagical),
                       value: _isMagical,
                       onChanged: (v) => setState(() => _isMagical = v),
-                      secondary: Icon(Icons.auto_fix_high, color: _isMagical ? theme.colorScheme.primary : null),
-                      activeColor: theme.colorScheme.primary,
+                      secondary: Icon(Icons.auto_fix_high,
+                          color: _isMagical ? theme.colorScheme.primary : null),
+                      activeThumbColor: theme.colorScheme.primary,
                     ),
                     SwitchListTile(
                       title: Text(l10n.requiresAttunement),
                       value: _requiresAttunement,
                       onChanged: (v) => setState(() => _requiresAttunement = v),
-                      secondary: Icon(Icons.link, color: _requiresAttunement ? theme.colorScheme.primary : null),
-                      activeColor: theme.colorScheme.primary,
+                      secondary: Icon(Icons.link,
+                          color: _requiresAttunement
+                              ? theme.colorScheme.primary
+                              : null),
+                      activeThumbColor: theme.colorScheme.primary,
                     ),
 
                     // Dynamic Fields: Weapon
@@ -324,7 +360,8 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                       const Divider(),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(l10n.weaponStats, style: theme.textTheme.titleMedium),
+                        child: Text(l10n.weaponStats,
+                            style: theme.textTheme.titleMedium),
                       ),
                       Row(
                         children: [
@@ -334,21 +371,30 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                               decoration: InputDecoration(
                                 labelText: l10n.damageDice,
                                 hintText: l10n.damageDiceHint,
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12)),
                               ),
                             ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: DropdownButtonFormField<DamageType>(
-                              value: _selectedDamageType,
+                              initialValue: _selectedDamageType,
                               decoration: InputDecoration(
                                 labelText: l10n.damageType,
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12)),
                               ),
                               isExpanded: true,
-                              items: DamageType.values.map((t) => DropdownMenuItem(value: t, child: Text(ItemUtils.getLocalizedDamageType(l10n, t.toString())))).toList(),
-                              onChanged: (v) => setState(() => _selectedDamageType = v!),
+                              items: DamageType.values
+                                  .map((t) => DropdownMenuItem(
+                                      value: t,
+                                      child: Text(
+                                          ItemUtils.getLocalizedDamageType(
+                                              l10n, t.toString()))))
+                                  .toList(),
+                              onChanged: (v) =>
+                                  setState(() => _selectedDamageType = v!),
                             ),
                           ),
                         ],
@@ -360,7 +406,8 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                       const Divider(),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(l10n.armorStats, style: theme.textTheme.titleMedium),
+                        child: Text(l10n.armorStats,
+                            style: theme.textTheme.titleMedium),
                       ),
                       Row(
                         children: [
@@ -370,20 +417,29 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
                                 labelText: '${l10n.armorClass} (AC)',
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12)),
                               ),
                             ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: DropdownButtonFormField<ArmorType>(
-                              value: _selectedArmorType,
+                              initialValue: _selectedArmorType,
                               decoration: InputDecoration(
                                 labelText: l10n.type,
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12)),
                               ),
-                              items: ArmorType.values.map((t) => DropdownMenuItem(value: t, child: Text(ItemUtils.getLocalizedArmorType(l10n, t.toString())))).toList(),
-                              onChanged: (v) => setState(() => _selectedArmorType = v!),
+                              items: ArmorType.values
+                                  .map((t) => DropdownMenuItem(
+                                      value: t,
+                                      child: Text(
+                                          ItemUtils.getLocalizedArmorType(
+                                              l10n, t.toString()))))
+                                  .toList(),
+                              onChanged: (v) =>
+                                  setState(() => _selectedArmorType = v!),
                             ),
                           ),
                         ],
@@ -393,13 +449,14 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
                         title: Text(l10n.addDexModifier),
                         value: _addDexModifier,
                         onChanged: (v) => setState(() => _addDexModifier = v),
-                        activeColor: theme.colorScheme.primary,
+                        activeThumbColor: theme.colorScheme.primary,
                       ),
                       SwitchListTile(
                         title: Text(l10n.stealthDisadvantage),
                         value: _stealthDisadvantage,
-                        onChanged: (v) => setState(() => _stealthDisadvantage = v),
-                        activeColor: theme.colorScheme.primary,
+                        onChanged: (v) =>
+                            setState(() => _stealthDisadvantage = v),
+                        activeThumbColor: theme.colorScheme.primary,
                       ),
                     ],
 
@@ -418,16 +475,24 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
     // Calculate value in copper for preview
     int val = int.tryParse(_valueController.text) ?? 0;
     int multiplier = 1; // CP
-    if (_selectedCurrency == l10n.currencySP_short.toUpperCase()) multiplier = 10;
-    if (_selectedCurrency == l10n.currencyGP_short.toUpperCase()) multiplier = 100;
-    if (_selectedCurrency == l10n.currencyPP_short.toUpperCase()) multiplier = 1000;
+    if (_selectedCurrency == l10n.currencySP_short.toUpperCase()) {
+      multiplier = 10;
+    }
+    if (_selectedCurrency == l10n.currencyGP_short.toUpperCase()) {
+      multiplier = 100;
+    }
+    if (_selectedCurrency == l10n.currencyPP_short.toUpperCase()) {
+      multiplier = 1000;
+    }
     int valueInCopper = val * multiplier;
 
     // Construct a temporary item for preview
     final previewItem = Item(
       id: 'preview',
-      nameEn: _nameController.text.isEmpty ? l10n.itemName : _nameController.text,
-      nameRu: _nameController.text.isEmpty ? l10n.itemName : _nameController.text,
+      nameEn:
+          _nameController.text.isEmpty ? l10n.itemName : _nameController.text,
+      nameRu:
+          _nameController.text.isEmpty ? l10n.itemName : _nameController.text,
       descriptionEn: _descController.text,
       descriptionRu: _descController.text,
       type: _selectedType,
@@ -438,11 +503,15 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
       isMagical: _isMagical,
       isAttuned: false,
       // Create properties if needed
-      weaponProperties: _selectedType == ItemType.weapon 
-          ? WeaponProperties(damageDice: _damageDiceController.text, damageType: _selectedDamageType) 
+      weaponProperties: _selectedType == ItemType.weapon
+          ? WeaponProperties(
+              damageDice: _damageDiceController.text,
+              damageType: _selectedDamageType)
           : null,
       armorProperties: _selectedType == ItemType.armor
-          ? ArmorProperties(baseAC: int.tryParse(_acController.text) ?? 10, armorType: _selectedArmorType)
+          ? ArmorProperties(
+              baseAC: int.tryParse(_acController.text) ?? 10,
+              armorType: _selectedArmorType)
           : null,
     );
 
@@ -481,7 +550,11 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
   Widget _buildSectionHeader(ThemeData theme, String title) {
     return Row(
       children: [
-        Container(width: 4, height: 16, color: theme.colorScheme.primary, margin: const EdgeInsets.only(right: 8)),
+        Container(
+            width: 4,
+            height: 16,
+            color: theme.colorScheme.primary,
+            margin: const EdgeInsets.only(right: 8)),
         Text(
           title.toUpperCase(),
           style: theme.textTheme.labelLarge?.copyWith(
@@ -496,32 +569,44 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
 
   Color _getRarityColor(ItemRarity rarity) {
     switch (rarity) {
-      case ItemRarity.common: return Colors.grey;
-      case ItemRarity.uncommon: return Colors.green;
-      case ItemRarity.rare: return Colors.blue;
-      case ItemRarity.veryRare: return Colors.purple;
-      case ItemRarity.legendary: return Colors.orange;
-      case ItemRarity.artifact: return Colors.red;
+      case ItemRarity.common:
+        return Colors.grey;
+      case ItemRarity.uncommon:
+        return Colors.green;
+      case ItemRarity.rare:
+        return Colors.blue;
+      case ItemRarity.veryRare:
+        return Colors.purple;
+      case ItemRarity.legendary:
+        return Colors.orange;
+      case ItemRarity.artifact:
+        return Colors.red;
     }
   }
 
   void _saveItem() {
     if (!_formKey.currentState!.validate()) return;
-    
+
     final l10n = AppLocalizations.of(context)!;
 
     // Calculate value in copper
     int val = int.tryParse(_valueController.text) ?? 0;
     int multiplier = 1; // CP
-    if (_selectedCurrency == l10n.currencySP_short.toUpperCase()) multiplier = 10;
-    if (_selectedCurrency == l10n.currencyGP_short.toUpperCase()) multiplier = 100;
-    if (_selectedCurrency == l10n.currencyPP_short.toUpperCase()) multiplier = 1000;
+    if (_selectedCurrency == l10n.currencySP_short.toUpperCase()) {
+      multiplier = 10;
+    }
+    if (_selectedCurrency == l10n.currencyGP_short.toUpperCase()) {
+      multiplier = 100;
+    }
+    if (_selectedCurrency == l10n.currencyPP_short.toUpperCase()) {
+      multiplier = 1000;
+    }
     int valueInCopper = val * multiplier;
 
     final item = Item(
       id: const Uuid().v4(),
       nameEn: _nameController.text.trim(),
-      nameRu: _nameController.text.trim(), 
+      nameRu: _nameController.text.trim(),
       descriptionEn: _descController.text.trim(),
       descriptionRu: _descController.text.trim(),
       type: _selectedType,
@@ -530,23 +615,27 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
       quantity: int.tryParse(_quantityController.text) ?? 1,
       valueInCopper: valueInCopper,
       isMagical: _isMagical,
-      isAttuned: false, 
+      isAttuned: false,
       iconName: _selectedIcon,
-      
+
       // Weapon Props
-      weaponProperties: _selectedType == ItemType.weapon ? WeaponProperties(
-        damageDice: _damageDiceController.text,
-        damageType: _selectedDamageType,
-        weaponTags: [], 
-      ) : null,
+      weaponProperties: _selectedType == ItemType.weapon
+          ? WeaponProperties(
+              damageDice: _damageDiceController.text,
+              damageType: _selectedDamageType,
+              weaponTags: [],
+            )
+          : null,
 
       // Armor Props
-      armorProperties: _selectedType == ItemType.armor ? ArmorProperties(
-        baseAC: int.tryParse(_acController.text) ?? 10,
-        armorType: _selectedArmorType,
-        addDexModifier: _addDexModifier,
-        stealthDisadvantage: _stealthDisadvantage,
-      ) : null,
+      armorProperties: _selectedType == ItemType.armor
+          ? ArmorProperties(
+              baseAC: int.tryParse(_acController.text) ?? 10,
+              armorType: _selectedArmorType,
+              addDexModifier: _addDexModifier,
+              stealthDisadvantage: _stealthDisadvantage,
+            )
+          : null,
     );
 
     Navigator.pop(context, item);

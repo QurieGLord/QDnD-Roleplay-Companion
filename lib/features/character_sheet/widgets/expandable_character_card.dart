@@ -11,7 +11,7 @@ class ExpandableCharacterCard extends StatefulWidget {
   final VoidCallback onDicePressed;
   final ValueChanged<bool>? onDetailsToggled;
 
-  ExpandableCharacterCard({
+  const ExpandableCharacterCard({
     super.key,
     required this.character,
     required this.isExpanded,
@@ -20,11 +20,12 @@ class ExpandableCharacterCard extends StatefulWidget {
   });
 
   @override
-  State<ExpandableCharacterCard> createState() => _ExpandableCharacterCardState();
+  State<ExpandableCharacterCard> createState() =>
+      _ExpandableCharacterCardState();
 }
 
-class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with SingleTickerProviderStateMixin {
-
+class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
+    with SingleTickerProviderStateMixin {
   void _openLevelUpWizard() async {
     final result = await Navigator.push(
       context,
@@ -50,7 +51,8 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with 
     }
   }
 
-  String _getLocalizedSubclassName(BuildContext context, String className, String subclassName) {
+  String _getLocalizedSubclassName(
+      BuildContext context, String className, String subclassName) {
     try {
       final locale = Localizations.localeOf(context).languageCode;
       final classData = CharacterDataService.getClassById(className);
@@ -70,41 +72,70 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with 
   String _getLocalizedValue(AppLocalizations l10n, String value) {
     final normalized = value.trim().toLowerCase();
     switch (normalized) {
-      case 'male': return l10n.genderMale;
-      case 'female': return l10n.genderFemale;
-      case 'other': return l10n.genderOther;
-      case 'amber': return l10n.colorAmber;
-      case 'blue': return l10n.colorBlue;
-      case 'brown': return l10n.colorBrown;
-      case 'gray': return l10n.colorGray;
-      case 'green': return l10n.colorGreen;
-      case 'hazel': return l10n.colorHazel;
-      case 'red': return l10n.colorRed;
-      case 'violet': return l10n.colorViolet;
-      case 'auburn': return l10n.colorAuburn;
-      case 'black': return l10n.colorBlack;
-      case 'blonde': return l10n.colorBlonde;
-      case 'white': return l10n.colorWhite;
-      case 'bald': return l10n.colorBald;
-      case 'pale': return l10n.skinPale;
-      case 'fair': return l10n.skinFair;
-      case 'light': return l10n.skinLight;
-      case 'medium': return l10n.skinMedium;
-      case 'tan': return l10n.skinTan;
-      case 'dark': return l10n.skinDark;
-      case 'ebony': return l10n.skinEbony;
-      default: return value;
+      case 'male':
+        return l10n.genderMale;
+      case 'female':
+        return l10n.genderFemale;
+      case 'other':
+        return l10n.genderOther;
+      case 'amber':
+        return l10n.colorAmber;
+      case 'blue':
+        return l10n.colorBlue;
+      case 'brown':
+        return l10n.colorBrown;
+      case 'gray':
+        return l10n.colorGray;
+      case 'green':
+        return l10n.colorGreen;
+      case 'hazel':
+        return l10n.colorHazel;
+      case 'red':
+        return l10n.colorRed;
+      case 'violet':
+        return l10n.colorViolet;
+      case 'auburn':
+        return l10n.colorAuburn;
+      case 'black':
+        return l10n.colorBlack;
+      case 'blonde':
+        return l10n.colorBlonde;
+      case 'white':
+        return l10n.colorWhite;
+      case 'bald':
+        return l10n.colorBald;
+      case 'pale':
+        return l10n.skinPale;
+      case 'fair':
+        return l10n.skinFair;
+      case 'light':
+        return l10n.skinLight;
+      case 'medium':
+        return l10n.skinMedium;
+      case 'tan':
+        return l10n.skinTan;
+      case 'dark':
+        return l10n.skinDark;
+      case 'ebony':
+        return l10n.skinEbony;
+      default:
+        return value;
     }
   }
 
   String _formatValue(AppLocalizations l10n, String? value) {
     if (value == null) return '';
     var result = value.trim();
-    if (result.endsWith('cm')) result = result.replaceAll('cm', ' ${l10n.unitCm}');
-    else if (result.endsWith('kg')) result = result.replaceAll('kg', ' ${l10n.unitKg}');
-    else if (result.endsWith('years')) result = result.replaceAll('years', ' ${l10n.ageYears}');
-    else if (result.endsWith('lb') || result.endsWith('lbs')) result = result.replaceAll(RegExp(r'lbs?'), ' ${l10n.weightUnit}');
-    else if (result.endsWith('ft')) result = result.replaceAll('ft', ' ${l10n.unitCm}');
+    if (result.endsWith('cm')) {
+      result = result.replaceAll('cm', ' ${l10n.unitCm}');
+    } else if (result.endsWith('kg'))
+      result = result.replaceAll('kg', ' ${l10n.unitKg}');
+    else if (result.endsWith('years'))
+      result = result.replaceAll('years', ' ${l10n.ageYears}');
+    else if (result.endsWith('lb') || result.endsWith('lbs'))
+      result = result.replaceAll(RegExp(r'lbs?'), ' ${l10n.weightUnit}');
+    else if (result.endsWith('ft'))
+      result = result.replaceAll('ft', ' ${l10n.unitCm}');
     return result;
   }
 
@@ -119,9 +150,11 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with 
         widget.character.backstory != null ||
         widget.character.age != null;
 
-    final localizedClassName = _getLocalizedClassName(context, widget.character.characterClass);
-    final localizedSubclass = widget.character.subclass != null 
-        ? _getLocalizedSubclassName(context, widget.character.characterClass, widget.character.subclass!)
+    final localizedClassName =
+        _getLocalizedClassName(context, widget.character.characterClass);
+    final localizedSubclass = widget.character.subclass != null
+        ? _getLocalizedSubclassName(context, widget.character.characterClass,
+            widget.character.subclass!)
         : null;
 
     return AnimatedContainer(
@@ -139,7 +172,8 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with 
             offset: const Offset(0, 8),
           ),
         ],
-        border: Border.all(color: colorScheme.onSecondaryContainer.withOpacity(0.1)),
+        border: Border.all(
+            color: colorScheme.onSecondaryContainer.withOpacity(0.1)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -160,7 +194,9 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with 
                         decoration: BoxDecoration(
                           color: colorScheme.surface,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: colorScheme.onSecondaryContainer.withOpacity(0.2)),
+                          border: Border.all(
+                              color: colorScheme.onSecondaryContainer
+                                  .withOpacity(0.2)),
                         ),
                         child: widget.character.avatarPath != null
                             ? ClipRRect(
@@ -170,7 +206,8 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with 
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Icon(
-                                      _getClassIcon(widget.character.characterClass),
+                                      _getClassIcon(
+                                          widget.character.characterClass),
                                       size: 40,
                                       color: colorScheme.secondary,
                                     );
@@ -189,13 +226,17 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with 
                     // Info
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.only(right: 40.0), // Space for dice button
+                        padding: const EdgeInsets.only(
+                            right: 40.0), // Space for dice button
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               widget.character.name,
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
                                     fontWeight: FontWeight.w800,
                                     color: colorScheme.onSecondaryContainer,
                                     height: 1.1,
@@ -203,19 +244,22 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with 
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            
+
                             // Level Badge (Capsule Style)
                             Padding(
-                              padding: const EdgeInsets.only(top: 8.0, bottom: 6.0),
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, bottom: 6.0),
                               child: Material(
                                 color: Colors.transparent,
                                 child: InkWell(
                                   onTap: _openLevelUpWizard,
                                   borderRadius: BorderRadius.circular(20),
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: colorScheme.surface, // Distinct form background
+                                      color: colorScheme
+                                          .surface, // Distinct form background
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Row(
@@ -241,11 +285,12 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with 
                                 ),
                               ),
                             ),
-                            
+
                             Text(
                               localizedClassName,
                               style: TextStyle(
-                                color: colorScheme.onSecondaryContainer.withOpacity(0.8),
+                                color: colorScheme.onSecondaryContainer
+                                    .withOpacity(0.8),
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
                               ),
@@ -254,7 +299,8 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with 
                               Text(
                                 localizedSubclass,
                                 style: TextStyle(
-                                  color: colorScheme.onSecondaryContainer.withOpacity(0.6),
+                                  color: colorScheme.onSecondaryContainer
+                                      .withOpacity(0.6),
                                   fontSize: 12,
                                 ),
                                 maxLines: 1,
@@ -296,12 +342,16 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with 
               ),
               child: Column(
                 children: [
-                  Divider(height: 1, color: colorScheme.onSecondaryContainer.withOpacity(0.1)),
+                  Divider(
+                      height: 1,
+                      color: colorScheme.onSecondaryContainer.withOpacity(0.1)),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Icon(
-                      widget.isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                      widget.isExpanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
                       size: 20,
                       color: colorScheme.onSecondaryContainer.withOpacity(0.5),
                     ),
@@ -313,51 +363,126 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with 
           // Animated Details Section
           AnimatedCrossFade(
             firstChild: const SizedBox(width: double.infinity),
-            secondChild: hasPersonalityData ? Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (widget.character.age != null || widget.character.gender != null || widget.character.height != null ||
-                      widget.character.weight != null || widget.character.eyes != null || widget.character.hair != null ||
-                      widget.character.skin != null) ...[
-                    _buildSectionTitle(l10n.physicalAppearance, Icons.face),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+            secondChild: hasPersonalityData
+                ? Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (widget.character.age != null) _buildInfoChip('${l10n.age}: ${_formatValue(l10n, widget.character.age)}'),
-                        if (widget.character.gender != null) _buildInfoChip('${l10n.gender}: ${_getLocalizedValue(l10n, widget.character.gender!)}'),
-                        if (widget.character.height != null) _buildInfoChip('${l10n.height}: ${_formatValue(l10n, widget.character.height)}'),
-                        if (widget.character.weight != null) _buildInfoChip('${l10n.weight}: ${_formatValue(l10n, widget.character.weight)}'),
-                        if (widget.character.eyes != null) _buildInfoChip('${l10n.eyes}: ${_getLocalizedValue(l10n, widget.character.eyes!)}'),
-                        if (widget.character.hair != null) _buildInfoChip('${l10n.hair}: ${_getLocalizedValue(l10n, widget.character.hair!)}'),
-                        if (widget.character.skin != null) _buildInfoChip('${l10n.skin}: ${_getLocalizedValue(l10n, widget.character.skin!)}'),
+                        if (widget.character.age != null ||
+                            widget.character.gender != null ||
+                            widget.character.height != null ||
+                            widget.character.weight != null ||
+                            widget.character.eyes != null ||
+                            widget.character.hair != null ||
+                            widget.character.skin != null) ...[
+                          _buildSectionTitle(
+                              l10n.physicalAppearance, Icons.face),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              if (widget.character.age != null)
+                                _buildInfoChip(
+                                    '${l10n.age}: ${_formatValue(l10n, widget.character.age)}'),
+                              if (widget.character.gender != null)
+                                _buildInfoChip(
+                                    '${l10n.gender}: ${_getLocalizedValue(l10n, widget.character.gender!)}'),
+                              if (widget.character.height != null)
+                                _buildInfoChip(
+                                    '${l10n.height}: ${_formatValue(l10n, widget.character.height)}'),
+                              if (widget.character.weight != null)
+                                _buildInfoChip(
+                                    '${l10n.weight}: ${_formatValue(l10n, widget.character.weight)}'),
+                              if (widget.character.eyes != null)
+                                _buildInfoChip(
+                                    '${l10n.eyes}: ${_getLocalizedValue(l10n, widget.character.eyes!)}'),
+                              if (widget.character.hair != null)
+                                _buildInfoChip(
+                                    '${l10n.hair}: ${_getLocalizedValue(l10n, widget.character.hair!)}'),
+                              if (widget.character.skin != null)
+                                _buildInfoChip(
+                                    '${l10n.skin}: ${_getLocalizedValue(l10n, widget.character.skin!)}'),
+                            ],
+                          ),
+                          if (widget.character.appearanceDescription !=
+                              null) ...[
+                            const SizedBox(height: 8),
+                            Text(widget.character.appearanceDescription!,
+                                style: TextStyle(
+                                    color: colorScheme.onSecondaryContainer
+                                        .withOpacity(0.9),
+                                    fontSize: 13)),
+                          ],
+                          const SizedBox(height: 16),
+                        ],
+                        if (widget.character.personalityTraits != null) ...[
+                          _buildSectionTitle(l10n.traits, Icons.psychology),
+                          const SizedBox(height: 4),
+                          Text(widget.character.personalityTraits!,
+                              style: TextStyle(
+                                  color: colorScheme.onSecondaryContainer
+                                      .withOpacity(0.9),
+                                  fontSize: 13)),
+                          const SizedBox(height: 12)
+                        ],
+                        if (widget.character.ideals != null) ...[
+                          _buildSectionTitle(l10n.ideals, Icons.star_outline),
+                          const SizedBox(height: 4),
+                          Text(widget.character.ideals!,
+                              style: TextStyle(
+                                  color: colorScheme.onSecondaryContainer
+                                      .withOpacity(0.9),
+                                  fontSize: 13)),
+                          const SizedBox(height: 12)
+                        ],
+                        if (widget.character.bonds != null) ...[
+                          _buildSectionTitle(
+                              l10n.bonds, Icons.favorite_outline),
+                          const SizedBox(height: 4),
+                          Text(widget.character.bonds!,
+                              style: TextStyle(
+                                  color: colorScheme.onSecondaryContainer
+                                      .withOpacity(0.9),
+                                  fontSize: 13)),
+                          const SizedBox(height: 12)
+                        ],
+                        if (widget.character.flaws != null) ...[
+                          _buildSectionTitle(
+                              l10n.flaws, Icons.warning_amber_outlined),
+                          const SizedBox(height: 4),
+                          Text(widget.character.flaws!,
+                              style: TextStyle(
+                                  color: colorScheme.onSecondaryContainer
+                                      .withOpacity(0.9),
+                                  fontSize: 13)),
+                          const SizedBox(height: 12)
+                        ],
+                        if (widget.character.backstory != null) ...[
+                          _buildSectionTitle(
+                              l10n.backstory, Icons.auto_stories),
+                          const SizedBox(height: 4),
+                          Text(widget.character.backstory!,
+                              style: TextStyle(
+                                  color: colorScheme.onSecondaryContainer
+                                      .withOpacity(0.9),
+                                  fontSize: 13))
+                        ],
                       ],
                     ),
-                    if (widget.character.appearanceDescription != null) ...[
-                      const SizedBox(height: 8),
-                      Text(widget.character.appearanceDescription!, style: TextStyle(color: colorScheme.onSecondaryContainer.withOpacity(0.9), fontSize: 13)),
-                    ],
-                    const SizedBox(height: 16),
-                  ],
-                  if (widget.character.personalityTraits != null) ...[_buildSectionTitle(l10n.traits, Icons.psychology), const SizedBox(height: 4), Text(widget.character.personalityTraits!, style: TextStyle(color: colorScheme.onSecondaryContainer.withOpacity(0.9), fontSize: 13)), const SizedBox(height: 12)],
-                  if (widget.character.ideals != null) ...[_buildSectionTitle(l10n.ideals, Icons.star_outline), const SizedBox(height: 4), Text(widget.character.ideals!, style: TextStyle(color: colorScheme.onSecondaryContainer.withOpacity(0.9), fontSize: 13)), const SizedBox(height: 12)],
-                  if (widget.character.bonds != null) ...[_buildSectionTitle(l10n.bonds, Icons.favorite_outline), const SizedBox(height: 4), Text(widget.character.bonds!, style: TextStyle(color: colorScheme.onSecondaryContainer.withOpacity(0.9), fontSize: 13)), const SizedBox(height: 12)],
-                  if (widget.character.flaws != null) ...[_buildSectionTitle(l10n.flaws, Icons.warning_amber_outlined), const SizedBox(height: 4), Text(widget.character.flaws!, style: TextStyle(color: colorScheme.onSecondaryContainer.withOpacity(0.9), fontSize: 13)), const SizedBox(height: 12)],
-                  if (widget.character.backstory != null) ...[_buildSectionTitle(l10n.backstory, Icons.auto_stories), const SizedBox(height: 4), Text(widget.character.backstory!, style: TextStyle(color: colorScheme.onSecondaryContainer.withOpacity(0.9), fontSize: 13))],
-                ],
-              ),
-            ) : const SizedBox.shrink(),
-            crossFadeState: widget.isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                  )
+                : const SizedBox.shrink(),
+            crossFadeState: widget.isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
             duration: const Duration(milliseconds: 300),
             sizeCurve: Curves.easeInOut,
           ),
@@ -372,7 +497,11 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with 
       children: [
         Icon(icon, size: 16, color: colorScheme.onSecondaryContainer),
         const SizedBox(width: 6),
-        Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: colorScheme.onSecondaryContainer)),
+        Text(title,
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: colorScheme.onSecondaryContainer)),
       ],
     );
   }
@@ -385,7 +514,11 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> with 
         color: colorScheme.surface.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(label, style: TextStyle(fontSize: 11, color: colorScheme.onSecondaryContainer, fontWeight: FontWeight.w500)),
+      child: Text(label,
+          style: TextStyle(
+              fontSize: 11,
+              color: colorScheme.onSecondaryContainer,
+              fontWeight: FontWeight.w500)),
     );
   }
 

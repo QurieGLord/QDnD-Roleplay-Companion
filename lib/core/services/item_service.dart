@@ -23,13 +23,14 @@ class ItemService {
 
       // 1. Load standard JSON items from assets
       try {
-        final String jsonString = await rootBundle.loadString('assets/data/items.json');
+        final String jsonString =
+            await rootBundle.loadString('assets/data/items.json');
         final List<dynamic> jsonList = json.decode(jsonString);
 
         final assetItems = jsonList.map((json) {
           return Item.fromJson(json as Map<String, dynamic>);
         }).toList();
-        
+
         _itemTemplates.addAll(assetItems);
         print('   - Loaded ${assetItems.length} items from assets');
       } catch (e) {
@@ -49,10 +50,14 @@ class ItemService {
 
       _isInitialized = true;
 
-      print('✅ ItemService: Total loaded ${_itemTemplates.length} item templates');
-      print('   - Weapons: ${_itemTemplates.where((i) => i.type == ItemType.weapon).length}');
-      print('   - Armor: ${_itemTemplates.where((i) => i.type == ItemType.armor).length}');
-      print('   - Gear: ${_itemTemplates.where((i) => i.type == ItemType.gear).length}');
+      print(
+          '✅ ItemService: Total loaded ${_itemTemplates.length} item templates');
+      print(
+          '   - Weapons: ${_itemTemplates.where((i) => i.type == ItemType.weapon).length}');
+      print(
+          '   - Armor: ${_itemTemplates.where((i) => i.type == ItemType.armor).length}');
+      print(
+          '   - Gear: ${_itemTemplates.where((i) => i.type == ItemType.gear).length}');
     } catch (e, stackTrace) {
       print('❌ ItemService: Fatal error loading items: $e');
       print('Stack trace: $stackTrace');
@@ -122,7 +127,8 @@ class ItemService {
   static Item? createItemFromTemplate(String templateId, {int quantity = 1}) {
     final template = getItemById(templateId);
     if (template == null) {
-      print('❌ ItemService: Cannot create item - template not found: $templateId');
+      print(
+          '❌ ItemService: Cannot create item - template not found: $templateId');
       return null;
     }
 
@@ -144,10 +150,12 @@ class ItemService {
           ? WeaponProperties(
               damageDice: template.weaponProperties!.damageDice,
               damageType: template.weaponProperties!.damageType,
-              weaponTags: List<String>.from(template.weaponProperties!.weaponTags),
+              weaponTags:
+                  List<String>.from(template.weaponProperties!.weaponTags),
               range: template.weaponProperties!.range,
               longRange: template.weaponProperties!.longRange,
-              versatileDamageDice: template.weaponProperties!.versatileDamageDice,
+              versatileDamageDice:
+                  template.weaponProperties!.versatileDamageDice,
             )
           : null,
       armorProperties: template.armorProperties != null
@@ -156,8 +164,10 @@ class ItemService {
               armorType: template.armorProperties!.armorType,
               addDexModifier: template.armorProperties!.addDexModifier,
               maxDexBonus: template.armorProperties!.maxDexBonus,
-              strengthRequirement: template.armorProperties!.strengthRequirement,
-              stealthDisadvantage: template.armorProperties!.stealthDisadvantage,
+              strengthRequirement:
+                  template.armorProperties!.strengthRequirement,
+              stealthDisadvantage:
+                  template.armorProperties!.stealthDisadvantage,
             )
           : null,
       isMagical: template.isMagical,

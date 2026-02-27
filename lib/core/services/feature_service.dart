@@ -9,6 +9,9 @@ class FeatureService {
   static final Map<String, CharacterFeature> _features = {};
   static bool _initialized = false;
 
+  /// Expose a list of all loaded features for fuzzy searches
+  static List<CharacterFeature> get allFeatures => _features.values.toList();
+
   /// Map Russian class names to English (for FC5 import compatibility)
   static final Map<String, String> _classNameMapping = {
     'паладин': 'paladin',
@@ -43,7 +46,9 @@ class FeatureService {
   /// Normalize class name to English lowercase for comparison
   static String _normalizeClassName(String className) {
     final normalized = className.toLowerCase().trim();
-    return _classNameMapping[normalized] ?? _subclassNameMapping[normalized] ?? normalized;
+    return _classNameMapping[normalized] ??
+        _subclassNameMapping[normalized] ??
+        normalized;
   }
 
   /// Initialize the service by loading all features from JSON
@@ -53,21 +58,23 @@ class FeatureService {
     try {
       // Load Unified Feature Registry
       await _loadFeaturesFromAsset('assets/data/features/srd_features.json');
-      
+
       // Load subclass specific features (keep hardcoded ONLY for complex logic not yet JSON-ified)
       _loadSubclassFeatures();
     } catch (e) {
       print('❌ Error loading features: $e');
       // Fallback to hardcoded list if manifest fails (e.g. during testing or some build configurations)
       try {
-        await _loadFeaturesFromAsset('assets/data/features/paladin_features.json');
+        await _loadFeaturesFromAsset(
+            'assets/data/features/paladin_features.json');
         _loadSubclassFeatures();
       } catch (e2) {
         print('❌ Error loading fallback features: $e2');
       }
     }
 
-    print('🔧 FeatureService.init() completed. Loaded ${_features.length} features');
+    print(
+        '🔧 FeatureService.init() completed. Loaded ${_features.length} features');
     _initialized = true;
   }
 
@@ -75,7 +82,7 @@ class FeatureService {
     try {
       final String jsonString = await rootBundle.loadString(path);
       final List<dynamic> jsonList = json.decode(jsonString);
-      
+
       for (var jsonFeature in jsonList) {
         try {
           final feature = CharacterFeature.fromJson(jsonFeature);
@@ -99,17 +106,18 @@ class FeatureService {
     String? subclassId,
   }) {
     final normalizedClass = _normalizeClassName(classId);
-    final normalizedSubclass = subclassId != null ? _normalizeClassName(subclassId) : null;
+    final normalizedSubclass =
+        subclassId != null ? _normalizeClassName(subclassId) : null;
 
     return _features.values.where((f) {
       // 1. Strict Level Check
       if (f.minLevel != level) return false;
 
       // 2. Strict Class Check
-      // If feature has no associated class, it's global (like Racial traits), 
+      // If feature has no associated class, it's global (like Racial traits),
       // but usually we only want class features here.
       if (f.associatedClass == null) return false;
-      
+
       final featureClass = _normalizeClassName(f.associatedClass!);
       if (featureClass != normalizedClass) return false;
 
@@ -128,11 +136,15 @@ class FeatureService {
   /// Get all features available for a character at their current level
   static List<CharacterFeature> getFeaturesForCharacter(Character character) {
     final characterClassName = _normalizeClassName(character.characterClass);
-    final characterSubclassName = character.subclass != null ? _normalizeClassName(character.subclass!) : '';
+    final characterSubclassName = character.subclass != null
+        ? _normalizeClassName(character.subclass!)
+        : '';
 
-    print('🔧 getFeaturesForCharacter: normalized class "${character.characterClass}" -> "$characterClassName"');
+    print(
+        '🔧 getFeaturesForCharacter: normalized class "${character.characterClass}" -> "$characterClassName"');
     if (character.subclass != null) {
-      print('🔧 getFeaturesForCharacter: normalized subclass "${character.subclass}" -> "$characterSubclassName"');
+      print(
+          '🔧 getFeaturesForCharacter: normalized subclass "${character.subclass}" -> "$characterSubclassName"');
     }
 
     return _features.values.where((feature) {
@@ -146,7 +158,8 @@ class FeatureService {
 
       // Check if feature belongs to this subclass
       if (feature.associatedSubclass != null) {
-        final featureSubclassName = _normalizeClassName(feature.associatedSubclass!);
+        final featureSubclassName =
+            _normalizeClassName(feature.associatedSubclass!);
         if (featureSubclassName != characterSubclassName) {
           return false;
         }
@@ -171,9 +184,12 @@ class FeatureService {
 
       // Replace variables with actual values
       f = f.replaceAll('level', character.level.toString());
-      f = f.replaceAll('cha_mod', character.abilityScores.charismaModifier.toString());
-      f = f.replaceAll('wis_mod', character.abilityScores.wisdomModifier.toString());
-      f = f.replaceAll('int_mod', character.abilityScores.intelligenceModifier.toString());
+      f = f.replaceAll(
+          'cha_mod', character.abilityScores.charismaModifier.toString());
+      f = f.replaceAll(
+          'wis_mod', character.abilityScores.wisdomModifier.toString());
+      f = f.replaceAll(
+          'int_mod', character.abilityScores.intelligenceModifier.toString());
       f = f.replaceAll('prof_bonus', character.proficiencyBonus.toString());
 
       // Simple math evaluation (only handles +, -, *, /)
@@ -193,11 +209,15 @@ class FeatureService {
       final divMatch = RegExp(r'(\d+)/(\d+)').firstMatch(expression);
 
       if (multMatch != null) {
-        final result = int.parse(multMatch.group(1)!) * int.parse(multMatch.group(2)!);
-        expression = expression.replaceFirst(multMatch.group(0)!, result.toString());
+        final result =
+            int.parse(multMatch.group(1)!) * int.parse(multMatch.group(2)!);
+        expression =
+            expression.replaceFirst(multMatch.group(0)!, result.toString());
       } else if (divMatch != null) {
-        final result = int.parse(divMatch.group(1)!) ~/ int.parse(divMatch.group(2)!);
-        expression = expression.replaceFirst(divMatch.group(0)!, result.toString());
+        final result =
+            int.parse(divMatch.group(1)!) ~/ int.parse(divMatch.group(2)!);
+        expression =
+            expression.replaceFirst(divMatch.group(0)!, result.toString());
       }
     }
 
@@ -243,11 +263,13 @@ class FeatureService {
 
   /// Add features to a character (called during character creation or level up)
   static void addFeaturesToCharacter(Character character) {
-    print('🔧 addFeaturesToCharacter() called for ${character.name} (${character.characterClass} level ${character.level})');
+    print(
+        '🔧 addFeaturesToCharacter() called for ${character.name} (${character.characterClass} level ${character.level})');
     print('🔧 Character currently has ${character.features.length} features');
 
     final availableFeatures = getFeaturesForCharacter(character);
-    print('🔧 Found ${availableFeatures.length} available features for this character');
+    print(
+        '🔧 Found ${availableFeatures.length} available features for this character');
 
     // Only add features that the character doesn't already have
     int addedCount = 0;
@@ -257,7 +279,8 @@ class FeatureService {
         // Create a copy of the feature with calculated max uses
         // For features with null formula, use the template's maxUses value
         final maxUses = feature.resourcePool?.calculationFormula != null
-            ? calculateMaxUses(character, feature.resourcePool!.calculationFormula)
+            ? calculateMaxUses(
+                character, feature.resourcePool!.calculationFormula)
             : (feature.resourcePool?.maxUses ?? 0);
         print('🔧 Adding feature: ${feature.nameEn} (max uses: $maxUses)');
 
@@ -292,14 +315,17 @@ class FeatureService {
       }
     }
 
-    print('🔧 Added $addedCount new features. Character now has ${character.features.length} total features');
+    print(
+        '🔧 Added $addedCount new features. Character now has ${character.features.length} total features');
   }
 
   /// Update feature max uses when character levels up or stats change
   static void updateFeatureMaxUses(Character character) {
     for (var feature in character.features) {
-      if (feature.resourcePool != null && feature.resourcePool!.calculationFormula != null) {
-        final newMax = calculateMaxUses(character, feature.resourcePool!.calculationFormula);
+      if (feature.resourcePool != null &&
+          feature.resourcePool!.calculationFormula != null) {
+        final newMax = calculateMaxUses(
+            character, feature.resourcePool!.calculationFormula);
         feature.resourcePool!.maxUses = newMax;
 
         // If current uses exceed new max, cap it
@@ -324,8 +350,10 @@ class FeatureService {
       id: 'conquering_presence',
       nameEn: 'Conquering Presence',
       nameRu: 'Покоряющее присутствие',
-      descriptionEn: 'You can use your Channel Divinity to exude a terrifying presence. As an action, you force each creature of your choice that you can see within 30 feet of you to make a Wisdom saving throw. On a failed save, a creature becomes frightened of you for 1 minute. The frightened creature can repeat this saving throw at the end of each of its turns, ending the effect on itself on a success.',
-      descriptionRu: 'Вы можете использовать ваш Божественный канал, чтобы источать ужасающее присутствие. Действием вы можете заставить каждое существо по вашему выбору в пределах 30 футов совершить спасбросок Мудрости. При провале существо становится испуганным на 1 минуту. Испуганное существо может повторять этот спасбросок в конце каждого своего хода, оканчивая этот эффект на себе при успехе.',
+      descriptionEn:
+          'You can use your Channel Divinity to exude a terrifying presence. As an action, you force each creature of your choice that you can see within 30 feet of you to make a Wisdom saving throw. On a failed save, a creature becomes frightened of you for 1 minute. The frightened creature can repeat this saving throw at the end of each of its turns, ending the effect on itself on a success.',
+      descriptionRu:
+          'Вы можете использовать ваш Божественный канал, чтобы источать ужасающее присутствие. Действием вы можете заставить каждое существо по вашему выбору в пределах 30 футов совершить спасбросок Мудрости. При провале существо становится испуганным на 1 минуту. Испуганное существо может повторять этот спасбросок в конце каждого своего хода, оканчивая этот эффект на себе при успехе.',
       type: FeatureType.action,
       minLevel: 3,
       associatedClass: 'Paladin',
@@ -341,8 +369,10 @@ class FeatureService {
       id: 'guided_strike',
       nameEn: 'Guided Strike',
       nameRu: 'Направленный удар',
-      descriptionEn: 'You can use your Channel Divinity to strike with supernatural accuracy. When you make an attack roll, you can use your Channel Divinity to gain a +10 bonus to the roll. You make this choice after you see the roll, but before the DM says whether the attack hits or misses.',
-      descriptionRu: 'Вы можете использовать свой Божественный канал, чтобы наносить удары со сверхъестественной точностью. Когда вы проводите атаку, вы можете использовать свой Божественный канал, чтобы получить бонус +10 к этому броску. Вы можете использовать это свойство уже после того, как увидите результат броска, но обязаны сделать выбор до того, как Мастер объявит о попадании или промахе атаки.',
+      descriptionEn:
+          'You can use your Channel Divinity to strike with supernatural accuracy. When you make an attack roll, you can use your Channel Divinity to gain a +10 bonus to the roll. You make this choice after you see the roll, but before the DM says whether the attack hits or misses.',
+      descriptionRu:
+          'Вы можете использовать свой Божественный канал, чтобы наносить удары со сверхъестественной точностью. Когда вы проводите атаку, вы можете использовать свой Божественный канал, чтобы получить бонус +10 к этому броску. Вы можете использовать это свойство уже после того, как увидите результат броска, но обязаны сделать выбор до того, как Мастер объявит о попадании или промахе атаки.',
       type: FeatureType.action,
       minLevel: 3,
       associatedClass: 'Paladin',

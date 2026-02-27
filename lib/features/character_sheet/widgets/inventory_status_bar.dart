@@ -50,7 +50,9 @@ class InventoryStatusBar extends StatelessWidget {
                 '${currentWeight.toStringAsFixed(1)} / ${maxWeight.toStringAsFixed(0)} ${l10n.weightUnit}',
                 style: theme.textTheme.bodySmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: weightPercent > 1.0 ? colorScheme.error : colorScheme.onSurface,
+                  color: weightPercent > 1.0
+                      ? colorScheme.error
+                      : colorScheme.onSurface,
                 ),
               ),
             ],
@@ -84,9 +86,13 @@ class InventoryStatusBar extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(left: 4),
                     child: Icon(
-                      isFilled ? Icons.auto_awesome : Icons.auto_awesome_outlined,
+                      isFilled
+                          ? Icons.auto_awesome
+                          : Icons.auto_awesome_outlined,
                       size: 16,
-                      color: isFilled ? colorScheme.primary : colorScheme.outline.withOpacity(0.5),
+                      color: isFilled
+                          ? colorScheme.primary
+                          : colorScheme.outline.withOpacity(0.5),
                     ),
                   );
                 }),

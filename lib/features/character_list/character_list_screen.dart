@@ -160,7 +160,8 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CharacterEditScreen(character: character),
+                    builder: (context) =>
+                        CharacterEditScreen(character: character),
                   ),
                 );
                 if (mounted) setState(() {});
@@ -175,7 +176,8 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.delete, color: Theme.of(context).colorScheme.error),
+              leading: Icon(Icons.delete,
+                  color: Theme.of(context).colorScheme.error),
               title: Text(l10n.delete,
                   style: TextStyle(color: Theme.of(context).colorScheme.error)),
               onTap: () {
@@ -201,19 +203,21 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             children: [
               Text(
                   '${character.race} • Level ${character.level} ${character.characterClass}'),
-              if (character.subclass != null) Text('Subclass: ${character.subclass}'),
+              if (character.subclass != null)
+                Text('Subclass: ${character.subclass}'),
               if (character.background != null)
                 Text('Background: ${character.background}'),
               const Divider(),
-              Text(
-                  'HP: ${character.currentHp}/${character.maxHp}',
+              Text('HP: ${character.currentHp}/${character.maxHp}',
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               Text('AC: ${character.armorClass}'),
               Text('Speed: ${character.speed} ft'),
-              Text('Initiative: ${character.formatModifier(character.initiativeBonus)}'),
+              Text(
+                  'Initiative: ${character.formatModifier(character.initiativeBonus)}'),
               Text('Proficiency Bonus: +${character.proficiencyBonus}'),
               const Divider(),
-              Text('ABILITY SCORES', style: Theme.of(context).textTheme.labelLarge),
+              Text('ABILITY SCORES',
+                  style: Theme.of(context).textTheme.labelLarge),
               const SizedBox(height: 8),
               _buildAbilityRow('STR', character.abilityScores.strength,
                   character.abilityScores.strengthModifier),
@@ -229,9 +233,11 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                   character.abilityScores.charismaModifier),
               if (character.appearance != null) ...[
                 const Divider(),
-                Text('APPEARANCE', style: Theme.of(context).textTheme.labelLarge),
+                Text('APPEARANCE',
+                    style: Theme.of(context).textTheme.labelLarge),
                 const SizedBox(height: 8),
-                Text(character.appearance!, style: const TextStyle(fontSize: 12)),
+                Text(character.appearance!,
+                    style: const TextStyle(fontSize: 12)),
               ],
             ],
           ),
@@ -251,7 +257,10 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
-          SizedBox(width: 40, child: Text(name, style: const TextStyle(fontWeight: FontWeight.bold))),
+          SizedBox(
+              width: 40,
+              child: Text(name,
+                  style: const TextStyle(fontWeight: FontWeight.bold))),
           Text('$score (${modifier >= 0 ? '+' : ''}$modifier)'),
         ],
       ),
@@ -293,7 +302,8 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
     );
   }
 
-  Future<void> _duplicateCharacter(BuildContext context, Character original) async {
+  Future<void> _duplicateCharacter(
+      BuildContext context, Character original) async {
     final l10n = AppLocalizations.of(context)!;
     try {
       // Create a new character with copied data
@@ -318,7 +328,8 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
           charisma: original.abilityScores.charisma,
         ),
         proficientSkills: List<String>.from(original.proficientSkills),
-        savingThrowProficiencies: List<String>.from(original.savingThrowProficiencies),
+        savingThrowProficiencies:
+            List<String>.from(original.savingThrowProficiencies),
         armorClass: original.armorClass,
         speed: original.speed,
         initiative: original.initiative,
@@ -371,10 +382,12 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                 ? WeaponProperties(
                     damageDice: item.weaponProperties!.damageDice,
                     damageType: item.weaponProperties!.damageType,
-                    weaponTags: List<String>.from(item.weaponProperties!.weaponTags),
+                    weaponTags:
+                        List<String>.from(item.weaponProperties!.weaponTags),
                     range: item.weaponProperties!.range,
                     longRange: item.weaponProperties!.longRange,
-                    versatileDamageDice: item.weaponProperties!.versatileDamageDice,
+                    versatileDamageDice:
+                        item.weaponProperties!.versatileDamageDice,
                   )
                 : null,
             armorProperties: item.armorProperties != null
@@ -383,8 +396,10 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                     armorType: item.armorProperties!.armorType,
                     addDexModifier: item.armorProperties!.addDexModifier,
                     maxDexBonus: item.armorProperties!.maxDexBonus,
-                    strengthRequirement: item.armorProperties!.strengthRequirement,
-                    stealthDisadvantage: item.armorProperties!.stealthDisadvantage,
+                    strengthRequirement:
+                        item.armorProperties!.strengthRequirement,
+                    stealthDisadvantage:
+                        item.armorProperties!.stealthDisadvantage,
                   )
                 : null,
             isMagical: item.isMagical,
@@ -445,11 +460,12 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       print('🔧 _importFromFC5: File selected: ${result.files.single.path}');
 
       final file = File(result.files.single.path!);
-      
+
       // Use ImportService to handle parsing, feature addition, and saving
       final character = await ImportService.importFromFC5File(file);
-      
-      print('🔧 _importFromFC5: Character imported successfully: ${character.name}');
+
+      print(
+          '🔧 _importFromFC5: Character imported successfully: ${character.name}');
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -461,7 +477,6 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
         );
       }
     } catch (e, stackTrace) {
-
       print('❌ _importFromFC5: ERROR: $e');
       print('❌ Stack trace: $stackTrace');
 

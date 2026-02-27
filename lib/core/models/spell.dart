@@ -39,7 +39,7 @@ class Spell extends HiveObject {
 
   @HiveField(11)
   String? materialComponents;
-  
+
   @HiveField(17)
   String? materialComponentsRu;
 
@@ -54,7 +54,7 @@ class Spell extends HiveObject {
 
   @HiveField(15)
   String? atHigherLevelsEn;
-  
+
   @HiveField(16)
   String? atHigherLevelsRu;
 
@@ -90,7 +90,7 @@ class Spell extends HiveObject {
   String getDescription(String locale) {
     return locale == 'ru' ? descriptionRu : descriptionEn;
   }
-  
+
   String? getAtHigherLevels(String locale) {
     return locale == 'ru' ? atHigherLevelsRu : atHigherLevelsEn;
   }
@@ -146,7 +146,9 @@ class Spell extends HiveObject {
     }
 
     // Handle nested materialComponents
-    String? matEn = json['materialComponents'] is String ? json['materialComponents'] : null;
+    String? matEn = json['materialComponents'] is String
+        ? json['materialComponents']
+        : null;
     String? matRu = json['materialComponentsRu'];
     if (json['materialComponents'] is Map) {
       matEn = json['materialComponents']['en'];
@@ -160,7 +162,7 @@ class Spell extends HiveObject {
       higherEn = json['atHigherLevels']['en'];
       higherRu = json['atHigherLevels']['ru'];
     } else if (json['atHigherLevels'] is String) {
-       higherEn = json['atHigherLevels'];
+      higherEn = json['atHigherLevels'];
     }
 
     return Spell(

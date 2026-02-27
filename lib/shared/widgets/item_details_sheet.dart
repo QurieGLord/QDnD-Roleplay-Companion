@@ -3,11 +3,6 @@ import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/models/item.dart';
 import '../../core/utils/item_utils.dart';
 
-import 'package:flutter/material.dart';
-import 'package:qd_and_d/l10n/app_localizations.dart';
-import '../../core/models/item.dart';
-import '../../core/utils/item_utils.dart';
-
 class ItemDetailsSheet extends StatelessWidget {
   final Item item;
   // Inventory actions
@@ -15,7 +10,7 @@ class ItemDetailsSheet extends StatelessWidget {
   final VoidCallback? onRemove;
   final Function(int)? onQuantityChanged;
   final Function(bool)? onAttuneToggle;
-  
+
   // Catalog actions
   final VoidCallback? onAdd;
 
@@ -98,9 +93,7 @@ class ItemDetailsContent extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 16),
-
           if (item.getDescription(locale).isNotEmpty) ...[
             Text(
               item.getDescription(locale),
@@ -108,7 +101,6 @@ class ItemDetailsContent extends StatelessWidget {
             ),
             const SizedBox(height: 24),
           ],
-
           if (item.isMagical && onAttuneToggle != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
@@ -121,12 +113,10 @@ class ItemDetailsContent extends StatelessWidget {
                 contentPadding: EdgeInsets.zero,
               ),
             ),
-
           if (item.weaponProperties != null)
             _buildWeaponProperties(context, item.weaponProperties!, l10n),
           if (item.armorProperties != null)
             _buildArmorProperties(context, item.armorProperties!, l10n),
-
           _buildStatRow(
             context,
             l10n.weight,
@@ -137,7 +127,6 @@ class ItemDetailsContent extends StatelessWidget {
             l10n.value,
             '${item.valueInGold.toStringAsFixed(2)} ${l10n.currencyUnit}',
           ),
-          
           if (onQuantityChanged != null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -147,8 +136,8 @@ class ItemDetailsContent extends StatelessWidget {
                   Text(
                     l10n.quantity,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   Row(
                     children: [
@@ -161,8 +150,8 @@ class ItemDetailsContent extends StatelessWidget {
                       Text(
                         '${item.quantity}',
                         style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       IconButton(
                         onPressed: () => onQuantityChanged!(1),
@@ -173,9 +162,7 @@ class ItemDetailsContent extends StatelessWidget {
                 ],
               ),
             ),
-
           const SizedBox(height: 24),
-
           if (onAdd != null)
             SizedBox(
               width: double.infinity,
@@ -213,7 +200,8 @@ class ItemDetailsContent extends StatelessWidget {
     );
   }
 
-  Widget _buildWeaponProperties(BuildContext context, WeaponProperties props, AppLocalizations l10n) {
+  Widget _buildWeaponProperties(
+      BuildContext context, WeaponProperties props, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -223,19 +211,31 @@ class ItemDetailsContent extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         _buildStatRow(context, l10n.damage, props.damageDice),
-        _buildStatRow(context, l10n.damageType, ItemUtils.getLocalizedDamageType(l10n, props.damageType.toString())),
+        _buildStatRow(
+            context,
+            l10n.damageType,
+            ItemUtils.getLocalizedDamageType(
+                l10n, props.damageType.toString())),
         if (props.versatileDamageDice != null)
-          _buildStatRow(context, l10n.versatileDamage, props.versatileDamageDice!),
+          _buildStatRow(
+              context, l10n.versatileDamage, props.versatileDamageDice!),
         if (props.range != null)
-          _buildStatRow(context, l10n.range, '${props.range}/${props.longRange} ft'),
+          _buildStatRow(
+              context, l10n.range, '${props.range}/${props.longRange} ft'),
         if (props.weaponTags.isNotEmpty)
-          _buildStatRow(context, l10n.properties, props.weaponTags.map((t) => ItemUtils.getLocalizedTag(l10n, t)).join(', ')),
+          _buildStatRow(
+              context,
+              l10n.properties,
+              props.weaponTags
+                  .map((t) => ItemUtils.getLocalizedTag(l10n, t))
+                  .join(', ')),
         const SizedBox(height: 16),
       ],
     );
   }
 
-  Widget _buildArmorProperties(BuildContext context, ArmorProperties props, AppLocalizations l10n) {
+  Widget _buildArmorProperties(
+      BuildContext context, ArmorProperties props, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -244,10 +244,13 @@ class ItemDetailsContent extends StatelessWidget {
           style: Theme.of(context).textTheme.labelLarge,
         ),
         const SizedBox(height: 8),
-        _buildStatRow(context, l10n.armorClass, '${l10n.armorClassAC} ${props.baseAC}'),
-        _buildStatRow(context, l10n.type, ItemUtils.getLocalizedArmorType(l10n, props.armorType.toString())),
+        _buildStatRow(
+            context, l10n.armorClass, '${l10n.armorClassAC} ${props.baseAC}'),
+        _buildStatRow(context, l10n.type,
+            ItemUtils.getLocalizedArmorType(l10n, props.armorType.toString())),
         if (props.strengthRequirement != null && props.strengthRequirement! > 0)
-          _buildStatRow(context, l10n.strRequirement, '${props.strengthRequirement}'),
+          _buildStatRow(
+              context, l10n.strRequirement, '${props.strengthRequirement}'),
         if (props.stealthDisadvantage)
           _buildStatRow(context, l10n.stealth, l10n.disadvantage),
         const SizedBox(height: 16),

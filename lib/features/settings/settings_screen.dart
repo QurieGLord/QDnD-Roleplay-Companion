@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:file_picker/file_picker.dart';
-import 'dart:io';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/services/theme_provider.dart';
 import '../../core/services/locale_provider.dart';
-import '../../core/services/import_service.dart';
 import '../../core/theme/app_palettes.dart';
 import 'library_manager_screen.dart';
 
@@ -50,10 +47,10 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: 32),
-          
+
           _buildSectionHeader(context, l10n.appearance.toUpperCase()),
           const SizedBox(height: 16),
-          
+
           // Theme Mode Selector
           SegmentedButton<ThemeMode>(
             segments: [
@@ -78,9 +75,9 @@ class SettingsScreen extends StatelessWidget {
               themeProvider.setThemeMode(newSelection.first);
             },
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // High Contrast Switch
           SwitchListTile(
             title: Text(l10n.highContrast),
@@ -90,11 +87,12 @@ class SettingsScreen extends StatelessWidget {
             onChanged: (value) => themeProvider.setHighContrast(value),
             contentPadding: const EdgeInsets.symmetric(horizontal: 4),
           ),
-          
+
           const SizedBox(height: 24),
           Text(
             l10n.colorScheme,
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
 
@@ -146,7 +144,7 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 32),
           _buildSectionHeader(context, l10n.about.toUpperCase()),
           const SizedBox(height: 16),
-          
+
           Card(
             child: Column(
               children: [
@@ -179,7 +177,7 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 32),
           Center(
             child: Text(
@@ -202,10 +200,10 @@ class SettingsScreen extends StatelessWidget {
       child: Text(
         title,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.2,
-        ),
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
       ),
     );
   }
@@ -226,7 +224,7 @@ class _ThemePreviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final scheme = AppPalettes.getScheme(preset, brightness);
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -249,12 +247,14 @@ class _ThemePreviewCard extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: Container(
-                    color: scheme.surfaceContainerHighest, // Header bg simulation
+                    color:
+                        scheme.surfaceContainerHighest, // Header bg simulation
                     padding: const EdgeInsets.all(12),
                     alignment: Alignment.topLeft,
                     child: Row(
                       children: [
-                        CircleAvatar(backgroundColor: scheme.primary, radius: 8),
+                        CircleAvatar(
+                            backgroundColor: scheme.primary, radius: 8),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Container(
@@ -302,7 +302,7 @@ class _ThemePreviewCard extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             // Floating action button simulation
             Positioned(
               right: 8,
@@ -310,7 +310,8 @@ class _ThemePreviewCard extends StatelessWidget {
               child: CircleAvatar(
                 backgroundColor: scheme.tertiaryContainer,
                 radius: 12,
-                child: Icon(Icons.edit, size: 12, color: scheme.onTertiaryContainer),
+                child: Icon(Icons.edit,
+                    size: 12, color: scheme.onTertiaryContainer),
               ),
             ),
 

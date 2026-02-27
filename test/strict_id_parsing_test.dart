@@ -38,10 +38,10 @@ void main() {
       expect(testClass.savingThrowProficiencies, contains('charisma'));
 
       // Check Skills (lowercase, trimmed, parentheses removed)
-      expect(testClass.skillProficiencies.from, contains('arcana')); 
+      expect(testClass.skillProficiencies.from, contains('arcana'));
       expect(testClass.skillProficiencies.from, contains('history'));
       expect(testClass.skillProficiencies.from, contains('insight'));
-      
+
       // Ensure no raw text remains
       expect(testClass.skillProficiencies.from.contains('Arcana (Int)'), false);
     });
@@ -60,8 +60,9 @@ void main() {
       final result = await FC5Parser.parseCompendium(xmlContent);
       final testClass = result.classes.first;
       final features = testClass.features[1]!;
-      
-      final optionalFeature = features.firstWhere((f) => f.nameEn.contains('Optional Feature'));
+
+      final optionalFeature =
+          features.firstWhere((f) => f.nameEn.contains('Optional Feature'));
       expect(optionalFeature.nameEn, startsWith('[Optional]'));
     });
   });

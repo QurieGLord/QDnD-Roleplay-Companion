@@ -17,7 +17,14 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
 
   // Point Buy: 27 points total, costs for scores 8-15
   static const Map<int, int> pointBuyCosts = {
-    8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9,
+    8: 0,
+    9: 1,
+    10: 2,
+    11: 3,
+    12: 4,
+    13: 5,
+    14: 7,
+    15: 9,
   };
 
   String _mode = 'standard_array'; // standard_array, point_buy, manual
@@ -27,25 +34,39 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
 
   String _getAbilityName(String key, AppLocalizations l10n) {
     switch (key) {
-      case 'strength': return l10n.abilityStr;
-      case 'dexterity': return l10n.abilityDex;
-      case 'constitution': return l10n.abilityCon;
-      case 'intelligence': return l10n.abilityInt;
-      case 'wisdom': return l10n.abilityWis;
-      case 'charisma': return l10n.abilityCha;
-      default: return key;
+      case 'strength':
+        return l10n.abilityStr;
+      case 'dexterity':
+        return l10n.abilityDex;
+      case 'constitution':
+        return l10n.abilityCon;
+      case 'intelligence':
+        return l10n.abilityInt;
+      case 'wisdom':
+        return l10n.abilityWis;
+      case 'charisma':
+        return l10n.abilityCha;
+      default:
+        return key;
     }
   }
 
   String _getAbilityDesc(String key, AppLocalizations l10n) {
     switch (key) {
-      case 'strength': return l10n.strDesc;
-      case 'dexterity': return l10n.dexDesc;
-      case 'constitution': return l10n.conDesc;
-      case 'intelligence': return l10n.intDesc;
-      case 'wisdom': return l10n.wisDesc;
-      case 'charisma': return l10n.chaDesc;
-      default: return '';
+      case 'strength':
+        return l10n.strDesc;
+      case 'dexterity':
+        return l10n.dexDesc;
+      case 'constitution':
+        return l10n.conDesc;
+      case 'intelligence':
+        return l10n.intDesc;
+      case 'wisdom':
+        return l10n.wisDesc;
+      case 'charisma':
+        return l10n.chaDesc;
+      default:
+        return '';
     }
   }
 
@@ -90,12 +111,18 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
         const SizedBox(height: 24),
 
         // Ability Score Cards
-        _buildAbilityCard(context, state, l10n, 'strength', 'STR', Icons.fitness_center),
-        _buildAbilityCard(context, state, l10n, 'dexterity', 'DEX', Icons.directions_run),
-        _buildAbilityCard(context, state, l10n, 'constitution', 'CON', Icons.favorite),
-        _buildAbilityCard(context, state, l10n, 'intelligence', 'INT', Icons.lightbulb),
-        _buildAbilityCard(context, state, l10n, 'wisdom', 'WIS', Icons.visibility),
-        _buildAbilityCard(context, state, l10n, 'charisma', 'CHA', Icons.people),
+        _buildAbilityCard(
+            context, state, l10n, 'strength', 'STR', Icons.fitness_center),
+        _buildAbilityCard(
+            context, state, l10n, 'dexterity', 'DEX', Icons.directions_run),
+        _buildAbilityCard(
+            context, state, l10n, 'constitution', 'CON', Icons.favorite),
+        _buildAbilityCard(
+            context, state, l10n, 'intelligence', 'INT', Icons.lightbulb),
+        _buildAbilityCard(
+            context, state, l10n, 'wisdom', 'WIS', Icons.visibility),
+        _buildAbilityCard(
+            context, state, l10n, 'charisma', 'CHA', Icons.people),
 
         // Point Buy Summary (only in Point Buy mode)
         if (_mode == 'point_buy') ...[
@@ -112,11 +139,13 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
     );
   }
 
-  Widget _buildHPSection(BuildContext context, CharacterCreationState state, AppLocalizations l10n) {
+  Widget _buildHPSection(BuildContext context, CharacterCreationState state,
+      AppLocalizations l10n) {
     final theme = Theme.of(context);
     final hitDie = state.selectedClass?.hitDie ?? 8;
     final conScore = state.abilityScores['constitution'] ?? 10;
-    final racialBonus = state.selectedRace?.abilityScoreIncreases['constitution'] ?? 0;
+    final racialBonus =
+        state.selectedRace?.abilityScoreIncreases['constitution'] ?? 0;
     final finalCon = conScore + racialBonus;
     final conMod = (finalCon ~/ 2) - 5;
     final conModStr = conMod >= 0 ? '+$conMod' : '$conMod';
@@ -166,7 +195,9 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      currentHP > 0 ? '$currentHP ${l10n.hpShort}' : '— ${l10n.hpShort}',
+                      currentHP > 0
+                          ? '$currentHP ${l10n.hpShort}'
+                          : '— ${l10n.hpShort}',
                       style: theme.textTheme.displaySmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.onErrorContainer,
@@ -176,7 +207,8 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                     Text(
                       l10n.hitDieConMod(hitDie, conModStr),
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onErrorContainer.withValues(alpha: 0.8),
+                        color: theme.colorScheme.onErrorContainer
+                            .withValues(alpha: 0.8),
                       ),
                     ),
                   ],
@@ -196,10 +228,13 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                         if (selected) setState(() => _hpMode = 'max');
                       },
                       labelStyle: TextStyle(
-                        color: _hpMode == 'max' ? theme.colorScheme.onSecondaryContainer : theme.colorScheme.onErrorContainer,
+                        color: _hpMode == 'max'
+                            ? theme.colorScheme.onSecondaryContainer
+                            : theme.colorScheme.onErrorContainer,
                       ),
                       selectedColor: theme.colorScheme.secondaryContainer,
-                      backgroundColor: theme.colorScheme.surface.withOpacity(0.5),
+                      backgroundColor:
+                          theme.colorScheme.surface.withOpacity(0.5),
                     ),
                     ChoiceChip(
                       label: Text(l10n.average),
@@ -209,10 +244,13 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                         if (selected) setState(() => _hpMode = 'average');
                       },
                       labelStyle: TextStyle(
-                        color: _hpMode == 'average' ? theme.colorScheme.onSecondaryContainer : theme.colorScheme.onErrorContainer,
+                        color: _hpMode == 'average'
+                            ? theme.colorScheme.onSecondaryContainer
+                            : theme.colorScheme.onErrorContainer,
                       ),
                       selectedColor: theme.colorScheme.secondaryContainer,
-                      backgroundColor: theme.colorScheme.surface.withOpacity(0.5),
+                      backgroundColor:
+                          theme.colorScheme.surface.withOpacity(0.5),
                     ),
                     ChoiceChip(
                       label: Text(l10n.roll),
@@ -230,10 +268,13 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                         }
                       },
                       labelStyle: TextStyle(
-                        color: _hpMode == 'roll' ? theme.colorScheme.onSecondaryContainer : theme.colorScheme.onErrorContainer,
+                        color: _hpMode == 'roll'
+                            ? theme.colorScheme.onSecondaryContainer
+                            : theme.colorScheme.onErrorContainer,
                       ),
                       selectedColor: theme.colorScheme.secondaryContainer,
-                      backgroundColor: theme.colorScheme.surface.withOpacity(0.5),
+                      backgroundColor:
+                          theme.colorScheme.surface.withOpacity(0.5),
                     ),
                   ],
                 ),
@@ -267,7 +308,8 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
-                Icon(Icons.info_outline, size: 16, color: theme.colorScheme.onTertiaryContainer),
+                Icon(Icons.info_outline,
+                    size: 16, color: theme.colorScheme.onTertiaryContainer),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -290,12 +332,21 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
     );
   }
 
-  Widget _buildModeSelector(BuildContext context, CharacterCreationState state, AppLocalizations l10n) {
+  Widget _buildModeSelector(BuildContext context, CharacterCreationState state,
+      AppLocalizations l10n) {
     final theme = Theme.of(context);
 
     final modes = [
-      {'id': 'standard_array', 'label': l10n.methodStandard, 'icon': Icons.grid_4x4},
-      {'id': 'point_buy', 'label': l10n.methodPointBuy, 'icon': Icons.calculate},
+      {
+        'id': 'standard_array',
+        'label': l10n.methodStandard,
+        'icon': Icons.grid_4x4
+      },
+      {
+        'id': 'point_buy',
+        'label': l10n.methodPointBuy,
+        'icon': Icons.calculate
+      },
       {'id': 'manual', 'label': l10n.methodManual, 'icon': Icons.edit},
     ];
 
@@ -323,28 +374,38 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                color: isSelected ? theme.colorScheme.primaryContainer.withOpacity(0.5) : null,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                color: isSelected
+                    ? theme.colorScheme.primaryContainer.withOpacity(0.5)
+                    : null,
                 child: Row(
                   children: [
                     Icon(
                       mode['icon'] as IconData,
-                      color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+                      color: isSelected
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Text(
                         mode['label'] as String,
                         style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? theme.colorScheme.onSurface : theme.colorScheme.onSurfaceVariant,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected
+                              ? theme.colorScheme.onSurface
+                              : theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ),
                     if (isSelected)
-                      Icon(Icons.check_circle, color: theme.colorScheme.primary, size: 20)
+                      Icon(Icons.check_circle,
+                          color: theme.colorScheme.primary, size: 20)
                     else
-                      Icon(Icons.circle_outlined, color: theme.colorScheme.outline, size: 20),
+                      Icon(Icons.circle_outlined,
+                          color: theme.colorScheme.outline, size: 20),
                   ],
                 ),
               ),
@@ -432,7 +493,8 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
     final racialBonus = state.selectedRace?.abilityScoreIncreases[key] ?? 0;
     final finalScore = score + racialBonus;
     final finalModifier = (finalScore ~/ 2) - 5;
-    final finalModifierStr = finalModifier >= 0 ? '+$finalModifier' : '$finalModifier';
+    final finalModifierStr =
+        finalModifier >= 0 ? '+$finalModifier' : '$finalModifier';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -470,7 +532,8 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
             if (racialBonus > 0) ...[
               const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.tertiaryContainer,
                   borderRadius: BorderRadius.circular(8),
@@ -485,7 +548,8 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      l10n.racialBonus(racialBonus, finalScore, finalModifierStr),
+                      l10n.racialBonus(
+                          racialBonus, finalScore, finalModifierStr),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onTertiaryContainer,
                         fontWeight: FontWeight.w500,
@@ -512,7 +576,8 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
 
     switch (_mode) {
       case 'standard_array':
-        return _buildStandardArrayDropdown(context, state, key, score, modifierStr);
+        return _buildStandardArrayDropdown(
+            context, state, key, score, modifierStr);
       case 'point_buy':
         return _buildPointBuyButtons(context, state, key, score, modifierStr);
       case 'manual':
@@ -574,7 +639,8 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
   ) {
     final theme = Theme.of(context);
     final canDecrease = score > 8;
-    final canIncrease = score < 15 && _getPointsRemaining(state) >= _getIncreaseCost(score);
+    final canIncrease =
+        score < 15 && _getPointsRemaining(state) >= _getIncreaseCost(score);
 
     return Row(
       children: [
@@ -672,7 +738,8 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
     );
   }
 
-  Widget _buildPointBuySummary(BuildContext context, CharacterCreationState state, AppLocalizations l10n) {
+  Widget _buildPointBuySummary(BuildContext context,
+      CharacterCreationState state, AppLocalizations l10n) {
     final theme = Theme.of(context);
     final remaining = _getPointsRemaining(state);
     const total = 27;
@@ -738,7 +805,14 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
     final primaryAbilities = state.selectedClass?.primaryAbilities ?? [];
 
     // All abilities in priority order
-    final abilities = ['strength', 'dexterity', 'constitution', 'intelligence', 'wisdom', 'charisma'];
+    final abilities = [
+      'strength',
+      'dexterity',
+      'constitution',
+      'intelligence',
+      'wisdom',
+      'charisma'
+    ];
 
     // Intelligent assignment based on class
     if (primaryAbilities.isNotEmpty) {
@@ -793,6 +867,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
 
   int _getIncreaseCost(int currentScore) {
     if (currentScore >= 15) return 999; // Can't go above 15
-    return (pointBuyCosts[currentScore + 1] ?? 0) - (pointBuyCosts[currentScore] ?? 0);
+    return (pointBuyCosts[currentScore + 1] ?? 0) -
+        (pointBuyCosts[currentScore] ?? 0);
   }
 }

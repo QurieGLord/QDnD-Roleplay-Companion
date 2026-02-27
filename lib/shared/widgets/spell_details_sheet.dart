@@ -45,7 +45,8 @@ class SpellDetailsSheet extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: SpellUtils.getSchoolColor(spell.school, colorScheme),
+                      color:
+                          SpellUtils.getSchoolColor(spell.school, colorScheme),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -66,13 +67,17 @@ class SpellDetailsSheet extends StatelessWidget {
                       children: [
                         Text(
                           spell.getName(locale),
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                         Text(
                           '${SpellUtils.getLocalizedSchool(l10n, spell.school)}${spell.level == 0 ? ' • ${l10n.cantrips}' : ' • ${l10n.levelLabel(spell.level)}'}',
-                          style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+                          style: TextStyle(
+                              color: colorScheme.onSurface.withOpacity(0.7)),
                         ),
                       ],
                     ),
@@ -89,13 +94,17 @@ class SpellDetailsSheet extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Stats
-              _buildInfoRow(l10n.castingTime, SpellUtils.getLocalizedValue(l10n, spell.castingTime)),
-              _buildInfoRow(l10n.range, SpellUtils.getLocalizedValue(l10n, spell.range)),
-              _buildInfoRow(l10n.duration, SpellUtils.getLocalizedValue(l10n, spell.duration)),
+              _buildInfoRow(l10n.castingTime,
+                  SpellUtils.getLocalizedValue(l10n, spell.castingTime)),
+              _buildInfoRow(
+                  l10n.range, SpellUtils.getLocalizedValue(l10n, spell.range)),
+              _buildInfoRow(l10n.duration,
+                  SpellUtils.getLocalizedValue(l10n, spell.duration)),
               _buildInfoRow(l10n.components, spell.components.join(', ')),
               if (spell.getMaterialComponents(locale) != null)
-                _buildInfoRow(l10n.materials, spell.getMaterialComponents(locale)!),
-              
+                _buildInfoRow(
+                    l10n.materials, spell.getMaterialComponents(locale)!),
+
               if (spell.concentration || spell.ritual)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
@@ -129,8 +138,8 @@ class SpellDetailsSheet extends StatelessWidget {
                 Text(
                   l10n.atHigherLevels,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -149,7 +158,10 @@ class SpellDetailsSheet extends StatelessWidget {
               ),
 
               // Add/Remove Action
-              if (character != null && onToggleKnown != null && eligibility != null && eligibility.canLearn) ...[
+              if (character != null &&
+                  onToggleKnown != null &&
+                  eligibility != null &&
+                  eligibility.canLearn) ...[
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
@@ -184,7 +196,8 @@ class SpellDetailsSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildEligibilityBadge(BuildContext context, SpellEligibilityResult eligibility, AppLocalizations l10n) {
+  Widget _buildEligibilityBadge(BuildContext context,
+      SpellEligibilityResult eligibility, AppLocalizations l10n) {
     final colorScheme = Theme.of(context).colorScheme;
 
     if (eligibility.canLearn) {
@@ -200,7 +213,9 @@ class SpellDetailsSheet extends StatelessWidget {
           children: [
             const Icon(Icons.check_circle, color: Colors.green, size: 16),
             const SizedBox(width: 8),
-            Text(l10n.availableToLearn, style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+            Text(l10n.availableToLearn,
+                style: const TextStyle(
+                    color: Colors.green, fontWeight: FontWeight.bold)),
           ],
         ),
       );
@@ -219,7 +234,8 @@ class SpellDetailsSheet extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               l10n.availableAtLevel(eligibility.canLearnAtLevel!),
-              style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.orange, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -240,7 +256,8 @@ class SpellDetailsSheet extends StatelessWidget {
             Expanded(
               child: Text(
                 eligibility.reason,
-                style: TextStyle(color: colorScheme.error, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: colorScheme.error, fontWeight: FontWeight.bold),
               ),
             ),
           ],

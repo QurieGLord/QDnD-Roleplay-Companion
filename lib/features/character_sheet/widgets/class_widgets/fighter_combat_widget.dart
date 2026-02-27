@@ -26,7 +26,6 @@ class FighterCombatWidget extends StatefulWidget {
 }
 
 class _FighterCombatWidgetState extends State<FighterCombatWidget> {
-  
   void _useResource(CharacterFeature feature, {String? customMessage}) {
     final pool = feature.resourcePool!;
     if (pool.currentUses > 0) {
@@ -36,11 +35,14 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
         widget.character.save();
         widget.onChanged?.call();
       });
-      
+
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(customMessage ?? '${feature.getName(Localizations.localeOf(context).languageCode)} used!'),
+          content: Text(
+            customMessage ??
+                '${feature.getName(Localizations.localeOf(context).languageCode)} used!',
+          ),
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
           backgroundColor: Theme.of(context).colorScheme.inverseSurface,
@@ -50,15 +52,15 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
   }
 
   void _restoreResource(CharacterFeature feature) {
-     final pool = feature.resourcePool!;
-     if (!pool.isFull) {
-       HapticFeedback.selectionClick();
-       setState(() {
-         pool.restore(1);
-         widget.character.save();
-         widget.onChanged?.call();
-       });
-     }
+    final pool = feature.resourcePool!;
+    if (!pool.isFull) {
+      HapticFeedback.selectionClick();
+      setState(() {
+        pool.restore(1);
+        widget.character.save();
+        widget.onChanged?.call();
+      });
+    }
   }
 
   @override
@@ -68,277 +70,283 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
     final level = widget.character.level;
 
     return Card(
-      elevation: 2,
+      elevation: 0,
+      color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            color: colorScheme.secondaryContainer.withOpacity(0.4),
-            child: Row(
-              children: [
-                Icon(Icons.shield, color: colorScheme.primary, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  l10n.fighterTactics.toUpperCase(), 
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.primary,
-                        letterSpacing: 1.2,
-                      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  Icon(Icons.shield_outlined,
+                      color: colorScheme.primary, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    l10n.fighterTactics.toUpperCase(),
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary,
+                          letterSpacing: 1.5,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Second Wind (Wide Button Style)
+            if (widget.secondWindFeature != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: _buildSecondWindCard(context, l10n, colorScheme, level),
+              ),
+
+            if (widget.secondWindFeature != null &&
+                (widget.actionSurgeFeature != null ||
+                    widget.indomitableFeature != null))
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12.0),
+                child: Divider(height: 1),
+              ),
+
+            // Action Surge
+            if (widget.actionSurgeFeature != null) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: _buildActionSurgeRow(context, l10n, colorScheme),
+              ),
+            ],
+
+            if (widget.indomitableFeature != null) ...[
+              if (widget.actionSurgeFeature != null)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12.0),
+                  child: Divider(height: 1),
                 ),
-              ],
-            ),
-          ),
-          
-          // Content
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                if (widget.secondWindFeature != null) 
-                  _buildSecondWindRow(context, l10n, colorScheme, level),
-                
-                if (widget.secondWindFeature != null && widget.actionSurgeFeature != null)
-                  const Divider(height: 24),
-
-                if (widget.actionSurgeFeature != null)
-                  _buildActionSurgeRow(context, l10n, colorScheme),
-
-                if (widget.indomitableFeature != null && (widget.secondWindFeature != null || widget.actionSurgeFeature != null))
-                  const Divider(height: 24),
-
-                if (widget.indomitableFeature != null)
-                  _buildIndomitableRow(context, l10n, colorScheme),
-              ],
-            ),
-          ),
-        ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: _buildIndomitableRow(context, l10n, colorScheme),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSecondWindRow(BuildContext context, AppLocalizations l10n, ColorScheme colorScheme, int level) {
+  Widget _buildSecondWindCard(BuildContext context, AppLocalizations l10n,
+      ColorScheme colorScheme, int level) {
     final feature = widget.secondWindFeature!;
     final pool = feature.resourcePool;
     if (pool == null) return const SizedBox.shrink();
 
     final isAvailable = pool.currentUses > 0;
-    
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: colorScheme.tertiaryContainer,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(Icons.favorite, size: 24, color: colorScheme.onTertiaryContainer),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          flex: 2,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.secondWind,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  '${l10n.healing}: ${DiceUtils.formatDice('1d10', context)} + $level',
-                  style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
-                ),
-              ),
-            ],
+    final healingText = '${DiceUtils.formatDice('1d10', context)} + $level';
+
+    return InkWell(
+      onTap: isAvailable
+          ? () => _useResource(feature)
+          : () => _restoreResource(feature),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isAvailable
+              ? colorScheme.secondaryContainer
+              : colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isAvailable
+                ? colorScheme.secondary
+                : colorScheme.outline.withOpacity(0.5),
+            width: isAvailable ? 2 : 1,
           ),
         ),
-        const SizedBox(width: 16),
-        
-        // Dynamic control
-        if (isAvailable)
-          Expanded(
-            flex: 1,
-            child: FilledButton.icon(
-              onPressed: () => _useResource(feature),
-              style: FilledButton.styleFrom(
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isAvailable
+                    ? colorScheme.secondary
+                    : colorScheme.onSurface.withOpacity(0.1),
+                shape: BoxShape.circle,
               ),
-              icon: const Icon(Icons.flash_on, size: 16),
-              label: Text(l10n.healShort),
+              child: Icon(Icons.favorite,
+                  size: 20,
+                  color: isAvailable
+                      ? colorScheme.onSecondary
+                      : colorScheme.onSurfaceVariant),
             ),
-          )
-        else
-          IconButton(
-            icon: const Icon(Icons.refresh, size: 20),
-            onPressed: () => _restoreResource(feature),
-            tooltip: 'Restore',
-            color: colorScheme.secondary,
-          ),
-      ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.secondWind,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: isAvailable
+                            ? colorScheme.onSecondaryContainer
+                            : colorScheme.onSurface),
+                  ),
+                  Text(
+                    '${l10n.healing}: $healingText',
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: isAvailable
+                            ? colorScheme.onSecondaryContainer.withOpacity(0.8)
+                            : colorScheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+            if (!isAvailable) Icon(Icons.refresh, color: colorScheme.primary),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildActionSurgeRow(BuildContext context, AppLocalizations l10n, ColorScheme colorScheme) {
+  Widget _buildActionSurgeRow(
+      BuildContext context, AppLocalizations l10n, ColorScheme colorScheme) {
     final feature = widget.actionSurgeFeature!;
     final pool = feature.resourcePool;
     if (pool == null) return const SizedBox.shrink();
-    
+
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.amber.shade100, 
-            shape: BoxShape.circle,
-          ),
-          child: Icon(Icons.bolt, size: 24, color: Colors.amber.shade900),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.actionSurge,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            Text(
+              l10n.actionTypeAction,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.actionSurge,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                l10n.actionTypeAction,
-                style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
-              ),
-            ],
-          ),
-        ),
-        
-        // Interactive Tokens
-        Row(
-          mainAxisSize: MainAxisSize.min,
+        Wrap(
+          spacing: 8,
           children: List.generate(pool.maxUses, (index) {
-             final isAvailable = index < pool.currentUses;
-             return Padding(
-               padding: const EdgeInsets.only(left: 8.0),
-               child: GestureDetector(
-                 onTap: () {
-                   if (isAvailable) {
-                     _useResource(feature, customMessage: l10n.actionSurge);
-                   } else {
-                     _restoreResource(feature);
-                   }
-                 },
-                 child: AnimatedContainer(
-                   duration: const Duration(milliseconds: 300),
-                   width: 36,
-                   height: 36,
-                   decoration: BoxDecoration(
-                     color: isAvailable ? Colors.amber.shade600 : Colors.transparent,
-                     shape: BoxShape.circle,
-                     border: Border.all(
-                       color: isAvailable ? Colors.amber.shade600 : colorScheme.outline.withOpacity(0.5),
-                       width: 2,
-                     ),
-                     boxShadow: isAvailable ? [
-                       BoxShadow(color: Colors.amber.shade600.withOpacity(0.4), blurRadius: 6, spreadRadius: 1)
-                     ] : [],
-                   ),
-                   child: Icon(
-                     isAvailable ? Icons.bolt : Icons.bolt_outlined,
-                     size: 20,
-                     color: isAvailable ? Colors.white : colorScheme.outline,
-                   ),
-                 ),
-               ),
-             );
+            final isAvailable = index < pool.currentUses;
+            return GestureDetector(
+              onTap: () {
+                if (isAvailable) {
+                  _useResource(feature, customMessage: l10n.actionSurge);
+                } else {
+                  _restoreResource(feature);
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: isAvailable
+                      ? colorScheme.primary
+                      : colorScheme.surfaceContainerHighest,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isAvailable
+                        ? colorScheme.primary
+                        : colorScheme.outline.withOpacity(0.3),
+                    width: 2,
+                  ),
+                ),
+                child: Icon(
+                  isAvailable ? Icons.bolt : Icons.bolt_outlined,
+                  size: 20,
+                  color: isAvailable
+                      ? colorScheme.onPrimary
+                      : colorScheme.onSurfaceVariant.withOpacity(0.5),
+                ),
+              ),
+            );
           }),
         ),
       ],
     );
   }
 
-  Widget _buildIndomitableRow(BuildContext context, AppLocalizations l10n, ColorScheme colorScheme) {
+  Widget _buildIndomitableRow(
+      BuildContext context, AppLocalizations l10n, ColorScheme colorScheme) {
     final feature = widget.indomitableFeature!;
     final pool = feature.resourcePool;
     if (pool == null) return const SizedBox.shrink();
-    
+
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.indigo.shade100, 
-            shape: BoxShape.circle,
-          ),
-          child: Icon(Icons.replay, size: 24, color: Colors.indigo.shade900),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.indomitable,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            Text(
+              l10n.rerollSave, // "Save Reroll" or similar
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.indomitable,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                l10n.rerollSave,
-                style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
-              ),
-            ],
-          ),
-        ),
-        
-        // Interactive Tokens
-        Row(
-          mainAxisSize: MainAxisSize.min,
+        Wrap(
+          spacing: 8,
           children: List.generate(pool.maxUses, (index) {
-             final isAvailable = index < pool.currentUses;
-             return Padding(
-               padding: const EdgeInsets.only(left: 8.0),
-               child: GestureDetector(
-                 onTap: () {
-                   if (isAvailable) {
-                     _useResource(feature, customMessage: l10n.rerollSave);
-                   } else {
-                     _restoreResource(feature);
-                   }
-                 },
-                 child: AnimatedContainer(
-                   duration: const Duration(milliseconds: 300),
-                   width: 36,
-                   height: 36,
-                   decoration: BoxDecoration(
-                     color: isAvailable ? Colors.indigo : Colors.transparent,
-                     shape: BoxShape.circle,
-                     border: Border.all(
-                       color: isAvailable ? Colors.indigo : colorScheme.outline.withOpacity(0.5),
-                       width: 2,
-                     ),
-                     boxShadow: isAvailable ? [
-                       BoxShadow(color: Colors.indigo.withOpacity(0.4), blurRadius: 4)
-                     ] : [],
-                   ),
-                   child: Icon(
-                     isAvailable ? Icons.shield : Icons.shield_outlined,
-                     size: 18,
-                     color: isAvailable ? Colors.white : colorScheme.outline,
-                   ),
-                 ),
-               ),
-             );
+            final isAvailable = index < pool.currentUses;
+            return GestureDetector(
+              onTap: () {
+                if (isAvailable) {
+                  _useResource(feature, customMessage: l10n.rerollSave);
+                } else {
+                  _restoreResource(feature);
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: isAvailable
+                      ? colorScheme.tertiary
+                      : colorScheme.surfaceContainerHighest,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isAvailable
+                        ? colorScheme.tertiary
+                        : colorScheme.outline.withOpacity(0.3),
+                    width: 2,
+                  ),
+                ),
+                child: Icon(
+                  isAvailable ? Icons.shield : Icons.shield_outlined,
+                  size: 20,
+                  color: isAvailable
+                      ? colorScheme.onTertiary
+                      : colorScheme.onSurfaceVariant.withOpacity(0.5),
+                ),
+              ),
+            );
           }),
         ),
       ],
