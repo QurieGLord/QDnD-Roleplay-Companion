@@ -24,7 +24,7 @@ jobs:
 
       - name: Build Web
         # Флаг --base-href критически важен для корректных путей на GitHub Pages
-        run: flutter build web --base-href "/QDnD-Roleplay-Companion/" --release --wasm --web-resources-wasm
+        run: flutter build web --base-href "/QDnD-Roleplay-Companion/" --release --dart-define=FLUTTER_WEB_RENDERER=canvaskit
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
