@@ -1,0 +1,47 @@
+{
+  "id": "folk_hero",
+  "name": {
+    "en": "Folk Hero",
+    "ru": "Народный герой"
+  },
+  "description": {
+    "en": "You come from a humble social rank, but you are destined for so much more. Already the people of your home village regard you as their champion.",
+    "ru": "Вы происходите из скромного социального класса, но вам суждено гораздо большее. Люди из вашей родной деревни уже считают вас своим защитником."
+  },
+  "skillProficiencies": ["animal_handling", "survival"],
+  "toolProficiencies": {
+    "en": ["One type of artisan's tools", "Vehicles (land)"],
+    "ru": ["Один вид ремесленных инструментов", "Транспорт (сухопутный)"]
+  },
+  "languages": 0,
+  "equipment": {
+    "en": [
+      "A set of artisan's tools",
+      "A shovel",
+      "An iron pot",
+      "A set of common clothes",
+      "A belt pouch containing 10 gp"
+    ],
+    "ru": [
+      "Набор ремесленных инструментов",
+      "Лопата",
+      "Железный котелок",
+      "Комплект обычной одежды",
+      "Поясная сумка с 10 зм"
+    ]
+  },
+  "feature": {
+    "name": {
+      "en": "Rustic Hospitality",
+      "ru": "Сельское гостеприимство"
+    },
+    "description": {
+      "en": "Since you come from the ranks of the common folk, you fit in among them with ease. You can find a place to hide, rest, or recuperate among other commoners.",
+      "ru": "Поскольку вы происходите из рядов простого народа, вы легко вписываетесь среди них. Вы можете найти место, где можно спрятаться, отдохнуть или восстановиться среди других простолюдинов."
+    }
+  },
+  "suggestedCharacteristics": {
+    "en": "A folk hero is one of the common people, for better or for worse. Most folk heroes look on their humble origins as a virtue, not a shortcoming.",
+    "ru": "Народный герой — один из простых людей, к лучшему или худшему. Большинство народных героев смотрят на своё скромное происхождение как на достоинство, а не недостаток."
+  }
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "id": "pact_boon",
+    "nameEn": "Pact Boon",
+    "nameRu": "Договор Пакта",
+    "descriptionEn": "At 3rd level, your otherworldly patron bestows a gift upon you for your loyal service.",
+    "descriptionRu": "На 3-м уровне ваш покровитель дарует вам дар за вашу верную службу.",
+    "type": "passive",
+    "minLevel": 3,
+    "iconName": "card_giftcard"
+  },
+  {
+    "id": "mystic_arcanum",
+    "nameEn": "Mystic Arcanum",
+    "nameRu": "Таинственный арканум",
+    "descriptionEn": "At 11th level, your patron bestows upon you a magical secret called an arcanum. Choose one 6th-level spell from the warlock spell list as this arcanum.",
+    "descriptionRu": "На 11-м уровне ваш покровитель дарует вам магический секрет, называемый арканумом. Выберите одно заклинание 6-го уровня из списка заклинаний колдуна в качестве этого арканума.",
+    "type": "resourcePool",
+    "resourcePool": {
+      "currentUses": 1,
+      "maxUses": 1,
+      "recoveryType": "longRest"
+    },
+    "minLevel": 11,
+    "iconName": "auto_fix_high"
+  }
+]

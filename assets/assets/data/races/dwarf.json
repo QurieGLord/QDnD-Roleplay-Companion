@@ -1,0 +1,50 @@
+{
+  "id": "dwarf",
+  "name": {
+    "en": "Dwarf",
+    "ru": "Дварф"
+  },
+  "description": {
+    "en": "Bold and hardy, dwarves are known as skilled warriors, miners, and workers of stone and metal.",
+    "ru": "Смелые и выносливые дварфы известны как опытные воины, шахтёры и мастера камня и металла."
+  },
+  "speed": 25,
+  "abilityScoreIncrease": {
+    "constitution": 2
+  },
+  "traits": {
+    "en": ["Darkvision", "Dwarven Resilience", "Dwarven Combat Training", "Tool Proficiency", "Stonecunning"],
+    "ru": ["Тёмное зрение", "Дварфийская устойчивость", "Дварфийская боевая подготовка", "Владение инструментами", "Знание камня"]
+  },
+  "languages": ["Common", "Dwarvish"],
+  "subraces": [
+    {
+      "id": "mountain_dwarf",
+      "name": {
+        "en": "Mountain Dwarf",
+        "ru": "Горный дварф"
+      },
+      "abilityScoreIncrease": {
+        "strength": 2
+      },
+      "traits": {
+        "en": ["Dwarven Armor Training"],
+        "ru": ["Владение дварфийскими доспехами"]
+      }
+    },
+    {
+      "id": "hill_dwarf",
+      "name": {
+        "en": "Hill Dwarf",
+        "ru": "Холмовой дварф"
+      },
+      "abilityScoreIncrease": {
+        "wisdom": 1
+      },
+      "traits": {
+        "en": ["Dwarven Toughness"],
+        "ru": ["Дварфийская выносливость"]
+      }
+    }
+  ]
+}

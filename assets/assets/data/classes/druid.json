@@ -1,0 +1,273 @@
+{
+  "id": "druid",
+  "name": {
+    "en": "Druid",
+    "ru": "Друид"
+  },
+  "description": {
+    "en": "A priest of the Old Faith, wielding the powers of nature and adopting animal forms.",
+    "ru": "Жрец Старой Веры, владеющий силами природы и принимающий звериные обличья."
+  },
+  "hitDie": 8,
+  "primaryAbilities": [
+    "wisdom"
+  ],
+  "savingThrowProficiencies": [
+    "intelligence",
+    "wisdom"
+  ],
+  "armorProficiencies": {
+    "light": true,
+    "medium": true,
+    "heavy": false,
+    "shields": true
+  },
+  "weaponProficiencies": {
+    "simple": false,
+    "martial": false
+  },
+  "skillProficiencies": {
+    "choose": 2,
+    "from": [
+      "arcana",
+      "animal-handling",
+      "insight",
+      "medicine",
+      "nature",
+      "perception",
+      "religion",
+      "survival"
+    ]
+  },
+  "subclasses": [
+    {
+      "id": "land",
+      "name": {
+        "en": "Land",
+        "ru": "Круг Земли"
+      },
+      "description": {
+        "en": "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites.",
+        "ru": "Круг Земли состоит из мистиков и мудрецов, которые охраняют древние знания и обряды через обширную устную традицию. Эти друиды встречаются в священных кругах деревьев или стоячих камней, чтобы шептать первобытные тайны на друидическом языке. Мудрейшие члены круга председательствуют как главные жрецы общин, придерживающихся Старой Веры, и служат советниками правителям этих народов. Как член этого круга, ваша магия находится под влиянием земли, где вы были посвящены в таинственные обряды круга."
+      }
+    }
+  ],
+  "subclassLevel": 2,
+  "features": {
+    "1": [
+      {
+        "id": "spellcasting-druid",
+        "name": {
+          "en": "Spellcasting: Druid",
+          "ru": "Использование заклинаний: Друид"
+        },
+        "description": {
+          "en": "Drawing on the divine essence of nature itself, you can cast spells to shape that essence to your will.",
+          "ru": "Черпая божественную сущность самой природы, вы можете накладывать заклинания, чтобы придавать этой сущности форму по вашей воле."
+        }
+      },
+      {
+        "id": "druidic",
+        "name": {
+          "en": "Druidic",
+          "ru": "Друидический язык"
+        },
+        "description": {
+          "en": "You know Druidic, the secret language of druids. You can speak the language and use it to leave hidden messages. You and others who know this language automatically spot such a message. Others spot the message's presence with a successful DC 15 Wisdom (Perception) check but can't decipher it without magic.",
+          "ru": "Вы знаете Друидический язык, тайный язык друидов. Вы можете говорить на нем и использовать его, чтобы оставлять скрытые послания."
+        }
+      }
+    ],
+    "2": [
+      {
+        "id": "bonus-cantrip",
+        "name": {
+          "en": "Bonus Cantrip",
+          "ru": "Дополнительный заговор"
+        },
+        "description": {
+          "en": "When you choose this circle at 2nd level, you learn one additional druid cantrip of your choice.",
+          "ru": "Когда вы выбираете этот круг на 2-м уровне, вы изучаете один дополнительный заговор друида по вашему выбору."
+        }
+      },
+      {
+        "id": "natural-recovery",
+        "name": {
+          "en": "Natural Recovery",
+          "ru": "Природное восстановление"
+        },
+        "description": {
+          "en": "Starting at 2nd level, you can regain some of your magical energy by sitting in meditation and communing with nature. During a short rest, you choose expended spell slots to recover. The spell slots can have a combined level that is equal to or less than half your druid level (rounded up), and none of the slots can be 6th level or higher. You can't use this feature again until you finish a long rest.\nFor example, when you are a 4th-level druid, you can recover up to two levels worth of spell slots. You can recover either a 2nd-level slot or two 1st-level slots.",
+          "ru": "Начиная со 2-го уровня, вы можете восстановить часть своей магической энергии, сидя в медитации и общаясь с природой."
+        }
+      }
+    ],
+    "4": [
+      {
+        "id": "wild-shape-cr-1-2-or-below-no-flying-speed",
+        "name": {
+          "en": "Wild Shape (CR 1/2 or below, no flying speed)",
+          "ru": "Дикий облик (Опасность 1/2)"
+        },
+        "description": {
+          "en": "Starting at 2nd level, you can use your action to magically assume the shape of a beast that you have seen before. You can use this feature twice. You regain expended uses when you finish a short or long rest.\nYour druid level determines the beasts you can transform into, as shown in the Beast Shapes table. At 2nd level, for example, you can transform into any beast that has a challenge rating of 1/4 or lower that doesn't have a flying or swimming speed.\nYou can stay in a beast shape for a number of hours equal to half your druid level (rounded down). You then revert to your normal form unless you expend another use of this feature. You can revert to your normal form earlier by using a bonus action on your turn. You automatically revert if you fall unconscious, drop to 0 hit points, or die.\nWhile you are transformed, the following rules apply:\n- Your game statistics are replaced by the statistics of the beast, but you retain your alignment, personality, and Intelligence, Wisdom, and Charisma scores. You also retain all of your skill and saving throw proficiencies, in addition to gaining those of the creature. If the creature has the same proficiency as you and the bonus in its stat block is higher than yours, use the creature's bonus instead of yours. If the creature has any legendary or lair actions, you can't use them.\n- When you transform, you assume the beast's hit points and Hit Dice. When you revert to your normal form, you return to the number of hit points you had before you transformed. However, if you revert as a result of dropping to 0 hit points, any excess damage carries over to your normal form. For example, if you take 10 damage in animal form and have only 1 hit point left, you revert and take 9 damage. As long as the excess damage doesn't reduce your normal form to 0 hit points, you aren't knocked unconscious.\n- You can't cast spells, and your ability to speak or take any action that requires hands is limited to the capabilities of your beast form. Transforming doesn't break your concentration on a spell you've already cast, however, or prevent you from taking actions that are part of a spell, such as call lightning, that you've already cast.\n- You retain the benefit of any features from your class, race, or other source and can use them if the new form is physically capable of doing so. However, you can't use any of your special senses, such as darkvision, unless your new form also has that sense.\n- You choose whether your equipment falls to the ground in your space, merges into your new form, or is worn by it. Worn equipment functions as normal, but the GM decides whether it is practical for the new form to wear a piece of equipment, based on the creature's shape and size. Your equipment doesn't change size or shape to match the new form, and any equipment that the new form can't wear must either fall to the ground or merge with it. Equipment that merges with the form has no effect until you leave the form.",
+          "ru": "На 4-м уровне вы можете превращаться в зверя с показателем опасности 1/2 или ниже, у которого нет скорости полета."
+        }
+      },
+      {
+        "id": "druid-ability-score-improvement-1",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "6": [
+      {
+        "id": "druid-lands-stride",
+        "name": {
+          "en": "Land's Stride",
+          "ru": "Странник"
+        },
+        "description": {
+          "en": "Starting at 6th level, moving through nonmagical difficult terrain costs you no extra movement. You can also pass through nonmagical plants without being slowed by them and without taking damage from them if they have thorns, spines, or a similar hazard.\nIn addition, you have advantage on saving throws against plants that are magically created or manipulated to impede movement, such those created by the entangle spell.",
+          "ru": "Начиная с 6-го уровня, перемещение по немагической труднопроходимой местности не стоит вам дополнительного движения."
+        }
+      }
+    ],
+    "8": [
+      {
+        "id": "wild-shape-cr-1-or-below",
+        "name": {
+          "en": "Wild Shape (CR 1 or below)",
+          "ru": "Дикий облик (Опасность 1)"
+        },
+        "description": {
+          "en": "Starting at 2nd level, you can use your action to magically assume the shape of a beast that you have seen before. You can use this feature twice. You regain expended uses when you finish a short or long rest.\nYour druid level determines the beasts you can transform into, as shown in the Beast Shapes table. At 2nd level, for example, you can transform into any beast that has a challenge rating of 1/4 or lower that doesn't have a flying or swimming speed.\nYou can stay in a beast shape for a number of hours equal to half your druid level (rounded down). You then revert to your normal form unless you expend another use of this feature. You can revert to your normal form earlier by using a bonus action on your turn. You automatically revert if you fall unconscious, drop to 0 hit points, or die.\nWhile you are transformed, the following rules apply:\n- Your game statistics are replaced by the statistics of the beast, but you retain your alignment, personality, and Intelligence, Wisdom, and Charisma scores. You also retain all of your skill and saving throw proficiencies, in addition to gaining those of the creature. If the creature has the same proficiency as you and the bonus in its stat block is higher than yours, use the creature's bonus instead of yours. If the creature has any legendary or lair actions, you can't use them.\n- When you transform, you assume the beast's hit points and Hit Dice. When you revert to your normal form, you return to the number of hit points you had before you transformed. However, if you revert as a result of dropping to 0 hit points, any excess damage carries over to your normal form. For example, if you take 10 damage in animal form and have only 1 hit point left, you revert and take 9 damage. As long as the excess damage doesn't reduce your normal form to 0 hit points, you aren't knocked unconscious.\n- You can't cast spells, and your ability to speak or take any action that requires hands is limited to the capabilities of your beast form. Transforming doesn't break your concentration on a spell you've already cast, however, or prevent you from taking actions that are part of a spell, such as call lightning, that you've already cast.\n- You retain the benefit of any features from your class, race, or other source and can use them if the new form is physically capable of doing so. However, you can't use any of your special senses, such as darkvision, unless your new form also has that sense.\n- You choose whether your equipment falls to the ground in your space, merges into your new form, or is worn by it. Worn equipment functions as normal, but the GM decides whether it is practical for the new form to wear a piece of equipment, based on the creature's shape and size. Your equipment doesn't change size or shape to match the new form, and any equipment that the new form can't wear must either fall to the ground or merge with it. Equipment that merges with the form has no effect until you leave the form.",
+          "ru": "На 8-м уровне вы можете превращаться в зверя с показателем опасности 1 или ниже."
+        }
+      },
+      {
+        "id": "druid-ability-score-improvement-2",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "10": [
+      {
+        "id": "natures-ward",
+        "name": {
+          "en": "Nature's Ward",
+          "ru": "Природный оберег"
+        },
+        "description": {
+          "en": "When you reach 10th level, you can't be charmed or frightened by elementals or fey, and you are immune to poison and disease.",
+          "ru": "Когда вы достигаете 10-го уровня, вы не можете быть очарованы или испуганы элементалями или феями, и вы невосприимчивы к ядам и болезням."
+        }
+      }
+    ],
+    "12": [
+      {
+        "id": "druid-ability-score-improvement-3",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "14": [
+      {
+        "id": "natures-sanctuary",
+        "name": {
+          "en": "Nature's Sanctuary",
+          "ru": "Природное святилище"
+        },
+        "description": {
+          "en": "When you reach 14th level, creatures of the natural world sense your connection to nature and become hesitant to attack you. When a beast or plant creature attacks you, that creature must make a Wisdom saving throw against your druid spell save DC. On a failed save, the creature must choose a different target, or the attack automatically misses. On a successful save, the creature is immune to this effect for 24 hours. The creature is aware of this effect before it makes its attack against you.",
+          "ru": "Когда вы достигаете 14-го уровня, существа природного мира чувствуют вашу связь с природой и не решаются атаковать вас."
+        }
+      }
+    ],
+    "16": [
+      {
+        "id": "druid-ability-score-improvement-4",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "18": [
+      {
+        "id": "druid-timeless-body",
+        "name": {
+          "en": "Timeless Body",
+          "ru": "Тело вне времени"
+        },
+        "description": {
+          "en": "Starting at 18th level, the primal magic that you wield causes you to age more slowly. For every 10 years that pass, your body ages only 1 year.",
+          "ru": "Начиная с 18-го уровня, первобытная магия, которой вы владеете, заставляет вас стареть медленнее. За каждые 10 лет ваше тело стареет только на 1 год."
+        }
+      },
+      {
+        "id": "beast-spells",
+        "name": {
+          "en": "Beast Spells",
+          "ru": "Заклинания зверя"
+        },
+        "description": {
+          "en": "Beginning at 18th level, you can cast many of your druid spells in any shape you assume using Wild Shape. You can perform the somatic and verbal components of a druid spell while in a beast shape, but you aren't able to provide material components.",
+          "ru": "Начиная с 18-го уровня, вы можете накладывать многие из своих заклинаний друида в любой форме, которую вы принимаете с помощью Дикого облика."
+        }
+      }
+    ],
+    "19": [
+      {
+        "id": "druid-ability-score-improvement-5",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "20": [
+      {
+        "id": "archdruid",
+        "name": {
+          "en": "Archdruid",
+          "ru": "Архидруид"
+        },
+        "description": {
+          "en": "At 20th level, you can use your Wild Shape an unlimited number of times.\nAdditionally, you can ignore the verbal and somatic components of your druid spells, as well as any material components that lack a cost and aren't consumed by a spell. You gain this benefit in both your normal shape and your beast shape from Wild Shape.",
+          "ru": "На 20-м уровне вы можете использовать свой Дикий облик неограниченное количество раз."
+        }
+      }
+    ]
+  },
+  "spellcasting": {
+    "ability": "wisdom",
+    "type": "full"
+  }
+}

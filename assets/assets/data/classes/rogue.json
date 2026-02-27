@@ -1,0 +1,354 @@
+{
+  "id": "rogue",
+  "name": {
+    "en": "Rogue",
+    "ru": "Плут"
+  },
+  "description": {
+    "en": "A scoundrel who uses stealth and trickery to overcome obstacles and enemies.",
+    "ru": "Плут, использующий скрытность и хитрость для преодоления препятствий и врагов."
+  },
+  "hitDie": 8,
+  "primaryAbilities": [
+    "dexterity"
+  ],
+  "savingThrowProficiencies": [
+    "dexterity",
+    "intelligence"
+  ],
+  "armorProficiencies": {
+    "light": true,
+    "medium": false,
+    "heavy": false,
+    "shields": false
+  },
+  "weaponProficiencies": {
+    "simple": true,
+    "martial": false
+  },
+  "skillProficiencies": {
+    "choose": 4,
+    "from": [
+      "acrobatics",
+      "athletics",
+      "deception",
+      "insight",
+      "intimidation",
+      "investigation",
+      "perception",
+      "performance",
+      "persuasion",
+      "sleight-of-hand",
+      "stealth"
+    ]
+  },
+  "subclasses": [
+    {
+      "id": "thief",
+      "name": {
+        "en": "Thief",
+        "ru": "Вор"
+      },
+      "description": {
+        "en": "You hone your skills in the larcenous arts. Burglars, bandits, cutpurses, and other criminals typically follow this archetype, but so do rogues who prefer to think of themselves as professional treasure seekers, explorers, delvers, and investigators. In addition to improving your agility and stealth, you learn skills useful for delving into ancient ruins, reading unfamiliar languages, and using magic items you normally couldn't employ.",
+        "ru": "Вы оттачиваете свои навыки в искусстве воровства. Взломщики, бандиты, карманники и другие преступники обычно следуют этому архетипу, но также и плуты, которые предпочитают считать себя профессиональными искателями сокровищ, исследователями, диггерами и сыщиками. Помимо улучшения ловкости и скрытности, вы изучаете навыки, полезные для проникновения в древние руины, чтения незнакомых языков и использования магических предметов, которые вы обычно не могли бы использовать."
+      }
+    }
+  ],
+  "subclassLevel": 3,
+  "features": {
+    "1": [
+      {
+        "id": "rogue-expertise-1",
+        "name": {
+          "en": "Expertise",
+          "ru": "Компетентность"
+        },
+        "description": {
+          "en": "At 1st level, choose two of your skill proficiencies, or one of your skill proficiencies and your proficiency with thieves' tools. Your proficiency bonus is doubled for any ability check you make that uses either of the chosen proficiencies.\nAt 6th level, you can choose two more of your proficiencies (in skills or with thieves' tools) to gain this benefit",
+          "ru": "На 1-м уровне выберите два ваших владения в навыках или одно владение навыком и владение воровскими инструментами. Ваш бонус мастерства удваивается для всех проверок характеристик, которые вы совершаете, используя любое из выбранных владений."
+        }
+      },
+      {
+        "id": "sneak-attack",
+        "name": {
+          "en": "Sneak Attack",
+          "ru": "Скрытая атака"
+        },
+        "description": {
+          "en": "Beginning at 1st level, you know how to strike subtly and exploit a foe's distraction. Once per turn, you can deal an extra 1d6 damage to one creature you hit with an attack if you have advantage on the attack roll. The attack must use a finesse or a ranged weapon.\nYou don't need advantage on the attack roll if another enemy of the target is within 5 feet of it, that enemy isn't incapacitated, and you don't have disadvantage on the attack roll.\nThe amount of the extra damage increases as you gain levels in this class, as shown in the Sneak Attack column of the Rogue table.",
+          "ru": "Начиная с 1-го уровня, вы знаете, как точно нанести удар и использовать отвлечение врага. Один раз в ход вы можете нанести дополнительные 1к6 урона одному существу, по которому вы попали атакой, если у вас есть преимущество на бросок атаки. Атака должна использовать дальнобойное оружие или оружие со свойством «фехтовальное».\nВам не нужно иметь преимущество на бросок атаки, если другой враг цели находится в пределах 5 футов от нее, этот враг не является недееспособным, и у вас нет помехи на бросок атаки."
+        }
+      },
+      {
+        "id": "thieves-cant",
+        "name": {
+          "en": "Thieves' Cant",
+          "ru": "Воровской жаргон"
+        },
+        "description": {
+          "en": "During your rogue training you learned thieves' cant, a secret mix of dialect, jargon, and code that allows you to hide messages in seemingly normal conversation. Only another creature that knows thieves' cant understands such messages. It takes four times longer to convey such a message than it does to speak the same idea plainly.\nIn addition, you understand a set of secret signs and symbols used to convey short, simple messages, such as whether an area is dangerous or the territory of a thieves' guild, whether loot is nearby, or whether the people in an area are easy marks or will provide a safe house for thieves on the run.",
+          "ru": "Во время вашего плутовского обучения вы выучили воровской жаргон, тайную смесь диалекта, жаргона и кода, который позволяет вам скрывать сообщения в, казалось бы, обычном разговоре. Только другое существо, знающее воровской жаргон, понимает такие сообщения. Это занимает в четыре раза больше времени, чтобы передать сообщение, чем сказать ту же мысль прямо.\nКроме того, вы понимаете набор секретных знаков и символов, используемых для передачи коротких, простых сообщений."
+        }
+      }
+    ],
+    "2": [
+      {
+        "id": "cunning-action",
+        "name": {
+          "en": "Cunning Action",
+          "ru": "Хитрое действие"
+        },
+        "description": {
+          "en": "Starting at 2nd level, your quick thinking and agility allow you to move and act quickly. You can take a bonus action on each of your turns in combat. This action can be used only to take the Dash, Disengage, or Hide action.",
+          "ru": "Начиная со 2-го уровня, ваше быстрое мышление и проворство позволяют вам двигаться и действовать быстрее. Вы можете совершать бонусное действие в каждый свой ход в бою. Это действие может быть использовано только для действий Рывок, Отход или Засада."
+        }
+      }
+    ],
+    "3": [
+      {
+        "id": "fast-hands",
+        "name": {
+          "en": "Fast Hands",
+          "ru": "Быстрые руки"
+        },
+        "description": {
+          "en": "Starting at 3rd level, you can use the bonus action granted by your Cunning Action to make a Dexterity (Sleight of Hand) check, use your thieves' tools to disarm a trap or open a lock, or take the Use an Object action.",
+          "ru": "Начиная с 3-го уровня, вы можете использовать бонусное действие, предоставленное вашим Хитрым действием, чтобы совершить проверку Ловкости (Ловкость рук), использовать воровские инструменты, чтобы обезвредить ловушку или открыть замок, или совершить действие Использование предмета."
+        }
+      },
+      {
+        "id": "second-story-work",
+        "name": {
+          "en": "Second-Story Work",
+          "ru": "Форточник"
+        },
+        "description": {
+          "en": "When you choose this archetype at 3rd level, you gain the ability to climb faster than normal; climbing no longer costs you extra movement.\nIn addition, when you make a running jump, the distance you cover increases by a number of feet equal to your Dexterity modifier.",
+          "ru": "Когда вы выбираете этот архетип на 3-м уровне, вы получаете способность карабкаться быстрее, чем обычно; лазание больше не стоит вам дополнительного движения.\nКроме того, когда вы совершаете прыжок с разбега, расстояние, которое вы покрываете, увеличивается на количество футов, равное вашему модификатору Ловкости."
+        }
+      }
+    ],
+    "4": [
+      {
+        "id": "rogue-ability-score-improvement-1",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 10th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 10-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "5": [
+      {
+        "id": "uncanny-dodge",
+        "name": {
+          "en": "Uncanny Dodge",
+          "ru": "Невероятное уклонение"
+        },
+        "description": {
+          "en": "Starting at 5th level, when an attacker that you can see hits you with an attack, you can use your reaction to halve the attack's damage against you.",
+          "ru": "Начиная с 5-го уровня, когда атакующий, которого вы можете видеть, попадает по вам атакой, вы можете использовать свою реакцию, чтобы уменьшить урон от атаки вдвое."
+        }
+      }
+    ],
+    "6": [
+      {
+        "id": "rogue-expertise-2",
+        "name": {
+          "en": "Expertise",
+          "ru": "Компетентность"
+        },
+        "description": {
+          "en": "At 1st level, choose two of your skill proficiencies, or one of your skill proficiencies and your proficiency with thieves' tools. Your proficiency bonus is doubled for any ability check you make that uses either of the chosen proficiencies.\nAt 6th level, you can choose two more of your proficiencies (in skills or with thieves' tools) to gain this benefit",
+          "ru": "На 6-м уровне вы можете выбрать еще два владения (в навыках или воровских инструментах), чтобы получить это преимущество."
+        }
+      }
+    ],
+    "7": [
+      {
+        "id": "rogue-evasion",
+        "name": {
+          "en": "Evasion",
+          "ru": "Увертливость"
+        },
+        "description": {
+          "en": "Beginning at 7th level, you can nimbly dodge out of the way of certain area effects, such as a red dragon's fiery breath or an ice storm spell. When you are subjected to an effect that allows you to make a Dexterity saving throw to take only half damage, you instead take no damage if you succeed on the saving throw, and only half damage if you fail.",
+          "ru": "Начиная с 7-го уровня, вы можете ловко уклоняться от определенных зональных эффектов, таких как огненное дыхание красного дракона или заклинание ледяной шторм. Когда вы подвергаетесь эффекту, который позволяет вам совершить спасбросок Ловкости, чтобы получить только половину урона, вы вместо этого не получаете урона, если преуспеваете в спасброске, и получаете только половину урона, если проваливаете его."
+        }
+      }
+    ],
+    "8": [
+      {
+        "id": "rogue-ability-score-improvement-2",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 10th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 10-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "9": [
+      {
+        "id": "supreme-sneak",
+        "name": {
+          "en": "Supreme Sneak",
+          "ru": "Высшая скрытность"
+        },
+        "description": {
+          "en": "Starting at 9th level, you have advantage on a Dexterity (Stealth) check if you move no more than half your speed on the same turn.",
+          "ru": "Начиная с 9-го уровня, вы имеете преимущество на проверку Ловкости (Скрытность), если вы перемещаетесь не более чем на половину своей скорости в этот ход."
+        }
+      }
+    ],
+    "10": [
+      {
+        "id": "rogue-ability-score-improvement-3",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 10th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 10-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "11": [
+      {
+        "id": "reliable-talent",
+        "name": {
+          "en": "Reliable Talent",
+          "ru": "Надежный талант"
+        },
+        "description": {
+          "en": "By 11th level, you have refined your chosen skills until they approach perfection. Whenever you make an ability check that lets you add your proficiency bonus, you can treat a d20 roll of 9 or lower as a 10.",
+          "ru": "К 11-му уровню вы отточили свои выбранные навыки до совершенства. Каждый раз, когда вы совершаете проверку характеристики, которая позволяет вам добавить ваш бонус мастерства, вы можете считать любой бросок к20 результатом 9 или ниже как 10."
+        }
+      }
+    ],
+    "12": [
+      {
+        "id": "rogue-ability-score-improvement-4",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 10th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 10-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "13": [
+      {
+        "id": "use-magic-device",
+        "name": {
+          "en": "Use Magic Device",
+          "ru": "Использование магических предметов"
+        },
+        "description": {
+          "en": "By 13th level, you have learned enough about the workings of magic that you can improvise the use of items even when they are not intended for you. You ignore all class, race, and level requirements on the use of magic items.",
+          "ru": "К 13-му уровню вы узнали достаточно о работе магии, чтобы импровизировать использование предметов, даже если они не предназначены для вас. Вы игнорируете все требования к классу, расе и уровню при использовании магических предметов."
+        }
+      }
+    ],
+    "14": [
+      {
+        "id": "blindsense",
+        "name": {
+          "en": "Blindsense",
+          "ru": "Слепое чувство"
+        },
+        "description": {
+          "en": "Starting at 14th level, if you are able to hear, you are aware of the location of any hidden or invisible creature within 10 feet of you.",
+          "ru": "Начиная с 14-го уровня, если вы способны слышать, вы знаете местонахождение любого скрытого или невидимого существа в пределах 10 футов от вас."
+        }
+      }
+    ],
+    "15": [
+      {
+        "id": "slippery-mind",
+        "name": {
+          "en": "Slippery Mind",
+          "ru": "Скользкий разум"
+        },
+        "description": {
+          "en": "By 15th level, you have acquired greater mental strength. You gain proficiency in Wisdom saving throws.",
+          "ru": "К 15-му уровню вы приобрели большую ментальную силу. Вы получаете владение спасбросками Мудрости."
+        }
+      }
+    ],
+    "16": [
+      {
+        "id": "rogue-ability-score-improvement-5",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 10th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 10-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "17": [
+      {
+        "id": "thiefs-reflexes",
+        "name": {
+          "en": "Thief's Reflexes",
+          "ru": "Рефлексы вора"
+        },
+        "description": {
+          "en": "When you reach 17th level, you have become adept at laying ambushes and quickly escaping danger. You can take two turns during the first round of any combat. You take your first turn at your normal initiative and your second turn at your initiative minus 10. You can't use this feature when you are surprised.",
+          "ru": "Когда вы достигаете 17-го уровня, вы становитесь мастером устраивать засады и быстро уходить от опасности. Вы можете совершить два хода в течение первого раунда любого боя. Вы совершаете свой первый ход при вашей нормальной инициативе, а второй ход — при вашей инициативе минус 10. Вы не можете использовать это умение, если вы захвачены врасплох."
+        }
+      }
+    ],
+    "18": [
+      {
+        "id": "elusive",
+        "name": {
+          "en": "Elusive",
+          "ru": "Неуловимый"
+        },
+        "description": {
+          "en": "Beginning at 18th level, you are so evasive that attackers rarely gain the upper hand against you. No attack roll has advantage against you while you aren't incapacitated.",
+          "ru": "Начиная с 18-го уровня, вы настолько неуловимы, что атакующие редко могут получить преимущество над вами. Никакой бросок атаки не имеет преимущества против вас, пока вы не недееспособны."
+        }
+      }
+    ],
+    "19": [
+      {
+        "id": "rogue-ability-score-improvement-6",
+        "name": {
+          "en": "Ability Score Improvement",
+          "ru": "Увеличение Характеристик"
+        },
+        "description": {
+          "en": "When you reach 4th level, and again at 8th, 10th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
+          "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 10-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
+        }
+      }
+    ],
+    "20": [
+      {
+        "id": "stroke-of-luck",
+        "name": {
+          "en": "Stroke of Luck",
+          "ru": "Удача"
+        },
+        "description": {
+          "en": "At 20th level, you have an uncanny knack for succeeding when you need to. If your attack misses a target within range, you can turn the miss into a hit. Alternatively, if you fail an ability check, you can treat the d20 roll as a 20.\nOnce you use this feature, you can't use it again until you finish a short or long rest.",
+          "ru": "На 20-м уровне вы обладаете сверхъестественной способностью добиваться успеха, когда вам это нужно. Если ваша атака промахивается по цели в пределах досягаемости, вы можете превратить промах в попадание. В качестве альтернативы, если вы проваливаете проверку характеристики, вы можете считать результат броска к20 равным 20.\nИспользовав это умение, вы не можете использовать его снова, пока не закончите короткий или продолжительный отдых."
+        }
+      }
+    ]
+  }
+}

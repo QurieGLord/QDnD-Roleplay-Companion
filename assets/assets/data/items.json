@@ -1,0 +1,863 @@
+[
+  {
+    "id": "longsword",
+    "nameEn": "Longsword",
+    "nameRu": "Длинный меч",
+    "descriptionEn": "A versatile martial weapon with a straight blade",
+    "descriptionRu": "Универсальное боевое оружие с прямым клинком",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 3.0,
+    "valueInCopper": 1500,
+    "weaponProperties": {
+      "damageDice": "1d8",
+      "damageType": "DamageType.slashing",
+      "weaponTags": ["versatile", "martial"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": "1d10"
+    }
+  },
+  {
+    "id": "greatsword",
+    "nameEn": "Greatsword",
+    "nameRu": "Двуручный меч",
+    "descriptionEn": "A massive two-handed martial weapon",
+    "descriptionRu": "Массивное двуручное боевое оружие",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 6.0,
+    "valueInCopper": 5000,
+    "weaponProperties": {
+      "damageDice": "2d6",
+      "damageType": "DamageType.slashing",
+      "weaponTags": ["heavy", "two_handed", "martial"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "rapier",
+    "nameEn": "Rapier",
+    "nameRu": "Рапира",
+    "descriptionEn": "An elegant finesse martial weapon",
+    "descriptionRu": "Элегантное фехтовальное боевое оружие",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 2.0,
+    "valueInCopper": 2500,
+    "weaponProperties": {
+      "damageDice": "1d8",
+      "damageType": "DamageType.piercing",
+      "weaponTags": ["finesse", "martial"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "shortsword",
+    "nameEn": "Shortsword",
+    "nameRu": "Короткий меч",
+    "descriptionEn": "A light, finesse martial weapon",
+    "descriptionRu": "Лёгкое фехтовальное боевое оружие",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 2.0,
+    "valueInCopper": 1000,
+    "weaponProperties": {
+      "damageDice": "1d6",
+      "damageType": "DamageType.piercing",
+      "weaponTags": ["finesse", "light", "martial"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "scimitar",
+    "nameEn": "Scimitar",
+    "nameRu": "Скимитар",
+    "descriptionEn": "A curved finesse martial blade",
+    "descriptionRu": "Изогнутое фехтовальное боевое оружие",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 3.0,
+    "valueInCopper": 2500,
+    "weaponProperties": {
+      "damageDice": "1d6",
+      "damageType": "DamageType.slashing",
+      "weaponTags": ["finesse", "light", "martial"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "battleaxe",
+    "nameEn": "Battleaxe",
+    "nameRu": "Боевой топор",
+    "descriptionEn": "A versatile martial axe",
+    "descriptionRu": "Универсальный боевой топор",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 4.0,
+    "valueInCopper": 1000,
+    "weaponProperties": {
+      "damageDice": "1d8",
+      "damageType": "DamageType.slashing",
+      "weaponTags": ["versatile", "martial"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": "1d10"
+    }
+  },
+  {
+    "id": "greataxe",
+    "nameEn": "Greataxe",
+    "nameRu": "Секира",
+    "descriptionEn": "A massive two-handed axe",
+    "descriptionRu": "Массивный двуручный топор",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 7.0,
+    "valueInCopper": 3000,
+    "weaponProperties": {
+      "damageDice": "1d12",
+      "damageType": "DamageType.slashing",
+      "weaponTags": ["heavy", "two_handed", "martial"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "warhammer",
+    "nameEn": "Warhammer",
+    "nameRu": "Боевой молот",
+    "descriptionEn": "A versatile martial hammer",
+    "descriptionRu": "Универсальный боевой молот",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 2.0,
+    "valueInCopper": 1500,
+    "weaponProperties": {
+      "damageDice": "1d8",
+      "damageType": "DamageType.bludgeoning",
+      "weaponTags": ["versatile", "martial"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": "1d10"
+    }
+  },
+  {
+    "id": "maul",
+    "nameEn": "Maul",
+    "nameRu": "Кувалда",
+    "descriptionEn": "A heavy two-handed hammer",
+    "descriptionRu": "Тяжёлый двуручный молот",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 10.0,
+    "valueInCopper": 1000,
+    "weaponProperties": {
+      "damageDice": "2d6",
+      "damageType": "DamageType.bludgeoning",
+      "weaponTags": ["heavy", "two_handed", "martial"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "spear",
+    "nameEn": "Spear",
+    "nameRu": "Копьё",
+    "descriptionEn": "A versatile simple weapon, can be thrown",
+    "descriptionRu": "Универсальное простое оружие, можно метать",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 3.0,
+    "valueInCopper": 100,
+    "weaponProperties": {
+      "damageDice": "1d6",
+      "damageType": "DamageType.piercing",
+      "weaponTags": ["thrown", "versatile", "simple"],
+      "range": 20,
+      "longRange": 60,
+      "versatileDamageDice": "1d8"
+    }
+  },
+  {
+    "id": "dagger",
+    "nameEn": "Dagger",
+    "nameRu": "Кинжал",
+    "descriptionEn": "A simple finesse weapon, easily concealed",
+    "descriptionRu": "Простое фехтовальное оружие, легко скрываемое",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 1.0,
+    "valueInCopper": 200,
+    "weaponProperties": {
+      "damageDice": "1d4",
+      "damageType": "DamageType.piercing",
+      "weaponTags": ["finesse", "light", "thrown", "simple"],
+      "range": 20,
+      "longRange": 60,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "handaxe",
+    "nameEn": "Handaxe",
+    "nameRu": "Ручной топор",
+    "descriptionEn": "A light simple axe that can be thrown",
+    "descriptionRu": "Лёгкий простой топор, можно метать",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 2.0,
+    "valueInCopper": 500,
+    "weaponProperties": {
+      "damageDice": "1d6",
+      "damageType": "DamageType.slashing",
+      "weaponTags": ["light", "thrown", "simple"],
+      "range": 20,
+      "longRange": 60,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "mace",
+    "nameEn": "Mace",
+    "nameRu": "Булава",
+    "descriptionEn": "A simple one-handed blunt weapon",
+    "descriptionRu": "Простое одноручное дробящее оружие",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 4.0,
+    "valueInCopper": 500,
+    "weaponProperties": {
+      "damageDice": "1d6",
+      "damageType": "DamageType.bludgeoning",
+      "weaponTags": ["simple"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "quarterstaff",
+    "nameEn": "Quarterstaff",
+    "nameRu": "Боевой посох",
+    "descriptionEn": "A versatile simple weapon, a sturdy wooden staff",
+    "descriptionRu": "Универсальное простое оружие, прочный деревянный посох",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 4.0,
+    "valueInCopper": 20,
+    "weaponProperties": {
+      "damageDice": "1d6",
+      "damageType": "DamageType.bludgeoning",
+      "weaponTags": ["versatile", "simple"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": "1d8"
+    }
+  },
+  {
+    "id": "club",
+    "nameEn": "Club",
+    "nameRu": "Дубина",
+    "descriptionEn": "A light simple weapon, basically a stick",
+    "descriptionRu": "Лёгкое простое оружие, по сути палка",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 2.0,
+    "valueInCopper": 10,
+    "weaponProperties": {
+      "damageDice": "1d4",
+      "damageType": "DamageType.bludgeoning",
+      "weaponTags": ["light", "simple"],
+      "range": null,
+      "longRange": null,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "longbow",
+    "nameEn": "Longbow",
+    "nameRu": "Длинный лук",
+    "descriptionEn": "A powerful martial ranged weapon",
+    "descriptionRu": "Мощное боевое дальнобойное оружие",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 2.0,
+    "valueInCopper": 5000,
+    "weaponProperties": {
+      "damageDice": "1d8",
+      "damageType": "DamageType.piercing",
+      "weaponTags": ["ammunition", "heavy", "two_handed", "martial"],
+      "range": 150,
+      "longRange": 600,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "shortbow",
+    "nameEn": "Shortbow",
+    "nameRu": "Короткий лук",
+    "descriptionEn": "A simple ranged weapon",
+    "descriptionRu": "Простое дальнобойное оружие",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 2.0,
+    "valueInCopper": 2500,
+    "weaponProperties": {
+      "damageDice": "1d6",
+      "damageType": "DamageType.piercing",
+      "weaponTags": ["ammunition", "two_handed", "simple"],
+      "range": 80,
+      "longRange": 320,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "light_crossbow",
+    "nameEn": "Light Crossbow",
+    "nameRu": "Лёгкий арбалет",
+    "descriptionEn": "A simple ranged weapon",
+    "descriptionRu": "Простое дальнобойное оружие",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 5.0,
+    "valueInCopper": 2500,
+    "weaponProperties": {
+      "damageDice": "1d8",
+      "damageType": "DamageType.piercing",
+      "weaponTags": ["ammunition", "loading", "two_handed", "simple"],
+      "range": 80,
+      "longRange": 320,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "heavy_crossbow",
+    "nameEn": "Heavy Crossbow",
+    "nameRu": "Тяжёлый арбалет",
+    "descriptionEn": "A powerful martial ranged weapon",
+    "descriptionRu": "Мощное боевое дальнобойное оружие",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 18.0,
+    "valueInCopper": 5000,
+    "weaponProperties": {
+      "damageDice": "1d10",
+      "damageType": "DamageType.piercing",
+      "weaponTags": ["ammunition", "heavy", "loading", "two_handed", "martial"],
+      "range": 100,
+      "longRange": 400,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "javelin",
+    "nameEn": "Javelin",
+    "nameRu": "Метательное копьё",
+    "descriptionEn": "A simple throwing weapon",
+    "descriptionRu": "Простое метательное оружие",
+    "type": "ItemType.weapon",
+    "rarity": "ItemRarity.common",
+    "weight": 2.0,
+    "valueInCopper": 50,
+    "weaponProperties": {
+      "damageDice": "1d6",
+      "damageType": "DamageType.piercing",
+      "weaponTags": ["thrown", "simple"],
+      "range": 30,
+      "longRange": 120,
+      "versatileDamageDice": null
+    }
+  },
+  {
+    "id": "leather_armor",
+    "nameEn": "Leather Armor",
+    "nameRu": "Кожаный доспех",
+    "descriptionEn": "Light armor made from tanned and hardened leather",
+    "descriptionRu": "Лёгкий доспех из дублёной и закалённой кожи",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 10.0,
+    "valueInCopper": 1000,
+    "armorProperties": {
+      "baseAC": 11,
+      "armorType": "ArmorType.light",
+      "addDexModifier": true,
+      "maxDexBonus": null,
+      "strengthRequirement": 0,
+      "stealthDisadvantage": false
+    }
+  },
+  {
+    "id": "studded_leather",
+    "nameEn": "Studded Leather",
+    "nameRu": "Клёпаная кожа",
+    "descriptionEn": "Light armor reinforced with metal studs",
+    "descriptionRu": "Лёгкий доспех, усиленный металлическими заклёпками",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 13.0,
+    "valueInCopper": 4500,
+    "armorProperties": {
+      "baseAC": 12,
+      "armorType": "ArmorType.light",
+      "addDexModifier": true,
+      "maxDexBonus": null,
+      "strengthRequirement": 0,
+      "stealthDisadvantage": false
+    }
+  },
+  {
+    "id": "hide_armor",
+    "nameEn": "Hide Armor",
+    "nameRu": "Шкурный доспех",
+    "descriptionEn": "Medium armor made from thick furs and pelts",
+    "descriptionRu": "Средний доспех из толстых шкур и меха",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 12.0,
+    "valueInCopper": 1000,
+    "armorProperties": {
+      "baseAC": 12,
+      "armorType": "ArmorType.medium",
+      "addDexModifier": true,
+      "maxDexBonus": 2,
+      "strengthRequirement": 0,
+      "stealthDisadvantage": false
+    }
+  },
+  {
+    "id": "chain_shirt",
+    "nameEn": "Chain Shirt",
+    "nameRu": "Кольчужная рубаха",
+    "descriptionEn": "Medium armor made of interlocking rings",
+    "descriptionRu": "Средний доспех из переплетённых колец",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 20.0,
+    "valueInCopper": 5000,
+    "armorProperties": {
+      "baseAC": 13,
+      "armorType": "ArmorType.medium",
+      "addDexModifier": true,
+      "maxDexBonus": 2,
+      "strengthRequirement": 0,
+      "stealthDisadvantage": false
+    }
+  },
+  {
+    "id": "scale_mail",
+    "nameEn": "Scale Mail",
+    "nameRu": "Чешуйчатый доспех",
+    "descriptionEn": "Medium armor with overlapping metal scales",
+    "descriptionRu": "Средний доспех из перекрывающихся металлических пластин",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 45.0,
+    "valueInCopper": 5000,
+    "armorProperties": {
+      "baseAC": 14,
+      "armorType": "ArmorType.medium",
+      "addDexModifier": true,
+      "maxDexBonus": 2,
+      "strengthRequirement": 0,
+      "stealthDisadvantage": true
+    }
+  },
+  {
+    "id": "breastplate",
+    "nameEn": "Breastplate",
+    "nameRu": "Нагрудник",
+    "descriptionEn": "Medium armor covering the chest",
+    "descriptionRu": "Средний доспех, покрывающий грудь",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 20.0,
+    "valueInCopper": 40000,
+    "armorProperties": {
+      "baseAC": 14,
+      "armorType": "ArmorType.medium",
+      "addDexModifier": true,
+      "maxDexBonus": 2,
+      "strengthRequirement": 0,
+      "stealthDisadvantage": false
+    }
+  },
+  {
+    "id": "half_plate",
+    "nameEn": "Half Plate",
+    "nameRu": "Полулаты",
+    "descriptionEn": "Medium armor with shaped metal plates",
+    "descriptionRu": "Средний доспех из фасонных металлических пластин",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 40.0,
+    "valueInCopper": 75000,
+    "armorProperties": {
+      "baseAC": 15,
+      "armorType": "ArmorType.medium",
+      "addDexModifier": true,
+      "maxDexBonus": 2,
+      "strengthRequirement": 0,
+      "stealthDisadvantage": true
+    }
+  },
+  {
+    "id": "ring_mail",
+    "nameEn": "Ring Mail",
+    "nameRu": "Колечный доспех",
+    "descriptionEn": "Heavy armor with rings sewn to leather",
+    "descriptionRu": "Тяжёлый доспех с кольцами, пришитыми к коже",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 40.0,
+    "valueInCopper": 3000,
+    "armorProperties": {
+      "baseAC": 14,
+      "armorType": "ArmorType.heavy",
+      "addDexModifier": false,
+      "maxDexBonus": null,
+      "strengthRequirement": 0,
+      "stealthDisadvantage": true
+    }
+  },
+  {
+    "id": "chain_mail",
+    "nameEn": "Chain Mail",
+    "nameRu": "Кольчуга",
+    "descriptionEn": "Heavy armor made of interlocking metal rings",
+    "descriptionRu": "Тяжёлый доспех из переплетённых металлических колец",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 55.0,
+    "valueInCopper": 7500,
+    "armorProperties": {
+      "baseAC": 16,
+      "armorType": "ArmorType.heavy",
+      "addDexModifier": false,
+      "maxDexBonus": null,
+      "strengthRequirement": 13,
+      "stealthDisadvantage": true
+    }
+  },
+  {
+    "id": "splint_armor",
+    "nameEn": "Splint Armor",
+    "nameRu": "Наборный доспех",
+    "descriptionEn": "Heavy armor made of narrow metal strips",
+    "descriptionRu": "Тяжёлый доспех из узких металлических полос",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 60.0,
+    "valueInCopper": 20000,
+    "armorProperties": {
+      "baseAC": 17,
+      "armorType": "ArmorType.heavy",
+      "addDexModifier": false,
+      "maxDexBonus": null,
+      "strengthRequirement": 15,
+      "stealthDisadvantage": true
+    }
+  },
+  {
+    "id": "plate_armor",
+    "nameEn": "Plate Armor",
+    "nameRu": "Латный доспех",
+    "descriptionEn": "The best heavy armor, shaped metal plates",
+    "descriptionRu": "Лучший тяжёлый доспех из фасонных металлических пластин",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 65.0,
+    "valueInCopper": 150000,
+    "armorProperties": {
+      "baseAC": 18,
+      "armorType": "ArmorType.heavy",
+      "addDexModifier": false,
+      "maxDexBonus": null,
+      "strengthRequirement": 15,
+      "stealthDisadvantage": true
+    }
+  },
+  {
+    "id": "shield",
+    "nameEn": "Shield",
+    "nameRu": "Щит",
+    "descriptionEn": "Provides +2 bonus to AC when wielded",
+    "descriptionRu": "Даёт бонус +2 к КД при использовании",
+    "type": "ItemType.armor",
+    "rarity": "ItemRarity.common",
+    "weight": 6.0,
+    "valueInCopper": 1000,
+    "armorProperties": {
+      "baseAC": 2,
+      "armorType": "ArmorType.shield",
+      "addDexModifier": false,
+      "maxDexBonus": null,
+      "strengthRequirement": 0,
+      "stealthDisadvantage": false
+    }
+  },
+  {
+    "id": "explorers_pack",
+    "nameEn": "Explorer's Pack",
+    "nameRu": "Набор исследователя",
+    "descriptionEn": "Includes backpack, bedroll, 10 torches, 10 days rations, waterskin, 50ft rope",
+    "descriptionRu": "Включает рюкзак, спальник, 10 факелов, провизию на 10 дней, бурдюк, 50 футов верёвки",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 59.0,
+    "valueInCopper": 1000
+  },
+  {
+    "id": "dungeoneers_pack",
+    "nameEn": "Dungeoneer's Pack",
+    "nameRu": "Набор подземельщика",
+    "descriptionEn": "Includes backpack, crowbar, hammer, 10 pitons, 10 torches, tinderbox, 10 days rations, waterskin, 50ft rope",
+    "descriptionRu": "Включает рюкзак, лом, молоток, 10 крюков, 10 факелов, огниво, провизию на 10 дней, бурдюк, 50 футов верёвки",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 61.5,
+    "valueInCopper": 1200
+  },
+  {
+    "id": "priests_pack",
+    "nameEn": "Priest's Pack",
+    "nameRu": "Набор священника",
+    "descriptionEn": "Includes backpack, blanket, 10 candles, tinderbox, alms box, 2 blocks of incense, censer, vestments, 2 days rations, waterskin",
+    "descriptionRu": "Включает рюкзак, одеяло, 10 свечей, огниво, ящик для пожертвований, 2 блока благовоний, кадило, церковное облачение, провизию на 2 дня, бурдюк",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 24.0,
+    "valueInCopper": 1900
+  },
+  {
+    "id": "scholars_pack",
+    "nameEn": "Scholar's Pack",
+    "nameRu": "Набор учёного",
+    "descriptionEn": "Includes backpack, book of lore, ink bottle, ink pen, 10 sheets of parchment, bag of sand, small knife",
+    "descriptionRu": "Включает рюкзак, книгу знаний, бутылку чернил, перо, 10 листов пергамента, мешочек песка, маленький нож",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 10.0,
+    "valueInCopper": 4000
+  },
+  {
+    "id": "entertainers_pack",
+    "nameEn": "Entertainer's Pack",
+    "nameRu": "Набор артиста",
+    "descriptionEn": "Includes backpack, bedroll, 2 costumes, 5 candles, 5 days rations, waterskin, disguise kit",
+    "descriptionRu": "Включает рюкзак, спальник, 2 костюма, 5 свечей, провизию на 5 дней, бурдюк, набор для грима",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 38.0,
+    "valueInCopper": 4000
+  },
+  {
+    "id": "healers_kit",
+    "nameEn": "Healer's Kit",
+    "nameRu": "Набор целителя",
+    "descriptionEn": "Contains bandages, herbs, and splints. Has 10 uses",
+    "descriptionRu": "Содержит бинты, травы и шины. Имеет 10 применений",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 3.0,
+    "valueInCopper": 500
+  },
+  {
+    "id": "thieves_tools",
+    "nameEn": "Thieves' Tools",
+    "nameRu": "Воровские инструменты",
+    "descriptionEn": "Lockpicks, small files, and mirrors for picking locks and disarming traps",
+    "descriptionRu": "Отмычки, маленькие напильники и зеркала для взлома замков и обезвреживания ловушек",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 1.0,
+    "valueInCopper": 2500
+  },
+  {
+    "id": "rope_hempen_50ft",
+    "nameEn": "Rope, Hempen (50 feet)",
+    "nameRu": "Верёвка пеньковая (50 футов)",
+    "descriptionEn": "50 feet of sturdy hemp rope. Has 2 hit points and can be burst with a DC 17 Strength check",
+    "descriptionRu": "50 футов прочной пеньковой верёвки. Имеет 2 хита и может быть разорвана проверкой Силы Сл 17",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 10.0,
+    "valueInCopper": 100
+  },
+  {
+    "id": "torch",
+    "nameEn": "Torch",
+    "nameRu": "Факел",
+    "descriptionEn": "Burns for 1 hour, providing bright light in a 20-foot radius and dim light for an additional 20 feet",
+    "descriptionRu": "Горит 1 час, обеспечивая яркий свет в радиусе 20 футов и тусклый свет ещё на 20 футов",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 1.0,
+    "valueInCopper": 1
+  },
+  {
+    "id": "rations_1_day",
+    "nameEn": "Rations (1 day)",
+    "nameRu": "Провизия (1 день)",
+    "descriptionEn": "Dried foods suitable for extended travel",
+    "descriptionRu": "Сушёная еда, подходящая для долгого путешествия",
+    "type": "ItemType.consumable",
+    "rarity": "ItemRarity.common",
+    "weight": 2.0,
+    "valueInCopper": 50
+  },
+  {
+    "id": "waterskin",
+    "nameEn": "Waterskin",
+    "nameRu": "Бурдюк",
+    "descriptionEn": "A leather container that holds 4 pints of liquid",
+    "descriptionRu": "Кожаная ёмкость, вмещающая 4 пинты жидкости",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 5.0,
+    "valueInCopper": 20
+  },
+  {
+    "id": "bedroll",
+    "nameEn": "Bedroll",
+    "nameRu": "Спальник",
+    "descriptionEn": "A warm blanket and pad for sleeping outdoors",
+    "descriptionRu": "Тёплое одеяло и мат для сна на природе",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 7.0,
+    "valueInCopper": 100
+  },
+  {
+    "id": "backpack",
+    "nameEn": "Backpack",
+    "nameRu": "Рюкзак",
+    "descriptionEn": "Holds 30 pounds of gear in 1 cubic foot",
+    "descriptionRu": "Вмещает 30 фунтов снаряжения в 1 кубическом футе",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 5.0,
+    "valueInCopper": 200
+  },
+  {
+    "id": "crowbar",
+    "nameEn": "Crowbar",
+    "nameRu": "Лом",
+    "descriptionEn": "Grants advantage on Strength checks where leverage could help",
+    "descriptionRu": "Даёт преимущество на проверки Силы, где может помочь рычаг",
+    "type": "ItemType.tool",
+    "rarity": "ItemRarity.common",
+    "weight": 5.0,
+    "valueInCopper": 200
+  },
+  {
+    "id": "hammer",
+    "nameEn": "Hammer",
+    "nameRu": "Молоток",
+    "descriptionEn": "Can be used as an improvised weapon dealing 1d4 bludgeoning damage",
+    "descriptionRu": "Может использоваться как импровизированное оружие, наносящее 1к4 дробящего урона",
+    "type": "ItemType.tool",
+    "rarity": "ItemRarity.common",
+    "weight": 3.0,
+    "valueInCopper": 100
+  },
+  {
+    "id": "lantern_hooded",
+    "nameEn": "Lantern, Hooded",
+    "nameRu": "Фонарь закрытый",
+    "descriptionEn": "Burns oil for 6 hours, providing bright light in 30-foot radius and dim light for 30 more feet",
+    "descriptionRu": "Горит на масле 6 часов, обеспечивая яркий свет в радиусе 30 футов и тусклый свет ещё на 30 футов",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 2.0,
+    "valueInCopper": 500
+  },
+  {
+    "id": "potion_healing",
+    "nameEn": "Potion of Healing",
+    "nameRu": "Зелье лечения",
+    "descriptionEn": "You regain 2d4+2 hit points when you drink this potion",
+    "descriptionRu": "Вы восстанавливаете 2к4+2 хита, выпив это зелье",
+    "type": "ItemType.consumable",
+    "rarity": "ItemRarity.common",
+    "weight": 0.5,
+    "valueInCopper": 5000
+  },
+  {
+    "id": "potion_greater_healing",
+    "nameEn": "Potion of Greater Healing",
+    "nameRu": "Зелье великого лечения",
+    "descriptionEn": "You regain 4d4+4 hit points when you drink this potion",
+    "descriptionRu": "Вы восстанавливаете 4к4+4 хита, выпив это зелье",
+    "type": "ItemType.consumable",
+    "rarity": "ItemRarity.uncommon",
+    "weight": 0.5,
+    "valueInCopper": 10000
+  },
+  {
+    "id": "antitoxin",
+    "nameEn": "Antitoxin",
+    "nameRu": "Противоядие",
+    "descriptionEn": "Grants advantage on saving throws against poison for 1 hour",
+    "descriptionRu": "Даёт преимущество на спасброски от яда на 1 час",
+    "type": "ItemType.consumable",
+    "rarity": "ItemRarity.common",
+    "weight": 0.1,
+    "valueInCopper": 5000
+  },
+  {
+    "id": "tinderbox",
+    "nameEn": "Tinderbox",
+    "nameRu": "Огниво",
+    "descriptionEn": "Used to start a fire. Lighting a torch takes an action",
+    "descriptionRu": "Используется для разжигания огня. Зажигание факела занимает действие",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 1.0,
+    "valueInCopper": 50
+  },
+  {
+    "id": "holy_symbol",
+    "nameEn": "Holy Symbol",
+    "nameRu": "Священный символ",
+    "descriptionEn": "A representation of a god or pantheon used as a spellcasting focus",
+    "descriptionRu": "Изображение бога или пантеона, используемое как фокус для заклинаний",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 1.0,
+    "valueInCopper": 500
+  },
+  {
+    "id": "spell_component_pouch",
+    "nameEn": "Component Pouch",
+    "nameRu": "Мешочек с компонентами",
+    "descriptionEn": "Contains material components for spellcasting that don't have a cost",
+    "descriptionRu": "Содержит материальные компоненты для заклинаний без стоимости",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 2.0,
+    "valueInCopper": 2500
+  },
+  {
+    "id": "spellbook",
+    "nameEn": "Spellbook",
+    "nameRu": "Книга заклинаний",
+    "descriptionEn": "Essential for wizards, contains 100 blank pages for recording spells",
+    "descriptionRu": "Необходима волшебникам, содержит 100 пустых страниц для записи заклинаний",
+    "type": "ItemType.gear",
+    "rarity": "ItemRarity.common",
+    "weight": 3.0,
+    "valueInCopper": 5000
+  }
+]
