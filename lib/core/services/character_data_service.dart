@@ -242,4 +242,17 @@ class CharacterDataService {
             b.name.values.any((val) => val.toLowerCase() == targetId),
         orElse: () => throw Exception('Background not found: $idOrName'));
   }
+
+  static Future<SubclassData?> getSubclass(
+      String classId, String subclassId) async {
+    final clazz = getClassById(classId);
+    if (clazz == null) return null;
+
+    final targetId = _normalizeId(subclassId);
+    return clazz.subclasses.firstWhere(
+      (s) =>
+          s.id == targetId ||
+          s.name.values.any((val) => val.toLowerCase() == targetId),
+    );
+  }
 }
