@@ -370,7 +370,9 @@
   "rollDie": "Roll d{sides}",
   "@rollDie": {
     "placeholders": {
-      "sides": { "type": "int" }
+      "sides": {
+        "type": "int"
+      }
     }
   },
   "skillProficiencies": "Skills",
@@ -592,45 +594,69 @@
   "racialBonus": "Racial Bonus: +{bonus} → Final: {result} ({mod})",
   "@racialBonus": {
     "placeholders": {
-      "bonus": { "type": "int" },
-      "result": { "type": "int" },
-      "mod": { "type": "String" }
+      "bonus": {
+        "type": "int"
+      },
+      "result": {
+        "type": "int"
+      },
+      "mod": {
+        "type": "String"
+      }
     }
   },
   "startingHitPoints": "Starting Hit Points",
   "hitDieConMod": "Hit Die: d{die} | CON Mod: {mod}",
   "@hitDieConMod": {
     "placeholders": {
-      "die": { "type": "int" },
-      "mod": { "type": "String" }
+      "die": {
+        "type": "int"
+      },
+      "mod": {
+        "type": "String"
+      }
     }
   },
   "hpMaxDesc": "Maximum HP (recommended)",
   "hpAvgDesc": "Average roll: {avg} + CON modifier",
   "@hpAvgDesc": {
     "placeholders": {
-      "avg": { "type": "int" }
+      "avg": {
+        "type": "int"
+      }
     }
   },
   "hpRollDesc": "Roll 1d{die} for starting HP",
   "@hpRollDesc": {
     "placeholders": {
-      "die": { "type": "int" }
+      "die": {
+        "type": "int"
+      }
     }
   },
   "reRoll": "Re-roll d{die} (rolled: {val})",
   "@reRoll": {
     "placeholders": {
-      "die": { "type": "int" },
-      "val": { "type": "int" }
+      "die": {
+        "type": "int"
+      },
+      "val": {
+        "type": "int"
+      }
     }
   },
   "pointsUsed": "Points: {used} / {total} used ({remaining} remaining)",
   "@pointsUsed": {
     "placeholders": {
-      "used": { "type": "int" },
-      "total": { "type": "int" },
-      "remaining": { "type": "int" }
+      "used": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "remaining": {
+        "type": "int"
+      }
     }
   },
   "newFeaturesLabel": "New Features",
@@ -643,26 +669,34 @@
   "deleteNoteConfirmation": "Delete \"{title}\"?",
   "@deleteNoteConfirmation": {
     "placeholders": {
-      "title": { "type": "String" }
+      "title": {
+        "type": "String"
+      }
     }
   },
   "deleteQuest": "Delete Quest",
   "deleteQuestConfirmation": "Delete \"{title}\"?",
   "@deleteQuestConfirmation": {
     "placeholders": {
-      "title": { "type": "String" }
+      "title": {
+        "type": "String"
+      }
     }
   },
   "characterCreatedName": "{name} created successfully!",
   "@characterCreatedName": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "errorCreatingCharacter": "Error creating character: {error}",
   "@errorCreatingCharacter": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "cancelCharacterCreationTitle": "Cancel Character Creation?",
@@ -673,15 +707,21 @@
   "selectSkillProficiencies": "Select {count} skill proficiencies for your {characterClass}.",
   "@selectSkillProficiencies": {
     "placeholders": {
-      "count": { "type": "int" },
-      "characterClass": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "characterClass": {
+        "type": "String"
+      }
     }
   },
   "allSkillsSelected": "All skills selected!",
   "chooseMoreSkills": "Choose {count} more skill{count, plural, =1{} other{s}}",
   "@chooseMoreSkills": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "skillAcrobaticsDesc": "Dexterity - Balance, tumbling, aerial maneuvers",
@@ -747,20 +787,26 @@
   "addedToKnown": "Added \"{name}\" to known spells",
   "@addedToKnown": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "removedFromKnown": "Removed \"{name}\" from known spells",
   "@removedFromKnown": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "availableToLearn": "Available to Learn",
   "availableAtLevel": "Available at Level {level}",
   "@availableAtLevel": {
     "placeholders": {
-      "level": { "type": "int" }
+      "level": {
+        "type": "int"
+      }
     }
   },
   "filterAvailability": "Availability",
@@ -780,30 +826,51 @@
   "deleteItemConfirmation": "Throw away {name}?",
   "@deleteItemConfirmation": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "spellsCount": "{count} spell{count, plural, =1{} other{s}}",
   "@spellsCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "preparedSpells": "Prepared",
   "preparedSpellsCount": "Prepared: {current} / {max}",
   "@preparedSpellsCount": {
     "placeholders": {
-      "current": { "type": "int" },
-      "max": { "type": "int" }
+      "current": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
     }
   },
   "spellAlmanacTitle": "Spell Almanac",
+  "fighterArchetype": "ARCHETYPE",
+  "improvedCritical": "Improved Critical",
+  "criticalHitTarget": "Critical Hit: {range}",
+  "@criticalHitTarget": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "fightingStylesTitle": "Fighting Styles",
   "actionTypeFree": "Free Action",
   "featuresStepTitle": "Class Features",
   "featuresStepSubtitle": "As a level 1 {className}, you gain the following features:",
   "@featuresStepSubtitle": {
     "placeholders": {
-      "className": { "type": "String" }
+      "className": {
+        "type": "String"
+      }
     }
   },
   "noFeaturesAtLevel1": "No features available at level 1 for this class.",
@@ -815,7 +882,9 @@
   "noSpellsFoundForClass": "No spells found for {className}",
   "@noSpellsFoundForClass": {
     "placeholders": {
-      "className": { "type": "String" }
+      "className": {
+        "type": "String"
+      }
     }
   },
   "level1Spells": "Level 1 Spells",
@@ -836,7 +905,9 @@
   "equipmentPreview": "{className} Equipment Preview",
   "@equipmentPreview": {
     "placeholders": {
-      "className": { "type": "String" }
+      "className": {
+        "type": "String"
+      }
     }
   },
   "toolsAndGear": "Tools & Gear",
@@ -847,8 +918,12 @@
   "foundItems": "Found: {count} (selected: {selected})",
   "@foundItems": {
     "placeholders": {
-      "count": { "type": "int" },
-      "selected": { "type": "int" }
+      "count": {
+        "type": "int"
+      },
+      "selected": {
+        "type": "int"
+      }
     }
   },
   "noItemsFound": "No items found",
@@ -858,7 +933,9 @@
   "errorLoadingImage": "Error loading image: {error}",
   "@errorLoadingImage": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "itemName": "Name",
@@ -875,14 +952,20 @@
   "itemAdded": "{name} (x{quantity}) added",
   "@itemAdded": {
     "placeholders": {
-      "name": { "type": "String" },
-      "quantity": { "type": "int" }
+      "name": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "int"
+      }
     }
   },
   "errorCreatingItem": "Error creating item: {error}",
   "@errorCreatingItem": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "rarityCommon": "Common",
@@ -922,30 +1005,44 @@
   "libraryStats": "{items} Items, {spells} Spells",
   "@libraryStats": {
     "placeholders": {
-      "items": { "type": "int" },
-      "spells": { "type": "int" }
+      "items": {
+        "type": "int"
+      },
+      "spells": {
+        "type": "int"
+      }
     }
   },
   "libraryImportedDate": "Imported {date}",
   "@libraryImportedDate": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "deleteLibraryTitle": "Delete Library?",
   "deleteLibraryMessage": "This will remove \"{name}\" and all associated content:\n\n• {items} Items\n• {spells} Spells\n\nThis action cannot be undone.",
   "@deleteLibraryMessage": {
     "placeholders": {
-      "name": { "type": "String" },
-      "items": { "type": "int" },
-      "spells": { "type": "int" }
+      "name": {
+        "type": "String"
+      },
+      "items": {
+        "type": "int"
+      },
+      "spells": {
+        "type": "int"
+      }
     }
   },
   "libraryDeleted": "Library deleted successfully",
   "errorDeletingLibrary": "Error deleting library: {error}",
   "@errorDeletingLibrary": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "forgeTitle": "The Forge",
@@ -969,15 +1066,23 @@
   "cantripsTab": "Cantrips ({current}/{max})",
   "@cantripsTab": {
     "placeholders": {
-      "current": { "type": "int" },
-      "max": { "type": "int" }
+      "current": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
     }
   },
   "level1TabKnown": "Level 1 ({current}/{max})",
   "@level1TabKnown": {
     "placeholders": {
-      "current": { "type": "int" },
-      "max": { "type": "int" }
+      "current": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
     }
   },
   "level1TabAll": "Level 1 (All)",
@@ -986,7 +1091,9 @@
   "useActionCost": "Use ({cost})",
   "@useActionCost": {
     "placeholders": {
-      "cost": { "type": "String" }
+      "cost": {
+        "type": "String"
+      }
     }
   },
   "kiPoints": "Ki Points",
@@ -1000,6 +1107,11 @@
   "actionSurge": "Action Surge",
   "healing": "Healing",
   "fighterTactics": "Combat Tactics",
+  "fighterArchetype": "ARCHETYPE",
+  "fighterChampion": "Champion",
+  "improvedCritical": "Improved Critical",
+  "criticalHitTarget": "Critical Hit: {range}",
+  "fightingStylesTitle": "Fighting Styles",
   "sneakAttackRoll": "Sneak Attack: {total} ({dice})",
   "kiStrikeRoll": "Ki Strike: {total} ({dice})",
   "rageInactive": "Inactive",
@@ -1083,5 +1195,47 @@
   "markDurationHint": "A 3rd-level mark lasts 8 hours, 5th-level lasts 24 hours.",
   "markSlotChoose": "Choose a spell slot to cast Hunter's Mark",
   "hideSpentMinute": "Spent 1 minute to camouflage",
-  "spellNotFound": "Spell not found in the database"
+  "spellNotFound": "Spell not found in the database",
+  "stealthDifficulty": "Stealth Difficulty (Enemy Perception)",
+  "rollStealthBtn": "Roll",
+  "stealthSuccess": "Stealth: {total} (DC {dc}). Success! You blend into the shadows.",
+  "@stealthSuccess": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "dc": {
+        "type": "int"
+      }
+    }
+  },
+  "stealthFailure": "Stealth: {total} (DC {dc}). Failure! {reason}",
+  "@stealthFailure": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "dc": {
+        "type": "int"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "stealthFail1": "You tripped over a bucket!",
+  "stealthFail2": "A gold coin fell from your pocket with a loud ring.",
+  "stealthFail3": "You sneezed loudly.",
+  "stealthFail4": "Your stomach growled treacherously.",
+  "stealthFail5": "You stepped on a sleeping cat.",
+  "stealthFail6": "Your cloak caught on a nail.",
+  "stealthFail7": "The loudest branch in the forest just snapped under your boot.",
+  "stealthFail8": "You tried to blend into a shadow, but it was an enemy.",
+  "stealthFail9": "Your boot squeaked. Very loudly.",
+  "stealthFail10": "You forgot to cover your lantern.",
+  "stealthFail11": "Your scabbard loudly hit the doorframe.",
+  "stealthFail12": "You are breathing way too loudly.",
+  "stealthFail13": "A random pigeon gave away your position.",
+  "stealthFail14": "You hiccupped at the worst possible moment.",
+  "stealthFail15": "You epically tripped on flat ground."
 }

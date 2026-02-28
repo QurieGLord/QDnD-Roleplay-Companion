@@ -109,12 +109,71 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           name.contains('martial arts')) {
         return false;
       }
+      final monkTactics = [
+        'flurry_of_blows',
+        'flurry-of-blows',
+        'patient_defense',
+        'patient-defense',
+        'step_of_the_wind',
+        'step-of-the-wind',
+        'stunning_strike',
+        'stunning-strike',
+        'unarmored_movement',
+        'unarmored-movement',
+        'шквал ударов',
+        'терпеливая оборона',
+        'поступь ветра',
+        'оглушающий удар',
+        'движение без доспехов'
+      ];
+      if (monkTactics.any((t) => id.contains(t) || name.contains(t)))
+        return false;
 
       // Bard Deduplication
       if (id.contains('bardic_inspiration') ||
-          id.contains('bardic-inspiration')) {
+          id.contains('bardic-inspiration') ||
+          name.contains('bardic inspiration') ||
+          name.contains('бардовское вдохновение')) {
         return false; // Handled by widget
       }
+      final bardTactics = [
+        'cutting_words',
+        'cutting-words',
+        'cutting words',
+        'острые слова',
+        'combat_inspiration',
+        'combat-inspiration',
+        'combat inspiration',
+        'боевое вдохновение',
+        'countercharm',
+        'контрочарование',
+        'song_of_rest',
+        'song-of-rest',
+        'song of rest',
+        'песнь отдыха',
+      ];
+      if (bardTactics.any((t) => id.contains(t) || name.contains(t)))
+        return false;
+
+      // Rogue Deduplication
+      final rogueTactics = [
+        'sneak_attack',
+        'sneak-attack',
+        'sneak attack',
+        'скрытая атака',
+        'cunning_action',
+        'cunning-action',
+        'cunning action',
+        'хитрое действие',
+        'uncanny_dodge',
+        'uncanny-dodge',
+        'uncanny dodge',
+        'невероятное уклонение',
+        'evasion',
+        'увертливость',
+      ];
+      if (rogueTactics.any((t) => id.contains(t) || name.contains(t)))
+        return false;
 
       // Paladin Deduplication
       if (id.contains('lay-on-hands') || id.contains('lay_on_hands')) {
@@ -164,6 +223,25 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           id.contains(t.replaceAll(' ', '-')) ||
           id.contains(t.replaceAll(' ', '_')) ||
           name.contains(t))) return false;
+
+      // Barbarian Deduplication
+      if (id.contains('reckless-attack') ||
+          id.contains('reckless_attack') ||
+          name.contains('reckless attack') ||
+          name.contains('безрассудная атака')) {
+        return false;
+      }
+      if (id.contains('frenzy') ||
+          name.contains('frenzy') ||
+          name.contains('бешенство')) {
+        return false;
+      }
+      if (id.contains('primal_path') ||
+          id.contains('primal-path') ||
+          name.contains('primal path') ||
+          name.contains('путь дикости')) {
+        return false;
+      }
 
       // Sorcerer Deduplication
 

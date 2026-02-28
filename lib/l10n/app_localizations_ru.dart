@@ -1801,6 +1801,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get spellAlmanacTitle => 'Альманах';
 
   @override
+  String get fighterArchetype => 'АРХЕТИП';
+
+  @override
+  String get improvedCritical => 'Улучшенный критический удар';
+
+  @override
+  String criticalHitTarget(String range) {
+    return 'Критический удар: $range';
+  }
+
+  @override
+  String get fightingStylesTitle => 'Стили боя';
+
+  @override
   String get actionTypeFree => 'Свободное действие';
 
   @override
@@ -2202,6 +2216,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get fighterTactics => 'Боевая тактика';
 
   @override
+  String get fighterChampion => 'Чемпион';
+
+  @override
   String sneakAttackRoll(Object dice, Object total) {
     return 'Скрытая атака: $total ($dice)';
   }
@@ -2442,4 +2459,65 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get spellNotFound => 'Заклинание не найдено в базе';
+
+  @override
+  String get stealthDifficulty => 'Сложность скрытности (Восприятие врага)';
+
+  @override
+  String get rollStealthBtn => 'Бросок';
+
+  @override
+  String stealthSuccess(int total, int dc) {
+    return 'Скрытность: $total (СЛ $dc). Успех! Вы слились с тенью.';
+  }
+
+  @override
+  String stealthFailure(int total, int dc, String reason) {
+    return 'Скрытность: $total (СЛ $dc). Провал! $reason';
+  }
+
+  @override
+  String get stealthFail1 => 'Вы запнулись о ведро!';
+
+  @override
+  String get stealthFail2 => 'Из кармана со звоном выпала золотая монета.';
+
+  @override
+  String get stealthFail3 => 'Вы громко чихнули.';
+
+  @override
+  String get stealthFail4 => 'В животе предательски заурчало.';
+
+  @override
+  String get stealthFail5 => 'Вы наступили на спящего кота.';
+
+  @override
+  String get stealthFail6 => 'Ваш плащ зацепился за гвоздь.';
+
+  @override
+  String get stealthFail7 => 'Хрустнула самая громкая ветка в лесу.';
+
+  @override
+  String get stealthFail8 => 'Вы попытались слиться с тенью, но это был враг.';
+
+  @override
+  String get stealthFail9 => 'Скрипнул сапог. Очень громко.';
+
+  @override
+  String get stealthFail10 => 'Вы забыли приглушить фонарь.';
+
+  @override
+  String get stealthFail11 => 'Ваши ножны звонко ударились о косяк.';
+
+  @override
+  String get stealthFail12 => 'Вы слишком громко дышите.';
+
+  @override
+  String get stealthFail13 => 'Случайный голубь выдал ваше укрытие.';
+
+  @override
+  String get stealthFail14 => 'Вы икнули в самый неподходящий момент.';
+
+  @override
+  String get stealthFail15 => 'Вы эпично споткнулись на ровном месте.';
 }

@@ -4,8 +4,10 @@ import '../../core/models/character_feature.dart';
 
 class FeatureDetailsSheet extends StatelessWidget {
   final CharacterFeature feature;
+  final IconData? overrideIcon;
 
-  const FeatureDetailsSheet({super.key, required this.feature});
+  const FeatureDetailsSheet(
+      {super.key, required this.feature, this.overrideIcon});
 
   String _getLocalizedActionEconomy(AppLocalizations l10n, String economy) {
     final lower = economy.toLowerCase();
@@ -73,8 +75,10 @@ class FeatureDetailsSheet extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: Center(
-                      child: Icon(_getFeatureIcon(feature.iconName),
-                          color: colorScheme.onSecondaryContainer, size: 24),
+                      child: Icon(
+                          overrideIcon ?? _getFeatureIcon(feature.iconName),
+                          color: colorScheme.onSecondaryContainer,
+                          size: 24),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -118,7 +122,10 @@ class FeatureDetailsSheet extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Current Uses',
+                        Text(
+                            locale == 'ru'
+                                ? 'Текущие использования'
+                                : 'Current Uses',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: colorScheme.onSurfaceVariant)),

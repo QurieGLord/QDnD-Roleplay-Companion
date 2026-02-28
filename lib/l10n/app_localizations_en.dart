@@ -1820,6 +1820,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get spellAlmanacTitle => 'Spell Almanac';
 
   @override
+  String get fighterArchetype => 'ARCHETYPE';
+
+  @override
+  String get improvedCritical => 'Improved Critical';
+
+  @override
+  String criticalHitTarget(String range) {
+    return 'Critical Hit: $range';
+  }
+
+  @override
+  String get fightingStylesTitle => 'Fighting Styles';
+
+  @override
   String get actionTypeFree => 'Free Action';
 
   @override
@@ -2222,6 +2236,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fighterTactics => 'Combat Tactics';
 
   @override
+  String get fighterChampion => 'Champion';
+
+  @override
   String sneakAttackRoll(Object dice, Object total) {
     return 'Sneak Attack: $total ($dice)';
   }
@@ -2462,4 +2479,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get spellNotFound => 'Spell not found in the database';
+
+  @override
+  String get stealthDifficulty => 'Stealth Difficulty (Enemy Perception)';
+
+  @override
+  String get rollStealthBtn => 'Roll';
+
+  @override
+  String stealthSuccess(int total, int dc) {
+    return 'Stealth: $total (DC $dc). Success! You blend into the shadows.';
+  }
+
+  @override
+  String stealthFailure(int total, int dc, String reason) {
+    return 'Stealth: $total (DC $dc). Failure! $reason';
+  }
+
+  @override
+  String get stealthFail1 => 'You tripped over a bucket!';
+
+  @override
+  String get stealthFail2 =>
+      'A gold coin fell from your pocket with a loud ring.';
+
+  @override
+  String get stealthFail3 => 'You sneezed loudly.';
+
+  @override
+  String get stealthFail4 => 'Your stomach growled treacherously.';
+
+  @override
+  String get stealthFail5 => 'You stepped on a sleeping cat.';
+
+  @override
+  String get stealthFail6 => 'Your cloak caught on a nail.';
+
+  @override
+  String get stealthFail7 =>
+      'The loudest branch in the forest just snapped under your boot.';
+
+  @override
+  String get stealthFail8 =>
+      'You tried to blend into a shadow, but it was an enemy.';
+
+  @override
+  String get stealthFail9 => 'Your boot squeaked. Very loudly.';
+
+  @override
+  String get stealthFail10 => 'You forgot to cover your lantern.';
+
+  @override
+  String get stealthFail11 => 'Your scabbard loudly hit the doorframe.';
+
+  @override
+  String get stealthFail12 => 'You are breathing way too loudly.';
+
+  @override
+  String get stealthFail13 => 'A random pigeon gave away your position.';
+
+  @override
+  String get stealthFail14 => 'You hiccupped at the worst possible moment.';
+
+  @override
+  String get stealthFail15 => 'You epically tripped on flat ground.';
 }

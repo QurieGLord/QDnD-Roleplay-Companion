@@ -3512,6 +3512,30 @@ abstract class AppLocalizations {
   /// **'Spell Almanac'**
   String get spellAlmanacTitle;
 
+  /// No description provided for @fighterArchetype.
+  ///
+  /// In en, this message translates to:
+  /// **'ARCHETYPE'**
+  String get fighterArchetype;
+
+  /// No description provided for @improvedCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Improved Critical'**
+  String get improvedCritical;
+
+  /// No description provided for @criticalHitTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical Hit: {range}'**
+  String criticalHitTarget(String range);
+
+  /// No description provided for @fightingStylesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fighting Styles'**
+  String get fightingStylesTitle;
+
   /// No description provided for @actionTypeFree.
   ///
   /// In en, this message translates to:
@@ -4244,6 +4268,12 @@ abstract class AppLocalizations {
   /// **'Combat Tactics'**
   String get fighterTactics;
 
+  /// No description provided for @fighterChampion.
+  ///
+  /// In en, this message translates to:
+  /// **'Champion'**
+  String get fighterChampion;
+
   /// No description provided for @sneakAttackRoll.
   ///
   /// In en, this message translates to:
@@ -4699,6 +4729,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Spell not found in the database'**
   String get spellNotFound;
+
+  /// No description provided for @stealthDifficulty.
+  ///
+  /// In en, this message translates to:
+  /// **'Stealth Difficulty (Enemy Perception)'**
+  String get stealthDifficulty;
+
+  /// No description provided for @rollStealthBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Roll'**
+  String get rollStealthBtn;
+
+  /// No description provided for @stealthSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Stealth: {total} (DC {dc}). Success! You blend into the shadows.'**
+  String stealthSuccess(int total, int dc);
+
+  /// No description provided for @stealthFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Stealth: {total} (DC {dc}). Failure! {reason}'**
+  String stealthFailure(int total, int dc, String reason);
+
+  /// No description provided for @stealthFail1.
+  ///
+  /// In en, this message translates to:
+  /// **'You tripped over a bucket!'**
+  String get stealthFail1;
+
+  /// No description provided for @stealthFail2.
+  ///
+  /// In en, this message translates to:
+  /// **'A gold coin fell from your pocket with a loud ring.'**
+  String get stealthFail2;
+
+  /// No description provided for @stealthFail3.
+  ///
+  /// In en, this message translates to:
+  /// **'You sneezed loudly.'**
+  String get stealthFail3;
+
+  /// No description provided for @stealthFail4.
+  ///
+  /// In en, this message translates to:
+  /// **'Your stomach growled treacherously.'**
+  String get stealthFail4;
+
+  /// No description provided for @stealthFail5.
+  ///
+  /// In en, this message translates to:
+  /// **'You stepped on a sleeping cat.'**
+  String get stealthFail5;
+
+  /// No description provided for @stealthFail6.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cloak caught on a nail.'**
+  String get stealthFail6;
+
+  /// No description provided for @stealthFail7.
+  ///
+  /// In en, this message translates to:
+  /// **'The loudest branch in the forest just snapped under your boot.'**
+  String get stealthFail7;
+
+  /// No description provided for @stealthFail8.
+  ///
+  /// In en, this message translates to:
+  /// **'You tried to blend into a shadow, but it was an enemy.'**
+  String get stealthFail8;
+
+  /// No description provided for @stealthFail9.
+  ///
+  /// In en, this message translates to:
+  /// **'Your boot squeaked. Very loudly.'**
+  String get stealthFail9;
+
+  /// No description provided for @stealthFail10.
+  ///
+  /// In en, this message translates to:
+  /// **'You forgot to cover your lantern.'**
+  String get stealthFail10;
+
+  /// No description provided for @stealthFail11.
+  ///
+  /// In en, this message translates to:
+  /// **'Your scabbard loudly hit the doorframe.'**
+  String get stealthFail11;
+
+  /// No description provided for @stealthFail12.
+  ///
+  /// In en, this message translates to:
+  /// **'You are breathing way too loudly.'**
+  String get stealthFail12;
+
+  /// No description provided for @stealthFail13.
+  ///
+  /// In en, this message translates to:
+  /// **'A random pigeon gave away your position.'**
+  String get stealthFail13;
+
+  /// No description provided for @stealthFail14.
+  ///
+  /// In en, this message translates to:
+  /// **'You hiccupped at the worst possible moment.'**
+  String get stealthFail14;
+
+  /// No description provided for @stealthFail15.
+  ///
+  /// In en, this message translates to:
+  /// **'You epically tripped on flat ground.'**
+  String get stealthFail15;
 }
 
 class _AppLocalizationsDelegate
