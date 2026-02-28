@@ -3512,6 +3512,30 @@ abstract class AppLocalizations {
   /// **'Spell Almanac'**
   String get spellAlmanacTitle;
 
+  /// No description provided for @fighterArchetype.
+  ///
+  /// In en, this message translates to:
+  /// **'ARCHETYPE'**
+  String get fighterArchetype;
+
+  /// No description provided for @improvedCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Improved Critical'**
+  String get improvedCritical;
+
+  /// No description provided for @criticalHitTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical Hit: {range}'**
+  String criticalHitTarget(String range);
+
+  /// No description provided for @fightingStylesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fighting Styles'**
+  String get fightingStylesTitle;
+
   /// No description provided for @actionTypeFree.
   ///
   /// In en, this message translates to:
@@ -4243,6 +4267,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Combat Tactics'**
   String get fighterTactics;
+
+  /// No description provided for @fighterChampion.
+  ///
+  /// In en, this message translates to:
+  /// **'Champion'**
+  String get fighterChampion;
 
   /// No description provided for @sneakAttackRoll.
   ///

@@ -1801,6 +1801,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get spellAlmanacTitle => 'Альманах';
 
   @override
+  String get fighterArchetype => 'АРХЕТИП';
+
+  @override
+  String get improvedCritical => 'Улучшенный критический удар';
+
+  @override
+  String criticalHitTarget(String range) {
+    return 'Критический удар: $range';
+  }
+
+  @override
+  String get fightingStylesTitle => 'Стили боя';
+
+  @override
   String get actionTypeFree => 'Свободное действие';
 
   @override
@@ -2200,6 +2214,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fighterTactics => 'Боевая тактика';
+
+  @override
+  String get fighterChampion => 'Чемпион';
 
   @override
   String sneakAttackRoll(Object dice, Object total) {

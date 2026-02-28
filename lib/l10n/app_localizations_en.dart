@@ -1820,6 +1820,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get spellAlmanacTitle => 'Spell Almanac';
 
   @override
+  String get fighterArchetype => 'ARCHETYPE';
+
+  @override
+  String get improvedCritical => 'Improved Critical';
+
+  @override
+  String criticalHitTarget(String range) {
+    return 'Critical Hit: $range';
+  }
+
+  @override
+  String get fightingStylesTitle => 'Fighting Styles';
+
+  @override
   String get actionTypeFree => 'Free Action';
 
   @override
@@ -2220,6 +2234,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fighterTactics => 'Combat Tactics';
+
+  @override
+  String get fighterChampion => 'Champion';
 
   @override
   String sneakAttackRoll(Object dice, Object total) {
