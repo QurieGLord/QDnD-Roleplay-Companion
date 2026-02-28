@@ -109,6 +109,9 @@ flutter gen-l10n
 
 # Run
 flutter run
+```
+
+---
 
 ## 🗺️ Roadmap
 
