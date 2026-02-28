@@ -155,6 +155,26 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       if (bardTactics.any((t) => id.contains(t) || name.contains(t)))
         return false;
 
+      // Rogue Deduplication
+      final rogueTactics = [
+        'sneak_attack',
+        'sneak-attack',
+        'sneak attack',
+        'скрытая атака',
+        'cunning_action',
+        'cunning-action',
+        'cunning action',
+        'хитрое действие',
+        'uncanny_dodge',
+        'uncanny-dodge',
+        'uncanny dodge',
+        'невероятное уклонение',
+        'evasion',
+        'увертливость',
+      ];
+      if (rogueTactics.any((t) => id.contains(t) || name.contains(t)))
+        return false;
+
       // Paladin Deduplication
       if (id.contains('lay-on-hands') || id.contains('lay_on_hands')) {
         return false;

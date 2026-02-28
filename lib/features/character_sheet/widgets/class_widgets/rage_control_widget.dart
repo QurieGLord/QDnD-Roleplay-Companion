@@ -30,7 +30,7 @@ class _RageControlWidgetState extends State<RageControlWidget> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (context) => FeatureDetailsSheet(
         feature: feature,
         // no backgroundColor here, just let it use theme surface

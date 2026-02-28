@@ -1195,5 +1195,47 @@
   "markDurationHint": "A 3rd-level mark lasts 8 hours, 5th-level lasts 24 hours.",
   "markSlotChoose": "Choose a spell slot to cast Hunter's Mark",
   "hideSpentMinute": "Spent 1 minute to camouflage",
-  "spellNotFound": "Spell not found in the database"
+  "spellNotFound": "Spell not found in the database",
+  "stealthDifficulty": "Stealth Difficulty (Enemy Perception)",
+  "rollStealthBtn": "Roll",
+  "stealthSuccess": "Stealth: {total} (DC {dc}). Success! You blend into the shadows.",
+  "@stealthSuccess": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "dc": {
+        "type": "int"
+      }
+    }
+  },
+  "stealthFailure": "Stealth: {total} (DC {dc}). Failure! {reason}",
+  "@stealthFailure": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "dc": {
+        "type": "int"
+      },
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "stealthFail1": "You tripped over a bucket!",
+  "stealthFail2": "A gold coin fell from your pocket with a loud ring.",
+  "stealthFail3": "You sneezed loudly.",
+  "stealthFail4": "Your stomach growled treacherously.",
+  "stealthFail5": "You stepped on a sleeping cat.",
+  "stealthFail6": "Your cloak caught on a nail.",
+  "stealthFail7": "The loudest branch in the forest just snapped under your boot.",
+  "stealthFail8": "You tried to blend into a shadow, but it was an enemy.",
+  "stealthFail9": "Your boot squeaked. Very loudly.",
+  "stealthFail10": "You forgot to cover your lantern.",
+  "stealthFail11": "Your scabbard loudly hit the doorframe.",
+  "stealthFail12": "You are breathing way too loudly.",
+  "stealthFail13": "A random pigeon gave away your position.",
+  "stealthFail14": "You hiccupped at the worst possible moment.",
+  "stealthFail15": "You epically tripped on flat ground."
 }
