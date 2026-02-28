@@ -131,9 +131,29 @@ class _AbilitiesTabState extends State<AbilitiesTab>
 
       // Bard Deduplication
       if (id.contains('bardic_inspiration') ||
-          id.contains('bardic-inspiration')) {
+          id.contains('bardic-inspiration') ||
+          name.contains('bardic inspiration') ||
+          name.contains('бардовское вдохновение')) {
         return false; // Handled by widget
       }
+      final bardTactics = [
+        'cutting_words',
+        'cutting-words',
+        'cutting words',
+        'острые слова',
+        'combat_inspiration',
+        'combat-inspiration',
+        'combat inspiration',
+        'боевое вдохновение',
+        'countercharm',
+        'контрочарование',
+        'song_of_rest',
+        'song-of-rest',
+        'song of rest',
+        'песнь отдыха',
+      ];
+      if (bardTactics.any((t) => id.contains(t) || name.contains(t)))
+        return false;
 
       // Paladin Deduplication
       if (id.contains('lay-on-hands') || id.contains('lay_on_hands')) {
