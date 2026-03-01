@@ -85,8 +85,8 @@ class _AbilitiesTabState extends State<AbilitiesTab>
   bool _shouldShowInList(CharacterFeature feature) {
     try {
       // NUCLEAR OPTION: Safe access to properties
-      final id = (feature.id ?? '').toLowerCase();
-      final name = (feature.nameEn ?? '').toLowerCase();
+      final id = (feature.id).toLowerCase();
+      final name = (feature.nameEn).toLowerCase();
       final usageCost = (feature.usageCostId ?? '').toLowerCase();
 
       // Dedicated Widget Handling (Deduplication)
@@ -126,8 +126,9 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         'оглушающий удар',
         'движение без доспехов'
       ];
-      if (monkTactics.any((t) => id.contains(t) || name.contains(t)))
+      if (monkTactics.any((t) => id.contains(t) || name.contains(t))) {
         return false;
+      }
 
       // Bard Deduplication
       if (id.contains('bardic_inspiration') ||
@@ -152,8 +153,9 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         'song of rest',
         'песнь отдыха',
       ];
-      if (bardTactics.any((t) => id.contains(t) || name.contains(t)))
+      if (bardTactics.any((t) => id.contains(t) || name.contains(t))) {
         return false;
+      }
 
       // Rogue Deduplication
       final rogueTactics = [
@@ -172,8 +174,9 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         'evasion',
         'увертливость',
       ];
-      if (rogueTactics.any((t) => id.contains(t) || name.contains(t)))
+      if (rogueTactics.any((t) => id.contains(t) || name.contains(t))) {
         return false;
+      }
 
       // Paladin Deduplication
       if (id.contains('lay-on-hands') || id.contains('lay_on_hands')) {
@@ -193,18 +196,23 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       }
 
       // Ranger Deduplication
-      if (id == 'primeval-awareness' || id == 'primeval_awareness')
+      if (id == 'primeval-awareness' || id == 'primeval_awareness') {
         return false;
+      }
       if (id == 'favored-enemy' || id == 'favored_enemy') return false;
       if (id == 'natural-explorer' || id == 'natural_explorer') return false;
       if (id == 'hunters-mark' ||
           id == 'hunters_mark' ||
           name.contains("hunter's mark") ||
-          name.contains("метка охотника")) return false;
+          name.contains("метка охотника")) {
+        return false;
+      }
       if (id == 'hide-in-plain-sight' ||
           id == 'hide_in_plain_sight' ||
           name.contains("hide in plain sight") ||
-          name.contains("маскировка")) return false;
+          name.contains("маскировка")) {
+        return false;
+      }
 
       final rangerTactics = [
         'colossus',
@@ -222,7 +230,9 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       if (rangerTactics.any((t) =>
           id.contains(t.replaceAll(' ', '-')) ||
           id.contains(t.replaceAll(' ', '_')) ||
-          name.contains(t))) return false;
+          name.contains(t))) {
+        return false;
+      }
 
       // Barbarian Deduplication
       if (id.contains('reckless-attack') ||
@@ -248,35 +258,47 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       if (id.contains('sorcery_point') ||
           id.contains('sorcery-point') ||
           name.contains('sorcery point') ||
-          name.contains('единицы чародейства')) return false;
+          name.contains('единицы чародейства')) {
+        return false;
+      }
 
       if (id.contains('font_of_magic') ||
           id.contains('font-of-magic') ||
           name.contains('font of magic') ||
-          name.contains('источник магии')) return false;
+          name.contains('источник магии')) {
+        return false;
+      }
 
       if (id.contains('flexible_casting') ||
           id.contains('flexible-casting') ||
           name.contains('flexible casting') ||
           name.contains('гибкое накладывание') ||
-          name.contains('гибкая магия')) return false;
+          name.contains('гибкая магия')) {
+        return false;
+      }
 
       if (id.contains('metamagic') ||
           name.contains('metamagic') ||
-          name.contains('метамагия')) return false;
+          name.contains('метамагия')) {
+        return false;
+      }
 
       if (id.contains('dragon-ancestor') ||
           id.contains('draconic') ||
           id.contains('dragon') ||
           name.contains('dragon') ||
-          name.contains('дракон')) return false;
+          name.contains('дракон')) {
+        return false;
+      }
 
       // Warlock Deduplication
       if (id.contains('eldritch-invocation') ||
           id.contains('eldritch_invocation') ||
           id.contains('invocation') ||
           name.contains('invocation') ||
-          name.contains('воззвание')) return false;
+          name.contains('воззвание')) {
+        return false;
+      }
 
       if (id.contains('pact-boon') ||
           id.contains('pact_boon') ||
@@ -284,12 +306,16 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           id.contains('pact_of_the_') ||
           name.contains('pact boon') ||
           name.contains('предмет договора') ||
-          name.contains('договор пакта')) return false;
+          name.contains('договор пакта')) {
+        return false;
+      }
 
       if (id.contains('mystic-arcanum') ||
           id.contains('mystic_arcanum') ||
           name.contains('mystic arcanum') ||
-          name.contains('таинственный арканум')) return false;
+          name.contains('таинственный арканум')) {
+        return false;
+      }
 
       // Druid Deduplication
       if (name.contains('wild shape') ||
@@ -355,7 +381,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       // 1. Exact ID Match first
       for (final keyword in keywords) {
         try {
-          final match = list.where((f) => (f.id ?? '') == keyword).firstOrNull;
+          final match = list.where((f) => (f.id) == keyword).firstOrNull;
           if (match != null) return match;
         } catch (_) {}
       }
@@ -365,9 +391,8 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         try {
           // Sort by level descending to get the best version
           final candidates =
-              list.where((f) => (f.id ?? '').contains(keyword)).toList();
-          candidates
-              .sort((a, b) => (b.minLevel ?? 0).compareTo(a.minLevel ?? 0));
+              list.where((f) => (f.id).contains(keyword)).toList();
+          candidates.sort((a, b) => (b.minLevel).compareTo(a.minLevel));
           if (candidates.isNotEmpty) return candidates.first;
         } catch (_) {}
       }
@@ -377,11 +402,9 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         try {
           final cleanKeyword = keyword.replaceAll('_', ' ');
           final candidates = list
-              .where(
-                  (f) => (f.nameEn ?? '').toLowerCase().contains(cleanKeyword))
+              .where((f) => (f.nameEn).toLowerCase().contains(cleanKeyword))
               .toList();
-          candidates
-              .sort((a, b) => (b.minLevel ?? 0).compareTo(a.minLevel ?? 0));
+          candidates.sort((a, b) => (b.minLevel).compareTo(a.minLevel));
           if (candidates.isNotEmpty) return candidates.first;
         } catch (_) {}
       }
@@ -428,15 +451,15 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           bestFeatures[baseName] = feature;
         } else {
           final existing = bestFeatures[baseName]!;
-          final currentLevel = feature.minLevel ?? 0;
-          final existingLevel = existing.minLevel ?? 0;
+          final currentLevel = feature.minLevel;
+          final existingLevel = existing.minLevel;
 
           // Rule: Keep the one with higher level requirement (The "Upgrade")
           if (currentLevel > existingLevel) {
             bestFeatures[baseName] = feature;
           } else if (currentLevel == existingLevel) {
             // If levels are same, prefer the one with a more specific ID or longer description
-            if ((feature.id ?? '').length > (existing.id ?? '').length) {
+            if ((feature.id).length > (existing.id).length) {
               bestFeatures[baseName] = feature;
             }
           }
@@ -448,7 +471,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       final Map<String, CharacterFeature> finalMap = {};
 
       for (var f in result) {
-        String baseId = f.id ?? '';
+        String baseId = f.id;
         final versionRegex = RegExp(r'(_|-)\d+$');
         if (versionRegex.hasMatch(baseId)) {
           baseId = baseId.replaceAll(versionRegex, '');
@@ -457,7 +480,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         if (!finalMap.containsKey(baseId)) {
           finalMap[baseId] = f;
         } else {
-          if ((f.minLevel ?? 0) > (finalMap[baseId]!.minLevel ?? 0)) {
+          if ((f.minLevel) > (finalMap[baseId]!.minLevel)) {
             finalMap[baseId] = f;
           }
         }
@@ -481,14 +504,14 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       // NUCLEAR OPTION: Safe access
       final usageCostId = feature.usageCostId;
       final consumption = feature.consumption;
-      final featureId = feature.id ?? '';
+      final featureId = feature.id;
 
       if (usageCostId != null) {
         try {
           // Deep resource search
           resource = widget.character.features.where((f) {
             if (f.resourcePool == null) return false;
-            final fId = (f.id ?? '').toLowerCase();
+            final fId = (f.id).toLowerCase();
             final costId = usageCostId.toLowerCase();
             return fId == costId ||
                 fId.endsWith('-$costId') ||
@@ -506,15 +529,15 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           resource = widget.character.features
               .where((f) =>
                   f.resourcePool != null &&
-                  ((f.id ?? '') == 'channel-divinity' ||
-                      (f.id ?? '').startsWith('channel-divinity-1-rest')))
+                  ((f.id) == 'channel-divinity' ||
+                      (f.id).startsWith('channel-divinity-1-rest')))
               .firstOrNull;
         } catch (_) {}
       }
 
       // 1. Validate Resource
       if (resource == null || resource.resourcePool == null) {
-        if ((feature.nameEn ?? '').contains('Channel Divinity')) {
+        if ((feature.nameEn).contains('Channel Divinity')) {
           _useLegacyChannelDivinity(l10n);
         }
         return;
@@ -944,16 +967,16 @@ class _AbilitiesTabState extends State<AbilitiesTab>
 
       final metamagicOptions = allFeatures
           .where((f) =>
-              (f.id ?? '').toLowerCase().contains('metamagic') ||
+              (f.id).toLowerCase().contains('metamagic') ||
               f.nameEn.toLowerCase().contains('metamagic') ||
               f.nameRu.toLowerCase().contains('метамагия'))
           .toList();
 
       final sorcererAncestry = allFeatures
           .where((f) =>
-              (f.id ?? '').toLowerCase().contains('dragon-ancestor') ||
-              (f.id ?? '').toLowerCase().contains('draconic') ||
-              (f.id ?? '').toLowerCase().contains('dragon') ||
+              (f.id).toLowerCase().contains('dragon-ancestor') ||
+              (f.id).toLowerCase().contains('draconic') ||
+              (f.id).toLowerCase().contains('dragon') ||
               f.nameEn.toLowerCase().contains('draconic') ||
               f.nameRu.toLowerCase().contains('дракон'))
           .toList();
@@ -994,7 +1017,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       ]);
       final warlockInvocations = allFeatures
           .where((f) =>
-              (f.id ?? '').toLowerCase().contains('invocation') ||
+              (f.id).toLowerCase().contains('invocation') ||
               f.nameEn.toLowerCase().contains('invocation') ||
               f.nameRu.toLowerCase().contains('воззвание'))
           .toList();
@@ -1003,7 +1026,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       if (paladinChannelDivinity != null) {
         paladinChannelSpells = allFeatures
             .where((f) {
-              final id = (f.id ?? '').toLowerCase();
+              final id = (f.id).toLowerCase();
               final usageCost = (f.usageCostId ?? '').toLowerCase();
               return (id.startsWith('channel-divinity-') ||
                       id.startsWith('channel_divinity_')) ||
@@ -1087,8 +1110,10 @@ class _AbilitiesTabState extends State<AbilitiesTab>
                             _safeBuildWidget(() {
                               final martialArts = _findFeatureDeep(allFeatures,
                                   ['martial_arts', 'martial-arts']);
-                              if (monkKiFeature == null && martialArts == null)
+                              if (monkKiFeature == null &&
+                                  martialArts == null) {
                                 return const SizedBox.shrink();
+                              }
                               return KiTrackerWidget(
                                 character: widget.character,
                                 kiFeature: monkKiFeature ??
@@ -1389,8 +1414,8 @@ class _AbilitiesTabState extends State<AbilitiesTab>
     for (final feature in features) {
       // PROMPT: Isolate the Crash (True Try-Catch)
       try {
-        final id = feature.id ?? 'NULL_ID';
-        final name = feature.nameEn ?? 'No Name';
+        final id = feature.id;
+        final name = feature.nameEn;
         debugPrint('Processing resource feature: $id ($name)');
 
         children.add(_buildResourceFeature(feature, locale));
@@ -1400,7 +1425,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         // Add a red placeholder so user knows something broke
         children.add(Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text('Error loading resource: ${feature.nameEn ?? "Unknown"}',
+          child: Text('Error loading resource: ${feature.nameEn}',
               style: const TextStyle(color: Colors.red)),
         ));
       }
@@ -1414,8 +1439,8 @@ class _AbilitiesTabState extends State<AbilitiesTab>
     for (final feature in features) {
       // PROMPT: Isolate the Crash (True Try-Catch)
       try {
-        final id = feature.id ?? 'NULL_ID';
-        final name = feature.nameEn ?? 'No Name';
+        final id = feature.id;
+        final name = feature.nameEn;
         debugPrint('Processing active feature: $id ($name)');
 
         children.add(_buildActiveFeature(feature, locale, l10n));
@@ -1424,8 +1449,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         debugPrint('Stack: $stack');
         children.add(Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(
-              'Error loading active feature: ${feature.nameEn ?? "Unknown"}',
+          child: Text('Error loading active feature: ${feature.nameEn}',
               style: const TextStyle(color: Colors.red)),
         ));
       }
@@ -1451,16 +1475,16 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       for (final feature in features) {
         // PROMPT: Isolate the Crash (True Try-Catch)
         try {
-          final id = feature.id ?? 'NULL_ID';
-          final name = feature.nameEn ?? 'No Name';
+          final id = feature.id;
+          final name = feature.nameEn;
           debugPrint('Processing passive item: $name (ID: $id)');
 
           // PROMPT: Sanitize Text() widgets
           children.add(ListTile(
-            title: Text(feature.getName(locale) ?? 'Unknown Feature',
+            title: Text(feature.getName(locale),
                 style:
                     const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-            subtitle: Text(feature.getDescription(locale) ?? '',
+            subtitle: Text(feature.getDescription(locale),
                 style: const TextStyle(fontSize: 12)),
             dense: true,
             leading: Icon(_getFeatureIcon(feature.iconName),
@@ -1470,7 +1494,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           debugPrint('🔥 CRITICAL FAIL on feature: ${feature.id} -> $e');
           debugPrint('Stack: $stack');
           children.add(ListTile(
-            title: Text('Error loading: ${feature.nameEn ?? "Unknown"}',
+            title: Text('Error loading: ${feature.nameEn}',
                 style: const TextStyle(
                     color: Colors.red, fontWeight: FontWeight.bold)),
             subtitle: const Text('Details in logs',
@@ -1625,7 +1649,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
                             size: 20, color: colorScheme.primary),
                         const SizedBox(width: 8),
                         Expanded(
-                            child: Text(feature.getName(locale) ?? 'Unknown',
+                            child: Text(feature.getName(locale),
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w600))),
                       ],
@@ -1703,8 +1727,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
     if (feature.consumption != null) {
       final res = _findResourceFeature(feature.consumption!.resourceId);
       if (res != null) {
-        resourceCost =
-            '${feature.consumption!.amount} ${res.getName(locale) ?? "Resource"}';
+        resourceCost = '${feature.consumption!.amount} ${res.getName(locale)}';
       }
     } else if (feature.usageCostId != null) {
       try {
@@ -1713,14 +1736,14 @@ class _AbilitiesTabState extends State<AbilitiesTab>
             .where(
               (f) =>
                   f.resourcePool != null &&
-                  ((f.id ?? '') == usageCostId ||
-                      (f.id ?? '').endsWith('-$usageCostId') ||
-                      (f.id ?? '').startsWith('$usageCostId-') ||
-                      (usageCostId == 'ki' && (f.id ?? '').contains('ki'))),
+                  ((f.id) == usageCostId ||
+                      (f.id).endsWith('-$usageCostId') ||
+                      (f.id).startsWith('$usageCostId-') ||
+                      (usageCostId == 'ki' && (f.id).contains('ki'))),
             )
             .firstOrNull;
         if (res != null) {
-          resourceCost = '1 ${res.getName(locale) ?? "Resource"}';
+          resourceCost = '1 ${res.getName(locale)}';
         }
       } catch (_) {}
     }
@@ -1756,7 +1779,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(feature.getName(locale) ?? 'Unknown',
+                        Text(feature.getName(locale),
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 15)),
                         if (feature.actionEconomy != null)
@@ -1776,14 +1799,14 @@ class _AbilitiesTabState extends State<AbilitiesTab>
                 ],
               ),
               const SizedBox(height: 8),
-              Text(feature.getDescription(locale) ?? '',
+              Text(feature.getDescription(locale),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                       color: colorScheme.onSurfaceVariant, fontSize: 13)),
               if (resourceCost != null ||
                   feature.usageCostId != null ||
-                  ((feature.nameEn ?? '').contains('Channel Divinity'))) ...[
+                  ((feature.nameEn).contains('Channel Divinity'))) ...[
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,

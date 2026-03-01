@@ -265,7 +265,7 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -397,7 +397,7 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+              border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
             ),
             child: Material(
               color: Colors.transparent,
@@ -458,7 +458,7 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+              border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
             ),
             child: Material(
               color: Colors.transparent,
@@ -522,7 +522,7 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -638,18 +638,24 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
     IconData getFeatureIcon(String? id, String? name) {
       final nid = (id ?? '').toLowerCase();
       final nname = (name ?? '').toLowerCase();
-      if (nid.contains('flurry') || nname.contains('шквал'))
+      if (nid.contains('flurry') || nname.contains('шквал')) {
         return Icons.sports_martial_arts;
-      if (nid.contains('defense') || nname.contains('оборона'))
+      }
+      if (nid.contains('defense') || nname.contains('оборона')) {
         return Icons.shield;
+      }
       if (nid.contains('step') ||
           nname.contains('поступь') ||
           nid.contains('wind') ||
-          nname.contains('ветер')) return Icons.air;
-      if (nid.contains('stunning') || nname.contains('оглушающий'))
+          nname.contains('ветер')) {
+        return Icons.air;
+      }
+      if (nid.contains('stunning') || nname.contains('оглушающий')) {
         return Icons.flash_on;
-      if (nid.contains('patient') || nname.contains('терпеливая'))
+      }
+      if (nid.contains('patient') || nname.contains('терпеливая')) {
         return Icons.health_and_safety;
+      }
       return Icons.bolt;
     }
 
@@ -666,7 +672,7 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
           decoration: BoxDecoration(
             color: colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+            border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
           ),
           child: Material(
             color: Colors.transparent,
@@ -723,11 +729,13 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
     }
 
     if (flurry != null) actionChips.add(buildActionTile(flurry));
-    if (patientDefense != null)
+    if (patientDefense != null) {
       actionChips.add(buildActionTile(patientDefense));
+    }
     if (stepWind != null) actionChips.add(buildActionTile(stepWind));
-    if (stunningStrike != null)
+    if (stunningStrike != null) {
       actionChips.add(buildActionTile(stunningStrike));
+    }
 
     if (actionChips.isEmpty) return const SizedBox.shrink();
 
@@ -737,7 +745,7 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -229,7 +229,7 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
                   border: InputBorder.none,
                   filled: true,
                   fillColor: theme.colorScheme.surfaceContainerHighest
-                      .withOpacity(0.3),
+                      .withValues(alpha: 0.3),
                 ),
               ),
 

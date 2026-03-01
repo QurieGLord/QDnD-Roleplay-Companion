@@ -71,9 +71,9 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
     ];
 
     return widget.character.features.where((f) {
-      final id = f.id?.toLowerCase() ?? '';
+      final id = f.id.toLowerCase();
       final name = f.nameEn.toLowerCase();
-      final nameRu = f.nameRu?.toLowerCase() ?? '';
+      final nameRu = f.nameRu.toLowerCase();
       return keywords.any((k) =>
           id.contains(k.replaceAll(' ', '-')) ||
           id.contains(k.replaceAll(' ', '_')) ||
@@ -188,7 +188,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -251,7 +251,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                         label: Text(
                           tactic.getName(locale).isNotEmpty
                               ? tactic.getName(locale)
-                              : tactic.id ?? 'Unknown',
+                              : tactic.id,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
@@ -260,7 +260,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                         ),
                         backgroundColor: colorScheme.primaryContainer,
                         side: BorderSide(
-                            color: colorScheme.primary.withOpacity(0.3)),
+                            color: colorScheme.primary.withValues(alpha: 0.3)),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),
                         padding: EdgeInsets.zero,
@@ -372,19 +372,19 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
       curve: Curves.easeOutQuart,
       decoration: BoxDecoration(
         color: isActive
-            ? colorScheme.primary.withOpacity(0.1)
+            ? colorScheme.primary.withValues(alpha: 0.1)
             : colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isActive
               ? colorScheme.primary
-              : colorScheme.outline.withOpacity(0.3),
+              : colorScheme.outline.withValues(alpha: 0.3),
           width: isActive ? 2 : 1,
         ),
         boxShadow: isActive
             ? [
                 BoxShadow(
-                  color: colorScheme.primary.withOpacity(0.2),
+                  color: colorScheme.primary.withValues(alpha: 0.2),
                   blurRadius: 12,
                   spreadRadius: 2,
                 )
@@ -447,7 +447,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                             style: TextStyle(
                               fontSize: 12,
                               color: isActive
-                                  ? colorScheme.primary.withOpacity(0.8)
+                                  ? colorScheme.primary.withValues(alpha: 0.8)
                                   : colorScheme.onSurfaceVariant,
                             ),
                           ),
@@ -457,8 +457,8 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                     Icon(Icons.info_outline,
                         size: 20,
                         color: isActive
-                            ? colorScheme.primary.withOpacity(0.5)
-                            : colorScheme.outline.withOpacity(0.5)),
+                            ? colorScheme.primary.withValues(alpha: 0.5)
+                            : colorScheme.outline.withValues(alpha: 0.5)),
                   ],
                 ),
               ),
@@ -505,7 +505,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: colorScheme.surface.withOpacity(0.5),
+            color: colorScheme.surface.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(12),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -517,7 +517,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
               border: InputBorder.none,
               hintText: l10n.markTargetName,
               hintStyle: TextStyle(
-                  color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
               icon:
                   Icon(Icons.person_pin, color: colorScheme.primary, size: 20),
             ),
@@ -543,7 +543,8 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                 label: Text(l10n.moveMark),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: colorScheme.primary,
-                  side: BorderSide(color: colorScheme.primary.withOpacity(0.3)),
+                  side: BorderSide(
+                      color: colorScheme.primary.withValues(alpha: 0.3)),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
@@ -631,7 +632,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       side: BorderSide(
-                          color: colorScheme.tertiary.withOpacity(0.5)),
+                          color: colorScheme.tertiary.withValues(alpha: 0.5)),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                     ),
@@ -704,7 +705,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
         border: Border.all(
           color: isActive
               ? colorScheme.primary
-              : colorScheme.outline.withOpacity(0.3),
+              : colorScheme.outline.withValues(alpha: 0.3),
           width: isActive ? 2 : 1,
         ),
       ),
@@ -745,8 +746,8 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                           l10n.hideInPlainSightDesc,
                           style: TextStyle(
                             fontSize: 12,
-                            color:
-                                colorScheme.onPrimaryContainer.withOpacity(0.8),
+                            color: colorScheme.onPrimaryContainer
+                                .withValues(alpha: 0.8),
                           ),
                         ),
                     ],
@@ -769,7 +770,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                       ));
                     }
                   },
-                  activeColor: colorScheme.onPrimary,
+                  activeThumbColor: colorScheme.onPrimary,
                   activeTrackColor: colorScheme.primary,
                 ),
               ],
@@ -795,7 +796,8 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
         color: color,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-            color: Theme.of(context).colorScheme.outline.withOpacity(0.3)),
+            color:
+                Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(
@@ -879,9 +881,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
             onTap: () {
               CharacterFeature feature;
               final found = widget.character.features
-                  .where((f) =>
-                      f.id != null &&
-                      f.id!.contains(featureId.split('-').first))
+                  .where((f) => f.id.contains(featureId.split('-').first))
                   .firstOrNull;
               if (found != null) {
                 feature = found;
@@ -906,7 +906,8 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
               decoration: BoxDecoration(
                 color: colorScheme.secondaryContainer,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+                border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.3)),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -921,7 +922,8 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: colorScheme.onSecondaryContainer.withOpacity(0.9),
+                      color: colorScheme.onSecondaryContainer
+                          .withValues(alpha: 0.9),
                     ),
                   ),
                 ],
@@ -957,7 +959,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
               ),
             ),
             Icon(Icons.info_outline,
-                size: 16, color: colorScheme.outline.withOpacity(0.5)),
+                size: 16, color: colorScheme.outline.withValues(alpha: 0.5)),
           ],
         ),
         const SizedBox(height: 12),
@@ -1032,7 +1034,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       side: BorderSide(
-                          color: colorScheme.primary.withOpacity(0.5)),
+                          color: colorScheme.primary.withValues(alpha: 0.5)),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                     ),
@@ -1087,7 +1089,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
       decoration: BoxDecoration(
         color: blockBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -1195,7 +1197,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           backgroundColor: colorScheme.surface,
-          disabledBackgroundColor: colorScheme.surface.withOpacity(0.5),
+          disabledBackgroundColor: colorScheme.surface.withValues(alpha: 0.5),
         ),
         child: Icon(icon, size: 20),
       ),

@@ -209,7 +209,7 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
                           color: Theme.of(context)
                               .colorScheme
                               .onSurfaceVariant
-                              .withOpacity(0.4),
+                              .withValues(alpha: 0.4),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -323,7 +323,8 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
+        border:
+            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -337,7 +338,7 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, color: theme.colorScheme.primary, size: 20),
@@ -449,10 +450,11 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
               Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                  color: colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
-                  border:
-                      Border.all(color: colorScheme.outline.withOpacity(0.2)),
+                  border: Border.all(
+                      color: colorScheme.outline.withValues(alpha: 0.2)),
                 ),
                 child: Material(
                   color: Colors.transparent,
@@ -467,7 +469,7 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: colorScheme.primary.withOpacity(0.1),
+                              color: colorScheme.primary.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(Icons.music_note,
@@ -501,7 +503,7 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
                           ),
                           Icon(Icons.chevron_right,
                               color: colorScheme.onSurfaceVariant
-                                  .withOpacity(0.5)),
+                                  .withValues(alpha: 0.5)),
                         ],
                       ),
                     ),
@@ -517,7 +519,8 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+                border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.3)),
               ),
               child: Column(
                 children: [
@@ -640,7 +643,8 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Divider(
                         height: 1,
-                        color: colorScheme.outlineVariant.withOpacity(0.5)),
+                        color:
+                            colorScheme.outlineVariant.withValues(alpha: 0.5)),
                   ),
                   const SizedBox(height: 16),
 
@@ -668,19 +672,23 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.elasticOut,
                             transform: Matrix4.identity()
-                              ..scale(isActive ? 1.0 : 0.8), // Pulse effect
+                              ..scaleByDouble(
+                                  isActive ? 1.0 : 0.8,
+                                  isActive ? 1.0 : 0.8,
+                                  1.0,
+                                  1.0), // Pulse effect
                             child: Icon(
                               Icons.music_note,
                               size: 32,
                               color: isActive
                                   ? colorScheme.tertiary
                                   : colorScheme.onSurfaceVariant
-                                      .withOpacity(0.3),
+                                      .withValues(alpha: 0.3),
                               shadows: isActive
                                   ? [
                                       Shadow(
                                           color: colorScheme.tertiary
-                                              .withOpacity(0.4),
+                                              .withValues(alpha: 0.4),
                                           blurRadius: 8)
                                     ]
                                   : [],

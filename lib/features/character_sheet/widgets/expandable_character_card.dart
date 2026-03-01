@@ -128,14 +128,15 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
     var result = value.trim();
     if (result.endsWith('cm')) {
       result = result.replaceAll('cm', ' ${l10n.unitCm}');
-    } else if (result.endsWith('kg'))
+    } else if (result.endsWith('kg')) {
       result = result.replaceAll('kg', ' ${l10n.unitKg}');
-    else if (result.endsWith('years'))
+    } else if (result.endsWith('years')) {
       result = result.replaceAll('years', ' ${l10n.ageYears}');
-    else if (result.endsWith('lb') || result.endsWith('lbs'))
+    } else if (result.endsWith('lb') || result.endsWith('lbs')) {
       result = result.replaceAll(RegExp(r'lbs?'), ' ${l10n.weightUnit}');
-    else if (result.endsWith('ft'))
+    } else if (result.endsWith('ft')) {
       result = result.replaceAll('ft', ' ${l10n.unitCm}');
+    }
     return result;
   }
 
@@ -166,14 +167,14 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.secondary.withOpacity(0.15), // Soft glow
+            color: colorScheme.secondary.withValues(alpha: 0.15), // Soft glow
             blurRadius: 20,
             spreadRadius: 0,
             offset: const Offset(0, 8),
           ),
         ],
         border: Border.all(
-            color: colorScheme.onSecondaryContainer.withOpacity(0.1)),
+            color: colorScheme.onSecondaryContainer.withValues(alpha: 0.1)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -196,7 +197,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                               color: colorScheme.onSecondaryContainer
-                                  .withOpacity(0.2)),
+                                  .withValues(alpha: 0.2)),
                         ),
                         child: widget.character.avatarPath != null
                             ? ClipRRect(
@@ -290,7 +291,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                               localizedClassName,
                               style: TextStyle(
                                 color: colorScheme.onSecondaryContainer
-                                    .withOpacity(0.8),
+                                    .withValues(alpha: 0.8),
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
                               ),
@@ -300,7 +301,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                                 localizedSubclass,
                                 style: TextStyle(
                                   color: colorScheme.onSecondaryContainer
-                                      .withOpacity(0.6),
+                                      .withValues(alpha: 0.6),
                                   fontSize: 12,
                                 ),
                                 maxLines: 1,
@@ -344,7 +345,8 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                 children: [
                   Divider(
                       height: 1,
-                      color: colorScheme.onSecondaryContainer.withOpacity(0.1)),
+                      color: colorScheme.onSecondaryContainer
+                          .withValues(alpha: 0.1)),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 8),
@@ -353,7 +355,8 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                           ? Icons.keyboard_arrow_up
                           : Icons.keyboard_arrow_down,
                       size: 20,
-                      color: colorScheme.onSecondaryContainer.withOpacity(0.5),
+                      color: colorScheme.onSecondaryContainer
+                          .withValues(alpha: 0.5),
                     ),
                   ),
                 ],
@@ -419,7 +422,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                             Text(widget.character.appearanceDescription!,
                                 style: TextStyle(
                                     color: colorScheme.onSecondaryContainer
-                                        .withOpacity(0.9),
+                                        .withValues(alpha: 0.9),
                                     fontSize: 13)),
                           ],
                           const SizedBox(height: 16),
@@ -430,7 +433,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                           Text(widget.character.personalityTraits!,
                               style: TextStyle(
                                   color: colorScheme.onSecondaryContainer
-                                      .withOpacity(0.9),
+                                      .withValues(alpha: 0.9),
                                   fontSize: 13)),
                           const SizedBox(height: 12)
                         ],
@@ -440,7 +443,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                           Text(widget.character.ideals!,
                               style: TextStyle(
                                   color: colorScheme.onSecondaryContainer
-                                      .withOpacity(0.9),
+                                      .withValues(alpha: 0.9),
                                   fontSize: 13)),
                           const SizedBox(height: 12)
                         ],
@@ -451,7 +454,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                           Text(widget.character.bonds!,
                               style: TextStyle(
                                   color: colorScheme.onSecondaryContainer
-                                      .withOpacity(0.9),
+                                      .withValues(alpha: 0.9),
                                   fontSize: 13)),
                           const SizedBox(height: 12)
                         ],
@@ -462,7 +465,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                           Text(widget.character.flaws!,
                               style: TextStyle(
                                   color: colorScheme.onSecondaryContainer
-                                      .withOpacity(0.9),
+                                      .withValues(alpha: 0.9),
                                   fontSize: 13)),
                           const SizedBox(height: 12)
                         ],
@@ -473,7 +476,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                           Text(widget.character.backstory!,
                               style: TextStyle(
                                   color: colorScheme.onSecondaryContainer
-                                      .withOpacity(0.9),
+                                      .withValues(alpha: 0.9),
                                   fontSize: 13))
                         ],
                       ],
@@ -511,7 +514,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: colorScheme.surface.withOpacity(0.3),
+        color: colorScheme.surface.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(label,

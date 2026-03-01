@@ -117,7 +117,7 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
                   color: blockBg,
                   borderRadius: BorderRadius.circular(12),
                   border:
-                      Border.all(color: colorScheme.outline.withOpacity(0.3)),
+                      Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
                 ),
                 // CRITICAL: AntiAlias clip ensures the header's top corners match the container's
                 clipBehavior: Clip.antiAlias,
@@ -146,7 +146,7 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(
@@ -201,7 +201,7 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
                 ),
               ),
               Icon(Icons.info_outline,
-                  size: 16, color: colorScheme.outline.withOpacity(0.5)),
+                  size: 16, color: colorScheme.outline.withValues(alpha: 0.5)),
             ],
           ),
         ),
@@ -344,7 +344,7 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
                 ),
               ),
               Icon(Icons.info_outline,
-                  size: 16, color: colorScheme.outline.withOpacity(0.5)),
+                  size: 16, color: colorScheme.outline.withValues(alpha: 0.5)),
             ],
           ),
         ),
@@ -380,7 +380,7 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
                         border: Border.all(
                           color: isActive
                               ? dotColor
-                              : colorScheme.outline.withOpacity(0.5),
+                              : colorScheme.outline.withValues(alpha: 0.5),
                           width: 2,
                         ),
                       ),
@@ -478,7 +478,7 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
                     ),
                   ),
                   Icon(Icons.info_outline,
-                      size: 16, color: pillContentColor.withOpacity(0.5)),
+                      size: 16, color: pillContentColor.withValues(alpha: 0.5)),
                   const SizedBox(width: 8),
                   // Switch
                   Transform.scale(
@@ -496,16 +496,16 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
                       },
                       activeThumbColor: colorScheme.onSecondary,
                       activeTrackColor:
-                          colorScheme.onSecondary.withOpacity(0.15),
+                          colorScheme.onSecondary.withValues(alpha: 0.15),
                       inactiveThumbColor:
-                          colorScheme.onSurfaceVariant.withOpacity(0.6),
+                          colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                       inactiveTrackColor: Colors.transparent,
                       trackOutlineColor:
                           WidgetStateProperty.resolveWith<Color?>((states) {
                         if (states.contains(WidgetState.selected)) {
                           return colorScheme.onSecondary;
                         }
-                        return colorScheme.onSurfaceVariant.withOpacity(0.6);
+                        return colorScheme.onSurfaceVariant.withValues(alpha: 0.6);
                       }),
                     ),
                   ),
@@ -553,7 +553,7 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -709,7 +709,7 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accentColor.withOpacity(0.3)),
+        border: Border.all(color: accentColor.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -906,7 +906,7 @@ class _DivineSenseSensorButtonState extends State<_DivineSenseSensorButton>
             boxShadow: widget.hasCharges
                 ? [
                     BoxShadow(
-                        color: widget.backgroundColor.withOpacity(0.3),
+                        color: widget.backgroundColor.withValues(alpha: 0.3),
                         blurRadius: 12,
                         spreadRadius: 1)
                   ]

@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 import 'dart:io';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:uuid/uuid.dart';

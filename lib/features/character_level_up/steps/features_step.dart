@@ -536,7 +536,9 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 // 5. Other Class Features
                 if (widget.newFeatures.any((f) {
                   if (f.id.contains('fighting-style') ||
-                      f.id.contains('pact-boon')) return false;
+                      f.id.contains('pact-boon')) {
+                    return false;
+                  }
                   final safeId = f.id.toLowerCase().replaceAll('_', '-');
                   final tactics = [
                     'colossus-slayer',
@@ -552,13 +554,17 @@ class _FeaturesStepState extends State<FeaturesStep> {
                     'uncanny-dodge'
                   ];
                   if (tactics.contains(safeId) ||
-                      tactics.any((t) => safeId.contains(t))) return false;
+                      tactics.any((t) => safeId.contains(t))) {
+                    return false;
+                  }
                   return true;
                 })) ...[
                   _buildSectionHeader(context, l10n.classFeatures),
                   ...widget.newFeatures.where((f) {
                     if (f.id.contains('fighting-style') ||
-                        f.id.contains('pact-boon')) return false;
+                        f.id.contains('pact-boon')) {
+                      return false;
+                    }
                     final safeId = f.id.toLowerCase().replaceAll('_', '-');
                     final tactics = [
                       'colossus-slayer',
@@ -574,7 +580,9 @@ class _FeaturesStepState extends State<FeaturesStep> {
                       'uncanny-dodge'
                     ];
                     if (tactics.contains(safeId) ||
-                        tactics.any((t) => safeId.contains(t))) return false;
+                        tactics.any((t) => safeId.contains(t))) {
+                      return false;
+                    }
                     return true;
                   }).map((feature) {
                     return _buildFeatureCard(context, feature);
@@ -705,10 +713,10 @@ class _FeaturesStepState extends State<FeaturesStep> {
         ? (isSelected
             ? theme.colorScheme.primaryContainer
             : theme.colorScheme.surfaceContainerHighest)
-        : theme.colorScheme.surfaceContainerHighest.withOpacity(0.5);
+        : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
     final textColor = isEnabled
         ? theme.colorScheme.onSurface
-        : theme.colorScheme.onSurface.withOpacity(0.4);
+        : theme.colorScheme.onSurface.withValues(alpha: 0.4);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -718,7 +726,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
         borderRadius: BorderRadius.circular(12),
         side: isSelected
             ? BorderSide(color: theme.colorScheme.primary, width: 2)
-            : BorderSide(color: theme.colorScheme.outline.withOpacity(0.2)),
+            : BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: InkWell(
         onTap: isEnabled
@@ -772,7 +781,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
                       Text(
                         _getLocalizedSchool(l10n, spell.school),
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: textColor.withOpacity(0.7),
+                          color: textColor.withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -848,77 +857,83 @@ class _FeaturesStepState extends State<FeaturesStep> {
   Widget _buildSubclassChoice(BuildContext context) {
     final locale = Localizations.localeOf(context).languageCode;
     return Column(
-      children: widget.classData.subclasses.map((subclass) {
-        final isSelected = _selections['subclass'] == subclass.id;
-        final colorScheme = Theme.of(context).colorScheme;
-        return Card(
-          elevation: isSelected ? 4 : 1,
-          color: isSelected ? colorScheme.primaryContainer : null,
-          margin: const EdgeInsets.only(bottom: 8),
-          child: InkWell(
-            onTap: () {
-              setState(() {
-                _selections['subclass'] = subclass.id;
-                widget.onOptionSelected('subclass', subclass.id);
-              });
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Radio<String>(
-                    value: subclass.id,
-                    groupValue: _selections['subclass'],
-                    onChanged: (value) {
-                      setState(() {
-                        _selections['subclass'] = value!;
-                        widget.onOptionSelected('subclass', value);
-                      });
-                    },
-                    activeColor: colorScheme.primary,
-                  ),
-                  Expanded(
-                    child: Column(
+      children: [
+        RadioGroup<String>(
+          groupValue: _selections['subclass'] ?? '',
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() {
+              _selections['subclass'] = value;
+              widget.onOptionSelected('subclass', value);
+            });
+          },
+          child: Column(
+            children: widget.classData.subclasses.map((subclass) {
+              final isSelected = _selections['subclass'] == subclass.id;
+              final colorScheme = Theme.of(context).colorScheme;
+              return Card(
+                elevation: isSelected ? 4 : 1,
+                color: isSelected ? colorScheme.primaryContainer : null,
+                margin: const EdgeInsets.only(bottom: 8),
+                child: InkWell(
+                  onTap: () {
+                    // Handled by RadioGroup, but InkWell can still provide visual feedback
+                    // or if RadioGroup is not used, this would be the selection logic.
+                    // For RadioGroup, the RadioListTile's onChanged handles it.
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(subclass.getName(locale),
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: isSelected
-                                    ? colorScheme.onPrimaryContainer
-                                    : colorScheme.onSurface)),
-                        const SizedBox(height: 4),
-                        Text(subclass.getDescription(locale),
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: isSelected
-                                    ? colorScheme.onPrimaryContainer
-                                        .withValues(alpha: 0.8)
-                                    : colorScheme.onSurfaceVariant)),
+                        Radio<String>(
+                          value: subclass.id,
+                          activeColor: colorScheme.primary,
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(subclass.getName(locale),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: isSelected
+                                          ? colorScheme.onPrimaryContainer
+                                          : colorScheme.onSurface)),
+                              const SizedBox(height: 4),
+                              Text(subclass.getDescription(locale),
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: isSelected
+                                          ? colorScheme.onPrimaryContainer
+                                              .withValues(alpha: 0.8)
+                                          : colorScheme.onSurfaceVariant)),
+                            ],
+                          ),
+                        ),
+                        if (isSelected)
+                          Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Icon(Icons.check_circle,
+                                  color: colorScheme.primary)),
                       ],
                     ),
                   ),
-                  if (isSelected)
-                    Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Icon(Icons.check_circle,
-                            color: colorScheme.primary)),
-                ],
-              ),
-            ),
+                ),
+              );
+            }).toList(),
           ),
-        );
-      }).toList(),
+        ),
+      ],
     );
   }
 
   Widget _buildFightingStyleChoice(
       BuildContext context, CharacterFeature feature, AppLocalizations l10n) {
     // ... same as before
-    final locale = Localizations.localeOf(context).languageCode;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -928,30 +943,34 @@ class _FeaturesStepState extends State<FeaturesStep> {
             padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
             child: Text(l10n.chooseFightingStyle,
                 style: const TextStyle(fontWeight: FontWeight.bold))),
-        ..._getFightingStyles(context).map((style) {
-          final isSelected = _selections['fighting_style'] == style['id'];
-          return Card(
-            elevation: isSelected ? 4 : 1,
-            color: isSelected
-                ? Theme.of(context).colorScheme.primaryContainer
-                : null,
-            margin: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
-            child: RadioListTile<String>(
-              value: style['id']!,
-              groupValue: _selections['fighting_style'],
-              onChanged: (value) {
-                setState(() {
-                  _selections['fighting_style'] = value!;
-                  widget.onOptionSelected('fighting_style', value);
-                });
-              },
-              title: Text(style['name']!,
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text(style['desc']!),
-              secondary: const Icon(Icons.sports_martial_arts),
-            ),
-          );
-        }),
+        RadioGroup<String>(
+          groupValue: _selections['fighting_style'] ?? '',
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() {
+              _selections['fighting_style'] = value;
+              widget.onOptionSelected('fighting_style', value);
+            });
+          },
+          child: Column(
+              children: _getFightingStyles(context).map((style) {
+            final isSelected = _selections['fighting_style'] == style['id'];
+            return Card(
+              elevation: isSelected ? 4 : 1,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : null,
+              margin: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
+              child: RadioListTile<String>(
+                value: style['id']!,
+                title: Text(style['name']!,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(style['desc']!),
+                secondary: const Icon(Icons.sports_martial_arts),
+              ),
+            );
+          }).toList()),
+        ),
         const SizedBox(height: 16),
       ],
     );
@@ -1001,97 +1020,100 @@ class _FeaturesStepState extends State<FeaturesStep> {
     ];
 
     return Column(
-      children: boons.map((boon) {
-        final id = boon['id'] as String;
-        final name = locale == 'ru'
-            ? boon['nameRu'] as String
-            : boon['nameEn'] as String;
-        final desc = locale == 'ru'
-            ? boon['descRu'] as String
-            : boon['descEn'] as String;
-        final icon = boon['icon'] as IconData;
-        final isSelected = _selections['pact_boon'] == id;
-        final colorScheme = Theme.of(context).colorScheme;
+      children: [
+        RadioGroup<String>(
+          groupValue: _selections['pact_boon'] ?? '',
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() {
+              _selections['pact_boon'] = value;
+              widget.onOptionSelected('pact_boon', value);
+            });
+          },
+          child: Column(
+              children: boons.map((boon) {
+            final id = boon['id'] as String;
+            final name = locale == 'ru'
+                ? boon['nameRu'] as String
+                : boon['nameEn'] as String;
+            final desc = locale == 'ru'
+                ? boon['descRu'] as String
+                : boon['descEn'] as String;
+            final icon = boon['icon'] as IconData;
+            final isSelected = _selections['pact_boon'] == id;
+            final colorScheme = Theme.of(context).colorScheme;
 
-        return Card(
-          elevation: isSelected ? 4 : 1,
-          color: isSelected ? colorScheme.primaryContainer : null,
-          margin: const EdgeInsets.only(bottom: 8),
-          child: RadioListTile<String>(
-            value: id,
-            groupValue: _selections['pact_boon'],
-            onChanged: (value) {
-              setState(() {
-                _selections['pact_boon'] = value!;
-                widget.onOptionSelected('pact_boon', value);
-              });
-            },
-            title:
-                Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(desc),
-            secondary:
-                Icon(icon, color: isSelected ? colorScheme.primary : null),
-            activeColor: colorScheme.primary,
-          ),
-        );
-      }).toList(),
+            return Card(
+              elevation: isSelected ? 4 : 1,
+              color: isSelected ? colorScheme.primaryContainer : null,
+              margin: const EdgeInsets.only(bottom: 8),
+              child: RadioListTile<String>(
+                value: id,
+                title: Text(name,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Text(desc),
+                secondary:
+                    Icon(icon, color: isSelected ? colorScheme.primary : null),
+                activeColor: colorScheme.primary,
+              ),
+            );
+          }).toList()),
+        )
+      ],
     );
   }
 
   Widget _buildLandChoice(BuildContext context, String locale) {
     return Column(
-      children: widget.landOptions.map((feature) {
-        final isSelected = _selections['land_terrain'] == feature.id;
-        final colorScheme = Theme.of(context).colorScheme;
+      children: [
+        RadioGroup<String>(
+          groupValue: _selections['land_terrain'] ?? '',
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() {
+              _selections['land_terrain'] = value;
+              widget.onOptionSelected('land_terrain', value);
+            });
+          },
+          child: Column(
+              children: widget.landOptions.map((feature) {
+            final isSelected = _selections['land_terrain'] == feature.id;
+            final colorScheme = Theme.of(context).colorScheme;
 
-        return Card(
-          elevation: isSelected ? 4 : 1,
-          color: isSelected ? colorScheme.primaryContainer : null,
-          margin: const EdgeInsets.only(bottom: 8),
-          child: InkWell(
-            onTap: () {
-              setState(() {
-                _selections['land_terrain'] = feature.id;
-                widget.onOptionSelected('land_terrain', feature.id);
-              });
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Radio<String>(
-                    value: feature.id,
-                    groupValue: _selections['land_terrain'],
-                    onChanged: (value) {
-                      setState(() {
-                        _selections['land_terrain'] = value!;
-                        widget.onOptionSelected('land_terrain', value);
-                      });
-                    },
-                    activeColor: colorScheme.primary,
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(feature.getName(locale),
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: isSelected
-                                    ? colorScheme.onPrimaryContainer
-                                    : colorScheme.onSurface)),
-                      ],
+            return Card(
+              elevation: isSelected ? 4 : 1,
+              color: isSelected ? colorScheme.primaryContainer : null,
+              margin: const EdgeInsets.only(bottom: 8),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Radio<String>(
+                      value: feature.id,
+                      activeColor: colorScheme.primary,
                     ),
-                  ),
-                ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(feature.getName(locale),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: isSelected
+                                      ? colorScheme.onPrimaryContainer
+                                      : colorScheme.onSurface)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ),
-        );
-      }).toList(),
+            );
+          }).toList()),
+        )
+      ],
     );
   }
 
@@ -1133,7 +1155,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
-              value: _selections['favored_enemy'],
+              initialValue: _selections['favored_enemy'],
               items: availableEnemies.map((entry) {
                 final name =
                     locale == 'ru' ? entry.value['ru']! : entry.value['en']!;
@@ -1195,7 +1217,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
-              value: _selections['natural_explorer'],
+              initialValue: _selections['natural_explorer'],
               items: availableTerrains.map((entry) {
                 final name =
                     locale == 'ru' ? entry.value['ru']! : entry.value['en']!;
@@ -1331,60 +1353,64 @@ class _FeaturesStepState extends State<FeaturesStep> {
     }
 
     return Column(
-      children: tactics.map((tactic) {
-        final id = tactic['id']!;
-        final name = locale == 'ru' ? tactic['ru']! : tactic['en']!;
-        final desc = locale == 'ru' ? tactic['descRu']! : tactic['descEn']!;
-        final isSelected = _selections['hunter_tactic'] == id;
-        final colorScheme = Theme.of(context).colorScheme;
+      children: [
+        RadioGroup<String>(
+          groupValue: _selections['hunter_tactic'] ?? '',
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() {
+              _selections['hunter_tactic'] = value;
+              widget.onOptionSelected('hunter_tactic', value);
+            });
+          },
+          child: Column(
+              children: tactics.map((tactic) {
+            final id = tactic['id']!;
+            final name = locale == 'ru' ? tactic['ru']! : tactic['en']!;
+            final desc = locale == 'ru' ? tactic['descRu']! : tactic['descEn']!;
+            final isSelected = _selections['hunter_tactic'] == id;
+            final colorScheme = Theme.of(context).colorScheme;
 
-        return Card(
-          elevation: isSelected ? 4 : 1,
-          color: isSelected ? colorScheme.primaryContainer : null,
-          margin: const EdgeInsets.only(bottom: 8),
-          child: InkWell(
-            onTap: () {
-              setState(() {
-                _selections['hunter_tactic'] = id;
-                widget.onOptionSelected('hunter_tactic', id);
-              });
-            },
-            child: Row(
-              children: [
-                Radio<String>(
-                  value: id,
-                  groupValue: _selections['hunter_tactic'],
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selections['hunter_tactic'] = value;
-                        widget.onOptionSelected('hunter_tactic', value);
-                      });
-                    }
-                  },
-                  activeColor: colorScheme.primary,
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12.0, horizontal: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(name,
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 4),
-                        Text(desc),
-                      ],
+            return Card(
+              elevation: isSelected ? 4 : 1,
+              color: isSelected ? colorScheme.primaryContainer : null,
+              margin: const EdgeInsets.only(bottom: 8),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _selections['hunter_tactic'] = id;
+                    widget.onOptionSelected('hunter_tactic', id);
+                  });
+                },
+                child: Row(
+                  children: [
+                    Radio<String>(
+                      value: id,
+                      activeColor: colorScheme.primary,
                     ),
-                  ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12.0, horizontal: 8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(name,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 4),
+                            Text(desc),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
+              ),
+            );
+          }).toList()),
+        )
+      ],
     );
   }
 
