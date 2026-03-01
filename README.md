@@ -116,10 +116,17 @@ flutter run
 ## 🗺️ Roadmap
 
 ### ✅ Recent Triumphs
+- **v0.2.5 (The Wizard's Polish):** Significant UI/UX improvements to the Character Creation and Level Up Wizards.
+
+    - **M3 Expressive Overview:** Completely redesigned the Hero Summary screen with nested cards, a structured Appearance grid, and beautifully animated spell lists.
+
+    - **Expressive Choice Selectors:** Replaced all clunky legacy dropdowns with premium, fully localized Modal Bottom Sheets across both wizards.
+
+    - **Smart Spells & Localization:** Fixed prepopulated spell rendering for prepared casters and established a DRY global localization architecture for Fighting Styles.
+
 - **v0.2.0 (The Class Abilities Factory):** Massive M3 Expressive visual overhaul. All 12 core classes received bespoke, interactive dashboards (Rage Engine, Stealth Mechanics, Ki points, etc.) with global deduplication for a flawless UI.
 
 ### 🔮 The Path Ahead
-- **v0.2.5 (The Wizard's Polish):** Significant improvements and flow overhauls to the Character Creation Wizard for a smoother, more immersive birth of your heroes.
 - **v0.5.0 (Many Paths):** Full implementation of the MULTICLASS system. Mix and match your favorite classes with correct spell slot scaling and feature integration.
 - **v0.8.0 (The Grand Library):** Deep rework and complete overhaul of the third-party content library import system to handle any homebrew you throw at it.
 - **v1.0.0 (The Ultimate Companion):** Stable release! Full implementation of SRD content with all mechanics, unique features, and flawless loading of any third-party libraries.
