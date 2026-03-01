@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 
 class EmptyState extends StatelessWidget {
   const EmptyState({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Center(
@@ -20,18 +22,19 @@ class EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'No Characters Yet',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              l10n.empty_roster_title,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface.withOpacity(0.6),
+                    color: colorScheme.onSurface.withOpacity(0.8),
                   ),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
             Text(
-              'Create your first adventurer to begin your journey',
+              l10n.empty_roster_subtitle,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: colorScheme.onSurface.withOpacity(0.4),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
                   ),
             ),
           ],

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:uuid/uuid.dart';
 import '../models/character.dart';
 import '../models/compendium_source.dart';
@@ -83,32 +82,6 @@ class ImportService {
     } catch (e) {
       print('❌ ImportService: Failed to import compendium: $e');
       throw Exception('Failed to import compendium: $e');
-    }
-  }
-
-  // Import from asset (for testing with pal_example.xml)
-  static Future<Character> importFromAsset(String assetPath) async {
-    final xmlContent = await rootBundle.loadString(assetPath);
-    final character = FC5Parser.parseCharacter(xmlContent);
-
-    // Add class features to character
-    FeatureService.addFeaturesToCharacter(character);
-
-    await StorageService.saveCharacter(character);
-    return character;
-  }
-
-  // Load example character on first run
-  static Future<void> loadExampleCharacterIfNeeded() async {
-    final characters = StorageService.getAllCharacters();
-
-    if (characters.isEmpty) {
-      try {
-        await importFromAsset('assets/data/fc5_examples/pal_example.xml');
-        print('✅ Example character "Кюри" imported successfully!');
-      } catch (e) {
-        print('❌ Failed to import example character: $e');
-      }
     }
   }
 }
