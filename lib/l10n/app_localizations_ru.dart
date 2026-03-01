@@ -2522,7 +2522,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fs_two_weapon_desc =>
-      'Сражаясь двумя оружиями, вы можете добавить модификатор характеристики к урону от второй атаки.';
+      'При сражении двумя оружиями вы можете добавить модификатор характеристики к урону второй атаки.';
+
+  @override
+  String get empty_roster_title => 'В таверне пока пусто';
+
+  @override
+  String get empty_roster_subtitle =>
+      'Создайте своего первого героя, чтобы начать приключение!';
+
+  @override
+  String get create_first_character_btn => 'Создать персонажа';
 
   @override
   String get stealthFail3 => 'Вы громко чихнули.';
