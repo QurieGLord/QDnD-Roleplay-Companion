@@ -253,6 +253,7 @@ class OverviewTab extends StatelessWidget {
       IconData icon, Color color,
       {VoidCallback? onTap}) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isHC = Theme.of(context).dividerTheme.thickness == 2;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -261,7 +262,9 @@ class OverviewTab extends StatelessWidget {
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
+          border: Border.all(
+              color: isHC ? color : color.withValues(alpha: 0.3),
+              width: isHC ? 2 : 1),
         ),
         child: Column(
           children: [
@@ -329,13 +332,19 @@ class OverviewTab extends StatelessWidget {
       {IconData icon = Icons.sports_martial_arts}) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final isHC = Theme.of(context).dividerTheme.thickness == 2;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
       shadowColor: Colors.black.withValues(alpha: 0.1),
       surfaceTintColor: colorScheme.surfaceTint,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: isHC
+            ? BorderSide(color: colorScheme.primary, width: 2)
+            : BorderSide.none,
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

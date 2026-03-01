@@ -207,11 +207,15 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
     final maxKi = _calculateMaxKi();
     final dieSize = _getMartialArtsDie(maxKi);
 
+    final isHC = Theme.of(context).dividerTheme.thickness == 2;
+
     return Card(
       elevation: 0,
       color: colorScheme.surfaceContainerLow,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: colorScheme.outline, width: 1.5),
+        side: BorderSide(
+            color: isHC ? colorScheme.primary : colorScheme.outline,
+            width: isHC ? 2 : 1.5),
         borderRadius: BorderRadius.circular(16),
       ),
       margin: const EdgeInsets.only(bottom: 16),
@@ -260,12 +264,18 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
     final fallbackName = widget.character.subclass ?? '';
     final subclassName = subclassData?.getName(locale) ?? fallbackName;
 
+    final isHC = Theme.of(context).dividerTheme.thickness == 2;
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+        border: Border.all(
+          color: isHC
+              ? colorScheme.primary
+              : colorScheme.outline.withValues(alpha: 0.3),
+          width: isHC ? 2 : 1,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
@@ -383,6 +393,7 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
 
   Widget _buildBasicStatsPanel(BuildContext context, ColorScheme colorScheme,
       String locale, AppLocalizations l10n, int dieSize) {
+    final isHC = Theme.of(context).dividerTheme.thickness == 2;
     final martialArtsFeature =
         _findFeature(['martial_arts', 'martial-arts', 'боевые искусства']);
     final unarmoredFeature = _findFeature(
@@ -397,7 +408,12 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+              border: Border.all(
+                color: isHC
+                    ? colorScheme.primary
+                    : colorScheme.outline.withValues(alpha: 0.3),
+                width: isHC ? 1.5 : 1,
+              ),
             ),
             child: Material(
               color: Colors.transparent,
@@ -458,7 +474,12 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+              border: Border.all(
+                color: isHC
+                    ? colorScheme.primary
+                    : colorScheme.outline.withValues(alpha: 0.3),
+                width: isHC ? 1.5 : 1,
+              ),
             ),
             child: Material(
               color: Colors.transparent,
@@ -515,6 +536,7 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
 
   Widget _buildKiDashboard(BuildContext context, ColorScheme colorScheme,
       String locale, int currentKi, int maxKi) {
+    final isHC = Theme.of(context).dividerTheme.thickness == 2;
     final progress = maxKi > 0 ? currentKi / maxKi : 0.0;
 
     return Container(
@@ -522,7 +544,12 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+        border: Border.all(
+          color: isHC
+              ? colorScheme.primary
+              : colorScheme.outline.withValues(alpha: 0.3),
+          width: isHC ? 2 : 1,
+        ),
       ),
       child: Column(
         children: [
@@ -624,6 +651,7 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
 
   Widget _buildQuickActions(
       BuildContext context, ColorScheme colorScheme, String locale, int maxKi) {
+    final isHC = Theme.of(context).dividerTheme.thickness == 2;
     final flurry =
         _findFeature(['flurry_of_blows', 'flurry-of-blows', 'шквал ударов']);
     final patientDefense = _findFeature(
@@ -672,7 +700,12 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
           decoration: BoxDecoration(
             color: colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+            border: Border.all(
+              color: isHC
+                  ? colorScheme.primary
+                  : colorScheme.outline.withValues(alpha: 0.3),
+              width: isHC ? 1.5 : 1,
+            ),
           ),
           child: Material(
             color: Colors.transparent,
@@ -745,7 +778,12 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+        border: Border.all(
+          color: isHC
+              ? colorScheme.primary
+              : colorScheme.outline.withValues(alpha: 0.3),
+          width: isHC ? 2 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

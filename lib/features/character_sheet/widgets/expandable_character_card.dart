@@ -158,6 +158,8 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
             widget.character.subclass!)
         : null;
 
+    final isHC = Theme.of(context).dividerTheme.thickness == 2;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
@@ -165,16 +167,23 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
       decoration: BoxDecoration(
         color: colorScheme.secondaryContainer, // Accent color background
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.secondary.withValues(alpha: 0.15), // Soft glow
-            blurRadius: 20,
-            spreadRadius: 0,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        boxShadow: isHC
+            ? [] // No glow in high contrast mode
+            : [
+                BoxShadow(
+                  color: colorScheme.secondary
+                      .withValues(alpha: 0.15), // Soft glow
+                  blurRadius: 20,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 8),
+                ),
+              ],
         border: Border.all(
-            color: colorScheme.onSecondaryContainer.withValues(alpha: 0.1)),
+          color: isHC
+              ? colorScheme.primary
+              : colorScheme.onSecondaryContainer.withValues(alpha: 0.1),
+          width: isHC ? 2 : 1,
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -196,8 +205,11 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                           color: colorScheme.surface,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                              color: colorScheme.onSecondaryContainer
-                                  .withValues(alpha: 0.2)),
+                              color: isHC
+                                  ? colorScheme.primary
+                                  : colorScheme.onSecondaryContainer
+                                      .withValues(alpha: 0.2),
+                              width: isHC ? 1.5 : 1),
                         ),
                         child: widget.character.avatarPath != null
                             ? ClipRRect(

@@ -161,11 +161,10 @@ class ThemeProvider extends ChangeNotifier {
         thickness: _isHighContrast ? 2 : 1,
       ),
       listTileTheme: ListTileThemeData(
-        shape: highContrastShape ??
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         iconColor: colorScheme.secondary,
         textColor: colorScheme.onSurface,
-        // In HC mode, we might want ListTiles to have borders too if they are distinct blocks
+        // Removed highContrastShape to avoid doubling with Card borders
       ),
       dialogTheme: DialogThemeData(
         shape: _isHighContrast

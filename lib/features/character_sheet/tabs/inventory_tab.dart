@@ -742,13 +742,16 @@ class _InventoryTabState extends State<InventoryTab> {
 
   Widget _buildCurrencyChip(ThemeData theme, String label, int amount,
       Color bgColor, Color textColor) {
+    final isHC = theme.dividerTheme.thickness == 2;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: theme.colorScheme.outlineVariant,
+          color: isHC
+              ? theme.colorScheme.primary
+              : theme.colorScheme.outlineVariant,
           width: 1,
         ),
       ),

@@ -2009,11 +2009,17 @@ class _AbilitiesTabState extends State<AbilitiesTab>
               }
             }
 
+            final isHC = colorScheme.outlineVariant == colorScheme.primary &&
+                Theme.of(context).dividerTheme.thickness == 2;
+
             return Card(
               margin: const EdgeInsets.only(bottom: 6),
               elevation: 0,
               shape: RoundedRectangleBorder(
-                side: BorderSide(color: colorScheme.outlineVariant),
+                side: BorderSide(
+                    color:
+                        isHC ? colorScheme.primary : colorScheme.outlineVariant,
+                    width: isHC ? 2 : 1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: ListTile(
@@ -2138,11 +2144,16 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         .whereType<Spell>()
         .toList();
 
+    final isHC = theme.dividerTheme.thickness == 2;
+
     return Card(
       elevation: 4,
       color: theme.colorScheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: theme.colorScheme.tertiary, width: 2),
+        side: BorderSide(
+            color:
+                isHC ? theme.colorScheme.primary : theme.colorScheme.tertiary,
+            width: 2),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -2195,11 +2206,16 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         .whereType<Spell>()
         .toList();
 
+    final isHC = theme.dividerTheme.thickness == 2;
+
     return Card(
       elevation: 4,
       color: theme.colorScheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: theme.colorScheme.tertiary, width: 2),
+        side: BorderSide(
+            color:
+                isHC ? theme.colorScheme.primary : theme.colorScheme.tertiary,
+            width: 2),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -2251,11 +2267,16 @@ class _AbilitiesTabState extends State<AbilitiesTab>
     final isUsed = isSignature &&
         (widget.character.signatureSpellsUsed[spell.id] ?? false);
 
+    final isHC = colorScheme.outlineVariant == colorScheme.primary &&
+        Theme.of(context).dividerTheme.thickness == 2;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 6),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: colorScheme.outlineVariant),
+        side: BorderSide(
+            color: isHC ? colorScheme.primary : colorScheme.outlineVariant,
+            width: isHC ? 2 : 1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
