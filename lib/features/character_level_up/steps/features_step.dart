@@ -5,6 +5,8 @@ import '../../../core/models/character_feature.dart';
 import '../../../core/models/class_data.dart';
 import '../../../core/models/spell.dart';
 import '../../../core/constants/ranger_options.dart';
+import '../../../ui/widgets/expressive_choice_selector.dart';
+import '../../../core/utils/localization_helper.dart';
 import '../../../core/services/feature_service.dart';
 import '../../../core/services/spell_service.dart';
 
@@ -177,15 +179,6 @@ class _FeaturesStepState extends State<FeaturesStep> {
     }
   }
 
-  static const Map<String, String> _styleIdMap = {
-    'archery': 'fighting-style-archery',
-    'defense': 'fighting-style-defense',
-    'dueling': 'fighting-style-dueling',
-    'great_weapon': 'fighting-style-great-weapon-fighting',
-    'protection': 'fighting-style-protection',
-    'two_weapon': 'fighting-style-two-weapon-fighting',
-  };
-
   static const Map<String, List<String>> _classStyles = {
     'fighter': [
       'archery',
@@ -202,27 +195,17 @@ class _FeaturesStepState extends State<FeaturesStep> {
   List<Map<String, String>> _getFightingStyles(BuildContext context) {
     final classId = widget.classData.id.toLowerCase();
     final availableIds = _classStyles[classId] ?? _classStyles['fighter']!;
-    final locale = Localizations.localeOf(context).languageCode;
+    final l10n = AppLocalizations.of(context)!;
     final List<Map<String, String>> result = [];
 
     for (var styleId in availableIds) {
-      final featureId = _styleIdMap[styleId];
-      if (featureId != null) {
-        final feature = FeatureService.getFeatureById(featureId);
-        if (feature != null) {
-          result.add({
-            'id': styleId,
-            'name': feature.getName(locale),
-            'desc': feature.getDescription(locale),
-          });
-        } else {
-          result.add({
-            'id': styleId,
-            'name': styleId.toUpperCase(),
-            'desc': 'Description not found'
-          });
-        }
-      }
+      final localized =
+          LocalizationHelper.getLocalizedFightingStyle(styleId, l10n);
+      result.add({
+        'id': styleId,
+        'name': localized.name,
+        'desc': localized.description,
+      });
     }
     return result;
   }
@@ -1117,41 +1100,24 @@ class _FeaturesStepState extends State<FeaturesStep> {
       children: [
         _buildFeatureCard(context, feature),
         const SizedBox(height: 8),
-        Padding(
-            padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-            child: Text(l10n.choose,
-                style: const TextStyle(fontWeight: FontWeight.bold))),
-        Card(
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: DropdownButtonFormField<String>(
-              isExpanded: true,
-              decoration: InputDecoration(
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-              value: _selections['favored_enemy'],
-              items: availableEnemies.map((entry) {
-                final name =
-                    locale == 'ru' ? entry.value['ru']! : entry.value['en']!;
-                return DropdownMenuItem(
-                  value: entry.key,
-                  child: Text(name),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _selections['favored_enemy'] = value;
-                    widget.onOptionSelected('favored_enemy', value);
-                  });
-                }
-              },
-            ),
-          ),
+        ExpressiveChoiceSelector<String>(
+          value: _selections['favored_enemy'],
+          items: availableEnemies.map((e) => e.key).toList(),
+          placeholder: l10n.choose,
+          title: feature.getName(locale),
+          labelBuilder: (key) {
+            return locale == 'ru'
+                ? RangerOptions.favoredEnemies[key]!['ru']!
+                : RangerOptions.favoredEnemies[key]!['en']!;
+          },
+          onChanged: (value) {
+            if (value != null) {
+              setState(() {
+                _selections['favored_enemy'] = value;
+                widget.onOptionSelected('favored_enemy', value);
+              });
+            }
+          },
         ),
       ],
     );
@@ -1179,41 +1145,24 @@ class _FeaturesStepState extends State<FeaturesStep> {
       children: [
         _buildFeatureCard(context, feature),
         const SizedBox(height: 8),
-        Padding(
-            padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-            child: Text(l10n.choose,
-                style: const TextStyle(fontWeight: FontWeight.bold))),
-        Card(
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: DropdownButtonFormField<String>(
-              isExpanded: true,
-              decoration: InputDecoration(
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-              value: _selections['natural_explorer'],
-              items: availableTerrains.map((entry) {
-                final name =
-                    locale == 'ru' ? entry.value['ru']! : entry.value['en']!;
-                return DropdownMenuItem(
-                  value: entry.key,
-                  child: Text(name),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _selections['natural_explorer'] = value;
-                    widget.onOptionSelected('natural_explorer', value);
-                  });
-                }
-              },
-            ),
-          ),
+        ExpressiveChoiceSelector<String>(
+          value: _selections['natural_explorer'],
+          items: availableTerrains.map((e) => e.key).toList(),
+          placeholder: l10n.choose,
+          title: feature.getName(locale),
+          labelBuilder: (key) {
+            return locale == 'ru'
+                ? RangerOptions.naturalExplorers[key]!['ru']!
+                : RangerOptions.naturalExplorers[key]!['en']!;
+          },
+          onChanged: (value) {
+            if (value != null) {
+              setState(() {
+                _selections['natural_explorer'] = value;
+                widget.onOptionSelected('natural_explorer', value);
+              });
+            }
+          },
         ),
       ],
     );

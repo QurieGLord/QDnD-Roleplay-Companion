@@ -2504,6 +2504,48 @@ class AppLocalizationsEn extends AppLocalizations {
       'A gold coin fell from your pocket with a loud ring.';
 
   @override
+  String get fs_archery_name => 'Archery';
+
+  @override
+  String get fs_archery_desc =>
+      'You gain a +2 bonus to attack rolls you make with ranged weapons.';
+
+  @override
+  String get fs_defense_name => 'Defense';
+
+  @override
+  String get fs_defense_desc =>
+      'While you are wearing armor, you gain a +1 bonus to AC.';
+
+  @override
+  String get fs_dueling_name => 'Dueling';
+
+  @override
+  String get fs_dueling_desc =>
+      'When you are wielding a melee weapon in one hand and no other weapons, you gain a +2 bonus to damage rolls with that weapon.';
+
+  @override
+  String get fs_great_weapon_name => 'Great Weapon Fighting';
+
+  @override
+  String get fs_great_weapon_desc =>
+      'When you roll a 1 or 2 on a damage die for an attack you make with a melee weapon that you are wielding with two hands, you can reroll the die...';
+
+  @override
+  String get fs_protection_name => 'Protection';
+
+  @override
+  String get fs_protection_desc =>
+      'When a creature you can see attacks a target other than you that is within 5 feet of you, you can use your reaction to impose disadvantage...';
+
+  @override
+  String get fs_two_weapon_name => 'Two-Weapon Fighting';
+
+  @override
+  String get fs_two_weapon_desc =>
+      'When you engage in two-weapon fighting, you can add your ability modifier to the damage of the second attack.';
+
+  @override
   String get stealthFail3 => 'You sneezed loudly.';
 
   @override
