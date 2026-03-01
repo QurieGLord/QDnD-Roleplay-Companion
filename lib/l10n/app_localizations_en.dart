@@ -2546,6 +2546,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'When you engage in two-weapon fighting, you can add your ability modifier to the damage of the second attack.';
 
   @override
+  String get empty_roster_title => 'The tavern is empty';
+
+  @override
+  String get empty_roster_subtitle =>
+      'Create your first hero to begin the adventure!';
+
+  @override
+  String get create_first_character_btn => 'Create Character';
+
+  @override
   String get stealthFail3 => 'You sneezed loudly.';
 
   @override

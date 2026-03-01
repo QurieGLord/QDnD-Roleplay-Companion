@@ -28,8 +28,6 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   @override
   void initState() {
     super.initState();
-    // Load example character on first run
-    ImportService.loadExampleCharacterIfNeeded();
   }
 
   @override

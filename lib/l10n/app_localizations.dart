@@ -4838,6 +4838,24 @@ abstract class AppLocalizations {
   /// **'When you engage in two-weapon fighting, you can add your ability modifier to the damage of the second attack.'**
   String get fs_two_weapon_desc;
 
+  /// No description provided for @empty_roster_title.
+  ///
+  /// In en, this message translates to:
+  /// **'The tavern is empty'**
+  String get empty_roster_title;
+
+  /// No description provided for @empty_roster_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first hero to begin the adventure!'**
+  String get empty_roster_subtitle;
+
+  /// No description provided for @create_first_character_btn.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Character'**
+  String get create_first_character_btn;
+
   /// No description provided for @stealthFail3.
   ///
   /// In en, this message translates to:
