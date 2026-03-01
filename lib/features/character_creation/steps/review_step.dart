@@ -151,13 +151,13 @@ class _ReviewStepState extends State<ReviewStep> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color:
-                          theme.colorScheme.onPrimaryContainer.withOpacity(0.2),
+                      color: theme.colorScheme.onPrimaryContainer
+                          .withValues(alpha: 0.2),
                       width: 4,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: theme.colorScheme.primary.withOpacity(0.2),
+                        color: theme.colorScheme.primary.withValues(alpha: 0.2),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),
@@ -233,7 +233,8 @@ class _ReviewStepState extends State<ReviewStep> {
               Text(
                 state.selectedBackground!.getName(locale),
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onPrimaryContainer.withOpacity(0.8),
+                  color: theme.colorScheme.onPrimaryContainer
+                      .withValues(alpha: 0.8),
                   fontStyle: FontStyle.italic,
                 ),
                 textAlign: TextAlign.center,
@@ -251,10 +252,10 @@ class _ReviewStepState extends State<ReviewStep> {
       height: 140,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: theme.colorScheme.primary.withOpacity(0.1),
+        color: theme.colorScheme.primary.withValues(alpha: 0.1),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.primary.withOpacity(0.2),
+            color: theme.colorScheme.primary.withValues(alpha: 0.2),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -278,18 +279,24 @@ class _ReviewStepState extends State<ReviewStep> {
       AppLocalizations l10n) {
     final Map<String, String> attributes = {};
     if (state.age?.isNotEmpty == true) attributes[l10n.age] = state.age!;
-    if (state.gender?.isNotEmpty == true)
+    if (state.gender?.isNotEmpty == true) {
       attributes[l10n.gender] = _localizeAppearance(state.gender, locale);
-    if (state.height?.isNotEmpty == true)
+    }
+    if (state.height?.isNotEmpty == true) {
       attributes[l10n.height] = state.height!;
-    if (state.weight?.isNotEmpty == true)
+    }
+    if (state.weight?.isNotEmpty == true) {
       attributes[l10n.weight] = state.weight!;
-    if (state.eyes?.isNotEmpty == true)
+    }
+    if (state.eyes?.isNotEmpty == true) {
       attributes[l10n.eyes] = _localizeAppearance(state.eyes, locale);
-    if (state.hair?.isNotEmpty == true)
+    }
+    if (state.hair?.isNotEmpty == true) {
       attributes[l10n.hair] = _localizeAppearance(state.hair, locale);
-    if (state.skin?.isNotEmpty == true)
+    }
+    if (state.skin?.isNotEmpty == true) {
       attributes[l10n.skin] = _localizeAppearance(state.skin, locale);
+    }
 
     if (attributes.isEmpty) return const SizedBox.shrink();
 
@@ -327,7 +334,8 @@ class _ReviewStepState extends State<ReviewStep> {
                     color: theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                        color: theme.colorScheme.outline.withOpacity(0.2)),
+                        color:
+                            theme.colorScheme.outline.withValues(alpha: 0.2)),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -338,7 +346,7 @@ class _ReviewStepState extends State<ReviewStep> {
                         entry.key,
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant
-                              .withOpacity(0.8),
+                              .withValues(alpha: 0.8),
                           fontWeight: FontWeight.bold,
                         ),
                         textAlign: TextAlign.center,
@@ -385,7 +393,8 @@ class _ReviewStepState extends State<ReviewStep> {
       color: theme.colorScheme.surfaceContainer,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.2)),
+        side:
+            BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -501,8 +510,9 @@ class _ReviewStepState extends State<ReviewStep> {
 
   Widget _buildCombatStats(BuildContext context, CharacterCreationState state,
       ThemeData theme, AppLocalizations l10n) {
-    if (state.selectedClass == null || state.selectedRace == null)
+    if (state.selectedClass == null || state.selectedRace == null) {
       return const SizedBox.shrink();
+    }
 
     final conMod = (state.abilityScores['constitution']! ~/ 2) - 5;
     final maxHp = state.hpSelectionMethod == 'roll' && state.rolledHp != null
@@ -582,13 +592,14 @@ class _ReviewStepState extends State<ReviewStep> {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.1)),
+        border:
+            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
           Icon(icon,
               color: isAccent
-                  ? textColor.withOpacity(0.9)
+                  ? textColor.withValues(alpha: 0.9)
                   : theme.colorScheme.primary,
               size: 24),
           const SizedBox(height: 8),
@@ -605,7 +616,7 @@ class _ReviewStepState extends State<ReviewStep> {
             style: theme.textTheme.labelSmall?.copyWith(
               fontWeight: FontWeight.bold,
               color: isAccent
-                  ? textColor.withOpacity(0.8)
+                  ? textColor.withValues(alpha: 0.8)
                   : theme.colorScheme.onSurfaceVariant,
             ),
             maxLines: 1,
@@ -657,7 +668,8 @@ class _ReviewStepState extends State<ReviewStep> {
               color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                  color: theme.colorScheme.outline.withOpacity(0.2), width: 1),
+                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                  width: 1),
             ),
             child: Stack(
               children: [
@@ -667,7 +679,8 @@ class _ReviewStepState extends State<ReviewStep> {
                     padding: const EdgeInsets.all(8.0),
                     child: Icon(icon,
                         size: 14,
-                        color: theme.colorScheme.primary.withOpacity(0.5)),
+                        color:
+                            theme.colorScheme.primary.withValues(alpha: 0.5)),
                   ),
                 ),
                 if (racialBonus > 0)
@@ -731,8 +744,8 @@ class _ReviewStepState extends State<ReviewStep> {
                       abbr,
                       style: theme.textTheme.labelSmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color:
-                            theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+                        color: theme.colorScheme.onSurfaceVariant
+                            .withValues(alpha: 0.8),
                         letterSpacing: 1.0,
                       ),
                     ),
@@ -775,8 +788,8 @@ class _ReviewStepState extends State<ReviewStep> {
                     ? theme.colorScheme.onTertiaryContainer
                     : theme.colorScheme.onSurfaceVariant,
               ),
-              side:
-                  BorderSide(color: theme.colorScheme.outline.withOpacity(0.2)),
+              side: BorderSide(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.2)),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
               avatar: isExpertise
@@ -876,7 +889,7 @@ class _ReviewStepState extends State<ReviewStep> {
                             : (locale == 'ru'
                                 ? 'Показать все (${spells.length})'
                                 : 'Show all (${spells.length})'),
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       style: TextButton.styleFrom(
                         foregroundColor: theme.colorScheme.primary,
@@ -924,7 +937,8 @@ class _ReviewStepState extends State<ReviewStep> {
       color: theme.colorScheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
+        side:
+            BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
@@ -968,7 +982,8 @@ class _ReviewStepState extends State<ReviewStep> {
       color: theme.colorScheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.1)),
+        side:
+            BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(

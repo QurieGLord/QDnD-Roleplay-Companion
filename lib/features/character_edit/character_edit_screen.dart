@@ -221,7 +221,7 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                                         size: 60,
                                         color: theme
                                             .colorScheme.onSurfaceVariant
-                                            .withOpacity(0.5),
+                                            .withValues(alpha: 0.5),
                                       );
                                     },
                                   ),
@@ -230,7 +230,7 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                                   Icons.person,
                                   size: 60,
                                   color: theme.colorScheme.onSurfaceVariant
-                                      .withOpacity(0.5),
+                                      .withValues(alpha: 0.5),
                                 ),
                         ),
                       ),
@@ -250,7 +250,7 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: theme.colorScheme.primary.withOpacity(0.3),
+                              color: theme.colorScheme.primary.withValues(alpha: 0.3),
                               blurRadius: 8,
                               spreadRadius: 1,
                             ),
@@ -279,7 +279,7 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                 border: const OutlineInputBorder(),
                 filled: true,
                 fillColor:
-                    theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                    theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 prefixIcon: const Icon(Icons.person_outline),
               ),
               style: theme.textTheme.titleMedium,

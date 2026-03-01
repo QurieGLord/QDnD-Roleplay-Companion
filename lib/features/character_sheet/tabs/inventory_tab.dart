@@ -432,51 +432,18 @@ class _InventoryTabState extends State<InventoryTab> {
       widget.character.inventory.add(newItem);
       widget.character.updatedAt = DateTime.now();
       await widget.character.save();
+
+      if (!context.mounted) return;
       setState(() {});
 
-      if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
-        final locale = Localizations.localeOf(context).languageCode;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  l10n.itemAdded(newItem.getName(locale), newItem.quantity))),
-        );
-      }
+      final l10n = AppLocalizations.of(context)!;
+      final locale = Localizations.localeOf(context).languageCode;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                l10n.itemAdded(newItem.getName(locale), newItem.quantity))),
+      );
     }
-  }
-
-  Widget _buildEmptyState(AppLocalizations l10n) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.inventory_2_outlined,
-              size: 80,
-              color: Theme.of(context).colorScheme.outlineVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.inventoryEmpty,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.inventoryEmptyHint,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildItemCard(
@@ -596,7 +563,7 @@ class _InventoryTabState extends State<InventoryTab> {
                                 horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: theme.colorScheme.secondaryContainer
-                                  .withOpacity(0.5),
+                                  .withValues(alpha: 0.5),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -684,6 +651,7 @@ class _InventoryTabState extends State<InventoryTab> {
     widget.character.updatedAt = DateTime.now();
     await widget.character.save();
 
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -705,23 +673,23 @@ class _InventoryTabState extends State<InventoryTab> {
     widget.character.updatedAt = DateTime.now();
     await widget.character.save();
 
+    if (!mounted) return;
+
     // Update UI
     setState(() {});
 
     // Show feedback
-    if (mounted) {
-      final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            widget.character.inventory[index].isEquipped
-                ? l10n.itemEquipped
-                : l10n.itemUnequipped,
-          ),
-          duration: const Duration(seconds: 1),
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          widget.character.inventory[index].isEquipped
+              ? l10n.itemEquipped
+              : l10n.itemUnequipped,
         ),
-      );
-    }
+        duration: const Duration(seconds: 1),
+      ),
+    );
   }
 
   void _removeItem(Item item) async {
@@ -732,19 +700,19 @@ class _InventoryTabState extends State<InventoryTab> {
     widget.character.updatedAt = DateTime.now();
     await widget.character.save();
 
+    if (!mounted) return;
+
     // Update UI
     setState(() {});
 
     // Show feedback
-    if (mounted) {
-      final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.itemRemoved),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.itemRemoved),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   void _changeQuantity(Item item, int delta) async {
@@ -766,19 +734,24 @@ class _InventoryTabState extends State<InventoryTab> {
     widget.character.updatedAt = DateTime.now();
     await widget.character.save();
 
+    if (!mounted) return;
+
     // Update UI
     setState(() {});
   }
 
   Widget _buildCurrencyChip(ThemeData theme, String label, int amount,
       Color bgColor, Color textColor) {
+    final isHC = theme.dividerTheme.thickness == 2;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: theme.colorScheme.outlineVariant,
+          color: isHC
+              ? theme.colorScheme.primary
+              : theme.colorScheme.outlineVariant,
           width: 1,
         ),
       ),
@@ -890,23 +863,21 @@ class _InventoryTabState extends State<InventoryTab> {
               widget.character.updatedAt = DateTime.now();
               await widget.character.save();
 
+              if (!context.mounted) return;
+
               // Close dialog
-              if (context.mounted) {
-                Navigator.pop(context);
-              }
+              Navigator.pop(context);
 
               // Update UI
               setState(() {});
 
               // Show feedback
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(l10n.currencyUpdated),
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
-              }
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(l10n.currencyUpdated),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
             },
             child: Text(l10n.save),
           ),

@@ -57,10 +57,10 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
   Widget _buildWarlockPactMagic(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    
+
     // STRICT FIX: Use SpellSlotsTable directly instead of character array
     final pactSlots = SpellSlotsTable.getPactSlots(widget.character.level);
-    
+
     int pactSlotLevel = 0;
     int maxPactSlots = 0;
 
@@ -74,10 +74,11 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
 
     // Safe access to current slots
     int currentPactSlots = 0;
-    if (pactSlotLevel > 0 && pactSlotLevel <= widget.character.spellSlots.length) {
-       currentPactSlots = widget.character.spellSlots[pactSlotLevel - 1];
+    if (pactSlotLevel > 0 &&
+        pactSlotLevel <= widget.character.spellSlots.length) {
+      currentPactSlots = widget.character.spellSlots[pactSlotLevel - 1];
     } else {
-       currentPactSlots = maxPactSlots; 
+      currentPactSlots = maxPactSlots;
     }
 
     const warlockColor = Colors.deepPurple;
@@ -94,8 +95,9 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    (l10n.localeName == 'ru' ? "МАГИЯ ДОГОВОРА" : "PACT MAGIC").toUpperCase(),
-                    style: TextStyle(
+                    (l10n.localeName == 'ru' ? "МАГИЯ ДОГОВОРА" : "PACT MAGIC")
+                        .toUpperCase(),
+                    style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.0,
@@ -130,7 +132,7 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
                 ],
               ),
             ),
-            
+
             // Short Rest Button (Compact)
             TextButton.icon(
               onPressed: () => _performShortRest(context, l10n),
@@ -138,17 +140,18 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
               label: Text((l10n.localeName == 'ru' ? "Отдых" : "Short Rest")),
               style: TextButton.styleFrom(
                 foregroundColor: warlockColor,
-                backgroundColor: warlockColor.withOpacity(0.1),
+                backgroundColor: warlockColor.withValues(alpha: 0.1),
               ),
             ),
           ],
         ),
-        
+
         const SizedBox(height: 16),
 
         // Slots Row (Smaller, Elegant)
         Row(
-          mainAxisAlignment: MainAxisAlignment.start, // Align left or center? Center is better for limited count.
+          mainAxisAlignment: MainAxisAlignment
+              .start, // Align left or center? Center is better for limited count.
           children: List.generate(maxPactSlots, (index) {
             final isAvailable = index < currentPactSlots;
             return Padding(
@@ -187,18 +190,18 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
         width: 48,
         height: 48,
         decoration: BoxDecoration(
-          color: isAvailable
-              ? warlockColor
-              : Colors.transparent,
+          color: isAvailable ? warlockColor : Colors.transparent,
           shape: BoxShape.circle,
           border: Border.all(
-            color: isAvailable ? warlockColor : colorScheme.outline.withOpacity(0.5),
+            color: isAvailable
+                ? warlockColor
+                : colorScheme.outline.withValues(alpha: 0.5),
             width: 2,
           ),
           boxShadow: isAvailable
               ? [
                   BoxShadow(
-                    color: warlockColor.withOpacity(0.4),
+                    color: warlockColor.withValues(alpha: 0.4),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   )
@@ -209,7 +212,9 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
           child: Icon(
             Icons.bolt,
             size: 24,
-            color: isAvailable ? Colors.white : colorScheme.onSurfaceVariant.withOpacity(0.3),
+            color: isAvailable
+                ? Colors.white
+                : colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
           ),
         ),
       ),
@@ -219,7 +224,7 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
   Widget _buildMysticArcanumSection(
       BuildContext context, AppLocalizations l10n, Color warlockColor) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     // Define Arcanum levels
     final levels = <int>[];
     if (widget.character.level >= 11) levels.add(6);
@@ -237,7 +242,9 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
             Icon(Icons.auto_fix_high, size: 16, color: colorScheme.secondary),
             const SizedBox(width: 8),
             Text(
-              (l10n.localeName == 'ru' ? "ТАИНСТВЕННЫЙ АРКАНУМ" : "MYSTIC ARCANUM")
+              (l10n.localeName == 'ru'
+                      ? "ТАИНСТВЕННЫЙ АРКАНУМ"
+                      : "MYSTIC ARCANUM")
                   .toUpperCase(),
               style: TextStyle(
                 fontSize: 10,
@@ -256,51 +263,45 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
             // Find or Create Feature for this level
             // We use a consistent ID format so we can find it again.
             final arcanumId = 'mystic_arcanum_${level}th';
-            var feature = widget.character.features.firstWhere(
-              (f) => f.id == arcanumId,
-              orElse: () {
-                // If not found, look for generic ones or create new
-                return widget.character.features.firstWhere(
-                  (f) => (f.nameEn ?? '').contains('Mystic Arcanum') && 
-                         (f.nameEn ?? '').contains('${level}th'),
-                  orElse: () {
-                     // Create a transient feature if missing from data
-                     // In a real app, we might want to add this to the character properly,
-                     // but here we just need it for state tracking.
-                     // BETTER: Add it to character if missing so state persists!
-                     final newFeature = CharacterFeature(
-                       id: arcanumId,
-                       nameEn: 'Mystic Arcanum ($level${_getOrdinal(level)} level)',
-                       nameRu: 'Таинственный Арканум ($level круг)',
-                       descriptionEn: 'Cast a $level-level spell once without a slot.',
-                       descriptionRu: 'Заклинание $level-го уровня без ячейки.',
-                       type: FeatureType.resourcePool,
-                       minLevel: (level - 1) * 2 + 1, // approx
-                       resourcePool: ResourcePool(
-                         currentUses: 1, 
-                         maxUses: 1, 
-                         recoveryType: RecoveryType.longRest
-                       ), 
-                     );
-                     // We can't easily add to the list during build.
-                     // We will use a "virtual" feature logic or rely on existing ones.
-                     // The prompt implies "UI is dead", meaning features might exist but not work.
-                     // Let's assume for safety we return this unattached feature 
-                     // and handle state by finding it again in the list or adding it.
-                     return newFeature;
-                  }
+            var feature = widget.character.features
+                .firstWhere((f) => f.id == arcanumId, orElse: () {
+              // If not found, look for generic ones or create new
+              return widget.character.features.firstWhere(
+                  (f) =>
+                      (f.nameEn).contains('Mystic Arcanum') &&
+                      (f.nameEn).contains('${level}th'), orElse: () {
+                // Create a transient feature if missing from data
+                // In a real app, we might want to add this to the character properly,
+                // but here we just need it for state tracking.
+                // BETTER: Add it to character if missing so state persists!
+                final newFeature = CharacterFeature(
+                  id: arcanumId,
+                  nameEn: 'Mystic Arcanum ($level${_getOrdinal(level)} level)',
+                  nameRu: 'Таинственный Арканум ($level круг)',
+                  descriptionEn:
+                      'Cast a $level-level spell once without a slot.',
+                  descriptionRu: 'Заклинание $level-го уровня без ячейки.',
+                  type: FeatureType.resourcePool,
+                  minLevel: (level - 1) * 2 + 1, // approx
+                  resourcePool: ResourcePool(
+                      currentUses: 1,
+                      maxUses: 1,
+                      recoveryType: RecoveryType.longRest),
                 );
-              }
-            );
+                // We can't easily add to the list during build.
+                // We will use a "virtual" feature logic or rely on existing ones.
+                // The prompt implies "UI is dead", meaning features might exist but not work.
+                // Let's assume for safety we return this unattached feature
+                // and handle state by finding it again in the list or adding it.
+                return newFeature;
+              });
+            });
 
             // Ensure Resource Pool exists
-            if (feature.resourcePool == null) {
-              feature.resourcePool = ResourcePool(
-                currentUses: 1, 
-                maxUses: 1, 
-                recoveryType: RecoveryType.longRest
-              );
-            }
+            feature.resourcePool ??= ResourcePool(
+                currentUses: 1,
+                maxUses: 1,
+                recoveryType: RecoveryType.longRest);
 
             final pool = feature.resourcePool!;
             final isAvailable = pool.currentUses > 0;
@@ -311,32 +312,33 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
                 setState(() {
                   // Toggle state for UI feeling
                   if (isAvailable) {
-                     pool.currentUses = 0;
+                    pool.currentUses = 0;
                   } else {
-                     pool.currentUses = 1;
+                    pool.currentUses = 1;
                   }
-                  
+
                   // Ensure feature is in character list if it was generated
                   if (!widget.character.features.contains(feature)) {
                     widget.character.features.add(feature);
                   }
-                  
+
                   widget.character.save();
                   widget.onChanged();
                 });
               },
               onLongPress: () {
-                 // Reset
-                 setState(() {
-                   pool.currentUses = 1;
-                   if (!widget.character.features.contains(feature)) {
+                // Reset
+                setState(() {
+                  pool.currentUses = 1;
+                  if (!widget.character.features.contains(feature)) {
                     widget.character.features.add(feature);
-                   }
-                   widget.character.save();
-                   widget.onChanged();
-                 });
+                  }
+                  widget.character.save();
+                  widget.onChanged();
+                });
               },
-              child: _buildArcanumNode(context, level, isAvailable, warlockColor),
+              child:
+                  _buildArcanumNode(context, level, isAvailable, warlockColor),
             );
           }).toList(),
         ),
@@ -351,46 +353,6 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
     return 'th';
   }
 
-  void _showArcanumCastDialog(BuildContext context, CharacterFeature feature, int level, Color color, AppLocalizations l10n) {
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(l10n.localeName == 'ru' ? "Использовать Арканум?" : "Use Arcanum?"),
-          content: Text(l10n.localeName == 'ru' 
-             ? "Вы можете использовать это заклинание $level-го уровня один раз без траты ячейки." 
-             : "You can cast this $level-th level spell once without expending a spell slot."),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.cancel)),
-            FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: color),
-              onPressed: () {
-                setState(() {
-                  feature.resourcePool?.use(1);
-                  widget.character.save();
-                  widget.onChanged();
-                });
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.localeName == 'ru' ? "Арканум использован!" : "Arcanum used!")));
-              }, 
-              child: Text(l10n.castSpell)
-            ),
-          ],
-        ),
-      );
-  }
-
-  void _showArcanumDetails(BuildContext context, CharacterFeature feature) {
-      // Simple details for now, as linking to specific spell ID is hard without more data
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(feature.getName(Localizations.localeOf(context).languageCode)),
-          content: Text(feature.getDescription(Localizations.localeOf(context).languageCode)),
-          actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("OK"))],
-        ),
-      );
-  }
-
   Widget _buildArcanumNode(
       BuildContext context, int level, bool isAvailable, Color warlockColor) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -403,15 +365,23 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
           width: 56,
           height: 56,
           decoration: BoxDecoration(
-            color: isAvailable ? warlockColor : colorScheme.surfaceContainerHighest.withOpacity(0.3),
+            color: isAvailable
+                ? warlockColor
+                : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
             shape: BoxShape.circle,
             border: Border.all(
-              color: isAvailable ? warlockColor : colorScheme.outline.withOpacity(0.3),
+              color: isAvailable
+                  ? warlockColor
+                  : colorScheme.outline.withValues(alpha: 0.3),
               width: 2,
             ),
-            boxShadow: isAvailable 
-              ? [BoxShadow(color: warlockColor.withOpacity(0.3), blurRadius: 10)] 
-              : [],
+            boxShadow: isAvailable
+                ? [
+                    BoxShadow(
+                        color: warlockColor.withValues(alpha: 0.3),
+                        blurRadius: 10)
+                  ]
+                : [],
           ),
           child: Center(
             child: Text(
@@ -419,7 +389,9 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
-                color: isAvailable ? Colors.white : colorScheme.onSurfaceVariant.withOpacity(0.5),
+                color: isAvailable
+                    ? Colors.white
+                    : colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -441,7 +413,7 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
     HapticFeedback.heavyImpact();
     setState(() {
       widget.character.shortRest();
-      // Logic inside Character model should handle slots now, 
+      // Logic inside Character model should handle slots now,
       // but we force a state refresh here.
       widget.character.save();
       widget.onChanged();
@@ -528,7 +500,7 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
                               ? [
                                   BoxShadow(
                                     color: colorScheme.primary
-                                        .withOpacity(0.3),
+                                        .withValues(alpha: 0.3),
                                     blurRadius: 4,
                                     offset: const Offset(0, 2),
                                   )
@@ -540,7 +512,8 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
                           size: 20,
                           color: isAvailable
                               ? colorScheme.onPrimary
-                              : colorScheme.onSurfaceVariant.withOpacity(0.5),
+                              : colorScheme.onSurfaceVariant
+                                  .withValues(alpha: 0.5),
                         ),
                       ),
                     );
@@ -599,10 +572,11 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
               color: isEmpty ? colorScheme.error : null,
             ),
           ),
-          backgroundColor:
-              isEmpty ? colorScheme.errorContainer.withOpacity(0.2) : null,
+          backgroundColor: isEmpty
+              ? colorScheme.errorContainer.withValues(alpha: 0.2)
+              : null,
           side: isEmpty
-              ? BorderSide(color: colorScheme.error.withOpacity(0.5))
+              ? BorderSide(color: colorScheme.error.withValues(alpha: 0.5))
               : null,
           onPressed: () {
             // Tap to Use

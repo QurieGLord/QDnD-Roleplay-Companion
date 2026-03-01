@@ -253,15 +253,18 @@ class OverviewTab extends StatelessWidget {
       IconData icon, Color color,
       {VoidCallback? onTap}) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isHC = Theme.of(context).dividerTheme.thickness == 2;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(
+              color: isHC ? color : color.withValues(alpha: 0.3),
+              width: isHC ? 2 : 1),
         ),
         child: Column(
           children: [
@@ -287,7 +290,6 @@ class OverviewTab extends StatelessWidget {
     final weapons = character.inventory
         .where((i) => i.isEquipped && i.type == ItemType.weapon)
         .toList();
-    final colorScheme = Theme.of(context).colorScheme;
     final locale = Localizations.localeOf(context).languageCode;
 
     if (weapons.isEmpty) {
@@ -330,13 +332,19 @@ class OverviewTab extends StatelessWidget {
       {IconData icon = Icons.sports_martial_arts}) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final isHC = Theme.of(context).dividerTheme.thickness == 2;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       surfaceTintColor: colorScheme.surfaceTint,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: isHC
+            ? BorderSide(color: colorScheme.primary, width: 2)
+            : BorderSide.none,
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -346,7 +354,8 @@ class OverviewTab extends StatelessWidget {
             Row(
               children: [
                 Icon(icon,
-                    size: 18, color: colorScheme.primary.withOpacity(0.7)),
+                    size: 18,
+                    color: colorScheme.primary.withValues(alpha: 0.7)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -400,7 +409,7 @@ class OverviewTab extends StatelessWidget {
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: 1,
                                   color: colorScheme.onPrimaryContainer
-                                      .withOpacity(0.6)),
+                                      .withValues(alpha: 0.6)),
                             ),
                             const SizedBox(height: 2),
                             Text(
@@ -440,7 +449,7 @@ class OverviewTab extends StatelessWidget {
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: 1,
                                   color: colorScheme.onSecondaryContainer
-                                      .withOpacity(0.6)),
+                                      .withValues(alpha: 0.6)),
                             ),
                             const SizedBox(height: 2),
                             Text(

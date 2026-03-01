@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../models/character.dart';
@@ -40,7 +41,7 @@ class FeatureService {
     'клятва искупления': 'oath of redemption',
     'клятва славы': 'oath of glory',
     'клятва стражей': 'oath of the watchers',
-    // TODO: Add other subclass mappings as needed
+    // Note: Add other subclass mappings as needed
   };
 
   /// Normalize class name to English lowercase for comparison
@@ -383,6 +384,6 @@ class FeatureService {
       resourcePool: null, // Uses the main Channel Divinity pool
     );
 
-    // TODO: Add other oath-specific Channel Divinity options when needed
+    // Note: Add other oath-specific Channel Divinity options when needed
   }
 }

@@ -1847,11 +1847,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String noSpellsFoundForClass(String className) {
-    return 'No spells found for $className';
+    return 'Заклинания для класса $className не найдены';
   }
 
   @override
-  String get level1Spells => 'Level 1 Spells';
+  String get level1Spells => 'Заклинания 1-го круга';
 
   @override
   String get spellsStepPlaceholder =>

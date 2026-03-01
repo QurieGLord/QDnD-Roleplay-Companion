@@ -260,7 +260,7 @@ class _ThemePreviewCard extends StatelessWidget {
                           child: Container(
                             height: 8,
                             decoration: BoxDecoration(
-                              color: scheme.onSurface.withOpacity(0.2),
+                              color: scheme.onSurface.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),

@@ -171,21 +171,19 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       try {
         await _createCharacter();
 
-        if (mounted) {
-          Navigator.of(context).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.characterCreated)),
-          );
-        }
+        if (!context.mounted) return;
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.characterCreated)),
+        );
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.errorCreatingCharacter(e.toString())),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-          );
-        }
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.errorCreatingCharacter(e.toString())),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
       } finally {
         if (mounted) {
           setState(() {
@@ -305,8 +303,13 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
         initiative: dexMod,
         proficientSkills: _state.selectedSkills,
         expertSkills: _state.selectedExpertise.toList(),
-        favoredEnemies: _state.selectedFeatureOptions['favored_enemy'] != null ? [_state.selectedFeatureOptions['favored_enemy']!] : [],
-        naturalExplorers: _state.selectedFeatureOptions['natural_explorer'] != null ? [_state.selectedFeatureOptions['natural_explorer']!] : [],
+        favoredEnemies: _state.selectedFeatureOptions['favored_enemy'] != null
+            ? [_state.selectedFeatureOptions['favored_enemy']!]
+            : [],
+        naturalExplorers:
+            _state.selectedFeatureOptions['natural_explorer'] != null
+                ? [_state.selectedFeatureOptions['natural_explorer']!]
+                : [],
         savingThrowProficiencies:
             _state.selectedClass!.savingThrowProficiencies,
         knownSpells:
@@ -439,7 +442,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
           character.inventory.add(item);
         }
       } catch (e) {
-        print('Failed to add starting equipment item $itemId: $e');
+        debugPrint('Failed to add starting equipment item $itemId: $e');
       }
     }
 
@@ -462,7 +465,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
           }
         }
       } catch (e) {
-        print('Failed to add custom equipment item $itemId: $e');
+        debugPrint('Failed to add custom equipment item $itemId: $e');
       }
     }
 

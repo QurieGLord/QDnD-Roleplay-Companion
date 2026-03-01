@@ -18,14 +18,14 @@ class EmptyState extends StatelessWidget {
             Icon(
               Icons.person_add_outlined,
               size: 120,
-              color: colorScheme.primary.withOpacity(0.3),
+              color: colorScheme.primary.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 24),
             Text(
               l10n.empty_roster_title,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface.withOpacity(0.8),
+                    color: colorScheme.onSurface.withValues(alpha: 0.8),
                   ),
               textAlign: TextAlign.center,
             ),

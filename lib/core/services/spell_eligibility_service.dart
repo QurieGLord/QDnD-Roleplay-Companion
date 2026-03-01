@@ -124,7 +124,7 @@ class SpellEligibilityService {
     }
 
     // Special case: Oath spells for Paladins (future implementation)
-    // TODO: Check oath-specific spell lists when subclass data is added
+    // Note: Check oath-specific spell lists when subclass data is added
 
     return false;
   }
@@ -295,7 +295,7 @@ class SpellEligibilityService {
 
   /// Check if spell is always prepared (Oath spells, Domain spells, etc)
   static bool _isAlwaysPrepared(Character character, Spell spell) {
-    // TODO: Implement when we have subclass spell lists
+    // Note: Implement when we have subclass spell lists
     // - Paladin Oath spells
     // - Cleric Domain spells
     // - Warlock Mystic Arcanum

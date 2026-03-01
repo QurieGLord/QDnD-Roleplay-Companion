@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 import 'package:xml/xml.dart';
 import 'package:uuid/uuid.dart';
 import '../models/character.dart';
@@ -389,27 +390,29 @@ class FC5Parser {
       DamageType dmgType = DamageType.slashing;
       if (dmgTypeClean.contains('piercing')) {
         dmgType = DamageType.piercing;
-      } else if (dmgTypeClean.contains('bludgeoning'))
+      } else if (dmgTypeClean.contains('bludgeoning')) {
         dmgType = DamageType.bludgeoning;
-      else if (dmgTypeClean.contains('fire'))
+      } else if (dmgTypeClean.contains('fire')) {
         dmgType = DamageType.fire;
-      else if (dmgTypeClean.contains('cold'))
+      } else if (dmgTypeClean.contains('cold')) {
         dmgType = DamageType.cold;
-      else if (dmgTypeClean.contains('lightning'))
+      } else if (dmgTypeClean.contains('lightning')) {
         dmgType = DamageType.lightning;
-      else if (dmgTypeClean.contains('poison'))
+      } else if (dmgTypeClean.contains('poison')) {
         dmgType = DamageType.poison;
-      else if (dmgTypeClean.contains('acid'))
+      } else if (dmgTypeClean.contains('acid')) {
         dmgType = DamageType.acid;
-      else if (dmgTypeClean.contains('psychic'))
+      } else if (dmgTypeClean.contains('psychic')) {
         dmgType = DamageType.psychic;
-      else if (dmgTypeClean.contains('necrotic'))
+      } else if (dmgTypeClean.contains('necrotic')) {
         dmgType = DamageType.necrotic;
-      else if (dmgTypeClean.contains('radiant'))
+      } else if (dmgTypeClean.contains('radiant')) {
         dmgType = DamageType.radiant;
-      else if (dmgTypeClean.contains('thunder'))
+      } else if (dmgTypeClean.contains('thunder')) {
         dmgType = DamageType.thunder;
-      else if (dmgTypeClean.contains('force')) dmgType = DamageType.force;
+      } else if (dmgTypeClean.contains('force')) {
+        dmgType = DamageType.force;
+      }
 
       weaponProps = WeaponProperties(
         damageDice: dmg1,
@@ -474,7 +477,7 @@ class FC5Parser {
     final time = _getTag(node, 'time');
     final range = _getTag(node, 'range');
     final duration = _getTag(node, 'duration');
-    final durationRu = _getTag(node, 'duration_ru');
+    // durationRu parsed but not used in current Spell model
 
     // Parse classes: Handle bilingual split BEFORE parsing IDs to ensure we get clean English IDs
     final classesRaw = _getTag(node, 'classes');
@@ -490,18 +493,19 @@ class FC5Parser {
     // Simplified mapping or keep English as base
     if (schoolCode == 'c' || schoolCode.startsWith('conj')) {
       school = 'Conjuration';
-    } else if (schoolCode == 'd' || schoolCode.startsWith('div'))
+    } else if (schoolCode == 'd' || schoolCode.startsWith('div')) {
       school = 'Divination';
-    else if (schoolCode == 'en' || schoolCode.startsWith('ench'))
+    } else if (schoolCode == 'en' || schoolCode.startsWith('ench')) {
       school = 'Enchantment';
-    else if (schoolCode == 'ev' || schoolCode.startsWith('evoc'))
+    } else if (schoolCode == 'ev' || schoolCode.startsWith('evoc')) {
       school = 'Evocation';
-    else if (schoolCode == 'i' || schoolCode.startsWith('illu'))
+    } else if (schoolCode == 'i' || schoolCode.startsWith('illu')) {
       school = 'Illusion';
-    else if (schoolCode == 'n' || schoolCode.startsWith('necr'))
+    } else if (schoolCode == 'n' || schoolCode.startsWith('necr')) {
       school = 'Necromancy';
-    else if (schoolCode == 't' || schoolCode.startsWith('trans'))
+    } else if (schoolCode == 't' || schoolCode.startsWith('trans')) {
       school = 'Transmutation';
+    }
 
     List<String> components = [];
     if (componentsStr.contains('V')) components.add('V');

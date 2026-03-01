@@ -449,7 +449,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                 Text(
                   l10n.spellsCount(filteredSpells.length),
                   style: TextStyle(
-                    color: colorScheme.onSurface.withOpacity(0.6),
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -482,14 +482,14 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                       children: [
                         Icon(Icons.search_off,
                             size: 64,
-                            color: colorScheme.onSurface.withOpacity(0.3)),
+                            color: colorScheme.onSurface.withValues(alpha: 0.3)),
                         const SizedBox(height: 16),
                         Text(l10n.noSpellsFound,
                             style: Theme.of(context).textTheme.titleMedium),
                         const SizedBox(height: 8),
                         Text(l10n.tryAdjustingFilters,
                             style: TextStyle(
-                                color: colorScheme.onSurface.withOpacity(0.6))),
+                                color: colorScheme.onSurface.withValues(alpha: 0.6))),
                       ],
                     ),
                   )
@@ -532,7 +532,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                                   l10n.spellsCount(spells.length),
                                   style: TextStyle(
                                     color:
-                                        colorScheme.onSurface.withOpacity(0.6),
+                                        colorScheme.onSurface.withValues(alpha: 0.6),
                                     fontSize: 12,
                                   ),
                                 ),

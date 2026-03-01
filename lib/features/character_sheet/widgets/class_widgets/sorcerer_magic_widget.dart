@@ -102,7 +102,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
                   color: blockBg,
                   borderRadius: BorderRadius.circular(12),
                   border:
-                      Border.all(color: colorScheme.outline.withOpacity(0.3)),
+                      Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: _buildMetamagicBlock(baseMetamagic, metamagicOptions,
@@ -126,7 +126,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
         color: color,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-            color: Theme.of(context).colorScheme.outline.withOpacity(0.3)),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -141,9 +141,9 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
   Widget _buildAncestryBlock(_DragonData info, Color blockBg) {
     return Container(
       decoration: BoxDecoration(
-        color: info.color.withOpacity(0.15), // Легкий стихийный оттенок
+        color: info.color.withValues(alpha: 0.15), // Легкий стихийный оттенок
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: info.color.withOpacity(0.3)),
+        border: Border.all(color: info.color.withValues(alpha: 0.3)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(
@@ -162,7 +162,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
                   top: -15,
                   bottom: -15,
                   child: Icon(info.icon,
-                      size: 80, color: info.color.withOpacity(0.2)),
+                      size: 80, color: info.color.withValues(alpha: 0.2)),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,7 +269,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
                     ),
                   ),
                   Icon(Icons.edit_note,
-                      size: 18, color: colorScheme.outline.withOpacity(0.5)),
+                      size: 18, color: colorScheme.outline.withValues(alpha: 0.5)),
                 ],
               ),
 
@@ -414,7 +414,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
                     ),
                   ),
                   Icon(Icons.info_outline,
-                      size: 16, color: pillContentColor.withOpacity(0.5)),
+                      size: 16, color: pillContentColor.withValues(alpha: 0.5)),
                   const SizedBox(width: 8),
                   // Switch раскрытия
                   Transform.scale(
@@ -425,15 +425,16 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
                         HapticFeedback.lightImpact();
                         setState(() => _isMetamagicExpanded = val);
                       },
-                      activeColor: colorScheme.primary,
+                      activeThumbColor: colorScheme.primary,
                       activeTrackColor: colorScheme.primaryContainer,
                       inactiveThumbColor: colorScheme.onSurfaceVariant,
                       inactiveTrackColor: Colors.transparent,
                       // Чтобы свитч было видно на темном фоне
                       trackOutlineColor:
                           WidgetStateProperty.resolveWith((states) {
-                        if (states.contains(WidgetState.selected))
+                        if (states.contains(WidgetState.selected)) {
                           return Colors.transparent;
+                        }
                         return colorScheme.outline;
                       }),
                     ),
@@ -471,7 +472,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -899,11 +900,11 @@ class _ExchangeButton extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-              color: isEnabled ? color : color.withOpacity(0.5),
+              color: isEnabled ? color : color.withValues(alpha: 0.5),
               width: isEnabled ? 2 : 1),
           // Если режим поглощения (бежевый), заливаем полностью. Если трата (оранжевый) - прозрачный с бордером.
           color: isEnabled
-              ? (isCreateMode ? color.withOpacity(0.1) : color)
+              ? (isCreateMode ? color.withValues(alpha: 0.1) : color)
               : Colors.transparent,
         ),
         child: Column(
@@ -913,7 +914,7 @@ class _ExchangeButton extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: textColor.withOpacity(0.8))),
+                    color: textColor.withValues(alpha: 0.8))),
             const SizedBox(height: 2),
             Text(value,
                 style: TextStyle(

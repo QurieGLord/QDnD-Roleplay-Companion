@@ -244,7 +244,7 @@ class _DiceRollerModalState extends State<DiceRollerModal>
         color: theme.scaffoldBackgroundColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20)
+          BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 20)
         ],
       ),
       child: SafeArea(
@@ -295,7 +295,8 @@ class _DiceRollerModalState extends State<DiceRollerModal>
                           alignment: Alignment.center,
                           transform: Matrix4.identity()
                             ..rotateZ(rotation)
-                            ..scale(_scaleAnimation.value),
+                            ..scaleByDouble(_scaleAnimation.value,
+                                _scaleAnimation.value, 1.0, 1.0),
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
@@ -358,7 +359,8 @@ class _DiceRollerModalState extends State<DiceRollerModal>
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                color:
+                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(32)),
               ),

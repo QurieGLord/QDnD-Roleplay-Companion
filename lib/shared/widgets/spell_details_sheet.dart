@@ -77,7 +77,7 @@ class SpellDetailsSheet extends StatelessWidget {
                         Text(
                           '${SpellUtils.getLocalizedSchool(l10n, spell.school)}${spell.level == 0 ? ' • ${l10n.cantrips}' : ' • ${l10n.levelLabel(spell.level)}'}',
                           style: TextStyle(
-                              color: colorScheme.onSurface.withOpacity(0.7)),
+                              color: colorScheme.onSurface.withValues(alpha: 0.7)),
                         ),
                       ],
                     ),
@@ -153,7 +153,7 @@ class SpellDetailsSheet extends StatelessWidget {
                 '${l10n.classes}: ${spell.availableToClasses.map((c) => SpellUtils.getLocalizedClassName(context, c)).join(', ')}',
                 style: TextStyle(
                   fontStyle: FontStyle.italic,
-                  color: colorScheme.onSurface.withOpacity(0.7),
+                  color: colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
 
@@ -204,7 +204,7 @@ class SpellDetailsSheet extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.green.withOpacity(0.2),
+          color: Colors.green.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.green),
         ),
@@ -223,7 +223,7 @@ class SpellDetailsSheet extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.orange.withOpacity(0.2),
+          color: Colors.orange.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.orange),
         ),
@@ -244,7 +244,7 @@ class SpellDetailsSheet extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: colorScheme.errorContainer.withOpacity(0.5),
+          color: colorScheme.errorContainer.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: colorScheme.error),
         ),

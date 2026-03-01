@@ -40,9 +40,9 @@ class _WizardMagicWidgetState extends State<WizardMagicWidget> {
   bool get _hasArcaneRecovery {
     // 1. Feature check (Name or ID)
     final hasFeature = widget.character.features.any((f) {
-      final nameEn = (f.nameEn ?? '').toLowerCase();
-      final nameRu = (f.nameRu ?? '').toLowerCase();
-      final id = (f.id ?? '').toLowerCase().replaceAll('-', '_');
+      final nameEn = (f.nameEn).toLowerCase();
+      final nameRu = (f.nameRu).toLowerCase();
+      final id = (f.id).toLowerCase().replaceAll('-', '_');
       return nameEn.contains('arcane recovery') ||
           nameRu.contains('арканное восстановление') ||
           id.contains('arcane_recovery');
@@ -181,8 +181,9 @@ class _WizardMagicWidgetState extends State<WizardMagicWidget> {
                           final missing = max - current;
                           final selected = selectedSlots[level] ?? 0;
 
-                          if (missing <= 0 && selected == 0)
+                          if (missing <= 0 && selected == 0) {
                             return const SizedBox.shrink();
+                          }
 
                           // Check if adding one more of this level would exceed the cap
                           final canAdd = selected < missing &&
@@ -324,7 +325,7 @@ class _WizardMagicWidgetState extends State<WizardMagicWidget> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accentColor.withOpacity(0.3)),
+        border: Border.all(color: accentColor.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -465,7 +466,7 @@ class _WizardMagicWidgetState extends State<WizardMagicWidget> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [

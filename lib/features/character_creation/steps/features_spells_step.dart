@@ -309,7 +309,8 @@ class FeaturesSpellsStep extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.5)),
+            color:
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -371,8 +372,10 @@ class FeaturesSpellsStep extends StatelessWidget {
           Icon(
             Icons.info_outline,
             size: 32,
-            color:
-                Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.8),
+            color: Theme.of(context)
+                .colorScheme
+                .onSurfaceVariant
+                .withValues(alpha: 0.8),
           ),
           const SizedBox(height: 12),
           Text(
@@ -434,13 +437,13 @@ class FeaturesSpellsStep extends StatelessWidget {
                             color: Theme.of(context)
                                 .colorScheme
                                 .secondary
-                                .withOpacity(0.1),
+                                .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                             border: Border.all(
                               color: Theme.of(context)
                                   .colorScheme
                                   .secondary
-                                  .withOpacity(0.5),
+                                  .withValues(alpha: 0.5),
                               width: 1,
                             ),
                           ),
@@ -806,7 +809,7 @@ class FeaturesSpellsStep extends StatelessWidget {
                         color: Theme.of(context)
                             .colorScheme
                             .onSurfaceVariant
-                            .withOpacity(0.8),
+                            .withValues(alpha: 0.8),
                       ),
                       const SizedBox(height: 12),
                       Text(
@@ -936,12 +939,12 @@ class FeaturesSpellsStep extends StatelessWidget {
             ? theme.colorScheme.primaryContainer
             : theme.colorScheme.surfaceContainerHighest)
         : (isSelected
-            ? theme.colorScheme.primaryContainer.withOpacity(0.5)
-            : theme.colorScheme.surfaceContainerHighest.withOpacity(0.5));
+            ? theme.colorScheme.primaryContainer.withValues(alpha: 0.5)
+            : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5));
 
     final textColor = canInteract
         ? theme.colorScheme.onSurface
-        : theme.colorScheme.onSurface.withOpacity(0.4);
+        : theme.colorScheme.onSurface.withValues(alpha: 0.4);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -951,7 +954,8 @@ class FeaturesSpellsStep extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         side: isSelected
             ? BorderSide(color: theme.colorScheme.primary, width: 2)
-            : BorderSide(color: theme.colorScheme.outline.withOpacity(0.2)),
+            : BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: InkWell(
         onTap: canInteract ? () => state.toggleSpell(spell.id) : null,
@@ -996,7 +1000,7 @@ class FeaturesSpellsStep extends StatelessWidget {
                           Text(
                             _getLocalizedSchool(l10n, spell.school),
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: textColor.withOpacity(0.7),
+                              color: textColor.withValues(alpha: 0.7),
                             ),
                           ),
                         ],
@@ -1004,7 +1008,8 @@ class FeaturesSpellsStep extends StatelessWidget {
                     ),
                     if (isAllSpellsKnown)
                       Icon(Icons.check_circle,
-                          color: theme.colorScheme.primary.withOpacity(0.5))
+                          color:
+                              theme.colorScheme.primary.withValues(alpha: 0.5))
                     else
                       Checkbox(
                         value: isSelected,
@@ -1021,7 +1026,7 @@ class FeaturesSpellsStep extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: textColor.withOpacity(0.8),
+                    color: textColor.withValues(alpha: 0.8),
                   ),
                 ),
               ],

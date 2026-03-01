@@ -86,7 +86,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
 
   List<CharacterFeature> _getFightingStyles() {
     return widget.character.features.where((f) {
-      final id = f.id?.toLowerCase() ?? '';
+      final id = f.id.toLowerCase();
       if (id == 'fighting-style' ||
           id == 'fighting_style' ||
           id == 'additional-fighting-style' ||
@@ -99,7 +99,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
 
   CharacterFeature? _getCriticalFeature() {
     return widget.character.features.where((f) {
-      final id = f.id?.toLowerCase() ?? '';
+      final id = f.id.toLowerCase();
       return id.contains('improved-critical') ||
           id.contains('superior-critical') ||
           id.contains('improved_critical') ||
@@ -232,7 +232,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -381,7 +381,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          criticalFeature.id?.contains('superior') == true
+                          criticalFeature.id.contains('superior') == true
                               ? '18-20'
                               : '19-20',
                           style: TextStyle(
@@ -414,7 +414,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -450,7 +450,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
                       color: colorScheme.secondaryContainer,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                          color: colorScheme.secondary.withOpacity(0.3)),
+                          color: colorScheme.secondary.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -501,11 +501,13 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
       curve: Curves.easeOutQuart,
       decoration: BoxDecoration(
         color: isAvailable
-            ? colorContainer.withOpacity(0.3)
+            ? colorContainer.withValues(alpha: 0.3)
             : colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isAvailable ? colorBase : colorScheme.outline.withOpacity(0.3),
+          color: isAvailable
+              ? colorBase
+              : colorScheme.outline.withValues(alpha: 0.3),
           width: isAvailable ? 2 : 1,
         ),
       ),
@@ -516,11 +518,13 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
           borderRadius: BorderRadius.circular(12),
           onTap: () {
             IconData? overrideIcon;
-            if (icon == Icons.favorite)
+            if (icon == Icons.favorite) {
               overrideIcon = Icons.favorite;
-            else if (icon == Icons.bolt)
+            } else if (icon == Icons.bolt) {
               overrideIcon = Icons.bolt;
-            else if (icon == Icons.shield) overrideIcon = Icons.shield;
+            } else if (icon == Icons.shield) {
+              overrideIcon = Icons.shield;
+            }
             _showDetails(feature, overrideIcon);
           },
           child: Padding(
@@ -535,7 +539,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
                       decoration: BoxDecoration(
                         color: isAvailable
                             ? colorBase
-                            : colorScheme.onSurface.withOpacity(0.1),
+                            : colorScheme.onSurface.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(icon,
@@ -567,7 +571,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
                             style: TextStyle(
                               fontSize: 12,
                               color: isAvailable
-                                  ? onColorContainer.withOpacity(0.8)
+                                  ? onColorContainer.withValues(alpha: 0.8)
                                   : colorScheme.onSurfaceVariant,
                             ),
                           ),
@@ -651,13 +655,13 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
                 border: Border.all(
                   color: chargeAvailable
                       ? colorBase
-                      : colorScheme.outline.withOpacity(0.3),
+                      : colorScheme.outline.withValues(alpha: 0.3),
                   width: 2,
                 ),
                 boxShadow: chargeAvailable
                     ? [
                         BoxShadow(
-                          color: colorBase.withOpacity(0.3),
+                          color: colorBase.withValues(alpha: 0.3),
                           blurRadius: 8,
                           spreadRadius: 1,
                         )
@@ -669,7 +673,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
                 size: 20,
                 color: chargeAvailable
                     ? colorScheme.onPrimary
-                    : colorScheme.onSurfaceVariant.withOpacity(0.5),
+                    : colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
               ),
             ),
           );

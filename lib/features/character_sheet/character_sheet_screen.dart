@@ -198,7 +198,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
           borderRadius: BorderRadius.circular(32),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -233,7 +233,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
               isSelected ? activeIcon : icon,
               color: isSelected
                   ? colorScheme.onSecondaryContainer
-                  : colorScheme.onSecondaryContainer.withOpacity(0.7),
+                  : colorScheme.onSecondaryContainer.withValues(alpha: 0.7),
               size: 26,
             ),
             if (isSelected)
@@ -263,6 +263,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
         onAddItem: _showQuantityDialog,
       ),
     );
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -409,14 +410,14 @@ class _AddItemDialogState extends State<_AddItemDialog> {
       widget.character.updatedAt = DateTime.now();
       await widget.character.save();
 
-      if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(l10n.itemAdded(
-                  newItem.getName(widget.locale), newItem.quantity))),
-        );
-      }
+      if (!context.mounted) return;
+
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(l10n.itemAdded(
+                newItem.getName(widget.locale), newItem.quantity))),
+      );
     }
   }
 
@@ -587,7 +588,7 @@ class _AddItemDialogState extends State<_AddItemDialog> {
                           Icon(Icons.inventory_2_outlined,
                               size: 64,
                               color: theme.colorScheme.onSurfaceVariant
-                                  .withOpacity(0.5)),
+                                  .withValues(alpha: 0.5)),
                           const SizedBox(height: 16),
                           Text(l10n.noItemsFound,
                               style: theme.textTheme.bodyLarge?.copyWith(
@@ -630,9 +631,8 @@ class _AddItemDialogState extends State<_AddItemDialog> {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                         color: isSelected
-                                            ? theme
-                                                .colorScheme.onPrimaryContainer
-                                                .withOpacity(0.8)
+                                            ? theme.colorScheme.onPrimaryContainer
+                                                .withValues(alpha: 0.8)
                                             : null)),
                                 trailing: IconButton(
                                     icon: Icon(isSelected ? Icons.remove_circle : Icons.add_circle,
