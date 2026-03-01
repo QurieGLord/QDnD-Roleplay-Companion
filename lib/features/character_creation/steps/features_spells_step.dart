@@ -939,8 +939,8 @@ class FeaturesSpellsStep extends StatelessWidget {
             ? theme.colorScheme.primaryContainer
             : theme.colorScheme.surfaceContainerHighest)
         : (isSelected
-            ? theme.colorScheme.primaryContainer.withOpacity(0.5)
-            : theme.colorScheme.surfaceContainerHighest.withOpacity(0.5));
+            ? theme.colorScheme.primaryContainer.withValues(alpha: 0.5)
+            : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5));
 
     final textColor = canInteract
         ? theme.colorScheme.onSurface
@@ -1008,7 +1008,8 @@ class FeaturesSpellsStep extends StatelessWidget {
                     ),
                     if (isAllSpellsKnown)
                       Icon(Icons.check_circle,
-                          color: theme.colorScheme.primary.withOpacity(0.5))
+                          color:
+                              theme.colorScheme.primary.withValues(alpha: 0.5))
                     else
                       Checkbox(
                         value: isSelected,

@@ -25,7 +25,7 @@ class EmptyState extends StatelessWidget {
               l10n.empty_roster_title,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface.withOpacity(0.8),
+                    color: colorScheme.onSurface.withValues(alpha: 0.8),
                   ),
               textAlign: TextAlign.center,
             ),

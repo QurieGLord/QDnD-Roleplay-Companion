@@ -31,7 +31,7 @@ class ExpressiveChoiceSelector<T> extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (BottomSheetContext) {
+      builder: (bottomSheetContext) {
         return SafeArea(
           child: ConstrainedBox(
             constraints: BoxConstraints(maxHeight: maxHeight),
@@ -43,7 +43,8 @@ class ExpressiveChoiceSelector<T> extends StatelessWidget {
                   width: 32,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
+                    color: theme.colorScheme.onSurfaceVariant
+                        .withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -85,12 +86,12 @@ class ExpressiveChoiceSelector<T> extends StatelessWidget {
                                 color: isSelected
                                     ? theme.colorScheme.primaryContainer
                                     : theme.colorScheme.surfaceContainerHighest
-                                        .withOpacity(0.3),
+                                        .withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: isSelected
                                       ? theme.colorScheme.primary
-                                          .withOpacity(0.5)
+                                          .withValues(alpha: 0.5)
                                       : Colors.transparent,
                                 ),
                               ),
@@ -146,8 +147,8 @@ class ExpressiveChoiceSelector<T> extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(12),
-            border:
-                Border.all(color: theme.colorScheme.outline.withOpacity(0.2)),
+            border: Border.all(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2)),
           ),
           child: Row(
             children: [
@@ -159,7 +160,8 @@ class ExpressiveChoiceSelector<T> extends StatelessWidget {
                         value != null ? FontWeight.w600 : FontWeight.normal,
                     color: value != null
                         ? theme.colorScheme.onSurface
-                        : theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                        : theme.colorScheme.onSurfaceVariant
+                            .withValues(alpha: 0.7),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
