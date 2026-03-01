@@ -4766,6 +4766,78 @@ abstract class AppLocalizations {
   /// **'A gold coin fell from your pocket with a loud ring.'**
   String get stealthFail2;
 
+  /// No description provided for @fs_archery_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Archery'**
+  String get fs_archery_name;
+
+  /// No description provided for @fs_archery_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'You gain a +2 bonus to attack rolls you make with ranged weapons.'**
+  String get fs_archery_desc;
+
+  /// No description provided for @fs_defense_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Defense'**
+  String get fs_defense_name;
+
+  /// No description provided for @fs_defense_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'While you are wearing armor, you gain a +1 bonus to AC.'**
+  String get fs_defense_desc;
+
+  /// No description provided for @fs_dueling_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Dueling'**
+  String get fs_dueling_name;
+
+  /// No description provided for @fs_dueling_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'When you are wielding a melee weapon in one hand and no other weapons, you gain a +2 bonus to damage rolls with that weapon.'**
+  String get fs_dueling_desc;
+
+  /// No description provided for @fs_great_weapon_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Great Weapon Fighting'**
+  String get fs_great_weapon_name;
+
+  /// No description provided for @fs_great_weapon_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'When you roll a 1 or 2 on a damage die for an attack you make with a melee weapon that you are wielding with two hands, you can reroll the die...'**
+  String get fs_great_weapon_desc;
+
+  /// No description provided for @fs_protection_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Protection'**
+  String get fs_protection_name;
+
+  /// No description provided for @fs_protection_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'When a creature you can see attacks a target other than you that is within 5 feet of you, you can use your reaction to impose disadvantage...'**
+  String get fs_protection_desc;
+
+  /// No description provided for @fs_two_weapon_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-Weapon Fighting'**
+  String get fs_two_weapon_name;
+
+  /// No description provided for @fs_two_weapon_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'When you engage in two-weapon fighting, you can add your ability modifier to the damage of the second attack.'**
+  String get fs_two_weapon_desc;
+
   /// No description provided for @stealthFail3.
   ///
   /// In en, this message translates to:

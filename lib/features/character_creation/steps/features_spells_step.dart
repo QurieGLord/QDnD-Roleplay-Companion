@@ -11,6 +11,8 @@ import '../../../core/models/spell_slots_table.dart';
 import '../../../core/models/class_data.dart';
 import '../../../core/constants/ranger_options.dart';
 import '../character_creation_state.dart';
+import '../../../ui/widgets/expressive_choice_selector.dart';
+import '../../../core/utils/localization_helper.dart';
 
 class FeaturesSpellsStep extends StatelessWidget {
   const FeaturesSpellsStep({super.key});
@@ -251,12 +253,14 @@ class FeaturesSpellsStep extends StatelessWidget {
               if (choiceFeatures.isEmpty && passiveFeatures.isEmpty)
                 _buildNoFeaturesMessage(context, l10n)
               else
-                ...choiceFeatures.map((feature) => _buildFeatureItem(context, state, feature, l10n, locale)),
+                ...choiceFeatures.map((feature) =>
+                    _buildFeatureItem(context, state, feature, l10n, locale)),
 
               // 4. Passive Features
               if (passiveFeatures.isNotEmpty) ...[
                 if (choiceFeatures.isNotEmpty) const Divider(height: 32),
-                ...passiveFeatures.map((feature) => _buildFeatureItem(context, state, feature, l10n, locale)),
+                ...passiveFeatures.map((feature) =>
+                    _buildFeatureItem(context, state, feature, l10n, locale)),
               ],
 
               // Spell Selection
@@ -271,27 +275,29 @@ class FeaturesSpellsStep extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureItem(BuildContext context, CharacterCreationState state, CharacterFeature feature, AppLocalizations l10n, String locale) {
+  Widget _buildFeatureItem(BuildContext context, CharacterCreationState state,
+      CharacterFeature feature, AppLocalizations l10n, String locale) {
     final id = feature.id.toLowerCase();
-    
+
     // 1. Гибкий перехват для Избранного врага
     if (id.contains('favored') || id.contains('enemy')) {
       return _buildFavoredEnemyChoice(context, state, feature, l10n, locale);
     }
-    
+
     // 2. Гибкий перехват для Исследователя природы
     if (id.contains('natural') || id.contains('explorer')) {
       return _buildNaturalExplorerChoice(context, state, feature, l10n, locale);
     }
-    
+
     // Другие специфичные выборы
     if (id == 'dragon-ancestor') {
-      return _buildDraconicAncestryChoice(context, state, feature, l10n, locale);
+      return _buildDraconicAncestryChoice(
+          context, state, feature, l10n, locale);
     }
     if (id.endsWith('fighting-style')) {
       return _buildFightingStyleChoice(context, state, feature, l10n, locale);
     }
-    
+
     // 3. Стандартный рендер для всего остального
     return _buildFeatureCard(context, feature, locale, l10n);
   }
@@ -303,7 +309,8 @@ class FeaturesSpellsStep extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
+            color:
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -324,37 +331,17 @@ class FeaturesSpellsStep extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
-                ),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<SubclassData>(
-                  value: state.selectedSubclass,
-                  hint: Text(l10n.choose),
-                  isExpanded: true,
-                  icon: const Icon(Icons.arrow_drop_down),
-                  items: state.selectedClass!.subclasses.map((subclass) {
-                    return DropdownMenuItem<SubclassData>(
-                      value: subclass,
-                      child: Text(
-                        subclass.getName(locale),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      state.updateSubclass(value);
-                    }
-                  },
-                ),
-              ),
+            ExpressiveChoiceSelector<SubclassData>(
+              value: state.selectedSubclass,
+              items: state.selectedClass!.subclasses,
+              placeholder: l10n.choose,
+              title: l10n.selectSubclass,
+              labelBuilder: (subclass) => subclass.getName(locale),
+              onChanged: (value) {
+                if (value != null) {
+                  state.updateSubclass(value);
+                }
+              },
             ),
             if (state.selectedSubclass != null) ...[
               const SizedBox(height: 12),
@@ -385,8 +372,10 @@ class FeaturesSpellsStep extends StatelessWidget {
           Icon(
             Icons.info_outline,
             size: 32,
-            color:
-                Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+            color: Theme.of(context)
+                .colorScheme
+                .onSurfaceVariant
+                .withValues(alpha: 0.8),
           ),
           const SizedBox(height: 12),
           Text(
@@ -543,9 +532,9 @@ class FeaturesSpellsStep extends StatelessWidget {
                   return const SizedBox.shrink(); // Skip if not found
                 }
 
-                final styleFeature = FeatureService.getFeatureById(featureId);
-                final name =
-                    styleFeature?.getName(locale) ?? style.toUpperCase();
+                final localized =
+                    LocalizationHelper.getLocalizedFightingStyle(style, l10n);
+                final name = localized.name;
                 final isSelected =
                     state.selectedFeatureOptions[feature.id] == featureId;
 
@@ -604,27 +593,15 @@ class FeaturesSpellsStep extends StatelessWidget {
             const SizedBox(height: 8),
             Text(feature.getDescription(locale)),
             const SizedBox(height: 16),
-            Text(l10n.choose,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              isExpanded: true,
-              decoration: InputDecoration(
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-              initialValue: state.selectedFeatureOptions[feature.id],
-              items: _draconicAncestryIds.map((id) {
+            ExpressiveChoiceSelector<String>(
+              value: state.selectedFeatureOptions[feature.id],
+              items: _draconicAncestryIds,
+              placeholder: l10n.choose,
+              title: feature.getName(locale),
+              labelBuilder: (id) {
                 final f = FeatureService.getFeatureById(id);
-                final name = f?.getName(locale) ?? id;
-
-                return DropdownMenuItem(
-                  value: id,
-                  child: Text(name),
-                );
-              }).toList(),
+                return f?.getName(locale) ?? id;
+              },
               onChanged: (value) {
                 if (value != null) {
                   state.selectFeatureOption(feature.id, value);
@@ -660,7 +637,9 @@ class FeaturesSpellsStep extends StatelessWidget {
                     color: Theme.of(context).colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(Icons.gps_fixed, color: Theme.of(context).colorScheme.onPrimaryContainer, size: 24),
+                  child: Icon(Icons.gps_fixed,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      size: 24),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -684,25 +663,16 @@ class FeaturesSpellsStep extends StatelessWidget {
             const SizedBox(height: 16),
             const Divider(height: 1),
             const SizedBox(height: 16),
-            Text(l10n.choose,
-                style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              isExpanded: true,
-              decoration: InputDecoration(
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-              initialValue: state.selectedFeatureOptions['favored_enemy'],
-              items: RangerOptions.favoredEnemies.entries.map((entry) {
-                final name = locale == 'ru' ? entry.value['ru']! : entry.value['en']!;
-                return DropdownMenuItem(
-                  value: entry.key,
-                  child: Text(name),
-                );
-              }).toList(),
+            ExpressiveChoiceSelector<String>(
+              value: state.selectedFeatureOptions['favored_enemy'],
+              items: RangerOptions.favoredEnemies.keys.toList(),
+              placeholder: l10n.choose,
+              title: feature.getName(locale),
+              labelBuilder: (key) {
+                return locale == 'ru'
+                    ? RangerOptions.favoredEnemies[key]!['ru']!
+                    : RangerOptions.favoredEnemies[key]!['en']!;
+              },
               onChanged: (value) {
                 if (value != null) {
                   state.selectFeatureOption('favored_enemy', value);
@@ -738,7 +708,9 @@ class FeaturesSpellsStep extends StatelessWidget {
                     color: Theme.of(context).colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(Icons.terrain, color: Theme.of(context).colorScheme.onPrimaryContainer, size: 24),
+                  child: Icon(Icons.terrain,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      size: 24),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -762,25 +734,16 @@ class FeaturesSpellsStep extends StatelessWidget {
             const SizedBox(height: 16),
             const Divider(height: 1),
             const SizedBox(height: 16),
-            Text(l10n.choose,
-                style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              isExpanded: true,
-              decoration: InputDecoration(
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-              initialValue: state.selectedFeatureOptions['natural_explorer'],
-              items: RangerOptions.naturalExplorers.entries.map((entry) {
-                final name = locale == 'ru' ? entry.value['ru']! : entry.value['en']!;
-                return DropdownMenuItem(
-                  value: entry.key,
-                  child: Text(name),
-                );
-              }).toList(),
+            ExpressiveChoiceSelector<String>(
+              value: state.selectedFeatureOptions['natural_explorer'],
+              items: RangerOptions.naturalExplorers.keys.toList(),
+              placeholder: l10n.choose,
+              title: feature.getName(locale),
+              labelBuilder: (key) {
+                return locale == 'ru'
+                    ? RangerOptions.naturalExplorers[key]!['ru']!
+                    : RangerOptions.naturalExplorers[key]!['en']!;
+              },
               onChanged: (value) {
                 if (value != null) {
                   state.selectFeatureOption('natural_explorer', value);
@@ -962,14 +925,24 @@ class FeaturesSpellsStep extends StatelessWidget {
   Widget _buildSpellCard(BuildContext context, dynamic spell,
       CharacterCreationState state, String locale,
       {bool isEnabled = true, required AppLocalizations l10n}) {
-    final isSelected = state.selectedSpells.contains(spell.id);
+    final limits = state.getSpellLimits();
+    final isAllSpellsKnown = limits.spellsKnown >= 999 && spell.level > 0;
+
+    // If all spells are known, forcibly select and disable interaction.
+    final isSelected =
+        isAllSpellsKnown ? true : state.selectedSpells.contains(spell.id);
+    final canInteract = isAllSpellsKnown ? false : isEnabled;
+
     final theme = Theme.of(context);
-    final cardColor = isEnabled
+    final cardColor = canInteract
         ? (isSelected
             ? theme.colorScheme.primaryContainer
             : theme.colorScheme.surfaceContainerHighest)
-        : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
-    final textColor = isEnabled
+        : (isSelected
+            ? theme.colorScheme.primaryContainer.withOpacity(0.5)
+            : theme.colorScheme.surfaceContainerHighest.withOpacity(0.5));
+
+    final textColor = canInteract
         ? theme.colorScheme.onSurface
         : theme.colorScheme.onSurface.withValues(alpha: 0.4);
 
@@ -981,15 +954,16 @@ class FeaturesSpellsStep extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         side: isSelected
             ? BorderSide(color: theme.colorScheme.primary, width: 2)
-            : BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+            : BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: InkWell(
-        onTap: isEnabled ? () => state.toggleSpell(spell.id) : null,
+        onTap: canInteract ? () => state.toggleSpell(spell.id) : null,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Opacity(
-            opacity: isEnabled ? 1.0 : 0.5,
+            opacity: canInteract || isAllSpellsKnown ? 1.0 : 0.5,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1002,8 +976,8 @@ class FeaturesSpellsStep extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
-                        Icons.auto_fix_high,
-                        color: isSelected
+                        isAllSpellsKnown ? Icons.lock : Icons.auto_fix_high,
+                        color: isSelected && !isAllSpellsKnown
                             ? theme.colorScheme.onPrimaryContainer
                             : theme.colorScheme.onSurfaceVariant,
                         size: 20,
@@ -1018,7 +992,7 @@ class FeaturesSpellsStep extends StatelessWidget {
                             spell.getName(locale),
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: isSelected
+                              color: isSelected && canInteract
                                   ? theme.colorScheme.primary
                                   : textColor,
                             ),
@@ -1032,13 +1006,17 @@ class FeaturesSpellsStep extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Checkbox(
-                      value: isSelected,
-                      onChanged: isEnabled
-                          ? (val) => state.toggleSpell(spell.id)
-                          : null,
-                      activeColor: theme.colorScheme.primary,
-                    ),
+                    if (isAllSpellsKnown)
+                      Icon(Icons.check_circle,
+                          color: theme.colorScheme.primary.withOpacity(0.5))
+                    else
+                      Checkbox(
+                        value: isSelected,
+                        onChanged: canInteract
+                            ? (val) => state.toggleSpell(spell.id)
+                            : null,
+                        activeColor: theme.colorScheme.primary,
+                      ),
                   ],
                 ),
                 const SizedBox(height: 8),

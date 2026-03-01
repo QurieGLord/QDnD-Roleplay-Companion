@@ -2483,6 +2483,48 @@ class AppLocalizationsRu extends AppLocalizations {
   String get stealthFail2 => 'Из кармана со звоном выпала золотая монета.';
 
   @override
+  String get fs_archery_name => 'Стрельба';
+
+  @override
+  String get fs_archery_desc =>
+      'Вы получаете бонус +2 к броскам атаки, когда атакуете дальнобойным оружием.';
+
+  @override
+  String get fs_defense_name => 'Оборона';
+
+  @override
+  String get fs_defense_desc =>
+      'Пока вы носите доспехи, вы получаете бонус +1 к КД.';
+
+  @override
+  String get fs_dueling_name => 'Дуэлянт';
+
+  @override
+  String get fs_dueling_desc =>
+      'Пока вы держите рукопашное оружие в одной руке и не используете другое оружие, вы получаете бонус +2 к броскам урона этим оружием.';
+
+  @override
+  String get fs_great_weapon_name => 'Сражение большим оружием';
+
+  @override
+  String get fs_great_weapon_desc =>
+      'Если у вас выпало 1 или 2 на кости урона двуручным или универсальным оружием, вы можете перебросить кость...';
+
+  @override
+  String get fs_protection_name => 'Защита';
+
+  @override
+  String get fs_protection_desc =>
+      'Если существо, которое вы видите, атакует цель в пределах 5 футов от вас, вы можете реакцией создать помеху...';
+
+  @override
+  String get fs_two_weapon_name => 'Сражение двумя оружиями';
+
+  @override
+  String get fs_two_weapon_desc =>
+      'Сражаясь двумя оружиями, вы можете добавить модификатор характеристики к урону от второй атаки.';
+
+  @override
   String get stealthFail3 => 'Вы громко чихнули.';
 
   @override
