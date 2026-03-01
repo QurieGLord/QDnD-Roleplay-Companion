@@ -7,6 +7,7 @@ import '../../../core/services/character_data_service.dart';
 import '../../../core/services/feature_service.dart';
 import '../../../core/services/spellcasting_service.dart';
 import '../../../core/models/spell_slots_table.dart';
+import '../../../core/utils/localization_helper.dart';
 import 'steps/hp_increase_step.dart';
 import 'steps/features_step.dart';
 import 'steps/summary_step.dart';
@@ -271,14 +272,19 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
     }
 
     if (_selectedOptions.containsKey('fighting_style')) {
-      final styleId = _selectedOptions['fighting_style'];
+      final styleId = _selectedOptions['fighting_style']!;
+      final l10n = AppLocalizations.of(context)!;
+      final locFeat =
+          LocalizationHelper.getLocalizedFightingStyle(styleId, l10n);
+
       // Add as a pseudo-feature
       char.features.add(CharacterFeature(
         id: 'fs_$styleId',
-        nameEn: 'Fighting Style: ${styleId!.toUpperCase()}',
-        nameRu: 'Боевой стиль',
-        descriptionEn: 'Selected fighting style',
-        descriptionRu: '',
+        nameEn: 'Fighting Style: ${locFeat.name}',
+        nameRu:
+            '${l10n.fs_archery_name.split(' ').first} : ${locFeat.name}', // Just a generic 'Боевой стиль: ' fallback using language, we will just use the locFeat.name
+        descriptionEn: locFeat.description,
+        descriptionRu: locFeat.description,
         type: FeatureType.passive,
         minLevel: _nextLevel,
         associatedClass: char.characterClass,
