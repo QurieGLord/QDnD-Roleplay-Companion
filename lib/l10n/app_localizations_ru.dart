@@ -468,12 +468,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noSlotsAvailable => 'Нет доступных ячеек!';
 
   @override
-  String spellCastSuccess(Object name) {
+  String spellCastSuccess(String name) {
     return '$name наложено!';
   }
 
   @override
-  String spellCastLevelSuccess(Object level, Object name) {
+  String spellCastLevelSuccess(String name, String level) {
     return '$name наложено на $level уровне!';
   }
 
@@ -638,7 +638,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get rolling => 'Бросок...';
 
   @override
-  String total(Object value) {
+  String total(String value) {
     return 'Итог: $value';
   }
 
@@ -667,7 +667,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chooseClass => 'Выберите Класс';
 
   @override
-  String hitDieType(Object value) {
+  String hitDieType(String value) {
     return 'Кость хитов: d$value';
   }
 
@@ -1099,7 +1099,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get confirm => 'Подтвердить';
 
   @override
-  String readyMessage(Object name) {
+  String readyMessage(String name) {
     return '$name готов выбрать свой путь!';
   }
 
@@ -1847,11 +1847,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String noSpellsFoundForClass(String className) {
-    return 'No spells found for $className';
+    return 'Заклинания для класса $className не найдены';
   }
 
   @override
-  String get level1Spells => 'Level 1 Spells';
+  String get level1Spells => 'Заклинания 1-го круга';
 
   @override
   String get spellsStepPlaceholder =>
@@ -2219,12 +2219,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get fighterChampion => 'Чемпион';
 
   @override
-  String sneakAttackRoll(Object dice, Object total) {
+  String sneakAttackRoll(String total, String dice) {
     return 'Скрытая атака: $total ($dice)';
   }
 
   @override
-  String kiStrikeRoll(Object dice, Object total) {
+  String kiStrikeRoll(String total, String dice) {
     return 'Удар Ци: $total ($dice)';
   }
 
@@ -2416,7 +2416,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get interventionFailure => 'Божество не ответило на ваш зов.';
 
   @override
-  String interventionRollResult(Object value) {
+  String interventionRollResult(String value) {
     return 'Выпало: $value';
   }
 
@@ -2572,4 +2572,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get stealthFail15 => 'Вы эпично споткнулись на ровном месте.';
+
+  @override
+  String get customHealAmount => 'Свое лечение';
+
+  @override
+  String get hpToSpend => 'ХП для траты';
 }

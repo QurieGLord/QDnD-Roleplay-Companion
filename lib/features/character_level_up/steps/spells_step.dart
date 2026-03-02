@@ -52,7 +52,7 @@ class _SpellsStepState extends State<SpellsStep> {
     // ...
     // Formula: ceil(Level / 2) for Full Casters.
 
-    // TODO: Pass maxSpellLevel from parent for 100% accuracy.
+    // Note: Pass maxSpellLevel from parent for 100% accuracy.
     // For now, let's assume filtering happens via "Known Spells" logic (users can pick what they want, but usually valid ones).
     // Actually, restricting is better.
 

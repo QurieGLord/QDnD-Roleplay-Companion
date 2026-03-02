@@ -92,7 +92,7 @@ class InventoryStatusBar extends StatelessWidget {
                       size: 16,
                       color: isFilled
                           ? colorScheme.primary
-                          : colorScheme.outline.withOpacity(0.5),
+                          : colorScheme.outline.withValues(alpha: 0.5),
                     ),
                   );
                 }),

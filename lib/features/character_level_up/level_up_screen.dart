@@ -153,12 +153,8 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
                     minLevel: 0)));
         if (natRec.id == 'natural-recovery') {
           // Check if we should add it (subclass match)
-          bool shouldAdd = true;
           if (natRec.associatedSubclass != null &&
               widget.character.subclass != null) {
-            // Normalize
-            final s1 = natRec.associatedSubclass!.toLowerCase();
-            final s2 = widget.character.subclass!.toLowerCase();
             // "land" vs "circle of the land" or "land"
             // If character has "Land", it matches.
             // If character doesn't have subclass yet (level 2 choice), we might need to rely on selection.
@@ -186,7 +182,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       if (_classData.id == 'paladin' || _classData.id == 'ranger') {
         casterType = 'half';
       }
-      // TODO: better caster type detection from ClassData
+      // Note: better caster type detection from ClassData
 
       final newSlots = SpellSlotsTable.getSlots(_nextLevel, casterType);
 
@@ -321,7 +317,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       if (activeTier != null) {
         // Surgically remove ONLY from char.features for the matching tier
         char.features.removeWhere((f) {
-          final fId = (f.id ?? '').toLowerCase();
+          final fId = (f.id).toLowerCase();
           return activeTier!.any((kw) =>
               fId.contains(kw) ||
               fId.replaceAll('-', '').replaceAll('_', '').contains(kw));
@@ -329,7 +325,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
 
         // Add the new valid tactic object directly
         _newFeatures.removeWhere((f) {
-          final fId = (f.id ?? '').toLowerCase();
+          final fId = (f.id).toLowerCase();
           return activeTier!.any((kw) =>
               fId.contains(kw) ||
               fId.replaceAll('-', '').replaceAll('_', '').contains(kw));
@@ -344,7 +340,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
         if (fullyLoadedTactic == null) {
           final allFeatures = FeatureService.allFeatures;
           for (final f in allFeatures) {
-            final fId = (f.id ?? '').toLowerCase();
+            final fId = (f.id).toLowerCase();
             if (fId == chosenIdStr ||
                 fId.endsWith(chosenIdStr) ||
                 fId.contains(chosenIdStr)) {
@@ -358,7 +354,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
         if (fullyLoadedTactic == null) {
           try {
             fullyLoadedTactic = _newFeatures.firstWhere(
-              (f) => (f.id ?? '').toLowerCase() == chosenIdStr,
+              (f) => (f.id).toLowerCase() == chosenIdStr,
             );
           } catch (_) {}
         }
@@ -439,12 +435,22 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
 
     // Explicitly reload features to catch subclass features if subclass was just set
     if (_selectedOptions.containsKey('subclass')) {
-      // If we just picked a subclass, we might need to fetch its features.
-      // But usually that happens at next level up or we should handle it here.
-      // For now, assuming LevelUp logic covers the features for the NEW level.
-      // If subclass features appear at the same level as subclass choice (e.g. Warlock lvl 1, Sorcerer lvl 1),
-      // they should be in _newFeatures or handled via choices.
-      // Druid Land choice is at lvl 2, same as subclass choice.
+      final newSubclassId = _selectedOptions['subclass']!;
+
+      // Fetch subclass features specifically for this newly chosen subclass at the current level
+      final subclassFeatures = FeatureService.getFeaturesForLevel(
+        classId: char.characterClass,
+        level: _nextLevel,
+        subclassId: newSubclassId,
+      ).where((f) => f.associatedSubclass != null).toList();
+
+      for (var feature in subclassFeatures) {
+        if (!char.features.any((f) => f.id == feature.id)) {
+          char.features.add(feature);
+        }
+      }
+
+      // Note: Druid Land choice is handled separately above
     }
 
     // 5. Update Spell Slots

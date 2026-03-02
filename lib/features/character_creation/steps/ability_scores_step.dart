@@ -234,7 +234,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                       ),
                       selectedColor: theme.colorScheme.secondaryContainer,
                       backgroundColor:
-                          theme.colorScheme.surface.withOpacity(0.5),
+                          theme.colorScheme.surface.withValues(alpha: 0.5),
                     ),
                     ChoiceChip(
                       label: Text(l10n.average),
@@ -250,7 +250,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                       ),
                       selectedColor: theme.colorScheme.secondaryContainer,
                       backgroundColor:
-                          theme.colorScheme.surface.withOpacity(0.5),
+                          theme.colorScheme.surface.withValues(alpha: 0.5),
                     ),
                     ChoiceChip(
                       label: Text(l10n.roll),
@@ -274,7 +274,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                       ),
                       selectedColor: theme.colorScheme.secondaryContainer,
                       backgroundColor:
-                          theme.colorScheme.surface.withOpacity(0.5),
+                          theme.colorScheme.surface.withValues(alpha: 0.5),
                     ),
                   ],
                 ),
@@ -377,7 +377,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 color: isSelected
-                    ? theme.colorScheme.primaryContainer.withOpacity(0.5)
+                    ? theme.colorScheme.primaryContainer.withValues(alpha: 0.5)
                     : null,
                 child: Row(
                   children: [

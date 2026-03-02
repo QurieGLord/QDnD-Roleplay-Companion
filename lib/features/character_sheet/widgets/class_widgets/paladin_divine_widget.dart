@@ -12,6 +12,7 @@ class PaladinDivineWidget extends StatefulWidget {
   final Character character;
   final CharacterFeature layOnHands;
   final CharacterFeature? divineSense;
+  final CharacterFeature? divineSmite;
   final CharacterFeature? channelDivinityResource;
   final List<CharacterFeature> channelDivinitySpells;
   final VoidCallback? onChanged;
@@ -21,6 +22,7 @@ class PaladinDivineWidget extends StatefulWidget {
     required this.character,
     required this.layOnHands,
     this.divineSense,
+    this.divineSmite,
     this.channelDivinityResource,
     this.channelDivinitySpells = const [],
     this.onChanged,
@@ -32,6 +34,7 @@ class PaladinDivineWidget extends StatefulWidget {
 
 class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
   bool _isChannelActive = false;
+  bool _isSacredWeaponActive = false;
 
   String _getLocalizedSubclass(AppLocalizations l10n, String? subclass) {
     if (subclass == null) return l10n.sacredOath;
@@ -72,18 +75,18 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
         side: BorderSide(color: colorScheme.outline, width: 1.5),
         borderRadius: BorderRadius.circular(16),
       ),
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 24),
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
+          // Use uniform spacing instead of SizedBox between blocks to prevent margin stacking
+          spacing: 12,
           children: [
             // --- BLOCK 0: SUBCLASS (OATH) ---
-            if (widget.character.subclass != null) ...[
+            if (widget.character.subclass != null)
               _buildSubclassBlock(context, colorScheme, orangeAccent),
-              const SizedBox(height: 12),
-            ],
 
             // --- BLOCK 1: LAY ON HANDS ---
             _buildBlockContainer(
@@ -95,36 +98,52 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
                   context, colorScheme, orangeAccent, beigeAccent, onBeige),
             ),
 
-            const SizedBox(height: 12),
-
-            // --- BLOCK 2: DIVINE SENSE ---
-            if (widget.divineSense != null) ...[
-              _buildBlockContainer(
-                color: blockBg,
-                onTap: () => _showDetails(widget.divineSense!),
-                padding: const EdgeInsets.all(12),
-                child: _buildDivineSenseContent(
-                    context, colorScheme, orangeAccent, beigeAccent, onBeige),
+            // --- BLOCK 2: DIVINE SENSE & SMITE ---
+            if (widget.divineSense != null || widget.divineSmite != null)
+              IntrinsicHeight(
+                child: Row(
+                  spacing: 12,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (widget.divineSense != null)
+                      Expanded(
+                        child: _buildBlockContainer(
+                          color: blockBg,
+                          onTap: () => _showDetails(widget.divineSense!),
+                          padding: const EdgeInsets.all(12),
+                          child: _buildDivineSenseContent(context, colorScheme,
+                              orangeAccent, beigeAccent, onBeige),
+                        ),
+                      ),
+                    if (widget.divineSmite != null)
+                      Expanded(
+                        child: _buildBlockContainer(
+                          color: blockBg,
+                          onTap: () => _showDetails(widget.divineSmite!),
+                          padding: const EdgeInsets.all(12),
+                          child: _buildDivineSmiteContent(context, colorScheme,
+                              orangeAccent, beigeAccent, onBeige),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 12),
-            ],
 
             // --- BLOCK 3: CHANNEL DIVINITY ---
-            if (widget.channelDivinityResource != null) ...[
+            if (widget.channelDivinityResource != null)
               // Special container logic for the "Full Width Header"
               Container(
                 decoration: BoxDecoration(
                   color: blockBg,
                   borderRadius: BorderRadius.circular(12),
-                  border:
-                      Border.all(color: colorScheme.outline.withOpacity(0.3)),
+                  border: Border.all(
+                      color: colorScheme.outline.withValues(alpha: 0.3)),
                 ),
                 // CRITICAL: AntiAlias clip ensures the header's top corners match the container's
                 clipBehavior: Clip.antiAlias,
                 child: _buildChannelDivinityContent(
                     context, colorScheme, beigeAccent, onBeige, orangeAccent),
               ),
-            ],
           ],
         ),
       ),
@@ -146,7 +165,7 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(
@@ -201,7 +220,7 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
                 ),
               ),
               Icon(Icons.info_outline,
-                  size: 16, color: colorScheme.outline.withOpacity(0.5)),
+                  size: 16, color: colorScheme.outline.withValues(alpha: 0.5)),
             ],
           ),
         ),
@@ -326,6 +345,7 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
         widget.divineSense?.getName(locale).toUpperCase() ?? 'DIVINE SENSE';
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
@@ -344,11 +364,11 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
                 ),
               ),
               Icon(Icons.info_outline,
-                  size: 16, color: colorScheme.outline.withOpacity(0.5)),
+                  size: 16, color: colorScheme.outline.withValues(alpha: 0.5)),
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const Spacer(),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -380,7 +400,7 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
                         border: Border.all(
                           color: isActive
                               ? dotColor
-                              : colorScheme.outline.withOpacity(0.5),
+                              : colorScheme.outline.withValues(alpha: 0.5),
                           width: 2,
                         ),
                       ),
@@ -389,7 +409,6 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
                 }),
               ),
             ),
-
             // Sensor Button
             _DivineSenseSensorButton(
               hasCharges: pool.currentUses > 0,
@@ -420,6 +439,212 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
         ),
       ],
     );
+  }
+
+  Widget _buildDivineSmiteContent(BuildContext context, ColorScheme colorScheme,
+      Color dotColor, Color buttonColor, Color onButtonColor) {
+    final locale = Localizations.localeOf(context).languageCode;
+    final featureName =
+        widget.divineSmite?.getName(locale).toUpperCase() ?? 'DIVINE SMITE';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Icon(Icons.local_fire_department, color: dotColor, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  featureName,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                      color: colorScheme.onSurfaceVariant),
+                ),
+              ),
+              Icon(Icons.info_outline,
+                  size: 16, color: colorScheme.outline.withValues(alpha: 0.5)),
+            ],
+          ),
+        ),
+        const Spacer(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Base Damage Indicator
+            Expanded(
+              child: Text(
+                locale == 'ru' ? '2к8+' : '2d8+',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w900,
+                    ),
+              ),
+            ),
+            // Smite Button
+            _DivineSenseSensorButton(
+              hasCharges: true,
+              backgroundColor: buttonColor,
+              iconColor: onButtonColor,
+              disabledColor: colorScheme.surfaceDim,
+              icon: Icons.local_fire_department,
+              onTap: () => _showSmiteDialog(context),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _showSmiteDialog(BuildContext context) {
+    final availableSlots = <int>[];
+    for (int i = 0; i < widget.character.spellSlots.length; i++) {
+      if (widget.character.spellSlots[i] > 0) {
+        availableSlots.add(i + 1);
+      }
+    }
+
+    if (availableSlots.isEmpty) {
+      final locale = Localizations.localeOf(context).languageCode;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(locale == 'ru'
+            ? 'Нет доступных ячеек заклинаний для Кары!'
+            : 'No spell slots available for Smite!'),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      ));
+      return;
+    }
+
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: theme.colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (bottomSheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 32,
+                height: 4,
+                decoration: BoxDecoration(
+                  color:
+                      theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  locale == 'ru'
+                      ? 'Выберите ячейку для кары'
+                      : 'Select slot for Smite',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: availableSlots.length,
+                  itemBuilder: (context, index) {
+                    final level = availableSlots[index];
+                    final damageDice = 2 +
+                        (level -
+                            1); // 2d8 for 1st level, +1d8 for each slot level above 1st
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 4.0),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () {
+                            Navigator.pop(context);
+                            _executeSmite(level, damageDice, locale);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 16),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surfaceContainerHighest
+                                  .withValues(alpha: 0.3),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                  color: theme.colorScheme.outline
+                                      .withValues(alpha: 0.1)),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    locale == 'ru'
+                                        ? 'Ячейка $level круга (${damageDice}d8 урона)'
+                                        : 'Level $level slot (${damageDice}d8 damage)',
+                                    style: theme.textTheme.bodyLarge
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primary
+                                        .withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(Icons.local_fire_department,
+                                      color: theme.colorScheme.primary),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _executeSmite(int level, int damageDice, String locale) {
+    setState(() {
+      if (level > 0 && level <= widget.character.spellSlots.length) {
+        widget.character.spellSlots[level - 1]--;
+        widget.character.save();
+      }
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(
+        locale == 'ru'
+            ? '💥 Божественная Кара ($level-й круг): ${damageDice}d8 урона излучением!'
+            : '💥 Divine Smite (Level $level): ${damageDice}d8 radiant damage!',
+      ),
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      duration: const Duration(seconds: 2),
+    ));
   }
 
   // ===========================================================================
@@ -478,36 +703,18 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
                     ),
                   ),
                   Icon(Icons.info_outline,
-                      size: 16, color: pillContentColor.withOpacity(0.5)),
+                      size: 16, color: pillContentColor.withValues(alpha: 0.5)),
                   const SizedBox(width: 8),
-                  // Switch
-                  Transform.scale(
-                    scale: 0.9,
-                    child: Switch(
-                      value: isActive,
-                      onChanged: (val) {
-                        HapticFeedback.lightImpact();
-                        setState(() {
-                          _isChannelActive = val;
-                          pool.currentUses = val ? 1 : 0;
-                          widget.character.save();
-                          widget.onChanged?.call();
-                        });
-                      },
-                      activeThumbColor: colorScheme.onSecondary,
-                      activeTrackColor:
-                          colorScheme.onSecondary.withOpacity(0.15),
-                      inactiveThumbColor:
-                          colorScheme.onSurfaceVariant.withOpacity(0.6),
-                      inactiveTrackColor: Colors.transparent,
-                      trackOutlineColor:
-                          WidgetStateProperty.resolveWith<Color?>((states) {
-                        if (states.contains(WidgetState.selected)) {
-                          return colorScheme.onSecondary;
-                        }
-                        return colorScheme.onSurfaceVariant.withOpacity(0.6);
-                      }),
-                    ),
+                  // Expand Button
+                  IconButton(
+                    icon: Icon(isActive ? Icons.expand_less : Icons.expand_more,
+                        color: pillContentColor),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      setState(() {
+                        _isChannelActive = !_isChannelActive;
+                      });
+                    },
                   ),
                 ],
               ),
@@ -515,29 +722,32 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
           ),
         ),
 
-        // Spells List
-        // Note: Padding is added HERE, not on the container, to push content in
-        AnimatedOpacity(
+        // Spells Grid
+        AnimatedSize(
           duration: const Duration(milliseconds: 300),
-          opacity: isActive ? 1.0 : 0.5,
-          child: IgnorePointer(
-            ignoring: !isActive,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                children: widget.channelDivinitySpells.map((f) {
-                  return _buildSpellTile(context, f, colorScheme, activeBg,
-                      activeContent, locale, pool);
-                }).toList(),
-              ),
-            ),
-          ),
+          curve: Curves.easeInOut,
+          child: (!isActive || widget.channelDivinitySpells.isEmpty)
+              ? const SizedBox.shrink()
+              : Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: widget.channelDivinitySpells.map((f) {
+                      return _buildSpellGridTile(context, f, colorScheme,
+                          activeBg, activeContent, locale, pool);
+                    }).toList(),
+                  ),
+                ),
         ),
       ],
     );
   }
 
-  Widget _buildSpellTile(
+  Widget _buildSpellGridTile(
       BuildContext context,
       CharacterFeature feature,
       ColorScheme colorScheme,
@@ -545,15 +755,21 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
       Color buttonContent,
       String locale,
       ResourcePool pool) {
-    final name = feature.getName(locale);
+    String name = feature.getName(locale);
+    name = name
+        .replaceAll('Божественный Канал: ', '')
+        .replaceAll('Channel Divinity: ', '')
+        .trim();
     final icon = _getSmartIcon(name, feature.iconName);
 
+    final isSacredWeapon = feature.id == 'channel-divinity-sacred-weapon';
+    final hasUses = pool.currentUses > 0;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -561,45 +777,81 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
           onTap: () => _showDetails(feature),
           borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(icon, size: 20, color: colorScheme.primary),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    name,
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: colorScheme.onSurface),
-                  ),
-                ),
-                // Compact Action Button (Icon Only)
-                SizedBox(
-                  width: 48,
-                  height: 36,
-                  child: FilledButton(
-                    onPressed: () {
+                // Interactive Icon Container
+                Opacity(
+                  opacity: hasUses
+                      ? 1.0
+                      : (isSacredWeapon && _isSacredWeaponActive ? 1.0 : 0.5),
+                  child: InkWell(
+                    onTap: () {
                       HapticFeedback.mediumImpact();
-                      _useChannelDivinity(pool, name);
+
+                      if (!hasUses &&
+                          !(isSacredWeapon && _isSacredWeaponActive)) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(locale == 'ru'
+                              ? 'Нет зарядов Божественного Канала!'
+                              : 'No Channel Divinity charges left!'),
+                          backgroundColor: colorScheme.error,
+                          duration: const Duration(milliseconds: 800),
+                        ));
+                        return;
+                      }
+
+                      if (isSacredWeapon) {
+                        setState(() {
+                          _isSacredWeaponActive = !_isSacredWeaponActive;
+                        });
+                        if (_isSacredWeaponActive) {
+                          _useChannelDivinity(pool, name);
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(locale == 'ru'
+                                ? '⚔️ Священное оружие активно! Оружие светится ярким светом.'
+                                : '⚔️ Sacred Weapon is active! The weapon emits bright light.'),
+                            backgroundColor: colorScheme.primary,
+                            duration: const Duration(seconds: 2),
+                          ));
+                        }
+                      } else {
+                        _useChannelDivinity(pool, name);
+                      }
                     },
-                    style: FilledButton.styleFrom(
-                      backgroundColor: buttonBg,
-                      foregroundColor: buttonContent,
-                      padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      elevation: 0,
+                    borderRadius: BorderRadius.circular(32),
+                    child: isSacredWeapon
+                        ? _buildPulsatingSacredWeaponIcon(context)
+                        : Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: colorScheme.surfaceContainerHighest,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                  color: colorScheme.primary
+                                      .withValues(alpha: 0.5),
+                                  width: 1.5),
+                            ),
+                            child: Icon(icon,
+                                size: 28, color: colorScheme.primary),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Name
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      name,
+                      textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface),
                     ),
-                    child: const Icon(Icons.auto_fix_high, size: 20),
                   ),
                 ),
               ],
@@ -608,6 +860,11 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
         ),
       ),
     );
+  }
+
+  Widget _buildPulsatingSacredWeaponIcon(BuildContext context) {
+    // The actual animation logic is now encapsulated in _SacredWeaponPulseIcon
+    return _SacredWeaponPulseIcon(isActive: _isSacredWeaponActive);
   }
 
   // --- Logic Helpers ---
@@ -623,20 +880,21 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
 
   void _showCustomHealDialog(BuildContext context, ResourcePool pool, int max) {
     final controller = TextEditingController();
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Custom Heal Amount"),
+        title: Text(l10n.customHealAmount),
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
           autofocus: true,
-          decoration: const InputDecoration(labelText: "HP to spend"),
+          decoration: InputDecoration(labelText: l10n.hpToSpend),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () {
@@ -646,7 +904,7 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
               }
               Navigator.pop(context);
             },
-            child: const Text("Heal"),
+            child: Text(l10n.heal),
           ),
         ],
       ),
@@ -671,13 +929,14 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
     if (pool.currentUses > 0) {
       setState(() {
         pool.use(1);
-        _isChannelActive = false;
         widget.character.save();
         widget.onChanged?.call();
       });
+      final locale = Localizations.localeOf(context).languageCode;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('$featureName used!'),
+          content: Text(
+              '$featureName ${locale == 'ru' ? 'использовано!' : 'used!'}'),
           duration: const Duration(seconds: 1),
         ),
       );
@@ -709,7 +968,7 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accentColor.withOpacity(0.3)),
+        border: Border.all(color: accentColor.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -847,6 +1106,7 @@ class _DivineSenseSensorButton extends StatefulWidget {
   final Color backgroundColor;
   final Color iconColor;
   final Color disabledColor;
+  final IconData icon;
 
   const _DivineSenseSensorButton({
     required this.hasCharges,
@@ -854,6 +1114,7 @@ class _DivineSenseSensorButton extends StatefulWidget {
     required this.backgroundColor,
     required this.iconColor,
     required this.disabledColor,
+    this.icon = Icons.visibility,
   });
 
   @override
@@ -906,17 +1167,100 @@ class _DivineSenseSensorButtonState extends State<_DivineSenseSensorButton>
             boxShadow: widget.hasCharges
                 ? [
                     BoxShadow(
-                        color: widget.backgroundColor.withOpacity(0.3),
+                        color: widget.backgroundColor.withValues(alpha: 0.3),
                         blurRadius: 12,
                         spreadRadius: 1)
                   ]
                 : [],
           ),
-          child: Icon(Icons.remove_red_eye,
+          child: Icon(widget.icon,
               size: 28,
               color: widget.hasCharges ? widget.iconColor : Colors.white38),
         ),
       ),
     );
+  }
+}
+
+class _SacredWeaponPulseIcon extends StatefulWidget {
+  final bool isActive;
+  const _SacredWeaponPulseIcon({required this.isActive});
+
+  @override
+  _SacredWeaponPulseIconState createState() => _SacredWeaponPulseIconState();
+}
+
+class _SacredWeaponPulseIconState extends State<_SacredWeaponPulseIcon>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _glowAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _glowAnimation = Tween<double>(begin: 4.0, end: 12.0)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    if (widget.isActive) {
+      _controller.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void didUpdateWidget(_SacredWeaponPulseIcon oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && !oldWidget.isActive) {
+      _controller.repeat(reverse: true);
+    } else if (!widget.isActive && oldWidget.isActive) {
+      _controller.stop();
+      _controller.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return AnimatedBuilder(
+        animation: _glowAnimation,
+        builder: (context, child) {
+          return Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: widget.isActive
+                  ? colorScheme.primary
+                  : colorScheme.surfaceContainerHighest,
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: widget.isActive
+                      ? colorScheme.primary
+                      : colorScheme.primary.withValues(alpha: 0.5),
+                  width: 1.5),
+              boxShadow: widget.isActive
+                  ? [
+                      BoxShadow(
+                        color: colorScheme.primary.withValues(alpha: 0.6),
+                        blurRadius: _glowAnimation.value,
+                        spreadRadius: _glowAnimation.value / 3,
+                      )
+                    ]
+                  : [],
+            ),
+            child: Transform.rotate(
+              angle: 0.8,
+              child: Icon(Icons.colorize,
+                  size: 28,
+                  color: widget.isActive
+                      ? colorScheme.onPrimary
+                      : colorScheme.primary),
+            ),
+          );
+        });
   }
 }

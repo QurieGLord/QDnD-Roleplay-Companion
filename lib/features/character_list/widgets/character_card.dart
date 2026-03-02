@@ -126,7 +126,7 @@ class CharacterCard extends StatelessWidget {
                     Text(
                       '${l10n.levelShort} ${character.level} $localizedClassName',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurface.withOpacity(0.6),
+                            color: colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                     ),
                     if (localizedSubclass != null) ...[
@@ -163,7 +163,7 @@ class CharacterCard extends StatelessWidget {
 
               Icon(
                 Icons.chevron_right,
-                color: colorScheme.onSurface.withOpacity(0.3),
+                color: colorScheme.onSurface.withValues(alpha: 0.3),
               ),
             ],
           ),
@@ -174,14 +174,14 @@ class CharacterCard extends StatelessWidget {
 
   IconData _getClassIcon(String className) {
     final lowerClass = className.toLowerCase();
-    if (lowerClass.contains('paladin')) return Icons.shield_outlined;
+    if (lowerClass.contains('paladin')) return Icons.shield;
     if (lowerClass.contains('wizard')) return Icons.auto_fix_high;
     if (lowerClass.contains('fighter')) return Icons.sports_martial_arts;
     if (lowerClass.contains('rogue')) return Icons.visibility_off;
     if (lowerClass.contains('cleric')) return Icons.health_and_safety;
     if (lowerClass.contains('barbarian')) return Icons.fitness_center;
     if (lowerClass.contains('bard')) return Icons.music_note;
-    if (lowerClass.contains('druid')) return Icons.nature;
+    if (lowerClass.contains('druid')) return Icons.pets;
     if (lowerClass.contains('monk')) return Icons.self_improvement;
     if (lowerClass.contains('ranger')) return Icons.terrain;
     if (lowerClass.contains('sorcerer')) return Icons.bolt;
@@ -206,7 +206,7 @@ class _StatChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

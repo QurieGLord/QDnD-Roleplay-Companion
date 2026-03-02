@@ -82,7 +82,7 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                           color: Theme.of(context)
                               .colorScheme
                               .onSurfaceVariant
-                              .withOpacity(0.4),
+                              .withValues(alpha: 0.4),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -251,10 +251,11 @@ class _RageControlWidgetState extends State<RageControlWidget> {
         feature.getName(locale).replaceAll(RegExp(r'\s*\(.*?\)'), '');
 
     IconData icon = fallBackIcon;
-    final nid = (feature.id ?? '').toLowerCase();
-    final nname = (feature.nameEn ?? '').toLowerCase();
-    if (nid.contains('frenzy') || nname.contains('frenzy'))
+    final nid = (feature.id).toLowerCase();
+    final nname = (feature.nameEn).toLowerCase();
+    if (nid.contains('frenzy') || nname.contains('frenzy')) {
       icon = Icons.mood_bad;
+    }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
@@ -263,7 +264,7 @@ class _RageControlWidgetState extends State<RageControlWidget> {
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
+          border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
         ),
         child: Material(
           color: Colors.transparent,
@@ -334,11 +335,11 @@ class _RageControlWidgetState extends State<RageControlWidget> {
 
     final activeColor = colorScheme.error;
     final cardColor = _isRaging
-        ? activeColor.withOpacity(0.15)
+        ? activeColor.withValues(alpha: 0.15)
         : colorScheme.surfaceContainerHighest;
     final borderColor = _isRaging
-        ? activeColor.withOpacity(0.5)
-        : colorScheme.outline.withOpacity(0.3);
+        ? activeColor.withValues(alpha: 0.5)
+        : colorScheme.outline.withValues(alpha: 0.3);
     final textColor = _isRaging ? activeColor : colorScheme.onSurface;
     final String locale = Localizations.localeOf(context).languageCode;
 
@@ -359,12 +360,12 @@ class _RageControlWidgetState extends State<RageControlWidget> {
 
     // Find Reckless Attack
     final recklessFeature = widget.character.features
-        .where((f) => (f.id ?? '').toLowerCase().contains('reckless'))
+        .where((f) => (f.id).toLowerCase().contains('reckless'))
         .firstOrNull;
 
     // Find Frenzy
     final frenzyFeature = widget.character.features
-        .where((f) => (f.id ?? '').toLowerCase().contains('frenzy'))
+        .where((f) => (f.id).toLowerCase().contains('frenzy'))
         .firstOrNull;
 
     return Card(
@@ -389,10 +390,10 @@ class _RageControlWidgetState extends State<RageControlWidget> {
               Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                   border:
-                      Border.all(color: colorScheme.outline.withOpacity(0.2)),
+                      Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
                 ),
                 child: Material(
                   color: Colors.transparent,
@@ -407,7 +408,7 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: colorScheme.primary.withOpacity(0.1),
+                              color: colorScheme.primary.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(Icons.terrain,
@@ -441,7 +442,7 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                           ),
                           Icon(Icons.chevron_right,
                               color: colorScheme.onSurfaceVariant
-                                  .withOpacity(0.5)),
+                                  .withValues(alpha: 0.5)),
                         ],
                       ),
                     ),
@@ -463,7 +464,7 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                 boxShadow: _isRaging
                     ? [
                         BoxShadow(
-                          color: activeColor.withOpacity(0.15),
+                          color: activeColor.withValues(alpha: 0.15),
                           blurRadius: 12,
                           spreadRadius: 2,
                         )
@@ -532,7 +533,7 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                           value: _isRaging,
                           onChanged: _toggleRage,
                           activeThumbColor: activeColor,
-                          activeTrackColor: activeColor.withOpacity(0.4),
+                          activeTrackColor: activeColor.withValues(alpha: 0.4),
                           inactiveThumbColor: colorScheme.outline,
                           inactiveTrackColor:
                               colorScheme.surfaceContainerHighest,
@@ -550,7 +551,7 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                     ),
 
                     const SizedBox(height: 16),
-                    Divider(height: 1, color: borderColor.withOpacity(0.5)),
+                    Divider(height: 1, color: borderColor.withValues(alpha: 0.5)),
                     const SizedBox(height: 16),
 
                     // Stats Row: Usages & Damage
@@ -613,9 +614,9 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                                               color: isActive
                                                   ? (_isRaging
                                                       ? activeColor
-                                                          .withOpacity(0.2)
+                                                          .withValues(alpha: 0.2)
                                                       : colorScheme.primary
-                                                          .withOpacity(0.1))
+                                                          .withValues(alpha: 0.1))
                                                   : Colors.transparent,
                                               shape: BoxShape.circle,
                                               border: Border.all(
@@ -624,7 +625,7 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                                                         ? activeColor
                                                         : colorScheme.primary)
                                                     : colorScheme.outline
-                                                        .withOpacity(0.3),
+                                                        .withValues(alpha: 0.3),
                                               ),
                                             ),
                                             child: Icon(
@@ -635,7 +636,7 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                                                         ? activeColor
                                                         : colorScheme.primary)
                                                     : colorScheme.outline
-                                                        .withOpacity(0.3)),
+                                                        .withValues(alpha: 0.3)),
                                           ),
                                         );
                                       }),
@@ -656,7 +657,7 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                             boxShadow: _isRaging
                                 ? [
                                     BoxShadow(
-                                        color: activeColor.withOpacity(0.4),
+                                        color: activeColor.withValues(alpha: 0.4),
                                         blurRadius: 8,
                                         offset: const Offset(0, 2))
                                   ]
@@ -687,9 +688,9 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                   color: _isRaging
-                                      ? colorScheme.onError.withOpacity(0.8)
+                                      ? colorScheme.onError.withValues(alpha: 0.8)
                                       : colorScheme.onSecondaryContainer
-                                          .withOpacity(0.8),
+                                          .withValues(alpha: 0.8),
                                 ),
                               ),
                             ],
@@ -749,8 +750,8 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                       color: _isReckless
-                          ? colorScheme.error.withOpacity(0.5)
-                          : colorScheme.outline.withOpacity(0.3)),
+                          ? colorScheme.error.withValues(alpha: 0.5)
+                          : colorScheme.outline.withValues(alpha: 0.3)),
                 ),
                 child: Material(
                   color: Colors.transparent,
@@ -781,7 +782,7 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  recklessFeature.getName(locale) ?? '',
+                                  recklessFeature.getName(locale),
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: _isReckless
@@ -797,7 +798,7 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                                     style: TextStyle(
                                       fontSize: 11,
                                       color: colorScheme.onErrorContainer
-                                          .withOpacity(0.8),
+                                          .withValues(alpha: 0.8),
                                     ),
                                   ),
                               ],
@@ -811,9 +812,9 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                               });
                               if (v) HapticFeedback.heavyImpact();
                             },
-                            activeColor: colorScheme.onErrorContainer,
+                            activeThumbColor: colorScheme.onErrorContainer,
                             activeTrackColor:
-                                colorScheme.onErrorContainer.withOpacity(0.3),
+                                colorScheme.onErrorContainer.withValues(alpha: 0.3),
                             inactiveThumbColor: colorScheme.outline,
                             inactiveTrackColor:
                                 colorScheme.surfaceContainerHighest,

@@ -5,7 +5,6 @@ import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/dice_utils.dart';
-import '../../../../shared/widgets/bouncing_button.dart';
 import '../../../../core/services/character_data_service.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 
@@ -66,8 +65,8 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                l10n.sneakAttackRoll(
-                    total, DiceUtils.formatDice('${diceCount}d6', context)),
+                l10n.sneakAttackRoll(total.toString(),
+                    DiceUtils.formatDice('${diceCount}d6', context)),
                 style:
                     const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
@@ -97,7 +96,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
             ),
             title: Text(
               l10n.stealthDifficulty,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -144,7 +143,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
   }
 
   void _performStealthRoll(int dc, AppLocalizations l10n) {
-    final skillId = 'stealth';
+    const skillId = 'stealth';
     final mod = widget.character.abilityScores.dexterityModifier;
     final isProficient = widget.character.proficientSkills.contains(skillId);
     final isExpert = widget.character.expertSkills.contains(skillId);
@@ -284,7 +283,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                           color: Theme.of(context)
                               .colorScheme
                               .onSurfaceVariant
-                              .withOpacity(0.4),
+                              .withValues(alpha: 0.4),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -362,7 +361,8 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
+          border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3)),
         ),
         child: Material(
           color: Colors.transparent,
@@ -376,7 +376,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.1),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child:
@@ -430,7 +430,8 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
+          border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3)),
         ),
         child: Material(
           color: Colors.transparent,
@@ -444,7 +445,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.1),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child:
@@ -534,7 +535,8 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-            color: colorScheme.outlineVariant.withOpacity(0.5), width: 1.5),
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+            width: 1.5),
       ),
       color: colorScheme.surfaceContainerLow,
       clipBehavior: Clip.antiAlias,
@@ -547,9 +549,11 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
               margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                color:
+                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colorScheme.outline.withOpacity(0.2)),
+                border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Material(
                 color: Colors.transparent,
@@ -563,7 +567,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: colorScheme.primary.withOpacity(0.1),
+                            color: colorScheme.primary.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(Icons.masks,
@@ -596,8 +600,8 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                           ),
                         ),
                         Icon(Icons.chevron_right,
-                            color:
-                                colorScheme.onSurfaceVariant.withOpacity(0.5)),
+                            color: colorScheme.onSurfaceVariant
+                                .withValues(alpha: 0.5)),
                       ],
                     ),
                   ),
@@ -617,13 +621,13 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
                     color: _isHidden
-                        ? colorScheme.primaryContainer.withOpacity(0.3)
+                        ? colorScheme.primaryContainer.withValues(alpha: 0.3)
                         : colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: _isHidden
-                          ? colorScheme.primary.withOpacity(0.5)
-                          : colorScheme.outline.withOpacity(0.3),
+                          ? colorScheme.primary.withValues(alpha: 0.5)
+                          : colorScheme.outline.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -708,7 +712,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
                                             color: colorScheme.outline
-                                                .withOpacity(0.3)),
+                                                .withValues(alpha: 0.3)),
                                       ),
                                       child: Material(
                                         color: Colors.transparent,
@@ -736,7 +740,8 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                                                             BoxDecoration(
                                                           color: colorScheme
                                                               .primary
-                                                              .withOpacity(0.1),
+                                                              .withValues(
+                                                                  alpha: 0.1),
                                                           borderRadius:
                                                               BorderRadius
                                                                   .circular(8),
@@ -750,7 +755,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                                                       const SizedBox(width: 12),
                                                       Expanded(
                                                         child: Text(
-                                                          sneakAttackFeature!
+                                                          sneakAttackFeature
                                                               .getName(locale),
                                                           style: TextStyle(
                                                             fontSize: 13,
@@ -825,7 +830,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                       color: colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                          color: colorScheme.outline.withOpacity(0.3)),
+                          color: colorScheme.outline.withValues(alpha: 0.3)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -857,8 +862,8 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
 
                           // Action: Dash
                           _buildActionTile(
-                            feature: cunningActionFeature!,
-                            name: cunningActionFeature!.getName(locale),
+                            feature: cunningActionFeature,
+                            name: cunningActionFeature.getName(locale),
                             icon: Icons.directions_run,
                             actionIcon: Icons.keyboard_double_arrow_right,
                             theme: Theme.of(context),
@@ -873,7 +878,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
 
                           // Action: Disengage
                           _buildActionTile(
-                            feature: cunningActionFeature!,
+                            feature: cunningActionFeature,
                             name: isRu
                                 ? 'Отход'
                                 : 'Disengage', // Forcing name to avoid redundant (Bonus action) in translated features
@@ -911,8 +916,8 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                         // Reaction: Dodge
                         if (uncannyDodgeFeature != null)
                           _buildFeatureReminder(
-                            feature: uncannyDodgeFeature!,
-                            name: uncannyDodgeFeature!.getName(locale),
+                            feature: uncannyDodgeFeature,
+                            name: uncannyDodgeFeature.getName(locale),
                             icon: Icons.shield,
                             theme: Theme.of(context),
                           ),
@@ -920,9 +925,9 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                         // Reaction: Evasion
                         if (evasionFeature != null)
                           _buildFeatureReminder(
-                            feature: evasionFeature!,
-                            name: evasionFeature!.getName(locale),
-                            icon: Icons.shield_outlined,
+                            feature: evasionFeature,
+                            name: evasionFeature.getName(locale),
+                            icon: Icons.shield,
                             theme: Theme.of(context),
                           ),
                       ],

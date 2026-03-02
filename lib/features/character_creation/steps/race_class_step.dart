@@ -464,7 +464,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  l10n.hitDieType(classData.hitDie),
+                                  l10n.hitDieType(classData.hitDie.toString()),
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall
@@ -587,7 +587,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
                     ? Theme.of(context)
                         .colorScheme
                         .primaryContainer
-                        .withOpacity(0.5)
+                        .withValues(alpha: 0.5)
                     : Theme.of(context).colorScheme.surfaceContainerHighest,
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -664,7 +664,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
                 size: 16, color: textColor.withValues(alpha: 0.7)),
             const SizedBox(width: 8),
             Text(
-              l10n.hitDieType(classData.hitDie),
+              l10n.hitDieType(classData.hitDie.toString()),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: textColor,
                     fontWeight: FontWeight.w500,
@@ -688,7 +688,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
                 .map((s) => _getAbilityAbbr(l10n, s))
                 .join(', '),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: textColor.withOpacity(0.8),
+                  color: textColor.withValues(alpha: 0.8),
                 ),
           ),
           const SizedBox(height: 12),

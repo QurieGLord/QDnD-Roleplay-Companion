@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qd_and_d/core/services/fc5_parser.dart';
@@ -22,8 +23,8 @@ void main() {
     expect(elf.traits.isNotEmpty, true);
     final trance = elf.traits.firstWhere((t) => t.nameEn == 'Wireless Trance');
     expect(trance.nameRu, 'Беспроводной Транс');
-    expect(trance.descriptionEn, contains("You don't need sleep"));
-    expect(trance.descriptionRu, contains("Вам не нужен сон"));
+    expect(trance.descriptionEn, contains("Long rest takes 4 hours."));
+    expect(trance.descriptionRu, contains("Длинный отдых занимает 4 часа."));
 
     // --- Verify Classes ---
     expect(result.classes.length, 2);

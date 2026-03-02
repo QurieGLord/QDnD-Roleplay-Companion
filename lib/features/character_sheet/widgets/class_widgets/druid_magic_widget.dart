@@ -142,8 +142,8 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
   bool get _hasNaturalRecovery {
     // 1. Feature check (Name or ID)
     final hasFeature = widget.character.features.any((f) {
-      final nameEn = (f.nameEn ?? '').toLowerCase();
-      final nameRu = (f.nameRu ?? '').toLowerCase();
+      final nameEn = (f.nameEn).toLowerCase();
+      final nameRu = (f.nameRu).toLowerCase();
       final id = f.id.toLowerCase().replaceAll('-', '_');
       return nameEn.contains('natural recovery') ||
           nameRu.contains('естественное восстановление') ||
@@ -290,8 +290,9 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
                           final missing = max - current;
                           final selected = selectedSlots[level] ?? 0;
 
-                          if (missing <= 0 && selected == 0)
+                          if (missing <= 0 && selected == 0) {
                             return const SizedBox.shrink();
+                          }
 
                           // Check if adding one more of this level would exceed the cap
                           final canAdd = selected < missing &&
@@ -438,7 +439,7 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accentColor.withOpacity(0.3)),
+        border: Border.all(color: accentColor.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -613,12 +614,12 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isTransformed
-            ? accentColor.withOpacity(0.15)
+            ? accentColor.withValues(alpha: 0.15)
             : theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
         border: isTransformed
             ? Border.all(color: accentColor, width: 2)
-            : Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
+            : Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -813,7 +814,7 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
