@@ -114,6 +114,28 @@
     ],
     "3": [
       {
+        "id": "channel-divinity",
+        "name": {
+          "en": "Channel Divinity",
+          "ru": "Божественный канал"
+        },
+        "description": {
+          "en": "Your oath allows you to channel divine energy to fuel magical effects.",
+          "ru": "Ваша клятва позволяет вам проводить божественную энергию для подпитки магических эффектов."
+        }
+      },
+      {
+        "id": "divine-health",
+        "name": {
+          "en": "Divine Health",
+          "ru": "Божественное Здоровье"
+        },
+        "description": {
+          "en": "By 3rd level, the divine magic flowing through you makes you immune to disease.",
+          "ru": "К 3-му уровню божественная магия, текущая через вас, делает вас невосприимчивым к болезням."
+        }
+      },
+      {
         "id": "channel-divinity-sacred-weapon",
         "name": {
           "en": "Channel Divinity: Sacred Weapon",
