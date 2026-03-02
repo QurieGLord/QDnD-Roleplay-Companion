@@ -31,7 +31,6 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
   late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
 
   @override
   void initState() {
@@ -47,8 +46,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
     _pulseController =
         AnimationController(duration: const Duration(seconds: 2), vsync: this)
           ..repeat(reverse: true);
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
-        CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+    // pulse animation drives the controller; value accessed via _pulseController
   }
 
   @override
@@ -369,7 +367,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
                           color: (isDying
                                   ? colorScheme.error
                                   : colorScheme.primary)
-                              .withOpacity(0.15),
+                              .withValues(alpha: 0.15),
                           blurRadius: 30,
                           spreadRadius: 5,
                         )
@@ -407,7 +405,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
                       ] else ...[
                         Icon(Icons.favorite,
                             size: 24,
-                            color: colorScheme.error.withOpacity(0.8)),
+                            color: colorScheme.error.withValues(alpha: 0.8)),
                         Text(
                           '${character.currentHp}',
                           style: TextStyle(
@@ -492,7 +490,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
                         color: colorScheme.surfaceContainerHigh,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                            color: colorScheme.error.withOpacity(0.5)),
+                            color: colorScheme.error.withValues(alpha: 0.5)),
                       ),
                       child: Column(
                         children: [
@@ -616,14 +614,10 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
 
   Widget _buildMagicButton(
       BuildContext context, AppLocalizations l10n, ColorScheme colorScheme) {
-    // Count total slots
-    int totalSlots = 0;
-    int usedSlots = 0;
+    // Count total remaining slots
     for (int i = 0; i < _character.maxSpellSlots.length; i++) {
-      totalSlots += _character.maxSpellSlots[i];
       if (i < _character.spellSlots.length) {
-        usedSlots += _character.maxSpellSlots[i] -
-            _character.spellSlots[i]; // spellSlots stores REMAINING
+        // spellSlots stores REMAINING
       }
     }
     // Correct logic: spellSlots stores remaining. So used = max - remaining.
@@ -669,7 +663,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: colorScheme.onPrimary.withOpacity(0.2),
+                color: colorScheme.onPrimary.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -701,7 +695,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
   Widget _buildActionButton(BuildContext context, String label, IconData icon,
       Color color, VoidCallback onTap) {
     return Material(
-      color: color.withOpacity(0.15),
+      color: color.withValues(alpha: 0.15),
       borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,

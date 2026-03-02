@@ -46,11 +46,11 @@ class AdventurerQuoteCard extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      color: theme.colorScheme.secondaryContainer.withOpacity(0.4),
+      color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.4),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
           width: 1,
         ),
       ),

@@ -126,7 +126,7 @@ class CharacterCard extends StatelessWidget {
                     Text(
                       '${l10n.levelShort} ${character.level} $localizedClassName',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurface.withOpacity(0.6),
+                            color: colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                     ),
                     if (localizedSubclass != null) ...[
@@ -163,7 +163,7 @@ class CharacterCard extends StatelessWidget {
 
               Icon(
                 Icons.chevron_right,
-                color: colorScheme.onSurface.withOpacity(0.3),
+                color: colorScheme.onSurface.withValues(alpha: 0.3),
               ),
             ],
           ),
@@ -206,7 +206,7 @@ class _StatChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

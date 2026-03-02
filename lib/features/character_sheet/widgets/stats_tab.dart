@@ -139,7 +139,7 @@ class StatsTab extends StatelessWidget {
               ),
         ),
         const SizedBox(width: 8),
-        Expanded(child: Divider(color: colorScheme.primary.withOpacity(0.2))),
+        Expanded(child: Divider(color: colorScheme.primary.withValues(alpha: 0.2))),
       ],
     );
   }
@@ -371,11 +371,11 @@ class StatsTab extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 4),
         decoration: BoxDecoration(
           color: (isProficient || isExpert)
-              ? colorScheme.secondaryContainer.withOpacity(0.3)
+              ? colorScheme.secondaryContainer.withValues(alpha: 0.3)
               : null,
           borderRadius: BorderRadius.circular(8),
           border: (isProficient || isExpert)
-              ? Border.all(color: colorScheme.secondary.withOpacity(0.2))
+              ? Border.all(color: colorScheme.secondary.withValues(alpha: 0.2))
               : null,
         ),
         child: Row(

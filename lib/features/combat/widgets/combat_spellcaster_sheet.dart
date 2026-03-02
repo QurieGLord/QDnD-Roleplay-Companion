@@ -195,7 +195,7 @@ class _CombatSpellcasterSheetState extends State<CombatSpellcasterSheet> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: colorScheme.onSurfaceVariant.withOpacity(0.4),
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -260,7 +260,7 @@ class _CombatSpellcasterSheetState extends State<CombatSpellcasterSheet> {
                                 decoration: BoxDecoration(
                                   color: isEmpty
                                       ? colorScheme.errorContainer
-                                          .withOpacity(0.5)
+                                          .withValues(alpha: 0.5)
                                       : colorScheme.surface,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
@@ -352,7 +352,7 @@ class _CombatSpellcasterSheetState extends State<CombatSpellcasterSheet> {
                               icon: const Icon(Icons.flash_on),
                               color: canCast
                                   ? colorScheme.primary
-                                  : colorScheme.onSurface.withOpacity(0.1),
+                                  : colorScheme.onSurface.withValues(alpha: 0.1),
                               onPressed: canCast
                                   ? () => _castSpell(spell, l10n, locale)
                                   : null,

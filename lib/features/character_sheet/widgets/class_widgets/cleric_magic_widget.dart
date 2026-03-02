@@ -300,7 +300,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accentColor.withOpacity(0.3)),
+        border: Border.all(color: accentColor.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -438,7 +438,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(
@@ -508,13 +508,13 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: isActive
-                              ? accentColor.withOpacity(0.15)
+                              ? accentColor.withValues(alpha: 0.15)
                               : colorScheme.surface,
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: isActive
                                 ? accentColor
-                                : colorScheme.outline.withOpacity(0.3),
+                                : colorScheme.outline.withValues(alpha: 0.3),
                             width: 2,
                           ),
                         ),
@@ -522,7 +522,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
                           Icons.star,
                           color: isActive
                               ? accentColor
-                              : colorScheme.outline.withOpacity(0.3),
+                              : colorScheme.outline.withValues(alpha: 0.3),
                           size: 24,
                         ),
                       ),
@@ -576,7 +576,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
       margin: EdgeInsets.zero,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+        side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(12),
       ),
       color: colorScheme.surface,
@@ -590,7 +590,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: accentColor.withOpacity(0.1),
+                  color: accentColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(Icons.security, size: 20, color: accentColor),
@@ -657,7 +657,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(

@@ -95,7 +95,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
                   color: blockBg,
                   borderRadius: BorderRadius.circular(12),
                   border:
-                      Border.all(color: colorScheme.outline.withOpacity(0.3)),
+                      Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: _buildInvocationsBlock(colorScheme, warlockColor,
@@ -152,7 +152,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
     // 1. Try to find a SPECIFIC pact boon in features (e.g. "Pact of the Blade")
     try {
       final specific = widget.character.features.firstWhere((f) {
-        final name = (f.nameEn ?? '').toLowerCase();
+        final name = (f.nameEn).toLowerCase();
         return name.contains('pact of the') &&
             !name.contains('feature') &&
             !name.contains('boon');
@@ -166,7 +166,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
     // 3. Last ditch: any feature with "Pact"
     try {
       return widget.character.features.firstWhere((f) {
-        final name = (f.nameEn ?? '').toLowerCase();
+        final name = (f.nameEn).toLowerCase();
         return name.contains('pact boon') || name.contains('предмет договора');
       });
     } catch (_) {
@@ -185,7 +185,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(
@@ -236,9 +236,9 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
 
     return Container(
       decoration: BoxDecoration(
-        color: warlockColor.withOpacity(0.15),
+        color: warlockColor.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: warlockColor.withOpacity(0.3)),
+        border: Border.all(color: warlockColor.withValues(alpha: 0.3)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(
@@ -340,7 +340,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
                   top: -15,
                   bottom: -15,
                   child: Icon(icon,
-                      size: 80, color: warlockColor.withOpacity(0.2)),
+                      size: 80, color: warlockColor.withValues(alpha: 0.2)),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -383,13 +383,16 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
     // Icon logic
     IconData icon = Icons.card_giftcard;
     final lower = featureName.toLowerCase();
-    if (lower.contains('blade') || lower.contains('клинка'))
+    if (lower.contains('blade') || lower.contains('клинка')) {
       icon = Icons.shield_outlined;
+    }
     if (lower.contains('chain') || lower.contains('цепи')) icon = Icons.link;
-    if (lower.contains('tome') || lower.contains('гримуар'))
+    if (lower.contains('tome') || lower.contains('гримуар')) {
       icon = Icons.menu_book;
-    if (lower.contains('talisman') || lower.contains('талисман'))
+    }
+    if (lower.contains('talisman') || lower.contains('талисман')) {
       icon = Icons.workspace_premium;
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -421,7 +424,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
               ),
             ),
             Icon(Icons.info_outline,
-                size: 18, color: colorScheme.outline.withOpacity(0.5)),
+                size: 18, color: colorScheme.outline.withValues(alpha: 0.5)),
           ],
         ),
 
@@ -611,7 +614,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: warlockColor.withOpacity(0.3)),
+        border: Border.all(color: warlockColor.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -625,7 +628,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: warlockColor.withOpacity(0.1),
+                    color: warlockColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(Icons.bolt, size: 20, color: warlockColor),
@@ -682,7 +685,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceDim,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: ListTile(
         dense: true,

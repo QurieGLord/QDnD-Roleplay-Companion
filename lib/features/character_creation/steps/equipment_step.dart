@@ -163,7 +163,7 @@ class _EquipmentStepState extends State<EquipmentStep> {
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: isSelected
                             ? theme.colorScheme.onPrimaryContainer
-                                .withOpacity(0.8)
+                                .withValues(alpha: 0.8)
                             : theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
@@ -226,8 +226,8 @@ class _EquipmentStepState extends State<EquipmentStep> {
                     Icon(
                       Icons.inventory_2_outlined,
                       size: 48,
-                      color:
-                          theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                      color: theme.colorScheme.onSurfaceVariant
+                          .withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -240,8 +240,8 @@ class _EquipmentStepState extends State<EquipmentStep> {
                     Text(
                       l10n.tapToAddItems,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color:
-                            theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+                        color: theme.colorScheme.onSurfaceVariant
+                            .withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -419,7 +419,7 @@ class _EquipmentStepState extends State<EquipmentStep> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: accentColor.withOpacity(0.15),
+                    color: accentColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -1011,7 +1011,7 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                           Icon(Icons.inventory_2_outlined,
                               size: 64,
                               color: theme.colorScheme.onSurfaceVariant
-                                  .withOpacity(0.5)),
+                                  .withValues(alpha: 0.5)),
                           const SizedBox(height: 16),
                           Text(widget.l10n.noItemsFound,
                               style: theme.textTheme.bodyLarge?.copyWith(
@@ -1056,7 +1056,7 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                                 style: TextStyle(
                                     color: isSelected
                                         ? theme.colorScheme.onPrimaryContainer
-                                            .withOpacity(0.7)
+                                            .withValues(alpha: 0.7)
                                         : null)),
                             trailing: Checkbox(
                                 value: isSelected,
@@ -1165,9 +1165,9 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
       case ItemType.consumable:
         return widget.l10n.typeConsumable;
       case ItemType.tool:
-        return 'Инструменты'; // TODO
+        return 'Инструменты';
       case ItemType.treasure:
-        return 'Сокровища'; // TODO
+        return 'Сокровища';
     }
   }
 

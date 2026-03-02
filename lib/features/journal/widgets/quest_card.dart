@@ -30,7 +30,7 @@ class QuestCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
           width: 1,
         ),
       ),
@@ -63,7 +63,7 @@ class QuestCard extends StatelessWidget {
                             ? TextDecoration.lineThrough
                             : null,
                         color: quest.status != QuestStatus.active
-                            ? theme.colorScheme.onSurface.withOpacity(0.6)
+                            ? theme.colorScheme.onSurface.withValues(alpha: 0.6)
                             : null,
                       ),
                       maxLines: 1,

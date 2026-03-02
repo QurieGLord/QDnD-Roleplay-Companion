@@ -80,7 +80,7 @@ class _SplashScreenState extends State<SplashScreen>
                         color: Theme.of(context)
                             .colorScheme
                             .onSurface
-                            .withOpacity(0.8), // Increased opacity
+                            .withValues(alpha: 0.8), // Increased opacity
                         letterSpacing: 1.2, // Added spacing for elegance
                         fontWeight: FontWeight.w500,
                       ),

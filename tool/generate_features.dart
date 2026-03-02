@@ -1,7 +1,7 @@
+// ignore_for_file: avoid_print
 import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
-import 'srd_translations_ru.dart';
 
 /// Helper to join array of strings into one string.
 String joinDesc(dynamic descLines) {
@@ -234,9 +234,8 @@ void main() async {
     // --- Localization ---
     final shadowFeature = featuresRuMap[index];
 
-    final nameRu = shadowFeature != null
-        ? shadowFeature['name'] as String
-        : translate(nameEn);
+    final nameRu =
+        shadowFeature != null ? shadowFeature['name'] as String : nameEn;
 
     final descRu = shadowFeature != null && shadowFeature['desc'] != null
         ? joinDesc(shadowFeature['desc'])
@@ -340,27 +339,29 @@ void main() async {
       // Generic Icon logic based on class
       if (associatedClass == 'Barbarian') {
         iconName = 'fitness_center';
-      } else if (associatedClass == 'Bard')
+      } else if (associatedClass == 'Bard') {
         iconName = 'music_note';
-      else if (associatedClass == 'Cleric')
+      } else if (associatedClass == 'Cleric') {
         iconName = 'health_and_safety';
-      else if (associatedClass == 'Druid')
+      } else if (associatedClass == 'Druid') {
         iconName = 'nature';
-      else if (associatedClass == 'Fighter')
+      } else if (associatedClass == 'Fighter') {
         iconName = 'swords';
-      else if (associatedClass == 'Monk')
+      } else if (associatedClass == 'Monk') {
         iconName = 'self_improvement';
-      else if (associatedClass == 'Paladin')
+      } else if (associatedClass == 'Paladin') {
         iconName = 'shield';
-      else if (associatedClass == 'Ranger')
+      } else if (associatedClass == 'Ranger') {
         iconName = 'gps_fixed';
-      else if (associatedClass == 'Rogue')
+      } else if (associatedClass == 'Rogue') {
         iconName = 'visibility_off';
-      else if (associatedClass == 'Sorcerer')
+      } else if (associatedClass == 'Sorcerer') {
         iconName = 'bolt';
-      else if (associatedClass == 'Warlock')
+      } else if (associatedClass == 'Warlock') {
         iconName = 'psychology';
-      else if (associatedClass == 'Wizard') iconName = 'menu_book';
+      } else if (associatedClass == 'Wizard') {
+        iconName = 'menu_book';
+      }
     }
 
     // Heuristic: Infer Action/Bonus Action/Reaction from description if NOT already set

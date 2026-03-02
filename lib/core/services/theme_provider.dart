@@ -138,7 +138,7 @@ class ThemeProvider extends ChangeNotifier {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colorScheme.outline),
@@ -147,7 +147,7 @@ class ThemeProvider extends ChangeNotifier {
           borderRadius: BorderRadius.circular(12),
           borderSide: _isHighContrast
               ? BorderSide(color: colorScheme.primary, width: 2)
-              : BorderSide(color: colorScheme.outline.withOpacity(0.5)),
+              : BorderSide(color: colorScheme.outline.withValues(alpha: 0.5)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -161,11 +161,10 @@ class ThemeProvider extends ChangeNotifier {
         thickness: _isHighContrast ? 2 : 1,
       ),
       listTileTheme: ListTileThemeData(
-        shape: highContrastShape ??
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         iconColor: colorScheme.secondary,
         textColor: colorScheme.onSurface,
-        // In HC mode, we might want ListTiles to have borders too if they are distinct blocks
+        // Removed highContrastShape to avoid doubling with Card borders
       ),
       dialogTheme: DialogThemeData(
         shape: _isHighContrast

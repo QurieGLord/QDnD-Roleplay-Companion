@@ -515,8 +515,6 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
           : null,
     );
 
-    final rarityColor = _getRarityColor(_selectedRarity);
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -527,7 +525,7 @@ class _CreateItemScreenState extends State<CreateItemScreen> {
           stops: const [0.0, 0.3, 1.0],
           colors: [
             theme.scaffoldBackgroundColor,
-            theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+            theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
             theme.scaffoldBackgroundColor,
           ],
         ),

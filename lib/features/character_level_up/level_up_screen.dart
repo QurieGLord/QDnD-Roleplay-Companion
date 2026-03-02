@@ -153,12 +153,8 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
                     minLevel: 0)));
         if (natRec.id == 'natural-recovery') {
           // Check if we should add it (subclass match)
-          bool shouldAdd = true;
           if (natRec.associatedSubclass != null &&
               widget.character.subclass != null) {
-            // Normalize
-            final s1 = natRec.associatedSubclass!.toLowerCase();
-            final s2 = widget.character.subclass!.toLowerCase();
             // "land" vs "circle of the land" or "land"
             // If character has "Land", it matches.
             // If character doesn't have subclass yet (level 2 choice), we might need to rely on selection.
@@ -186,7 +182,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       if (_classData.id == 'paladin' || _classData.id == 'ranger') {
         casterType = 'half';
       }
-      // TODO: better caster type detection from ClassData
+      // Note: better caster type detection from ClassData
 
       final newSlots = SpellSlotsTable.getSlots(_nextLevel, casterType);
 
@@ -321,7 +317,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       if (activeTier != null) {
         // Surgically remove ONLY from char.features for the matching tier
         char.features.removeWhere((f) {
-          final fId = (f.id ?? '').toLowerCase();
+          final fId = (f.id).toLowerCase();
           return activeTier!.any((kw) =>
               fId.contains(kw) ||
               fId.replaceAll('-', '').replaceAll('_', '').contains(kw));
@@ -329,7 +325,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
 
         // Add the new valid tactic object directly
         _newFeatures.removeWhere((f) {
-          final fId = (f.id ?? '').toLowerCase();
+          final fId = (f.id).toLowerCase();
           return activeTier!.any((kw) =>
               fId.contains(kw) ||
               fId.replaceAll('-', '').replaceAll('_', '').contains(kw));
@@ -344,7 +340,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
         if (fullyLoadedTactic == null) {
           final allFeatures = FeatureService.allFeatures;
           for (final f in allFeatures) {
-            final fId = (f.id ?? '').toLowerCase();
+            final fId = (f.id).toLowerCase();
             if (fId == chosenIdStr ||
                 fId.endsWith(chosenIdStr) ||
                 fId.contains(chosenIdStr)) {
@@ -358,7 +354,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
         if (fullyLoadedTactic == null) {
           try {
             fullyLoadedTactic = _newFeatures.firstWhere(
-              (f) => (f.id ?? '').toLowerCase() == chosenIdStr,
+              (f) => (f.id).toLowerCase() == chosenIdStr,
             );
           } catch (_) {}
         }

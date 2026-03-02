@@ -144,7 +144,8 @@ class _JournalTabState extends State<JournalTab> {
                   color: theme.colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
+                      color: theme.colorScheme.outlineVariant
+                          .withValues(alpha: 0.5)),
                 ),
                 child: Center(
                   child: Text(
@@ -216,7 +217,8 @@ class _JournalTabState extends State<JournalTab> {
                   color: theme.colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: theme.colorScheme.outlineVariant.withOpacity(0.5)),
+                      color: theme.colorScheme.outlineVariant
+                          .withValues(alpha: 0.5)),
                 ),
                 child: Center(
                   child: Text(
@@ -375,45 +377,6 @@ class _JournalTabState extends State<JournalTab> {
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
             child: Text(l10n.delete),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  const _StatChip({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
           ),
         ],
       ),
