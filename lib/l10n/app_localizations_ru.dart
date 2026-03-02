@@ -431,7 +431,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String levelLabel(int level) {
-    return 'Уровень $level';
+    return 'Круг $level';
   }
 
   @override
@@ -449,11 +449,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get chooseSpellSlot => 'Выберите уровень ячейки:';
+  String get chooseSpellSlot => 'Выберите круг заклинания:';
 
   @override
   String levelSlot(int level) {
-    return 'Ячейка $level ур.';
+    return 'Круг $level';
   }
 
   @override
@@ -474,7 +474,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String spellCastLevelSuccess(String name, String level) {
-    return '$name наложено на $level уровне!';
+    return '$name наложено на $level-м круге!';
   }
 
   @override
@@ -488,7 +488,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String lvlShort(int level) {
-    return 'Ур $level';
+    return 'К$level';
   }
 
   @override

@@ -431,7 +431,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String levelLabel(int level) {
-    return 'Level $level';
+    return 'Circle $level';
   }
 
   @override
@@ -449,11 +449,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get chooseSpellSlot => 'Choose spell slot level:';
+  String get chooseSpellSlot => 'Choose spell circle:';
 
   @override
   String levelSlot(int level) {
-    return 'Level $level Slot';
+    return 'Circle $level';
   }
 
   @override
@@ -480,7 +480,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String spellCastLevelSuccess(String name, String level) {
-    return '$name cast at level $level!';
+    return '$name cast at circle $level!';
   }
 
   @override
@@ -494,7 +494,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String lvlShort(int level) {
-    return 'Lvl $level';
+    return 'C$level';
   }
 
   @override

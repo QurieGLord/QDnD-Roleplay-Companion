@@ -595,8 +595,8 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
                                 Expanded(
                                   child: Text(
                                     locale == 'ru'
-                                        ? 'Ячейка $level круга (${damageDice}d8 урона)'
-                                        : 'Level $level slot (${damageDice}d8 damage)',
+                                        ? 'Круг $level (${damageDice}d8 урона)'
+                                        : 'Circle $level (${damageDice}d8 damage)',
                                     style: theme.textTheme.bodyLarge
                                         ?.copyWith(fontWeight: FontWeight.w600),
                                   ),
@@ -635,6 +635,9 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
         widget.character.save();
       }
     });
+
+    // Notify parent so SpellSlotsWidget rebuilds to show consumed slot
+    widget.onChanged?.call();
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(

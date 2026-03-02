@@ -923,7 +923,7 @@ abstract class AppLocalizations {
   /// No description provided for @levelLabel.
   ///
   /// In en, this message translates to:
-  /// **'Level {level}'**
+  /// **'Circle {level}'**
   String levelLabel(int level);
 
   /// No description provided
@@ -953,13 +953,13 @@ abstract class AppLocalizations {
   /// No description provided
   ///
   /// In en, this message translates to:
-  /// **'Choose spell slot level:'**
+  /// **'Choose spell circle:'**
   String get chooseSpellSlot;
 
   /// No description provided for @levelSlot.
   ///
   /// In en, this message translates to:
-  /// **'Level {level} Slot'**
+  /// **'Circle {level}'**
   String levelSlot(int level);
 
   /// No description provided for @slotsRemaining.
@@ -989,7 +989,7 @@ abstract class AppLocalizations {
   /// No description provided for @spellCastLevelSuccess.
   ///
   /// In en, this message translates to:
-  /// **'{name} cast at level {level}!'**
+  /// **'{name} cast at circle {level}!'**
   String spellCastLevelSuccess(String name, String level);
 
   /// No description provided
@@ -1013,7 +1013,7 @@ abstract class AppLocalizations {
   /// No description provided for @lvlShort.
   ///
   /// In en, this message translates to:
-  /// **'Lvl {level}'**
+  /// **'C{level}'**
   String lvlShort(int level);
 
   /// No description provided

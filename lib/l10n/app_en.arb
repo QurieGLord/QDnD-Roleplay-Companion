@@ -564,7 +564,7 @@
   "@cantrips": {
     "description": "No description provided"
   },
-  "levelLabel": "Level {level}",
+  "levelLabel": "Circle {level}",
   "@levelLabel": {
     "placeholders": {
       "level": {
@@ -592,11 +592,11 @@
       }
     }
   },
-  "chooseSpellSlot": "Choose spell slot level:",
+  "chooseSpellSlot": "Choose spell circle:",
   "@chooseSpellSlot": {
     "description": "No description provided"
   },
-  "levelSlot": "Level {level} Slot",
+  "levelSlot": "Circle {level}",
   "@levelSlot": {
     "placeholders": {
       "level": {
@@ -628,7 +628,7 @@
       }
     }
   },
-  "spellCastLevelSuccess": "{name} cast at level {level}!",
+  "spellCastLevelSuccess": "{name} cast at circle {level}!",
   "@spellCastLevelSuccess": {
     "placeholders": {
       "name": {
@@ -651,7 +651,7 @@
   "@spellAttack": {
     "description": "No description provided"
   },
-  "lvlShort": "Lvl {level}",
+  "lvlShort": "C{level}",
   "@lvlShort": {
     "placeholders": {
       "level": {

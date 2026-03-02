@@ -186,6 +186,12 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         return false;
       }
       if (id == 'channel-divinity' || id == 'channel_divinity') return false;
+      if (id == 'divine-smite' ||
+          id == 'divine_smite' ||
+          name.contains('divine smite') ||
+          name.contains('божественная кара')) {
+        return false; // Handled exclusively by PaladinDivineWidget
+      }
       if (id.startsWith('channel-divinity-') ||
           id.startsWith('channel_divinity_')) {
         return false;
