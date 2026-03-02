@@ -1,41 +1,137 @@
 {
   "@@locale": "en",
   "appTitle": "QD&D",
+  "@appTitle": {
+    "description": "No description provided"
+  },
   "appSubtitle": "Roleplay Companion",
   "@appSubtitle": {
     "description": "The app subtitle which should NOT be translated"
   },
   "settings": "Settings",
+  "@settings": {
+    "description": "No description provided"
+  },
   "language": "Language",
+  "@language": {
+    "description": "No description provided"
+  },
   "theme": "Theme",
+  "@theme": {
+    "description": "No description provided"
+  },
   "characters": "Characters",
+  "@characters": {
+    "description": "No description provided"
+  },
   "compendium": "Compendium",
+  "@compendium": {
+    "description": "No description provided"
+  },
   "diceRoller": "Dice Roller",
+  "@diceRoller": {
+    "description": "No description provided"
+  },
   "inventory": "Inventory",
+  "@inventory": {
+    "description": "No description provided"
+  },
   "spells": "Spells",
+  "@spells": {
+    "description": "No description provided"
+  },
   "features": "Features",
+  "@features": {
+    "description": "No description provided"
+  },
   "stats": "Stats",
+  "@stats": {
+    "description": "No description provided"
+  },
   "combat": "Combat",
+  "@combat": {
+    "description": "No description provided"
+  },
   "notes": "Notes",
+  "@notes": {
+    "description": "No description provided"
+  },
   "quests": "Quests",
+  "@quests": {
+    "description": "No description provided"
+  },
   "cancel": "Cancel",
+  "@cancel": {
+    "description": "No description provided"
+  },
   "save": "Save",
+  "@save": {
+    "description": "No description provided"
+  },
   "edit": "Edit",
+  "@edit": {
+    "description": "No description provided"
+  },
   "delete": "Delete",
+  "@delete": {
+    "description": "No description provided"
+  },
   "level": "Level",
+  "@level": {
+    "description": "No description provided"
+  },
   "race": "Race",
+  "@race": {
+    "description": "No description provided"
+  },
   "background": "Background",
+  "@background": {
+    "description": "No description provided"
+  },
   "classLabel": "Class",
+  "@classLabel": {
+    "description": "No description provided"
+  },
   "subclass": "Subclass",
+  "@subclass": {
+    "description": "No description provided"
+  },
   "alignment": "Alignment",
+  "@alignment": {
+    "description": "No description provided"
+  },
   "experience": "Experience",
+  "@experience": {
+    "description": "No description provided"
+  },
   "playerName": "Player Name",
+  "@playerName": {
+    "description": "No description provided"
+  },
   "createNewCharacter": "Create New Character",
+  "@createNewCharacter": {
+    "description": "No description provided"
+  },
   "importFC5": "Import from Fight Club 5",
+  "@importFC5": {
+    "description": "No description provided"
+  },
   "viewDetails": "View Details",
+  "@viewDetails": {
+    "description": "No description provided"
+  },
   "duplicate": "Duplicate",
+  "@duplicate": {
+    "description": "No description provided"
+  },
   "close": "Close",
+  "@close": {
+    "description": "No description provided"
+  },
   "deleteConfirmationTitle": "Delete Character",
+  "@deleteConfirmationTitle": {
+    "description": "No description provided"
+  },
   "deleteConfirmationMessage": "Are you sure you want to delete {name}? This cannot be undone.",
   "@deleteConfirmationMessage": {
     "placeholders": {
@@ -69,107 +165,406 @@
     }
   },
   "abilities": "Abilities",
+  "@abilities": {
+    "description": "No description provided"
+  },
   "savingThrows": "Saving Throws",
+  "@savingThrows": {
+    "description": "No description provided"
+  },
   "skills": "Skills",
+  "@skills": {
+    "description": "No description provided"
+  },
   "abilityStr": "Strength",
+  "@abilityStr": {
+    "description": "No description provided"
+  },
   "abilityDex": "Dexterity",
+  "@abilityDex": {
+    "description": "No description provided"
+  },
   "abilityCon": "Constitution",
+  "@abilityCon": {
+    "description": "No description provided"
+  },
   "abilityInt": "Intelligence",
+  "@abilityInt": {
+    "description": "No description provided"
+  },
   "abilityWis": "Wisdom",
+  "@abilityWis": {
+    "description": "No description provided"
+  },
   "abilityCha": "Charisma",
+  "@abilityCha": {
+    "description": "No description provided"
+  },
   "skillAthletics": "Athletics",
+  "@skillAthletics": {
+    "description": "No description provided"
+  },
   "skillAcrobatics": "Acrobatics",
+  "@skillAcrobatics": {
+    "description": "No description provided"
+  },
   "skillSleightOfHand": "Sleight of Hand",
+  "@skillSleightOfHand": {
+    "description": "No description provided"
+  },
   "skillStealth": "Stealth",
+  "@skillStealth": {
+    "description": "No description provided"
+  },
   "skillArcana": "Arcana",
+  "@skillArcana": {
+    "description": "No description provided"
+  },
   "skillHistory": "History",
+  "@skillHistory": {
+    "description": "No description provided"
+  },
   "skillInvestigation": "Investigation",
+  "@skillInvestigation": {
+    "description": "No description provided"
+  },
   "skillNature": "Nature",
+  "@skillNature": {
+    "description": "No description provided"
+  },
   "skillReligion": "Religion",
+  "@skillReligion": {
+    "description": "No description provided"
+  },
   "skillAnimalHandling": "Animal Handling",
+  "@skillAnimalHandling": {
+    "description": "No description provided"
+  },
   "skillInsight": "Insight",
+  "@skillInsight": {
+    "description": "No description provided"
+  },
   "skillMedicine": "Medicine",
+  "@skillMedicine": {
+    "description": "No description provided"
+  },
   "skillPerception": "Perception",
+  "@skillPerception": {
+    "description": "No description provided"
+  },
   "skillSurvival": "Survival",
+  "@skillSurvival": {
+    "description": "No description provided"
+  },
   "skillDeception": "Deception",
+  "@skillDeception": {
+    "description": "No description provided"
+  },
   "skillIntimidation": "Intimidation",
+  "@skillIntimidation": {
+    "description": "No description provided"
+  },
   "skillPerformance": "Performance",
+  "@skillPerformance": {
+    "description": "No description provided"
+  },
   "skillPersuasion": "Persuasion",
+  "@skillPersuasion": {
+    "description": "No description provided"
+  },
   "combatDashboard": "Combat Dashboard",
+  "@combatDashboard": {
+    "description": "No description provided"
+  },
   "hitPoints": "Hit Points",
+  "@hitPoints": {
+    "description": "No description provided"
+  },
   "hpShort": "HP",
+  "@hpShort": {
+    "description": "No description provided"
+  },
   "armorClassAC": "AC",
+  "@armorClassAC": {
+    "description": "No description provided"
+  },
   "initiativeINIT": "INIT",
+  "@initiativeINIT": {
+    "description": "No description provided"
+  },
   "speedSPEED": "SPEED",
+  "@speedSPEED": {
+    "description": "No description provided"
+  },
   "proficiencyPROF": "PROF",
+  "@proficiencyPROF": {
+    "description": "No description provided"
+  },
   "weaponsAttacks": "Weapons & Attacks",
+  "@weaponsAttacks": {
+    "description": "No description provided"
+  },
   "shortRest": "Short Rest",
+  "@shortRest": {
+    "description": "No description provided"
+  },
   "longRest": "Long Rest",
+  "@longRest": {
+    "description": "No description provided"
+  },
   "enterCombatMode": "Enter Combat Mode",
+  "@enterCombatMode": {
+    "description": "No description provided"
+  },
   "rest": "Rest",
+  "@rest": {
+    "description": "No description provided"
+  },
   "shortRestDescription": "Recover short-rest features and spend Hit Dice?",
+  "@shortRestDescription": {
+    "description": "No description provided"
+  },
   "longRestDescription": "Recover all HP, spell slots, and features?",
+  "@longRestDescription": {
+    "description": "No description provided"
+  },
   "restedSuccess": "Rested successfully",
+  "@restedSuccess": {
+    "description": "No description provided"
+  },
   "unarmedStrike": "Unarmed Strike",
+  "@unarmedStrike": {
+    "description": "No description provided"
+  },
   "hit": "HIT",
+  "@hit": {
+    "description": "No description provided"
+  },
   "dmg": "DMG",
+  "@dmg": {
+    "description": "No description provided"
+  },
   "damageTypeBludgeoning": "Bludgeoning",
+  "@damageTypeBludgeoning": {
+    "description": "No description provided"
+  },
   "damageTypePiercing": "Piercing",
+  "@damageTypePiercing": {
+    "description": "No description provided"
+  },
   "damageTypeSlashing": "Slashing",
+  "@damageTypeSlashing": {
+    "description": "No description provided"
+  },
   "damageTypePhysical": "Physical",
+  "@damageTypePhysical": {
+    "description": "No description provided"
+  },
   "searchItems": "Search items...",
+  "@searchItems": {
+    "description": "No description provided"
+  },
   "sortBy": "Sort by",
+  "@sortBy": {
+    "description": "No description provided"
+  },
   "sortName": "Name",
+  "@sortName": {
+    "description": "No description provided"
+  },
   "sortWeight": "Weight",
+  "@sortWeight": {
+    "description": "No description provided"
+  },
   "sortValue": "Value",
+  "@sortValue": {
+    "description": "No description provided"
+  },
   "sortType": "Type",
+  "@sortType": {
+    "description": "No description provided"
+  },
   "filterAll": "All",
+  "@filterAll": {
+    "description": "No description provided"
+  },
   "filterEquipped": "Equipped",
+  "@filterEquipped": {
+    "description": "No description provided"
+  },
   "filterUnequipped": "Unequipped",
+  "@filterUnequipped": {
+    "description": "No description provided"
+  },
   "typeWeapon": "Weapons",
+  "@typeWeapon": {
+    "description": "No description provided"
+  },
   "typeArmor": "Armor",
+  "@typeArmor": {
+    "description": "No description provided"
+  },
   "typeGear": "Gear",
+  "@typeGear": {
+    "description": "No description provided"
+  },
   "typeConsumable": "Consumables",
+  "@typeConsumable": {
+    "description": "No description provided"
+  },
   "totalWeight": "Total Weight",
+  "@totalWeight": {
+    "description": "No description provided"
+  },
   "currency": "Currency",
+  "@currency": {
+    "description": "No description provided"
+  },
   "editCurrency": "Edit Currency",
+  "@editCurrency": {
+    "description": "No description provided"
+  },
   "currencyUpdated": "Currency updated",
+  "@currencyUpdated": {
+    "description": "No description provided"
+  },
   "currencyPP": "Platinum (PP)",
+  "@currencyPP": {
+    "description": "No description provided"
+  },
   "currencyGP": "Gold (GP)",
+  "@currencyGP": {
+    "description": "No description provided"
+  },
   "currencySP": "Silver (SP)",
+  "@currencySP": {
+    "description": "No description provided"
+  },
   "currencyCP": "Copper (CP)",
+  "@currencyCP": {
+    "description": "No description provided"
+  },
   "inventoryEmpty": "Inventory is empty",
+  "@inventoryEmpty": {
+    "description": "No description provided"
+  },
   "inventoryEmptyHint": "Tap + to add items",
+  "@inventoryEmptyHint": {
+    "description": "No description provided"
+  },
   "quantity": "Quantity",
+  "@quantity": {
+    "description": "No description provided"
+  },
   "unequip": "Unequip",
+  "@unequip": {
+    "description": "No description provided"
+  },
   "equip": "Equip",
+  "@equip": {
+    "description": "No description provided"
+  },
   "remove": "Remove",
+  "@remove": {
+    "description": "No description provided"
+  },
   "itemRemoved": "Item removed",
+  "@itemRemoved": {
+    "description": "No description provided"
+  },
   "itemEquipped": "Equipped",
+  "@itemEquipped": {
+    "description": "No description provided"
+  },
   "itemUnequipped": "Unequipped",
+  "@itemUnequipped": {
+    "description": "No description provided"
+  },
   "weaponProperties": "WEAPON PROPERTIES",
+  "@weaponProperties": {
+    "description": "No description provided"
+  },
   "armorProperties": "ARMOR PROPERTIES",
+  "@armorProperties": {
+    "description": "No description provided"
+  },
   "damage": "Damage",
+  "@damage": {
+    "description": "No description provided"
+  },
   "damageType": "Damage Type",
+  "@damageType": {
+    "description": "No description provided"
+  },
   "versatileDamage": "Versatile Damage",
+  "@versatileDamage": {
+    "description": "No description provided"
+  },
   "range": "Range",
+  "@range": {
+    "description": "No description provided"
+  },
   "properties": "Properties",
+  "@properties": {
+    "description": "No description provided"
+  },
   "armorClass": "Armor Class",
+  "@armorClass": {
+    "description": "No description provided"
+  },
   "type": "Type",
+  "@type": {
+    "description": "No description provided"
+  },
   "strRequirement": "STR Requirement",
+  "@strRequirement": {
+    "description": "No description provided"
+  },
   "stealth": "Stealth",
+  "@stealth": {
+    "description": "No description provided"
+  },
   "disadvantage": "Disadvantage",
+  "@disadvantage": {
+    "description": "No description provided"
+  },
   "weight": "Weight",
+  "@weight": {
+    "description": "No description provided"
+  },
   "value": "Value",
+  "@value": {
+    "description": "No description provided"
+  },
   "spellAlmanac": "Spell Almanac",
+  "@spellAlmanac": {
+    "description": "No description provided"
+  },
   "resources": "Resources",
+  "@resources": {
+    "description": "No description provided"
+  },
   "activeAbilities": "Active Abilities",
+  "@activeAbilities": {
+    "description": "No description provided"
+  },
   "magic": "Magic",
+  "@magic": {
+    "description": "No description provided"
+  },
   "spellsList": "Spells List",
+  "@spellsList": {
+    "description": "No description provided"
+  },
   "passiveTraits": "Passive Traits",
+  "@passiveTraits": {
+    "description": "No description provided"
+  },
   "cantrips": "Cantrips",
+  "@cantrips": {
+    "description": "No description provided"
+  },
   "levelLabel": "Level {level}",
-  "levelShort": "Level",
   "@levelLabel": {
     "placeholders": {
       "level": {
@@ -177,8 +572,18 @@
       }
     }
   },
+  "levelShort": "Level",
+  "@levelShort": {
+    "description": "No description provided"
+  },
   "noSpellsLearned": "No spells learned yet",
+  "@noSpellsLearned": {
+    "description": "No description provided"
+  },
   "castSpell": "Cast Spell",
+  "@castSpell": {
+    "description": "No description provided"
+  },
   "castAction": "Cast {name}",
   "@castAction": {
     "placeholders": {
@@ -188,6 +593,9 @@
     }
   },
   "chooseSpellSlot": "Choose spell slot level:",
+  "@chooseSpellSlot": {
+    "description": "No description provided"
+  },
   "levelSlot": "Level {level} Slot",
   "@levelSlot": {
     "placeholders": {
@@ -205,12 +613,44 @@
     }
   },
   "upcast": "Upcast",
+  "@upcast": {
+    "description": "No description provided"
+  },
   "noSlotsAvailable": "No spell slots available!",
+  "@noSlotsAvailable": {
+    "description": "No description provided"
+  },
   "spellCastSuccess": "{name} cast!",
+  "@spellCastSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "spellCastLevelSuccess": "{name} cast at level {level}!",
+  "@spellCastLevelSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "level": {
+        "type": "String"
+      }
+    }
+  },
   "spellAbility": "Ability",
+  "@spellAbility": {
+    "description": "No description provided"
+  },
   "spellSaveDC": "Save DC",
+  "@spellSaveDC": {
+    "description": "No description provided"
+  },
   "spellAttack": "Attack",
+  "@spellAttack": {
+    "description": "No description provided"
+  },
   "lvlShort": "Lvl {level}",
   "@lvlShort": {
     "placeholders": {
@@ -220,6 +660,9 @@
     }
   },
   "channelDivinity": "Channel Divinity",
+  "@channelDivinity": {
+    "description": "No description provided"
+  },
   "useChannelDivinity": "Use Channel Divinity ({count} left)",
   "@useChannelDivinity": {
     "placeholders": {
@@ -229,74 +672,277 @@
     }
   },
   "noChannelDivinity": "No Channel Divinity charges",
+  "@noChannelDivinity": {
+    "description": "No description provided"
+  },
   "noWildShapeCharges": "No Wild Shape charges",
+  "@noWildShapeCharges": {
+    "description": "No description provided"
+  },
   "schoolAbjuration": "Abjuration",
+  "@schoolAbjuration": {
+    "description": "No description provided"
+  },
   "schoolConjuration": "Conjuration",
+  "@schoolConjuration": {
+    "description": "No description provided"
+  },
   "schoolDivination": "Divination",
+  "@schoolDivination": {
+    "description": "No description provided"
+  },
   "schoolEnchantment": "Enchantment",
+  "@schoolEnchantment": {
+    "description": "No description provided"
+  },
   "schoolEvocation": "Evocation",
+  "@schoolEvocation": {
+    "description": "No description provided"
+  },
   "schoolIllusion": "Illusion",
+  "@schoolIllusion": {
+    "description": "No description provided"
+  },
   "schoolNecromancy": "Necromancy",
+  "@schoolNecromancy": {
+    "description": "No description provided"
+  },
   "schoolTransmutation": "Transmutation",
+  "@schoolTransmutation": {
+    "description": "No description provided"
+  },
   "combatStats": "Combat Stats",
+  "@combatStats": {
+    "description": "No description provided"
+  },
   "rollInitiative": "Roll Initiative",
+  "@rollInitiative": {
+    "description": "No description provided"
+  },
   "endCombat": "End Combat",
+  "@endCombat": {
+    "description": "No description provided"
+  },
   "endCombatConfirm": "This will reset the round counter.",
+  "@endCombatConfirm": {
+    "description": "No description provided"
+  },
   "nextRound": "Next Round",
+  "@nextRound": {
+    "description": "No description provided"
+  },
   "startCombat": "Start Combat",
+  "@startCombat": {
+    "description": "No description provided"
+  },
   "heal": "Heal",
+  "@heal": {
+    "description": "No description provided"
+  },
   "takeDamage": "Take Damage",
+  "@takeDamage": {
+    "description": "No description provided"
+  },
   "tempHp": "Temp HP",
+  "@tempHp": {
+    "description": "No description provided"
+  },
   "deathSaves": "Death Saves",
+  "@deathSaves": {
+    "description": "No description provided"
+  },
   "successes": "Successes",
+  "@successes": {
+    "description": "No description provided"
+  },
   "failures": "Failures",
+  "@failures": {
+    "description": "No description provided"
+  },
   "unconscious": "Unconscious",
+  "@unconscious": {
+    "description": "No description provided"
+  },
   "condition": "Condition",
+  "@condition": {
+    "description": "No description provided"
+  },
   "conditions": "Conditions",
+  "@conditions": {
+    "description": "No description provided"
+  },
   "actionTypeAction": "Action",
+  "@actionTypeAction": {
+    "description": "No description provided"
+  },
   "actionTypeBonus": "Bonus Action",
+  "@actionTypeBonus": {
+    "description": "No description provided"
+  },
   "actionTypeReaction": "Reaction",
+  "@actionTypeReaction": {
+    "description": "No description provided"
+  },
   "spellcastingAbility": "Spellcasting Ability",
+  "@spellcastingAbility": {
+    "description": "No description provided"
+  },
   "currencyPP_short": "pp",
+  "@currencyPP_short": {
+    "description": "No description provided"
+  },
   "currencyGP_short": "gp",
+  "@currencyGP_short": {
+    "description": "No description provided"
+  },
   "currencySP_short": "sp",
+  "@currencySP_short": {
+    "description": "No description provided"
+  },
   "currencyCP_short": "cp",
+  "@currencyCP_short": {
+    "description": "No description provided"
+  },
   "weightUnit": "lb",
+  "@weightUnit": {
+    "description": "No description provided"
+  },
   "currencyUnit": "gp",
+  "@currencyUnit": {
+    "description": "No description provided"
+  },
   "age": "Age",
+  "@age": {
+    "description": "No description provided"
+  },
   "height": "Height",
-  "weight": "Weight",
+  "@height": {
+    "description": "No description provided"
+  },
   "eyes": "Eyes",
+  "@eyes": {
+    "description": "No description provided"
+  },
   "skin": "Skin",
+  "@skin": {
+    "description": "No description provided"
+  },
   "hair": "Hair",
+  "@hair": {
+    "description": "No description provided"
+  },
   "appearance": "Appearance",
+  "@appearance": {
+    "description": "No description provided"
+  },
   "rollType": "Roll Type",
+  "@rollType": {
+    "description": "No description provided"
+  },
   "normal": "Normal",
+  "@normal": {
+    "description": "No description provided"
+  },
   "advantage": "Advantage",
-  "disadvantage": "Disadvantage",
+  "@advantage": {
+    "description": "No description provided"
+  },
   "modifier": "Modifier",
+  "@modifier": {
+    "description": "No description provided"
+  },
   "rolling": "Rolling...",
+  "@rolling": {
+    "description": "No description provided"
+  },
   "total": "Total: {value}",
+  "@total": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "tapToRoll": "Tap to Roll",
+  "@tapToRoll": {
+    "description": "No description provided"
+  },
   "levelUp": "Level Up",
+  "@levelUp": {
+    "description": "No description provided"
+  },
   "levelUpTitle": "Level Up",
+  "@levelUpTitle": {
+    "description": "No description provided"
+  },
   "currentLevel": "Current Level",
+  "@currentLevel": {
+    "description": "No description provided"
+  },
   "nextLevel": "Next Level",
+  "@nextLevel": {
+    "description": "No description provided"
+  },
   "hpIncrease": "HP Increase",
-  "features": "Features",
+  "@hpIncrease": {
+    "description": "No description provided"
+  },
   "chooseRace": "Choose Race",
+  "@chooseRace": {
+    "description": "No description provided"
+  },
   "chooseClass": "Choose Class",
+  "@chooseClass": {
+    "description": "No description provided"
+  },
   "hitDieType": "Hit Die: d{value}",
+  "@hitDieType": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "damageTypeAcid": "Acid",
+  "@damageTypeAcid": {
+    "description": "No description provided"
+  },
   "damageTypeCold": "Cold",
+  "@damageTypeCold": {
+    "description": "No description provided"
+  },
   "damageTypeFire": "Fire",
+  "@damageTypeFire": {
+    "description": "No description provided"
+  },
   "damageTypeForce": "Force",
+  "@damageTypeForce": {
+    "description": "No description provided"
+  },
   "damageTypeLightning": "Lightning",
+  "@damageTypeLightning": {
+    "description": "No description provided"
+  },
   "damageTypeNecrotic": "Necrotic",
+  "@damageTypeNecrotic": {
+    "description": "No description provided"
+  },
   "damageTypePoison": "Poison",
+  "@damageTypePoison": {
+    "description": "No description provided"
+  },
   "damageTypePsychic": "Psychic",
+  "@damageTypePsychic": {
+    "description": "No description provided"
+  },
   "damageTypeRadiant": "Radiant",
+  "@damageTypeRadiant": {
+    "description": "No description provided"
+  },
   "damageTypeThunder": "Thunder",
+  "@damageTypeThunder": {
+    "description": "No description provided"
+  },
   "conModIs": "Your Constitution modifier is {value}",
   "@conModIs": {
     "placeholders": {
@@ -306,249 +952,221 @@
     }
   },
   "average": "Average",
+  "@average": {
+    "description": "No description provided"
+  },
   "safeChoice": "Safe choice",
+  "@safeChoice": {
+    "description": "No description provided"
+  },
   "roll": "Roll",
+  "@roll": {
+    "description": "No description provided"
+  },
   "riskIt": "Risk it!",
+  "@riskIt": {
+    "description": "No description provided"
+  },
   "conditionBlinded": "Blinded",
+  "@conditionBlinded": {
+    "description": "No description provided"
+  },
   "conditionCharmed": "Charmed",
+  "@conditionCharmed": {
+    "description": "No description provided"
+  },
   "conditionDeafened": "Deafened",
+  "@conditionDeafened": {
+    "description": "No description provided"
+  },
   "conditionFrightened": "Frightened",
+  "@conditionFrightened": {
+    "description": "No description provided"
+  },
   "conditionGrappled": "Grappled",
+  "@conditionGrappled": {
+    "description": "No description provided"
+  },
   "conditionIncapacitated": "Incapacitated",
+  "@conditionIncapacitated": {
+    "description": "No description provided"
+  },
   "conditionInvisible": "Invisible",
+  "@conditionInvisible": {
+    "description": "No description provided"
+  },
   "conditionParalyzed": "Paralyzed",
+  "@conditionParalyzed": {
+    "description": "No description provided"
+  },
   "conditionPetrified": "Petrified",
+  "@conditionPetrified": {
+    "description": "No description provided"
+  },
   "conditionPoisoned": "Poisoned",
+  "@conditionPoisoned": {
+    "description": "No description provided"
+  },
   "conditionProne": "Prone",
+  "@conditionProne": {
+    "description": "No description provided"
+  },
   "conditionRestrained": "Restrained",
+  "@conditionRestrained": {
+    "description": "No description provided"
+  },
   "conditionStunned": "Stunned",
+  "@conditionStunned": {
+    "description": "No description provided"
+  },
   "conditionUnconscious": "Unconscious",
+  "@conditionUnconscious": {
+    "description": "No description provided"
+  },
   "stepBasicInfo": "Basic Info",
+  "@stepBasicInfo": {
+    "description": "No description provided"
+  },
   "identity": "Character Identity",
+  "@identity": {
+    "description": "No description provided"
+  },
   "identitySubtitle": "Create the foundation of your character",
+  "@identitySubtitle": {
+    "description": "No description provided"
+  },
   "charName": "Character Name *",
+  "@charName": {
+    "description": "No description provided"
+  },
   "charNameHint": "e.g., Gundren Rockseeker",
-  "alignment": "Alignment",
+  "@charNameHint": {
+    "description": "No description provided"
+  },
   "alignmentSubtitle": "Choose your moral compass",
+  "@alignmentSubtitle": {
+    "description": "No description provided"
+  },
   "physicalAppearance": "Physical Appearance",
+  "@physicalAppearance": {
+    "description": "No description provided"
+  },
   "physicalSubtitle": "Optional details about looks",
+  "@physicalSubtitle": {
+    "description": "No description provided"
+  },
   "personality": "Personality",
+  "@personality": {
+    "description": "No description provided"
+  },
   "personalitySubtitle": "Traits, ideals, bonds, flaws",
+  "@personalitySubtitle": {
+    "description": "No description provided"
+  },
   "backstory": "Backstory",
+  "@backstory": {
+    "description": "No description provided"
+  },
   "backstorySubtitle": "Your character's story",
+  "@backstorySubtitle": {
+    "description": "No description provided"
+  },
   "backstoryHint": "Born in a small village...",
+  "@backstoryHint": {
+    "description": "No description provided"
+  },
   "traits": "Personality Traits",
+  "@traits": {
+    "description": "No description provided"
+  },
   "traitsHint": "I am always polite...",
+  "@traitsHint": {
+    "description": "No description provided"
+  },
   "ideals": "Ideals",
+  "@ideals": {
+    "description": "No description provided"
+  },
   "idealsHint": "Justice...",
+  "@idealsHint": {
+    "description": "No description provided"
+  },
   "bonds": "Bonds",
+  "@bonds": {
+    "description": "No description provided"
+  },
   "bondsHint": "I owe my life...",
+  "@bondsHint": {
+    "description": "No description provided"
+  },
   "flaws": "Flaws",
+  "@flaws": {
+    "description": "No description provided"
+  },
   "flawsHint": "I have a weakness...",
+  "@flawsHint": {
+    "description": "No description provided"
+  },
   "appearanceDesc": "Appearance Description",
+  "@appearanceDesc": {
+    "description": "No description provided"
+  },
   "appearanceHint": "Tall and muscular...",
+  "@appearanceHint": {
+    "description": "No description provided"
+  },
   "ageYears": "years",
+  "@ageYears": {
+    "description": "No description provided"
+  },
   "gender": "Gender",
+  "@gender": {
+    "description": "No description provided"
+  },
   "genderMale": "Male",
+  "@genderMale": {
+    "description": "No description provided"
+  },
   "genderFemale": "Female",
+  "@genderFemale": {
+    "description": "No description provided"
+  },
   "genderOther": "Other",
+  "@genderOther": {
+    "description": "No description provided"
+  },
   "genderMaleShort": "M",
+  "@genderMaleShort": {
+    "description": "No description provided"
+  },
   "genderFemaleShort": "F",
+  "@genderFemaleShort": {
+    "description": "No description provided"
+  },
   "genderOtherShort": "Oth",
+  "@genderOtherShort": {
+    "description": "No description provided"
+  },
   "chooseRaceClass": "Choose Race & Class",
+  "@chooseRaceClass": {
+    "description": "No description provided"
+  },
   "choose": "Choose",
-  "raceClassSubtitle": "Select your character's race and class to determine their core abilities.",
-  "loadingRaces": "Loading races...",
-  "loadingClasses": "Loading classes...",
-  "speed": "Speed: {value} ft.",
-  "abilityScoreIncreases": "Ability Score Increases",
-  "languages": "Languages",
-  "racialTraits": "Racial Traits",
-  "savingThrowProficiencies": "Saving Throws",
-  "check": "Check",
-  "saveLabel": "Save",
-  "rollDie": "Roll d{sides}",
-  "@rollDie": {
-    "placeholders": {
-      "sides": {
-        "type": "int"
-      }
-    }
+  "@choose": {
+    "description": "No description provided"
   },
-  "skillProficiencies": "Skills",
-  "armorProficiencies": "Armor",
-  "weaponProficiencies": "Weapons",
-  "langCommon": "Common",
-  "langDwarvish": "Dwarvish",
-  "langElvish": "Elvish",
-  "langGiant": "Giant",
-  "langGnomish": "Gnomish",
-  "langGoblin": "Goblin",
-  "langHalfling": "Halfling",
-  "langOrc": "Orc",
-  "langAbyssal": "Abyssal",
-  "langCelestial": "Celestial",
-  "langDraconic": "Draconic",
-  "langDeepSpeech": "Deep Speech",
-  "langInfernal": "Infernal",
-  "langPrimordial": "Primordial",
-  "langSylvan": "Sylvan",
-  "langUndercommon": "Undercommon",
-  "weaponClub": "Club",
-  "weaponDagger": "Dagger",
-  "weaponGreatclub": "Greatclub",
-  "weaponHandaxe": "Handaxe",
-  "weaponJavelin": "Javelin",
-  "weaponLightHammer": "Light Hammer",
-  "weaponMace": "Mace",
-  "weaponQuarterstaff": "Quarterstaff",
-  "weaponSickle": "Sickle",
-  "weaponSpear": "Spear",
-  "weaponLightCrossbow": "Light Crossbow",
-  "weaponDart": "Dart",
-  "weaponShortbow": "Shortbow",
-  "weaponSling": "Sling",
-  "weaponBattleaxe": "Battleaxe",
-  "weaponFlail": "Flail",
-  "weaponGlaive": "Glaive",
-  "weaponGreataxe": "Greataxe",
-  "weaponGreatsword": "Greatsword",
-  "weaponHalberd": "Halberd",
-  "weaponLance": "Lance",
-  "weaponLongsword": "Longsword",
-  "weaponMaul": "Maul",
-  "weaponMorningstar": "Morningstar",
-  "weaponPike": "Pike",
-  "weaponRapier": "Rapier",
-  "weaponScimitar": "Scimitar",
-  "weaponShortsword": "Shortsword",
-  "weaponTrident": "Trident",
-  "weaponWarPick": "War Pick",
-  "weaponWarhammer": "Warhammer",
-  "weaponWhip": "Whip",
-  "weaponBlowgun": "Blowgun",
-  "weaponHandCrossbow": "Hand Crossbow",
-  "weaponHeavyCrossbow": "Heavy Crossbow",
-  "weaponLongbow": "Longbow",
-  "weaponNet": "Net",
-  "height": "Height",
-  "weight": "Weight",
-  "eyes": "Eyes",
-  "hair": "Hair",
-  "skin": "Skin",
-  "selectHeight": "Select Height",
-  "selectWeight": "Select Weight",
-  "selectEyeColor": "Select Eye Color",
-  "selectHairColor": "Select Hair Color",
-  "selectSkinTone": "Select Skin Tone",
-  "custom": "Custom",
-  "customEyeColor": "Custom Eye Color",
-  "customHairColor": "Custom Hair Color",
-  "customSkinTone": "Custom Skin Tone",
-  "enterCustom": "Enter custom value",
-  "confirm": "Confirm",
-  "readyMessage": "{name} is ready to choose their path!",
-  "law": "LAW",
-  "neutral": "NEUTRAL",
-  "chaos": "CHAOS",
-  "good": "GOOD",
-  "evil": "EVIL",
-  "lg": "Lawful Good",
-  "ng": "Neutral Good",
-  "cg": "Chaotic Good",
-  "ln": "Lawful Neutral",
-  "tn": "True Neutral",
-  "cn": "Chaotic Neutral",
-  "le": "Lawful Evil",
-  "ne": "Neutral Evil",
-  "ce": "Chaotic Evil",
-  "lgDesc": "Honor, compassion, duty",
-  "ngDesc": "Kind, helpful, balance",
-  "cgDesc": "Freedom, kindness, rebellion",
-  "lnDesc": "Order, tradition, law",
-  "tnDesc": "Balance, nature, neutrality",
-  "cnDesc": "Freedom, unpredictability",
-  "leDesc": "Tyranny, order, domination",
-  "neDesc": "Selfish, cruel, practical",
-  "ceDesc": "Destruction, cruelty, chaos",
-  "stepRaceClass": "Race & Class",
-  "stepAbilities": "Ability Scores & HP",
-  "stepFeatures": "Features & Spells",
-  "stepEquipment": "Equipment",
-  "stepBackground": "Background",
-  "stepSkills": "Skills",
-  "stepReview": "Review",
-  "next": "Next",
-  "back": "Back",
-  "finish": "Finish",
-  "characterCreated": "Character created successfully!",
-  "tapToUpgrade": "TAP TO UPGRADE",
-  "showDetails": "Show Character Details",
-  "hideDetails": "Hide Details",
-  "newAbilities": "New Abilities",
-  "unlocksAtLevel": "Level {level} Unlocks",
-  "@unlocksAtLevel": {
-    "placeholders": {
-      "level": {
-        "type": "int"
-      }
-    }
-  },
-  "noNewFeaturesAtLevel": "No new features at this level. But your stats improved!",
-  "spellSlotsIncreased": "Spell Slots Increased",
-  "sacredOath": "Sacred Oath",
-  "primalPath": "Primal Path",
-  "bardCollege": "Bard College",
-  "divineDomain": "Divine Domain",
-  "druidCircle": "Druid Circle",
-  "martialArchetype": "Martial Archetype",
-  "monasticTradition": "Monastic Tradition",
-  "rangerArchetype": "Ranger Archetype",
-  "roguishArchetype": "Roguish Archetype",
-  "sorcerousOrigin": "Sorcerous Origin",
-  "otherworldlyPatron": "Otherworldly Patron",
-  "arcaneTradition": "Arcane Tradition",
-  "featureTypePassive": "Passive",
-  "featureTypeAction": "Action",
-  "featureTypeBonusAction": "Bonus Action",
-  "featureTypeReaction": "Reaction",
-  "featureTypeOther": "Other",
-  "selectSubclass": "Select Subclass",
-  "selectSpecialization": "Select Specialization",
-  "classFeatures": "Class Features",
-  "chooseFightingStyle": "Choose a Fighting Style:",
-  "makeChoices": "Make Choices to Continue",
-  "continueLabel": "Continue",
-  "levelUpReady": "Level Up Ready!",
-  "confirmLevelUp": "Confirm these changes to your character.",
-  "applyChanges": "APPLY CHANGES",
-  "characterCreated": "Character created successfully!",
-  "colorAmber": "Amber",
-  "colorBlue": "Blue",
-  "colorBrown": "Brown",
-  "colorGray": "Gray",
-  "colorGreen": "Green",
-  "colorHazel": "Hazel",
-  "colorRed": "Red",
-  "colorViolet": "Violet",
-  "colorAuburn": "Auburn",
-  "colorBlack": "Black",
-  "colorBlonde": "Blonde",
-  "colorWhite": "White",
-  "colorBald": "Bald",
-  "skinPale": "Pale",
-  "skinFair": "Fair",
-  "skinLight": "Light",
-  "skinMedium": "Medium",
-  "skinTan": "Tan",
-  "skinDark": "Dark",
-  "skinEbony": "Ebony",
-  "unitCm": "cm",
-  "unitKg": "kg",
-  "chooseRaceClass": "Choose Race & Class",
   "raceClassSubtitle": "Select your character's race and class.",
+  "@raceClassSubtitle": {
+    "description": "No description provided"
+  },
   "loadingRaces": "Loading races...",
+  "@loadingRaces": {
+    "description": "No description provided"
+  },
   "loadingClasses": "Loading classes...",
+  "@loadingClasses": {
+    "description": "No description provided"
+  },
   "speed": "Speed: {value} ft",
   "@speed": {
     "placeholders": {
@@ -558,11 +1176,677 @@
     }
   },
   "abilityScoreIncreases": "Ability Score Increases",
+  "@abilityScoreIncreases": {
+    "description": "No description provided"
+  },
   "languages": "Languages",
+  "@languages": {
+    "description": "No description provided"
+  },
   "racialTraits": "Racial Traits",
+  "@racialTraits": {
+    "description": "No description provided"
+  },
   "savingThrowProficiencies": "Saving Throw Proficiencies",
+  "@savingThrowProficiencies": {
+    "description": "No description provided"
+  },
+  "check": "Check",
+  "@check": {
+    "description": "No description provided"
+  },
+  "saveLabel": "Save",
+  "@saveLabel": {
+    "description": "No description provided"
+  },
+  "rollDie": "Roll d{sides}",
+  "@rollDie": {
+    "placeholders": {
+      "sides": {
+        "type": "int"
+      }
+    }
+  },
   "skillProficiencies": "Skill Proficiencies",
+  "@skillProficiencies": {
+    "description": "No description provided"
+  },
+  "armorProficiencies": "Armor Proficiencies",
+  "@armorProficiencies": {
+    "description": "No description provided"
+  },
+  "weaponProficiencies": "Weapon Proficiencies",
+  "@weaponProficiencies": {
+    "description": "No description provided"
+  },
+  "langCommon": "Common",
+  "@langCommon": {
+    "description": "No description provided"
+  },
+  "langDwarvish": "Dwarvish",
+  "@langDwarvish": {
+    "description": "No description provided"
+  },
+  "langElvish": "Elvish",
+  "@langElvish": {
+    "description": "No description provided"
+  },
+  "langGiant": "Giant",
+  "@langGiant": {
+    "description": "No description provided"
+  },
+  "langGnomish": "Gnomish",
+  "@langGnomish": {
+    "description": "No description provided"
+  },
+  "langGoblin": "Goblin",
+  "@langGoblin": {
+    "description": "No description provided"
+  },
+  "langHalfling": "Halfling",
+  "@langHalfling": {
+    "description": "No description provided"
+  },
+  "langOrc": "Orc",
+  "@langOrc": {
+    "description": "No description provided"
+  },
+  "langAbyssal": "Abyssal",
+  "@langAbyssal": {
+    "description": "No description provided"
+  },
+  "langCelestial": "Celestial",
+  "@langCelestial": {
+    "description": "No description provided"
+  },
+  "langDraconic": "Draconic",
+  "@langDraconic": {
+    "description": "No description provided"
+  },
+  "langDeepSpeech": "Deep Speech",
+  "@langDeepSpeech": {
+    "description": "No description provided"
+  },
+  "langInfernal": "Infernal",
+  "@langInfernal": {
+    "description": "No description provided"
+  },
+  "langPrimordial": "Primordial",
+  "@langPrimordial": {
+    "description": "No description provided"
+  },
+  "langSylvan": "Sylvan",
+  "@langSylvan": {
+    "description": "No description provided"
+  },
+  "langUndercommon": "Undercommon",
+  "@langUndercommon": {
+    "description": "No description provided"
+  },
+  "weaponClub": "Club",
+  "@weaponClub": {
+    "description": "No description provided"
+  },
+  "weaponDagger": "Dagger",
+  "@weaponDagger": {
+    "description": "No description provided"
+  },
+  "weaponGreatclub": "Greatclub",
+  "@weaponGreatclub": {
+    "description": "No description provided"
+  },
+  "weaponHandaxe": "Handaxe",
+  "@weaponHandaxe": {
+    "description": "No description provided"
+  },
+  "weaponJavelin": "Javelin",
+  "@weaponJavelin": {
+    "description": "No description provided"
+  },
+  "weaponLightHammer": "Light Hammer",
+  "@weaponLightHammer": {
+    "description": "No description provided"
+  },
+  "weaponMace": "Mace",
+  "@weaponMace": {
+    "description": "No description provided"
+  },
+  "weaponQuarterstaff": "Quarterstaff",
+  "@weaponQuarterstaff": {
+    "description": "No description provided"
+  },
+  "weaponSickle": "Sickle",
+  "@weaponSickle": {
+    "description": "No description provided"
+  },
+  "weaponSpear": "Spear",
+  "@weaponSpear": {
+    "description": "No description provided"
+  },
+  "weaponLightCrossbow": "Light Crossbow",
+  "@weaponLightCrossbow": {
+    "description": "No description provided"
+  },
+  "weaponDart": "Dart",
+  "@weaponDart": {
+    "description": "No description provided"
+  },
+  "weaponShortbow": "Shortbow",
+  "@weaponShortbow": {
+    "description": "No description provided"
+  },
+  "weaponSling": "Sling",
+  "@weaponSling": {
+    "description": "No description provided"
+  },
+  "weaponBattleaxe": "Battleaxe",
+  "@weaponBattleaxe": {
+    "description": "No description provided"
+  },
+  "weaponFlail": "Flail",
+  "@weaponFlail": {
+    "description": "No description provided"
+  },
+  "weaponGlaive": "Glaive",
+  "@weaponGlaive": {
+    "description": "No description provided"
+  },
+  "weaponGreataxe": "Greataxe",
+  "@weaponGreataxe": {
+    "description": "No description provided"
+  },
+  "weaponGreatsword": "Greatsword",
+  "@weaponGreatsword": {
+    "description": "No description provided"
+  },
+  "weaponHalberd": "Halberd",
+  "@weaponHalberd": {
+    "description": "No description provided"
+  },
+  "weaponLance": "Lance",
+  "@weaponLance": {
+    "description": "No description provided"
+  },
+  "weaponLongsword": "Longsword",
+  "@weaponLongsword": {
+    "description": "No description provided"
+  },
+  "weaponMaul": "Maul",
+  "@weaponMaul": {
+    "description": "No description provided"
+  },
+  "weaponMorningstar": "Morningstar",
+  "@weaponMorningstar": {
+    "description": "No description provided"
+  },
+  "weaponPike": "Pike",
+  "@weaponPike": {
+    "description": "No description provided"
+  },
+  "weaponRapier": "Rapier",
+  "@weaponRapier": {
+    "description": "No description provided"
+  },
+  "weaponScimitar": "Scimitar",
+  "@weaponScimitar": {
+    "description": "No description provided"
+  },
+  "weaponShortsword": "Shortsword",
+  "@weaponShortsword": {
+    "description": "No description provided"
+  },
+  "weaponTrident": "Trident",
+  "@weaponTrident": {
+    "description": "No description provided"
+  },
+  "weaponWarPick": "War Pick",
+  "@weaponWarPick": {
+    "description": "No description provided"
+  },
+  "weaponWarhammer": "Warhammer",
+  "@weaponWarhammer": {
+    "description": "No description provided"
+  },
+  "weaponWhip": "Whip",
+  "@weaponWhip": {
+    "description": "No description provided"
+  },
+  "weaponBlowgun": "Blowgun",
+  "@weaponBlowgun": {
+    "description": "No description provided"
+  },
+  "weaponHandCrossbow": "Hand Crossbow",
+  "@weaponHandCrossbow": {
+    "description": "No description provided"
+  },
+  "weaponHeavyCrossbow": "Heavy Crossbow",
+  "@weaponHeavyCrossbow": {
+    "description": "No description provided"
+  },
+  "weaponLongbow": "Longbow",
+  "@weaponLongbow": {
+    "description": "No description provided"
+  },
+  "weaponNet": "Net",
+  "@weaponNet": {
+    "description": "No description provided"
+  },
+  "selectHeight": "Select Height",
+  "@selectHeight": {
+    "description": "No description provided"
+  },
+  "selectWeight": "Select Weight",
+  "@selectWeight": {
+    "description": "No description provided"
+  },
+  "selectEyeColor": "Select Eye Color",
+  "@selectEyeColor": {
+    "description": "No description provided"
+  },
+  "selectHairColor": "Select Hair Color",
+  "@selectHairColor": {
+    "description": "No description provided"
+  },
+  "selectSkinTone": "Select Skin Tone",
+  "@selectSkinTone": {
+    "description": "No description provided"
+  },
+  "custom": "Custom",
+  "@custom": {
+    "description": "No description provided"
+  },
+  "customEyeColor": "Custom Eye Color",
+  "@customEyeColor": {
+    "description": "No description provided"
+  },
+  "customHairColor": "Custom Hair Color",
+  "@customHairColor": {
+    "description": "No description provided"
+  },
+  "customSkinTone": "Custom Skin Tone",
+  "@customSkinTone": {
+    "description": "No description provided"
+  },
+  "enterCustom": "Enter custom value",
+  "@enterCustom": {
+    "description": "No description provided"
+  },
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "No description provided"
+  },
+  "readyMessage": "{name} is ready to choose their path!",
+  "@readyMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "law": "LAW",
+  "@law": {
+    "description": "No description provided"
+  },
+  "neutral": "NEUTRAL",
+  "@neutral": {
+    "description": "No description provided"
+  },
+  "chaos": "CHAOS",
+  "@chaos": {
+    "description": "No description provided"
+  },
+  "good": "GOOD",
+  "@good": {
+    "description": "No description provided"
+  },
+  "evil": "EVIL",
+  "@evil": {
+    "description": "No description provided"
+  },
+  "lg": "Lawful Good",
+  "@lg": {
+    "description": "No description provided"
+  },
+  "ng": "Neutral Good",
+  "@ng": {
+    "description": "No description provided"
+  },
+  "cg": "Chaotic Good",
+  "@cg": {
+    "description": "No description provided"
+  },
+  "ln": "Lawful Neutral",
+  "@ln": {
+    "description": "No description provided"
+  },
+  "tn": "True Neutral",
+  "@tn": {
+    "description": "No description provided"
+  },
+  "cn": "Chaotic Neutral",
+  "@cn": {
+    "description": "No description provided"
+  },
+  "le": "Lawful Evil",
+  "@le": {
+    "description": "No description provided"
+  },
+  "ne": "Neutral Evil",
+  "@ne": {
+    "description": "No description provided"
+  },
+  "ce": "Chaotic Evil",
+  "@ce": {
+    "description": "No description provided"
+  },
+  "lgDesc": "Honor, compassion, duty",
+  "@lgDesc": {
+    "description": "No description provided"
+  },
+  "ngDesc": "Kind, helpful, balance",
+  "@ngDesc": {
+    "description": "No description provided"
+  },
+  "cgDesc": "Freedom, kindness, rebellion",
+  "@cgDesc": {
+    "description": "No description provided"
+  },
+  "lnDesc": "Order, tradition, law",
+  "@lnDesc": {
+    "description": "No description provided"
+  },
+  "tnDesc": "Balance, nature, neutrality",
+  "@tnDesc": {
+    "description": "No description provided"
+  },
+  "cnDesc": "Freedom, unpredictability",
+  "@cnDesc": {
+    "description": "No description provided"
+  },
+  "leDesc": "Tyranny, order, domination",
+  "@leDesc": {
+    "description": "No description provided"
+  },
+  "neDesc": "Selfish, cruel, practical",
+  "@neDesc": {
+    "description": "No description provided"
+  },
+  "ceDesc": "Destruction, cruelty, chaos",
+  "@ceDesc": {
+    "description": "No description provided"
+  },
+  "stepRaceClass": "Race & Class",
+  "@stepRaceClass": {
+    "description": "No description provided"
+  },
+  "stepAbilities": "Ability Scores & HP",
+  "@stepAbilities": {
+    "description": "No description provided"
+  },
+  "stepFeatures": "Features & Spells",
+  "@stepFeatures": {
+    "description": "No description provided"
+  },
+  "stepEquipment": "Equipment",
+  "@stepEquipment": {
+    "description": "No description provided"
+  },
+  "stepBackground": "Background",
+  "@stepBackground": {
+    "description": "No description provided"
+  },
+  "stepSkills": "Skills",
+  "@stepSkills": {
+    "description": "No description provided"
+  },
+  "stepReview": "Review",
+  "@stepReview": {
+    "description": "No description provided"
+  },
+  "next": "Next",
+  "@next": {
+    "description": "No description provided"
+  },
+  "back": "Back",
+  "@back": {
+    "description": "No description provided"
+  },
+  "finish": "Finish",
+  "@finish": {
+    "description": "No description provided"
+  },
+  "characterCreated": "Character created successfully!",
+  "@characterCreated": {
+    "description": "No description provided"
+  },
+  "tapToUpgrade": "TAP TO UPGRADE",
+  "@tapToUpgrade": {
+    "description": "No description provided"
+  },
+  "showDetails": "Show Character Details",
+  "@showDetails": {
+    "description": "No description provided"
+  },
+  "hideDetails": "Hide Details",
+  "@hideDetails": {
+    "description": "No description provided"
+  },
+  "newAbilities": "New Abilities",
+  "@newAbilities": {
+    "description": "No description provided"
+  },
+  "unlocksAtLevel": "Level {level} Unlocks",
+  "@unlocksAtLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "noNewFeaturesAtLevel": "No new features at this level. But your stats improved!",
+  "@noNewFeaturesAtLevel": {
+    "description": "No description provided"
+  },
+  "spellSlotsIncreased": "Spell Slots Increased",
+  "@spellSlotsIncreased": {
+    "description": "No description provided"
+  },
+  "sacredOath": "Sacred Oath",
+  "@sacredOath": {
+    "description": "No description provided"
+  },
+  "primalPath": "Primal Path",
+  "@primalPath": {
+    "description": "No description provided"
+  },
+  "bardCollege": "Bard College",
+  "@bardCollege": {
+    "description": "No description provided"
+  },
+  "divineDomain": "Divine Domain",
+  "@divineDomain": {
+    "description": "No description provided"
+  },
+  "druidCircle": "Druid Circle",
+  "@druidCircle": {
+    "description": "No description provided"
+  },
+  "martialArchetype": "Martial Archetype",
+  "@martialArchetype": {
+    "description": "No description provided"
+  },
+  "monasticTradition": "Monastic Tradition",
+  "@monasticTradition": {
+    "description": "No description provided"
+  },
+  "rangerArchetype": "Ranger Archetype",
+  "@rangerArchetype": {
+    "description": "No description provided"
+  },
+  "roguishArchetype": "Roguish Archetype",
+  "@roguishArchetype": {
+    "description": "No description provided"
+  },
+  "sorcerousOrigin": "Sorcerous Origin",
+  "@sorcerousOrigin": {
+    "description": "No description provided"
+  },
+  "otherworldlyPatron": "Otherworldly Patron",
+  "@otherworldlyPatron": {
+    "description": "No description provided"
+  },
+  "arcaneTradition": "Arcane Tradition",
+  "@arcaneTradition": {
+    "description": "No description provided"
+  },
+  "featureTypePassive": "Passive",
+  "@featureTypePassive": {
+    "description": "No description provided"
+  },
+  "featureTypeAction": "Action",
+  "@featureTypeAction": {
+    "description": "No description provided"
+  },
+  "featureTypeBonusAction": "Bonus Action",
+  "@featureTypeBonusAction": {
+    "description": "No description provided"
+  },
+  "featureTypeReaction": "Reaction",
+  "@featureTypeReaction": {
+    "description": "No description provided"
+  },
+  "featureTypeOther": "Other",
+  "@featureTypeOther": {
+    "description": "No description provided"
+  },
+  "selectSubclass": "Select Subclass",
+  "@selectSubclass": {
+    "description": "No description provided"
+  },
+  "selectSpecialization": "Select Specialization",
+  "@selectSpecialization": {
+    "description": "No description provided"
+  },
+  "classFeatures": "Class Features",
+  "@classFeatures": {
+    "description": "No description provided"
+  },
+  "chooseFightingStyle": "Choose a Fighting Style:",
+  "@chooseFightingStyle": {
+    "description": "No description provided"
+  },
+  "makeChoices": "Make Choices to Continue",
+  "@makeChoices": {
+    "description": "No description provided"
+  },
+  "continueLabel": "Continue",
+  "@continueLabel": {
+    "description": "No description provided"
+  },
+  "levelUpReady": "Level Up Ready!",
+  "@levelUpReady": {
+    "description": "No description provided"
+  },
+  "confirmLevelUp": "Confirm these changes to your character.",
+  "@confirmLevelUp": {
+    "description": "No description provided"
+  },
+  "applyChanges": "APPLY CHANGES",
+  "@applyChanges": {
+    "description": "No description provided"
+  },
+  "colorAmber": "Amber",
+  "@colorAmber": {
+    "description": "No description provided"
+  },
+  "colorBlue": "Blue",
+  "@colorBlue": {
+    "description": "No description provided"
+  },
+  "colorBrown": "Brown",
+  "@colorBrown": {
+    "description": "No description provided"
+  },
+  "colorGray": "Gray",
+  "@colorGray": {
+    "description": "No description provided"
+  },
+  "colorGreen": "Green",
+  "@colorGreen": {
+    "description": "No description provided"
+  },
+  "colorHazel": "Hazel",
+  "@colorHazel": {
+    "description": "No description provided"
+  },
+  "colorRed": "Red",
+  "@colorRed": {
+    "description": "No description provided"
+  },
+  "colorViolet": "Violet",
+  "@colorViolet": {
+    "description": "No description provided"
+  },
+  "colorAuburn": "Auburn",
+  "@colorAuburn": {
+    "description": "No description provided"
+  },
+  "colorBlack": "Black",
+  "@colorBlack": {
+    "description": "No description provided"
+  },
+  "colorBlonde": "Blonde",
+  "@colorBlonde": {
+    "description": "No description provided"
+  },
+  "colorWhite": "White",
+  "@colorWhite": {
+    "description": "No description provided"
+  },
+  "colorBald": "Bald",
+  "@colorBald": {
+    "description": "No description provided"
+  },
+  "skinPale": "Pale",
+  "@skinPale": {
+    "description": "No description provided"
+  },
+  "skinFair": "Fair",
+  "@skinFair": {
+    "description": "No description provided"
+  },
+  "skinLight": "Light",
+  "@skinLight": {
+    "description": "No description provided"
+  },
+  "skinMedium": "Medium",
+  "@skinMedium": {
+    "description": "No description provided"
+  },
+  "skinTan": "Tan",
+  "@skinTan": {
+    "description": "No description provided"
+  },
+  "skinDark": "Dark",
+  "@skinDark": {
+    "description": "No description provided"
+  },
+  "skinEbony": "Ebony",
+  "@skinEbony": {
+    "description": "No description provided"
+  },
+  "unitCm": "cm",
+  "@unitCm": {
+    "description": "No description provided"
+  },
+  "unitKg": "kg",
+  "@unitKg": {
+    "description": "No description provided"
+  },
   "chooseSkillsTitle": "Choose Skills",
+  "@chooseSkillsTitle": {
+    "description": "No description provided"
+  },
   "chooseSkills": "Choose {count} from: {list}",
   "@chooseSkills": {
     "placeholders": {
@@ -574,23 +1858,66 @@
       }
     }
   },
-  "armorProficiencies": "Armor Proficiencies",
-  "weaponProficiencies": "Weapon Proficiencies",
   "assignAbilityScores": "Assign Ability Scores",
+  "@assignAbilityScores": {
+    "description": "No description provided"
+  },
   "abilityScoresSubtitle": "Choose how you want to determine your character's ability scores.",
+  "@abilityScoresSubtitle": {
+    "description": "No description provided"
+  },
   "allocationMethod": "Allocation Method",
+  "@allocationMethod": {
+    "description": "No description provided"
+  },
   "standardArray": "Standard Array",
+  "@standardArray": {
+    "description": "No description provided"
+  },
   "pointBuy": "Point Buy",
+  "@pointBuy": {
+    "description": "No description provided"
+  },
   "manualEntry": "Manual Entry",
+  "@manualEntry": {
+    "description": "No description provided"
+  },
   "standardArrayDesc": "Assign these values: 15, 14, 13, 12, 10, 8. Balanced.",
+  "@standardArrayDesc": {
+    "description": "No description provided"
+  },
   "pointBuyDesc": "Spend 27 points to customize scores (8-15).",
+  "@pointBuyDesc": {
+    "description": "No description provided"
+  },
   "manualEntryDesc": "Set any value from 3 to 18.",
+  "@manualEntryDesc": {
+    "description": "No description provided"
+  },
   "strDesc": "Physical power",
+  "@strDesc": {
+    "description": "No description provided"
+  },
   "dexDesc": "Agility & reflexes",
+  "@dexDesc": {
+    "description": "No description provided"
+  },
   "conDesc": "Endurance & health",
+  "@conDesc": {
+    "description": "No description provided"
+  },
   "intDesc": "Reasoning & memory",
+  "@intDesc": {
+    "description": "No description provided"
+  },
   "wisDesc": "Awareness & insight",
+  "@wisDesc": {
+    "description": "No description provided"
+  },
   "chaDesc": "Force of personality",
+  "@chaDesc": {
+    "description": "No description provided"
+  },
   "racialBonus": "Racial Bonus: +{bonus} → Final: {result} ({mod})",
   "@racialBonus": {
     "placeholders": {
@@ -606,6 +1933,9 @@
     }
   },
   "startingHitPoints": "Starting Hit Points",
+  "@startingHitPoints": {
+    "description": "No description provided"
+  },
   "hitDieConMod": "Hit Die: d{die} | CON Mod: {mod}",
   "@hitDieConMod": {
     "placeholders": {
@@ -618,6 +1948,9 @@
     }
   },
   "hpMaxDesc": "Maximum HP (recommended)",
+  "@hpMaxDesc": {
+    "description": "No description provided"
+  },
   "hpAvgDesc": "Average roll: {avg} + CON modifier",
   "@hpAvgDesc": {
     "placeholders": {
@@ -660,12 +1993,33 @@
     }
   },
   "newFeaturesLabel": "New Features",
+  "@newFeaturesLabel": {
+    "description": "No description provided"
+  },
   "searchJournal": "Search journal...",
+  "@searchJournal": {
+    "description": "No description provided"
+  },
   "addQuest": "Add Quest",
+  "@addQuest": {
+    "description": "No description provided"
+  },
   "noActiveQuests": "No active quests",
+  "@noActiveQuests": {
+    "description": "No description provided"
+  },
   "addNote": "Add Note",
+  "@addNote": {
+    "description": "No description provided"
+  },
   "noNotes": "No notes",
+  "@noNotes": {
+    "description": "No description provided"
+  },
   "deleteNote": "Delete Note",
+  "@deleteNote": {
+    "description": "No description provided"
+  },
   "deleteNoteConfirmation": "Delete \"{title}\"?",
   "@deleteNoteConfirmation": {
     "placeholders": {
@@ -675,6 +2029,9 @@
     }
   },
   "deleteQuest": "Delete Quest",
+  "@deleteQuest": {
+    "description": "No description provided"
+  },
   "deleteQuestConfirmation": "Delete \"{title}\"?",
   "@deleteQuestConfirmation": {
     "placeholders": {
@@ -700,10 +2057,25 @@
     }
   },
   "cancelCharacterCreationTitle": "Cancel Character Creation?",
+  "@cancelCharacterCreationTitle": {
+    "description": "No description provided"
+  },
   "cancelCharacterCreationMessage": "All progress will be lost.",
+  "@cancelCharacterCreationMessage": {
+    "description": "No description provided"
+  },
   "continueEditing": "Continue Editing",
+  "@continueEditing": {
+    "description": "No description provided"
+  },
   "discard": "Discard",
+  "@discard": {
+    "description": "No description provided"
+  },
   "selectClassFirst": "Please select a class first",
+  "@selectClassFirst": {
+    "description": "No description provided"
+  },
   "selectSkillProficiencies": "Select {count} skill proficiencies for your {characterClass}.",
   "@selectSkillProficiencies": {
     "placeholders": {
@@ -716,6 +2088,9 @@
     }
   },
   "allSkillsSelected": "All skills selected!",
+  "@allSkillsSelected": {
+    "description": "No description provided"
+  },
   "chooseMoreSkills": "Choose {count} more skill{count, plural, =1{} other{s}}",
   "@chooseMoreSkills": {
     "placeholders": {
@@ -725,65 +2100,245 @@
     }
   },
   "skillAcrobaticsDesc": "Dexterity - Balance, tumbling, aerial maneuvers",
+  "@skillAcrobaticsDesc": {
+    "description": "No description provided"
+  },
   "skillAnimalHandlingDesc": "Wisdom - Calming animals, riding, training",
+  "@skillAnimalHandlingDesc": {
+    "description": "No description provided"
+  },
   "skillArcanaDesc": "Intelligence - Magic, spells, magical items",
+  "@skillArcanaDesc": {
+    "description": "No description provided"
+  },
   "skillAthleticsDesc": "Strength - Climbing, jumping, swimming",
+  "@skillAthleticsDesc": {
+    "description": "No description provided"
+  },
   "skillDeceptionDesc": "Charisma - Lying, disguising, misleading",
+  "@skillDeceptionDesc": {
+    "description": "No description provided"
+  },
   "skillHistoryDesc": "Intelligence - Historical events, legends",
+  "@skillHistoryDesc": {
+    "description": "No description provided"
+  },
   "skillInsightDesc": "Wisdom - Reading intentions, detecting lies",
+  "@skillInsightDesc": {
+    "description": "No description provided"
+  },
   "skillIntimidationDesc": "Charisma - Threats, coercion",
+  "@skillIntimidationDesc": {
+    "description": "No description provided"
+  },
   "skillInvestigationDesc": "Intelligence - Finding clues, deduction",
+  "@skillInvestigationDesc": {
+    "description": "No description provided"
+  },
   "skillMedicineDesc": "Wisdom - Stabilizing, diagnosing",
+  "@skillMedicineDesc": {
+    "description": "No description provided"
+  },
   "skillNatureDesc": "Intelligence - Terrain, plants, animals",
+  "@skillNatureDesc": {
+    "description": "No description provided"
+  },
   "skillPerceptionDesc": "Wisdom - Spotting, hearing, detecting",
+  "@skillPerceptionDesc": {
+    "description": "No description provided"
+  },
   "skillPerformanceDesc": "Charisma - Music, dance, acting",
+  "@skillPerformanceDesc": {
+    "description": "No description provided"
+  },
   "skillPersuasionDesc": "Charisma - Diplomacy, negotiations",
+  "@skillPersuasionDesc": {
+    "description": "No description provided"
+  },
   "skillReligionDesc": "Intelligence - Deities, rites, prayers",
+  "@skillReligionDesc": {
+    "description": "No description provided"
+  },
   "skillSleightOfHandDesc": "Dexterity - Pickpocketing, tricks",
+  "@skillSleightOfHandDesc": {
+    "description": "No description provided"
+  },
   "skillStealthDesc": "Dexterity - Hiding, moving silently",
+  "@skillStealthDesc": {
+    "description": "No description provided"
+  },
   "skillSurvivalDesc": "Wisdom - Tracking, foraging, navigation",
+  "@skillSurvivalDesc": {
+    "description": "No description provided"
+  },
   "chooseBackground": "Choose Background",
+  "@chooseBackground": {
+    "description": "No description provided"
+  },
   "backgroundDescription": "Your background represents your character's past and grants additional skills.",
+  "@backgroundDescription": {
+    "description": "No description provided"
+  },
   "noBackgroundsAvailable": "No backgrounds available",
+  "@noBackgroundsAvailable": {
+    "description": "No description provided"
+  },
   "abilityStrAbbr": "STR",
+  "@abilityStrAbbr": {
+    "description": "No description provided"
+  },
   "abilityDexAbbr": "DEX",
+  "@abilityDexAbbr": {
+    "description": "No description provided"
+  },
   "abilityConAbbr": "CON",
+  "@abilityConAbbr": {
+    "description": "No description provided"
+  },
   "abilityIntAbbr": "INT",
+  "@abilityIntAbbr": {
+    "description": "No description provided"
+  },
   "abilityWisAbbr": "WIS",
+  "@abilityWisAbbr": {
+    "description": "No description provided"
+  },
   "abilityChaAbbr": "CHA",
+  "@abilityChaAbbr": {
+    "description": "No description provided"
+  },
   "propertyAmmunition": "Ammunition",
+  "@propertyAmmunition": {
+    "description": "No description provided"
+  },
   "propertyFinesse": "Finesse",
+  "@propertyFinesse": {
+    "description": "No description provided"
+  },
   "propertyHeavy": "Heavy",
+  "@propertyHeavy": {
+    "description": "No description provided"
+  },
   "propertyLight": "Light",
+  "@propertyLight": {
+    "description": "No description provided"
+  },
   "propertyLoading": "Loading",
+  "@propertyLoading": {
+    "description": "No description provided"
+  },
   "propertyRange": "Range",
+  "@propertyRange": {
+    "description": "No description provided"
+  },
   "propertyReach": "Reach",
+  "@propertyReach": {
+    "description": "No description provided"
+  },
   "propertySpecial": "Special",
+  "@propertySpecial": {
+    "description": "No description provided"
+  },
   "propertyThrown": "Thrown",
+  "@propertyThrown": {
+    "description": "No description provided"
+  },
   "propertyTwoHanded": "Two-Handed",
+  "@propertyTwoHanded": {
+    "description": "No description provided"
+  },
   "propertyVersatile": "Versatile",
+  "@propertyVersatile": {
+    "description": "No description provided"
+  },
   "propertyMartial": "Martial",
+  "@propertyMartial": {
+    "description": "No description provided"
+  },
   "propertySimple": "Simple",
+  "@propertySimple": {
+    "description": "No description provided"
+  },
   "armorTypeLight": "Light Armor",
+  "@armorTypeLight": {
+    "description": "No description provided"
+  },
   "armorTypeMedium": "Medium Armor",
+  "@armorTypeMedium": {
+    "description": "No description provided"
+  },
   "armorTypeHeavy": "Heavy Armor",
+  "@armorTypeHeavy": {
+    "description": "No description provided"
+  },
   "armorTypeShield": "Shield",
+  "@armorTypeShield": {
+    "description": "No description provided"
+  },
   "searchSpells": "Search spells...",
+  "@searchSpells": {
+    "description": "No description provided"
+  },
   "noSpellsFound": "No spells found",
+  "@noSpellsFound": {
+    "description": "No description provided"
+  },
   "tryAdjustingFilters": "Try adjusting your filters",
+  "@tryAdjustingFilters": {
+    "description": "No description provided"
+  },
   "filters": "Filters",
+  "@filters": {
+    "description": "No description provided"
+  },
   "clearAll": "Clear All",
+  "@clearAll": {
+    "description": "No description provided"
+  },
   "apply": "Apply",
+  "@apply": {
+    "description": "No description provided"
+  },
   "castingTime": "Casting Time",
+  "@castingTime": {
+    "description": "No description provided"
+  },
   "duration": "Duration",
+  "@duration": {
+    "description": "No description provided"
+  },
   "components": "Components",
+  "@components": {
+    "description": "No description provided"
+  },
   "materials": "Materials",
+  "@materials": {
+    "description": "No description provided"
+  },
   "concentration": "Concentration",
+  "@concentration": {
+    "description": "No description provided"
+  },
   "ritual": "Ritual",
+  "@ritual": {
+    "description": "No description provided"
+  },
   "atHigherLevels": "At Higher Levels",
+  "@atHigherLevels": {
+    "description": "No description provided"
+  },
   "classes": "Classes",
+  "@classes": {
+    "description": "No description provided"
+  },
   "addToKnown": "Add to Known Spells",
+  "@addToKnown": {
+    "description": "No description provided"
+  },
   "removeFromKnown": "Remove from Known Spells",
+  "@removeFromKnown": {
+    "description": "No description provided"
+  },
   "addedToKnown": "Added \"{name}\" to known spells",
   "@addedToKnown": {
     "placeholders": {
@@ -801,6 +2356,9 @@
     }
   },
   "availableToLearn": "Available to Learn",
+  "@availableToLearn": {
+    "description": "No description provided"
+  },
   "availableAtLevel": "Available at Level {level}",
   "@availableAtLevel": {
     "placeholders": {
@@ -810,19 +2368,61 @@
     }
   },
   "filterAvailability": "Availability",
+  "@filterAvailability": {
+    "description": "No description provided"
+  },
   "filterClass": "Class",
+  "@filterClass": {
+    "description": "No description provided"
+  },
   "filterLevel": "Level",
+  "@filterLevel": {
+    "description": "No description provided"
+  },
   "filterSchool": "School",
+  "@filterSchool": {
+    "description": "No description provided"
+  },
   "filterAllSpells": "All Spells",
+  "@filterAllSpells": {
+    "description": "No description provided"
+  },
   "filterCanLearnNow": "Can Learn Now",
+  "@filterCanLearnNow": {
+    "description": "No description provided"
+  },
   "filterAvailableToClass": "Available to Class",
+  "@filterAvailableToClass": {
+    "description": "No description provided"
+  },
   "filterAllClasses": "All Classes",
+  "@filterAllClasses": {
+    "description": "No description provided"
+  },
   "filterAllLevels": "All Levels",
+  "@filterAllLevels": {
+    "description": "No description provided"
+  },
   "filterAllSchools": "All Schools",
+  "@filterAllSchools": {
+    "description": "No description provided"
+  },
   "clearFilters": "Clear filters",
+  "@clearFilters": {
+    "description": "No description provided"
+  },
   "encumbrance": "Encumbrance",
+  "@encumbrance": {
+    "description": "No description provided"
+  },
   "attunement": "Attunement",
+  "@attunement": {
+    "description": "No description provided"
+  },
   "attunementLimitReached": "Maximum attunement slots reached (3/3). Unequip something first.",
+  "@attunementLimitReached": {
+    "description": "No description provided"
+  },
   "deleteItemConfirmation": "Throw away {name}?",
   "@deleteItemConfirmation": {
     "placeholders": {
@@ -840,6 +2440,9 @@
     }
   },
   "preparedSpells": "Prepared",
+  "@preparedSpells": {
+    "description": "No description provided"
+  },
   "preparedSpellsCount": "Prepared: {current} / {max}",
   "@preparedSpellsCount": {
     "placeholders": {
@@ -852,8 +2455,17 @@
     }
   },
   "spellAlmanacTitle": "Spell Almanac",
+  "@spellAlmanacTitle": {
+    "description": "No description provided"
+  },
   "fighterArchetype": "ARCHETYPE",
+  "@fighterArchetype": {
+    "description": "No description provided"
+  },
   "improvedCritical": "Improved Critical",
+  "@improvedCritical": {
+    "description": "No description provided"
+  },
   "criticalHitTarget": "Critical Hit: {range}",
   "@criticalHitTarget": {
     "placeholders": {
@@ -863,8 +2475,17 @@
     }
   },
   "fightingStylesTitle": "Fighting Styles",
+  "@fightingStylesTitle": {
+    "description": "No description provided"
+  },
   "actionTypeFree": "Free Action",
+  "@actionTypeFree": {
+    "description": "No description provided"
+  },
   "featuresStepTitle": "Class Features",
+  "@featuresStepTitle": {
+    "description": "No description provided"
+  },
   "featuresStepSubtitle": "As a level 1 {className}, you gain the following features:",
   "@featuresStepSubtitle": {
     "placeholders": {
@@ -874,11 +2495,29 @@
     }
   },
   "noFeaturesAtLevel1": "No features available at level 1 for this class.",
+  "@noFeaturesAtLevel1": {
+    "description": "No description provided"
+  },
   "spellsStepTitle": "Spells",
+  "@spellsStepTitle": {
+    "description": "No description provided"
+  },
   "selectSpellsInstruction": "Select spells for your character (Level 0 & 1).",
+  "@selectSpellsInstruction": {
+    "description": "No description provided"
+  },
   "selectSkillsInstruction": "Select your skill proficiencies.",
+  "@selectSkillsInstruction": {
+    "description": "No description provided"
+  },
   "selectSkillsFirst": "Please select skills first",
+  "@selectSkillsFirst": {
+    "description": "No description provided"
+  },
   "expertise": "Expertise",
+  "@expertise": {
+    "description": "No description provided"
+  },
   "noSpellsFoundForClass": "No spells found for {className}",
   "@noSpellsFoundForClass": {
     "placeholders": {
@@ -888,20 +2527,65 @@
     }
   },
   "level1Spells": "Level 1 Spells",
+  "@level1Spells": {
+    "description": "No description provided"
+  },
   "spellsStepPlaceholder": "Spell selection will be available in future updates. For now, please add spells manually in the character sheet after creation.",
+  "@spellsStepPlaceholder": {
+    "description": "No description provided"
+  },
   "equipmentStepTitle": "Starting Equipment",
+  "@equipmentStepTitle": {
+    "description": "No description provided"
+  },
   "equipmentStepSubtitle": "Choose your starting equipment for your class",
+  "@equipmentStepSubtitle": {
+    "description": "No description provided"
+  },
   "chooseEquipmentPackage": "Choose Equipment Package",
+  "@chooseEquipmentPackage": {
+    "description": "No description provided"
+  },
   "packageStandard": "Standard Package",
+  "@packageStandard": {
+    "description": "No description provided"
+  },
   "packageStandardDesc": "Recommended starting equipment for your class",
+  "@packageStandardDesc": {
+    "description": "No description provided"
+  },
   "packageAlternative": "Alternative Package",
+  "@packageAlternative": {
+    "description": "No description provided"
+  },
   "packageAlternativeDesc": "Different equipment options",
+  "@packageAlternativeDesc": {
+    "description": "No description provided"
+  },
   "packageCustom": "Custom Package",
+  "@packageCustom": {
+    "description": "No description provided"
+  },
   "packageCustomDesc": "Choose items from catalog",
+  "@packageCustomDesc": {
+    "description": "No description provided"
+  },
   "selectedEquipment": "Selected Equipment",
+  "@selectedEquipment": {
+    "description": "No description provided"
+  },
   "addItem": "Add Item",
+  "@addItem": {
+    "description": "No description provided"
+  },
   "noItemsSelected": "No items selected",
+  "@noItemsSelected": {
+    "description": "No description provided"
+  },
   "tapToAddItems": "Tap \"Add Item\" to select equipment",
+  "@tapToAddItems": {
+    "description": "No description provided"
+  },
   "equipmentPreview": "{className} Equipment Preview",
   "@equipmentPreview": {
     "placeholders": {
@@ -911,10 +2595,21 @@
     }
   },
   "toolsAndGear": "Tools & Gear",
+  "@toolsAndGear": {
+    "description": "No description provided"
+  },
   "equipmentPreviewDisclaimer": "This is a preview of typical starting equipment. You can customize your inventory after character creation.",
+  "@equipmentPreviewDisclaimer": {
+    "description": "No description provided"
+  },
   "itemCatalog": "Item Catalog",
+  "@itemCatalog": {
+    "description": "No description provided"
+  },
   "createItem": "Create Item",
-  "searchItems": "Search items...",
+  "@createItem": {
+    "description": "No description provided"
+  },
   "foundItems": "Found: {count} (selected: {selected})",
   "@foundItems": {
     "placeholders": {
@@ -927,9 +2622,21 @@
     }
   },
   "noItemsFound": "No items found",
+  "@noItemsFound": {
+    "description": "No description provided"
+  },
   "done": "Done",
+  "@done": {
+    "description": "No description provided"
+  },
   "createCustomItem": "Create Custom Item",
+  "@createCustomItem": {
+    "description": "No description provided"
+  },
   "addImage": "Add\nimage",
+  "@addImage": {
+    "description": "No description provided"
+  },
   "errorLoadingImage": "Error loading image: {error}",
   "@errorLoadingImage": {
     "placeholders": {
@@ -939,16 +2646,49 @@
     }
   },
   "itemName": "Name",
+  "@itemName": {
+    "description": "No description provided"
+  },
   "itemNameHint": "e.g., Sword of Light",
+  "@itemNameHint": {
+    "description": "No description provided"
+  },
   "enterItemName": "Enter name",
+  "@enterItemName": {
+    "description": "No description provided"
+  },
   "itemDescription": "Description",
+  "@itemDescription": {
+    "description": "No description provided"
+  },
   "itemDescriptionHint": "Describe the item...",
+  "@itemDescriptionHint": {
+    "description": "No description provided"
+  },
   "itemType": "Type",
+  "@itemType": {
+    "description": "No description provided"
+  },
   "itemRarity": "Rarity",
+  "@itemRarity": {
+    "description": "No description provided"
+  },
   "itemWeight": "Weight",
+  "@itemWeight": {
+    "description": "No description provided"
+  },
   "itemValue": "Value",
+  "@itemValue": {
+    "description": "No description provided"
+  },
   "itemQuantity": "Quantity",
+  "@itemQuantity": {
+    "description": "No description provided"
+  },
   "minQuantity1": "Minimum 1",
+  "@minQuantity1": {
+    "description": "No description provided"
+  },
   "itemAdded": "{name} (x{quantity}) added",
   "@itemAdded": {
     "placeholders": {
@@ -969,39 +2709,137 @@
     }
   },
   "rarityCommon": "Common",
+  "@rarityCommon": {
+    "description": "No description provided"
+  },
   "rarityUncommon": "Uncommon",
+  "@rarityUncommon": {
+    "description": "No description provided"
+  },
   "rarityRare": "Rare",
+  "@rarityRare": {
+    "description": "No description provided"
+  },
   "rarityVeryRare": "Very Rare",
+  "@rarityVeryRare": {
+    "description": "No description provided"
+  },
   "rarityLegendary": "Legendary",
+  "@rarityLegendary": {
+    "description": "No description provided"
+  },
   "rarityArtifact": "Artifact",
+  "@rarityArtifact": {
+    "description": "No description provided"
+  },
   "methodStandard": "Standard",
+  "@methodStandard": {
+    "description": "No description provided"
+  },
   "methodPointBuy": "Point Buy",
+  "@methodPointBuy": {
+    "description": "No description provided"
+  },
   "methodManual": "Manual Entry",
-  "appearance": "Appearance",
+  "@methodManual": {
+    "description": "No description provided"
+  },
   "themeSystem": "System",
+  "@themeSystem": {
+    "description": "No description provided"
+  },
   "themeLight": "Light",
+  "@themeLight": {
+    "description": "No description provided"
+  },
   "themeDark": "Dark",
+  "@themeDark": {
+    "description": "No description provided"
+  },
   "highContrast": "High Contrast",
+  "@highContrast": {
+    "description": "No description provided"
+  },
   "highContrastDesc": "Increases visibility with sharper colors",
+  "@highContrastDesc": {
+    "description": "No description provided"
+  },
   "colorScheme": "Color Scheme",
+  "@colorScheme": {
+    "description": "No description provided"
+  },
   "about": "About",
+  "@about": {
+    "description": "No description provided"
+  },
   "version": "Version",
+  "@version": {
+    "description": "No description provided"
+  },
   "developedBy": "Developed by",
+  "@developedBy": {
+    "description": "No description provided"
+  },
   "license": "License",
+  "@license": {
+    "description": "No description provided"
+  },
   "d20wish": "May your d20 always land on 20!",
+  "@d20wish": {
+    "description": "No description provided"
+  },
   "characterReady": "Character Ready!",
+  "@characterReady": {
+    "description": "No description provided"
+  },
   "reviewChoices": "Review your choices before finalizing",
+  "@reviewChoices": {
+    "description": "No description provided"
+  },
   "unnamed": "(Unnamed)",
+  "@unnamed": {
+    "description": "No description provided"
+  },
   "basicInfo": "Basic Information",
+  "@basicInfo": {
+    "description": "No description provided"
+  },
   "level1Info": "Your character will be created at level 1. Additional features will be added based on your class and background.",
+  "@level1Info": {
+    "description": "No description provided"
+  },
   "hpMax": "Max",
+  "@hpMax": {
+    "description": "No description provided"
+  },
   "contentManagement": "Content Management",
+  "@contentManagement": {
+    "description": "No description provided"
+  },
   "libraryManagerTitle": "Managed Libraries",
+  "@libraryManagerTitle": {
+    "description": "No description provided"
+  },
   "manageLibraries": "Manage Libraries",
+  "@manageLibraries": {
+    "description": "No description provided"
+  },
   "manageLibrariesSubtitle": "Import and manage external content (XML)",
+  "@manageLibrariesSubtitle": {
+    "description": "No description provided"
+  },
   "importXML": "Import XML",
+  "@importXML": {
+    "description": "No description provided"
+  },
   "noLibraries": "No imported libraries",
+  "@noLibraries": {
+    "description": "No description provided"
+  },
   "noLibrariesHint": "Tap + to import content from FC5 XML files",
+  "@noLibrariesHint": {
+    "description": "No description provided"
+  },
   "libraryStats": "{items} Items, {spells} Spells",
   "@libraryStats": {
     "placeholders": {
@@ -1022,6 +2860,9 @@
     }
   },
   "deleteLibraryTitle": "Delete Library?",
+  "@deleteLibraryTitle": {
+    "description": "No description provided"
+  },
   "deleteLibraryMessage": "This will remove \"{name}\" and all associated content:\n\n• {items} Items\n• {spells} Spells\n\nThis action cannot be undone.",
   "@deleteLibraryMessage": {
     "placeholders": {
@@ -1037,6 +2878,9 @@
     }
   },
   "libraryDeleted": "Library deleted successfully",
+  "@libraryDeleted": {
+    "description": "No description provided"
+  },
   "errorDeletingLibrary": "Error deleting library: {error}",
   "@errorDeletingLibrary": {
     "placeholders": {
@@ -1046,23 +2890,73 @@
     }
   },
   "forgeTitle": "The Forge",
+  "@forgeTitle": {
+    "description": "No description provided"
+  },
   "identitySection": "IDENTITY",
+  "@identitySection": {
+    "description": "No description provided"
+  },
   "characteristicsSection": "CHARACTERISTICS",
+  "@characteristicsSection": {
+    "description": "No description provided"
+  },
   "statsSection": "STATS",
+  "@statsSection": {
+    "description": "No description provided"
+  },
   "magicPropertiesSection": "MAGIC & PROPERTIES",
+  "@magicPropertiesSection": {
+    "description": "No description provided"
+  },
   "isMagical": "Magical Item",
+  "@isMagical": {
+    "description": "No description provided"
+  },
   "requiresAttunement": "Requires Attunement",
+  "@requiresAttunement": {
+    "description": "No description provided"
+  },
   "weaponStats": "Weapon Stats",
+  "@weaponStats": {
+    "description": "No description provided"
+  },
   "damageDice": "Damage Dice",
+  "@damageDice": {
+    "description": "No description provided"
+  },
   "damageDiceHint": "1d8",
+  "@damageDiceHint": {
+    "description": "No description provided"
+  },
   "armorStats": "Armor Stats",
+  "@armorStats": {
+    "description": "No description provided"
+  },
   "addDexModifier": "Add DEX Modifier",
+  "@addDexModifier": {
+    "description": "No description provided"
+  },
   "stealthDisadvantage": "Stealth Disadvantage",
+  "@stealthDisadvantage": {
+    "description": "No description provided"
+  },
   "forgeItem": "Forge Item",
+  "@forgeItem": {
+    "description": "No description provided"
+  },
   "itemExample": "e.g. Excalibur",
+  "@itemExample": {
+    "description": "No description provided"
+  },
   "typeTool": "Tools",
+  "@typeTool": {
+    "description": "No description provided"
+  },
   "typeTreasure": "Treasure",
-  "selectSubclass": "Select Subclass",
+  "@typeTreasure": {
+    "description": "No description provided"
+  },
   "cantripsTab": "Cantrips ({current}/{max})",
   "@cantripsTab": {
     "placeholders": {
@@ -1086,8 +2980,17 @@
     }
   },
   "level1TabAll": "Level 1 (All)",
+  "@level1TabAll": {
+    "description": "No description provided"
+  },
   "noSpellsAtLevel1": "No spells available at level 1",
+  "@noSpellsAtLevel1": {
+    "description": "No description provided"
+  },
   "useAction": "Use",
+  "@useAction": {
+    "description": "No description provided"
+  },
   "useActionCost": "Use ({cost})",
   "@useActionCost": {
     "placeholders": {
@@ -1097,44 +3000,155 @@
     }
   },
   "kiPoints": "Ki Points",
+  "@kiPoints": {
+    "description": "No description provided"
+  },
   "martialArtsDie": "Martial Arts Die",
+  "@martialArtsDie": {
+    "description": "No description provided"
+  },
   "rage": "Rage",
+  "@rage": {
+    "description": "No description provided"
+  },
   "rageDamage": "Rage Damage",
+  "@rageDamage": {
+    "description": "No description provided"
+  },
   "raging": "Raging",
+  "@raging": {
+    "description": "No description provided"
+  },
   "sneakAttack": "Sneak Attack",
+  "@sneakAttack": {
+    "description": "No description provided"
+  },
   "sneakAttackDamage": "Damage",
+  "@sneakAttackDamage": {
+    "description": "No description provided"
+  },
   "secondWind": "Second Wind",
+  "@secondWind": {
+    "description": "No description provided"
+  },
   "actionSurge": "Action Surge",
+  "@actionSurge": {
+    "description": "No description provided"
+  },
   "healing": "Healing",
+  "@healing": {
+    "description": "No description provided"
+  },
   "fighterTactics": "Combat Tactics",
-  "fighterArchetype": "ARCHETYPE",
+  "@fighterTactics": {
+    "description": "No description provided"
+  },
   "fighterChampion": "Champion",
-  "improvedCritical": "Improved Critical",
-  "criticalHitTarget": "Critical Hit: {range}",
-  "fightingStylesTitle": "Fighting Styles",
+  "@fighterChampion": {
+    "description": "No description provided"
+  },
   "sneakAttackRoll": "Sneak Attack: {total} ({dice})",
+  "@sneakAttackRoll": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "dice": {
+        "type": "String"
+      }
+    }
+  },
   "kiStrikeRoll": "Ki Strike: {total} ({dice})",
+  "@kiStrikeRoll": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "dice": {
+        "type": "String"
+      }
+    }
+  },
   "rageInactive": "Inactive",
+  "@rageInactive": {
+    "description": "No description provided"
+  },
   "healShort": "Heal",
+  "@healShort": {
+    "description": "No description provided"
+  },
   "indomitable": "Indomitable",
+  "@indomitable": {
+    "description": "No description provided"
+  },
   "rerollSave": "Reroll Saving Throw!",
+  "@rerollSave": {
+    "description": "No description provided"
+  },
   "noTraits": "No traits",
+  "@noTraits": {
+    "description": "No description provided"
+  },
   "martialArts": "Martial Arts",
+  "@martialArts": {
+    "description": "No description provided"
+  },
   "bardicInspiration": "Bardic Inspiration",
-  "druidCircle": "Druid Circle",
+  "@bardicInspiration": {
+    "description": "No description provided"
+  },
   "wildShape": "Wild Shape",
+  "@wildShape": {
+    "description": "No description provided"
+  },
   "wildShapeDuration": "Duration",
+  "@wildShapeDuration": {
+    "description": "No description provided"
+  },
   "wildShapeMaxCR": "Max CR",
+  "@wildShapeMaxCR": {
+    "description": "No description provided"
+  },
   "wildShapeRestrictions": "Restrictions",
+  "@wildShapeRestrictions": {
+    "description": "No description provided"
+  },
   "noRestrictions": "No restrictions",
+  "@noRestrictions": {
+    "description": "No description provided"
+  },
   "noFlying": "No flying",
+  "@noFlying": {
+    "description": "No description provided"
+  },
   "noFlyingSwimming": "No flying/swimming",
+  "@noFlyingSwimming": {
+    "description": "No description provided"
+  },
   "transform": "Transform",
+  "@transform": {
+    "description": "No description provided"
+  },
   "revertForm": "Revert to True Form",
+  "@revertForm": {
+    "description": "No description provided"
+  },
   "beastHP": "Beast HP",
+  "@beastHP": {
+    "description": "No description provided"
+  },
   "beastName": "Beast Name",
+  "@beastName": {
+    "description": "No description provided"
+  },
   "naturalRecovery": "Natural Recovery",
+  "@naturalRecovery": {
+    "description": "No description provided"
+  },
   "recoverSpellSlots": "Recover Spell Slots",
+  "@recoverSpellSlots": {
+    "description": "No description provided"
+  },
   "selectSlotsToRecover": "Select slots to recover (Max levels: {max})",
   "@selectSlotsToRecover": {
     "placeholders": {
@@ -1144,60 +3158,229 @@
     }
   },
   "currentSpellSlots": "Current Spell Slots",
+  "@currentSpellSlots": {
+    "description": "No description provided"
+  },
   "tapToUse": "Tap note to use/restore charge",
+  "@tapToUse": {
+    "description": "No description provided"
+  },
   "used": "Used",
+  "@used": {
+    "description": "No description provided"
+  },
   "allSpellSlotsFull": "All spell slots are full",
+  "@allSpellSlotsFull": {
+    "description": "No description provided"
+  },
   "arcaneRecovery": "Arcane Recovery",
+  "@arcaneRecovery": {
+    "description": "No description provided"
+  },
   "traditionEvocation": "School of Evocation",
+  "@traditionEvocation": {
+    "description": "No description provided"
+  },
   "traditionAbjuration": "School of Abjuration",
+  "@traditionAbjuration": {
+    "description": "No description provided"
+  },
   "traditionConjuration": "School of Conjuration",
+  "@traditionConjuration": {
+    "description": "No description provided"
+  },
   "traditionDivination": "School of Divination",
+  "@traditionDivination": {
+    "description": "No description provided"
+  },
   "traditionEnchantment": "School of Enchantment",
+  "@traditionEnchantment": {
+    "description": "No description provided"
+  },
   "traditionIllusion": "School of Illusion",
+  "@traditionIllusion": {
+    "description": "No description provided"
+  },
   "traditionNecromancy": "School of Necromancy",
+  "@traditionNecromancy": {
+    "description": "No description provided"
+  },
   "traditionTransmutation": "School of Transmutation",
+  "@traditionTransmutation": {
+    "description": "No description provided"
+  },
   "channelDivinityRules": "You gain the ability to channel divine energy directly from your deity, using that energy to fuel magical effects. You start with two such effects: Turn Undead and an effect determined by your domain. Some domains grant you additional effects as you advance in levels, as noted in the domain description.\n\nWhen you use your Channel Divinity, you choose which effect to create. You must then finish a short or long rest to use your Channel Divinity again.\n\nSome Channel Divinity effects require saving throws. When you use such an effect from this class, the DC equals your cleric spell save DC.",
+  "@channelDivinityRules": {
+    "description": "No description provided"
+  },
   "domainLife": "Life Domain",
+  "@domainLife": {
+    "description": "No description provided"
+  },
   "domainLight": "Light Domain",
+  "@domainLight": {
+    "description": "No description provided"
+  },
   "domainKnowledge": "Knowledge Domain",
+  "@domainKnowledge": {
+    "description": "No description provided"
+  },
   "domainNature": "Nature Domain",
+  "@domainNature": {
+    "description": "No description provided"
+  },
   "domainTempest": "Tempest Domain",
+  "@domainTempest": {
+    "description": "No description provided"
+  },
   "domainTrickery": "Trickery Domain",
+  "@domainTrickery": {
+    "description": "No description provided"
+  },
   "domainWar": "War Domain",
+  "@domainWar": {
+    "description": "No description provided"
+  },
   "domainDeath": "Death Domain",
+  "@domainDeath": {
+    "description": "No description provided"
+  },
   "oathDevotion": "Oath of Devotion",
+  "@oathDevotion": {
+    "description": "No description provided"
+  },
   "oathAncients": "Oath of the Ancients",
+  "@oathAncients": {
+    "description": "No description provided"
+  },
   "oathVengeance": "Oath of Vengeance",
+  "@oathVengeance": {
+    "description": "No description provided"
+  },
   "oathConquest": "Oath of Conquest",
+  "@oathConquest": {
+    "description": "No description provided"
+  },
   "oathRedemption": "Oath of Redemption",
+  "@oathRedemption": {
+    "description": "No description provided"
+  },
   "divineIntervention": "Divine Intervention",
+  "@divineIntervention": {
+    "description": "No description provided"
+  },
   "divineInterventionRules": "You can call on your deity to intervene on your behalf when your need is great.\n\nImploring your deity's aid requires you to use your action. Describe the assistance you seek, and roll percentile dice. If you roll a number equal to or lower than your cleric level, your deity intervenes. The DM chooses the nature of the intervention; the effect of any cleric spell or cleric domain spell would be appropriate.\n\nIf your deity intervenes, you can't use this feature again for 7 days. Otherwise, you can use it again after you finish a long rest.\n\nAt 20th level, your call for intervention succeeds automatically, no roll required.",
+  "@divineInterventionRules": {
+    "description": "No description provided"
+  },
   "turnUndead": "Turn Undead",
+  "@turnUndead": {
+    "description": "No description provided"
+  },
   "destroyUndead": "Destroy Undead",
+  "@destroyUndead": {
+    "description": "No description provided"
+  },
   "maxCR": "Max CR",
+  "@maxCR": {
+    "description": "No description provided"
+  },
   "usedChannelDivinity": "Used Turn/Destroy Undead (Channel Divinity spent)",
+  "@usedChannelDivinity": {
+    "description": "No description provided"
+  },
   "turnUndeadRules": "As an action, you present your holy symbol and speak a prayer censuring the undead. Each undead that can see or hear you within 30 feet of you must make a Wisdom saving throw. If the creature fails its saving throw, it is turned for 1 minute or until it takes any damage.\n\nA turned creature must spend its turns trying to move as far away from you as it can, and it can't willingly move to a space within 30 feet of you. It also can't take reactions. For its action, it can use only the Dash action or try to escape from an effect that prevents it from moving. If there's nowhere to move, the creature can use the Dodge action.",
+  "@turnUndeadRules": {
+    "description": "No description provided"
+  },
   "destroyUndeadRules": "When an undead fails its saving throw against your Turn Undead feature, the creature is instantly destroyed if its challenge rating is at or below a certain threshold, as shown in the Destroy Undead table.",
+  "@destroyUndeadRules": {
+    "description": "No description provided"
+  },
   "callUponDeity": "Call upon Deity",
+  "@callUponDeity": {
+    "description": "No description provided"
+  },
   "resetCooldown": "Reset 7-day Cooldown",
+  "@resetCooldown": {
+    "description": "No description provided"
+  },
   "interventionSuccess": "Success! The gods have heard your prayer!",
+  "@interventionSuccess": {
+    "description": "No description provided"
+  },
   "interventionFailure": "The deity did not respond to your call.",
+  "@interventionFailure": {
+    "description": "No description provided"
+  },
   "interventionRollResult": "Rolled: {value}",
+  "@interventionRollResult": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "hunterArchetype": "ARCHETYPE",
+  "@hunterArchetype": {
+    "description": "No description provided"
+  },
   "huntersMarkTracker": "Hunter's Mark",
+  "@huntersMarkTracker": {
+    "description": "No description provided"
+  },
   "markTargetName": "Target Name",
+  "@markTargetName": {
+    "description": "No description provided"
+  },
   "markBonusDesc": "+1d6 damage / Advantage",
+  "@markBonusDesc": {
+    "description": "No description provided"
+  },
   "moveMark": "Move Mark",
+  "@moveMark": {
+    "description": "No description provided"
+  },
   "hideInPlainSight": "Hide in Plain Sight",
+  "@hideInPlainSight": {
+    "description": "No description provided"
+  },
   "hideInPlainSightDesc": "+10 to Stealth while not moving",
+  "@hideInPlainSightDesc": {
+    "description": "No description provided"
+  },
   "markActivate": "Activate",
+  "@markActivate": {
+    "description": "No description provided"
+  },
   "markDrop": "Deactivate",
+  "@markDrop": {
+    "description": "No description provided"
+  },
   "markDurationHint": "A 3rd-level mark lasts 8 hours, 5th-level lasts 24 hours.",
+  "@markDurationHint": {
+    "description": "No description provided"
+  },
   "markSlotChoose": "Choose a spell slot to cast Hunter's Mark",
+  "@markSlotChoose": {
+    "description": "No description provided"
+  },
   "hideSpentMinute": "Spent 1 minute to camouflage",
+  "@hideSpentMinute": {
+    "description": "No description provided"
+  },
   "spellNotFound": "Spell not found in the database",
+  "@spellNotFound": {
+    "description": "No description provided"
+  },
   "stealthDifficulty": "Stealth Difficulty (Enemy Perception)",
+  "@stealthDifficulty": {
+    "description": "No description provided"
+  },
   "rollStealthBtn": "Roll",
+  "@rollStealthBtn": {
+    "description": "No description provided"
+  },
   "stealthSuccess": "Stealth: {total} (DC {dc}). Success! You blend into the shadows.",
   "@stealthSuccess": {
     "placeholders": {
@@ -1224,18 +3407,57 @@
     }
   },
   "stealthFail1": "You tripped over a bucket!",
+  "@stealthFail1": {
+    "description": "No description provided"
+  },
   "stealthFail2": "A gold coin fell from your pocket with a loud ring.",
+  "@stealthFail2": {
+    "description": "No description provided"
+  },
   "fs_archery_name": "Archery",
+  "@fs_archery_name": {
+    "description": "No description provided"
+  },
   "fs_archery_desc": "You gain a +2 bonus to attack rolls you make with ranged weapons.",
+  "@fs_archery_desc": {
+    "description": "No description provided"
+  },
   "fs_defense_name": "Defense",
+  "@fs_defense_name": {
+    "description": "No description provided"
+  },
   "fs_defense_desc": "While you are wearing armor, you gain a +1 bonus to AC.",
+  "@fs_defense_desc": {
+    "description": "No description provided"
+  },
   "fs_dueling_name": "Dueling",
+  "@fs_dueling_name": {
+    "description": "No description provided"
+  },
   "fs_dueling_desc": "When you are wielding a melee weapon in one hand and no other weapons, you gain a +2 bonus to damage rolls with that weapon.",
+  "@fs_dueling_desc": {
+    "description": "No description provided"
+  },
   "fs_great_weapon_name": "Great Weapon Fighting",
+  "@fs_great_weapon_name": {
+    "description": "No description provided"
+  },
   "fs_great_weapon_desc": "When you roll a 1 or 2 on a damage die for an attack you make with a melee weapon that you are wielding with two hands, you can reroll the die...",
+  "@fs_great_weapon_desc": {
+    "description": "No description provided"
+  },
   "fs_protection_name": "Protection",
+  "@fs_protection_name": {
+    "description": "No description provided"
+  },
   "fs_protection_desc": "When a creature you can see attacks a target other than you that is within 5 feet of you, you can use your reaction to impose disadvantage...",
+  "@fs_protection_desc": {
+    "description": "No description provided"
+  },
   "fs_two_weapon_name": "Two-Weapon Fighting",
+  "@fs_two_weapon_name": {
+    "description": "No description provided"
+  },
   "fs_two_weapon_desc": "When you engage in two-weapon fighting, you can add your ability modifier to the damage of the second attack.",
   "@fs_two_weapon_desc": {},
   "empty_roster_title": "The tavern is empty",
@@ -1245,16 +3467,63 @@
   "create_first_character_btn": "Create Character",
   "@create_first_character_btn": {},
   "stealthFail3": "You sneezed loudly.",
+  "@stealthFail3": {
+    "description": "No description provided"
+  },
   "stealthFail4": "Your stomach growled treacherously.",
+  "@stealthFail4": {
+    "description": "No description provided"
+  },
   "stealthFail5": "You stepped on a sleeping cat.",
+  "@stealthFail5": {
+    "description": "No description provided"
+  },
   "stealthFail6": "Your cloak caught on a nail.",
+  "@stealthFail6": {
+    "description": "No description provided"
+  },
   "stealthFail7": "The loudest branch in the forest just snapped under your boot.",
+  "@stealthFail7": {
+    "description": "No description provided"
+  },
   "stealthFail8": "You tried to blend into a shadow, but it was an enemy.",
+  "@stealthFail8": {
+    "description": "No description provided"
+  },
   "stealthFail9": "Your boot squeaked. Very loudly.",
+  "@stealthFail9": {
+    "description": "No description provided"
+  },
   "stealthFail10": "You forgot to cover your lantern.",
+  "@stealthFail10": {
+    "description": "No description provided"
+  },
   "stealthFail11": "Your scabbard loudly hit the doorframe.",
+  "@stealthFail11": {
+    "description": "No description provided"
+  },
   "stealthFail12": "You are breathing way too loudly.",
+  "@stealthFail12": {
+    "description": "No description provided"
+  },
   "stealthFail13": "A random pigeon gave away your position.",
+  "@stealthFail13": {
+    "description": "No description provided"
+  },
   "stealthFail14": "You hiccupped at the worst possible moment.",
-  "stealthFail15": "You epically tripped on flat ground."
+  "@stealthFail14": {
+    "description": "No description provided"
+  },
+  "stealthFail15": "You epically tripped on flat ground.",
+  "@stealthFail15": {
+    "description": "No description provided"
+  },
+  "customHealAmount": "Custom Heal Amount",
+  "@customHealAmount": {
+    "description": "Dialog title for Lay on Hands amount."
+  },
+  "hpToSpend": "HP to spend",
+  "@hpToSpend": {
+    "description": "Textfield label for spending HP."
+  }
 }

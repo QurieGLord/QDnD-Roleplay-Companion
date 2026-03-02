@@ -95,7 +95,7 @@ class OverviewTab extends StatelessWidget {
                             context,
                             l10n.armorClassAC,
                             '${character.armorClass}',
-                            Icons.shield_outlined,
+                            Icons.shield,
                             colorScheme.secondary)),
                     const SizedBox(width: 12),
                     Expanded(

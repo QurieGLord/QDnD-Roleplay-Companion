@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qd_and_d/core/models/character.dart';
 import 'package:qd_and_d/core/models/ability_scores.dart';

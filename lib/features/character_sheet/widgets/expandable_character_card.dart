@@ -539,14 +539,14 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
 
   IconData _getClassIcon(String className) {
     final lowerClass = className.toLowerCase();
-    if (lowerClass.contains('paladin')) return Icons.shield_outlined;
+    if (lowerClass.contains('paladin')) return Icons.shield;
     if (lowerClass.contains('wizard')) return Icons.auto_fix_high;
     if (lowerClass.contains('fighter')) return Icons.sports_martial_arts;
     if (lowerClass.contains('rogue')) return Icons.visibility_off;
     if (lowerClass.contains('cleric')) return Icons.health_and_safety;
     if (lowerClass.contains('barbarian')) return Icons.fitness_center;
     if (lowerClass.contains('bard')) return Icons.music_note;
-    if (lowerClass.contains('druid')) return Icons.nature;
+    if (lowerClass.contains('druid')) return Icons.pets;
     if (lowerClass.contains('monk')) return Icons.self_improvement;
     if (lowerClass.contains('ranger')) return Icons.terrain;
     if (lowerClass.contains('sorcerer')) return Icons.bolt;

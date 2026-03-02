@@ -339,7 +339,7 @@ class _DiceRollerModalState extends State<DiceRollerModal>
                           _isRolling
                               ? l10n.rolling
                               : (_history.isNotEmpty
-                                  ? l10n.total(_history.first.total)
+                                  ? l10n.total(_history.first.total.toString())
                                   : l10n.tapToRoll),
                           style: TextStyle(
                             fontSize: 24,

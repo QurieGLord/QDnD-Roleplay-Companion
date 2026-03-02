@@ -791,7 +791,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
               const SizedBox(height: 8),
               Text(
                 l10n
-                    .interventionRollResult(roll)
+                    .interventionRollResult(roll.toString())
                     .split(':')
                     .first
                     .toUpperCase(),

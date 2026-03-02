@@ -587,8 +587,8 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
-                      l10n.spellCastLevelSuccess(l10n.levelSlot(level), level)),
+                  content: Text(l10n.spellCastLevelSuccess(
+                      l10n.levelSlot(level), level.toString())),
                   duration: const Duration(milliseconds: 1000),
                   behavior: SnackBarBehavior.floating,
                 ),

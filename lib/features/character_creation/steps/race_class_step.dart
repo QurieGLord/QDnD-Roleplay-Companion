@@ -464,7 +464,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  l10n.hitDieType(classData.hitDie),
+                                  l10n.hitDieType(classData.hitDie.toString()),
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall
@@ -664,7 +664,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
                 size: 16, color: textColor.withValues(alpha: 0.7)),
             const SizedBox(width: 8),
             Text(
-              l10n.hitDieType(classData.hitDie),
+              l10n.hitDieType(classData.hitDie.toString()),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: textColor,
                     fontWeight: FontWeight.w500,

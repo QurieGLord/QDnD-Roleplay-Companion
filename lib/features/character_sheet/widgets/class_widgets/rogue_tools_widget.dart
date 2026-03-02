@@ -65,8 +65,8 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                l10n.sneakAttackRoll(
-                    total, DiceUtils.formatDice('${diceCount}d6', context)),
+                l10n.sneakAttackRoll(total.toString(),
+                    DiceUtils.formatDice('${diceCount}d6', context)),
                 style:
                     const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
@@ -361,7 +361,8 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+          border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3)),
         ),
         child: Material(
           color: Colors.transparent,
@@ -429,7 +430,8 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+          border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.3)),
         ),
         child: Material(
           color: Colors.transparent,
@@ -533,7 +535,8 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.5), width: 1.5),
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+            width: 1.5),
       ),
       color: colorScheme.surfaceContainerLow,
       clipBehavior: Clip.antiAlias,
@@ -546,9 +549,11 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
               margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                color:
+                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+                border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.2)),
               ),
               child: Material(
                 color: Colors.transparent,
@@ -595,8 +600,8 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                           ),
                         ),
                         Icon(Icons.chevron_right,
-                            color:
-                                colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                            color: colorScheme.onSurfaceVariant
+                                .withValues(alpha: 0.5)),
                       ],
                     ),
                   ),
@@ -735,7 +740,8 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                                                             BoxDecoration(
                                                           color: colorScheme
                                                               .primary
-                                                              .withValues(alpha: 0.1),
+                                                              .withValues(
+                                                                  alpha: 0.1),
                                                           borderRadius:
                                                               BorderRadius
                                                                   .circular(8),
@@ -921,7 +927,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                           _buildFeatureReminder(
                             feature: evasionFeature,
                             name: evasionFeature.getName(locale),
-                            icon: Icons.shield_outlined,
+                            icon: Icons.shield,
                             theme: Theme.of(context),
                           ),
                       ],

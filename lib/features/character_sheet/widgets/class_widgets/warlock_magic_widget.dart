@@ -94,8 +94,8 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
                 decoration: BoxDecoration(
                   color: blockBg,
                   borderRadius: BorderRadius.circular(12),
-                  border:
-                      Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+                  border: Border.all(
+                      color: colorScheme.outline.withValues(alpha: 0.3)),
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: _buildInvocationsBlock(colorScheme, warlockColor,
@@ -384,7 +384,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
     IconData icon = Icons.card_giftcard;
     final lower = featureName.toLowerCase();
     if (lower.contains('blade') || lower.contains('клинка')) {
-      icon = Icons.shield_outlined;
+      icon = Icons.shield;
     }
     if (lower.contains('chain') || lower.contains('цепи')) icon = Icons.link;
     if (lower.contains('tome') || lower.contains('гримуар')) {

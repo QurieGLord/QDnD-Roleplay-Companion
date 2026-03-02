@@ -969,7 +969,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
             'You can use your action to create a pact weapon in your empty hand.',
         'descRu':
             'Вы можете использовать действие, чтобы создать пакт-оружие в своей пустой руке.',
-        'icon': Icons.shield_outlined,
+        'icon': Icons.shield,
       },
       {
         'id': 'pact_of_the_chain',

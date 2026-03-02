@@ -435,12 +435,22 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
 
     // Explicitly reload features to catch subclass features if subclass was just set
     if (_selectedOptions.containsKey('subclass')) {
-      // If we just picked a subclass, we might need to fetch its features.
-      // But usually that happens at next level up or we should handle it here.
-      // For now, assuming LevelUp logic covers the features for the NEW level.
-      // If subclass features appear at the same level as subclass choice (e.g. Warlock lvl 1, Sorcerer lvl 1),
-      // they should be in _newFeatures or handled via choices.
-      // Druid Land choice is at lvl 2, same as subclass choice.
+      final newSubclassId = _selectedOptions['subclass']!;
+
+      // Fetch subclass features specifically for this newly chosen subclass at the current level
+      final subclassFeatures = FeatureService.getFeaturesForLevel(
+        classId: char.characterClass,
+        level: _nextLevel,
+        subclassId: newSubclassId,
+      ).where((f) => f.associatedSubclass != null).toList();
+
+      for (var feature in subclassFeatures) {
+        if (!char.features.any((f) => f.id == feature.id)) {
+          char.features.add(feature);
+        }
+      }
+
+      // Note: Druid Land choice is handled separately above
     }
 
     // 5. Update Spell Slots

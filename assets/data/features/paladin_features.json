@@ -190,5 +190,33 @@
     "requiresRest": false,
     "actionEconomy": null,
     "iconName": "wifi_tethering"
+  },
+  {
+    "id": "channel-divinity-sacred-weapon",
+    "nameEn": "Sacred Weapon",
+    "nameRu": "Священное оружие",
+    "descriptionEn": "As an action, you can imbue one weapon that you are holding with positive energy, using your Channel Divinity. For 1 minute, you add your Charisma modifier to attack rolls made with that weapon (with a minimum bonus of +1). The weapon also emits bright light in a 20-foot radius and dim light 20 feet beyond that. If the weapon is not already magical, it becomes magical for the duration.",
+    "descriptionRu": "Действием вы можете наполнить одно оружие, которое держите, позитивной энергией, используя свой Божественный канал. На 1 минуту вы добавляете свой модификатор Харизмы к броскам атак, совершаемым с этим оружием (с минимальным бонусом +1). Оружие также излучает яркий свет в радиусе 20 футов и тусклый свет на 20 футов за ним. Если оружие ещё не было магическим, оно становится таковым на время действия.",
+    "type": "action",
+    "minLevel": 3,
+    "associatedClass": "Paladin",
+    "requiresRest": true,
+    "actionEconomy": "action",
+    "iconName": "flare",
+    "usageCostId": "channel_divinity"
+  },
+  {
+    "id": "channel-divinity-turn-the-unholy",
+    "nameEn": "Turn the Unholy",
+    "nameRu": "Изгнание нечестивых",
+    "descriptionEn": "As an action, you present your holy symbol and speak a prayer censuring fiends and undead, using your Channel Divinity. Each fiend or undead that can see or hear you within 30 feet of you must make a Wisdom saving throw. If the creature fails its saving throw, it is turned for 1 minute or until it takes damage.",
+    "descriptionRu": "Действием вы можете продемонстрировать свой священный символ и произнести молитву, порицающую извергов и нежить, используя свой Божественный канал. Каждый изверг или нежить, который может видеть или слышать вас в пределах 30 футов от вас, должен сделать спасбросок Мудрости. Если существо проваливает спасбросок, оно изгоняется на 1 минуту или пока не получит урон.",
+    "type": "action",
+    "minLevel": 3,
+    "associatedClass": "Paladin",
+    "requiresRest": true,
+    "actionEconomy": "action",
+    "iconName": "pan_tool",
+    "usageCostId": "channel_divinity"
   }
 ]

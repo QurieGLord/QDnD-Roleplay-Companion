@@ -474,12 +474,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noSlotsAvailable => 'No spell slots available!';
 
   @override
-  String spellCastSuccess(Object name) {
+  String spellCastSuccess(String name) {
     return '$name cast!';
   }
 
   @override
-  String spellCastLevelSuccess(Object level, Object name) {
+  String spellCastLevelSuccess(String name, String level) {
     return '$name cast at level $level!';
   }
 
@@ -644,7 +644,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rolling => 'Rolling...';
 
   @override
-  String total(Object value) {
+  String total(String value) {
     return 'Total: $value';
   }
 
@@ -673,7 +673,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chooseClass => 'Choose Class';
 
   @override
-  String hitDieType(Object value) {
+  String hitDieType(String value) {
     return 'Hit Die: d$value';
   }
 
@@ -1104,7 +1104,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirm => 'Confirm';
 
   @override
-  String readyMessage(Object name) {
+  String readyMessage(String name) {
     return '$name is ready to choose their path!';
   }
 
@@ -2239,12 +2239,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fighterChampion => 'Champion';
 
   @override
-  String sneakAttackRoll(Object dice, Object total) {
+  String sneakAttackRoll(String total, String dice) {
     return 'Sneak Attack: $total ($dice)';
   }
 
   @override
-  String kiStrikeRoll(Object dice, Object total) {
+  String kiStrikeRoll(String total, String dice) {
     return 'Ki Strike: $total ($dice)';
   }
 
@@ -2436,7 +2436,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get interventionFailure => 'The deity did not respond to your call.';
 
   @override
-  String interventionRollResult(Object value) {
+  String interventionRollResult(String value) {
     return 'Rolled: $value';
   }
 
@@ -2595,4 +2595,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stealthFail15 => 'You epically tripped on flat ground.';
+
+  @override
+  String get customHealAmount => 'Custom Heal Amount';
+
+  @override
+  String get hpToSpend => 'HP to spend';
 }

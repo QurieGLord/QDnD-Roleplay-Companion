@@ -940,6 +940,8 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           _findFeatureDeep(allFeatures, ['lay-on-hands', 'lay_on_hands']);
       final paladinDivineSense =
           _findFeatureDeep(allFeatures, ['divine-sense', 'divine_sense']);
+      final paladinDivineSmite =
+          _findFeatureDeep(allFeatures, ['divine-smite', 'divine_smite']);
       final paladinChannelDivinity = _findFeatureDeep(
           allFeatures, ['channel-divinity', 'channel_divinity']);
 
@@ -1197,6 +1199,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
                                           recoveryType: RecoveryType.longRest),
                                     ),
                                 divineSense: paladinDivineSense,
+                                divineSmite: paladinDivineSmite,
                                 channelDivinityResource: paladinChannelDivinity,
                                 channelDivinitySpells: paladinChannelSpells,
                                 onChanged: () => setState(() {}),
