@@ -1,6 +1,7 @@
 <div align="center">
 
-### 🇺🇸 [English](README.md) | 🇷🇺 [Русский](README_RU.md)
+[![EN](https://img.shields.io/badge/Язык-English-gray?style=for-the-badge)](README.md)
+[![RU](https://img.shields.io/badge/Язык-Русский-02569B?style=for-the-badge)](README_RU.md)
 
 # 🎲 QD&D - Ваш ролевой компаньон
 
