@@ -103,12 +103,12 @@
       {
         "id": "song-of-rest-d6",
         "name": {
-          "en": "Song of Rest (d6)",
-          "ru": "Песнь отдыха (к6)"
+          "en": "Song of Rest",
+          "ru": "Песнь отдыха"
         },
         "description": {
-          "en": "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains an extra 1d6 hit points. \nThe extra hit points increase when you reach certain levels in this class: to 1d8 at 9th level, to 1d10 at 13th level, and to 1d12 at 17th level.",
-          "ru": "Начиная со 2-го уровня, вы можете использовать успокаивающую музыку или речь, чтобы помочь оживить ваших раненых союзников во время короткого отдыха. Если вы или любые дружественные существа, которые могут слышать ваше исполнение, восстанавливают хиты в конце короткого отдыха, тратя Кости Хитов, каждое из этих существ восстанавливает дополнительные 1к6 хитов."
+          "en": "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains extra hit points. \nThe extra hit points increase when you reach certain levels in this class.",
+          "ru": "Начиная со 2-го уровня, вы можете использовать успокаивающую музыку или речь, чтобы помочь оживить ваших раненых союзников во время короткого отдыха. Если вы или любые дружественные существа, которые могут слышать ваше исполнение, восстанавливают хиты в конце короткого отдыха, тратя Кости Хитов, каждое из этих существ восстанавливает дополнительные хиты.\nДополнительные хиты увеличиваются на определенных уровнях в этом классе."
         }
       }
     ],
@@ -203,12 +203,12 @@
       {
         "id": "song-of-rest-d8",
         "name": {
-          "en": "Song of Rest (d8)",
-          "ru": "Песнь отдыха (к8)"
+          "en": "Song of Rest",
+          "ru": "Песнь отдыха"
         },
         "description": {
-          "en": "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains an extra 1d6 hit points. \nThe extra hit points increase when you reach certain levels in this class: to 1d8 at 9th level, to 1d10 at 13th level, and to 1d12 at 17th level.",
-          "ru": "Дополнительные хиты увеличиваются до 1к8 на 9-м уровне."
+          "en": "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains extra hit points. \nThe extra hit points increase when you reach certain levels in this class.",
+          "ru": "Начиная со 2-го уровня, вы можете использовать успокаивающую музыку или речь, чтобы помочь оживить ваших раненых союзников во время короткого отдыха. Если вы или любые дружественные существа, которые могут слышать ваше исполнение, восстанавливают хиты в конце короткого отдыха, тратя Кости Хитов, каждое из этих существ восстанавливает дополнительные хиты.\nДополнительные хиты увеличиваются на определенных уровнях в этом классе."
         }
       }
     ],
@@ -264,12 +264,12 @@
       {
         "id": "song-of-rest-d10",
         "name": {
-          "en": "Song of Rest (d10)",
-          "ru": "Песнь отдыха (к10)"
+          "en": "Song of Rest",
+          "ru": "Песнь отдыха"
         },
         "description": {
-          "en": "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains an extra 1d6 hit points. \nThe extra hit points increase when you reach certain levels in this class: to 1d8 at 9th level, to 1d10 at 13th level, and to 1d12 at 17th level.",
-          "ru": "Дополнительные хиты увеличиваются до 1к10 на 13-м уровне."
+          "en": "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains extra hit points. \nThe extra hit points increase when you reach certain levels in this class.",
+          "ru": "Начиная со 2-го уровня, вы можете использовать успокаивающую музыку или речь, чтобы помочь оживить ваших раненых союзников во время короткого отдыха. Если вы или любые дружественные существа, которые могут слышать ваше исполнение, восстанавливают хиты в конце короткого отдыха, тратя Кости Хитов, каждое из этих существ восстанавливает дополнительные хиты.\nДополнительные хиты увеличиваются на определенных уровнях в этом классе."
         }
       }
     ],
@@ -316,12 +316,12 @@
       {
         "id": "song-of-rest-d12",
         "name": {
-          "en": "Song of Rest (d12)",
-          "ru": "Песнь отдыха (к12)"
+          "en": "Song of Rest",
+          "ru": "Песнь отдыха"
         },
         "description": {
-          "en": "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains an extra 1d6 hit points. \nThe extra hit points increase when you reach certain levels in this class: to 1d8 at 9th level, to 1d10 at 13th level, and to 1d12 at 17th level.",
-          "ru": "Дополнительные хиты увеличиваются до 1к12 на 17-м уровне."
+          "en": "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains extra hit points. \nThe extra hit points increase when you reach certain levels in this class.",
+          "ru": "Начиная со 2-го уровня, вы можете использовать успокаивающую музыку или речь, чтобы помочь оживить ваших раненых союзников во время короткого отдыха. Если вы или любые дружественные существа, которые могут слышать ваше исполнение, восстанавливают хиты в конце короткого отдыха, тратя Кости Хитов, каждое из этих существ восстанавливает дополнительные хиты.\nДополнительные хиты увеличиваются на определенных уровнях в этом классе."
         }
       }
     ],
