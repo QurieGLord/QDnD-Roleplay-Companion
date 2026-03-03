@@ -767,6 +767,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get conditionUnconscious => 'Unconscious';
 
   @override
+  String conditionExhaustion(int level) {
+    return 'Exhaustion: $level';
+  }
+
+  @override
   String get stepBasicInfo => 'Basic Info';
 
   @override

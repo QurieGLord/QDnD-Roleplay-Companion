@@ -22,9 +22,14 @@ class RageControlWidget extends StatefulWidget {
   State<RageControlWidget> createState() => _RageControlWidgetState();
 }
 
-class _RageControlWidgetState extends State<RageControlWidget> {
+class _RageControlWidgetState extends State<RageControlWidget>
+    with TickerProviderStateMixin {
   bool _isRaging = false;
   bool _isReckless = false;
+  bool _isFrenzied = false;
+
+  late AnimationController _frenzyPulseController;
+  late Animation<double> _frenzyGlowAnimation;
 
   void _showFeatureDetails(CharacterFeature feature, IconData icon) {
     showModalBottomSheet(
@@ -162,6 +167,12 @@ class _RageControlWidgetState extends State<RageControlWidget> {
   @override
   void initState() {
     super.initState();
+    _frenzyPulseController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _frenzyGlowAnimation = Tween<double>(begin: 2.0, end: 8.0).animate(
+        CurvedAnimation(
+            parent: _frenzyPulseController, curve: Curves.easeInOut));
+
     final pool = widget.rageFeature.resourcePool;
     if (pool != null && pool.currentUses == 0) {
       final correctMax = _getMaxRage(widget.character.level);
@@ -173,6 +184,12 @@ class _RageControlWidgetState extends State<RageControlWidget> {
         widget.character.save();
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _frenzyPulseController.dispose();
+    super.dispose();
   }
 
   void _toggleRage(bool value) {
@@ -223,100 +240,45 @@ class _RageControlWidgetState extends State<RageControlWidget> {
       }
     } else {
       // Ending rage
+      final wasFrenzied = _isFrenzied;
       setState(() {
         _isRaging = false;
         _isReckless = false; // Turn off reckless upon dropping rage
+        _isFrenzied = false; // Frenzy ends with rage
       });
-    }
-  }
+      _frenzyPulseController.stop();
+      _frenzyPulseController.reverse();
 
-  void _executeQuickAction(
-      CharacterFeature feature, int maxUses, String locale) {
-    HapticFeedback.heavyImpact();
-    // Doesn't cost anything for now, Frenzy just happens.
-    final usedText = locale == 'ru' ? 'использовано!' : 'used!';
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${feature.getName(locale)} $usedText'),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 1),
-      ),
-    );
-  }
+      // Exhaustion penalty for Berserker Frenzy (PHB p.49)
+      if (wasFrenzied) {
+        widget.character.exhaustionLevel++;
+        widget.character.save();
+        widget.onChanged?.call();
 
-  Widget _buildActionTile(CharacterFeature? feature, IconData fallBackIcon,
-      String locale, ThemeData theme) {
-    if (feature == null) return const SizedBox.shrink();
-    final cleanName =
-        feature.getName(locale).replaceAll(RegExp(r'\s*\(.*?\)'), '');
-
-    IconData icon = fallBackIcon;
-    final nid = (feature.id).toLowerCase();
-    final nname = (feature.nameEn).toLowerCase();
-    if (nid.contains('frenzy') || nname.contains('frenzy')) {
-      icon = Icons.mood_bad;
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () => _showFeatureDetails(feature, icon),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child:
-                        Icon(icon, color: theme.colorScheme.primary, size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      cleanName,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 48,
-                    height: 36,
-                    child: FilledButton(
-                      style: FilledButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: theme.colorScheme.onPrimary,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                      onPressed: () => _executeQuickAction(feature, 0, locale),
-                      child: const Icon(Icons.flash_on, size: 18),
-                    ),
-                  ),
-                ],
+        if (context.mounted) {
+          final isRu = Localizations.localeOf(context).languageCode == 'ru';
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              icon: const Icon(Icons.local_fire_department,
+                  color: Colors.deepOrange, size: 32),
+              title: Text(isRu ? 'Откат Бешенства' : 'Frenzy Exhaustion'),
+              content: Text(
+                isRu
+                    ? 'Ярость спала, оставляя вас без сил.\nВы получаете 1 степень истощения (итого: ${widget.character.exhaustionLevel}).'
+                    : 'As the rage subsides, exhaustion sets in.\nYou gain 1 level of exhaustion (total: ${widget.character.exhaustionLevel}).',
               ),
+              actions: [
+                FilledButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(isRu ? 'Понятно' : 'Understood'),
+                ),
+              ],
             ),
-          ),
-        ),
-      ),
-    );
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -390,10 +352,11 @@ class _RageControlWidgetState extends State<RageControlWidget> {
               Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  color: colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
-                  border:
-                      Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+                  border: Border.all(
+                      color: colorScheme.outline.withValues(alpha: 0.2)),
                 ),
                 child: Material(
                   color: Colors.transparent,
@@ -551,7 +514,8 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                     ),
 
                     const SizedBox(height: 16),
-                    Divider(height: 1, color: borderColor.withValues(alpha: 0.5)),
+                    Divider(
+                        height: 1, color: borderColor.withValues(alpha: 0.5)),
                     const SizedBox(height: 16),
 
                     // Stats Row: Usages & Damage
@@ -613,10 +577,11 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                                             decoration: BoxDecoration(
                                               color: isActive
                                                   ? (_isRaging
-                                                      ? activeColor
-                                                          .withValues(alpha: 0.2)
+                                                      ? activeColor.withValues(
+                                                          alpha: 0.2)
                                                       : colorScheme.primary
-                                                          .withValues(alpha: 0.1))
+                                                          .withValues(
+                                                              alpha: 0.1))
                                                   : Colors.transparent,
                                               shape: BoxShape.circle,
                                               border: Border.all(
@@ -636,7 +601,8 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                                                         ? activeColor
                                                         : colorScheme.primary)
                                                     : colorScheme.outline
-                                                        .withValues(alpha: 0.3)),
+                                                        .withValues(
+                                                            alpha: 0.3)),
                                           ),
                                         );
                                       }),
@@ -657,7 +623,8 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                             boxShadow: _isRaging
                                 ? [
                                     BoxShadow(
-                                        color: activeColor.withValues(alpha: 0.4),
+                                        color:
+                                            activeColor.withValues(alpha: 0.4),
                                         blurRadius: 8,
                                         offset: const Offset(0, 2))
                                   ]
@@ -688,7 +655,8 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                   color: _isRaging
-                                      ? colorScheme.onError.withValues(alpha: 0.8)
+                                      ? colorScheme.onError
+                                          .withValues(alpha: 0.8)
                                       : colorScheme.onSecondaryContainer
                                           .withValues(alpha: 0.8),
                                 ),
@@ -698,45 +666,222 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                         ),
                       ],
                     ),
+
+                    // ── Frenzy Panel (only visible while raging) ──
+                    if (frenzyFeature != null)
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 450),
+                        curve: Curves.easeInOutCubicEmphasized,
+                        alignment: Alignment.topCenter,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 350),
+                          child: _isRaging
+                              ? Padding(
+                                  padding: const EdgeInsets.only(top: 12),
+                                  child: AnimatedBuilder(
+                                    animation: _frenzyGlowAnimation,
+                                    builder: (context, child) {
+                                      return AnimatedContainer(
+                                        duration:
+                                            const Duration(milliseconds: 250),
+                                        curve: Curves.easeInOut,
+                                        clipBehavior: Clip.antiAlias,
+                                        decoration: BoxDecoration(
+                                          // Card background pulses red when frenzied
+                                          color: _isFrenzied
+                                              ? colorScheme.errorContainer
+                                                  .withValues(alpha: 0.45)
+                                              : colorScheme.surface
+                                                  .withValues(alpha: 0.88),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: _isFrenzied
+                                                ? activeColor
+                                                : activeColor.withValues(
+                                                    alpha: 0.25),
+                                            width: _isFrenzied ? 1.5 : 1,
+                                          ),
+                                          boxShadow: _isFrenzied
+                                              ? [
+                                                  BoxShadow(
+                                                    color: activeColor
+                                                        .withValues(alpha: 0.4),
+                                                    blurRadius:
+                                                        _frenzyGlowAnimation
+                                                            .value,
+                                                    spreadRadius:
+                                                        _frenzyGlowAnimation
+                                                                .value /
+                                                            3,
+                                                  )
+                                                ]
+                                              : [],
+                                        ),
+                                        child: child,
+                                      );
+                                    },
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(12),
+                                      onLongPress: () => _showFeatureDetails(
+                                          frenzyFeature, Icons.mood_bad),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 10),
+                                        child: Row(
+                                          children: [
+                                            // Animated icon chip
+                                            AnimatedContainer(
+                                              duration: const Duration(
+                                                  milliseconds: 250),
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: _isFrenzied
+                                                    ? activeColor
+                                                    : activeColor.withValues(
+                                                        alpha: 0.12),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Icon(
+                                                // Distinct icons for inactive / active
+                                                _isFrenzied
+                                                    ? Icons.mood_bad
+                                                    : Icons
+                                                        .sentiment_dissatisfied,
+                                                size: 20,
+                                                color: _isFrenzied
+                                                    ? colorScheme.onError
+                                                    : activeColor,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            // Name + static hint (no dynamic text → no layout shift)
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    frenzyFeature
+                                                        .getName(locale)
+                                                        .replaceAll(
+                                                            RegExp(
+                                                                r'\s*\(.*?\)'),
+                                                            ''),
+                                                    style: TextStyle(
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: _isFrenzied
+                                                          ? colorScheme
+                                                              .onErrorContainer
+                                                          : colorScheme
+                                                              .onSurface,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    locale == 'ru'
+                                                        ? '+1 атака бонусным действием'
+                                                        : '+1 bonus action attack',
+                                                    style: TextStyle(
+                                                      fontSize: 11,
+                                                      color: _isFrenzied
+                                                          ? colorScheme
+                                                              .onErrorContainer
+                                                              .withValues(
+                                                                  alpha: 0.75)
+                                                          : colorScheme
+                                                              .onSurfaceVariant,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            // Fixed-size toggle button — no layout jump
+                                            SizedBox(
+                                              width: 40,
+                                              height: 40,
+                                              child: _isFrenzied
+                                                  ? IconButton.filled(
+                                                      style:
+                                                          IconButton.styleFrom(
+                                                        backgroundColor:
+                                                            activeColor,
+                                                        foregroundColor:
+                                                            colorScheme.onError,
+                                                        disabledBackgroundColor:
+                                                            activeColor
+                                                                .withValues(
+                                                                    alpha: 0.5),
+                                                        disabledForegroundColor:
+                                                            colorScheme.onError
+                                                                .withValues(
+                                                                    alpha: 0.8),
+                                                        padding:
+                                                            EdgeInsets.zero,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                        ),
+                                                      ),
+                                                      icon: const Icon(
+                                                          Icons
+                                                              .local_fire_department,
+                                                          size: 20),
+                                                      onPressed:
+                                                          null, // Frenzy cannot be manually toggled off
+                                                    )
+                                                  : IconButton.outlined(
+                                                      style:
+                                                          IconButton.styleFrom(
+                                                        foregroundColor:
+                                                            activeColor,
+                                                        side: BorderSide(
+                                                            color: activeColor
+                                                                .withValues(
+                                                                    alpha:
+                                                                        0.5)),
+                                                        padding:
+                                                            EdgeInsets.zero,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                        ),
+                                                      ),
+                                                      icon: const Icon(
+                                                          Icons
+                                                              .local_fire_department_outlined,
+                                                          size: 20),
+                                                      onPressed: () {
+                                                        setState(() =>
+                                                            _isFrenzied = true);
+                                                        _frenzyPulseController
+                                                            .repeat(
+                                                                reverse: true);
+                                                        HapticFeedback
+                                                            .heavyImpact();
+                                                      },
+                                                    ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      ),
                   ],
                 ),
               ),
             ),
-            // Quick Actions (Frenzy)
-            AnimatedSize(
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeOutQuart,
-              alignment: Alignment.topCenter,
-              child: (_isRaging && frenzyFeature != null)
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 12),
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(bottom: 8.0, left: 4.0),
-                          child: Row(
-                            children: [
-                              Icon(Icons.flash_on,
-                                  size: 16, color: colorScheme.error),
-                              const SizedBox(width: 6),
-                              Text(
-                                locale == 'ru' ? 'В Ярости' : 'While Raging',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: colorScheme.error,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        _buildActionTile(frenzyFeature, Icons.mood_bad, locale,
-                            Theme.of(context)),
-                      ],
-                    )
-                  : const SizedBox(width: double.infinity, height: 0),
-            ),
+            // Frenzy is nested inside the Rage card (AnimatedSize above)
 
             // Reckless Attack
             if (recklessFeature != null) ...[
@@ -813,8 +958,8 @@ class _RageControlWidgetState extends State<RageControlWidget> {
                               if (v) HapticFeedback.heavyImpact();
                             },
                             activeThumbColor: colorScheme.onErrorContainer,
-                            activeTrackColor:
-                                colorScheme.onErrorContainer.withValues(alpha: 0.3),
+                            activeTrackColor: colorScheme.onErrorContainer
+                                .withValues(alpha: 0.3),
                             inactiveThumbColor: colorScheme.outline,
                             inactiveTrackColor:
                                 colorScheme.surfaceContainerHighest,

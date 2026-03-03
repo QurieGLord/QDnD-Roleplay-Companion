@@ -761,6 +761,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get conditionUnconscious => 'Без сознания';
 
   @override
+  String conditionExhaustion(int level) {
+    return 'Истощение: $level';
+  }
+
+  @override
   String get stepBasicInfo => 'Основное';
 
   @override

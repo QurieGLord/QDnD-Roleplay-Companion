@@ -154,6 +154,18 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
     );
   }
 
+  String _getSongOfRestDie(int level, String locale) {
+    int sides = 6;
+    if (level >= 17) {
+      sides = 12;
+    } else if (level >= 13) {
+      sides = 10;
+    } else if (level >= 9) {
+      sides = 8;
+    }
+    return locale == 'ru' ? '1к$sides' : '1d$sides';
+  }
+
   void _showFeatureDetails(CharacterFeature feature, IconData icon) {
     showModalBottomSheet(
       context: context,
@@ -330,7 +342,34 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () => _showFeatureDetails(feature, icon),
+          onTap: () {
+            // Fetch fresh from service to avoid stale Hive cache issues with old descriptions
+            CharacterFeature? baseFeature =
+                FeatureService.getFeatureById(feature.id) ?? feature;
+            CharacterFeature featureToPass =
+                CharacterFeature.fromJson(baseFeature.toJson());
+
+            final idTarget = feature.id.toLowerCase();
+            if (idTarget.contains('song_of_rest') ||
+                idTarget.contains('song-of-rest')) {
+              final die = _getSongOfRestDie(widget.character.level, locale);
+              final cleanNameEn = featureToPass.nameEn
+                  .replaceAll(RegExp(r'\s*\(.*?\)'), '')
+                  .trim();
+              final cleanNameRu = featureToPass.nameRu
+                  .replaceAll(RegExp(r'\s*\(.*?\)'), '')
+                  .trim();
+              featureToPass.nameEn = '$cleanNameEn ($die)';
+              featureToPass.nameRu = '$cleanNameRu ($die)';
+
+              // Hard-cleanse any remaining stale descriptions from cache
+              featureToPass.descriptionEn = featureToPass.descriptionEn
+                  .replaceAll(RegExp(r'1d[0-9]+'), 'extra hit points');
+              featureToPass.descriptionRu = featureToPass.descriptionRu
+                  .replaceAll(RegExp(r'1к[0-9]+'), 'дополнительные хиты');
+            }
+            _showFeatureDetails(featureToPass, icon);
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(

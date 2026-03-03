@@ -240,6 +240,15 @@ class Character extends HiveObject {
   @HiveField(71, defaultValue: false)
   bool isHiddenInPlainSight;
 
+  /// PHB p.291 – Exhaustion (0-6; 6 = dead)
+  @HiveField(72, defaultValue: 0)
+  int _exhaustionLevel = 0;
+
+  int get exhaustionLevel => _exhaustionLevel;
+  set exhaustionLevel(int value) {
+    _exhaustionLevel = value.clamp(0, 6);
+  }
+
   Character({
     required this.id,
     required this.name,
@@ -313,7 +322,9 @@ class Character extends HiveObject {
     this.isHuntersMarkActive = false,
     this.huntersMarkTarget,
     this.isHiddenInPlainSight = false,
-  })  : knownSpells = knownSpells ?? [],
+    int exhaustionLevel = 0,
+  })  : _exhaustionLevel = exhaustionLevel,
+        knownSpells = knownSpells ?? [],
         preparedSpells = preparedSpells ?? [],
         features = features ?? [],
         inventory = inventory ?? [],
@@ -539,21 +550,22 @@ class Character extends HiveObject {
 
     // Restore all spell slots
     // STRICT WARLOCK FIX: Override logic for Warlocks
-    if (SpellcastingService.getSpellcastingType(characterClass) == 'pact_magic') {
-       final pactSlots = SpellSlotsTable.getPactSlots(level);
-       // Grow array if needed
-       while (spellSlots.length < pactSlots.length) {
-         spellSlots.add(0);
-       }
-       
-       for (int i = 0; i < pactSlots.length; i++) {
-         if (pactSlots[i] > 0) {
-            spellSlots[i] = pactSlots[i];
-         } else {
-            // Optional: clear non-pact slots to avoid confusion
-            if (i < spellSlots.length) spellSlots[i] = 0;
-         }
-       }
+    if (SpellcastingService.getSpellcastingType(characterClass) ==
+        'pact_magic') {
+      final pactSlots = SpellSlotsTable.getPactSlots(level);
+      // Grow array if needed
+      while (spellSlots.length < pactSlots.length) {
+        spellSlots.add(0);
+      }
+
+      for (int i = 0; i < pactSlots.length; i++) {
+        if (pactSlots[i] > 0) {
+          spellSlots[i] = pactSlots[i];
+        } else {
+          // Optional: clear non-pact slots to avoid confusion
+          if (i < spellSlots.length) spellSlots[i] = 0;
+        }
+      }
     } else {
       for (int i = 0; i < maxSpellSlots.length; i++) {
         spellSlots[i] = maxSpellSlots[i];
@@ -577,7 +589,12 @@ class Character extends HiveObject {
 
     // Wizard: Restore Arcane Recovery
     arcaneRecoveryUsed = false;
-    
+
+    // Reduce exhaustion
+    if (exhaustionLevel > 0) {
+      exhaustionLevel--;
+    }
+
     // Wizard: Restore Signature Spells
     signatureSpellsUsed.forEach((key, value) {
       signatureSpellsUsed[key] = false;
@@ -614,20 +631,21 @@ class Character extends HiveObject {
     }
 
     // Warlocks restore spell slots on short rest
-    if (SpellcastingService.getSpellcastingType(characterClass) == 'pact_magic') {
-       final pactSlots = SpellSlotsTable.getPactSlots(level);
-       // Grow array if needed
-       while (spellSlots.length < pactSlots.length) {
-         spellSlots.add(0);
-       }
-       
-       for (int i = 0; i < pactSlots.length; i++) {
-         if (pactSlots[i] > 0) {
-            spellSlots[i] = pactSlots[i];
-         } else {
-            if (i < spellSlots.length) spellSlots[i] = 0;
-         }
-       }
+    if (SpellcastingService.getSpellcastingType(characterClass) ==
+        'pact_magic') {
+      final pactSlots = SpellSlotsTable.getPactSlots(level);
+      // Grow array if needed
+      while (spellSlots.length < pactSlots.length) {
+        spellSlots.add(0);
+      }
+
+      for (int i = 0; i < pactSlots.length; i++) {
+        if (pactSlots[i] > 0) {
+          spellSlots[i] = pactSlots[i];
+        } else {
+          if (i < spellSlots.length) spellSlots[i] = 0;
+        }
+      }
     }
 
     // Druid: Restore Wild Shape on Short Rest

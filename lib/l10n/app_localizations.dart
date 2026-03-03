@@ -1538,6 +1538,12 @@ abstract class AppLocalizations {
   /// **'Unconscious'**
   String get conditionUnconscious;
 
+  /// No description provided for @conditionExhaustion.
+  ///
+  /// In en, this message translates to:
+  /// **'Exhaustion: {level}'**
+  String conditionExhaustion(int level);
+
   /// No description provided
   ///
   /// In en, this message translates to:

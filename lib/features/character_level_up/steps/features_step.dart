@@ -9,6 +9,7 @@ import '../../../ui/widgets/expressive_choice_selector.dart';
 import '../../../core/utils/localization_helper.dart';
 import '../../../core/services/feature_service.dart';
 import '../../../core/services/spell_service.dart';
+import '../../../core/services/character_data_service.dart';
 
 class FeaturesStep extends StatefulWidget {
   final Character character;
@@ -270,6 +271,16 @@ class _FeaturesStepState extends State<FeaturesStep> {
       if (widget.nextLevel == 6) needsExpertise = true;
     }
 
+    int requiredExpertiseCount = expertiseCount;
+    if (needsExpertise) {
+      final allSkills = _getAllProficientSkills();
+      final available = allSkills
+          .where((s) => !widget.character.expertSkills.contains(s))
+          .length;
+      requiredExpertiseCount =
+          available < expertiseCount ? available : expertiseCount;
+    }
+
     // Warlock Pact Boon (Level 3)
     bool needsPactBoon =
         (classId == 'warlock' || classId == 'колдун') && widget.nextLevel == 3;
@@ -312,7 +323,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
     if (needsSubclass && !_selections.containsKey('subclass')) {
       allChoicesMade = false;
     }
-    if (needsExpertise && _selectedExpertise.length != expertiseCount) {
+    if (needsExpertise && _selectedExpertise.length != requiredExpertiseCount) {
       allChoicesMade = false;
     }
     if (needsPactBoon && !_selections.containsKey('pact_boon')) {
@@ -512,7 +523,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 // 4. Expertise (Important Choice)
                 if (needsExpertise) ...[
                   _buildSectionHeader(context, l10n.expertise),
-                  _buildExpertiseSelection(context, expertiseCount, l10n),
+                  _buildExpertiseSelection(
+                      context, requiredExpertiseCount, l10n),
                   const SizedBox(height: 16),
                 ],
 
@@ -784,10 +796,24 @@ class _FeaturesStepState extends State<FeaturesStep> {
   }
 
   // ... (Existing helpers: _buildExpertiseSelection, _buildSubclassChoice, _buildFightingStyleChoice, _getSubclassTitle, _buildSectionHeader, _getFeatureTypeLabel, _buildFeatureCard, _buildSpellSlotGrid)
+  Set<String> _getAllProficientSkills() {
+    final skills = Set<String>.from(widget.character.proficientSkills);
+    if (widget.character.background != null) {
+      try {
+        final bg = CharacterDataService.getBackgroundById(
+            widget.character.background!);
+        if (bg != null) {
+          skills.addAll(bg.skillProficiencies);
+        }
+      } catch (_) {}
+    }
+    return skills;
+  }
+
   Widget _buildExpertiseSelection(
       BuildContext context, int count, AppLocalizations l10n) {
     // ... same as before
-    final proficientSkills = widget.character.proficientSkills;
+    final proficientSkills = _getAllProficientSkills();
     final existingExpertise = widget.character.expertSkills;
     final candidates =
         proficientSkills.where((s) => !existingExpertise.contains(s)).toList();

@@ -1023,6 +1023,14 @@
   "@conditionUnconscious": {
     "description": "No description provided"
   },
+  "conditionExhaustion": "Exhaustion: {level}",
+  "@conditionExhaustion": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "stepBasicInfo": "Basic Info",
   "@stepBasicInfo": {
     "description": "No description provided"

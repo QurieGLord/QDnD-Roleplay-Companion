@@ -232,6 +232,7 @@
   "conditionRestrained": "Опутан",
   "conditionStunned": "Ошеломлен",
   "conditionUnconscious": "Без сознания",
+  "conditionExhaustion": "Истощение: {level}",
   "stepBasicInfo": "Основное",
   "identity": "Личность",
   "identitySubtitle": "Создайте основу вашего персонажа",

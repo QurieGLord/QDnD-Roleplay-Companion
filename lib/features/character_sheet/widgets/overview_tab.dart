@@ -129,6 +129,39 @@ class OverviewTab extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
+                // GLOBAL CONDITIONS BLOCK
+                if (character.exhaustionLevel > 0) ...[
+                  Wrap(
+                    spacing: 8.0,
+                    runSpacing: 8.0,
+                    children: [
+                      if (character.exhaustionLevel > 0)
+                        FilterChip(
+                          showCheckmark: false,
+                          selected: true,
+                          selectedColor: colorScheme.errorContainer,
+                          side: BorderSide(
+                            color: colorScheme.error.withValues(alpha: 0.5),
+                          ),
+                          labelStyle: TextStyle(
+                            color: colorScheme.onErrorContainer,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          avatar: Icon(
+                            Icons.warning_amber_rounded,
+                            color: colorScheme.onErrorContainer,
+                            size: 18,
+                          ),
+                          label: Text(
+                            l10n.conditionExhaustion(character.exhaustionLevel),
+                          ),
+                          onSelected: (_) {},
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ],
+
                 // 3. Attacks
                 Text(l10n.weaponsAttacks,
                     style: theme.textTheme.labelLarge
