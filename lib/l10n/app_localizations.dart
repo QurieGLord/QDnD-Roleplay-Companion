@@ -4963,6 +4963,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Heal Amount'**
   String get healAmount;
+
+  /// No description provided for @secondWindHeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Second Wind: restored {amount} HP'**
+  String secondWindHeal(int amount);
 }
 
 class _AppLocalizationsDelegate

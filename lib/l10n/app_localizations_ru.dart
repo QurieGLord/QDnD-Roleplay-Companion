@@ -2589,4 +2589,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get healAmount => 'Объем лечения';
+
+  @override
+  String secondWindHeal(int amount) {
+    return 'Второе дыхание: восстановлено $amount ОЗ';
+  }
 }

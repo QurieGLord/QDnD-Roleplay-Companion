@@ -3541,5 +3541,13 @@
   "healAmount": "Heal Amount",
   "@healAmount": {
     "description": "No description provided"
+  },
+  "secondWindHeal": "Second Wind: restored {amount} HP",
+  "@secondWindHeal": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
   }
 }

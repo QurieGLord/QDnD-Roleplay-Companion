@@ -276,9 +276,8 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       // Add as a pseudo-feature
       char.features.add(CharacterFeature(
         id: 'fs_$styleId',
-        nameEn: 'Fighting Style: ${locFeat.name}',
-        nameRu:
-            '${l10n.fs_archery_name.split(' ').first} : ${locFeat.name}', // Just a generic 'Боевой стиль: ' fallback using language, we will just use the locFeat.name
+        nameEn: locFeat.name,
+        nameRu: locFeat.name,
         descriptionEn: locFeat.description,
         descriptionRu: locFeat.description,
         type: FeatureType.passive,

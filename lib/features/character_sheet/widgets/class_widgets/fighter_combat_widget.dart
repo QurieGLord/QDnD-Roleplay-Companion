@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -59,6 +61,34 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
     }
   }
 
+  void _useSecondWind() {
+    final feature = widget.secondWindFeature!;
+    final pool = feature.resourcePool!;
+    if (pool.currentUses > 0) {
+      HapticFeedback.mediumImpact();
+      final roll = Random().nextInt(10) + 1; // 1d10
+      final amount = roll + widget.character.level;
+
+      setState(() {
+        pool.use(1);
+        widget.character.heal(amount);
+        widget.character.save();
+        widget.onChanged?.call();
+      });
+
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.secondWindHeal(amount)),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+        ),
+      );
+    }
+  }
+
   void _restoreResource(CharacterFeature feature) {
     final pool = feature.resourcePool!;
     if (!pool.isFull) {
@@ -85,15 +115,27 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
   }
 
   List<CharacterFeature> _getFightingStyles() {
+    // Generic container IDs and names to exclude
+    const containerIds = {
+      'fighting-style',
+      'fighting_style',
+      'additional-fighting-style',
+      'additional_fighting_style',
+    };
+    const containerNames = {
+      'fighting style',
+      'additional fighting style',
+    };
+
     return widget.character.features.where((f) {
       final id = f.id.toLowerCase();
-      if (id == 'fighting-style' ||
-          id == 'fighting_style' ||
-          id == 'additional-fighting-style' ||
-          id == 'additional_fighting_style') {
-        return false;
-      }
-      return id.contains('fighting-style') || id.contains('fighting_style');
+      if (containerIds.contains(id)) return false;
+      // Exclude by English name to catch containers with compound IDs
+      if (containerNames.contains(f.nameEn.toLowerCase())) return false;
+      return id.contains('fighting-style') ||
+          id.contains('fighting_style') ||
+          id.startsWith('fs-') ||
+          id.startsWith('fs_');
     }).toList();
   }
 
@@ -136,12 +178,13 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
         l10n: l10n,
         colorScheme: colorScheme,
         feature: widget.secondWindFeature!,
-        icon: Icons.favorite,
+        icon: Icons.healing,
         colorBase: colorScheme.secondary,
         colorContainer: colorScheme.secondaryContainer,
         onColorContainer: colorScheme.onSecondaryContainer,
         subtitle:
             '${l10n.healing}: ${DiceUtils.formatDice('1d10', context)} + $level',
+        isSecondWind: true,
       ));
     }
 
@@ -438,6 +481,8 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
             spacing: 8,
             runSpacing: 8,
             children: styles.map((style) {
+              final fullName = style.getName(locale);
+
               return Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -458,12 +503,14 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
                         Icon(Icons.flash_on,
                             size: 16, color: colorScheme.onSecondaryContainer),
                         const SizedBox(width: 6),
-                        Text(
-                          style.getName(locale),
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                            color: colorScheme.onSecondaryContainer,
+                        Flexible(
+                          child: Text(
+                            fullName,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: colorScheme.onSecondaryContainer,
+                            ),
                           ),
                         ),
                       ],
@@ -490,11 +537,13 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
     required String subtitle,
     bool isActionSurge = false,
     bool isIndomitable = false,
+    bool isSecondWind = false,
   }) {
     final pool = feature.resourcePool;
     if (pool == null) return const SizedBox.shrink();
 
     final isAvailable = pool.currentUses > 0;
+    final isMultiCharge = (isActionSurge || isIndomitable) && pool.maxUses > 1;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -516,17 +565,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            IconData? overrideIcon;
-            if (icon == Icons.favorite) {
-              overrideIcon = Icons.favorite;
-            } else if (icon == Icons.bolt) {
-              overrideIcon = Icons.bolt;
-            } else if (icon == Icons.shield) {
-              overrideIcon = Icons.shield;
-            }
-            _showDetails(feature, overrideIcon);
-          },
+          onTap: () => _showDetails(feature, icon),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -584,14 +623,14 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: _buildResourceControls(
-                    context,
-                    feature,
-                    colorScheme,
-                    isAvailable,
-                    colorBase,
-                    colorContainer,
-                    onColorContainer,
-                    isActionSurge || isIndomitable,
+                    context: context,
+                    feature: feature,
+                    colorScheme: colorScheme,
+                    isAvailable: isAvailable,
+                    colorBase: colorBase,
+                    icon: icon,
+                    isMultiCharge: isMultiCharge,
+                    isSecondWind: isSecondWind,
                   ),
                 ),
               ],
@@ -602,78 +641,92 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
     );
   }
 
-  Widget _buildResourceControls(
-    BuildContext context,
-    CharacterFeature feature,
-    ColorScheme colorScheme,
-    bool isAvailable,
-    Color colorBase,
-    Color colorContainer,
-    Color onColorContainer,
-    bool multiCharge,
-  ) {
+  Widget _buildResourceControls({
+    required BuildContext context,
+    required CharacterFeature feature,
+    required ColorScheme colorScheme,
+    required bool isAvailable,
+    required Color colorBase,
+    required IconData icon,
+    required bool isMultiCharge,
+    bool isSecondWind = false,
+  }) {
     final pool = feature.resourcePool!;
+    final l10n = AppLocalizations.of(context)!;
 
-    if (!multiCharge || pool.maxUses == 1) {
-      // Single button approach (like Second Wind)
-      return FilledButton.icon(
+    if (!isMultiCharge) {
+      // Single-charge thematic button
+      return FilledButton.tonal(
         onPressed: isAvailable
-            ? () => _useResource(feature)
+            ? (isSecondWind ? _useSecondWind : () => _useResource(feature))
             : () => _restoreResource(feature),
-        icon: Icon(isAvailable ? Icons.play_arrow : Icons.refresh),
-        label: Text(isAvailable
-            ? AppLocalizations.of(context)!.useAction
-            : AppLocalizations.of(context)!.rest),
         style: FilledButton.styleFrom(
-          backgroundColor: isAvailable ? colorBase : colorScheme.surface,
-          foregroundColor:
-              isAvailable ? colorScheme.onPrimary : colorScheme.primary,
+          backgroundColor: isAvailable
+              ? colorBase.withValues(alpha: 0.15)
+              : colorScheme.surface,
+          foregroundColor: isAvailable ? colorBase : colorScheme.primary,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(isAvailable ? icon : Icons.refresh, size: 20),
+            const SizedBox(width: 8),
+            Text(isAvailable ? l10n.useAction : l10n.rest),
+          ],
         ),
       );
     } else {
-      // Multiple charges approach
-      return Wrap(
-        spacing: 8,
+      // Multi-charge thematic icon tokens
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
         children: List.generate(pool.maxUses, (index) {
           final chargeAvailable = index < pool.currentUses;
-          return GestureDetector(
-            onTap: () {
-              if (chargeAvailable) {
-                _useResource(feature);
-              } else {
-                _restoreResource(feature);
-              }
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutBack,
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: chargeAvailable ? colorBase : colorScheme.surface,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: chargeAvailable
-                      ? colorBase
-                      : colorScheme.outline.withValues(alpha: 0.3),
-                  width: 2,
+          return Padding(
+            padding: EdgeInsets.only(left: index > 0 ? 8 : 0),
+            child: GestureDetector(
+              onTap: () {
+                if (chargeAvailable) {
+                  _useResource(feature);
+                } else {
+                  _restoreResource(feature);
+                }
+              },
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 400),
+                switchInCurve: Curves.easeInOutCubicEmphasized,
+                switchOutCurve: Curves.easeInOutCubicEmphasized.flipped,
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(scale: animation, child: child),
+                  );
+                },
+                child: Container(
+                  key: ValueKey('charge_${index}_$chargeAvailable'),
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: chargeAvailable
+                        ? colorBase.withValues(alpha: 0.15)
+                        : colorScheme.surfaceContainerHighest,
+                    border: Border.all(
+                      color: chargeAvailable
+                          ? colorBase
+                          : colorScheme.outline.withValues(alpha: 0.2),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 20,
+                    color: chargeAvailable
+                        ? colorBase
+                        : colorScheme.onSurfaceVariant.withValues(alpha: 0.25),
+                  ),
                 ),
-                boxShadow: chargeAvailable
-                    ? [
-                        BoxShadow(
-                          color: colorBase.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          spreadRadius: 1,
-                        )
-                      ]
-                    : [],
-              ),
-              child: Icon(
-                chargeAvailable ? Icons.check : Icons.refresh,
-                size: 20,
-                color: chargeAvailable
-                    ? colorScheme.onPrimary
-                    : colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
               ),
             ),
           );

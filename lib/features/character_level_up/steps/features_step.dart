@@ -198,8 +198,20 @@ class _FeaturesStepState extends State<FeaturesStep> {
     final availableIds = _classStyles[classId] ?? _classStyles['fighter']!;
     final l10n = AppLocalizations.of(context)!;
     final List<Map<String, String>> result = [];
+    final characterFeatures =
+        widget.character.features.map((e) => e.id).toSet();
 
     for (var styleId in availableIds) {
+      // Check if character already has this fighting style in any form
+      // E.g. fs_$styleId, $classId-fighting-style-$styleId, fighting-style-$styleId, fighting-style-$normalizedStyle
+      final normalizedStyle = styleId.replaceAll('_', '-');
+      final hasIt = characterFeatures.contains('fs_$styleId') ||
+          characterFeatures.contains('fs_$normalizedStyle') ||
+          characterFeatures.any((id) =>
+              id.endsWith('-$styleId') || id.endsWith('-$normalizedStyle'));
+
+      if (hasIt) continue; // Skip styles the character already has
+
       final localized =
           LocalizationHelper.getLocalizedFightingStyle(styleId, l10n);
       result.add({
@@ -1028,6 +1040,15 @@ class _FeaturesStepState extends State<FeaturesStep> {
       },
     ];
 
+    // Filter out boons the character already possesses
+    final characterFeatures =
+        widget.character.features.map((e) => e.id).toSet();
+    final filteredBoons = boons.where((boon) {
+      final dashedId = (boon['id'] as String).replaceAll('_', '-');
+      return !characterFeatures.contains(dashedId) &&
+          !characterFeatures.contains(boon['id'] as String);
+    }).toList();
+
     return Column(
       children: [
         RadioGroup<String>(
@@ -1040,7 +1061,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
             });
           },
           child: Column(
-              children: boons.map((boon) {
+              children: filteredBoons.map((boon) {
             final id = boon['id'] as String;
             final name = locale == 'ru'
                 ? boon['nameRu'] as String
@@ -1327,6 +1348,13 @@ class _FeaturesStepState extends State<FeaturesStep> {
       ];
     }
 
+    // Filter out tactics the character already possesses
+    final characterFeatures =
+        widget.character.features.map((e) => e.id).toSet();
+    final filteredTactics = tactics.where((tactic) {
+      return !characterFeatures.contains(tactic['id']);
+    }).toList();
+
     return Column(
       children: [
         RadioGroup<String>(
@@ -1339,7 +1367,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
             });
           },
           child: Column(
-              children: tactics.map((tactic) {
+              children: filteredTactics.map((tactic) {
             final id = tactic['id']!;
             final name = locale == 'ru' ? tactic['ru']! : tactic['en']!;
             final desc = locale == 'ru' ? tactic['descRu']! : tactic['descEn']!;

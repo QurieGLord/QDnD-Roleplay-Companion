@@ -2612,4 +2612,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get healAmount => 'Heal Amount';
+
+  @override
+  String secondWindHeal(int amount) {
+    return 'Second Wind: restored $amount HP';
+  }
 }
