@@ -24,12 +24,15 @@
 | `assets/data/fc5_examples/pal_example.xml` | 2.9M | Reference персонаж (Paladin "Кюри") |
 | `assets/images/icon.svg` | 5.4K | Логотип приложения |
 
-### 📱 Приложение
+### 📱 Приложение (Ключевые директории и файлы)
 
-| Файл | Размер | Описание |
-|------|--------|----------|
-| `lib/main.dart` | ~8K | Основной код (290 строк) |
-| `build/app/outputs/flutter-apk/app-debug.apk` | 140M | Готовый APK |
+| Путь/Файл | Описание |
+|-----------|----------|
+| `lib/main.dart` | Основной код приложения |
+| `lib/core/utils/` | Общие утилиты (dice_utils, item_utils, spell_utils, localization_helper) |
+| `lib/features/character_sheet/widgets/class_widgets/` | Динамические UI-виджеты для классов (12+ виджетов: rage_control, bard_inspiration, paladin_divine и т.д.) |
+| `lib/features/character_sheet/widgets/abilities_tab.dart` | Главная вкладка умений (заменила spells_tab) |
+| `build/app/outputs/flutter-apk/app-debug.apk` | Готовый APK |
 
 ### ⚙️ Конфигурация
 
@@ -53,8 +56,6 @@ assets/data/
 ├── races/           # Расы
 ├── spells/          # Заклинания
 ├── subclasses/      # Подклассы
-└── fc5_examples/    # Примеры FC5 XML
-    └── pal_example.xml
 ```
 
 ## 🔧 Технические файлы

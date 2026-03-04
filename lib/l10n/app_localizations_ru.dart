@@ -2282,7 +2282,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get revertForm => 'Вернуться в истинный облик';
 
   @override
-  String get beastHP => 'ХП зверя';
+  String get beastHP => 'ОЗ зверя';
 
   @override
   String get beastName => 'Название облика';
@@ -2583,4 +2583,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get hpToSpend => 'ХП для траты';
+
+  @override
+  String get damageAmount => 'Объем урона';
+
+  @override
+  String get healAmount => 'Объем лечения';
 }

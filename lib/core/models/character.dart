@@ -666,16 +666,36 @@ class Character extends HiveObject {
 
   // HP Management Methods
   Future<void> takeDamage(int damage, {String? source}) async {
+    int remainingDamage = damage;
+
+    // 1. Temporary HP absorbs damage first, regardless of form
     if (temporaryHp > 0) {
-      if (damage <= temporaryHp) {
-        temporaryHp -= damage;
+      if (remainingDamage <= temporaryHp) {
+        temporaryHp -= remainingDamage;
+        remainingDamage = 0;
       } else {
-        final overflow = damage - temporaryHp;
+        remainingDamage -= temporaryHp;
         temporaryHp = 0;
-        currentHp -= overflow;
       }
-    } else {
-      currentHp -= damage;
+    }
+
+    if (remainingDamage > 0) {
+      // 2. If Wild Shaped, damage goes to beast HP
+      if (isWildShaped && beastCurrentHp != null) {
+        if (remainingDamage <= beastCurrentHp!) {
+          beastCurrentHp = beastCurrentHp! - remainingDamage;
+          remainingDamage = 0;
+        } else {
+          remainingDamage -= beastCurrentHp!;
+          beastCurrentHp = 0;
+          isWildShaped = false; // Form drops when Beast HP reaches 0
+        }
+      }
+
+      // 3. Any remaining damage hits the true form HP
+      if (remainingDamage > 0) {
+        currentHp -= remainingDamage;
+      }
     }
 
     if (currentHp < 0) currentHp = 0;
@@ -713,9 +733,14 @@ class Character extends HiveObject {
   }
 
   Future<void> heal(int healing, {String? source}) async {
-    // Apply healing
-    final newHp = currentHp + healing;
-    currentHp = newHp > maxHp ? maxHp : newHp;
+    // Apply healing to current form
+    if (isWildShaped && beastCurrentHp != null && beastMaxHp != null) {
+      final newHp = beastCurrentHp! + healing;
+      beastCurrentHp = newHp > beastMaxHp! ? beastMaxHp! : newHp;
+    } else {
+      final newHp = currentHp + healing;
+      currentHp = newHp > maxHp ? maxHp : newHp;
+    }
 
     // Reset death saves if healing from 0 HP
     if (currentHp > 0 && deathSaves.isActive) {

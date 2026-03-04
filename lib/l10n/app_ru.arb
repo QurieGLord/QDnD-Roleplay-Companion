@@ -715,7 +715,7 @@
   "noFlyingSwimming": "Без полета/плавания",
   "transform": "Принять облик",
   "revertForm": "Вернуться в истинный облик",
-  "beastHP": "ХП зверя",
+  "beastHP": "ОЗ зверя",
   "beastName": "Название облика",
   "naturalRecovery": "Естественное восстановление",
   "recoverSpellSlots": "Восстановить ячейки",
@@ -808,5 +808,7 @@
   "empty_roster_subtitle": "Создайте своего первого героя, чтобы начать приключение!",
   "create_first_character_btn": "Создать персонажа",
   "customHealAmount": "Свое лечение",
-  "hpToSpend": "ХП для траты"
+  "hpToSpend": "ХП для траты",
+  "damageAmount": "Объем урона",
+  "healAmount": "Объем лечения"
 }

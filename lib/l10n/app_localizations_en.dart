@@ -2606,4 +2606,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hpToSpend => 'HP to spend';
+
+  @override
+  String get damageAmount => 'Damage Amount';
+
+  @override
+  String get healAmount => 'Heal Amount';
 }

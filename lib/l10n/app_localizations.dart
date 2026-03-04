@@ -4951,6 +4951,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'HP to spend'**
   String get hpToSpend;
+
+  /// No description provided
+  ///
+  /// In en, this message translates to:
+  /// **'Damage Amount'**
+  String get damageAmount;
+
+  /// No description provided
+  ///
+  /// In en, this message translates to:
+  /// **'Heal Amount'**
+  String get healAmount;
 }
 
 class _AppLocalizationsDelegate

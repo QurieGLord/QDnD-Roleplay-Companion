@@ -3533,5 +3533,13 @@
   "hpToSpend": "HP to spend",
   "@hpToSpend": {
     "description": "Textfield label for spending HP."
+  },
+  "damageAmount": "Damage Amount",
+  "@damageAmount": {
+    "description": "No description provided"
+  },
+  "healAmount": "Heal Amount",
+  "@healAmount": {
+    "description": "No description provided"
   }
 }
