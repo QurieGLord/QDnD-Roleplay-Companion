@@ -1,5 +1,8 @@
 <div align="center">
 
+[![EN](https://img.shields.io/badge/Language-English-02569B?style=for-the-badge)](README.md)
+[![RU](https://img.shields.io/badge/Language-Русский-gray?style=for-the-badge)](README_RU.md)
+
 # 🎲 QD&D - Your Roleplay Companion
 
 ### Your faithful companion in the world of Dungeons & Dragons 5e
