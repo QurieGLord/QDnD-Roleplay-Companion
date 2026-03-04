@@ -4277,7 +4277,12 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "options": [
+      "hunters-prey-colossus-slayer",
+      "hunters-prey-giant-killer",
+      "hunters-prey-horde-breaker"
+    ]
   },
   {
     "id": "hunters-prey-colossus-slayer",
@@ -4457,7 +4462,12 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "options": [
+      "defensive-tactics-escape-the-horde",
+      "defensive-tactics-multiattack-defense",
+      "defensive-tactics-steel-will"
+    ]
   },
   {
     "id": "defensive-tactics-escape-the-horde",
@@ -4619,7 +4629,11 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "options": [
+      "multiattack-volley",
+      "multiattack-whirlwind-attack"
+    ]
   },
   {
     "id": "multiattack-volley",
@@ -4745,7 +4759,12 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "options": [
+      "superior-hunters-defense-evasion",
+      "superior-hunters-defense-stand-against-the-tide",
+      "superior-hunters-defense-uncanny-dodge"
+    ]
   },
   {
     "id": "superior-hunters-defense-evasion",
