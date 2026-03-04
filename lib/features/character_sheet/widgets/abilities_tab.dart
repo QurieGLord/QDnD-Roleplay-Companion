@@ -1515,16 +1515,22 @@ class _AbilitiesTabState extends State<AbilitiesTab>
 
       return Card(
         elevation: 1,
-        child: ExpansionTile(
-          title: Text('${features.length} ${l10n.passiveTraits}'),
-          subtitle: Text(
-            subtitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            shape: const Border(),
+            collapsedShape: const Border(),
+            title: Text('${features.length} ${l10n.passiveTraits}'),
+            subtitle: Text(
+              subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style:
+                  TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+            ),
+            leading: Icon(Icons.psychology, color: colorScheme.secondary),
+            children: children,
           ),
-          leading: Icon(Icons.psychology, color: colorScheme.secondary),
-          children: children,
         ),
       );
     } catch (e) {
@@ -1959,6 +1965,8 @@ class _AbilitiesTabState extends State<AbilitiesTab>
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
+        shape: const Border(),
+        collapsedShape: const Border(),
         key: PageStorageKey('spell_level_$level'),
         initiallyExpanded: _expandedLevels[level] ?? true,
         onExpansionChanged: (expanded) => _expandedLevels[level] = expanded,

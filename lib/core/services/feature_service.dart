@@ -301,6 +301,7 @@ class FeatureService {
           consumption: feature.consumption,
           usageCostId: feature.usageCostId,
           usageInputMode: feature.usageInputMode,
+          options: feature.options != null ? List.from(feature.options!) : null,
           resourcePool: feature.resourcePool != null
               ? ResourcePool(
                   currentUses: maxUses,

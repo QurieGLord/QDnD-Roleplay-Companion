@@ -455,9 +455,21 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
 
     // Adding standard features manually to avoid auto-adding all land options
     for (var feature in _newFeatures) {
+      if (feature.id.toLowerCase().contains('slayer') ||
+          feature.id.toLowerCase().contains('killer') ||
+          feature.id.toLowerCase().contains('horde')) {
+        debugPrint(
+            'DIAGNOSTICS: _newFeatures loop is trying to add tactic: ${feature.id}');
+      }
       // Check duplication
       if (!char.features.any((f) => f.id == feature.id)) {
         char.features.add(feature);
+        if (feature.id.toLowerCase().contains('slayer') ||
+            feature.id.toLowerCase().contains('killer') ||
+            feature.id.toLowerCase().contains('horde')) {
+          debugPrint(
+              'DIAGNOSTICS: _newFeatures loop SUCCESSFULLY ADDED tactic: ${feature.id}');
+        }
       }
     }
 
@@ -475,7 +487,28 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
         subclassId: newSubclassId,
       ).where((f) => f.associatedSubclass != null).toList();
 
+      // --- UNIVERSAL DATA-DRIVEN PRUNING LOGIC ---
+      // 1. Build a pool of all known optional feature IDs for this subclass.
+      // This allows the system to remain agnostic of specific classes or features (OCP).
+      final Set<String> optionalFeaturesPool = {};
       for (var feature in subclassFeatures) {
+        if (feature.options != null && feature.options!.isNotEmpty) {
+          optionalFeaturesPool.addAll(feature.options!);
+        }
+      }
+
+      // 2. Iterate and add features, filtering out unselected options.
+      for (var feature in subclassFeatures) {
+        final fId = feature.id;
+
+        // If the feature is known to be an option (it exists in our pool),
+        // we ONLY add it if the user explicitly selected its exact ID.
+        if (optionalFeaturesPool.contains(fId)) {
+          if (!_selectedOptions.values.contains(fId)) {
+            continue; // Skip because it wasn't selected
+          }
+        }
+
         if (!char.features.any((f) => f.id == feature.id)) {
           char.features.add(feature);
         }

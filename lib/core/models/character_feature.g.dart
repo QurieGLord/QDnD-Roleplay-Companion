@@ -34,13 +34,14 @@ class CharacterFeatureAdapter extends TypeAdapter<CharacterFeature> {
       sourceId: fields[14] as String?,
       usageCostId: fields[15] as String?,
       usageInputMode: fields[16] as String?,
+      options: (fields[17] as List?)?.cast<String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, CharacterFeature obj) {
     writer
-      ..writeByte(17)
+      ..writeByte(18)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -74,7 +75,9 @@ class CharacterFeatureAdapter extends TypeAdapter<CharacterFeature> {
       ..writeByte(15)
       ..write(obj.usageCostId)
       ..writeByte(16)
-      ..write(obj.usageInputMode);
+      ..write(obj.usageInputMode)
+      ..writeByte(17)
+      ..write(obj.options);
   }
 
   @override

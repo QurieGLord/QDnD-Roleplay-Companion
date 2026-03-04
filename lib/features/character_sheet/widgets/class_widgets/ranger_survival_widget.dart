@@ -72,6 +72,16 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
 
     return widget.character.features.where((f) {
       final id = f.id.toLowerCase();
+
+      // Exclude main container feature
+      if (id == 'hunters-prey' ||
+          id == 'hunter-s-prey' ||
+          id == 'defensive-tactics' ||
+          id == 'superior-hunters-defense' ||
+          id == 'multiattack') {
+        return false;
+      }
+
       final name = f.nameEn.toLowerCase();
       final nameRu = f.nameRu.toLowerCase();
       return keywords.any((k) =>
@@ -764,8 +774,13 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                     });
                     if (val) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text(l10n.hideSpentMinute),
-                        backgroundColor: colorScheme.primaryContainer,
+                        content: Text(
+                          l10n.hideSpentMinute,
+                          style: TextStyle(
+                            color: colorScheme.onInverseSurface,
+                          ),
+                        ),
+                        backgroundColor: colorScheme.inverseSurface,
                         duration: const Duration(seconds: 2),
                       ));
                     }

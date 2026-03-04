@@ -58,6 +58,10 @@ class CharacterFeature extends HiveObject {
   @HiveField(16)
   String? usageInputMode; // 'slider', 'simple'
 
+  @HiveField(17)
+  List<String>?
+      options; // IDs of mutually exclusive sub-features to choose from
+
   CharacterFeature({
     required this.id,
     required this.nameEn,
@@ -76,6 +80,7 @@ class CharacterFeature extends HiveObject {
     this.sourceId,
     this.usageCostId,
     this.usageInputMode,
+    this.options,
   });
 
   String getName(String locale) {
@@ -113,6 +118,7 @@ class CharacterFeature extends HiveObject {
       'consumption': consumption?.toJson(),
       'usageCostId': usageCostId,
       'usageInputMode': usageInputMode,
+      'options': options,
     };
   }
 
@@ -138,6 +144,8 @@ class CharacterFeature extends HiveObject {
           : null,
       usageCostId: json['usageCostId'],
       usageInputMode: json['usageInputMode'],
+      options:
+          json['options'] != null ? List<String>.from(json['options']) : null,
     );
   }
 
