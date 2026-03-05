@@ -116,6 +116,12 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settings;
 
+  /// Error message shown when a wizard step is incomplete
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in all required fields to continue.'**
+  String get errorMissingFields;
+
   /// No description provided
   ///
   /// In en, this message translates to:

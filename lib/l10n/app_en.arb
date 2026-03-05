@@ -12,6 +12,10 @@
   "@settings": {
     "description": "No description provided"
   },
+  "errorMissingFields": "Please fill in all required fields to continue.",
+  "@errorMissingFields": {
+    "description": "Error message shown when a wizard step is incomplete"
+  },
   "language": "Language",
   "@language": {
     "description": "No description provided"

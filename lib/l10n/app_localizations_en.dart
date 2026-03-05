@@ -18,6 +18,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
+  String get errorMissingFields =>
+      'Please fill in all required fields to continue.';
+
+  @override
   String get language => 'Language';
 
   @override

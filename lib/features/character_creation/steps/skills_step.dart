@@ -319,8 +319,7 @@ class SkillsStep extends StatelessWidget {
           );
         }),
 
-        if (state.selectedClass?.id.toLowerCase() == 'rogue' ||
-            state.selectedClass?.id.toLowerCase() == 'плут')
+        if (state.requiredExpertiseCount > 0)
           _buildExpertiseSection(context, state, theme, l10n),
       ],
     );
@@ -328,9 +327,17 @@ class SkillsStep extends StatelessWidget {
 
   Widget _buildExpertiseSection(BuildContext context,
       CharacterCreationState state, ThemeData theme, AppLocalizations l10n) {
-    const maxExpertise = 2;
+    final maxExpertise = state.requiredExpertiseCount;
     final selectedCount = state.selectedExpertise.length;
-    final proficientSkills = state.selectedSkills;
+
+    final Set<String> proficientSkills = {
+      ...state.selectedSkills,
+      if (state.selectedBackground != null)
+        ...state.selectedBackground!.skillProficiencies,
+      if (state.selectedRace != null)
+        ...state.selectedRace!.proficiencies
+            .where((p) => skillIcons.containsKey(p)),
+    };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

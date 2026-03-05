@@ -6,6 +6,7 @@ import '../../../../core/models/character_feature.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/dice_utils.dart';
 import '../../../../core/services/character_data_service.dart';
+import '../../../../core/services/feature_service.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 
 class RogueToolsWidget extends StatefulWidget {
@@ -302,7 +303,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                                   .primaryContainer,
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Icon(Icons.masks,
+                            child: Icon(Icons.key,
                                 color: Theme.of(context).colorScheme.primary,
                                 size: 28),
                           ),
@@ -354,62 +355,58 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
     required VoidCallback onTap,
     required VoidCallback onActionPress,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border:
+            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.3)),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child:
-                        Icon(icon, color: theme.colorScheme.primary, size: 20),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      name,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.onSurface,
-                      ),
+                  child: Icon(icon, color: theme.colorScheme.primary, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
-                  SizedBox(
-                    width: 48,
-                    height: 36,
-                    child: FilledButton(
-                      style: FilledButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: theme.colorScheme.onPrimary,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                      onPressed: onActionPress,
-                      child: Icon(actionIcon, size: 18),
+                ),
+                SizedBox(
+                  width: 48,
+                  height: 36,
+                  child: FilledButton(
+                    style: FilledButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: theme.colorScheme.onPrimary,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
+                    onPressed: onActionPress,
+                    child: Icon(actionIcon, size: 18),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -423,47 +420,43 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
     required IconData icon,
     required ThemeData theme,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border:
+            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.3)),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () => _showFeatureDetails(feature, icon),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child:
-                        Icon(icon, color: theme.colorScheme.primary, size: 20),
+          onTap: () => _showFeatureDetails(feature, icon),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      name,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.onSurface,
-                      ),
+                  child: Icon(icon, color: theme.colorScheme.primary, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -480,12 +473,13 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
     final diceCount = _getSneakAttackDice(widget.character.level);
     final diceText = DiceUtils.formatDice('${diceCount}d6', context);
 
-    // Finding relevant features correctly
     CharacterFeature? cunningActionFeature;
     CharacterFeature? uncannyDodgeFeature;
     CharacterFeature? evasionFeature;
     CharacterFeature? sneakAttackFeature;
     CharacterFeature? hideFeature;
+
+    final List<CharacterFeature> cunningChildren = [];
 
     for (var f in widget.character.features) {
       final fid = f.id.toLowerCase();
@@ -515,6 +509,75 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
         hideFeature = f;
       }
     }
+
+    if (cunningActionFeature != null) {
+      final options = cunningActionFeature.options;
+      if (options != null && options.isNotEmpty) {
+        for (var opt in options) {
+          var child =
+              widget.character.features.where((f) => f.id == opt).firstOrNull;
+          child ??= FeatureService.getFeatureById(opt);
+          if (child != null) cunningChildren.add(child);
+        }
+      }
+
+      if (cunningChildren.isEmpty) {
+        // Fallback to searching by known action names if options missing
+        final lookup = ['dash', 'disengage', 'hide'];
+        for (var k in lookup) {
+          var child = widget.character.features
+              .where((f) =>
+                  f.id.toLowerCase().contains(k) &&
+                  f.actionEconomy == 'bonus_action')
+              .firstOrNull;
+          child ??= FeatureService.getFeatureById(k);
+          if (child != null && !cunningChildren.any((x) => x.id == child!.id)) {
+            cunningChildren.add(child);
+          }
+        }
+
+        // IMPORTANT QA FIX: If cunningChildren is STILL empty, we generate proper dummy features!
+        if (cunningChildren.isEmpty) {
+          cunningChildren.add(CharacterFeature(
+            id: 'cunning-action-dash',
+            nameEn: 'Dash',
+            nameRu: 'Рывок',
+            descriptionEn:
+                'When you take the Dash action, you gain extra movement for the current turn. The increase equals your speed, after applying any modifiers.',
+            descriptionRu:
+                'Если вы совершаете действие Рывок, вы получаете дополнительное перемещение в текущем ходу. Увеличение равно вашей скорости после применения всех модификаторов.',
+            type: FeatureType.action,
+            minLevel: 2,
+            actionEconomy: 'bonus_action',
+          ));
+          cunningChildren.add(CharacterFeature(
+            id: 'cunning-action-disengage',
+            nameEn: 'Disengage',
+            nameRu: 'Отход',
+            descriptionEn:
+                "If you take the Disengage action, your movement doesn't provoke opportunity attacks for the rest of the turn.",
+            descriptionRu:
+                'Если вы совершаете действие Отход, ваше перемещение не провоцирует провоцированные атаки до конца хода.',
+            type: FeatureType.action,
+            minLevel: 2,
+            actionEconomy: 'bonus_action',
+          ));
+        }
+      }
+    }
+
+    hideFeature ??= CharacterFeature(
+      id: 'cunning-action-hide',
+      nameEn: 'Hide',
+      nameRu: 'Засада',
+      descriptionEn:
+          'When you take the Hide action, you make a Dexterity (Stealth) check in an attempt to hide, following the rules for hiding. If you succeed, you gain certain benefits.',
+      descriptionRu:
+          'Когда вы совершаете действие Засада, вы совершаете проверку Ловкости (Скрытность) в попытке спрятаться, следуя правилам скрытности. Если вы преуспеваете, вы получаете определенные преимущества.',
+      type: FeatureType.action,
+      minLevel: 2,
+      actionEconomy: 'bonus_action',
+    );
 
     String subclassDisplayName = widget.character.subclass ?? '';
     final classData =
@@ -570,7 +633,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                             color: colorScheme.primary.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.masks,
+                          child: Icon(Icons.key,
                               color: colorScheme.primary, size: 18),
                         ),
                         const SizedBox(width: 12),
@@ -817,12 +880,11 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                   ),
                 ),
 
-                const SizedBox(height: 12),
-
-                // Tactics and Defense Block
                 if (cunningActionFeature != null ||
                     uncannyDodgeFeature != null ||
-                    evasionFeature != null)
+                    evasionFeature != null) ...[
+                  const SizedBox(height: 12),
+                  // Tactics and Defense Block
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
@@ -835,104 +897,114 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (cunningActionFeature != null) ...[
-                          Row(
+                        if (cunningActionFeature != null)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Icons.keyboard_double_arrow_right,
-                                  color: colorScheme.primary, size: 20),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  isRu
-                                      ? 'Хитрое действие (Бонус)'
-                                      : 'Cunning Action (Bonus)',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleSmall
-                                      ?.copyWith(
-                                        color: colorScheme.primary,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 0.5,
-                                      ),
-                                ),
+                              Row(
+                                children: [
+                                  Icon(Icons.keyboard_double_arrow_right,
+                                      color: colorScheme.primary, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      isRu
+                                          ? 'Хитрое действие (Бонус)'
+                                          : 'Cunning Action (Bonus)',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleSmall
+                                          ?.copyWith(
+                                            color: colorScheme.primary,
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.5,
+                                          ),
+                                    ),
+                                  ),
+                                ],
                               ),
+                              const SizedBox(height: 12),
+                              if (cunningChildren.isNotEmpty)
+                                ...cunningChildren
+                                    .map((child) {
+                                      IconData actionIcon = Icons.flash_on;
+                                      if (child.id.contains('dash')) {
+                                        actionIcon = Icons.directions_run;
+                                      }
+                                      if (child.id.contains('disengage')) {
+                                        actionIcon = Icons.turn_slight_right;
+                                      }
+                                      if (child.id.contains('hide')) {
+                                        actionIcon = Icons.visibility_off;
+                                      }
+                                      return _buildActionTile(
+                                        feature: child,
+                                        name: child.getName(locale),
+                                        icon: actionIcon,
+                                        actionIcon:
+                                            Icons.keyboard_double_arrow_right,
+                                        theme: Theme.of(context),
+                                        onTap: () => _showFeatureDetails(
+                                            child, actionIcon),
+                                        onActionPress: () => _executeQuickAction(
+                                            child.nameEn,
+                                            '${child.getName(locale)} (Бонусное действие)'),
+                                      );
+                                    })
+                                    .expand(
+                                        (w) => [w, const SizedBox(height: 8)])
+                                    .toList()
+                                  ..removeLast(),
                             ],
                           ),
-                          const SizedBox(height: 12),
-
-                          // Action: Dash
-                          _buildActionTile(
-                            feature: cunningActionFeature,
-                            name: cunningActionFeature.getName(locale),
-                            icon: Icons.directions_run,
-                            actionIcon: Icons.keyboard_double_arrow_right,
-                            theme: Theme.of(context),
-                            onTap: () => _showFeatureDetails(
-                                cunningActionFeature!, Icons.directions_run),
-                            onActionPress: () => _executeQuickAction(
-                                'Dash',
-                                isRu
-                                    ? 'Рывок (Бонусное действие)'
-                                    : 'Dash (Bonus Action)'),
-                          ),
-
-                          // Action: Disengage
-                          _buildActionTile(
-                            feature: cunningActionFeature,
-                            name: isRu
-                                ? 'Отход'
-                                : 'Disengage', // Forcing name to avoid redundant (Bonus action) in translated features
-                            icon: Icons.turn_slight_right,
-                            actionIcon: Icons.keyboard_double_arrow_right,
-                            theme: Theme.of(context),
-                            onTap: () => _showFeatureDetails(
-                                cunningActionFeature!, Icons.turn_slight_right),
-                            onActionPress: () => _executeQuickAction(
-                                'Disengage',
-                                isRu
-                                    ? 'Отход (Бонусное действие)'
-                                    : 'Disengage (Bonus Action)'),
-                          ),
+                        if (cunningActionFeature != null &&
+                            (uncannyDodgeFeature != null ||
+                                evasionFeature != null))
                           const SizedBox(height: 16),
-                        ],
-
-                        // Protective Reactions
                         if (uncannyDodgeFeature != null ||
-                            evasionFeature != null) ...[
-                          Text(
-                            isRu ? 'Защитные Реакции' : 'Defensive Reactions',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(
-                                  color: colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-
-                        // Reaction: Dodge
-                        if (uncannyDodgeFeature != null)
-                          _buildFeatureReminder(
-                            feature: uncannyDodgeFeature,
-                            name: uncannyDodgeFeature.getName(locale),
-                            icon: Icons.shield,
-                            theme: Theme.of(context),
-                          ),
-
-                        // Reaction: Evasion
-                        if (evasionFeature != null)
-                          _buildFeatureReminder(
-                            feature: evasionFeature,
-                            name: evasionFeature.getName(locale),
-                            icon: Icons.shield,
-                            theme: Theme.of(context),
+                            evasionFeature != null)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isRu
+                                    ? 'Защитные Реакции'
+                                    : 'Defensive Reactions',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      color: colorScheme.primary,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5,
+                                    ),
+                              ),
+                              const SizedBox(height: 12),
+                              ...[
+                                if (uncannyDodgeFeature != null)
+                                  _buildFeatureReminder(
+                                    feature: uncannyDodgeFeature,
+                                    name: uncannyDodgeFeature.getName(locale),
+                                    icon: Icons.shield,
+                                    theme: Theme.of(context),
+                                  ),
+                                if (evasionFeature != null)
+                                  _buildFeatureReminder(
+                                    feature: evasionFeature,
+                                    name: evasionFeature.getName(locale),
+                                    icon: Icons.shield,
+                                    theme: Theme.of(context),
+                                  ),
+                              ]
+                                  .expand((w) => [w, const SizedBox(height: 8)])
+                                  .toList()
+                                ..removeLast(),
+                            ],
                           ),
                       ],
                     ),
                   ),
+                ],
               ],
             ),
           ),

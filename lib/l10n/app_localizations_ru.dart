@@ -18,6 +18,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settings => 'Настройки';
 
   @override
+  String get errorMissingFields =>
+      'Пожалуйста, заполните все обязательные поля для продолжения.';
+
+  @override
   String get language => 'Язык';
 
   @override

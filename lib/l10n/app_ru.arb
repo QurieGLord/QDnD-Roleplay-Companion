@@ -3,6 +3,13 @@
   "appTitle": "QD&D",
   "appSubtitle": "Roleplay Companion",
   "settings": "Настройки",
+  "@settings": {
+    "description": "No description provided"
+  },
+  "errorMissingFields": "Пожалуйста, заполните все обязательные поля для продолжения.",
+  "@errorMissingFields": {
+    "description": "Error message shown when a wizard step is incomplete"
+  },
   "language": "Язык",
   "theme": "Тема",
   "characters": "Персонажи",

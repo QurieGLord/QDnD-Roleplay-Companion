@@ -84,6 +84,18 @@ class _AbilitiesTabState extends State<AbilitiesTab>
 
   bool _shouldShowInList(CharacterFeature feature) {
     try {
+      // Universal Parent Deduplication:
+      // If a feature is a parent container (has options), and ANY of its options
+      // are currently possessed by the character (rendered as child options),
+      // we hide the parent container from the generic list to avoid duplication.
+      if (feature.options != null && feature.options!.isNotEmpty) {
+        bool hasAtLeastOneChild = widget.character.features
+            .any((f) => feature.options!.contains(f.id));
+        if (hasAtLeastOneChild) {
+          return false;
+        }
+      }
+
       // NUCLEAR OPTION: Safe access to properties
       final id = (feature.id).toLowerCase();
       final name = (feature.nameEn).toLowerCase();

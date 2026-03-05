@@ -154,8 +154,16 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
   void _nextStep(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     if (_currentStep < 7) {
-      // Validate current step
-      // Note: validation logic depends on state getters which are fine
+      // STRICT MODE VALIDATION
+      if (!_state.isStepValid(_currentStep)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.errorMissingFields),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+        return; // BLOCK PROGRESSION
+      }
 
       setState(() {
         _currentStep++;

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/models/race_data.dart';
 import '../../core/models/class_data.dart';
 import '../../core/models/background_data.dart';
+import '../../core/services/feature_service.dart';
+import '../../core/services/spell_service.dart';
 
 class CharacterCreationState extends ChangeNotifier {
   // Step 1: Basic Info
@@ -101,8 +103,10 @@ class CharacterCreationState extends ChangeNotifier {
 
     // Ranger: Favored Enemy and Natural Explorer (Level 1)
     if (classId == 'ranger' || classId == 'следопыт') {
-      bool hasFavoredEnemy = selectedFeatureOptions.containsKey('favored_enemy');
-      bool hasNaturalExplorer = selectedFeatureOptions.containsKey('natural_explorer');
+      bool hasFavoredEnemy =
+          selectedFeatureOptions.containsKey('favored_enemy');
+      bool hasNaturalExplorer =
+          selectedFeatureOptions.containsKey('natural_explorer');
       if (!hasFavoredEnemy || !hasNaturalExplorer) return false;
     }
 
@@ -120,10 +124,117 @@ class CharacterCreationState extends ChangeNotifier {
 
     if (!skillsValid) return false;
 
-    // Rogue Expertise Validation (Level 1)
-    final classId = selectedClass!.id.toLowerCase();
-    if (classId == 'rogue' || classId == 'плут') {
-      if (selectedExpertise.length != 2) return false;
+    // Data-driven Expertise Validation (Level 1)
+    if (requiredExpertiseCount > 0) {
+      if (selectedExpertise.length != requiredExpertiseCount) return false;
+    }
+
+    return true;
+  }
+
+  int get requiredExpertiseCount {
+    if (selectedClass == null) {
+      return 0;
+    }
+
+    final lvl1Features = FeatureService.getFeaturesForLevel(
+      classId: selectedClass!.id,
+      level: 1,
+    );
+
+    final hasExpertise = lvl1Features.any((f) {
+      final id = f.id.toLowerCase();
+      final name = f.nameEn.toLowerCase();
+      return id.contains('expertise') || name.contains('expertise');
+    });
+
+    return hasExpertise ? 2 : 0;
+  }
+
+  // GLOBAL STRICT MODE WIZARD VALIDATION
+  bool isStepValid(int step) {
+    switch (step) {
+      case 0:
+        return name.trim().isNotEmpty;
+      case 1:
+        return selectedRace != null && selectedClass != null;
+      case 2:
+        return _validateAbilityScores();
+      case 3:
+        return _validateFeaturesAndSpells();
+      case 4:
+        return true; // Equipment step currently doesn't have strict requirements to block
+      case 5:
+        return selectedBackground != null;
+      case 6:
+        return _validateSkills();
+      case 7:
+        return true; // Review step
+      default:
+        return false;
+    }
+  }
+
+  bool _validateFeaturesAndSpells() {
+    if (selectedClass == null) return false;
+
+    // Subclass Validation (if granted at level 1)
+    if (selectedClass!.subclassLevel == 1 && selectedSubclass == null) {
+      return false;
+    }
+
+    // Optional Features Validation (e.g. Fighting Style, Draconic Ancestry)
+    // For now, if there are ANY feature options available, ensure they are selected
+    // Note: We only strictly block if we know an option is REQUIRED.
+    // Standard DnD: Ranger Favored Enemy / Natural Explorer are mandatory at lvl 1
+    final classIdLower = selectedClass!.id.toLowerCase();
+    if (classIdLower == 'ranger' || classIdLower == 'следопыт') {
+      if (!selectedFeatureOptions.containsKey('favored_enemy')) return false;
+      if (!selectedFeatureOptions.containsKey('natural_explorer')) return false;
+    }
+    if (classIdLower == 'sorcerer' || classIdLower == 'чародей') {
+      // Must choose Draconic Ancestry if that subclass is selected
+      if (selectedSubclass?.id == 'draconic_bloodline' &&
+          !selectedFeatureOptions.containsKey('draconic_ancestry')) {
+        return false;
+      }
+    }
+
+    // Spellcasting Validation
+    if (selectedClass!.spellcasting != null) {
+      final cantripLimit = getSpellLimits().cantrips;
+      final spellLimit = getSpellLimits().spellsKnown;
+
+      int selectedCantripsCount = 0;
+      int selectedLvl1Count = 0;
+
+      // Spells tracking in State currently only holds an array of Strings `selectedSpells`
+      // For accurate strict validation at level 1, we must separate Cantrips from Level 1 spells using the SpellService
+      if (selectedSpells.isNotEmpty) {
+        final classId = selectedClass!.id;
+        final classSpells = SpellService.getSpellsForClass(classId);
+        for (var id in selectedSpells) {
+          final targetSpell = classSpells.firstWhere((s) => s.id == id,
+              orElse: () => throw Exception('Spell not found'));
+          if (targetSpell.level == 0) {
+            selectedCantripsCount++;
+          } else if (targetSpell.level == 1) {
+            selectedLvl1Count++;
+          }
+        }
+      }
+
+      if (cantripLimit > 0 && selectedCantripsCount != cantripLimit) {
+        return false;
+      }
+
+      // Prepared casters (Cleric/Druid) don't strictly *learn* spells at creation in our UI the same way,
+      // so we use a loose check, but Wizards/Bards/Sorcs/Warlocks MUST learn their required spells.
+      if (spellLimit > 0 &&
+          spellLimit < 999 &&
+          selectedLvl1Count != spellLimit) {
+        return false;
+      }
     }
 
     return true;

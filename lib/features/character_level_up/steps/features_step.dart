@@ -261,6 +261,13 @@ class _FeaturesStepState extends State<FeaturesStep> {
                     ? widget.oldSpellSlots[e.key]
                     : 0)));
 
+    final Set<String> optionalFeaturesPool = {};
+    for (var feature in widget.newFeatures) {
+      if (feature.options != null && feature.options!.isNotEmpty) {
+        optionalFeaturesPool.addAll(feature.options!);
+      }
+    }
+
     bool needsFightingStyle =
         widget.newFeatures.any((f) => f.id.contains('fighting-style'));
     bool needsSubclass = widget.nextLevel == widget.classData.subclassLevel;
@@ -546,24 +553,15 @@ class _FeaturesStepState extends State<FeaturesStep> {
                       f.id.contains('pact-boon')) {
                     return false;
                   }
-                  final safeId = f.id.toLowerCase().replaceAll('_', '-');
-                  final tactics = [
-                    'colossus-slayer',
-                    'giant-killer',
-                    'horde-breaker',
-                    'escape-the-horde',
-                    'multiattack-defense',
-                    'steel-will',
-                    'volley',
-                    'whirlwind-attack',
-                    'evasion',
-                    'stand-against-the-tide',
-                    'uncanny-dodge'
-                  ];
-                  if (tactics.contains(safeId) ||
-                      tactics.any((t) => safeId.contains(t))) {
+
+                  if (optionalFeaturesPool.contains(f.id)) {
                     return false;
                   }
+
+                  if (f.options != null && f.options!.isNotEmpty) {
+                    return false;
+                  }
+
                   return true;
                 })) ...[
                   _buildSectionHeader(context, l10n.classFeatures),
@@ -572,24 +570,15 @@ class _FeaturesStepState extends State<FeaturesStep> {
                         f.id.contains('pact-boon')) {
                       return false;
                     }
-                    final safeId = f.id.toLowerCase().replaceAll('_', '-');
-                    final tactics = [
-                      'colossus-slayer',
-                      'giant-killer',
-                      'horde-breaker',
-                      'escape-the-horde',
-                      'multiattack-defense',
-                      'steel-will',
-                      'volley',
-                      'whirlwind-attack',
-                      'evasion',
-                      'stand-against-the-tide',
-                      'uncanny-dodge'
-                    ];
-                    if (tactics.contains(safeId) ||
-                        tactics.any((t) => safeId.contains(t))) {
+
+                    if (optionalFeaturesPool.contains(f.id)) {
                       return false;
                     }
+
+                    if (f.options != null && f.options!.isNotEmpty) {
+                      return false;
+                    }
+
                     return true;
                   }).map((feature) {
                     return _buildFeatureCard(context, feature);
