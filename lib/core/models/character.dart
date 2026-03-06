@@ -355,6 +355,13 @@ class Character extends HiveObject {
             isPrimary: true,
           ));
     }
+
+    // Fix stale class levels: for single-class characters, the primary
+    // class level must always equal the global character level.
+    // This repairs characters that leveled up before this sync was added.
+    if (this.classes.length == 1 && this.classes.first.level != level) {
+      this.classes.first.level = level;
+    }
   }
 
   // Calculate proficiency bonus based on level

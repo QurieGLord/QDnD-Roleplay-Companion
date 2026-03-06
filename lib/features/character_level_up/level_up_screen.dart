@@ -256,8 +256,21 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
   Future<void> _finishLevelUp() async {
     final char = widget.character;
 
-    // 1. Update Level
+    // 1. Update Level (global + class-specific)
     char.level = _nextLevel;
+
+    // Sync class level inside char.classes for multiclass support.
+    // For single-class: the primary class level must match global level.
+    if (char.classes.isNotEmpty) {
+      // Find the class being leveled (currently always the primary class)
+      final primaryIdx = char.classes.indexWhere((c) => c.isPrimary);
+      if (primaryIdx != -1) {
+        char.classes[primaryIdx].level = _nextLevel;
+      } else {
+        // Fallback: update the first class entry
+        char.classes.first.level = _nextLevel;
+      }
+    }
 
     // 2. Update HP
     char.maxHp += _hpIncrease;

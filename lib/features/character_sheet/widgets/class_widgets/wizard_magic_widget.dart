@@ -5,6 +5,7 @@ import '../../../../core/models/character.dart';
 import '../../../../core/services/character_data_service.dart';
 import '../../../../core/models/class_data.dart';
 import '../../../../core/models/spell_slots_table.dart';
+import 'shared/class_tools_layout_builder.dart';
 
 class WizardMagicWidget extends StatefulWidget {
   final Character character;
@@ -294,22 +295,17 @@ class _WizardMagicWidgetState extends State<WizardMagicWidget> {
       ),
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
-      child: Padding(
+      child: ClassToolsLayoutBuilder(
         padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 1. Arcane Tradition Block
-            if (widget.character.subclass != null) ...[
-              _buildArcaneTraditionBlock(context, theme, l10n, wizardColor),
-              const SizedBox(height: 12),
-            ],
+        children: [
+          // 1. Arcane Tradition Block
+          if (widget.character.subclass != null)
+            _buildArcaneTraditionBlock(context, theme, l10n, wizardColor),
 
-            // 2. Arcane Recovery Block (Feature Driven)
-            if (_hasArcaneRecovery)
-              _buildArcaneRecoveryBlock(context, theme, l10n, wizardColor),
-          ],
-        ),
+          // 2. Arcane Recovery Block (Feature Driven)
+          if (_hasArcaneRecovery)
+            _buildArcaneRecoveryBlock(context, theme, l10n, wizardColor),
+        ],
       ),
     );
   }
@@ -466,7 +462,8 @@ class _WizardMagicWidgetState extends State<WizardMagicWidget> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+        border:
+            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [

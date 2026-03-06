@@ -7,6 +7,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../core/services/feature_service.dart';
 import '../../../../core/services/character_data_service.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
+import 'shared/class_tools_layout_builder.dart';
 
 class BardInspirationWidget extends StatefulWidget {
   final Character character;
@@ -479,314 +480,310 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
           width: 1.5,
         ),
       ),
-      child: Padding(
+      child: ClassToolsLayoutBuilder(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Subclass Block
-            if ((widget.character.subclass ?? '').isNotEmpty) ...[
-              Container(
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest
-                      .withValues(alpha: 0.5),
+        children: [
+          // Subclass Block
+          if ((widget.character.subclass ?? '').isNotEmpty)
+            Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color:
+                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.2)),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => _showSubclassLore(context),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: colorScheme.outline.withValues(alpha: 0.2)),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.music_note,
+                              size: 18, color: colorScheme.primary),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                locale == 'ru'
+                                    ? 'Коллегия бардов'
+                                    : 'Bard College',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              Text(
+                                subclassDisplayName,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.chevron_right,
+                            color: colorScheme.onSurfaceVariant
+                                .withValues(alpha: 0.5)),
+                      ],
+                    ),
+                  ),
                 ),
-                child: Material(
+              ),
+            ),
+
+          // Inspiration Dashboard
+          Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(16),
+              border:
+                  Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+            ),
+            child: Column(
+              children: [
+                // Header: Icon, Title, and Badge
+                Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    onTap: () => _showSubclassLore(context),
-                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      CharacterFeature? baseInspiration =
+                          FeatureService.getFeatureById('bardic_inspiration') ??
+                              FeatureService.getFeatureById(
+                                  'bardic-inspiration');
+
+                      baseInspiration ??= CharacterFeature(
+                        id: 'bardic_inspiration_base',
+                        nameEn: 'Bardic Inspiration',
+                        nameRu: 'Бардовское вдохновение',
+                        descriptionEn:
+                            'You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die...',
+                        descriptionRu:
+                            'Бонусным действием вы можете выбрать одно существо, отличное от вас, в пределах 60 футов, которое вас слышит. Оно получает кость бардовского вдохновения. В течение следующих 10 минут это существо может бросить эту кость и добавить результат к одной проверке характеристики, броску атаки или спасброску...',
+                        type: widget.inspirationFeature.type,
+                        minLevel: 1,
+                      );
+
+                      _showFeatureDetails(baseInspiration, Icons.queue_music);
+                    },
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.all(16.0),
                       child: Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: colorScheme.primary.withValues(alpha: 0.1),
+                              color: colorScheme.tertiary,
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(Icons.music_note,
-                                size: 18, color: colorScheme.primary),
+                            child: Icon(
+                              Icons.queue_music,
+                              color: colorScheme.onTertiary,
+                              size: 24,
+                            ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  locale == 'ru'
-                                      ? 'Коллегия бардов'
-                                      : 'Bard College',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
+                                  l10n.bardicInspiration,
+                                  softWrap: true,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.fade,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: colorScheme.onSurface,
+                                        fontSize: 16,
+                                        height: 1.15,
+                                      ),
                                 ),
+                                const SizedBox(height: 2),
                                 Text(
-                                  subclassDisplayName,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: colorScheme.onSurface,
-                                  ),
+                                  '$currentCharges / $maxCharges',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                 ),
                               ],
                             ),
                           ),
-                          Icon(Icons.chevron_right,
-                              color: colorScheme.onSurfaceVariant
-                                  .withValues(alpha: 0.5)),
+                          const SizedBox(width: 12),
+                          // Inspiration Die Badge
+                          GestureDetector(
+                            onTap: pool.isEmpty ? null : _toggleUsage,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: colorScheme.secondaryContainer,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  RotationTransition(
+                                    turns: CurvedAnimation(
+                                        parent: _rotationController,
+                                        curve: Curves.easeOutBack),
+                                    child: Icon(Icons.casino_outlined,
+                                        size: 16,
+                                        color:
+                                            colorScheme.onSecondaryContainer),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    dieType,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w900,
+                                      color: colorScheme.onSecondaryContainer,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-            ],
 
-            // Inspiration Dashboard
-            Container(
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                    color: colorScheme.outline.withValues(alpha: 0.3)),
-              ),
-              child: Column(
-                children: [
-                  // Header: Icon, Title, and Badge
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        CharacterFeature? baseInspiration = FeatureService
-                                .getFeatureById('bardic_inspiration') ??
-                            FeatureService.getFeatureById('bardic-inspiration');
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Divider(
+                      height: 1,
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+                ),
+                const SizedBox(height: 16),
 
-                        baseInspiration ??= CharacterFeature(
-                          id: 'bardic_inspiration_base',
-                          nameEn: 'Bardic Inspiration',
-                          nameRu: 'Бардовское вдохновение',
-                          descriptionEn:
-                              'You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die...',
-                          descriptionRu:
-                              'Бонусным действием вы можете выбрать одно существо, отличное от вас, в пределах 60 футов, которое вас слышит. Оно получает кость бардовского вдохновения. В течение следующих 10 минут это существо может бросить эту кость и добавить результат к одной проверке характеристики, броску атаки или спасброску...',
-                          type: widget.inspirationFeature.type,
-                          minLevel: 1,
-                        );
+                // The Notes (Resource Tracker)
+                Padding(
+                  padding: const EdgeInsets.only(
+                      left: 16.0, right: 16.0, bottom: 16.0),
+                  child: Wrap(
+                    spacing: 16,
+                    runSpacing: 12,
+                    alignment: WrapAlignment.center,
+                    children: List.generate(maxCharges, (index) {
+                      final isActive = index < currentCharges;
+                      return GestureDetector(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          if (isActive) {
+                            _useCharge(1);
+                            _showFeedback(true, 0);
+                          } else {
+                            _restoreCharge(1);
+                          }
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.elasticOut,
+                          transform: Matrix4.identity()
+                            ..scaleByDouble(isActive ? 1.0 : 0.8,
+                                isActive ? 1.0 : 0.8, 1.0, 1.0), // Pulse effect
+                          child: Icon(
+                            Icons.music_note,
+                            size: 32,
+                            color: isActive
+                                ? colorScheme.tertiary
+                                : colorScheme.onSurfaceVariant
+                                    .withValues(alpha: 0.3),
+                            shadows: isActive
+                                ? [
+                                    Shadow(
+                                        color: colorScheme.tertiary
+                                            .withValues(alpha: 0.4),
+                                        blurRadius: 8)
+                                  ]
+                                : [],
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ],
+            ),
+          ),
 
-                        _showFeatureDetails(baseInspiration, Icons.queue_music);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: colorScheme.tertiary,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.queue_music,
-                                color: colorScheme.onTertiary,
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l10n.bardicInspiration,
-                                    softWrap: true,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.fade,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: colorScheme.onSurface,
-                                          fontSize: 16,
-                                          height: 1.15,
-                                        ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    '$currentCharges / $maxCharges',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall!
-                                        .copyWith(
-                                          color: colorScheme.onSurfaceVariant,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            // Inspiration Die Badge
-                            GestureDetector(
-                              onTap: pool.isEmpty ? null : _toggleUsage,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.secondaryContainer,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    RotationTransition(
-                                      turns: CurvedAnimation(
-                                          parent: _rotationController,
-                                          curve: Curves.easeOutBack),
-                                      child: Icon(Icons.casino_outlined,
-                                          size: 16,
-                                          color:
-                                              colorScheme.onSecondaryContainer),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      dieType,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w900,
-                                        color: colorScheme.onSecondaryContainer,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
+          // Quick Actions Block
+          if (cuttingWords != null ||
+              combatInspiration != null ||
+              countercharm != null ||
+              songOfRest != null)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.only(left: 4.0, bottom: 8.0, top: 8.0),
+                  child: Row(
+                    children: [
+                      Icon(Icons.auto_awesome,
+                          size: 18, color: colorScheme.secondary),
+                      const SizedBox(width: 8),
+                      Text(
+                        locale == 'ru'
+                            ? 'Виртуозное исполнение'
+                            : 'Virtuoso Performance',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.secondary,
                         ),
                       ),
-                    ),
+                    ],
                   ),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Divider(
-                        height: 1,
-                        color:
-                            colorScheme.outlineVariant.withValues(alpha: 0.5)),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // The Notes (Resource Tracker)
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        left: 16.0, right: 16.0, bottom: 16.0),
-                    child: Wrap(
-                      spacing: 16,
-                      runSpacing: 12,
-                      alignment: WrapAlignment.center,
-                      children: List.generate(maxCharges, (index) {
-                        final isActive = index < currentCharges;
-                        return GestureDetector(
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-                            if (isActive) {
-                              _useCharge(1);
-                              _showFeedback(true, 0);
-                            } else {
-                              _restoreCharge(1);
-                            }
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.elasticOut,
-                            transform: Matrix4.identity()
-                              ..scaleByDouble(
-                                  isActive ? 1.0 : 0.8,
-                                  isActive ? 1.0 : 0.8,
-                                  1.0,
-                                  1.0), // Pulse effect
-                            child: Icon(
-                              Icons.music_note,
-                              size: 32,
-                              color: isActive
-                                  ? colorScheme.tertiary
-                                  : colorScheme.onSurfaceVariant
-                                      .withValues(alpha: 0.3),
-                              shadows: isActive
-                                  ? [
-                                      Shadow(
-                                          color: colorScheme.tertiary
-                                              .withValues(alpha: 0.4),
-                                          blurRadius: 8)
-                                    ]
-                                  : [],
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Quick Actions Block
-            if (cuttingWords != null ||
-                combatInspiration != null ||
-                countercharm != null ||
-                songOfRest != null) ...[
-              Padding(
-                padding:
-                    const EdgeInsets.only(left: 4.0, bottom: 8.0, top: 8.0),
-                child: Row(
-                  children: [
-                    Icon(Icons.auto_awesome,
-                        size: 18, color: colorScheme.secondary),
-                    const SizedBox(width: 8),
-                    Text(
-                      locale == 'ru'
-                          ? 'Виртуозное исполнение'
-                          : 'Virtuoso Performance',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.secondary,
-                      ),
-                    ),
-                  ],
                 ),
-              ),
-              ...[
-                if (cuttingWords != null)
-                  _buildActionTile(cuttingWords, Icons.record_voice_over,
-                      locale, Theme.of(context),
-                      usesInspiration: true),
-                if (combatInspiration != null)
-                  _buildActionTile(combatInspiration, Icons.shield, locale,
-                      Theme.of(context),
-                      usesInspiration: true),
-                if (countercharm != null)
-                  _buildActionTile(countercharm, Icons.queue_music, locale,
-                      Theme.of(context)),
-                if (songOfRest != null)
-                  _buildActionTile(
-                      songOfRest, Icons.bedtime, locale, Theme.of(context)),
-              ].expand((w) => [w, const SizedBox(height: 8)]).toList()
-                ..removeLast(),
-            ],
-          ],
-        ),
+                ...[
+                  if (cuttingWords != null)
+                    _buildActionTile(cuttingWords, Icons.record_voice_over,
+                        locale, Theme.of(context),
+                        usesInspiration: true),
+                  if (combatInspiration != null)
+                    _buildActionTile(combatInspiration, Icons.shield, locale,
+                        Theme.of(context),
+                        usesInspiration: true),
+                  if (countercharm != null)
+                    _buildActionTile(countercharm, Icons.queue_music, locale,
+                        Theme.of(context)),
+                  if (songOfRest != null)
+                    _buildActionTile(
+                        songOfRest, Icons.bedtime, locale, Theme.of(context)),
+                ].expand((w) => [w, const SizedBox(height: 8)]).toList()
+                  ..removeLast(),
+              ],
+            ),
+        ],
       ),
     );
   }

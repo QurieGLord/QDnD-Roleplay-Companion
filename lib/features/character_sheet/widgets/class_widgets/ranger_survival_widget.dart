@@ -11,6 +11,7 @@ import '../../../../core/services/spell_service.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import '../../../../shared/widgets/spell_details_sheet.dart';
+import 'shared/class_tools_layout_builder.dart';
 
 class RangerSurvivalWidget extends StatefulWidget {
   final Character character;
@@ -168,17 +169,9 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
       ),
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
-      child: Padding(
+      child: ClassToolsLayoutBuilder(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (int i = 0; i < blocks.length; i++) ...[
-              blocks[i],
-              if (i < blocks.length - 1) const SizedBox(height: 16),
-            ],
-          ],
-        ),
+        children: blocks,
       ),
     )
         .animate()

@@ -10,6 +10,7 @@ import '../../../../core/services/character_data_service.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/dice_utils.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
+import 'shared/class_tools_layout_builder.dart';
 
 class FighterCombatWidget extends StatefulWidget {
   final Character character;
@@ -231,17 +232,9 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
       ),
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
-      child: Padding(
+      child: ClassToolsLayoutBuilder(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (int i = 0; i < blocks.length; i++) ...[
-              blocks[i],
-              if (i < blocks.length - 1) const SizedBox(height: 12),
-            ],
-          ],
-        ),
+        children: blocks,
       ),
     )
         .animate()

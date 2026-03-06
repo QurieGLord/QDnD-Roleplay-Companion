@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
+import 'shared/class_tools_layout_builder.dart';
 
 class SorcererMagicWidget extends StatefulWidget {
   final Character character;
@@ -74,43 +75,34 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
       ),
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // --- BLOCK 1: DRACONIC ANCESTRY ---
-            if (widget.ancestryFeatures.isNotEmpty) ...[
-              _buildAncestryBlock(dragonInfo, blockBg),
-              const SizedBox(height: 12),
-            ],
+      child: ClassToolsLayoutBuilder(
+        children: [
+          // --- BLOCK 1: DRACONIC ANCESTRY ---
+          if (widget.ancestryFeatures.isNotEmpty)
+            _buildAncestryBlock(dragonInfo, blockBg),
 
-            // --- BLOCK 2: FONT OF MAGIC (ОБМЕННИК) ---
-            if (widget.character.level >= 2) ...[
-              _buildBlockContainer(
+          // --- BLOCK 2: FONT OF MAGIC (ОБМЕННИК) ---
+          if (widget.character.level >= 2)
+            _buildBlockContainer(
+              color: blockBg,
+              child: _buildFontOfMagicBlock(
+                  colorScheme, orangeAccent, beigeAccent, onBeige, locale),
+            ),
+
+          // --- BLOCK 3: METAMAGIC ---
+          if (metamagicOptions.isNotEmpty || widget.character.level >= 3)
+            Container(
+              decoration: BoxDecoration(
                 color: blockBg,
-                child: _buildFontOfMagicBlock(
-                    colorScheme, orangeAccent, beigeAccent, onBeige, locale),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.3)),
               ),
-              const SizedBox(height: 12),
-            ],
-
-            // --- BLOCK 3: METAMAGIC ---
-            if (metamagicOptions.isNotEmpty || widget.character.level >= 3) ...[
-              Container(
-                decoration: BoxDecoration(
-                  color: blockBg,
-                  borderRadius: BorderRadius.circular(12),
-                  border:
-                      Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: _buildMetamagicBlock(baseMetamagic, metamagicOptions,
-                    colorScheme, beigeAccent, onBeige, orangeAccent, locale),
-              ),
-            ],
-          ],
-        ),
+              clipBehavior: Clip.antiAlias,
+              child: _buildMetamagicBlock(baseMetamagic, metamagicOptions,
+                  colorScheme, beigeAccent, onBeige, orangeAccent, locale),
+            ),
+        ],
       ),
     )
         .animate()
@@ -126,7 +118,8 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
         color: color,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
+            color:
+                Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -225,12 +218,46 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
       widget.character.save();
     }
 
+    // Dynamic max pool calculation based on exact class level
+    int sorcererLvl = widget.character.level;
+    if (widget.character.classes.isNotEmpty) {
+      try {
+        final sc = widget.character.classes.firstWhere(
+          (c) {
+            final id = c.id.toLowerCase();
+            final name = c.name.toLowerCase();
+            return id.contains('sorcerer') ||
+                id.contains('чародей') ||
+                name.contains('sorcerer') ||
+                name.contains('чародей');
+          },
+        );
+        sorcererLvl = sc.level;
+      } catch (e) {
+        debugPrint(
+            'Sorcerer level fallback. Classes: ${widget.character.classes.map((c) => "${c.id}(${c.name}) lvl:${c.level}").toList()}');
+        sorcererLvl = widget.character.level;
+      }
+    }
+
+    // Safety fallback
+    if (sorcererLvl <= 0) {
+      sorcererLvl = widget.character.level;
+    }
+
     // 2. Гарантируем наличие пула внутри фичи
     if (feature.resourcePool == null) {
       feature.resourcePool = ResourcePool(
-          currentUses: widget.character.level,
-          maxUses: widget.character.level,
+          currentUses: sorcererLvl,
+          maxUses: sorcererLvl,
           recoveryType: RecoveryType.longRest);
+      widget.character.save();
+    } else if (feature.resourcePool!.maxUses != sorcererLvl) {
+      // Update max pool when level goes up, but retain proper clamps
+      feature.resourcePool!.maxUses = sorcererLvl;
+      if (feature.resourcePool!.currentUses > sorcererLvl) {
+        feature.resourcePool!.currentUses = sorcererLvl;
+      }
       widget.character.save();
     }
 
@@ -242,7 +269,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
     // Реактивное получение пула. Метод теперь гарантирует связь с базой.
     final pool = _getActualPool();
 
-    final max = pool.maxUses > 0 ? pool.maxUses : widget.character.level;
+    final max = pool.maxUses > 0 ? pool.maxUses : 2; // minimum 2
     final current = pool.currentUses;
     final progress = max > 0 ? (current / max).clamp(0.0, 1.0) : 0.0;
 
@@ -269,7 +296,8 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
                     ),
                   ),
                   Icon(Icons.edit_note,
-                      size: 18, color: colorScheme.outline.withValues(alpha: 0.5)),
+                      size: 18,
+                      color: colorScheme.outline.withValues(alpha: 0.5)),
                 ],
               ),
 
@@ -315,11 +343,15 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
           segments: [
             ButtonSegment(
                 value: true,
-                label: Text(locale == 'ru' ? "Создать" : "Create"),
+                label: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(locale == 'ru' ? "В ячейку" : "Create Slot")),
                 icon: const Icon(Icons.add_circle_outline)),
             ButtonSegment(
                 value: false,
-                label: Text(locale == 'ru' ? "Сжечь" : "Burn"),
+                label: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(locale == 'ru' ? "В очки" : "To Points")),
                 icon: const Icon(Icons.local_fire_department_outlined)),
           ],
           selected: {_isCreateSlotMode},

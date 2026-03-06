@@ -7,6 +7,7 @@ import '../../../../core/services/feature_service.dart';
 import '../../../../core/models/class_data.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../core/models/spell_slots_table.dart';
+import 'shared/class_tools_layout_builder.dart';
 
 class DruidMagicWidget extends StatefulWidget {
   final Character character;
@@ -404,27 +405,20 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
       ),
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
-      child: Padding(
+      child: ClassToolsLayoutBuilder(
         padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 1. Druid Circle Block
-            if (widget.character.subclass != null) ...[
-              _buildDruidCircleBlock(context, theme, l10n, druidColor),
-              const SizedBox(height: 12),
-            ],
+        children: [
+          // 1. Druid Circle Block
+          if (widget.character.subclass != null)
+            _buildDruidCircleBlock(context, theme, l10n, druidColor),
 
-            // 2. Wild Shape Block (Always present)
-            _buildWildShapeBlock(context, theme, l10n, druidColor),
+          // 2. Wild Shape Block (Always present)
+          _buildWildShapeBlock(context, theme, l10n, druidColor),
 
-            // 3. Natural Recovery Block (Conditional)
-            if (_hasNaturalRecovery) ...[
-              const SizedBox(height: 12),
-              _buildNaturalRecoveryBlock(context, theme, l10n, druidColor),
-            ],
-          ],
-        ),
+          // 3. Natural Recovery Block (Conditional)
+          if (_hasNaturalRecovery)
+            _buildNaturalRecoveryBlock(context, theme, l10n, druidColor),
+        ],
       ),
     );
   }

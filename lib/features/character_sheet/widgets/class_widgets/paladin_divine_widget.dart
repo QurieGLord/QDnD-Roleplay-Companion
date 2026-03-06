@@ -7,6 +7,7 @@ import '../../../../core/models/class_data.dart';
 import '../../../../core/services/character_data_service.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import '../../../../l10n/app_localizations.dart';
+import 'shared/class_tools_layout_builder.dart';
 
 class PaladinDivineWidget extends StatefulWidget {
   final Character character;
@@ -77,75 +78,71 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
       ),
       margin: const EdgeInsets.only(bottom: 24),
       clipBehavior: Clip.antiAlias,
-      child: Padding(
+      child: ClassToolsLayoutBuilder(
         padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          // Use uniform spacing instead of SizedBox between blocks to prevent margin stacking
-          spacing: 12,
-          children: [
-            // --- BLOCK 0: SUBCLASS (OATH) ---
-            if (widget.character.subclass != null)
-              _buildSubclassBlock(context, colorScheme, orangeAccent),
+        spacing: 12,
+        children: [
+          // --- BLOCK 0: SUBCLASS (OATH) ---
+          if (widget.character.subclass != null)
+            _buildSubclassBlock(context, colorScheme, orangeAccent),
 
-            // --- BLOCK 1: LAY ON HANDS ---
-            _buildBlockContainer(
-              color: blockBg,
-              onTap: () => _showDetails(widget.layOnHands),
-              // Padding inside the block for content
-              padding: const EdgeInsets.all(12),
-              child: _buildLayOnHandsContent(
-                  context, colorScheme, orangeAccent, beigeAccent, onBeige),
+          // --- BLOCK 1: LAY ON HANDS ---
+          _buildBlockContainer(
+            color: blockBg,
+            onTap: () => _showDetails(widget.layOnHands),
+            // Padding inside the block for content
+            padding: const EdgeInsets.all(12),
+            child: _buildLayOnHandsContent(
+                context, colorScheme, orangeAccent, beigeAccent, onBeige),
+          ),
+
+          // --- BLOCK 2: DIVINE SENSE & SMITE ---
+          if (widget.divineSense != null || widget.divineSmite != null)
+            IntrinsicHeight(
+              child: Row(
+                spacing: 12,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (widget.divineSense != null)
+                    Expanded(
+                      child: _buildBlockContainer(
+                        color: blockBg,
+                        onTap: () => _showDetails(widget.divineSense!),
+                        padding: const EdgeInsets.all(12),
+                        child: _buildDivineSenseContent(context, colorScheme,
+                            orangeAccent, beigeAccent, onBeige),
+                      ),
+                    ),
+                  if (widget.divineSmite != null)
+                    Expanded(
+                      child: _buildBlockContainer(
+                        color: blockBg,
+                        onTap: () => _showDetails(widget.divineSmite!),
+                        padding: const EdgeInsets.all(12),
+                        child: _buildDivineSmiteContent(context, colorScheme,
+                            orangeAccent, beigeAccent, onBeige),
+                      ),
+                    ),
+                ],
+              ),
             ),
 
-            // --- BLOCK 2: DIVINE SENSE & SMITE ---
-            if (widget.divineSense != null || widget.divineSmite != null)
-              IntrinsicHeight(
-                child: Row(
-                  spacing: 12,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (widget.divineSense != null)
-                      Expanded(
-                        child: _buildBlockContainer(
-                          color: blockBg,
-                          onTap: () => _showDetails(widget.divineSense!),
-                          padding: const EdgeInsets.all(12),
-                          child: _buildDivineSenseContent(context, colorScheme,
-                              orangeAccent, beigeAccent, onBeige),
-                        ),
-                      ),
-                    if (widget.divineSmite != null)
-                      Expanded(
-                        child: _buildBlockContainer(
-                          color: blockBg,
-                          onTap: () => _showDetails(widget.divineSmite!),
-                          padding: const EdgeInsets.all(12),
-                          child: _buildDivineSmiteContent(context, colorScheme,
-                              orangeAccent, beigeAccent, onBeige),
-                        ),
-                      ),
-                  ],
-                ),
+          // --- BLOCK 3: CHANNEL DIVINITY ---
+          if (widget.channelDivinityResource != null)
+            // Special container logic for the "Full Width Header"
+            Container(
+              decoration: BoxDecoration(
+                color: blockBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.3)),
               ),
-
-            // --- BLOCK 3: CHANNEL DIVINITY ---
-            if (widget.channelDivinityResource != null)
-              // Special container logic for the "Full Width Header"
-              Container(
-                decoration: BoxDecoration(
-                  color: blockBg,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: colorScheme.outline.withValues(alpha: 0.3)),
-                ),
-                // CRITICAL: AntiAlias clip ensures the header's top corners match the container's
-                clipBehavior: Clip.antiAlias,
-                child: _buildChannelDivinityContent(
-                    context, colorScheme, beigeAccent, onBeige, orangeAccent),
-              ),
-          ],
-        ),
+              // CRITICAL: AntiAlias clip ensures the header's top corners match the container's
+              clipBehavior: Clip.antiAlias,
+              child: _buildChannelDivinityContent(
+                  context, colorScheme, beigeAccent, onBeige, orangeAccent),
+            ),
+        ],
       ),
     )
         .animate()

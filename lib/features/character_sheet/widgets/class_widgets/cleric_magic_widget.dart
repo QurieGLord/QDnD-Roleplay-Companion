@@ -5,6 +5,7 @@ import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/services/character_data_service.dart';
 import '../../../../core/models/class_data.dart';
+import 'shared/class_tools_layout_builder.dart';
 
 class ClericMagicWidget extends StatefulWidget {
   final Character character;
@@ -258,30 +259,22 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
       ),
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
-      child: Padding(
+      child: ClassToolsLayoutBuilder(
         padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 1. Divine Domain Block
-            if (widget.character.subclass != null) ...[
-              _buildDomainBlock(context, theme, l10n, clericColor),
-            ],
+        children: [
+          // 1. Divine Domain Block
+          if (widget.character.subclass != null)
+            _buildDomainBlock(context, theme, l10n, clericColor),
 
-            // 2. Channel Divinity Block (Includes Turn Undead)
-            if (maxCharges > 0) ...[
-              const SizedBox(height: 12),
-              _buildChannelDivinityBlock(
-                  context, theme, l10n, clericColor, maxCharges),
-            ],
+          // 2. Channel Divinity Block (Includes Turn Undead)
+          if (maxCharges > 0)
+            _buildChannelDivinityBlock(
+                context, theme, l10n, clericColor, maxCharges),
 
-            // 3. Divine Intervention Block
-            if (widget.character.level >= 10) ...[
-              const SizedBox(height: 12),
-              _buildDivineInterventionBlock(context, theme, l10n, clericColor),
-            ],
-          ],
-        ),
+          // 3. Divine Intervention Block
+          if (widget.character.level >= 10)
+            _buildDivineInterventionBlock(context, theme, l10n, clericColor),
+        ],
       ),
     );
   }

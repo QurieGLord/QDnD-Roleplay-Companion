@@ -5,6 +5,7 @@ import '../../../../core/services/character_data_service.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
+import 'shared/class_tools_layout_builder.dart';
 
 class WarlockMagicWidget extends StatefulWidget {
   final Character character;
@@ -63,47 +64,38 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
       ),
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
-      child: Padding(
+      child: ClassToolsLayoutBuilder(
         padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // --- BLOCK 1: OTHERWORLDLY PATRON ---
-            if (patronName.isNotEmpty)
-              _buildPatronBlock(
-                  context, colorScheme, warlockColor, patronName, locale),
+        children: [
+          // --- BLOCK 1: OTHERWORLDLY PATRON ---
+          if (patronName.isNotEmpty)
+            _buildPatronBlock(
+                context, colorScheme, warlockColor, patronName, locale),
 
-            if (patronName.isNotEmpty) const SizedBox(height: 12),
+          // --- BLOCK 2: PACT BOON ---
+          if (boonFeature != null)
+            _buildBlockContainer(
+              color: blockBg,
+              onTap: () => _showDetails(boonFeature),
+              padding: const EdgeInsets.all(12),
+              child: _buildPactBoonContent(
+                  context, colorScheme, warlockColor, boonFeature),
+            ),
 
-            // --- BLOCK 2: PACT BOON ---
-            if (boonFeature != null) ...[
-              _buildBlockContainer(
+          // --- BLOCK 3: ELDRITCH INVOCATIONS ---
+          if (widget.invocations.isNotEmpty || widget.character.level >= 2)
+            Container(
+              decoration: BoxDecoration(
                 color: blockBg,
-                onTap: () => _showDetails(boonFeature),
-                padding: const EdgeInsets.all(12),
-                child: _buildPactBoonContent(
-                    context, colorScheme, warlockColor, boonFeature),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.3)),
               ),
-              const SizedBox(height: 12),
-            ],
-
-            // --- BLOCK 3: ELDRITCH INVOCATIONS ---
-            if (widget.invocations.isNotEmpty ||
-                widget.character.level >= 2) ...[
-              Container(
-                decoration: BoxDecoration(
-                  color: blockBg,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: colorScheme.outline.withValues(alpha: 0.3)),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: _buildInvocationsBlock(colorScheme, warlockColor,
-                    activeInvocations, passiveInvocations, locale),
-              ),
-            ],
-          ],
-        ),
+              clipBehavior: Clip.antiAlias,
+              child: _buildInvocationsBlock(colorScheme, warlockColor,
+                  activeInvocations, passiveInvocations, locale),
+            ),
+        ],
       ),
     )
         .animate()

@@ -8,6 +8,7 @@ import '../../../../core/services/character_data_service.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/dice_utils.dart';
+import 'shared/class_tools_layout_builder.dart';
 
 class KiTrackerWidget extends StatefulWidget {
   final Character character;
@@ -220,26 +221,19 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
       ),
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
-      child: Padding(
+      child: ClassToolsLayoutBuilder(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (widget.character.subclass != null &&
-                widget.character.subclass!.isNotEmpty) ...[
-              _buildArchetypeBlock(context, colorScheme, locale, l10n),
-              const SizedBox(height: 12),
-            ],
-            _buildBasicStatsPanel(context, colorScheme, locale, l10n, dieSize),
-            if (widget.kiFeature.id != 'ki_fallback') ...[
-              const SizedBox(height: 12),
-              _buildKiDashboard(
-                  context, colorScheme, locale, pool.currentUses, maxKi),
-              const SizedBox(height: 12),
-              _buildQuickActions(context, colorScheme, locale, maxKi),
-            ],
+        children: [
+          if (widget.character.subclass != null &&
+              widget.character.subclass!.isNotEmpty)
+            _buildArchetypeBlock(context, colorScheme, locale, l10n),
+          _buildBasicStatsPanel(context, colorScheme, locale, l10n, dieSize),
+          if (widget.kiFeature.id != 'ki_fallback') ...[
+            _buildKiDashboard(
+                context, colorScheme, locale, pool.currentUses, maxKi),
+            _buildQuickActions(context, colorScheme, locale, maxKi),
           ],
-        ),
+        ],
       ),
     )
         .animate()

@@ -8,6 +8,7 @@ import '../../../../core/utils/dice_utils.dart';
 import '../../../../core/services/character_data_service.dart';
 import '../../../../core/services/feature_service.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
+import 'shared/class_tools_layout_builder.dart';
 
 class RogueToolsWidget extends StatefulWidget {
   final Character character;
@@ -603,13 +604,12 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
       ),
       color: colorScheme.surfaceContainerLow,
       clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: ClassToolsLayoutBuilder(
+        padding: const EdgeInsets.all(16.0),
         children: [
           // Archetype Block (Каноничный)
           if (subclassDisplayName.isNotEmpty)
             Container(
-              margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 color:
@@ -672,304 +672,225 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
               ),
             ),
 
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Stealth & Sneak Attack Dashboard (M3 Expressive)
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOutQuart,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(
-                    color: _isHidden
-                        ? colorScheme.primaryContainer.withValues(alpha: 0.3)
-                        : colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: _isHidden
-                          ? colorScheme.primary.withValues(alpha: 0.5)
-                          : colorScheme.outline.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        if (hideFeature != null) {
-                          _showFeatureDetails(hideFeature, Icons.dark_mode);
-                        }
-                      },
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+          // Stealth & Sneak Attack Dashboard (M3 Expressive)
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutQuart,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: _isHidden
+                  ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+                  : colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: _isHidden
+                    ? colorScheme.primary.withValues(alpha: 0.5)
+                    : colorScheme.outline.withValues(alpha: 0.3),
+                width: 1,
+              ),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  if (hideFeature != null) {
+                    _showFeatureDetails(hideFeature, Icons.dark_mode);
+                  }
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Header part
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Header part
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
+                          Expanded(
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                          _isHidden
-                                              ? Icons.nightlight_round
-                                              : Icons.dark_mode,
-                                          color: _isHidden
-                                              ? colorScheme.primary
-                                              : colorScheme.onSurface),
-                                      const SizedBox(width: 12),
-                                      Flexible(
-                                        child: Text(
-                                          isRu ? 'Засада' : 'Ambush',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                                color: colorScheme.onSurface,
-                                              ),
-                                          overflow: TextOverflow.ellipsis,
+                                Icon(
+                                    _isHidden
+                                        ? Icons.nightlight_round
+                                        : Icons.dark_mode,
+                                    color: _isHidden
+                                        ? colorScheme.primary
+                                        : colorScheme.onSurface),
+                                const SizedBox(width: 12),
+                                Flexible(
+                                  child: Text(
+                                    isRu ? 'Засада' : 'Ambush',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: colorScheme.onSurface,
                                         ),
-                                      ),
-                                    ],
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                FilledButton.tonalIcon(
-                                  onPressed: () {
-                                    if (_isHidden) {
-                                      setState(() => _isHidden = false);
-                                      HapticFeedback.lightImpact();
-                                    } else {
-                                      _showStealthDialog(context);
-                                    }
-                                  },
-                                  icon: Icon(_isHidden
-                                      ? Icons.visibility
-                                      : Icons.visibility_off),
-                                  label: Text(_isHidden
-                                      ? (isRu ? 'Раскрыться' : 'Reveal')
-                                      : (isRu ? 'Скрыться' : 'Hide')),
                                 ),
                               ],
                             ),
                           ),
-                          // Separated Contextual Sneak Attack Card (Like Barbarian Frenzy)
-                          AnimatedSize(
-                            duration: const Duration(milliseconds: 400),
-                            curve: Curves.easeOutQuart,
-                            alignment: Alignment.topCenter,
-                            child: _isHidden && sneakAttackFeature != null
-                                ? Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 16, right: 16, bottom: 16),
-                                    child: Container(
-                                      clipBehavior: Clip.antiAlias,
-                                      decoration: BoxDecoration(
-                                        color: colorScheme.surfaceContainer,
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                            color: colorScheme.outline
-                                                .withValues(alpha: 0.3)),
-                                      ),
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          onTap: () => _showFeatureDetails(
-                                              sneakAttackFeature!,
-                                              Icons.colorize),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(12),
+                          const SizedBox(width: 8),
+                          FilledButton.tonalIcon(
+                            onPressed: () {
+                              if (_isHidden) {
+                                setState(() => _isHidden = false);
+                                HapticFeedback.lightImpact();
+                              } else {
+                                _showStealthDialog(context);
+                              }
+                            },
+                            icon: Icon(_isHidden
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                            label: Text(_isHidden
+                                ? (isRu ? 'Раскрыться' : 'Reveal')
+                                : (isRu ? 'Скрыться' : 'Hide')),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Separated Contextual Sneak Attack Card (Like Barbarian Frenzy)
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 400),
+                      curve: Curves.easeOutQuart,
+                      alignment: Alignment.topCenter,
+                      child: _isHidden && sneakAttackFeature != null
+                          ? Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 16, right: 16, bottom: 16),
+                              child: Container(
+                                clipBehavior: Clip.antiAlias,
+                                decoration: BoxDecoration(
+                                  color: colorScheme.surfaceContainer,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                      color: colorScheme.outline
+                                          .withValues(alpha: 0.3)),
+                                ),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(12),
+                                    onTap: () => _showFeatureDetails(
+                                        sneakAttackFeature!, Icons.colorize),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
                                             child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
                                               children: [
-                                                Expanded(
-                                                  child: Row(
-                                                    children: [
-                                                      Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(8),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: colorScheme
-                                                              .primary
-                                                              .withValues(
-                                                                  alpha: 0.1),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                        ),
-                                                        child: Icon(
-                                                            Icons.colorize,
-                                                            size: 20,
-                                                            color: colorScheme
-                                                                .primary),
-                                                      ),
-                                                      const SizedBox(width: 12),
-                                                      Expanded(
-                                                        child: Text(
-                                                          sneakAttackFeature
-                                                              .getName(locale),
-                                                          style: TextStyle(
-                                                            fontSize: 13,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color: colorScheme
-                                                                .onSurface,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.all(8),
+                                                  decoration: BoxDecoration(
+                                                    color: colorScheme.primary
+                                                        .withValues(alpha: 0.1),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
                                                   ),
+                                                  child: Icon(Icons.colorize,
+                                                      size: 20,
+                                                      color:
+                                                          colorScheme.primary),
                                                 ),
                                                 const SizedBox(width: 12),
-                                                FilledButton.icon(
-                                                  style: FilledButton.styleFrom(
-                                                    backgroundColor:
-                                                        colorScheme.secondary,
-                                                    foregroundColor:
-                                                        colorScheme.onSecondary,
-                                                  ),
-                                                  onPressed: () =>
-                                                      _rollSneakAttack(
-                                                          context,
-                                                          diceCount,
-                                                          sneakAttackFeature),
-                                                  icon: RotationTransition(
-                                                    turns: CurvedAnimation(
-                                                        parent:
-                                                            _rotationController,
-                                                        curve:
-                                                            Curves.easeOutBack),
-                                                    child: const Icon(
-                                                        Icons.casino,
-                                                        size: 18),
-                                                  ),
-                                                  label: Text(
-                                                    diceText,
-                                                    style: const TextStyle(
+                                                Expanded(
+                                                  child: Text(
+                                                    sneakAttackFeature
+                                                        .getName(locale),
+                                                    style: TextStyle(
+                                                      fontSize: 13,
                                                       fontWeight:
-                                                          FontWeight.w900,
-                                                      letterSpacing: 0.5,
+                                                          FontWeight.w600,
+                                                      color:
+                                                          colorScheme.onSurface,
                                                     ),
                                                   ),
                                                 ),
                                               ],
                                             ),
                                           ),
-                                        ),
+                                          const SizedBox(width: 12),
+                                          FilledButton.icon(
+                                            style: FilledButton.styleFrom(
+                                              backgroundColor:
+                                                  colorScheme.secondary,
+                                              foregroundColor:
+                                                  colorScheme.onSecondary,
+                                            ),
+                                            onPressed: () => _rollSneakAttack(
+                                                context,
+                                                diceCount,
+                                                sneakAttackFeature),
+                                            icon: RotationTransition(
+                                              turns: CurvedAnimation(
+                                                  parent: _rotationController,
+                                                  curve: Curves.easeOutBack),
+                                              child: const Icon(Icons.casino,
+                                                  size: 18),
+                                            ),
+                                            label: Text(
+                                              diceText,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w900,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  )
-                                : const SizedBox(
-                                    width: double.infinity, height: 0),
-                          ),
-                        ],
-                      ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : const SizedBox(width: double.infinity, height: 0),
                     ),
-                  ),
+                  ],
                 ),
+              ),
+            ),
+          ),
 
-                if (cunningActionFeature != null ||
-                    uncannyDodgeFeature != null ||
-                    evasionFeature != null) ...[
-                  const SizedBox(height: 12),
-                  // Tactics and Defense Block
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                          color: colorScheme.outline.withValues(alpha: 0.3)),
-                    ),
-                    child: Column(
+          if (cunningActionFeature != null ||
+              uncannyDodgeFeature != null ||
+              evasionFeature != null)
+            // Tactics and Defense Block
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (cunningActionFeature != null)
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (cunningActionFeature != null)
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.keyboard_double_arrow_right,
-                                      color: colorScheme.primary, size: 20),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      isRu
-                                          ? 'Хитрое действие (Бонус)'
-                                          : 'Cunning Action (Bonus)',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall
-                                          ?.copyWith(
-                                            color: colorScheme.primary,
-                                            fontWeight: FontWeight.bold,
-                                            letterSpacing: 0.5,
-                                          ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              if (cunningChildren.isNotEmpty)
-                                ...cunningChildren
-                                    .map((child) {
-                                      IconData actionIcon = Icons.flash_on;
-                                      if (child.id.contains('dash')) {
-                                        actionIcon = Icons.directions_run;
-                                      }
-                                      if (child.id.contains('disengage')) {
-                                        actionIcon = Icons.turn_slight_right;
-                                      }
-                                      if (child.id.contains('hide')) {
-                                        actionIcon = Icons.visibility_off;
-                                      }
-                                      return _buildActionTile(
-                                        feature: child,
-                                        name: child.getName(locale),
-                                        icon: actionIcon,
-                                        actionIcon:
-                                            Icons.keyboard_double_arrow_right,
-                                        theme: Theme.of(context),
-                                        onTap: () => _showFeatureDetails(
-                                            child, actionIcon),
-                                        onActionPress: () => _executeQuickAction(
-                                            child.nameEn,
-                                            '${child.getName(locale)} (Бонусное действие)'),
-                                      );
-                                    })
-                                    .expand(
-                                        (w) => [w, const SizedBox(height: 8)])
-                                    .toList()
-                                  ..removeLast(),
-                            ],
-                          ),
-                        if (cunningActionFeature != null &&
-                            (uncannyDodgeFeature != null ||
-                                evasionFeature != null))
-                          const SizedBox(height: 16),
-                        if (uncannyDodgeFeature != null ||
-                            evasionFeature != null)
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
+                        Row(
+                          children: [
+                            Icon(Icons.keyboard_double_arrow_right,
+                                color: colorScheme.primary, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
                                 isRu
-                                    ? 'Защитные Реакции'
-                                    : 'Defensive Reactions',
+                                    ? 'Хитрое действие (Бонус)'
+                                    : 'Cunning Action (Bonus)',
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
@@ -979,35 +900,80 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                                       letterSpacing: 0.5,
                                     ),
                               ),
-                              const SizedBox(height: 12),
-                              ...[
-                                if (uncannyDodgeFeature != null)
-                                  _buildFeatureReminder(
-                                    feature: uncannyDodgeFeature,
-                                    name: uncannyDodgeFeature.getName(locale),
-                                    icon: Icons.shield,
-                                    theme: Theme.of(context),
-                                  ),
-                                if (evasionFeature != null)
-                                  _buildFeatureReminder(
-                                    feature: evasionFeature,
-                                    name: evasionFeature.getName(locale),
-                                    icon: Icons.shield,
-                                    theme: Theme.of(context),
-                                  ),
-                              ]
-                                  .expand((w) => [w, const SizedBox(height: 8)])
-                                  .toList()
-                                ..removeLast(),
-                            ],
-                          ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        if (cunningChildren.isNotEmpty)
+                          ...cunningChildren
+                              .map((child) {
+                                IconData actionIcon = Icons.flash_on;
+                                if (child.id.contains('dash')) {
+                                  actionIcon = Icons.directions_run;
+                                }
+                                if (child.id.contains('disengage')) {
+                                  actionIcon = Icons.turn_slight_right;
+                                }
+                                if (child.id.contains('hide')) {
+                                  actionIcon = Icons.visibility_off;
+                                }
+                                return _buildActionTile(
+                                  feature: child,
+                                  name: child.getName(locale),
+                                  icon: actionIcon,
+                                  actionIcon: Icons.keyboard_double_arrow_right,
+                                  theme: Theme.of(context),
+                                  onTap: () =>
+                                      _showFeatureDetails(child, actionIcon),
+                                  onActionPress: () => _executeQuickAction(
+                                      child.nameEn,
+                                      '${child.getName(locale)} (Бонусное действие)'),
+                                );
+                              })
+                              .expand((w) => [w, const SizedBox(height: 8)])
+                              .toList()
+                            ..removeLast(),
                       ],
                     ),
-                  ),
+                  if (cunningActionFeature != null &&
+                      (uncannyDodgeFeature != null || evasionFeature != null))
+                    const SizedBox(height: 16),
+                  if (uncannyDodgeFeature != null || evasionFeature != null)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isRu ? 'Защитные Реакции' : 'Defensive Reactions',
+                          style:
+                              Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                  ),
+                        ),
+                        const SizedBox(height: 12),
+                        ...[
+                          if (uncannyDodgeFeature != null)
+                            _buildFeatureReminder(
+                              feature: uncannyDodgeFeature,
+                              name: uncannyDodgeFeature.getName(locale),
+                              icon: Icons.shield,
+                              theme: Theme.of(context),
+                            ),
+                          if (evasionFeature != null)
+                            _buildFeatureReminder(
+                              feature: evasionFeature,
+                              name: evasionFeature.getName(locale),
+                              icon: Icons.shield,
+                              theme: Theme.of(context),
+                            ),
+                        ].expand((w) => [w, const SizedBox(height: 8)]).toList()
+                          ..removeLast(),
+                      ],
+                    ),
                 ],
-              ],
+              ),
             ),
-          ),
         ],
       ),
     );
