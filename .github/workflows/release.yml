@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version Tag (e.g., v0.14.0)'
+        description: 'Version number (e.g., 0.14.0)'
         required: true
         type: string
       release_name:
@@ -15,11 +15,6 @@ on:
         description: 'Release Notes (Markdown)'
         required: false
         type: string
-      apk_name:
-        description: 'APK File Name (e.g., qdnd-v0.14.0.apk)'
-        required: true
-        default: 'app-release.apk'
-        type: string
 
 permissions:
   contents: write
@@ -29,8 +24,18 @@ permissions:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    
+
     steps:
+      - name: Normalize version
+        id: version
+        run: |
+          RAW_VERSION="${{ github.event.inputs.version }}"
+          # Strip leading 'v' or 'V' if present
+          CLEAN_VERSION="${RAW_VERSION#v}"
+          CLEAN_VERSION="${CLEAN_VERSION#V}"
+          echo "tag=v${CLEAN_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "apk_name=qdnd-v${CLEAN_VERSION}.apk" >> "$GITHUB_OUTPUT"
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -57,21 +62,21 @@ jobs:
       - name: Build Android APK
         run: |
           flutter build apk --release
-          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/${{ github.event.inputs.apk_name }}
+          mv build/app/outputs/flutter-apk/app-release.apk "build/app/outputs/flutter-apk/${{ steps.version.outputs.apk_name }}"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
-          commit_message: "Deploy Web PWA: ${{ github.event.inputs.version }}"
+          commit_message: "Deploy Web PWA: ${{ steps.version.outputs.tag }}"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.version }}
+          tag_name: ${{ steps.version.outputs.tag }}
           name: ${{ github.event.inputs.release_name }}
           body: ${{ github.event.inputs.release_notes }}
-          files: build/app/outputs/flutter-apk/${{ github.event.inputs.apk_name }}
+          files: build/app/outputs/flutter-apk/${{ steps.version.outputs.apk_name }}
           draft: false
           prerelease: false
