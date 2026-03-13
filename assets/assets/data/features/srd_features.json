@@ -525,7 +525,7 @@
       "currentUses": 1,
       "maxUses": 1,
       "recoveryType": "longRest",
-      "calculationFormula": "cha_mod"
+      "calculationFormula": "max(1, cha_mod)"
     },
     "usageCostId": null,
     "usageInputMode": null,
@@ -674,7 +674,7 @@
       "currentUses": 1,
       "maxUses": 1,
       "recoveryType": "shortRest",
-      "calculationFormula": "cha_mod"
+      "calculationFormula": "max(1, cha_mod)"
     },
     "usageCostId": null,
     "usageInputMode": null,
@@ -805,7 +805,7 @@
       "currentUses": 1,
       "maxUses": 1,
       "recoveryType": "shortRest",
-      "calculationFormula": "cha_mod"
+      "calculationFormula": "max(1, cha_mod)"
     },
     "usageCostId": null,
     "usageInputMode": null,
@@ -954,7 +954,7 @@
       "currentUses": 1,
       "maxUses": 1,
       "recoveryType": "shortRest",
-      "calculationFormula": "cha_mod"
+      "calculationFormula": "max(1, cha_mod)"
     },
     "usageCostId": null,
     "usageInputMode": null,
