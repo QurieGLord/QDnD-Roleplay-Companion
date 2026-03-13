@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/services.dart';
 import '../models/character.dart';
 import '../models/character_feature.dart';
@@ -179,9 +180,24 @@ class FeatureService {
   static int calculateMaxUses(Character character, String? formula) {
     if (formula == null || formula.isEmpty) return 0;
 
-    // Parse formulas like "level * 5", "1 + cha_mod", "prof_bonus * 2", etc.
+    // Parse formulas like "level * 5", "1 + cha_mod", "max(1, cha_mod)", etc.
     try {
       String f = formula.toLowerCase();
+
+      bool doMax = false;
+      int maxFloor = 0;
+      if (f.startsWith('max(') && f.endsWith(')')) {
+        doMax = true;
+        // e.g., "max(1, cha_mod)" -> "1, cha_mod"
+        final inner = f.substring(4, f.length - 1);
+        final parts = inner.split(',');
+        if (parts.length == 2) {
+          maxFloor = int.tryParse(parts[0].trim()) ?? 0;
+          f = parts[1].trim(); // the rest of the formula
+        } else {
+          f = inner;
+        }
+      }
 
       // Replace variables with actual values
       f = f.replaceAll('level', character.level.toString());
@@ -194,7 +210,12 @@ class FeatureService {
       f = f.replaceAll('prof_bonus', character.proficiencyBonus.toString());
 
       // Simple math evaluation (only handles +, -, *, /)
-      return _evaluateSimpleMath(f);
+      int result = _evaluateSimpleMath(f);
+
+      if (doMax) {
+        result = math.max(maxFloor, result);
+      }
+      return result;
     } catch (e) {
       return 0;
     }
@@ -277,12 +298,27 @@ class FeatureService {
     for (var feature in availableFeatures) {
       final hasFeature = character.features.any((f) => f.id == feature.id);
       if (!hasFeature) {
+        // --- PRUNING OLD VERSIONS (Deduplication) ---
+        if (feature.id.startsWith('bardic-inspiration') ||
+            feature.id == 'bardic_inspiration') {
+          // Remove any existing bardic inspiration features to prevent duplicate resource pools
+          character.features.removeWhere((f) =>
+              f.id.startsWith('bardic-inspiration') ||
+              f.id == 'bardic_inspiration');
+        }
+
         // Create a copy of the feature with calculated max uses
         // For features with null formula, use the template's maxUses value
-        final maxUses = feature.resourcePool?.calculationFormula != null
+        int maxUses = feature.resourcePool?.calculationFormula != null
             ? calculateMaxUses(
                 character, feature.resourcePool!.calculationFormula)
             : (feature.resourcePool?.maxUses ?? 0);
+
+        // Defensive: resource_pool type features must have at least 1 use
+        if (feature.resourcePool != null && maxUses <= 0) {
+          print('⚠️ maxUses=$maxUses for ${feature.id}, forcing to 1');
+          maxUses = 1;
+        }
         print('🔧 Adding feature: ${feature.nameEn} (max uses: $maxUses)');
 
         final featureCopy = CharacterFeature(

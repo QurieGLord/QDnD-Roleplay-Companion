@@ -240,7 +240,7 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '$currentRecoveryTotal / $maxRecoveryLevels levels used',
+                  '$currentRecoveryTotal / $maxRecoveryLevels ${Localizations.localeOf(context).languageCode == 'ru' ? 'ур. использовано' : 'levels used'}',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: currentRecoveryTotal > maxRecoveryLevels

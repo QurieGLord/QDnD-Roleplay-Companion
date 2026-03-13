@@ -862,7 +862,7 @@ class _ReviewStepState extends State<ReviewStep> {
         if (spells.isNotEmpty) ...[
           const SizedBox(height: 16),
           Text(
-            'Заклинания (Фокусы / 1 ур.)',
+            'Заклинания (Заговоры / 1 ур.)',
             style: theme.textTheme.labelLarge?.copyWith(
               color: theme.colorScheme.tertiary,
               fontWeight: FontWeight.bold,
@@ -939,7 +939,7 @@ class _ReviewStepState extends State<ReviewStep> {
         ? (locale == 'ru' ? spell.nameRu : spell.nameEn)
         : spellId;
     final spellLevel = spell != null
-        ? (spell.level == 0 ? 'Фокус' : '${spell.level} уровень')
+        ? (spell.level == 0 ? 'Заговор' : '${spell.level} уровень')
         : 'Заклинание';
 
     // 2. Build Card UI instead of Chip

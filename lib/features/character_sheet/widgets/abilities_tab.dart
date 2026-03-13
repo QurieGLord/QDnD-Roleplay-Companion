@@ -708,12 +708,99 @@ class _AbilitiesTabState extends State<AbilitiesTab>
             widget.character.characterClass) ==
         'pact_magic';
 
+    // === WARLOCK PACT MAGIC BYPASS ===
+    // Warlocks never see the cast dialog. Their slots auto-resolve.
+    if (isPactMagic) {
+      if (spell.level >= 6) {
+        // --- MYSTIC ARCANUM (6-9 circle) ---
+        final arcanumId = 'mystic_arcanum_${spell.level}th';
+        final arcanumFeature = widget.character.features
+            .where((f) =>
+                f.id == arcanumId ||
+                ((f.nameEn).contains('Mystic Arcanum') &&
+                    (f.nameEn).contains('${spell.level}th')))
+            .firstOrNull;
+
+        if (arcanumFeature?.resourcePool != null &&
+            arcanumFeature!.resourcePool!.currentUses > 0) {
+          setState(() {
+            arcanumFeature.resourcePool!.currentUses = 0;
+            widget.character.save();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(locale == 'ru'
+                ? '${spell.getName(locale)} — Таинственный Арканум ${spell.level} круга!'
+                : '${spell.getName(locale)} — Mystic Arcanum (${spell.level}th level)!'),
+            backgroundColor: Colors.deepPurple,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(locale == 'ru'
+                ? 'Арканум ${spell.level} круга уже использован!'
+                : 'Arcanum (${spell.level}th level) already used!'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+          ));
+        }
+        return;
+      }
+
+      // --- PACT MAGIC (1-5 circle) ---
+      final pactSlots = SpellSlotsTable.getPactSlots(widget.character.level);
+      int pactSlotLevel = 0;
+      for (int i = 0; i < pactSlots.length; i++) {
+        if (pactSlots[i] > 0) pactSlotLevel = i + 1;
+      }
+
+      if (pactSlotLevel <= 0) return;
+
+      // Check available slots
+      while (widget.character.spellSlots.length < pactSlotLevel) {
+        widget.character.spellSlots.add(0);
+      }
+      final currentSlots = widget.character.spellSlots[pactSlotLevel - 1];
+
+      if (currentSlots > 0) {
+        setState(() {
+          widget.character.spellSlots[pactSlotLevel - 1]--;
+          widget.character.save();
+        });
+
+        String message;
+        if (pactSlotLevel > spell.level) {
+          // Upcast notification
+          message = locale == 'ru'
+              ? '${spell.getName(locale)} усилено до $pactSlotLevel круга!'
+              : '${spell.getName(locale)} upcast to level $pactSlotLevel!';
+        } else {
+          message = locale == 'ru'
+              ? '${spell.getName(locale)} наложено ($pactSlotLevel круг)'
+              : '${spell.getName(locale)} cast (level $pactSlotLevel)';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(message,
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(l10n.noSlotsAvailable),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+        ));
+      }
+      return;
+    }
+    // === END WARLOCK BYPASS ===
+
     final availableSlots = <int>[];
     for (int i = 1; i <= widget.character.maxSpellSlots.length; i++) {
       if (widget.character.spellSlots[i - 1] > 0) {
-        if (isPactMagic) {
-          availableSlots.add(i);
-        } else if (i >= spell.level) {
+        if (i >= spell.level) {
           availableSlots.add(i);
         }
       }
@@ -867,8 +954,9 @@ class _AbilitiesTabState extends State<AbilitiesTab>
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(message),
-          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          content: Text(message,
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+          backgroundColor: Theme.of(context).colorScheme.primary,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
         ),

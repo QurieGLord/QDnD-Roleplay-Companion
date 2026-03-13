@@ -421,9 +421,31 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
 
   @override
   Widget build(BuildContext context) {
-    final pool = widget.inspirationFeature.resourcePool;
-    // Safety check
-    if (pool == null) return const SizedBox.shrink();
+    var pool = widget.inspirationFeature.resourcePool;
+    // Auto-create a fallback ResourcePool if missing (lightweight stubs from class JSON)
+    if (pool == null) {
+      final fallbackMax =
+          max(1, widget.character.abilityScores.charismaModifier);
+      pool = ResourcePool(
+        currentUses: fallbackMax,
+        maxUses: fallbackMax,
+        recoveryType: RecoveryType.longRest,
+        calculationFormula: 'max(1, cha_mod)',
+      );
+      widget.inspirationFeature.resourcePool = pool;
+      widget.character.save();
+    }
+
+    // Physically sync maxUses from Charisma modifier (min 1) on every build
+    // to ensure backend stays correct after ASI or stat changes.
+    final dynamicMax = max(1, widget.character.abilityScores.charismaModifier);
+    if (pool.maxUses != dynamicMax) {
+      pool.maxUses = dynamicMax;
+      // Cap current uses if they exceed the new maximum
+      if (pool.currentUses > dynamicMax) {
+        pool.currentUses = dynamicMax;
+      }
+    }
 
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;

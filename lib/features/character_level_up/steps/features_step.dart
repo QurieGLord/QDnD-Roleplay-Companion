@@ -138,7 +138,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
 
   String _getLocalizedSkill(BuildContext context, String skillId) {
     final l10n = AppLocalizations.of(context)!;
-    switch (skillId.toLowerCase()) {
+    // Normalize: replace hyphens with underscores to match switch cases
+    switch (skillId.toLowerCase().replaceAll('-', '_')) {
       case 'acrobatics':
         return l10n.skillAcrobatics;
       case 'animal_handling':
@@ -816,8 +817,17 @@ class _FeaturesStepState extends State<FeaturesStep> {
     // ... same as before
     final proficientSkills = _getAllProficientSkills();
     final existingExpertise = widget.character.expertSkills;
-    final candidates =
-        proficientSkills.where((s) => !existingExpertise.contains(s)).toList();
+
+    // Normalize all skill IDs to a consistent format (underscores)
+    // then deduplicate to remove duplicates caused by mixed formats
+    final normalizedExisting = existingExpertise
+        .map((s) => s.toLowerCase().replaceAll('-', '_'))
+        .toSet();
+    final seen = <String>{};
+    final candidates = proficientSkills
+        .map((s) => s.toLowerCase().replaceAll('-', '_'))
+        .where((s) => !normalizedExisting.contains(s) && seen.add(s))
+        .toList();
     final selectedCount = _selectedExpertise.length;
 
     return Card(

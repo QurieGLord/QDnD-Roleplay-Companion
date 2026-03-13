@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
@@ -178,12 +179,29 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
-        if (isAvailable) {
-          widget.character.useSpellSlot(level);
-        } else {
-          widget.character.restoreSpellSlot(level);
-        }
-        widget.onChanged();
+        setState(() {
+          if (isAvailable) {
+            widget.character.useSpellSlot(level);
+          } else {
+            // Direct restore bypassing maxSpellSlots (stale for Warlocks).
+            // Use SpellSlotsTable as the source of truth.
+            final pactSlots =
+                SpellSlotsTable.getPactSlots(widget.character.level);
+            final trueMax =
+                (level <= pactSlots.length) ? pactSlots[level - 1] : 0;
+
+            // Grow spellSlots array if needed
+            while (widget.character.spellSlots.length < level) {
+              widget.character.spellSlots.add(0);
+            }
+
+            if (widget.character.spellSlots[level - 1] < trueMax) {
+              widget.character.spellSlots[level - 1]++;
+              widget.character.save();
+            }
+          }
+          widget.onChanged();
+        });
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
@@ -398,7 +416,9 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
         ),
         const SizedBox(height: 6),
         Text(
-          "${level}th",
+          Localizations.localeOf(context).languageCode == 'ru'
+              ? "$level-й"
+              : "${level}th level",
           style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.bold,
@@ -441,9 +461,14 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
     for (int i = 0; i < maxSlots.length; i++) {
       final level = i + 1;
       final max = maxSlots[i];
-      if (max <= 0) continue;
-
       final current = i < currentSlots.length ? currentSlots[i] : 0;
+      final count = math.max(max, current);
+
+      // Ensure we render the row even if max is 0, as long as Flexible Casting added a slot
+      if (max <= 0 && current <= 0) continue;
+
+      debugPrint(
+          "SpellSlotWidget [Level $level]: max=$max, current=$current, rendering count -> $count bubbles");
 
       rows.add(
         Padding(
@@ -466,58 +491,71 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
 
               // Slots
               Expanded(
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: List.generate(max, (index) {
-                    final isAvailable = index < current;
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: List.generate(count, (index) {
+                      final isFilled = index < current;
+                      final isOverfill = index >= max;
 
-                    return GestureDetector(
-                      onTap: () {
-                        if (isAvailable) {
-                          widget.character.useSpellSlot(level);
-                        } else {
-                          widget.character.restoreSpellSlot(level);
-                        }
-                        widget.onChanged();
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: isAvailable
-                              ? colorScheme.primary
-                              : colorScheme.surfaceContainerHighest,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isAvailable
-                                ? colorScheme.primary
-                                : colorScheme.outline,
-                            width: 2,
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            if (isFilled) {
+                              widget.character.useSpellSlot(level);
+                            } else {
+                              widget.character.restoreSpellSlot(level);
+                            }
+                            widget.onChanged();
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: isFilled
+                                  ? (isOverfill
+                                      ? colorScheme.tertiary
+                                      : colorScheme.primary)
+                                  : colorScheme.surfaceContainerHighest,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isFilled
+                                    ? (isOverfill
+                                        ? colorScheme.tertiary
+                                        : colorScheme.primary)
+                                    : colorScheme.outline,
+                                width: 2,
+                              ),
+                              boxShadow: isFilled
+                                  ? [
+                                      BoxShadow(
+                                        color: (isOverfill
+                                                ? colorScheme.tertiary
+                                                : colorScheme.primary)
+                                            .withValues(alpha: 0.3),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      )
+                                    ]
+                                  : [],
+                            ),
+                            child: Icon(
+                              isOverfill ? Icons.add_circle : Icons.bolt,
+                              size: 20,
+                              color: isFilled
+                                  ? (isOverfill
+                                      ? colorScheme.onTertiary
+                                      : colorScheme.onPrimary)
+                                  : colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.5),
+                            ),
                           ),
-                          boxShadow: isAvailable
-                              ? [
-                                  BoxShadow(
-                                    color: colorScheme.primary
-                                        .withValues(alpha: 0.3),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  )
-                                ]
-                              : [],
                         ),
-                        child: Icon(
-                          Icons.bolt,
-                          size: 20,
-                          color: isAvailable
-                              ? colorScheme.onPrimary
-                              : colorScheme.onSurfaceVariant
-                                  .withValues(alpha: 0.5),
-                        ),
-                      ),
-                    );
-                  }),
+                      );
+                    }),
+                  ),
                 ),
               ),
             ],
