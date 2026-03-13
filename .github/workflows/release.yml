@@ -1,0 +1,77 @@
+name: QDnD Release (Android & Web)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version Tag (e.g., v0.14.0)'
+        required: true
+        type: string
+      release_name:
+        description: 'Release Name (e.g., The Grand Update)'
+        required: true
+        type: string
+      release_notes:
+        description: 'Release Notes (Markdown)'
+        required: false
+        type: string
+      apk_name:
+        description: 'APK File Name (e.g., qdnd-v0.14.0.apk)'
+        required: true
+        default: 'app-release.apk'
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Code Generation
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build Web (PWA)
+        run: flutter build web --base-href "/QDnD-Roleplay-Companion/" --release --dart-define=FLUTTER_WEB_RENDERER=canvaskit
+
+      - name: Build Android APK
+        run: |
+          flutter build apk --release
+          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/${{ github.event.inputs.apk_name }}
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
+          commit_message: "Deploy Web PWA: ${{ github.event.inputs.version }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          name: ${{ github.event.inputs.release_name }}
+          body: ${{ github.event.inputs.release_notes }}
+          files: build/app/outputs/flutter-apk/${{ github.event.inputs.apk_name }}
+          draft: false
+          prerelease: false
