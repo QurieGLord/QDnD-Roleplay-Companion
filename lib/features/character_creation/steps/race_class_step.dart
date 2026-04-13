@@ -17,8 +17,24 @@ class _RaceClassStepState extends State<RaceClassStep> {
   String? _expandedRaceId;
   String? _expandedClassId;
 
+  String _normalizeKey(String value) {
+    return value
+        .toLowerCase()
+        .replaceAll(RegExp(r'[_-]+'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
+  String _toTitleCase(String value) {
+    return value
+        .split(' ')
+        .where((part) => part.isNotEmpty)
+        .map((part) => part[0].toUpperCase() + part.substring(1))
+        .join(' ');
+  }
+
   String _getAbilityAbbr(AppLocalizations l10n, String key) {
-    switch (key.toLowerCase()) {
+    switch (_normalizeKey(key)) {
       case 'strength':
         return l10n.abilityStrAbbr;
       case 'dexterity':
@@ -32,12 +48,25 @@ class _RaceClassStepState extends State<RaceClassStep> {
       case 'charisma':
         return l10n.abilityChaAbbr;
       default:
-        return key.substring(0, 3).toUpperCase();
+        return _toTitleCase(_normalizeKey(key));
     }
   }
 
+  String _getAbilityIncreaseLabel(
+    AppLocalizations l10n,
+    String key,
+    String locale,
+  ) {
+    final normalized = _normalizeKey(key);
+    if (normalized == 'all') {
+      return locale == 'ru' ? 'Все' : 'All';
+    }
+
+    return _getAbilityAbbr(l10n, normalized);
+  }
+
   String _getLocalizedSkill(AppLocalizations l10n, String skill) {
-    switch (skill.toLowerCase()) {
+    switch (_normalizeKey(skill)) {
       case 'athletics':
         return l10n.skillAthletics;
       case 'acrobatics':
@@ -75,7 +104,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
       case 'persuasion':
         return l10n.skillPersuasion;
       default:
-        return skill;
+        return _toTitleCase(_normalizeKey(skill));
     }
   }
 
@@ -123,8 +152,10 @@ class _RaceClassStepState extends State<RaceClassStep> {
   }
 
   String _getLocalizedProficiency(AppLocalizations l10n, String prof) {
-    final lower =
-        prof.toLowerCase().replaceAll('_', ' '); // handle snake_case from JSON
+    final lower = prof.toLowerCase().replaceAll(
+      '_',
+      ' ',
+    ); // handle snake_case from JSON
 
     // Armor categories
     if (lower.contains('light armor')) return l10n.armorTypeLight;
@@ -237,16 +268,13 @@ class _RaceClassStepState extends State<RaceClassStep> {
         Text(
           l10n.raceClassSubtitle,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 32),
 
         // Race Selection
-        Text(
-          l10n.race,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text(l10n.race, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 12),
         if (races.isEmpty)
           Card(
@@ -280,12 +308,12 @@ class _RaceClassStepState extends State<RaceClassStep> {
                                 ? Icons.check_circle
                                 : Icons.circle_outlined,
                             color: isSelected
-                                ? Theme.of(context)
-                                    .colorScheme
-                                    .onPrimaryContainer
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimaryContainer
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -294,36 +322,33 @@ class _RaceClassStepState extends State<RaceClassStep> {
                               children: [
                                 Text(
                                   race.getName(locale),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
+                                  style: Theme.of(context).textTheme.titleMedium
                                       ?.copyWith(
                                         fontWeight: FontWeight.bold,
                                         color: isSelected
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .onPrimaryContainer
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.onPrimaryContainer
                                             : null,
                                       ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   race.getDescription(locale),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
+                                  style: Theme.of(context).textTheme.bodySmall
                                       ?.copyWith(
                                         color: isSelected
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .onPrimaryContainer
-                                            : Theme.of(context)
-                                                .colorScheme
-                                                .onSurfaceVariant,
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.onPrimaryContainer
+                                            : Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
                                       ),
                                   maxLines: isExpanded ? null : 2,
-                                  overflow:
-                                      isExpanded ? null : TextOverflow.ellipsis,
+                                  overflow: isExpanded
+                                      ? null
+                                      : TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
@@ -334,12 +359,12 @@ class _RaceClassStepState extends State<RaceClassStep> {
                                   ? Icons.expand_less
                                   : Icons.expand_more,
                               color: isSelected
-                                  ? Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimaryContainer
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                             ),
                             onPressed: () {
                               setState(() {
@@ -355,10 +380,8 @@ class _RaceClassStepState extends State<RaceClassStep> {
                     Divider(
                       height: 1,
                       color: isSelected
-                          ? Theme.of(context)
-                              .colorScheme
-                              .onPrimaryContainer
-                              .withValues(alpha: 0.2)
+                          ? Theme.of(context).colorScheme.onPrimaryContainer
+                                .withValues(alpha: 0.2)
                           : null,
                     ),
                     Padding(
@@ -367,7 +390,12 @@ class _RaceClassStepState extends State<RaceClassStep> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildRaceDetails(
-                              context, race, locale, isSelected, l10n),
+                            context,
+                            race,
+                            locale,
+                            isSelected,
+                            l10n,
+                          ),
                         ],
                       ),
                     ),
@@ -380,10 +408,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
         const SizedBox(height: 32),
 
         // Class Selection
-        Text(
-          l10n.classLabel,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text(l10n.classLabel, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 12),
         if (classes.isEmpty)
           Card(
@@ -417,12 +442,12 @@ class _RaceClassStepState extends State<RaceClassStep> {
                                 ? Icons.check_circle
                                 : Icons.circle_outlined,
                             color: isSelected
-                                ? Theme.of(context)
-                                    .colorScheme
-                                    .onSecondaryContainer
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.onSecondaryContainer
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -431,49 +456,44 @@ class _RaceClassStepState extends State<RaceClassStep> {
                               children: [
                                 Text(
                                   classData.getName(locale),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
+                                  style: Theme.of(context).textTheme.titleMedium
                                       ?.copyWith(
                                         fontWeight: FontWeight.bold,
                                         color: isSelected
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .onSecondaryContainer
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.onSecondaryContainer
                                             : null,
                                       ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   classData.getDescription(locale),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
+                                  style: Theme.of(context).textTheme.bodySmall
                                       ?.copyWith(
                                         color: isSelected
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .onSecondaryContainer
-                                            : Theme.of(context)
-                                                .colorScheme
-                                                .onSurfaceVariant,
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.onSecondaryContainer
+                                            : Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
                                       ),
                                   maxLines: isExpanded ? null : 2,
-                                  overflow:
-                                      isExpanded ? null : TextOverflow.ellipsis,
+                                  overflow: isExpanded
+                                      ? null
+                                      : TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   l10n.hitDieType(classData.hitDie.toString()),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
+                                  style: Theme.of(context).textTheme.bodySmall
                                       ?.copyWith(
                                         fontWeight: FontWeight.w500,
                                         color: isSelected
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .onSecondaryContainer
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.onSecondaryContainer
                                             : null,
                                       ),
                                 ),
@@ -486,17 +506,18 @@ class _RaceClassStepState extends State<RaceClassStep> {
                                   ? Icons.expand_less
                                   : Icons.expand_more,
                               color: isSelected
-                                  ? Theme.of(context)
-                                      .colorScheme
-                                      .onSecondaryContainer
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.onSecondaryContainer
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                             ),
                             onPressed: () {
                               setState(() {
-                                _expandedClassId =
-                                    isExpanded ? null : classData.id;
+                                _expandedClassId = isExpanded
+                                    ? null
+                                    : classData.id;
                               });
                             },
                           ),
@@ -508,10 +529,8 @@ class _RaceClassStepState extends State<RaceClassStep> {
                     Divider(
                       height: 1,
                       color: isSelected
-                          ? Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer
-                              .withValues(alpha: 0.2)
+                          ? Theme.of(context).colorScheme.onSecondaryContainer
+                                .withValues(alpha: 0.2)
                           : null,
                     ),
                     Padding(
@@ -520,7 +539,12 @@ class _RaceClassStepState extends State<RaceClassStep> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildClassDetails(
-                              context, classData, locale, isSelected, l10n),
+                            context,
+                            classData,
+                            locale,
+                            isSelected,
+                            l10n,
+                          ),
                         ],
                       ),
                     ),
@@ -533,8 +557,13 @@ class _RaceClassStepState extends State<RaceClassStep> {
     );
   }
 
-  Widget _buildRaceDetails(BuildContext context, RaceData race, String locale,
-      bool isSelected, AppLocalizations l10n) {
+  Widget _buildRaceDetails(
+    BuildContext context,
+    RaceData race,
+    String locale,
+    bool isSelected,
+    AppLocalizations l10n,
+  ) {
     final textColor = isSelected
         ? Theme.of(context).colorScheme.onPrimaryContainer
         : Theme.of(context).colorScheme.onSurface;
@@ -545,15 +574,18 @@ class _RaceClassStepState extends State<RaceClassStep> {
         // Speed
         Row(
           children: [
-            Icon(Icons.speed,
-                size: 16, color: textColor.withValues(alpha: 0.7)),
+            Icon(
+              Icons.speed,
+              size: 16,
+              color: textColor.withValues(alpha: 0.7),
+            ),
             const SizedBox(width: 8),
             Text(
               l10n.speed(race.speed),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: textColor,
-                    fontWeight: FontWeight.w500,
-                  ),
+                color: textColor,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -563,9 +595,9 @@ class _RaceClassStepState extends State<RaceClassStep> {
         if (race.abilityScoreIncreases.isNotEmpty) ...[
           Text(
             l10n.abilityScoreIncreases,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: textColor,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: textColor),
           ),
           const SizedBox(height: 4),
           Wrap(
@@ -574,7 +606,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
             children: race.abilityScoreIncreases.entries.map<Widget>((entry) {
               return Chip(
                 label: Text(
-                  '${_getAbilityAbbr(l10n, entry.key)}: +${entry.value}',
+                  '${_getAbilityIncreaseLabel(l10n, entry.key, locale)}: +${entry.value}',
                   style: TextStyle(
                     fontSize: 12,
                     color: isSelected
@@ -584,10 +616,9 @@ class _RaceClassStepState extends State<RaceClassStep> {
                   ),
                 ),
                 backgroundColor: isSelected
-                    ? Theme.of(context)
-                        .colorScheme
-                        .primaryContainer
-                        .withValues(alpha: 0.5)
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.primaryContainer.withValues(alpha: 0.5)
                     : Theme.of(context).colorScheme.surfaceContainerHighest,
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -601,9 +632,9 @@ class _RaceClassStepState extends State<RaceClassStep> {
         if (race.languages.isNotEmpty) ...[
           Text(
             l10n.languages,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: textColor,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: textColor),
           ),
           const SizedBox(height: 4),
           Text(
@@ -611,8 +642,8 @@ class _RaceClassStepState extends State<RaceClassStep> {
                 .map((l) => _getLocalizedLanguage(l10n, l))
                 .join(', '),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: textColor.withValues(alpha: 0.8),
-                ),
+              color: textColor.withValues(alpha: 0.8),
+            ),
           ),
           const SizedBox(height: 12),
         ],
@@ -621,35 +652,42 @@ class _RaceClassStepState extends State<RaceClassStep> {
         if (race.traits.isNotEmpty) ...[
           Text(
             l10n.racialTraits,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: textColor,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: textColor),
           ),
           const SizedBox(height: 4),
-          ...race.traits.map((trait) => Padding(
-                padding: const EdgeInsets.only(bottom: 4, left: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('• ', style: TextStyle(color: textColor)),
-                    Expanded(
-                      child: Text(
-                        trait.getName(locale),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: textColor.withValues(alpha: 0.8),
-                            ),
+          ...race.traits.map(
+            (trait) => Padding(
+              padding: const EdgeInsets.only(bottom: 4, left: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('• ', style: TextStyle(color: textColor)),
+                  Expanded(
+                    child: Text(
+                      trait.getName(locale),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: textColor.withValues(alpha: 0.8),
                       ),
                     ),
-                  ],
-                ),
-              )),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ],
     );
   }
 
-  Widget _buildClassDetails(BuildContext context, ClassData classData,
-      String locale, bool isSelected, AppLocalizations l10n) {
+  Widget _buildClassDetails(
+    BuildContext context,
+    ClassData classData,
+    String locale,
+    bool isSelected,
+    AppLocalizations l10n,
+  ) {
     final textColor = isSelected
         ? Theme.of(context).colorScheme.onSecondaryContainer
         : Theme.of(context).colorScheme.onSurface;
@@ -660,15 +698,18 @@ class _RaceClassStepState extends State<RaceClassStep> {
         // Hit Die
         Row(
           children: [
-            Icon(Icons.favorite,
-                size: 16, color: textColor.withValues(alpha: 0.7)),
+            Icon(
+              Icons.favorite,
+              size: 16,
+              color: textColor.withValues(alpha: 0.7),
+            ),
             const SizedBox(width: 8),
             Text(
               l10n.hitDieType(classData.hitDie.toString()),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: textColor,
-                    fontWeight: FontWeight.w500,
-                  ),
+                color: textColor,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -678,9 +719,9 @@ class _RaceClassStepState extends State<RaceClassStep> {
         if (classData.savingThrowProficiencies.isNotEmpty) ...[
           Text(
             l10n.savingThrowProficiencies,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: textColor,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: textColor),
           ),
           const SizedBox(height: 4),
           Text(
@@ -688,8 +729,8 @@ class _RaceClassStepState extends State<RaceClassStep> {
                 .map((s) => _getAbilityAbbr(l10n, s))
                 .join(', '),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: textColor.withValues(alpha: 0.8),
-                ),
+              color: textColor.withValues(alpha: 0.8),
+            ),
           ),
           const SizedBox(height: 12),
         ],
@@ -697,20 +738,21 @@ class _RaceClassStepState extends State<RaceClassStep> {
         // Skill Proficiencies
         Text(
           l10n.skillProficiencies,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: textColor,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelLarge?.copyWith(color: textColor),
         ),
         const SizedBox(height: 4),
         Text(
           l10n.chooseSkills(
-              classData.skillProficiencies.choose,
-              classData.skillProficiencies.from
-                  .map((s) => _getLocalizedSkill(l10n, s))
-                  .join(', ')),
+            classData.skillProficiencies.choose,
+            classData.skillProficiencies.from
+                .map((s) => _getLocalizedSkill(l10n, s))
+                .join(', '),
+          ),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: textColor.withValues(alpha: 0.8),
-              ),
+            color: textColor.withValues(alpha: 0.8),
+          ),
         ),
         const SizedBox(height: 12),
 
@@ -718,9 +760,9 @@ class _RaceClassStepState extends State<RaceClassStep> {
         if (classData.armorProficiencies.isNotEmpty) ...[
           Text(
             l10n.armorProficiencies,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: textColor,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: textColor),
           ),
           const SizedBox(height: 4),
           Text(
@@ -729,8 +771,8 @@ class _RaceClassStepState extends State<RaceClassStep> {
                 .map((p) => _getLocalizedProficiency(l10n, p))
                 .join(', '),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: textColor.withValues(alpha: 0.8),
-                ),
+              color: textColor.withValues(alpha: 0.8),
+            ),
           ),
           const SizedBox(height: 12),
         ],
@@ -738,9 +780,9 @@ class _RaceClassStepState extends State<RaceClassStep> {
         if (classData.weaponProficiencies.isNotEmpty) ...[
           Text(
             l10n.weaponProficiencies,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: textColor,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: textColor),
           ),
           const SizedBox(height: 4),
           Text(
@@ -749,8 +791,8 @@ class _RaceClassStepState extends State<RaceClassStep> {
                 .map((p) => _getLocalizedProficiency(l10n, p))
                 .join(', '),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: textColor.withValues(alpha: 0.8),
-                ),
+              color: textColor.withValues(alpha: 0.8),
+            ),
           ),
         ],
       ],

@@ -53,6 +53,11 @@ class FeatureService {
         normalized;
   }
 
+  static bool _isPlaceholderFeature(CharacterFeature feature) {
+    final id = feature.id.toLowerCase();
+    return id.startsWith('primal-path-improvement-');
+  }
+
   /// Initialize the service by loading all features from JSON
   static Future<void> init() async {
     if (_initialized) return;
@@ -68,7 +73,8 @@ class FeatureService {
       // Fallback to hardcoded list if manifest fails (e.g. during testing or some build configurations)
       try {
         await _loadFeaturesFromAsset(
-            'assets/data/features/paladin_features.json');
+          'assets/data/features/paladin_features.json',
+        );
         _loadSubclassFeatures();
       } catch (e2) {
         print('❌ Error loading fallback features: $e2');
@@ -76,7 +82,8 @@ class FeatureService {
     }
 
     print(
-        '🔧 FeatureService.init() completed. Loaded ${_features.length} features');
+      '🔧 FeatureService.init() completed. Loaded ${_features.length} features',
+    );
     _initialized = true;
   }
 
@@ -108,10 +115,13 @@ class FeatureService {
     String? subclassId,
   }) {
     final normalizedClass = _normalizeClassName(classId);
-    final normalizedSubclass =
-        subclassId != null ? _normalizeClassName(subclassId) : null;
+    final normalizedSubclass = subclassId != null
+        ? _normalizeClassName(subclassId)
+        : null;
 
     return _features.values.where((f) {
+      if (_isPlaceholderFeature(f)) return false;
+
       // 1. Strict Level Check
       if (f.minLevel != level) return false;
 
@@ -143,13 +153,17 @@ class FeatureService {
         : '';
 
     print(
-        '🔧 getFeaturesForCharacter: normalized class "${character.characterClass}" -> "$characterClassName"');
+      '🔧 getFeaturesForCharacter: normalized class "${character.characterClass}" -> "$characterClassName"',
+    );
     if (character.subclass != null) {
       print(
-          '🔧 getFeaturesForCharacter: normalized subclass "${character.subclass}" -> "$characterSubclassName"');
+        '🔧 getFeaturesForCharacter: normalized subclass "${character.subclass}" -> "$characterSubclassName"',
+      );
     }
 
     return _features.values.where((feature) {
+      if (_isPlaceholderFeature(feature)) return false;
+
       // Check if feature belongs to this class
       if (feature.associatedClass != null) {
         final featureClassName = _normalizeClassName(feature.associatedClass!);
@@ -160,8 +174,9 @@ class FeatureService {
 
       // Check if feature belongs to this subclass
       if (feature.associatedSubclass != null) {
-        final featureSubclassName =
-            _normalizeClassName(feature.associatedSubclass!);
+        final featureSubclassName = _normalizeClassName(
+          feature.associatedSubclass!,
+        );
         if (featureSubclassName != characterSubclassName) {
           return false;
         }
@@ -180,45 +195,182 @@ class FeatureService {
   static int calculateMaxUses(Character character, String? formula) {
     if (formula == null || formula.isEmpty) return 0;
 
-    // Parse formulas like "level * 5", "1 + cha_mod", "max(1, cha_mod)", etc.
     try {
-      String f = formula.toLowerCase();
-
-      bool doMax = false;
-      int maxFloor = 0;
-      if (f.startsWith('max(') && f.endsWith(')')) {
-        doMax = true;
-        // e.g., "max(1, cha_mod)" -> "1, cha_mod"
-        final inner = f.substring(4, f.length - 1);
-        final parts = inner.split(',');
-        if (parts.length == 2) {
-          maxFloor = int.tryParse(parts[0].trim()) ?? 0;
-          f = parts[1].trim(); // the rest of the formula
-        } else {
-          f = inner;
-        }
-      }
-
-      // Replace variables with actual values
-      f = f.replaceAll('level', character.level.toString());
-      f = f.replaceAll(
-          'cha_mod', character.abilityScores.charismaModifier.toString());
-      f = f.replaceAll(
-          'wis_mod', character.abilityScores.wisdomModifier.toString());
-      f = f.replaceAll(
-          'int_mod', character.abilityScores.intelligenceModifier.toString());
-      f = f.replaceAll('prof_bonus', character.proficiencyBonus.toString());
-
-      // Simple math evaluation (only handles +, -, *, /)
-      int result = _evaluateSimpleMath(f);
-
-      if (doMax) {
-        result = math.max(maxFloor, result);
-      }
-      return result;
+      final resolved = _replaceFormulaVariables(
+        formula.toLowerCase().trim(),
+        character,
+      );
+      return _evaluateFormulaExpression(resolved);
     } catch (e) {
       return 0;
     }
+  }
+
+  static String _replaceFormulaVariables(String formula, Character character) {
+    return formula
+        .replaceAll('level', character.level.toString())
+        .replaceAll(
+          'cha_mod',
+          character.abilityScores.charismaModifier.toString(),
+        )
+        .replaceAll(
+          'wis_mod',
+          character.abilityScores.wisdomModifier.toString(),
+        )
+        .replaceAll(
+          'int_mod',
+          character.abilityScores.intelligenceModifier.toString(),
+        )
+        .replaceAll('prof_bonus', character.proficiencyBonus.toString());
+  }
+
+  static int _evaluateFormulaExpression(String expression) {
+    var f = expression.replaceAll(' ', '');
+    f = _stripOuterParentheses(f);
+
+    if (f.startsWith('max(') && f.endsWith(')')) {
+      final inner = f.substring(4, f.length - 1);
+      final parts = _splitTopLevel(inner, ',');
+      if (parts.length == 2) {
+        return math.max(
+          _evaluateFormulaExpression(parts[0]),
+          _evaluateFormulaExpression(parts[1]),
+        );
+      }
+    }
+
+    final ternaryIndex = _findTopLevelQuestionMark(f);
+    if (ternaryIndex != -1) {
+      final colonIndex = _findMatchingColon(f, ternaryIndex);
+      if (colonIndex != -1) {
+        final condition = f.substring(0, ternaryIndex);
+        final whenTrue = f.substring(ternaryIndex + 1, colonIndex);
+        final whenFalse = f.substring(colonIndex + 1);
+        return _evaluateCondition(condition)
+            ? _evaluateFormulaExpression(whenTrue)
+            : _evaluateFormulaExpression(whenFalse);
+      }
+    }
+
+    return _evaluateSimpleMath(f);
+  }
+
+  static bool _evaluateCondition(String condition) {
+    final c = _stripOuterParentheses(condition.replaceAll(' ', ''));
+    const operators = ['>=', '<=', '==', '!=', '>', '<'];
+
+    for (final op in operators) {
+      final index = c.indexOf(op);
+      if (index != -1) {
+        final left = c.substring(0, index);
+        final right = c.substring(index + op.length);
+        final leftValue = _evaluateSimpleMath(left);
+        final rightValue = _evaluateSimpleMath(right);
+
+        switch (op) {
+          case '>=':
+            return leftValue >= rightValue;
+          case '<=':
+            return leftValue <= rightValue;
+          case '==':
+            return leftValue == rightValue;
+          case '!=':
+            return leftValue != rightValue;
+          case '>':
+            return leftValue > rightValue;
+          case '<':
+            return leftValue < rightValue;
+        }
+      }
+    }
+
+    return _evaluateSimpleMath(c) != 0;
+  }
+
+  static String _stripOuterParentheses(String expression) {
+    var result = expression;
+    while (result.startsWith('(') &&
+        result.endsWith(')') &&
+        _hasBalancedParentheses(result.substring(1, result.length - 1))) {
+      result = result.substring(1, result.length - 1);
+    }
+    return result;
+  }
+
+  static bool _hasBalancedParentheses(String expression) {
+    int depth = 0;
+    for (int i = 0; i < expression.length; i++) {
+      final char = expression[i];
+      if (char == '(') {
+        depth++;
+      } else if (char == ')') {
+        depth--;
+        if (depth < 0) return false;
+      }
+    }
+    return depth == 0;
+  }
+
+  static int _findTopLevelQuestionMark(String expression) {
+    int depth = 0;
+    for (int i = 0; i < expression.length; i++) {
+      final char = expression[i];
+      if (char == '(') {
+        depth++;
+      } else if (char == ')') {
+        depth--;
+      } else if (char == '?' && depth == 0) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  static int _findMatchingColon(String expression, int questionMarkIndex) {
+    int depth = 0;
+    int nestedTernaries = 0;
+    for (int i = questionMarkIndex + 1; i < expression.length; i++) {
+      final char = expression[i];
+      if (char == '(') {
+        depth++;
+      } else if (char == ')') {
+        depth--;
+      } else if (char == '?' && depth == 0) {
+        nestedTernaries++;
+      } else if (char == ':' && depth == 0) {
+        if (nestedTernaries == 0) {
+          return i;
+        }
+        nestedTernaries--;
+      }
+    }
+    return -1;
+  }
+
+  static List<String> _splitTopLevel(String expression, String separator) {
+    final parts = <String>[];
+    var buffer = StringBuffer();
+    int depth = 0;
+
+    for (int i = 0; i < expression.length; i++) {
+      final char = expression[i];
+      if (char == '(') {
+        depth++;
+      } else if (char == ')') {
+        depth--;
+      }
+
+      if (char == separator && depth == 0) {
+        parts.add(buffer.toString());
+        buffer = StringBuffer();
+        continue;
+      }
+
+      buffer.write(char);
+    }
+
+    parts.add(buffer.toString());
+    return parts;
   }
 
   /// Simple math expression evaluator (handles +, -, *, /)
@@ -233,13 +385,17 @@ class FeatureService {
       if (multMatch != null) {
         final result =
             int.parse(multMatch.group(1)!) * int.parse(multMatch.group(2)!);
-        expression =
-            expression.replaceFirst(multMatch.group(0)!, result.toString());
+        expression = expression.replaceFirst(
+          multMatch.group(0)!,
+          result.toString(),
+        );
       } else if (divMatch != null) {
         final result =
             int.parse(divMatch.group(1)!) ~/ int.parse(divMatch.group(2)!);
-        expression =
-            expression.replaceFirst(divMatch.group(0)!, result.toString());
+        expression = expression.replaceFirst(
+          divMatch.group(0)!,
+          result.toString(),
+        );
       }
     }
 
@@ -286,32 +442,40 @@ class FeatureService {
   /// Add features to a character (called during character creation or level up)
   static void addFeaturesToCharacter(Character character) {
     print(
-        '🔧 addFeaturesToCharacter() called for ${character.name} (${character.characterClass} level ${character.level})');
+      '🔧 addFeaturesToCharacter() called for ${character.name} (${character.characterClass} level ${character.level})',
+    );
     print('🔧 Character currently has ${character.features.length} features');
 
     final availableFeatures = getFeaturesForCharacter(character);
     print(
-        '🔧 Found ${availableFeatures.length} available features for this character');
+      '🔧 Found ${availableFeatures.length} available features for this character',
+    );
 
     // Only add features that the character doesn't already have
     int addedCount = 0;
     for (var feature in availableFeatures) {
+      if (_isPlaceholderFeature(feature)) continue;
+
       final hasFeature = character.features.any((f) => f.id == feature.id);
       if (!hasFeature) {
         // --- PRUNING OLD VERSIONS (Deduplication) ---
         if (feature.id.startsWith('bardic-inspiration') ||
             feature.id == 'bardic_inspiration') {
           // Remove any existing bardic inspiration features to prevent duplicate resource pools
-          character.features.removeWhere((f) =>
-              f.id.startsWith('bardic-inspiration') ||
-              f.id == 'bardic_inspiration');
+          character.features.removeWhere(
+            (f) =>
+                f.id.startsWith('bardic-inspiration') ||
+                f.id == 'bardic_inspiration',
+          );
         }
 
         // Create a copy of the feature with calculated max uses
         // For features with null formula, use the template's maxUses value
         int maxUses = feature.resourcePool?.calculationFormula != null
             ? calculateMaxUses(
-                character, feature.resourcePool!.calculationFormula)
+                character,
+                feature.resourcePool!.calculationFormula,
+              )
             : (feature.resourcePool?.maxUses ?? 0);
 
         // Defensive: resource_pool type features must have at least 1 use
@@ -354,7 +518,8 @@ class FeatureService {
     }
 
     print(
-        '🔧 Added $addedCount new features. Character now has ${character.features.length} total features');
+      '🔧 Added $addedCount new features. Character now has ${character.features.length} total features',
+    );
   }
 
   /// Update feature max uses when character levels up or stats change
@@ -363,11 +528,15 @@ class FeatureService {
       if (feature.resourcePool != null &&
           feature.resourcePool!.calculationFormula != null) {
         final newMax = calculateMaxUses(
-            character, feature.resourcePool!.calculationFormula);
+          character,
+          feature.resourcePool!.calculationFormula,
+        );
         feature.resourcePool!.maxUses = newMax;
 
-        // If current uses exceed new max, cap it
-        if (feature.resourcePool!.currentUses > newMax) {
+        // Unlimited pools should stay full, otherwise only cap downwards.
+        if (newMax >= 99) {
+          feature.resourcePool!.currentUses = newMax;
+        } else if (feature.resourcePool!.currentUses > newMax) {
           feature.resourcePool!.currentUses = newMax;
         }
       }

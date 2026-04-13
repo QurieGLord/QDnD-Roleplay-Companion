@@ -66,6 +66,72 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
     setState(() {});
   }
 
+  Future<void> _maybeHandleRelentlessRage(AppLocalizations l10n) async {
+    if (_character.currentHp > 0 ||
+        !_character.hasRelentlessRage ||
+        !_character.isRaging) {
+      return;
+    }
+
+    final locale = Localizations.localeOf(context).languageCode;
+    final feature = _character.features.firstWhere(
+      (candidate) => candidate.id.toLowerCase() == 'relentless-rage',
+    );
+    final dc = _character.relentlessRageSaveDc;
+    final conSaveBonus = _character.constitutionSavingThrowBonus;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text(feature.getName(locale)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('DC $dc'),
+            const SizedBox(height: 8),
+            Text(
+              '${l10n.modifier}: ${_character.formatModifier(conSaveBonus)}',
+            ),
+          ],
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () {
+              final roll = Random().nextInt(20) + 1;
+              final total = roll + conSaveBonus;
+              final succeeded = total >= dc;
+
+              if (succeeded) {
+                _character.currentHp = 1;
+              } else {
+                _character.isRaging = false;
+              }
+
+              _character.increaseRelentlessRageSaveDc();
+              Navigator.pop(context);
+
+              ScaffoldMessenger.of(this.context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    succeeded
+                        ? '${feature.getName(locale)}: $roll + $conSaveBonus = $total, 1 HP'
+                        : '${feature.getName(locale)}: $roll + $conSaveBonus = $total, 0 HP',
+                  ),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+            child: const Text('ROLL'),
+          ),
+        ],
+      ),
+    );
+
+    await _save();
+  }
+
   String _getConditionName(AppLocalizations l10n, ConditionType type) {
     switch (type) {
       case ConditionType.blinded:
@@ -100,6 +166,13 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
   }
 
   void _startCombat(AppLocalizations l10n) {
+    final locale = Localizations.localeOf(context).languageCode;
+    final feralInstinct = _character.hasFeralInstinct
+        ? _character.features
+              .where((feature) => feature.id.toLowerCase() == 'feral-instinct')
+              .firstOrNull
+        : null;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -111,6 +184,10 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
             const SizedBox(height: 16),
             Text(
                 '${l10n.modifier}: ${_character.formatModifier(_character.initiativeBonus)}'),
+            if (feralInstinct != null) ...[
+              const SizedBox(height: 8),
+              Text('${l10n.advantage}: ${feralInstinct.getName(locale)}'),
+            ],
           ],
         ),
         actions: [
@@ -120,7 +197,10 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
           FilledButton(
             onPressed: () async {
               final d20 = Random().nextInt(20) + 1;
-              final init = d20 + _character.initiativeBonus;
+              final initiativeRoll = _character.hasFeralInstinct
+                  ? [d20, Random().nextInt(20) + 1].reduce(max)
+                  : d20;
+              final init = initiativeRoll + _character.initiativeBonus;
               Navigator.pop(context);
               _character.combatState.startCombat(init);
               await _save();
@@ -200,8 +280,9 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
                           Navigator.pop(context);
                           await _character
                               .takeDamage(amount); // Handle temp HP internally
+                          await _maybeHandleRelentlessRage(l10n);
                           _triggerShake();
-                          _save();
+                          await _save();
                         }
                       },
                       child: Text(l10n.tempHp),
@@ -221,9 +302,10 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
                           await _character.heal(amount);
                         } else {
                           await _character.takeDamage(amount);
+                          await _maybeHandleRelentlessRage(l10n);
                           _triggerShake();
                         }
-                        _save();
+                        await _save();
                       }
                     },
                     child: Text(heal

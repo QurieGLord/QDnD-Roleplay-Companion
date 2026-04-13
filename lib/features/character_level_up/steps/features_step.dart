@@ -114,13 +114,16 @@ class _FeaturesStepState extends State<FeaturesStep> {
     // Populate Wizard High Level Features Options
     final classIdLower = classId.toLowerCase();
     if (classIdLower == 'wizard' || classIdLower == 'волшебник') {
-      final knownWizardSpells =
-          allClassSpells.where((s) => knownIds.contains(s.id)).toList();
+      final knownWizardSpells = allClassSpells
+          .where((s) => knownIds.contains(s.id))
+          .toList();
 
-      _masteryOptionsLvl1 =
-          knownWizardSpells.where((s) => s.level == 1).toList();
-      _masteryOptionsLvl2 =
-          knownWizardSpells.where((s) => s.level == 2).toList();
+      _masteryOptionsLvl1 = knownWizardSpells
+          .where((s) => s.level == 1)
+          .toList();
+      _masteryOptionsLvl2 = knownWizardSpells
+          .where((s) => s.level == 2)
+          .toList();
       _signatureOptions = knownWizardSpells.where((s) => s.level == 3).toList();
     }
 
@@ -188,7 +191,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
       'dueling',
       'great_weapon',
       'protection',
-      'two_weapon'
+      'two_weapon',
     ],
     'paladin': ['defense', 'dueling', 'great_weapon', 'protection'],
     'ranger': ['archery', 'defense', 'dueling', 'two_weapon'],
@@ -199,22 +202,28 @@ class _FeaturesStepState extends State<FeaturesStep> {
     final availableIds = _classStyles[classId] ?? _classStyles['fighter']!;
     final l10n = AppLocalizations.of(context)!;
     final List<Map<String, String>> result = [];
-    final characterFeatures =
-        widget.character.features.map((e) => e.id).toSet();
+    final characterFeatures = widget.character.features
+        .map((e) => e.id)
+        .toSet();
 
     for (var styleId in availableIds) {
       // Check if character already has this fighting style in any form
       // E.g. fs_$styleId, $classId-fighting-style-$styleId, fighting-style-$styleId, fighting-style-$normalizedStyle
       final normalizedStyle = styleId.replaceAll('_', '-');
-      final hasIt = characterFeatures.contains('fs_$styleId') ||
+      final hasIt =
+          characterFeatures.contains('fs_$styleId') ||
           characterFeatures.contains('fs_$normalizedStyle') ||
-          characterFeatures.any((id) =>
-              id.endsWith('-$styleId') || id.endsWith('-$normalizedStyle'));
+          characterFeatures.any(
+            (id) =>
+                id.endsWith('-$styleId') || id.endsWith('-$normalizedStyle'),
+          );
 
       if (hasIt) continue; // Skip styles the character already has
 
-      final localized =
-          LocalizationHelper.getLocalizedFightingStyle(styleId, l10n);
+      final localized = LocalizationHelper.getLocalizedFightingStyle(
+        styleId,
+        l10n,
+      );
       result.add({
         'id': styleId,
         'name': localized.name,
@@ -247,6 +256,13 @@ class _FeaturesStepState extends State<FeaturesStep> {
     }
   }
 
+  void _selectChoice(String key, String value) {
+    setState(() {
+      _selections[key] = value;
+      widget.onOptionSelected(key, value);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -254,13 +270,16 @@ class _FeaturesStepState extends State<FeaturesStep> {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
 
-    final hasSpellChanges = widget.newSpellSlots.isNotEmpty &&
+    final hasSpellChanges =
+        widget.newSpellSlots.isNotEmpty &&
         (widget.newSpellSlots.length > widget.oldSpellSlots.length ||
-            widget.newSpellSlots.asMap().entries.any((e) =>
-                e.value >
-                (widget.oldSpellSlots.length > e.key
-                    ? widget.oldSpellSlots[e.key]
-                    : 0)));
+            widget.newSpellSlots.asMap().entries.any(
+              (e) =>
+                  e.value >
+                  (widget.oldSpellSlots.length > e.key
+                      ? widget.oldSpellSlots[e.key]
+                      : 0),
+            ));
 
     final Set<String> optionalFeaturesPool = {};
     for (var feature in widget.newFeatures) {
@@ -269,8 +288,9 @@ class _FeaturesStepState extends State<FeaturesStep> {
       }
     }
 
-    bool needsFightingStyle =
-        widget.newFeatures.any((f) => f.id.contains('fighting-style'));
+    bool needsFightingStyle = widget.newFeatures.any(
+      (f) => f.id.contains('fighting-style'),
+    );
     bool needsSubclass = widget.nextLevel == widget.classData.subclassLevel;
     if (widget.classData.id.toLowerCase() == 'ranger' ||
         widget.classData.id.toLowerCase() == 'sleDopyt' ||
@@ -297,8 +317,9 @@ class _FeaturesStepState extends State<FeaturesStep> {
       final available = allSkills
           .where((s) => !widget.character.expertSkills.contains(s))
           .length;
-      requiredExpertiseCount =
-          available < expertiseCount ? available : expertiseCount;
+      requiredExpertiseCount = available < expertiseCount
+          ? available
+          : expertiseCount;
     }
 
     // Warlock Pact Boon (Level 3)
@@ -306,25 +327,29 @@ class _FeaturesStepState extends State<FeaturesStep> {
         (classId == 'warlock' || classId == 'колдун') && widget.nextLevel == 3;
 
     // Wizard Spell Mastery (Level 18)
-    bool needsSpellMastery = (classId == 'wizard' || classId == 'волшебник') &&
+    bool needsSpellMastery =
+        (classId == 'wizard' || classId == 'волшебник') &&
         widget.nextLevel == 18;
 
     // Wizard Signature Spells (Level 20)
     bool needsSignatureSpells =
         (classId == 'wizard' || classId == 'волшебник') &&
-            widget.nextLevel == 20;
+        widget.nextLevel == 20;
 
     // Ranger Features (Levels 6, 10, 14)
-    bool needsFavoredEnemy = (classId == 'ranger' || classId == 'следопыт') &&
+    bool needsFavoredEnemy =
+        (classId == 'ranger' || classId == 'следопыт') &&
         (widget.nextLevel == 6 || widget.nextLevel == 14);
     bool needsNaturalExplorer =
         (classId == 'ranger' || classId == 'следопыт') &&
-            (widget.nextLevel == 6 || widget.nextLevel == 10);
+        (widget.nextLevel == 6 || widget.nextLevel == 10);
 
     // Ranger Hunter Tactic (Level 3, 7, 11, 15)
-    bool isHunter = widget.character.subclass?.toLowerCase() == 'hunter' ||
+    bool isHunter =
+        widget.character.subclass?.toLowerCase() == 'hunter' ||
         _selections['subclass'] == 'hunter';
-    bool needsHunterTactic = (classId == 'ranger' || classId == 'следопыт') &&
+    bool needsHunterTactic =
+        (classId == 'ranger' || classId == 'следопыт') &&
         isHunter &&
         [3, 7, 11, 15].contains(widget.nextLevel);
 
@@ -333,7 +358,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
     // IMPORTANT: If we have NO available spells to pick from, we shouldn't block validation.
     bool effectiveNeedsSpells =
         widget.spellsToLearnCount > 0 && _availableSpells.isNotEmpty;
-    bool spellsSatisfied = !effectiveNeedsSpells ||
+    bool spellsSatisfied =
+        !effectiveNeedsSpells ||
         _selectedSpells.length == widget.spellsToLearnCount;
 
     bool allChoicesMade = spellsSatisfied;
@@ -431,13 +457,17 @@ class _FeaturesStepState extends State<FeaturesStep> {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.auto_fix_high,
-                                  color: colorScheme.primary),
+                              Icon(
+                                Icons.auto_fix_high,
+                                color: colorScheme.primary,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 l10n.spellSlotsIncreased,
                                 style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ],
                           ),
@@ -453,7 +483,9 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 // 2. Subclass Selection (Important Choice)
                 if (needsSubclass) ...[
                   _buildSectionHeader(
-                      context, _getSubclassTitle(l10n, widget.classData.id)),
+                    context,
+                    _getSubclassTitle(l10n, widget.classData.id),
+                  ),
                   _buildSubclassChoice(context),
                   const SizedBox(height: 16),
                 ],
@@ -461,10 +493,11 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 // 2.5 Land Choice (Circle of the Land)
                 if (needsLandChoice) ...[
                   _buildSectionHeader(
-                      context,
-                      locale == 'ru'
-                          ? 'КРУГ ЗЕМЛИ: МЕСТНОСТЬ'
-                          : 'CIRCLE OF THE LAND: TERRAIN'),
+                    context,
+                    locale == 'ru'
+                        ? 'КРУГ ЗЕМЛИ: МЕСТНОСТЬ'
+                        : 'CIRCLE OF THE LAND: TERRAIN',
+                  ),
                   _buildLandChoice(context, locale),
                   const SizedBox(height: 16),
                 ],
@@ -478,15 +511,21 @@ class _FeaturesStepState extends State<FeaturesStep> {
                   ...widget.newFeatures
                       .where((f) => f.id.contains('fighting-style'))
                       .map((feature) {
-                    return _buildFightingStyleChoice(context, feature, l10n);
-                  }),
+                        return _buildFightingStyleChoice(
+                          context,
+                          feature,
+                          l10n,
+                        );
+                      }),
                   const SizedBox(height: 16),
                 ],
 
                 // 3.5 Pact Boon (Important Choice)
                 if (needsPactBoon) ...[
-                  _buildSectionHeader(context,
-                      locale == 'ru' ? "ПРЕДМЕТ ДОГОВОРА" : "PACT BOON"),
+                  _buildSectionHeader(
+                    context,
+                    locale == 'ru' ? "ПРЕДМЕТ ДОГОВОРА" : "PACT BOON",
+                  ),
                   _buildPactBoonChoice(context, locale),
                   const SizedBox(height: 16),
                 ],
@@ -494,10 +533,11 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 // 3.6 Wizard Spell Mastery (Level 18)
                 if (needsSpellMastery) ...[
                   _buildSectionHeader(
-                      context,
-                      locale == 'ru'
-                          ? "ЗАКЛИНАТЕЛЬНОЕ МАСТЕРСТВО"
-                          : "SPELL MASTERY"),
+                    context,
+                    locale == 'ru'
+                        ? "ЗАКЛИНАТЕЛЬНОЕ МАСТЕРСТВО"
+                        : "SPELL MASTERY",
+                  ),
                   _buildSpellMasterySelection(context, locale, l10n),
                   const SizedBox(height: 16),
                 ],
@@ -505,18 +545,21 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 // 3.7 Wizard Signature Spells (Level 20)
                 if (needsSignatureSpells) ...[
                   _buildSectionHeader(
-                      context,
-                      locale == 'ru'
-                          ? "ФИРМЕННЫЕ ЗАКЛИНАНИЯ"
-                          : "SIGNATURE SPELLS"),
+                    context,
+                    locale == 'ru'
+                        ? "ФИРМЕННЫЕ ЗАКЛИНАНИЯ"
+                        : "SIGNATURE SPELLS",
+                  ),
                   _buildSignatureSpellsSelection(context, locale, l10n),
                   const SizedBox(height: 16),
                 ],
 
                 // 3.8 Ranger Favored Enemy
                 if (needsFavoredEnemy) ...[
-                  _buildSectionHeader(context,
-                      locale == 'ru' ? "ИЗБРАННЫЙ ВРАГ" : "FAVORED ENEMY"),
+                  _buildSectionHeader(
+                    context,
+                    locale == 'ru' ? "ИЗБРАННЫЙ ВРАГ" : "FAVORED ENEMY",
+                  ),
                   _buildFavoredEnemyChoice(context, locale, l10n),
                   const SizedBox(height: 16),
                 ],
@@ -524,18 +567,21 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 // 3.9 Ranger Natural Explorer
                 if (needsNaturalExplorer) ...[
                   _buildSectionHeader(
-                      context,
-                      locale == 'ru'
-                          ? "ИССЛЕДОВАТЕЛЬ ПРИРОДЫ"
-                          : "NATURAL EXPLORER"),
+                    context,
+                    locale == 'ru'
+                        ? "ИССЛЕДОВАТЕЛЬ ПРИРОДЫ"
+                        : "NATURAL EXPLORER",
+                  ),
                   _buildNaturalExplorerChoice(context, locale, l10n),
                   const SizedBox(height: 16),
                 ],
 
                 // 3.10 Ranger Hunter Tactic
                 if (needsHunterTactic) ...[
-                  _buildSectionHeader(context,
-                      locale == 'ru' ? "ТАКТИКА ОХОТНИКА" : "HUNTER'S PREY"),
+                  _buildSectionHeader(
+                    context,
+                    locale == 'ru' ? "ТАКТИКА ОХОТНИКА" : "HUNTER'S PREY",
+                  ),
                   _buildHunterTacticChoice(context, locale, l10n),
                   const SizedBox(height: 16),
                 ],
@@ -544,7 +590,10 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 if (needsExpertise) ...[
                   _buildSectionHeader(context, l10n.expertise),
                   _buildExpertiseSelection(
-                      context, requiredExpertiseCount, l10n),
+                    context,
+                    requiredExpertiseCount,
+                    l10n,
+                  ),
                   const SizedBox(height: 16),
                 ],
 
@@ -566,24 +615,26 @@ class _FeaturesStepState extends State<FeaturesStep> {
                   return true;
                 })) ...[
                   _buildSectionHeader(context, l10n.classFeatures),
-                  ...widget.newFeatures.where((f) {
-                    if (f.id.contains('fighting-style') ||
-                        f.id.contains('pact-boon')) {
-                      return false;
-                    }
+                  ...widget.newFeatures
+                      .where((f) {
+                        if (f.id.contains('fighting-style') ||
+                            f.id.contains('pact-boon')) {
+                          return false;
+                        }
 
-                    if (optionalFeaturesPool.contains(f.id)) {
-                      return false;
-                    }
+                        if (optionalFeaturesPool.contains(f.id)) {
+                          return false;
+                        }
 
-                    if (f.options != null && f.options!.isNotEmpty) {
-                      return false;
-                    }
+                        if (f.options != null && f.options!.isNotEmpty) {
+                          return false;
+                        }
 
-                    return true;
-                  }).map((feature) {
-                    return _buildFeatureCard(context, feature);
-                  }),
+                        return true;
+                      })
+                      .map((feature) {
+                        return _buildFeatureCard(context, feature);
+                      }),
                   const SizedBox(height: 16),
                 ],
 
@@ -592,7 +643,9 @@ class _FeaturesStepState extends State<FeaturesStep> {
                   const Divider(),
                   const SizedBox(height: 16),
                   _buildSectionHeader(
-                      context, l10n.spellsStepTitle.toUpperCase()),
+                    context,
+                    l10n.spellsStepTitle.toUpperCase(),
+                  ),
                   _buildSpellSelection(context, l10n, locale),
                   const SizedBox(height: 16),
                 ],
@@ -605,9 +658,11 @@ class _FeaturesStepState extends State<FeaturesStep> {
             child: FilledButton(
               onPressed: allChoicesMade ? widget.onNext : null,
               style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16)),
-              child:
-                  Text(allChoicesMade ? l10n.continueLabel : l10n.makeChoices),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: Text(
+                allChoicesMade ? l10n.continueLabel : l10n.makeChoices,
+              ),
             ),
           ),
         ],
@@ -616,7 +671,10 @@ class _FeaturesStepState extends State<FeaturesStep> {
   }
 
   Widget _buildSpellSelection(
-      BuildContext context, AppLocalizations l10n, String locale) {
+    BuildContext context,
+    AppLocalizations l10n,
+    String locale,
+  ) {
     if (!_spellsLoaded) return const Center(child: CircularProgressIndicator());
 
     // Group spells by level
@@ -641,14 +699,18 @@ class _FeaturesStepState extends State<FeaturesStep> {
             children: [
               Expanded(
                 child: Text(
-                  l10n.chooseSkills(count,
-                      ''), // Assuming this string works for generic "Choose X"
+                  l10n.chooseSkills(
+                    count,
+                    '',
+                  ), // Assuming this string works for generic "Choose X"
                   style: theme.textTheme.bodyMedium,
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: selectedCount == count
                       ? theme.colorScheme.primaryContainer
@@ -694,7 +756,13 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 final canSelect = isSelected || selectedCount < count;
 
                 return _buildSpellCard(
-                    context, spell, isSelected, canSelect, locale, l10n);
+                  context,
+                  spell,
+                  isSelected,
+                  canSelect,
+                  locale,
+                  l10n,
+                );
               }).toList(),
             );
           },
@@ -703,13 +771,19 @@ class _FeaturesStepState extends State<FeaturesStep> {
     );
   }
 
-  Widget _buildSpellCard(BuildContext context, Spell spell, bool isSelected,
-      bool isEnabled, String locale, AppLocalizations l10n) {
+  Widget _buildSpellCard(
+    BuildContext context,
+    Spell spell,
+    bool isSelected,
+    bool isEnabled,
+    String locale,
+    AppLocalizations l10n,
+  ) {
     final theme = Theme.of(context);
     final cardColor = isEnabled
         ? (isSelected
-            ? theme.colorScheme.primaryContainer
-            : theme.colorScheme.surfaceContainerHighest)
+              ? theme.colorScheme.primaryContainer
+              : theme.colorScheme.surfaceContainerHighest)
         : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
     final textColor = isEnabled
         ? theme.colorScheme.onSurface
@@ -724,7 +798,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
         side: isSelected
             ? BorderSide(color: theme.colorScheme.primary, width: 2)
             : BorderSide(
-                color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+              ),
       ),
       child: InkWell(
         onTap: isEnabled
@@ -787,8 +862,10 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 if (isSelected)
                   Icon(Icons.check_circle, color: theme.colorScheme.primary)
                 else if (isEnabled)
-                  Icon(Icons.add_circle_outline,
-                      color: theme.colorScheme.outline),
+                  Icon(
+                    Icons.add_circle_outline,
+                    color: theme.colorScheme.outline,
+                  ),
               ],
             ),
           ),
@@ -803,7 +880,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
     if (widget.character.background != null) {
       try {
         final bg = CharacterDataService.getBackgroundById(
-            widget.character.background!);
+          widget.character.background!,
+        );
         if (bg != null) {
           skills.addAll(bg.skillProficiencies);
         }
@@ -813,7 +891,10 @@ class _FeaturesStepState extends State<FeaturesStep> {
   }
 
   Widget _buildExpertiseSelection(
-      BuildContext context, int count, AppLocalizations l10n) {
+    BuildContext context,
+    int count,
+    AppLocalizations l10n,
+  ) {
     // ... same as before
     final proficientSkills = _getAllProficientSkills();
     final existingExpertise = widget.character.expertSkills;
@@ -837,12 +918,15 @@ class _FeaturesStepState extends State<FeaturesStep> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${l10n.expertise} ($selectedCount/$count)',
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              '${l10n.expertise} ($selectedCount/$count)',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
-            Text(l10n.chooseSkills(count, ''),
-                style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              l10n.chooseSkills(count, ''),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             const SizedBox(height: 16),
             Wrap(
               spacing: 8,
@@ -882,10 +966,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
           groupValue: _selections['subclass'] ?? '',
           onChanged: (value) {
             if (value == null) return;
-            setState(() {
-              _selections['subclass'] = value;
-              widget.onOptionSelected('subclass', value);
-            });
+            _selectChoice('subclass', value);
           },
           child: Column(
             children: widget.classData.subclasses.map((subclass) {
@@ -896,11 +977,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 color: isSelected ? colorScheme.primaryContainer : null,
                 margin: const EdgeInsets.only(bottom: 8),
                 child: InkWell(
-                  onTap: () {
-                    // Handled by RadioGroup, but InkWell can still provide visual feedback
-                    // or if RadioGroup is not used, this would be the selection logic.
-                    // For RadioGroup, the RadioListTile's onChanged handles it.
-                  },
+                  onTap: () => _selectChoice('subclass', subclass.id),
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -915,29 +992,38 @@ class _FeaturesStepState extends State<FeaturesStep> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(subclass.getName(locale),
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: isSelected
-                                          ? colorScheme.onPrimaryContainer
-                                          : colorScheme.onSurface)),
+                              Text(
+                                subclass.getName(locale),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: isSelected
+                                      ? colorScheme.onPrimaryContainer
+                                      : colorScheme.onSurface,
+                                ),
+                              ),
                               const SizedBox(height: 4),
-                              Text(subclass.getDescription(locale),
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: isSelected
-                                          ? colorScheme.onPrimaryContainer
-                                              .withValues(alpha: 0.8)
-                                          : colorScheme.onSurfaceVariant)),
+                              Text(
+                                subclass.getDescription(locale),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: isSelected
+                                      ? colorScheme.onPrimaryContainer
+                                            .withValues(alpha: 0.8)
+                                      : colorScheme.onSurfaceVariant,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                         if (isSelected)
                           Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Icon(Icons.check_circle,
-                                  color: colorScheme.primary)),
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Icon(
+                              Icons.check_circle,
+                              color: colorScheme.primary,
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -951,7 +1037,10 @@ class _FeaturesStepState extends State<FeaturesStep> {
   }
 
   Widget _buildFightingStyleChoice(
-      BuildContext context, CharacterFeature feature, AppLocalizations l10n) {
+    BuildContext context,
+    CharacterFeature feature,
+    AppLocalizations l10n,
+  ) {
     // ... same as before
 
     return Column(
@@ -960,9 +1049,12 @@ class _FeaturesStepState extends State<FeaturesStep> {
         _buildFeatureCard(context, feature),
         const SizedBox(height: 8),
         Padding(
-            padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-            child: Text(l10n.chooseFightingStyle,
-                style: const TextStyle(fontWeight: FontWeight.bold))),
+          padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
+          child: Text(
+            l10n.chooseFightingStyle,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
         RadioGroup<String>(
           groupValue: _selections['fighting_style'] ?? '',
           onChanged: (value) {
@@ -973,23 +1065,26 @@ class _FeaturesStepState extends State<FeaturesStep> {
             });
           },
           child: Column(
-              children: _getFightingStyles(context).map((style) {
-            final isSelected = _selections['fighting_style'] == style['id'];
-            return Card(
-              elevation: isSelected ? 4 : 1,
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : null,
-              margin: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
-              child: RadioListTile<String>(
-                value: style['id']!,
-                title: Text(style['name']!,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text(style['desc']!),
-                secondary: const Icon(Icons.sports_martial_arts),
-              ),
-            );
-          }).toList()),
+            children: _getFightingStyles(context).map((style) {
+              final isSelected = _selections['fighting_style'] == style['id'];
+              return Card(
+                elevation: isSelected ? 4 : 1,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primaryContainer
+                    : null,
+                margin: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
+                child: RadioListTile<String>(
+                  value: style['id']!,
+                  title: Text(
+                    style['name']!,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(style['desc']!),
+                  secondary: const Icon(Icons.sports_martial_arts),
+                ),
+              );
+            }).toList(),
+          ),
         ),
         const SizedBox(height: 16),
       ],
@@ -1040,8 +1135,9 @@ class _FeaturesStepState extends State<FeaturesStep> {
     ];
 
     // Filter out boons the character already possesses
-    final characterFeatures =
-        widget.character.features.map((e) => e.id).toSet();
+    final characterFeatures = widget.character.features
+        .map((e) => e.id)
+        .toSet();
     final filteredBoons = boons.where((boon) {
       final dashedId = (boon['id'] as String).replaceAll('_', '-');
       return !characterFeatures.contains(dashedId) &&
@@ -1060,34 +1156,39 @@ class _FeaturesStepState extends State<FeaturesStep> {
             });
           },
           child: Column(
-              children: filteredBoons.map((boon) {
-            final id = boon['id'] as String;
-            final name = locale == 'ru'
-                ? boon['nameRu'] as String
-                : boon['nameEn'] as String;
-            final desc = locale == 'ru'
-                ? boon['descRu'] as String
-                : boon['descEn'] as String;
-            final icon = boon['icon'] as IconData;
-            final isSelected = _selections['pact_boon'] == id;
-            final colorScheme = Theme.of(context).colorScheme;
+            children: filteredBoons.map((boon) {
+              final id = boon['id'] as String;
+              final name = locale == 'ru'
+                  ? boon['nameRu'] as String
+                  : boon['nameEn'] as String;
+              final desc = locale == 'ru'
+                  ? boon['descRu'] as String
+                  : boon['descEn'] as String;
+              final icon = boon['icon'] as IconData;
+              final isSelected = _selections['pact_boon'] == id;
+              final colorScheme = Theme.of(context).colorScheme;
 
-            return Card(
-              elevation: isSelected ? 4 : 1,
-              color: isSelected ? colorScheme.primaryContainer : null,
-              margin: const EdgeInsets.only(bottom: 8),
-              child: RadioListTile<String>(
-                value: id,
-                title: Text(name,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text(desc),
-                secondary:
-                    Icon(icon, color: isSelected ? colorScheme.primary : null),
-                activeColor: colorScheme.primary,
-              ),
-            );
-          }).toList()),
-        )
+              return Card(
+                elevation: isSelected ? 4 : 1,
+                color: isSelected ? colorScheme.primaryContainer : null,
+                margin: const EdgeInsets.only(bottom: 8),
+                child: RadioListTile<String>(
+                  value: id,
+                  title: Text(
+                    name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(desc),
+                  secondary: Icon(
+                    icon,
+                    color: isSelected ? colorScheme.primary : null,
+                  ),
+                  activeColor: colorScheme.primary,
+                ),
+              );
+            }).toList(),
+          ),
+        ),
       ],
     );
   }
@@ -1099,64 +1200,74 @@ class _FeaturesStepState extends State<FeaturesStep> {
           groupValue: _selections['land_terrain'] ?? '',
           onChanged: (value) {
             if (value == null) return;
-            setState(() {
-              _selections['land_terrain'] = value;
-              widget.onOptionSelected('land_terrain', value);
-            });
+            _selectChoice('land_terrain', value);
           },
           child: Column(
-              children: widget.landOptions.map((feature) {
-            final isSelected = _selections['land_terrain'] == feature.id;
-            final colorScheme = Theme.of(context).colorScheme;
+            children: widget.landOptions.map((feature) {
+              final isSelected = _selections['land_terrain'] == feature.id;
+              final colorScheme = Theme.of(context).colorScheme;
 
-            return Card(
-              elevation: isSelected ? 4 : 1,
-              color: isSelected ? colorScheme.primaryContainer : null,
-              margin: const EdgeInsets.only(bottom: 8),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Radio<String>(
-                      value: feature.id,
-                      activeColor: colorScheme.primary,
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(feature.getName(locale),
-                              style: TextStyle(
+              return Card(
+                elevation: isSelected ? 4 : 1,
+                color: isSelected ? colorScheme.primaryContainer : null,
+                margin: const EdgeInsets.only(bottom: 8),
+                child: InkWell(
+                  onTap: () => _selectChoice('land_terrain', feature.id),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Radio<String>(
+                          value: feature.id,
+                          activeColor: colorScheme.primary,
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                feature.getName(locale),
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                   color: isSelected
                                       ? colorScheme.onPrimaryContainer
-                                      : colorScheme.onSurface)),
-                        ],
-                      ),
+                                      : colorScheme.onSurface,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            );
-          }).toList()),
-        )
+              );
+            }).toList(),
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildFavoredEnemyChoice(
-      BuildContext context, String locale, AppLocalizations l10n) {
-    final feature = FeatureService.getFeatureById('favored-enemy') ??
+    BuildContext context,
+    String locale,
+    AppLocalizations l10n,
+  ) {
+    final feature =
+        FeatureService.getFeatureById('favored-enemy') ??
         CharacterFeature(
-            id: 'favored-enemy',
-            nameEn: 'Favored Enemy',
-            nameRu: 'Избранный враг',
-            descriptionEn: 'Choose a type of favored enemy.',
-            descriptionRu: 'Выберите тип избранного врага.',
-            type: FeatureType.passive,
-            minLevel: 1);
+          id: 'favored-enemy',
+          nameEn: 'Favored Enemy',
+          nameRu: 'Избранный враг',
+          descriptionEn: 'Choose a type of favored enemy.',
+          descriptionRu: 'Выберите тип избранного врага.',
+          type: FeatureType.passive,
+          minLevel: 1,
+        );
 
     final existingEnemies = widget.character.favoredEnemies;
     final availableEnemies = RangerOptions.favoredEnemies.entries
@@ -1192,16 +1303,21 @@ class _FeaturesStepState extends State<FeaturesStep> {
   }
 
   Widget _buildNaturalExplorerChoice(
-      BuildContext context, String locale, AppLocalizations l10n) {
-    final feature = FeatureService.getFeatureById('natural-explorer') ??
+    BuildContext context,
+    String locale,
+    AppLocalizations l10n,
+  ) {
+    final feature =
+        FeatureService.getFeatureById('natural-explorer') ??
         CharacterFeature(
-            id: 'natural-explorer',
-            nameEn: 'Natural Explorer',
-            nameRu: 'Исследователь природы',
-            descriptionEn: 'Choose a terrain type.',
-            descriptionRu: 'Выберите тип местности.',
-            type: FeatureType.passive,
-            minLevel: 1);
+          id: 'natural-explorer',
+          nameEn: 'Natural Explorer',
+          nameRu: 'Исследователь природы',
+          descriptionEn: 'Choose a terrain type.',
+          descriptionRu: 'Выберите тип местности.',
+          type: FeatureType.passive,
+          minLevel: 1,
+        );
 
     final existingTerrains = widget.character.naturalExplorers;
     final availableTerrains = RangerOptions.naturalExplorers.entries
@@ -1237,7 +1353,10 @@ class _FeaturesStepState extends State<FeaturesStep> {
   }
 
   Widget _buildHunterTacticChoice(
-      BuildContext context, String locale, AppLocalizations l10n) {
+    BuildContext context,
+    String locale,
+    AppLocalizations l10n,
+  ) {
     List<Map<String, String>> tactics = [];
     if (widget.nextLevel == 3) {
       tactics = [
@@ -1246,7 +1365,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
           'en': 'Colossus Slayer',
           'ru': 'Убийца колоссов',
           'descEn': 'Your tenacity can wear down the most potent foes.',
-          'descRu': 'Ваше упорство может измотать самых сильных врагов.'
+          'descRu': 'Ваше упорство может измотать самых сильных врагов.',
         },
         {
           'id': 'giant-killer',
@@ -1255,7 +1374,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
           'descEn':
               'When a Large or larger creature hits or misses you with a melee attack...',
           'descRu':
-              'Когда существо Большого или большего размера попадает или промахивается по вам...'
+              'Когда существо Большого или большего размера попадает или промахивается по вам...',
         },
         {
           'id': 'horde-breaker',
@@ -1264,7 +1383,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
           'descEn':
               'Once on each of your turns when you make a weapon attack...',
           'descRu':
-              'Один раз в каждый ваш ход, когда вы совершаете атаку оружием...'
+              'Один раз в каждый ваш ход, когда вы совершаете атаку оружием...',
         },
       ];
     } else if (widget.nextLevel == 7) {
@@ -1275,7 +1394,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
           'ru': 'Побег от орды',
           'descEn':
               'Opportunity attacks against you are made with disadvantage.',
-          'descRu': 'Провоцированные атаки по вам совершаются с помехой.'
+          'descRu': 'Провоцированные атаки по вам совершаются с помехой.',
         },
         {
           'id': 'multiattack-defense',
@@ -1284,7 +1403,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
           'descEn':
               'When a creature hits you with an attack, you gain a +4 bonus to AC.',
           'descRu':
-              'Когда существо попадает по вам атакой, вы получаете бонус +4 к КД.'
+              'Когда существо попадает по вам атакой, вы получаете бонус +4 к КД.',
         },
         {
           'id': 'steel-will',
@@ -1292,7 +1411,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
           'ru': 'Стальная воля',
           'descEn':
               'You have advantage on saving throws against being frightened.',
-          'descRu': 'У вас есть преимущество на спасброски от испуга.'
+          'descRu': 'У вас есть преимущество на спасброски от испуга.',
         },
       ];
     } else if (widget.nextLevel == 11) {
@@ -1304,7 +1423,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
           'descEn':
               'You can use your action to make a ranged attack against any number of creatures.',
           'descRu':
-              'Вы можете использовать действие, чтобы совершить дальнобойную атаку по любому количеству существ.'
+              'Вы можете использовать действие, чтобы совершить дальнобойную атаку по любому количеству существ.',
         },
         {
           'id': 'whirlwind-attack',
@@ -1313,7 +1432,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
           'descEn':
               'You can use your action to make a melee attack against any number of creatures.',
           'descRu':
-              'Вы можете использовать действие, чтобы совершить рукопашную атаку по любому количеству существ.'
+              'Вы можете использовать действие, чтобы совершить рукопашную атаку по любому количеству существ.',
         },
       ];
     } else if (widget.nextLevel == 15) {
@@ -1325,7 +1444,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
           'descEn':
               'You can nimbly dodge out of the way of certain area effects.',
           'descRu':
-              'Вы можете ловко уклоняться от некоторых эффектов по площади.'
+              'Вы можете ловко уклоняться от некоторых эффектов по площади.',
         },
         {
           'id': 'stand-against-the-tide',
@@ -1333,7 +1452,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
           'ru': 'Против течения',
           'descEn': 'When a hostile creature misses you with a melee attack...',
           'descRu':
-              'Когда враждебное существо промахивается по вам рукопашной атакой...'
+              'Когда враждебное существо промахивается по вам рукопашной атакой...',
         },
         {
           'id': 'uncanny-dodge',
@@ -1342,14 +1461,15 @@ class _FeaturesStepState extends State<FeaturesStep> {
           'descEn':
               'When an attacker that you can see hits you with an attack, you can use your reaction to halve the attack\'s damage.',
           'descRu':
-              'Когда атакующий, которого вы видите, попадает по вам атакой, вы можете реакцией уменьшить урон вдвое.'
+              'Когда атакующий, которого вы видите, попадает по вам атакой, вы можете реакцией уменьшить урон вдвое.',
         },
       ];
     }
 
     // Filter out tactics the character already possesses
-    final characterFeatures =
-        widget.character.features.map((e) => e.id).toSet();
+    final characterFeatures = widget.character.features
+        .map((e) => e.id)
+        .toSet();
     final filteredTactics = tactics.where((tactic) {
       return !characterFeatures.contains(tactic['id']);
     }).toList();
@@ -1366,67 +1486,80 @@ class _FeaturesStepState extends State<FeaturesStep> {
             });
           },
           child: Column(
-              children: filteredTactics.map((tactic) {
-            final id = tactic['id']!;
-            final name = locale == 'ru' ? tactic['ru']! : tactic['en']!;
-            final desc = locale == 'ru' ? tactic['descRu']! : tactic['descEn']!;
-            final isSelected = _selections['hunter_tactic'] == id;
-            final colorScheme = Theme.of(context).colorScheme;
+            children: filteredTactics.map((tactic) {
+              final id = tactic['id']!;
+              final name = locale == 'ru' ? tactic['ru']! : tactic['en']!;
+              final desc = locale == 'ru'
+                  ? tactic['descRu']!
+                  : tactic['descEn']!;
+              final isSelected = _selections['hunter_tactic'] == id;
+              final colorScheme = Theme.of(context).colorScheme;
 
-            return Card(
-              elevation: isSelected ? 4 : 1,
-              color: isSelected ? colorScheme.primaryContainer : null,
-              margin: const EdgeInsets.only(bottom: 8),
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    _selections['hunter_tactic'] = id;
-                    widget.onOptionSelected('hunter_tactic', id);
-                  });
-                },
-                child: Row(
-                  children: [
-                    Radio<String>(
-                      value: id,
-                      activeColor: colorScheme.primary,
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 12.0, horizontal: 8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(name,
+              return Card(
+                elevation: isSelected ? 4 : 1,
+                color: isSelected ? colorScheme.primaryContainer : null,
+                margin: const EdgeInsets.only(bottom: 8),
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      _selections['hunter_tactic'] = id;
+                      widget.onOptionSelected('hunter_tactic', id);
+                    });
+                  },
+                  child: Row(
+                    children: [
+                      Radio<String>(
+                        value: id,
+                        activeColor: colorScheme.primary,
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12.0,
+                            horizontal: 8.0,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                name,
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 4),
-                            Text(desc),
-                          ],
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(desc),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }).toList()),
-        )
+              );
+            }).toList(),
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildSpellMasterySelection(
-      BuildContext context, String locale, AppLocalizations l10n) {
-    final feature = FeatureService.getFeatureById('spell-mastery') ??
+    BuildContext context,
+    String locale,
+    AppLocalizations l10n,
+  ) {
+    final feature =
+        FeatureService.getFeatureById('spell-mastery') ??
         CharacterFeature(
-            id: 'dummy',
-            nameEn: 'Spell Mastery',
-            nameRu: 'Мастерство заклинаний',
-            descriptionEn: '',
-            descriptionRu: '',
-            type: FeatureType.passive,
-            minLevel: 18);
+          id: 'dummy',
+          nameEn: 'Spell Mastery',
+          nameRu: 'Мастерство заклинаний',
+          descriptionEn: '',
+          descriptionRu: '',
+          type: FeatureType.passive,
+          minLevel: 18,
+        );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1435,75 +1568,103 @@ class _FeaturesStepState extends State<FeaturesStep> {
         _buildFeatureCard(context, feature),
         const SizedBox(height: 12),
         Text(
-            locale == 'ru'
-                ? "Выберите по одному заклинанию 1-го и 2-го уровней из своей книги:"
-                : "Choose one 1st-level and one 2nd-level spell from your spellbook:",
-            style: Theme.of(context).textTheme.bodySmall),
+          locale == 'ru'
+              ? "Выберите по одному заклинанию 1-го и 2-го уровней из своей книги:"
+              : "Choose one 1st-level and one 2nd-level spell from your spellbook:",
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
         const SizedBox(height: 12),
         // Level 1
-        Text(l10n.levelLabel(1),
-            style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(
+          l10n.levelLabel(1),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         ..._masteryOptionsLvl1.map((spell) {
           final isSelected = _selectedMasterySpells.contains(spell.id);
           // Can select if none from level 1 are selected yet
-          final currentLvl1Selected = _selectedMasterySpells
-              .any((id) => _masteryOptionsLvl1.any((s) => s.id == id));
+          final currentLvl1Selected = _selectedMasterySpells.any(
+            (id) => _masteryOptionsLvl1.any((s) => s.id == id),
+          );
           final canSelect = isSelected || !currentLvl1Selected;
 
           return _buildSelectionSpellCard(
-              context, spell, isSelected, canSelect, locale, l10n, (selected) {
-            setState(() {
-              if (selected) {
-                // Remove existing lvl 1 selection first
-                _selectedMasterySpells.removeWhere(
-                    (id) => _masteryOptionsLvl1.any((s) => s.id == id));
-                _selectedMasterySpells.add(spell.id);
-              } else {
-                _selectedMasterySpells.remove(spell.id);
-              }
-              widget.onMasterySpellsSelected(_selectedMasterySpells.toList());
-            });
-          });
+            context,
+            spell,
+            isSelected,
+            canSelect,
+            locale,
+            l10n,
+            (selected) {
+              setState(() {
+                if (selected) {
+                  // Remove existing lvl 1 selection first
+                  _selectedMasterySpells.removeWhere(
+                    (id) => _masteryOptionsLvl1.any((s) => s.id == id),
+                  );
+                  _selectedMasterySpells.add(spell.id);
+                } else {
+                  _selectedMasterySpells.remove(spell.id);
+                }
+                widget.onMasterySpellsSelected(_selectedMasterySpells.toList());
+              });
+            },
+          );
         }),
         const SizedBox(height: 12),
         // Level 2
-        Text(l10n.levelLabel(2),
-            style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(
+          l10n.levelLabel(2),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         ..._masteryOptionsLvl2.map((spell) {
           final isSelected = _selectedMasterySpells.contains(spell.id);
-          final currentLvl2Selected = _selectedMasterySpells
-              .any((id) => _masteryOptionsLvl2.any((s) => s.id == id));
+          final currentLvl2Selected = _selectedMasterySpells.any(
+            (id) => _masteryOptionsLvl2.any((s) => s.id == id),
+          );
           final canSelect = isSelected || !currentLvl2Selected;
 
           return _buildSelectionSpellCard(
-              context, spell, isSelected, canSelect, locale, l10n, (selected) {
-            setState(() {
-              if (selected) {
-                _selectedMasterySpells.removeWhere(
-                    (id) => _masteryOptionsLvl2.any((s) => s.id == id));
-                _selectedMasterySpells.add(spell.id);
-              } else {
-                _selectedMasterySpells.remove(spell.id);
-              }
-              widget.onMasterySpellsSelected(_selectedMasterySpells.toList());
-            });
-          });
+            context,
+            spell,
+            isSelected,
+            canSelect,
+            locale,
+            l10n,
+            (selected) {
+              setState(() {
+                if (selected) {
+                  _selectedMasterySpells.removeWhere(
+                    (id) => _masteryOptionsLvl2.any((s) => s.id == id),
+                  );
+                  _selectedMasterySpells.add(spell.id);
+                } else {
+                  _selectedMasterySpells.remove(spell.id);
+                }
+                widget.onMasterySpellsSelected(_selectedMasterySpells.toList());
+              });
+            },
+          );
         }),
       ],
     );
   }
 
   Widget _buildSignatureSpellsSelection(
-      BuildContext context, String locale, AppLocalizations l10n) {
-    final feature = FeatureService.getFeatureById('signature-spell') ??
+    BuildContext context,
+    String locale,
+    AppLocalizations l10n,
+  ) {
+    final feature =
+        FeatureService.getFeatureById('signature-spell') ??
         CharacterFeature(
-            id: 'dummy',
-            nameEn: 'Signature Spells',
-            nameRu: 'Фирменные заклинания',
-            descriptionEn: '',
-            descriptionRu: '',
-            type: FeatureType.passive,
-            minLevel: 20);
+          id: 'dummy',
+          nameEn: 'Signature Spells',
+          nameRu: 'Фирменные заклинания',
+          descriptionEn: '',
+          descriptionRu: '',
+          type: FeatureType.passive,
+          minLevel: 20,
+        );
     final count = _selectedSignatureSpells.length;
 
     return Column(
@@ -1513,45 +1674,55 @@ class _FeaturesStepState extends State<FeaturesStep> {
         _buildFeatureCard(context, feature),
         const SizedBox(height: 12),
         Text(
-            locale == 'ru'
-                ? "Выберите два заклинания 3-го уровня ($count / 2):"
-                : "Choose two 3rd-level spells ($count / 2):",
-            style: Theme.of(context).textTheme.bodySmall),
+          locale == 'ru'
+              ? "Выберите два заклинания 3-го уровня ($count / 2):"
+              : "Choose two 3rd-level spells ($count / 2):",
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
         const SizedBox(height: 12),
         ..._signatureOptions.map((spell) {
           final isSelected = _selectedSignatureSpells.contains(spell.id);
           final canSelect = isSelected || count < 2;
 
           return _buildSelectionSpellCard(
-              context, spell, isSelected, canSelect, locale, l10n, (selected) {
-            setState(() {
-              if (selected) {
-                _selectedSignatureSpells.add(spell.id);
-              } else {
-                _selectedSignatureSpells.remove(spell.id);
-              }
-              widget
-                  .onSignatureSpellsSelected(_selectedSignatureSpells.toList());
-            });
-          });
+            context,
+            spell,
+            isSelected,
+            canSelect,
+            locale,
+            l10n,
+            (selected) {
+              setState(() {
+                if (selected) {
+                  _selectedSignatureSpells.add(spell.id);
+                } else {
+                  _selectedSignatureSpells.remove(spell.id);
+                }
+                widget.onSignatureSpellsSelected(
+                  _selectedSignatureSpells.toList(),
+                );
+              });
+            },
+          );
         }),
       ],
     );
   }
 
   Widget _buildSelectionSpellCard(
-      BuildContext context,
-      Spell spell,
-      bool isSelected,
-      bool isEnabled,
-      String locale,
-      AppLocalizations l10n,
-      Function(bool) onToggle) {
+    BuildContext context,
+    Spell spell,
+    bool isSelected,
+    bool isEnabled,
+    String locale,
+    AppLocalizations l10n,
+    Function(bool) onToggle,
+  ) {
     final theme = Theme.of(context);
     final cardColor = isEnabled
         ? (isSelected
-            ? theme.colorScheme.primaryContainer
-            : theme.colorScheme.surfaceContainerHighest)
+              ? theme.colorScheme.primaryContainer
+              : theme.colorScheme.surfaceContainerHighest)
         : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
     final textColor = isEnabled
         ? theme.colorScheme.onSurface
@@ -1566,7 +1737,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
         side: isSelected
             ? BorderSide(color: theme.colorScheme.primary, width: 2)
             : BorderSide(
-                color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+              ),
       ),
       child: InkWell(
         onTap: isEnabled ? () => onToggle(!isSelected) : null,
@@ -1618,8 +1790,10 @@ class _FeaturesStepState extends State<FeaturesStep> {
                 if (isSelected)
                   Icon(Icons.check_circle, color: theme.colorScheme.primary)
                 else if (isEnabled)
-                  Icon(Icons.add_circle_outline,
-                      color: theme.colorScheme.outline),
+                  Icon(
+                    Icons.add_circle_outline,
+                    color: theme.colorScheme.outline,
+                  ),
               ],
             ),
           ),
@@ -1674,12 +1848,15 @@ class _FeaturesStepState extends State<FeaturesStep> {
   Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
-      child: Text(title.toUpperCase(),
-          style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.secondary,
-              letterSpacing: 1.0)),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.secondary,
+          letterSpacing: 1.0,
+        ),
+      ),
     );
   }
 
@@ -1734,28 +1911,43 @@ class _FeaturesStepState extends State<FeaturesStep> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [
-              Container(
+            Row(
+              children: [
+                Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(8)),
-                  child: Icon(icon,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer)),
-              const SizedBox(width: 16),
-              Expanded(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
                   child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                    Text(feature.getName(locale),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        feature.getName(locale),
                         style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text(_getFeatureTypeLabel(l10n, feature.type).toUpperCase(),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        _getFeatureTypeLabel(l10n, feature.type).toUpperCase(),
                         style: TextStyle(
-                            fontSize: 10,
-                            color: Theme.of(context).colorScheme.outline))
-                  ]))
-            ]),
+                          fontSize: 10,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 12),
             Text(feature.getDescription(locale)),
           ],
@@ -1769,35 +1961,54 @@ class _FeaturesStepState extends State<FeaturesStep> {
     for (int i = 0; i < widget.newSpellSlots.length; i++) {
       int level = i + 1;
       int newCount = widget.newSpellSlots[i];
-      int oldCount =
-          i < widget.oldSpellSlots.length ? widget.oldSpellSlots[i] : 0;
+      int oldCount = i < widget.oldSpellSlots.length
+          ? widget.oldSpellSlots[i]
+          : 0;
       if (newCount > oldCount) {
-        levelRows.add(Padding(
+        levelRows.add(
+          Padding(
             padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Row(children: [
-              SizedBox(
+            child: Row(
+              children: [
+                SizedBox(
                   width: 50,
-                  child: Text(l10n.lvlShort(level),
-                      style: const TextStyle(fontWeight: FontWeight.bold))),
-              const SizedBox(width: 16),
-              ...List.generate(
+                  child: Text(
+                    l10n.lvlShort(level),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                ...List.generate(
                   oldCount,
                   (_) => const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 2.0),
-                      child: Icon(Icons.circle, size: 16, color: Colors.grey))),
-              if (oldCount > 0)
-                const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 2.0),
+                    child: Icon(Icons.circle, size: 16, color: Colors.grey),
+                  ),
+                ),
+                if (oldCount > 0)
+                  const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Icon(Icons.arrow_forward,
-                        size: 16, color: Colors.grey)),
-              ...List.generate(
+                    child: Icon(
+                      Icons.arrow_forward,
+                      size: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ...List.generate(
                   newCount - oldCount,
                   (_) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                      child: Icon(Icons.circle,
-                          size: 16,
-                          color: Theme.of(context).colorScheme.primary)))
-            ])));
+                    padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                    child: Icon(
+                      Icons.circle,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
       }
     }
     return Column(children: levelRows);

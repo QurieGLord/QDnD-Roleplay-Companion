@@ -94,13 +94,15 @@ class CharacterAdapter extends TypeAdapter<Character> {
       isHuntersMarkActive: fields[69] == null ? false : fields[69] as bool,
       huntersMarkTarget: fields[70] as String?,
       isHiddenInPlainSight: fields[71] == null ? false : fields[71] as bool,
+      relentlessRageSaveDc: fields[73] == null ? 10 : fields[73] as int,
+      isRaging: fields[74] == null ? false : fields[74] as bool,
     ).._exhaustionLevel = fields[72] == null ? 0 : fields[72] as int;
   }
 
   @override
   void write(BinaryWriter writer, Character obj) {
     writer
-      ..writeByte(73)
+      ..writeByte(75)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -245,6 +247,10 @@ class CharacterAdapter extends TypeAdapter<Character> {
       ..write(obj.huntersMarkTarget)
       ..writeByte(71)
       ..write(obj.isHiddenInPlainSight)
+      ..writeByte(73)
+      ..write(obj.relentlessRageSaveDc)
+      ..writeByte(74)
+      ..write(obj.isRaging)
       ..writeByte(72)
       ..write(obj._exhaustionLevel);
   }

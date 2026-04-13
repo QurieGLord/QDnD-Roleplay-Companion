@@ -72,8 +72,9 @@ class _RageControlWidgetState extends State<RageControlWidget>
             return Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
               ),
               child: CustomScrollView(
                 controller: scrollController,
@@ -85,10 +86,9 @@ class _RageControlWidgetState extends State<RageControlWidget>
                         width: 40,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant
-                              .withValues(alpha: 0.4),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -102,25 +102,23 @@ class _RageControlWidgetState extends State<RageControlWidget>
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Icon(Icons.terrain,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 28),
+                            child: Icon(
+                              Icons.terrain,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 28,
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: Text(
                               name,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],
@@ -132,10 +130,9 @@ class _RageControlWidgetState extends State<RageControlWidget>
                     sliver: SliverToBoxAdapter(
                       child: Text(
                         desc,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(height: 1.6),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyLarge?.copyWith(height: 1.6),
                       ),
                     ),
                   ),
@@ -168,19 +165,33 @@ class _RageControlWidgetState extends State<RageControlWidget>
   @override
   void initState() {
     super.initState();
-    _frenzyPulseController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _isRaging = widget.character.isRaging;
+
+    _frenzyPulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
     _frenzyGlowAnimation = Tween<double>(begin: 2.0, end: 8.0).animate(
-        CurvedAnimation(
-            parent: _frenzyPulseController, curve: Curves.easeInOut));
+      CurvedAnimation(parent: _frenzyPulseController, curve: Curves.easeInOut),
+    );
 
     final pool = widget.rageFeature.resourcePool;
-    if (pool != null && pool.currentUses == 0) {
+    if (pool != null) {
       final correctMax = _getMaxRage(widget.character.level);
-      if (pool.maxUses != correctMax && correctMax < 99) {
+      final previousMax = pool.maxUses;
+      final wasOutdated = pool.maxUses != correctMax;
+      if (wasOutdated) {
         pool.maxUses = correctMax;
       }
-      pool.restoreFull();
+      if (wasOutdated && pool.currentUses == previousMax) {
+        pool.currentUses = correctMax;
+      }
+      if (pool.currentUses > pool.maxUses) {
+        pool.currentUses = pool.maxUses;
+      }
+      if (wasOutdated && pool.currentUses == 0) {
+        pool.restoreFull();
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.character.save();
       });
@@ -212,6 +223,7 @@ class _RageControlWidgetState extends State<RageControlWidget>
       if (pool.currentUses > 0 || isUnlimited) {
         setState(() {
           _isRaging = true;
+          widget.character.isRaging = true;
           if (!isUnlimited) {
             pool.use(1);
           }
@@ -220,9 +232,11 @@ class _RageControlWidgetState extends State<RageControlWidget>
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isUnlimited
-                ? '${l10n.rage} $usedText $unlimText'
-                : '${l10n.rage} $usedText (-1)'),
+            content: Text(
+              isUnlimited
+                  ? '${l10n.rage} $usedText $unlimText'
+                  : '${l10n.rage} $usedText (-1)',
+            ),
             duration: const Duration(seconds: 1),
             behavior: SnackBarBehavior.floating,
           ),
@@ -230,9 +244,9 @@ class _RageControlWidgetState extends State<RageControlWidget>
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(locale == 'ru'
-                ? 'Нет зарядов Ярости!'
-                : 'No Rage charges left!'),
+            content: Text(
+              locale == 'ru' ? 'Нет зарядов Ярости!' : 'No Rage charges left!',
+            ),
             backgroundColor: Theme.of(context).colorScheme.error,
             duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
@@ -246,6 +260,7 @@ class _RageControlWidgetState extends State<RageControlWidget>
         _isRaging = false;
         _isReckless = false; // Turn off reckless upon dropping rage
         _isFrenzied = false; // Frenzy ends with rage
+        widget.character.isRaging = false;
       });
       _frenzyPulseController.stop();
       _frenzyPulseController.reverse();
@@ -261,8 +276,11 @@ class _RageControlWidgetState extends State<RageControlWidget>
           showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
-              icon: const Icon(Icons.local_fire_department,
-                  color: Colors.deepOrange, size: 32),
+              icon: const Icon(
+                Icons.local_fire_department,
+                color: Colors.deepOrange,
+                size: 32,
+              ),
               title: Text(isRu ? 'Откат Бешенства' : 'Frenzy Exhaustion'),
               content: Text(
                 isRu
@@ -308,13 +326,16 @@ class _RageControlWidgetState extends State<RageControlWidget>
 
     // Localize subclass name
     String subclassDisplayName = widget.character.subclass ?? '';
-    final classData =
-        CharacterDataService.getClassById(widget.character.characterClass);
+    final classData = CharacterDataService.getClassById(
+      widget.character.characterClass,
+    );
     if (classData != null && subclassDisplayName.isNotEmpty) {
       final nid = subclassDisplayName.toLowerCase().trim();
       final targetSubclass = classData.subclasses
-          .where((s) =>
-              s.id == nid || s.name.values.any((v) => v.toLowerCase() == nid))
+          .where(
+            (s) =>
+                s.id == nid || s.name.values.any((v) => v.toLowerCase() == nid),
+          )
           .firstOrNull;
       if (targetSubclass != null) {
         subclassDisplayName = targetSubclass.getName(locale);
@@ -338,10 +359,7 @@ class _RageControlWidgetState extends State<RageControlWidget>
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: colorScheme.outline,
-          width: 1.5,
-        ),
+        side: BorderSide(color: colorScheme.outline, width: 1.5),
       ),
       child: ClassToolsLayoutBuilder(
         padding: const EdgeInsets.all(16.0),
@@ -351,11 +369,13 @@ class _RageControlWidgetState extends State<RageControlWidget>
             Container(
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                color:
-                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.5,
+                ),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                    color: colorScheme.outline.withValues(alpha: 0.2)),
+                  color: colorScheme.outline.withValues(alpha: 0.2),
+                ),
               ),
               child: Material(
                 color: Colors.transparent,
@@ -364,7 +384,9 @@ class _RageControlWidgetState extends State<RageControlWidget>
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     child: Row(
                       children: [
                         Container(
@@ -373,8 +395,11 @@ class _RageControlWidgetState extends State<RageControlWidget>
                             color: colorScheme.primary.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.terrain,
-                              size: 18, color: colorScheme.primary),
+                          child: Icon(
+                            Icons.terrain,
+                            size: 18,
+                            color: colorScheme.primary,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -402,9 +427,12 @@ class _RageControlWidgetState extends State<RageControlWidget>
                             ],
                           ),
                         ),
-                        Icon(Icons.chevron_right,
-                            color: colorScheme.onSurfaceVariant
-                                .withValues(alpha: 0.5)),
+                        Icon(
+                          Icons.chevron_right,
+                          color: colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.5,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -426,7 +454,7 @@ class _RageControlWidgetState extends State<RageControlWidget>
                         color: activeColor.withValues(alpha: 0.15),
                         blurRadius: 12,
                         spreadRadius: 2,
-                      )
+                      ),
                     ]
                   : [],
             ),
@@ -461,9 +489,7 @@ class _RageControlWidgetState extends State<RageControlWidget>
                           children: [
                             Text(
                               l10n.rage.toUpperCase(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
+                              style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: textColor,
@@ -472,18 +498,18 @@ class _RageControlWidgetState extends State<RageControlWidget>
                             ),
                             AnimatedDefaultTextStyle(
                               duration: const Duration(milliseconds: 300),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall!
+                              style: Theme.of(context).textTheme.bodySmall!
                                   .copyWith(
                                     color: _isRaging
                                         ? activeColor
                                         : colorScheme.onSurfaceVariant,
                                     fontWeight: FontWeight.w600,
                                   ),
-                              child: Text(_isRaging
-                                  ? l10n.raging.toUpperCase()
-                                  : l10n.rageInactive.toUpperCase()),
+                              child: Text(
+                                _isRaging
+                                    ? l10n.raging.toUpperCase()
+                                    : l10n.rageInactive.toUpperCase(),
+                              ),
                             ),
                           ],
                         ),
@@ -496,14 +522,19 @@ class _RageControlWidgetState extends State<RageControlWidget>
                         inactiveThumbColor: colorScheme.outline,
                         inactiveTrackColor: colorScheme.surfaceContainerHighest,
                         trackOutlineColor: WidgetStateProperty.resolveWith(
-                            (states) => states.contains(WidgetState.selected)
-                                ? Colors.transparent
-                                : colorScheme.outlineVariant),
+                          (states) => states.contains(WidgetState.selected)
+                              ? Colors.transparent
+                              : colorScheme.outlineVariant,
+                        ),
                         thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
-                            (states) => states.contains(WidgetState.selected)
-                                ? const Icon(Icons.whatshot,
-                                    size: 16, color: Colors.white)
-                                : null),
+                          (states) => states.contains(WidgetState.selected)
+                              ? const Icon(
+                                  Icons.whatshot,
+                                  size: 16,
+                                  color: Colors.white,
+                                )
+                              : null,
+                        ),
                       ),
                     ],
                   ),
@@ -536,12 +567,15 @@ class _RageControlWidgetState extends State<RageControlWidget>
                             isUnlimited
                                 ? Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 4.0),
-                                    child: Icon(Icons.all_inclusive,
-                                        color: _isRaging
-                                            ? activeColor
-                                            : colorScheme.primary,
-                                        size: 28),
+                                      horizontal: 4.0,
+                                    ),
+                                    child: Icon(
+                                      Icons.all_inclusive,
+                                      color: _isRaging
+                                          ? activeColor
+                                          : colorScheme.primary,
+                                      size: 28,
+                                    ),
                                   )
                                 : Wrap(
                                     spacing: 4,
@@ -553,46 +587,53 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                           setState(() {
                                             if (isActive) {
                                               pool.use(
-                                                  pool.currentUses - index);
+                                                pool.currentUses - index,
+                                              );
                                             } else {
                                               pool.restore(
-                                                  index - pool.currentUses + 1);
+                                                index - pool.currentUses + 1,
+                                              );
                                             }
                                             widget.character.save();
                                           });
                                           HapticFeedback.lightImpact();
                                         },
                                         child: AnimatedContainer(
-                                          duration:
-                                              const Duration(milliseconds: 200),
+                                          duration: const Duration(
+                                            milliseconds: 200,
+                                          ),
                                           padding: const EdgeInsets.all(4),
                                           decoration: BoxDecoration(
                                             color: isActive
                                                 ? (_isRaging
-                                                    ? activeColor.withValues(
-                                                        alpha: 0.2)
-                                                    : colorScheme.primary
-                                                        .withValues(alpha: 0.1))
+                                                      ? activeColor.withValues(
+                                                          alpha: 0.2,
+                                                        )
+                                                      : colorScheme.primary
+                                                            .withValues(
+                                                              alpha: 0.1,
+                                                            ))
                                                 : Colors.transparent,
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: isActive
                                                   ? (_isRaging
-                                                      ? activeColor
-                                                      : colorScheme.primary)
+                                                        ? activeColor
+                                                        : colorScheme.primary)
                                                   : colorScheme.outline
-                                                      .withValues(alpha: 0.3),
+                                                        .withValues(alpha: 0.3),
                                             ),
                                           ),
                                           child: Icon(
-                                              Icons.local_fire_department,
-                                              size: 20,
-                                              color: isActive
-                                                  ? (_isRaging
+                                            Icons.local_fire_department,
+                                            size: 20,
+                                            color: isActive
+                                                ? (_isRaging
                                                       ? activeColor
                                                       : colorScheme.primary)
-                                                  : colorScheme.outline
-                                                      .withValues(alpha: 0.3)),
+                                                : colorScheme.outline
+                                                      .withValues(alpha: 0.3),
+                                          ),
                                         ),
                                       );
                                     }),
@@ -604,7 +645,9 @@ class _RageControlWidgetState extends State<RageControlWidget>
                       // Rage Damage Badge
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
                           color: _isRaging
                               ? activeColor
@@ -613,9 +656,10 @@ class _RageControlWidgetState extends State<RageControlWidget>
                           boxShadow: _isRaging
                               ? [
                                   BoxShadow(
-                                      color: activeColor.withValues(alpha: 0.4),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2))
+                                    color: activeColor.withValues(alpha: 0.4),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
                                 ]
                               : [],
                         ),
@@ -623,8 +667,11 @@ class _RageControlWidgetState extends State<RageControlWidget>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if (_isRaging) ...[
-                              Icon(Icons.check_circle,
-                                  size: 14, color: colorScheme.onError),
+                              Icon(
+                                Icons.check_circle,
+                                size: 14,
+                                color: colorScheme.onError,
+                              ),
                               const SizedBox(width: 6),
                             ],
                             Text(
@@ -646,7 +693,7 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                 color: _isRaging
                                     ? colorScheme.onError.withValues(alpha: 0.8)
                                     : colorScheme.onSecondaryContainer
-                                        .withValues(alpha: 0.8),
+                                          .withValues(alpha: 0.8),
                               ),
                             ),
                           ],
@@ -670,38 +717,42 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                   animation: _frenzyGlowAnimation,
                                   builder: (context, child) {
                                     return AnimatedContainer(
-                                      duration:
-                                          const Duration(milliseconds: 250),
+                                      duration: const Duration(
+                                        milliseconds: 250,
+                                      ),
                                       curve: Curves.easeInOut,
                                       clipBehavior: Clip.antiAlias,
                                       decoration: BoxDecoration(
                                         // Card background pulses red when frenzied
                                         color: _isFrenzied
                                             ? colorScheme.errorContainer
-                                                .withValues(alpha: 0.45)
-                                            : colorScheme.surface
-                                                .withValues(alpha: 0.88),
+                                                  .withValues(alpha: 0.45)
+                                            : colorScheme.surface.withValues(
+                                                alpha: 0.88,
+                                              ),
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
                                           color: _isFrenzied
                                               ? activeColor
                                               : activeColor.withValues(
-                                                  alpha: 0.25),
+                                                  alpha: 0.25,
+                                                ),
                                           width: _isFrenzied ? 1.5 : 1,
                                         ),
                                         boxShadow: _isFrenzied
                                             ? [
                                                 BoxShadow(
                                                   color: activeColor.withValues(
-                                                      alpha: 0.4),
+                                                    alpha: 0.4,
+                                                  ),
                                                   blurRadius:
                                                       _frenzyGlowAnimation
                                                           .value,
                                                   spreadRadius:
                                                       _frenzyGlowAnimation
-                                                              .value /
-                                                          3,
-                                                )
+                                                          .value /
+                                                      3,
+                                                ),
                                               ]
                                             : [],
                                       ),
@@ -711,22 +762,28 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(12),
                                     onLongPress: () => _showFeatureDetails(
-                                        frenzyFeature, Icons.mood_bad),
+                                      frenzyFeature,
+                                      Icons.mood_bad,
+                                    ),
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 10),
+                                        horizontal: 12,
+                                        vertical: 10,
+                                      ),
                                       child: Row(
                                         children: [
                                           // Animated icon chip
                                           AnimatedContainer(
                                             duration: const Duration(
-                                                milliseconds: 250),
+                                              milliseconds: 250,
+                                            ),
                                             padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
                                               color: _isFrenzied
                                                   ? activeColor
                                                   : activeColor.withValues(
-                                                      alpha: 0.12),
+                                                      alpha: 0.12,
+                                                    ),
                                               borderRadius:
                                                   BorderRadius.circular(8),
                                             ),
@@ -735,7 +792,7 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                               _isFrenzied
                                                   ? Icons.mood_bad
                                                   : Icons
-                                                      .sentiment_dissatisfied,
+                                                        .sentiment_dissatisfied,
                                               size: 20,
                                               color: _isFrenzied
                                                   ? colorScheme.onError
@@ -753,14 +810,15 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                                   frenzyFeature
                                                       .getName(locale)
                                                       .replaceAll(
-                                                          RegExp(r'\s*\(.*?\)'),
-                                                          ''),
+                                                        RegExp(r'\s*\(.*?\)'),
+                                                        '',
+                                                      ),
                                                   style: TextStyle(
                                                     fontSize: 13,
                                                     fontWeight: FontWeight.bold,
                                                     color: _isFrenzied
                                                         ? colorScheme
-                                                            .onErrorContainer
+                                                              .onErrorContainer
                                                         : colorScheme.onSurface,
                                                   ),
                                                 ),
@@ -772,11 +830,12 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                                     fontSize: 11,
                                                     color: _isFrenzied
                                                         ? colorScheme
-                                                            .onErrorContainer
-                                                            .withValues(
-                                                                alpha: 0.75)
+                                                              .onErrorContainer
+                                                              .withValues(
+                                                                alpha: 0.75,
+                                                              )
                                                         : colorScheme
-                                                            .onSurfaceVariant,
+                                                              .onSurfaceVariant,
                                                   ),
                                                 ),
                                               ],
@@ -796,23 +855,26 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                                       disabledBackgroundColor:
                                                           activeColor
                                                               .withValues(
-                                                                  alpha: 0.5),
+                                                                alpha: 0.5,
+                                                              ),
                                                       disabledForegroundColor:
                                                           colorScheme.onError
                                                               .withValues(
-                                                                  alpha: 0.8),
+                                                                alpha: 0.8,
+                                                              ),
                                                       padding: EdgeInsets.zero,
-                                                      shape:
-                                                          RoundedRectangleBorder(
+                                                      shape: RoundedRectangleBorder(
                                                         borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
+                                                            BorderRadius.circular(
+                                                              10,
+                                                            ),
                                                       ),
                                                     ),
                                                     icon: const Icon(
-                                                        Icons
-                                                            .local_fire_department,
-                                                        size: 20),
+                                                      Icons
+                                                          .local_fire_department,
+                                                      size: 20,
+                                                    ),
                                                     onPressed:
                                                         null, // Frenzy cannot be manually toggled off
                                                   )
@@ -821,29 +883,34 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                                       foregroundColor:
                                                           activeColor,
                                                       side: BorderSide(
-                                                          color: activeColor
-                                                              .withValues(
-                                                                  alpha: 0.5)),
+                                                        color: activeColor
+                                                            .withValues(
+                                                              alpha: 0.5,
+                                                            ),
+                                                      ),
                                                       padding: EdgeInsets.zero,
-                                                      shape:
-                                                          RoundedRectangleBorder(
+                                                      shape: RoundedRectangleBorder(
                                                         borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
+                                                            BorderRadius.circular(
+                                                              10,
+                                                            ),
                                                       ),
                                                     ),
                                                     icon: const Icon(
-                                                        Icons
-                                                            .local_fire_department_outlined,
-                                                        size: 20),
+                                                      Icons
+                                                          .local_fire_department_outlined,
+                                                      size: 20,
+                                                    ),
                                                     onPressed: () {
-                                                      setState(() =>
-                                                          _isFrenzied = true);
+                                                      setState(
+                                                        () =>
+                                                            _isFrenzied = true,
+                                                      );
                                                       _frenzyPulseController
                                                           .repeat(
-                                                              reverse: true);
-                                                      HapticFeedback
-                                                          .heavyImpact();
+                                                            reverse: true,
+                                                          );
+                                                      HapticFeedback.heavyImpact();
                                                     },
                                                   ),
                                           ),
@@ -872,9 +939,10 @@ class _RageControlWidgetState extends State<RageControlWidget>
                     : colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                    color: _isReckless
-                        ? colorScheme.error.withValues(alpha: 0.5)
-                        : colorScheme.outline.withValues(alpha: 0.3)),
+                  color: _isReckless
+                      ? colorScheme.error.withValues(alpha: 0.5)
+                      : colorScheme.outline.withValues(alpha: 0.3),
+                ),
               ),
               child: Material(
                 color: Colors.transparent,
@@ -890,7 +958,9 @@ class _RageControlWidgetState extends State<RageControlWidget>
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     child: Row(
                       children: [
                         Icon(
@@ -941,14 +1011,15 @@ class _RageControlWidgetState extends State<RageControlWidget>
                           inactiveThumbColor: colorScheme.outline,
                           inactiveTrackColor:
                               colorScheme.surfaceContainerHighest,
-                          trackOutlineColor:
-                              WidgetStateProperty.resolveWith((states) {
+                          trackOutlineColor: WidgetStateProperty.resolveWith((
+                            states,
+                          ) {
                             if (states.contains(WidgetState.selected)) {
                               return Colors.transparent;
                             }
                             return colorScheme.outline;
                           }),
-                        )
+                        ),
                       ],
                     ),
                   ),

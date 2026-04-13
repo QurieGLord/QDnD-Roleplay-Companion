@@ -66,8 +66,9 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
 
     // 2. Get Class Data
     try {
-      _classData =
-          CharacterDataService.getClassById(widget.character.characterClass)!;
+      _classData = CharacterDataService.getClassById(
+        widget.character.characterClass,
+      )!;
     } catch (e) {
       // Handle error (shouldn't happen if data is intact)
       Navigator.pop(context);
@@ -139,22 +140,26 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
     // Let's ensure it is added.
     if (_classData.id == 'druid' && _nextLevel >= 2) {
       // Check if Natural Recovery is already in allFeatures
-      final hasNaturalRecovery =
-          allFeatures.any((f) => f.id == 'natural-recovery');
+      final hasNaturalRecovery = allFeatures.any(
+        (f) => f.id == 'natural-recovery',
+      );
       if (!hasNaturalRecovery) {
         // Try to find it in classFeatures or standardFeatures
         final natRec = classFeatures.firstWhere(
+          (f) => f.id == 'natural-recovery',
+          orElse: () => standardFeatures.firstWhere(
             (f) => f.id == 'natural-recovery',
-            orElse: () => standardFeatures.firstWhere(
-                (f) => f.id == 'natural-recovery',
-                orElse: () => CharacterFeature(
-                    id: 'dummy',
-                    nameEn: '',
-                    nameRu: '',
-                    descriptionEn: '',
-                    descriptionRu: '',
-                    type: FeatureType.passive,
-                    minLevel: 0)));
+            orElse: () => CharacterFeature(
+              id: 'dummy',
+              nameEn: '',
+              nameRu: '',
+              descriptionEn: '',
+              descriptionRu: '',
+              type: FeatureType.passive,
+              minLevel: 0,
+            ),
+          ),
+        );
         if (natRec.id == 'natural-recovery') {
           // Check if we should add it (subclass match)
           if (natRec.associatedSubclass != null &&
@@ -176,8 +181,9 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
     }
 
     _newFeatures = allFeatures;
-    _hasAsi =
-        _newFeatures.any((f) => f.id.contains('ability-score-improvement'));
+    _hasAsi = _newFeatures.any(
+      (f) => f.id.contains('ability-score-improvement'),
+    );
 
     // 5. Calculate Spell Slots
     if (_classData.spellcasting != null) {
@@ -214,9 +220,13 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       _spellsToLearn = 2;
     } else {
       final currentKnown = SpellcastingService.getSpellsKnownCount(
-          widget.character.characterClass, widget.character.level);
+        widget.character.characterClass,
+        widget.character.level,
+      );
       final nextKnown = SpellcastingService.getSpellsKnownCount(
-          widget.character.characterClass, _nextLevel);
+        widget.character.characterClass,
+        _nextLevel,
+      );
       if (nextKnown > currentKnown) {
         _spellsToLearn = nextKnown - currentKnown;
       }
@@ -244,6 +254,29 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       if (_hpIncrease < 1) _hpIncrease = 1;
     });
     _nextPage();
+  }
+
+  void _applyPrimalChampion(Character char) {
+    final hasPrimalChampion = _newFeatures.any(
+      (feature) => feature.id == 'primal-champion',
+    );
+    if (!hasPrimalChampion) return;
+
+    final oldConMod = char.abilityScores.constitutionModifier;
+
+    int capTo24(int value) => value > 24 ? 24 : value;
+
+    char.abilityScores = char.abilityScores.copyWith(
+      strength: capTo24(char.abilityScores.strength + 4),
+      constitution: capTo24(char.abilityScores.constitution + 4),
+    );
+
+    final newConMod = char.abilityScores.constitutionModifier;
+    if (newConMod > oldConMod) {
+      final hpBuf = (newConMod - oldConMod) * char.level;
+      char.maxHp += hpBuf;
+      char.currentHp += hpBuf;
+    }
   }
 
   void _nextPage() {
@@ -287,9 +320,11 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
             char.abilityScores.strength + (_asiAllocations['strength'] ?? 0),
         dexterity:
             char.abilityScores.dexterity + (_asiAllocations['dexterity'] ?? 0),
-        constitution: char.abilityScores.constitution +
+        constitution:
+            char.abilityScores.constitution +
             (_asiAllocations['constitution'] ?? 0),
-        intelligence: char.abilityScores.intelligence +
+        intelligence:
+            char.abilityScores.intelligence +
             (_asiAllocations['intelligence'] ?? 0),
         wisdom: char.abilityScores.wisdom + (_asiAllocations['wisdom'] ?? 0),
         charisma:
@@ -307,28 +342,33 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
     // 3. Apply Choices
     if (_selectedOptions.containsKey('subclass')) {
       final subclassId = _selectedOptions['subclass'];
-      final subclass =
-          _classData.subclasses.firstWhere((s) => s.id == subclassId);
+      final subclass = _classData.subclasses.firstWhere(
+        (s) => s.id == subclassId,
+      );
       char.subclass = subclass.getName('en');
     }
 
     if (_selectedOptions.containsKey('fighting_style')) {
       final styleId = _selectedOptions['fighting_style']!;
       final l10n = AppLocalizations.of(context)!;
-      final locFeat =
-          LocalizationHelper.getLocalizedFightingStyle(styleId, l10n);
+      final locFeat = LocalizationHelper.getLocalizedFightingStyle(
+        styleId,
+        l10n,
+      );
 
       // Add as a pseudo-feature
-      char.features.add(CharacterFeature(
-        id: 'fs_$styleId',
-        nameEn: locFeat.name,
-        nameRu: locFeat.name,
-        descriptionEn: locFeat.description,
-        descriptionRu: locFeat.description,
-        type: FeatureType.passive,
-        minLevel: _nextLevel,
-        associatedClass: char.characterClass,
-      ));
+      char.features.add(
+        CharacterFeature(
+          id: 'fs_$styleId',
+          nameEn: locFeat.name,
+          nameRu: locFeat.name,
+          descriptionEn: locFeat.description,
+          descriptionRu: locFeat.description,
+          type: FeatureType.passive,
+          minLevel: _nextLevel,
+          associatedClass: char.characterClass,
+        ),
+      );
     }
 
     // Ranger Options
@@ -342,12 +382,12 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       ['colossus', 'giant', 'horde'],
       ['escape', 'multiattack', 'steel'],
       ['volley', 'whirlwind'],
-      ['evasion', 'stand', 'uncanny']
+      ['evasion', 'stand', 'uncanny'],
     ];
 
     if (_selectedOptions.containsKey('hunter_tactic')) {
-      final chosenIdStr =
-          (_selectedOptions['hunter_tactic'] as String).toLowerCase();
+      final chosenIdStr = (_selectedOptions['hunter_tactic'] as String)
+          .toLowerCase();
 
       // Find the active tier for this tactic
       List<String>? activeTier;
@@ -362,22 +402,27 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
         // Surgically remove ONLY from char.features for the matching tier
         char.features.removeWhere((f) {
           final fId = (f.id).toLowerCase();
-          return activeTier!.any((kw) =>
-              fId.contains(kw) ||
-              fId.replaceAll('-', '').replaceAll('_', '').contains(kw));
+          return activeTier!.any(
+            (kw) =>
+                fId.contains(kw) ||
+                fId.replaceAll('-', '').replaceAll('_', '').contains(kw),
+          );
         });
 
         // Add the new valid tactic object directly
         _newFeatures.removeWhere((f) {
           final fId = (f.id).toLowerCase();
-          return activeTier!.any((kw) =>
-              fId.contains(kw) ||
-              fId.replaceAll('-', '').replaceAll('_', '').contains(kw));
+          return activeTier!.any(
+            (kw) =>
+                fId.contains(kw) ||
+                fId.replaceAll('-', '').replaceAll('_', '').contains(kw),
+          );
         });
 
         // 1. First try the standard FeatureService just in case
-        CharacterFeature? fullyLoadedTactic =
-            FeatureService.getFeatureById(chosenIdStr);
+        CharacterFeature? fullyLoadedTactic = FeatureService.getFeatureById(
+          chosenIdStr,
+        );
 
         // 2. If not found, look inside the FeatureService's loaded cache
         // Some tactic IDs have prefix issues or slight mismatches from what is saved in features_step
@@ -420,8 +465,10 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
     // Circle of the Land Selection
     if (_selectedOptions.containsKey('land_terrain')) {
       final terrainId = _selectedOptions['land_terrain'];
-      final feature = _landOptions.firstWhere((f) => f.id == terrainId,
-          orElse: () => _landOptions.first);
+      final feature = _landOptions.firstWhere(
+        (f) => f.id == terrainId,
+        orElse: () => _landOptions.first,
+      );
       char.features.add(feature);
 
       // Also add base "Natural Recovery" if not present
@@ -451,7 +498,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       char.signatureSpells = List.from(_selectedSignatureSpells);
       // Initialize usage map
       char.signatureSpellsUsed = {
-        for (var id in char.signatureSpells) id: false
+        for (var id in char.signatureSpells) id: false,
       };
     }
 
@@ -472,7 +519,8 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
           feature.id.toLowerCase().contains('killer') ||
           feature.id.toLowerCase().contains('horde')) {
         debugPrint(
-            'DIAGNOSTICS: _newFeatures loop is trying to add tactic: ${feature.id}');
+          'DIAGNOSTICS: _newFeatures loop is trying to add tactic: ${feature.id}',
+        );
       }
       // Check duplication
       if (!char.features.any((f) => f.id == feature.id)) {
@@ -481,7 +529,8 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
             feature.id.toLowerCase().contains('killer') ||
             feature.id.toLowerCase().contains('horde')) {
           debugPrint(
-              'DIAGNOSTICS: _newFeatures loop SUCCESSFULLY ADDED tactic: ${feature.id}');
+            'DIAGNOSTICS: _newFeatures loop SUCCESSFULLY ADDED tactic: ${feature.id}',
+          );
         }
       }
     }
@@ -530,6 +579,10 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       // Note: Druid Land choice is handled separately above
     }
 
+    _applyPrimalChampion(char);
+    FeatureService.updateFeatureMaxUses(char);
+    char.recalculateAC();
+
     // 5. Update Spell Slots
     if (_hasNewSpellSlots) {
       char.maxSpellSlots = _newSpellSlots;
@@ -548,9 +601,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final locale = Localizations.localeOf(context).languageCode;
@@ -559,7 +610,8 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            '${l10n.levelUpTitle}: ${_classData.getName(locale)} $_nextLevel'),
+          '${l10n.levelUpTitle}: ${_classData.getName(locale)} $_nextLevel',
+        ),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.pop(context),

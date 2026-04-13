@@ -413,6 +413,9 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
         }
       }
 
+      // Sync any derived values that depend on features before equipment logic.
+      character.recalculateAC();
+
       // 5.7 PRUNE Unselected Options (Fix for "Add All" bug)
       // We need to remove features that are "options" but were NOT selected by the user.
       final selectedOptions = _state.selectedFeatureOptions.values.toSet();
@@ -511,11 +514,12 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
     for (var item in character.inventory) {
       if (item.type == ItemType.armor && !item.isEquipped) {
         item.isEquipped = true;
-        // Update character AC based on equipped armor
-        _updateCharacterAC(character);
         break;
       }
     }
+
+    // Recalculate AC after equipment changes, including barbarian unarmored defense.
+    character.recalculateAC();
   }
 
   /// Get equipment item IDs for a specific class and package
@@ -599,53 +603,5 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       default:
         return ['leather_armor', 'dagger', 'explorers_pack'];
     }
-  }
-
-  /// Update character AC based on equipped armor
-  void _updateCharacterAC(Character character) {
-    int baseAC = 10;
-    int dexMod = character.abilityScores.dexterityModifier;
-    int totalAC = baseAC;
-
-    // Find equipped armor and shield
-    Item? equippedArmor;
-    Item? equippedShield;
-
-    for (var item in character.inventory) {
-      if (item.isEquipped &&
-          item.type == ItemType.armor &&
-          item.armorProperties != null) {
-        if (item.armorProperties!.armorType == ArmorType.shield) {
-          equippedShield = item;
-        } else {
-          equippedArmor = item;
-        }
-      }
-    }
-
-    // Calculate AC from armor
-    if (equippedArmor != null && equippedArmor.armorProperties != null) {
-      final armorProps = equippedArmor.armorProperties!;
-      totalAC = armorProps.baseAC;
-
-      // Add DEX modifier based on armor type
-      if (armorProps.addDexModifier) {
-        if (armorProps.maxDexBonus != null) {
-          totalAC += dexMod.clamp(-10, armorProps.maxDexBonus!);
-        } else {
-          totalAC += dexMod; // Full DEX for light armor
-        }
-      }
-    } else {
-      // No armor = 10 + DEX
-      totalAC = 10 + dexMod;
-    }
-
-    // Add shield bonus
-    if (equippedShield != null && equippedShield.armorProperties != null) {
-      totalAC += equippedShield.armorProperties!.baseAC;
-    }
-
-    character.armorClass = totalAC;
   }
 }

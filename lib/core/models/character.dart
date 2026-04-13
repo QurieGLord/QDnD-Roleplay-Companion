@@ -240,6 +240,12 @@ class Character extends HiveObject {
   @HiveField(71, defaultValue: false)
   bool isHiddenInPlainSight;
 
+  @HiveField(73, defaultValue: 10)
+  int relentlessRageSaveDc;
+
+  @HiveField(74, defaultValue: false)
+  bool isRaging;
+
   /// PHB p.291 – Exhaustion (0-6; 6 = dead)
   @HiveField(72, defaultValue: 0)
   int _exhaustionLevel = 0;
@@ -322,6 +328,8 @@ class Character extends HiveObject {
     this.isHuntersMarkActive = false,
     this.huntersMarkTarget,
     this.isHiddenInPlainSight = false,
+    this.relentlessRageSaveDc = 10,
+    this.isRaging = false,
     int exhaustionLevel = 0,
   })  : _exhaustionLevel = exhaustionLevel,
         knownSpells = knownSpells ?? [],
@@ -366,7 +374,44 @@ class Character extends HiveObject {
 
   // Calculate proficiency bonus based on level
   int get proficiencyBonus {
-    return ((level - 1) / 4).ceil() + 2;
+    return 2 + ((level - 1) ~/ 4);
+  }
+
+  static String _normalizeFeatureId(String value) {
+    return value
+        .toLowerCase()
+        .trim()
+        .replaceAll(RegExp(r'[\s_]+'), '-');
+  }
+
+  bool hasFeatureId(String featureId) {
+    final normalizedTarget = _normalizeFeatureId(featureId);
+    return features.any(
+      (feature) => _normalizeFeatureId(feature.id) == normalizedTarget,
+    );
+  }
+
+  bool hasSavingThrowProficiency(String savingThrowId) {
+    final normalizedTarget = _normalizeFeatureId(savingThrowId);
+    return savingThrowProficiencies.any(
+      (proficiency) => _normalizeFeatureId(proficiency) == normalizedTarget,
+    );
+  }
+
+  bool get hasBarbarianUnarmoredDefense =>
+      characterClass.toLowerCase() == 'barbarian' ||
+      characterClass.toLowerCase() == 'варвар' ||
+      hasFeatureId('barbarian-unarmored-defense');
+
+  bool get hasRelentlessRage => hasFeatureId('relentless-rage');
+
+  bool get hasFeralInstinct => hasFeatureId('feral-instinct');
+
+  int get constitutionSavingThrowBonus {
+    final proficiency = hasSavingThrowProficiency('constitution')
+        ? proficiencyBonus
+        : 0;
+    return abilityScores.constitutionModifier + proficiency;
   }
 
   // Calculate initiative bonus
@@ -391,6 +436,46 @@ class Character extends HiveObject {
       return level >= 3 ? 1 : 0;
     }
     return 0;
+  }
+
+  void resetRelentlessRageSaveDc() {
+    relentlessRageSaveDc = 10;
+  }
+
+  void increaseRelentlessRageSaveDc([int amount = 5]) {
+    relentlessRageSaveDc += amount;
+  }
+
+  void _applyPrimalChampionBonus() {
+    if (level < 20 || !hasFeatureId('primal-champion')) {
+      return;
+    }
+
+    if (abilityScores.strength <= 20) {
+      final boostedStrength = abilityScores.strength + 4;
+      abilityScores = abilityScores.copyWith(
+        strength: boostedStrength > 24 ? 24 : boostedStrength,
+      );
+    }
+
+    if (abilityScores.constitution <= 20) {
+      final boostedConstitution = abilityScores.constitution + 4;
+      abilityScores = abilityScores.copyWith(
+        constitution: boostedConstitution > 24 ? 24 : boostedConstitution,
+      );
+    }
+  }
+
+  void _syncDerivedState() {
+    _applyPrimalChampionBonus();
+    recalculateAC();
+  }
+
+  @override
+  Future<void> save() async {
+    _syncDerivedState();
+    updatedAt = DateTime.now();
+    return super.save();
   }
 
   Map<String, dynamic> toJson() {
@@ -465,6 +550,8 @@ class Character extends HiveObject {
       'isHuntersMarkActive': isHuntersMarkActive,
       'huntersMarkTarget': huntersMarkTarget,
       'isHiddenInPlainSight': isHiddenInPlainSight,
+      'relentlessRageSaveDc': relentlessRageSaveDc,
+      'isRaging': isRaging,
     };
   }
 
@@ -607,6 +694,9 @@ class Character extends HiveObject {
       signatureSpellsUsed[key] = false;
     });
 
+    resetRelentlessRageSaveDc();
+    isRaging = false;
+
     // Reset Channel Divinity Charges
     channelDivinityCharges = getMaxChannelDivinityCharges();
 
@@ -664,6 +754,9 @@ class Character extends HiveObject {
       signatureSpellsUsed[key] = false;
     });
 
+    resetRelentlessRageSaveDc();
+    isRaging = false;
+
     // Reset Channel Divinity Charges
     channelDivinityCharges = getMaxChannelDivinityCharges();
 
@@ -706,6 +799,9 @@ class Character extends HiveObject {
     }
 
     if (currentHp < 0) currentHp = 0;
+    if (currentHp == 0 && !(hasRelentlessRage && isRaging)) {
+      isRaging = false;
+    }
 
     // Add to combat log
     if (combatState.isInCombat) {
@@ -846,6 +942,7 @@ class Character extends HiveObject {
     int baseAC = 10;
     int dexMod = abilityScores.dexterityModifier;
     int totalAC = baseAC;
+    final conMod = abilityScores.constitutionModifier;
 
     // Find equipped armor and shield
     Item? equippedArmor;
@@ -877,8 +974,11 @@ class Character extends HiveObject {
         }
       }
     } else {
-      // No armor = 10 + DEX
+      // No armor: Barbarians with Unarmored Defense also add CON.
       totalAC = 10 + dexMod;
+      if (hasBarbarianUnarmoredDefense) {
+        totalAC += conMod;
+      }
     }
 
     // Add shield bonus
