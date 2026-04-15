@@ -570,6 +570,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deathSaves => 'Death Saves';
 
   @override
+  String get rollDeathSave => 'Roll Death Save';
+
+  @override
+  String get deathSaveAlreadyRolled =>
+      'You already rolled a death save this round.';
+
+  @override
+  String get deathSaveManualAdjustHint =>
+      'Tap the markers to adjust manually if needed.';
+
+  @override
+  String get deathSaveOnePerRound => 'One roll per round';
+
+  @override
+  String get deathSaveRolledThisRound => 'Rolled this round';
+
+  @override
+  String get resetDeathSaves => 'Reset death saves';
+
+  @override
+  String get stabilized => 'Stabilized';
+
+  @override
+  String get deadLabel => 'Dead';
+
+  @override
+  String get deathSaveStabilizedHint =>
+      'Stable at 0 HP. Heal the character or reset the markers manually if needed.';
+
+  @override
+  String get deathSaveDeadHint =>
+      'Three failures recorded. Reset the markers manually only if the table changes the outcome.';
+
+  @override
+  String get deathSaveNat20 => 'Natural 20! Regained 1 HP.';
+
+  @override
+  String get deathSaveNat1 => 'Natural 1! Two failures.';
+
+  @override
+  String deathSaveSuccessResult(int roll) {
+    return 'Success ($roll)';
+  }
+
+  @override
+  String deathSaveFailureResult(int roll) {
+    return 'Failure ($roll)';
+  }
+
+  @override
   String get successes => 'Successes';
 
   @override

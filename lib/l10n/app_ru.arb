@@ -177,6 +177,34 @@
   "takeDamage": "Урон",
   "tempHp": "Врем. ОЗ",
   "deathSaves": "Спасброски от смерти",
+  "rollDeathSave": "Бросить спасбросок",
+  "deathSaveAlreadyRolled": "В этом раунде спасбросок уже был выполнен.",
+  "deathSaveManualAdjustHint": "При необходимости отметки можно поправить вручную.",
+  "deathSaveOnePerRound": "Один бросок за раунд",
+  "deathSaveRolledThisRound": "Бросок уже был",
+  "resetDeathSaves": "Сбросить спасброски",
+  "stabilized": "Стабилен",
+  "deadLabel": "Мертв",
+  "deathSaveStabilizedHint": "Персонаж стабилен при 0 ОЗ. Вылечите его или при необходимости сбросьте отметки вручную.",
+  "deathSaveDeadHint": "Зафиксировано 3 провала. Сбрасывайте отметки вручную только если исход изменился за столом.",
+  "deathSaveNat20": "Натуральная 20! Вы восстановили 1 ОЗ.",
+  "deathSaveNat1": "Натуральная 1! Два провала.",
+  "deathSaveSuccessResult": "Успех ({roll})",
+  "@deathSaveSuccessResult": {
+    "placeholders": {
+      "roll": {
+        "type": "int"
+      }
+    }
+  },
+  "deathSaveFailureResult": "Провал ({roll})",
+  "@deathSaveFailureResult": {
+    "placeholders": {
+      "roll": {
+        "type": "int"
+      }
+    }
+  },
   "successes": "Успехи",
   "failures": "Провалы",
   "unconscious": "БЕЗ СОЗНАНИЯ",

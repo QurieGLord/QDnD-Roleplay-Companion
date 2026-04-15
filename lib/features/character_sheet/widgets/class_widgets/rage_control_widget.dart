@@ -117,7 +117,9 @@ class _RageControlWidgetState extends State<RageControlWidget>
                           Expanded(
                             child: Text(
                               name,
-                              style: Theme.of(context).textTheme.headlineSmall
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -254,12 +256,12 @@ class _RageControlWidgetState extends State<RageControlWidget>
         );
       }
     } else {
-      // Ending rage
+      // Clear short-lived rage helpers when rage ends.
       final wasFrenzied = _isFrenzied;
       setState(() {
         _isRaging = false;
-        _isReckless = false; // Turn off reckless upon dropping rage
-        _isFrenzied = false; // Frenzy ends with rage
+        _isReckless = false;
+        _isFrenzied = false;
         widget.character.isRaging = false;
       });
       _frenzyPulseController.stop();
@@ -351,6 +353,14 @@ class _RageControlWidgetState extends State<RageControlWidget>
     final frenzyFeature = widget.character.features
         .where((f) => (f.id).toLowerCase().contains('frenzy'))
         .firstOrNull;
+
+    final recklessHelperText = _isReckless
+        ? (locale == 'ru'
+            ? 'Преимущество на атаки Силой до конца хода; враги атакуют вас с преимуществом до следующего хода.'
+            : 'Advantage on Strength-based attacks until end of turn; enemies have advantage against you until your next turn.')
+        : (locale == 'ru'
+            ? 'Не требует Ярости. Используйте для первой рукопашной атаки Силой в свой ход.'
+            : 'Does not require Rage. Use it for your first Strength-based melee attack on your turn.');
 
     return Card(
       elevation: 0,
@@ -489,7 +499,9 @@ class _RageControlWidgetState extends State<RageControlWidget>
                           children: [
                             Text(
                               l10n.rage.toUpperCase(),
-                              style: Theme.of(context).textTheme.titleMedium
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
                                   ?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: textColor,
@@ -498,7 +510,9 @@ class _RageControlWidgetState extends State<RageControlWidget>
                             ),
                             AnimatedDefaultTextStyle(
                               duration: const Duration(milliseconds: 300),
-                              style: Theme.of(context).textTheme.bodySmall!
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall!
                                   .copyWith(
                                     color: _isRaging
                                         ? activeColor
@@ -606,22 +620,22 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                           decoration: BoxDecoration(
                                             color: isActive
                                                 ? (_isRaging
-                                                      ? activeColor.withValues(
-                                                          alpha: 0.2,
-                                                        )
-                                                      : colorScheme.primary
-                                                            .withValues(
-                                                              alpha: 0.1,
-                                                            ))
+                                                    ? activeColor.withValues(
+                                                        alpha: 0.2,
+                                                      )
+                                                    : colorScheme.primary
+                                                        .withValues(
+                                                        alpha: 0.1,
+                                                      ))
                                                 : Colors.transparent,
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: isActive
                                                   ? (_isRaging
-                                                        ? activeColor
-                                                        : colorScheme.primary)
+                                                      ? activeColor
+                                                      : colorScheme.primary)
                                                   : colorScheme.outline
-                                                        .withValues(alpha: 0.3),
+                                                      .withValues(alpha: 0.3),
                                             ),
                                           ),
                                           child: Icon(
@@ -629,10 +643,10 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                             size: 20,
                                             color: isActive
                                                 ? (_isRaging
-                                                      ? activeColor
-                                                      : colorScheme.primary)
+                                                    ? activeColor
+                                                    : colorScheme.primary)
                                                 : colorScheme.outline
-                                                      .withValues(alpha: 0.3),
+                                                    .withValues(alpha: 0.3),
                                           ),
                                         ),
                                       );
@@ -693,7 +707,7 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                 color: _isRaging
                                     ? colorScheme.onError.withValues(alpha: 0.8)
                                     : colorScheme.onSecondaryContainer
-                                          .withValues(alpha: 0.8),
+                                        .withValues(alpha: 0.8),
                               ),
                             ),
                           ],
@@ -726,7 +740,7 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                         // Card background pulses red when frenzied
                                         color: _isFrenzied
                                             ? colorScheme.errorContainer
-                                                  .withValues(alpha: 0.45)
+                                                .withValues(alpha: 0.45)
                                             : colorScheme.surface.withValues(
                                                 alpha: 0.88,
                                               ),
@@ -750,8 +764,8 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                                           .value,
                                                   spreadRadius:
                                                       _frenzyGlowAnimation
-                                                          .value /
-                                                      3,
+                                                              .value /
+                                                          3,
                                                 ),
                                               ]
                                             : [],
@@ -792,7 +806,7 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                               _isFrenzied
                                                   ? Icons.mood_bad
                                                   : Icons
-                                                        .sentiment_dissatisfied,
+                                                      .sentiment_dissatisfied,
                                               size: 20,
                                               color: _isFrenzied
                                                   ? colorScheme.onError
@@ -818,7 +832,7 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                                     fontWeight: FontWeight.bold,
                                                     color: _isFrenzied
                                                         ? colorScheme
-                                                              .onErrorContainer
+                                                            .onErrorContainer
                                                         : colorScheme.onSurface,
                                                   ),
                                                 ),
@@ -830,12 +844,12 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                                     fontSize: 11,
                                                     color: _isFrenzied
                                                         ? colorScheme
-                                                              .onErrorContainer
-                                                              .withValues(
-                                                                alpha: 0.75,
-                                                              )
+                                                            .onErrorContainer
+                                                            .withValues(
+                                                            alpha: 0.75,
+                                                          )
                                                         : colorScheme
-                                                              .onSurfaceVariant,
+                                                            .onSurfaceVariant,
                                                   ),
                                                 ),
                                               ],
@@ -855,19 +869,21 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                                       disabledBackgroundColor:
                                                           activeColor
                                                               .withValues(
-                                                                alpha: 0.5,
-                                                              ),
+                                                        alpha: 0.5,
+                                                      ),
                                                       disabledForegroundColor:
                                                           colorScheme.onError
                                                               .withValues(
-                                                                alpha: 0.8,
-                                                              ),
+                                                        alpha: 0.8,
+                                                      ),
                                                       padding: EdgeInsets.zero,
-                                                      shape: RoundedRectangleBorder(
+                                                      shape:
+                                                          RoundedRectangleBorder(
                                                         borderRadius:
-                                                            BorderRadius.circular(
-                                                              10,
-                                                            ),
+                                                            BorderRadius
+                                                                .circular(
+                                                          10,
+                                                        ),
                                                       ),
                                                     ),
                                                     icon: const Icon(
@@ -885,15 +901,17 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                                       side: BorderSide(
                                                         color: activeColor
                                                             .withValues(
-                                                              alpha: 0.5,
-                                                            ),
+                                                          alpha: 0.5,
+                                                        ),
                                                       ),
                                                       padding: EdgeInsets.zero,
-                                                      shape: RoundedRectangleBorder(
+                                                      shape:
+                                                          RoundedRectangleBorder(
                                                         borderRadius:
-                                                            BorderRadius.circular(
-                                                              10,
-                                                            ),
+                                                            BorderRadius
+                                                                .circular(
+                                                          10,
+                                                        ),
                                                       ),
                                                     ),
                                                     icon: const Icon(
@@ -908,9 +926,10 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                                       );
                                                       _frenzyPulseController
                                                           .repeat(
-                                                            reverse: true,
-                                                          );
-                                                      HapticFeedback.heavyImpact();
+                                                        reverse: true,
+                                                      );
+                                                      HapticFeedback
+                                                          .heavyImpact();
                                                     },
                                                   ),
                                           ),
@@ -983,17 +1002,16 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                       : colorScheme.onSurface,
                                 ),
                               ),
-                              if (_isReckless)
-                                Text(
-                                  locale == 'ru'
-                                      ? 'Преимущество на атаки, но враги бьют с преимуществом'
-                                      : 'Advantage on attacks, but enemies have advantage against you',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: colorScheme.onErrorContainer
-                                        .withValues(alpha: 0.8),
-                                  ),
+                              Text(
+                                recklessHelperText,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: _isReckless
+                                      ? colorScheme.onErrorContainer
+                                          .withValues(alpha: 0.8)
+                                      : colorScheme.onSurfaceVariant,
                                 ),
+                              ),
                             ],
                           ),
                         ),

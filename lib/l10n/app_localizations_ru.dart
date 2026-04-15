@@ -564,6 +564,56 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deathSaves => 'Спасброски от смерти';
 
   @override
+  String get rollDeathSave => 'Бросить спасбросок';
+
+  @override
+  String get deathSaveAlreadyRolled =>
+      'В этом раунде спасбросок уже был выполнен.';
+
+  @override
+  String get deathSaveManualAdjustHint =>
+      'При необходимости отметки можно поправить вручную.';
+
+  @override
+  String get deathSaveOnePerRound => 'Один бросок за раунд';
+
+  @override
+  String get deathSaveRolledThisRound => 'Бросок уже был';
+
+  @override
+  String get resetDeathSaves => 'Сбросить спасброски';
+
+  @override
+  String get stabilized => 'Стабилен';
+
+  @override
+  String get deadLabel => 'Мертв';
+
+  @override
+  String get deathSaveStabilizedHint =>
+      'Персонаж стабилен при 0 ОЗ. Вылечите его или при необходимости сбросьте отметки вручную.';
+
+  @override
+  String get deathSaveDeadHint =>
+      'Зафиксировано 3 провала. Сбрасывайте отметки вручную только если исход изменился за столом.';
+
+  @override
+  String get deathSaveNat20 => 'Натуральная 20! Вы восстановили 1 ОЗ.';
+
+  @override
+  String get deathSaveNat1 => 'Натуральная 1! Два провала.';
+
+  @override
+  String deathSaveSuccessResult(int roll) {
+    return 'Успех ($roll)';
+  }
+
+  @override
+  String deathSaveFailureResult(int roll) {
+    return 'Провал ($roll)';
+  }
+
+  @override
   String get successes => 'Успехи';
 
   @override

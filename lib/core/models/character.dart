@@ -378,10 +378,7 @@ class Character extends HiveObject {
   }
 
   static String _normalizeFeatureId(String value) {
-    return value
-        .toLowerCase()
-        .trim()
-        .replaceAll(RegExp(r'[\s_]+'), '-');
+    return value.toLowerCase().trim().replaceAll(RegExp(r'[\s_]+'), '-');
   }
 
   bool hasFeatureId(String featureId) {
@@ -408,9 +405,8 @@ class Character extends HiveObject {
   bool get hasFeralInstinct => hasFeatureId('feral-instinct');
 
   int get constitutionSavingThrowBonus {
-    final proficiency = hasSavingThrowProficiency('constitution')
-        ? proficiencyBonus
-        : 0;
+    final proficiency =
+        hasSavingThrowProficiency('constitution') ? proficiencyBonus : 0;
     return abilityScores.constitutionModifier + proficiency;
   }
 
@@ -706,6 +702,7 @@ class Character extends HiveObject {
 
     // Clear death saves
     deathSaves.reset();
+    combatState.resetDeathSaveTracking();
 
     // Clear conditions (some may persist - for now clear all)
     activeConditions = [];
@@ -848,6 +845,7 @@ class Character extends HiveObject {
     // Reset death saves if healing from 0 HP
     if (currentHp > 0 && deathSaves.isActive) {
       deathSaves.reset();
+      combatState.resetDeathSaveTracking();
     }
 
     // Add to combat log (same as takeDamage)

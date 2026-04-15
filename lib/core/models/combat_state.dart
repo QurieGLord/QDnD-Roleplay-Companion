@@ -28,6 +28,9 @@ class CombatState extends HiveObject {
   @HiveField(7)
   DateTime? combatStartTime;
 
+  @HiveField(8)
+  int? lastDeathSaveRound;
+
   CombatState({
     this.isInCombat = false,
     this.currentRound = 0,
@@ -37,6 +40,7 @@ class CombatState extends HiveObject {
     this.totalDamageTaken = 0,
     this.totalHealing = 0,
     this.combatStartTime,
+    this.lastDeathSaveRound,
   }) : combatLog = combatLog ?? [];
 
   void startCombat(int initiativeRoll) {
@@ -48,6 +52,7 @@ class CombatState extends HiveObject {
     totalDamageTaken = 0;
     totalHealing = 0;
     combatStartTime = DateTime.now();
+    lastDeathSaveRound = null;
     // Note: Don't save here - parent Character will save
   }
 
@@ -61,7 +66,21 @@ class CombatState extends HiveObject {
     totalDamageDealt = 0;
     totalDamageTaken = 0;
     totalHealing = 0;
+    lastDeathSaveRound = null;
     // Note: Don't save here - parent Character will save
+  }
+
+  bool get canRollDeathSaveThisRound =>
+      !isInCombat || lastDeathSaveRound != currentRound;
+
+  void markDeathSaveRolledThisRound() {
+    if (isInCombat) {
+      lastDeathSaveRound = currentRound;
+    }
+  }
+
+  void resetDeathSaveTracking() {
+    lastDeathSaveRound = null;
   }
 
   void addLogEntry(CombatLogEntry entry) {
@@ -79,6 +98,7 @@ class CombatState extends HiveObject {
       'totalDamageTaken': totalDamageTaken,
       'totalHealing': totalHealing,
       'combatStartTime': combatStartTime?.toIso8601String(),
+      'lastDeathSaveRound': lastDeathSaveRound,
     };
   }
 
@@ -96,6 +116,7 @@ class CombatState extends HiveObject {
       combatStartTime: json['combatStartTime'] != null
           ? DateTime.parse(json['combatStartTime'])
           : null,
+      lastDeathSaveRound: json['lastDeathSaveRound'] as int?,
     );
   }
 }

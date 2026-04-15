@@ -89,6 +89,16 @@ void main() {
       );
     });
 
+    test('berserker subclass grants frenzy on level 3', () {
+      final features = FeatureService.getFeaturesForLevel(
+        classId: 'Barbarian',
+        level: 3,
+        subclassId: 'berserker',
+      );
+
+      expect(features.any((feature) => feature.id == 'frenzy'), isTrue);
+    });
+
     test('unarmored defense adds constitution modifier to AC', () {
       final barbarian = _buildBarbarian(level: 1);
       barbarian.recalculateAC();

@@ -1154,6 +1154,90 @@ abstract class AppLocalizations {
   /// **'Death Saves'**
   String get deathSaves;
 
+  /// Primary action for making a death saving throw
+  ///
+  /// In en, this message translates to:
+  /// **'Roll Death Save'**
+  String get rollDeathSave;
+
+  /// Shown when the user tries to roll more than once in the same combat round
+  ///
+  /// In en, this message translates to:
+  /// **'You already rolled a death save this round.'**
+  String get deathSaveAlreadyRolled;
+
+  /// Helper text explaining that death save markers can still be edited manually
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the markers to adjust manually if needed.'**
+  String get deathSaveManualAdjustHint;
+
+  /// Hint shown near the death save roll button in combat
+  ///
+  /// In en, this message translates to:
+  /// **'One roll per round'**
+  String get deathSaveOnePerRound;
+
+  /// Badge shown when a death save has already been rolled in the current round
+  ///
+  /// In en, this message translates to:
+  /// **'Rolled this round'**
+  String get deathSaveRolledThisRound;
+
+  /// Tooltip and action label for manually clearing death save markers
+  ///
+  /// In en, this message translates to:
+  /// **'Reset death saves'**
+  String get resetDeathSaves;
+
+  /// State label shown when a character has stabilized after death saves
+  ///
+  /// In en, this message translates to:
+  /// **'Stabilized'**
+  String get stabilized;
+
+  /// State label shown when a character has died
+  ///
+  /// In en, this message translates to:
+  /// **'Dead'**
+  String get deadLabel;
+
+  /// Compact helper text shown after three successful death saves
+  ///
+  /// In en, this message translates to:
+  /// **'Stable at 0 HP. Heal the character or reset the markers manually if needed.'**
+  String get deathSaveStabilizedHint;
+
+  /// Compact helper text shown after three failed death saves
+  ///
+  /// In en, this message translates to:
+  /// **'Three failures recorded. Reset the markers manually only if the table changes the outcome.'**
+  String get deathSaveDeadHint;
+
+  /// Result message for a natural 20 on a death save
+  ///
+  /// In en, this message translates to:
+  /// **'Natural 20! Regained 1 HP.'**
+  String get deathSaveNat20;
+
+  /// Result message for a natural 1 on a death save
+  ///
+  /// In en, this message translates to:
+  /// **'Natural 1! Two failures.'**
+  String get deathSaveNat1;
+
+  /// Result message for a successful death save roll
+  ///
+  /// In en, this message translates to:
+  /// **'Success ({roll})'**
+  String deathSaveSuccessResult(int roll);
+
+  /// Result message for a failed death save roll
+  ///
+  /// In en, this message translates to:
+  /// **'Failure ({roll})'**
+  String deathSaveFailureResult(int roll);
+
   /// No description provided
   ///
   /// In en, this message translates to:

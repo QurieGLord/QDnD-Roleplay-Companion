@@ -25,13 +25,14 @@ class CombatStateAdapter extends TypeAdapter<CombatState> {
       totalDamageTaken: fields[5] as int,
       totalHealing: fields[6] as int,
       combatStartTime: fields[7] as DateTime?,
+      lastDeathSaveRound: fields[8] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CombatState obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.isInCombat)
       ..writeByte(1)
@@ -47,7 +48,9 @@ class CombatStateAdapter extends TypeAdapter<CombatState> {
       ..writeByte(6)
       ..write(obj.totalHealing)
       ..writeByte(7)
-      ..write(obj.combatStartTime);
+      ..write(obj.combatStartTime)
+      ..writeByte(8)
+      ..write(obj.lastDeathSaveRound);
   }
 
   @override

@@ -114,16 +114,13 @@ class _FeaturesStepState extends State<FeaturesStep> {
     // Populate Wizard High Level Features Options
     final classIdLower = classId.toLowerCase();
     if (classIdLower == 'wizard' || classIdLower == 'волшебник') {
-      final knownWizardSpells = allClassSpells
-          .where((s) => knownIds.contains(s.id))
-          .toList();
+      final knownWizardSpells =
+          allClassSpells.where((s) => knownIds.contains(s.id)).toList();
 
-      _masteryOptionsLvl1 = knownWizardSpells
-          .where((s) => s.level == 1)
-          .toList();
-      _masteryOptionsLvl2 = knownWizardSpells
-          .where((s) => s.level == 2)
-          .toList();
+      _masteryOptionsLvl1 =
+          knownWizardSpells.where((s) => s.level == 1).toList();
+      _masteryOptionsLvl2 =
+          knownWizardSpells.where((s) => s.level == 2).toList();
       _signatureOptions = knownWizardSpells.where((s) => s.level == 3).toList();
     }
 
@@ -202,16 +199,14 @@ class _FeaturesStepState extends State<FeaturesStep> {
     final availableIds = _classStyles[classId] ?? _classStyles['fighter']!;
     final l10n = AppLocalizations.of(context)!;
     final List<Map<String, String>> result = [];
-    final characterFeatures = widget.character.features
-        .map((e) => e.id)
-        .toSet();
+    final characterFeatures =
+        widget.character.features.map((e) => e.id).toSet();
 
     for (var styleId in availableIds) {
       // Check if character already has this fighting style in any form
       // E.g. fs_$styleId, $classId-fighting-style-$styleId, fighting-style-$styleId, fighting-style-$normalizedStyle
       final normalizedStyle = styleId.replaceAll('_', '-');
-      final hasIt =
-          characterFeatures.contains('fs_$styleId') ||
+      final hasIt = characterFeatures.contains('fs_$styleId') ||
           characterFeatures.contains('fs_$normalizedStyle') ||
           characterFeatures.any(
             (id) =>
@@ -263,6 +258,26 @@ class _FeaturesStepState extends State<FeaturesStep> {
     });
   }
 
+  List<CharacterFeature> _getSelectedSubclassPreviewFeatures() {
+    final selectedSubclassId = _selections['subclass'];
+    if (selectedSubclassId == null || selectedSubclassId.isEmpty) {
+      return const [];
+    }
+
+    final landOptionIds =
+        widget.landOptions.map((feature) => feature.id).toSet();
+
+    return FeatureService.getFeaturesForLevel(
+      classId: widget.classData.id,
+      level: widget.nextLevel,
+      subclassId: selectedSubclassId,
+    ).where((feature) {
+      if (feature.associatedSubclass == null) return false;
+      if (landOptionIds.contains(feature.id)) return false;
+      return true;
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -270,16 +285,15 @@ class _FeaturesStepState extends State<FeaturesStep> {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
 
-    final hasSpellChanges =
-        widget.newSpellSlots.isNotEmpty &&
+    final hasSpellChanges = widget.newSpellSlots.isNotEmpty &&
         (widget.newSpellSlots.length > widget.oldSpellSlots.length ||
             widget.newSpellSlots.asMap().entries.any(
-              (e) =>
-                  e.value >
-                  (widget.oldSpellSlots.length > e.key
-                      ? widget.oldSpellSlots[e.key]
-                      : 0),
-            ));
+                  (e) =>
+                      e.value >
+                      (widget.oldSpellSlots.length > e.key
+                          ? widget.oldSpellSlots[e.key]
+                          : 0),
+                ));
 
     final Set<String> optionalFeaturesPool = {};
     for (var feature in widget.newFeatures) {
@@ -297,6 +311,9 @@ class _FeaturesStepState extends State<FeaturesStep> {
         widget.classData.id.toLowerCase() == 'следопыт') {
       needsSubclass = widget.nextLevel == 3;
     }
+    final selectedSubclassPreviewFeatures = needsSubclass
+        ? _getSelectedSubclassPreviewFeatures()
+        : const <CharacterFeature>[];
     bool needsLandChoice = widget.landOptions.isNotEmpty;
 
     bool needsExpertise = false;
@@ -317,9 +334,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
       final available = allSkills
           .where((s) => !widget.character.expertSkills.contains(s))
           .length;
-      requiredExpertiseCount = available < expertiseCount
-          ? available
-          : expertiseCount;
+      requiredExpertiseCount =
+          available < expertiseCount ? available : expertiseCount;
     }
 
     // Warlock Pact Boon (Level 3)
@@ -327,29 +343,25 @@ class _FeaturesStepState extends State<FeaturesStep> {
         (classId == 'warlock' || classId == 'колдун') && widget.nextLevel == 3;
 
     // Wizard Spell Mastery (Level 18)
-    bool needsSpellMastery =
-        (classId == 'wizard' || classId == 'волшебник') &&
+    bool needsSpellMastery = (classId == 'wizard' || classId == 'волшебник') &&
         widget.nextLevel == 18;
 
     // Wizard Signature Spells (Level 20)
     bool needsSignatureSpells =
         (classId == 'wizard' || classId == 'волшебник') &&
-        widget.nextLevel == 20;
+            widget.nextLevel == 20;
 
     // Ranger Features (Levels 6, 10, 14)
-    bool needsFavoredEnemy =
-        (classId == 'ranger' || classId == 'следопыт') &&
+    bool needsFavoredEnemy = (classId == 'ranger' || classId == 'следопыт') &&
         (widget.nextLevel == 6 || widget.nextLevel == 14);
     bool needsNaturalExplorer =
         (classId == 'ranger' || classId == 'следопыт') &&
-        (widget.nextLevel == 6 || widget.nextLevel == 10);
+            (widget.nextLevel == 6 || widget.nextLevel == 10);
 
     // Ranger Hunter Tactic (Level 3, 7, 11, 15)
-    bool isHunter =
-        widget.character.subclass?.toLowerCase() == 'hunter' ||
+    bool isHunter = widget.character.subclass?.toLowerCase() == 'hunter' ||
         _selections['subclass'] == 'hunter';
-    bool needsHunterTactic =
-        (classId == 'ranger' || classId == 'следопыт') &&
+    bool needsHunterTactic = (classId == 'ranger' || classId == 'следопыт') &&
         isHunter &&
         [3, 7, 11, 15].contains(widget.nextLevel);
 
@@ -358,8 +370,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
     // IMPORTANT: If we have NO available spells to pick from, we shouldn't block validation.
     bool effectiveNeedsSpells =
         widget.spellsToLearnCount > 0 && _availableSpells.isNotEmpty;
-    bool spellsSatisfied =
-        !effectiveNeedsSpells ||
+    bool spellsSatisfied = !effectiveNeedsSpells ||
         _selectedSpells.length == widget.spellsToLearnCount;
 
     bool allChoicesMade = spellsSatisfied;
@@ -487,6 +498,16 @@ class _FeaturesStepState extends State<FeaturesStep> {
                     _getSubclassTitle(l10n, widget.classData.id),
                   ),
                   _buildSubclassChoice(context),
+                  if (selectedSubclassPreviewFeatures.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _buildSectionHeader(
+                      context,
+                      locale == 'ru' ? 'УМЕНИЯ ПОДКЛАССА' : 'SUBCLASS FEATURES',
+                    ),
+                    ...selectedSubclassPreviewFeatures.map(
+                      (feature) => _buildFeatureCard(context, feature),
+                    ),
+                  ],
                   const SizedBox(height: 16),
                 ],
 
@@ -511,12 +532,12 @@ class _FeaturesStepState extends State<FeaturesStep> {
                   ...widget.newFeatures
                       .where((f) => f.id.contains('fighting-style'))
                       .map((feature) {
-                        return _buildFightingStyleChoice(
-                          context,
-                          feature,
-                          l10n,
-                        );
-                      }),
+                    return _buildFightingStyleChoice(
+                      context,
+                      feature,
+                      l10n,
+                    );
+                  }),
                   const SizedBox(height: 16),
                 ],
 
@@ -615,26 +636,24 @@ class _FeaturesStepState extends State<FeaturesStep> {
                   return true;
                 })) ...[
                   _buildSectionHeader(context, l10n.classFeatures),
-                  ...widget.newFeatures
-                      .where((f) {
-                        if (f.id.contains('fighting-style') ||
-                            f.id.contains('pact-boon')) {
-                          return false;
-                        }
+                  ...widget.newFeatures.where((f) {
+                    if (f.id.contains('fighting-style') ||
+                        f.id.contains('pact-boon')) {
+                      return false;
+                    }
 
-                        if (optionalFeaturesPool.contains(f.id)) {
-                          return false;
-                        }
+                    if (optionalFeaturesPool.contains(f.id)) {
+                      return false;
+                    }
 
-                        if (f.options != null && f.options!.isNotEmpty) {
-                          return false;
-                        }
+                    if (f.options != null && f.options!.isNotEmpty) {
+                      return false;
+                    }
 
-                        return true;
-                      })
-                      .map((feature) {
-                        return _buildFeatureCard(context, feature);
-                      }),
+                    return true;
+                  }).map((feature) {
+                    return _buildFeatureCard(context, feature);
+                  }),
                   const SizedBox(height: 16),
                 ],
 
@@ -782,8 +801,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
     final theme = Theme.of(context);
     final cardColor = isEnabled
         ? (isSelected
-              ? theme.colorScheme.primaryContainer
-              : theme.colorScheme.surfaceContainerHighest)
+            ? theme.colorScheme.primaryContainer
+            : theme.colorScheme.surfaceContainerHighest)
         : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
     final textColor = isEnabled
         ? theme.colorScheme.onSurface
@@ -1009,7 +1028,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
                                   fontSize: 14,
                                   color: isSelected
                                       ? colorScheme.onPrimaryContainer
-                                            .withValues(alpha: 0.8)
+                                          .withValues(alpha: 0.8)
                                       : colorScheme.onSurfaceVariant,
                                 ),
                               ),
@@ -1135,9 +1154,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
     ];
 
     // Filter out boons the character already possesses
-    final characterFeatures = widget.character.features
-        .map((e) => e.id)
-        .toSet();
+    final characterFeatures =
+        widget.character.features.map((e) => e.id).toSet();
     final filteredBoons = boons.where((boon) {
       final dashedId = (boon['id'] as String).replaceAll('_', '-');
       return !characterFeatures.contains(dashedId) &&
@@ -1257,8 +1275,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
     String locale,
     AppLocalizations l10n,
   ) {
-    final feature =
-        FeatureService.getFeatureById('favored-enemy') ??
+    final feature = FeatureService.getFeatureById('favored-enemy') ??
         CharacterFeature(
           id: 'favored-enemy',
           nameEn: 'Favored Enemy',
@@ -1307,8 +1324,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
     String locale,
     AppLocalizations l10n,
   ) {
-    final feature =
-        FeatureService.getFeatureById('natural-explorer') ??
+    final feature = FeatureService.getFeatureById('natural-explorer') ??
         CharacterFeature(
           id: 'natural-explorer',
           nameEn: 'Natural Explorer',
@@ -1467,9 +1483,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
     }
 
     // Filter out tactics the character already possesses
-    final characterFeatures = widget.character.features
-        .map((e) => e.id)
-        .toSet();
+    final characterFeatures =
+        widget.character.features.map((e) => e.id).toSet();
     final filteredTactics = tactics.where((tactic) {
       return !characterFeatures.contains(tactic['id']);
     }).toList();
@@ -1489,9 +1504,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
             children: filteredTactics.map((tactic) {
               final id = tactic['id']!;
               final name = locale == 'ru' ? tactic['ru']! : tactic['en']!;
-              final desc = locale == 'ru'
-                  ? tactic['descRu']!
-                  : tactic['descEn']!;
+              final desc =
+                  locale == 'ru' ? tactic['descRu']! : tactic['descEn']!;
               final isSelected = _selections['hunter_tactic'] == id;
               final colorScheme = Theme.of(context).colorScheme;
 
@@ -1549,8 +1563,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
     String locale,
     AppLocalizations l10n,
   ) {
-    final feature =
-        FeatureService.getFeatureById('spell-mastery') ??
+    final feature = FeatureService.getFeatureById('spell-mastery') ??
         CharacterFeature(
           id: 'dummy',
           nameEn: 'Spell Mastery',
@@ -1654,8 +1667,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
     String locale,
     AppLocalizations l10n,
   ) {
-    final feature =
-        FeatureService.getFeatureById('signature-spell') ??
+    final feature = FeatureService.getFeatureById('signature-spell') ??
         CharacterFeature(
           id: 'dummy',
           nameEn: 'Signature Spells',
@@ -1721,8 +1733,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
     final theme = Theme.of(context);
     final cardColor = isEnabled
         ? (isSelected
-              ? theme.colorScheme.primaryContainer
-              : theme.colorScheme.surfaceContainerHighest)
+            ? theme.colorScheme.primaryContainer
+            : theme.colorScheme.surfaceContainerHighest)
         : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
     final textColor = isEnabled
         ? theme.colorScheme.onSurface
@@ -1961,9 +1973,8 @@ class _FeaturesStepState extends State<FeaturesStep> {
     for (int i = 0; i < widget.newSpellSlots.length; i++) {
       int level = i + 1;
       int newCount = widget.newSpellSlots[i];
-      int oldCount = i < widget.oldSpellSlots.length
-          ? widget.oldSpellSlots[i]
-          : 0;
+      int oldCount =
+          i < widget.oldSpellSlots.length ? widget.oldSpellSlots[i] : 0;
       if (newCount > oldCount) {
         levelRows.add(
           Padding(

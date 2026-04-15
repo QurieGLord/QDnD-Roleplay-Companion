@@ -755,6 +755,72 @@
   "@deathSaves": {
     "description": "No description provided"
   },
+  "rollDeathSave": "Roll Death Save",
+  "@rollDeathSave": {
+    "description": "Primary action for making a death saving throw"
+  },
+  "deathSaveAlreadyRolled": "You already rolled a death save this round.",
+  "@deathSaveAlreadyRolled": {
+    "description": "Shown when the user tries to roll more than once in the same combat round"
+  },
+  "deathSaveManualAdjustHint": "Tap the markers to adjust manually if needed.",
+  "@deathSaveManualAdjustHint": {
+    "description": "Helper text explaining that death save markers can still be edited manually"
+  },
+  "deathSaveOnePerRound": "One roll per round",
+  "@deathSaveOnePerRound": {
+    "description": "Hint shown near the death save roll button in combat"
+  },
+  "deathSaveRolledThisRound": "Rolled this round",
+  "@deathSaveRolledThisRound": {
+    "description": "Badge shown when a death save has already been rolled in the current round"
+  },
+  "resetDeathSaves": "Reset death saves",
+  "@resetDeathSaves": {
+    "description": "Tooltip and action label for manually clearing death save markers"
+  },
+  "stabilized": "Stabilized",
+  "@stabilized": {
+    "description": "State label shown when a character has stabilized after death saves"
+  },
+  "deadLabel": "Dead",
+  "@deadLabel": {
+    "description": "State label shown when a character has died"
+  },
+  "deathSaveStabilizedHint": "Stable at 0 HP. Heal the character or reset the markers manually if needed.",
+  "@deathSaveStabilizedHint": {
+    "description": "Compact helper text shown after three successful death saves"
+  },
+  "deathSaveDeadHint": "Three failures recorded. Reset the markers manually only if the table changes the outcome.",
+  "@deathSaveDeadHint": {
+    "description": "Compact helper text shown after three failed death saves"
+  },
+  "deathSaveNat20": "Natural 20! Regained 1 HP.",
+  "@deathSaveNat20": {
+    "description": "Result message for a natural 20 on a death save"
+  },
+  "deathSaveNat1": "Natural 1! Two failures.",
+  "@deathSaveNat1": {
+    "description": "Result message for a natural 1 on a death save"
+  },
+  "deathSaveSuccessResult": "Success ({roll})",
+  "@deathSaveSuccessResult": {
+    "description": "Result message for a successful death save roll",
+    "placeholders": {
+      "roll": {
+        "type": "int"
+      }
+    }
+  },
+  "deathSaveFailureResult": "Failure ({roll})",
+  "@deathSaveFailureResult": {
+    "description": "Result message for a failed death save roll",
+    "placeholders": {
+      "roll": {
+        "type": "int"
+      }
+    }
+  },
   "successes": "Successes",
   "@successes": {
     "description": "No description provided"
