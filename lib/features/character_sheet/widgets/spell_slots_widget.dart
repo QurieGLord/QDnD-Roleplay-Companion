@@ -82,7 +82,7 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
       currentPactSlots = maxPactSlots;
     }
 
-    const warlockColor = Colors.deepPurple;
+    final warlockColor = colorScheme.tertiary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -98,7 +98,7 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
                   Text(
                     (l10n.localeName == 'ru' ? "МАГИЯ ДОГОВОРА" : "PACT MAGIC")
                         .toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.0,
@@ -121,7 +121,7 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        (l10n.localeName == 'ru' ? "УРОВЕНЬ" : "LEVEL"),
+                        (l10n.localeName == 'ru' ? "КРУГ" : "CIRCLE"),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
@@ -138,7 +138,7 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
             TextButton.icon(
               onPressed: () => _performShortRest(context, l10n),
               icon: const Icon(Icons.fireplace_outlined, size: 18),
-              label: Text((l10n.localeName == 'ru' ? "Отдых" : "Short Rest")),
+              label: Text(l10n.shortRest),
               style: TextButton.styleFrom(
                 foregroundColor: warlockColor,
                 backgroundColor: warlockColor.withValues(alpha: 0.1),
@@ -231,7 +231,7 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
             Icons.bolt,
             size: 24,
             color: isAvailable
-                ? Colors.white
+                ? colorScheme.onTertiary
                 : colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
           ),
         ),
@@ -408,7 +408,7 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
                 color: isAvailable
-                    ? Colors.white
+                    ? colorScheme.onTertiary
                     : colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
               ),
             ),
@@ -416,9 +416,7 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
         ),
         const SizedBox(height: 6),
         Text(
-          Localizations.localeOf(context).languageCode == 'ru'
-              ? "$level-й"
-              : "${level}th level",
+          AppLocalizations.of(context)!.levelLabel(level),
           style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.bold,
@@ -444,7 +442,7 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
         content: Text(l10n.localeName == 'ru'
             ? "Короткий отдых завершен. Ячейки восстановлены!"
             : "Short rest completed. Slots restored!"),
-        backgroundColor: Colors.indigo,
+        backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
         behavior: SnackBarBehavior.floating,
       ),
     );

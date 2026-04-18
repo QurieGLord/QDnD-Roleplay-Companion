@@ -77,7 +77,8 @@ class SpellDetailsSheet extends StatelessWidget {
                         Text(
                           '${SpellUtils.getLocalizedSchool(l10n, spell.school)}${spell.level == 0 ? ' • ${l10n.cantrips}' : ' • ${l10n.levelLabel(spell.level)}'}',
                           style: TextStyle(
-                              color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                              color:
+                                  colorScheme.onSurface.withValues(alpha: 0.7)),
                         ),
                       ],
                     ),

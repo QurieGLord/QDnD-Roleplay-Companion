@@ -316,6 +316,22 @@
   "@longRest": {
     "description": "No description provided"
   },
+  "recoveryDawn": "Dawn",
+  "@recoveryDawn": {
+    "description": "Recovery chip label for resources that return at dawn"
+  },
+  "recoveryEachTurn": "Each Turn",
+  "@recoveryEachTurn": {
+    "description": "Recovery chip label for resources that return each turn"
+  },
+  "recoveryRecharge": "Recharge",
+  "@recoveryRecharge": {
+    "description": "Recovery chip label for recharge-based resources"
+  },
+  "recoveryManual": "Manual",
+  "@recoveryManual": {
+    "description": "Recovery chip label for resources restored manually"
+  },
   "enterCombatMode": "Enter Combat Mode",
   "@enterCombatMode": {
     "description": "No description provided"
@@ -2544,6 +2560,10 @@
       }
     }
   },
+  "preparedSpellsLimitReached": "Cannot prepare more spells. Preparation limit reached.",
+  "@preparedSpellsLimitReached": {
+    "description": "Error shown when the player tries to prepare a spell past the preparation limit"
+  },
   "spellAlmanacTitle": "Spell Almanac",
   "@spellAlmanacTitle": {
     "description": "No description provided"
@@ -3178,6 +3198,10 @@
   "noTraits": "No traits",
   "@noTraits": {
     "description": "No description provided"
+  },
+  "abilitiesEmptyBody": "This companion has no class features to track here yet.",
+  "@abilitiesEmptyBody": {
+    "description": "Empty-state body text for the Abilities tab"
   },
   "martialArts": "Martial Arts",
   "@martialArts": {

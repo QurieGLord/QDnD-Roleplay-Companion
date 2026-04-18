@@ -548,6 +548,30 @@ abstract class AppLocalizations {
   /// **'Long Rest'**
   String get longRest;
 
+  /// Recovery chip label for resources that return at dawn
+  ///
+  /// In en, this message translates to:
+  /// **'Dawn'**
+  String get recoveryDawn;
+
+  /// Recovery chip label for resources that return each turn
+  ///
+  /// In en, this message translates to:
+  /// **'Each Turn'**
+  String get recoveryEachTurn;
+
+  /// Recovery chip label for recharge-based resources
+  ///
+  /// In en, this message translates to:
+  /// **'Recharge'**
+  String get recoveryRecharge;
+
+  /// Recovery chip label for resources restored manually
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get recoveryManual;
+
   /// No description provided
   ///
   /// In en, this message translates to:
@@ -3620,6 +3644,12 @@ abstract class AppLocalizations {
   /// **'Prepared: {current} / {max}'**
   String preparedSpellsCount(int current, int max);
 
+  /// Error shown when the player tries to prepare a spell past the preparation limit
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot prepare more spells. Preparation limit reached.'**
+  String get preparedSpellsLimitReached;
+
   /// No description provided
   ///
   /// In en, this message translates to:
@@ -4429,6 +4459,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No traits'**
   String get noTraits;
+
+  /// Empty-state body text for the Abilities tab
+  ///
+  /// In en, this message translates to:
+  /// **'This companion has no class features to track here yet.'**
+  String get abilitiesEmptyBody;
 
   /// No description provided
   ///

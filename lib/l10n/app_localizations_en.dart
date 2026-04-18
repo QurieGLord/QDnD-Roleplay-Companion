@@ -243,6 +243,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get longRest => 'Long Rest';
 
   @override
+  String get recoveryDawn => 'Dawn';
+
+  @override
+  String get recoveryEachTurn => 'Each Turn';
+
+  @override
+  String get recoveryRecharge => 'Recharge';
+
+  @override
+  String get recoveryManual => 'Manual';
+
+  @override
   String get enterCombatMode => 'Enter Combat Mode';
 
   @override
@@ -1886,6 +1898,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get preparedSpellsLimitReached =>
+      'Cannot prepare more spells. Preparation limit reached.';
+
+  @override
   String get spellAlmanacTitle => 'Spell Almanac';
 
   @override
@@ -2331,6 +2347,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noTraits => 'No traits';
+
+  @override
+  String get abilitiesEmptyBody =>
+      'This companion has no class features to track here yet.';
 
   @override
   String get martialArts => 'Martial Arts';

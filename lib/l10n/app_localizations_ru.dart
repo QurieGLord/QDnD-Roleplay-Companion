@@ -243,6 +243,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get longRest => 'Длительный отдых';
 
   @override
+  String get recoveryDawn => 'Рассвет';
+
+  @override
+  String get recoveryEachTurn => 'Каждый ход';
+
+  @override
+  String get recoveryRecharge => 'Перезарядка';
+
+  @override
+  String get recoveryManual => 'Вручную';
+
+  @override
   String get enterCombatMode => 'Начать Бой';
 
   @override
@@ -1867,6 +1879,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get preparedSpellsLimitReached =>
+      'Нельзя подготовить больше заклинаний. Достигнут предел подготовки.';
+
+  @override
   String get spellAlmanacTitle => 'Альманах';
 
   @override
@@ -2311,6 +2327,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noTraits => 'Нет умений';
+
+  @override
+  String get abilitiesEmptyBody =>
+      'На этой вкладке пока нет классовых умений для отслеживания.';
 
   @override
   String get martialArts => 'Боевые искусства';

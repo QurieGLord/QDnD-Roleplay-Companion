@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/spell.dart';
@@ -13,6 +14,16 @@ import '../../../shared/widgets/spell_details_sheet.dart';
 import '../../../shared/widgets/feature_details_sheet.dart';
 import '../../../core/utils/spell_utils.dart';
 import '../../../core/models/spell_slots_table.dart';
+import 'abilities/abilities_empty_state.dart';
+import 'abilities/abilities_quick_jump_row.dart';
+import 'abilities/abilities_reveal.dart';
+import 'abilities/abilities_shell_tokens.dart';
+import 'abilities/abilities_tab_logic.dart';
+import 'abilities/sections/active_abilities_section.dart';
+import 'abilities/sections/magic_section.dart';
+import 'abilities/sections/passive_traits_section.dart';
+import 'abilities/sections/resources_section.dart';
+import 'abilities/sections/spell_level_group.dart';
 import 'class_widgets/ki_tracker_widget.dart';
 import 'class_widgets/rage_control_widget.dart';
 import 'class_widgets/rogue_tools_widget.dart';
@@ -38,9 +49,20 @@ class AbilitiesTab extends StatefulWidget {
 class _AbilitiesTabState extends State<AbilitiesTab>
     with AutomaticKeepAliveClientMixin {
   final Map<int, bool> _expandedLevels = {};
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _resourcesSectionAnchor = GlobalKey();
+  final GlobalKey _activeSectionAnchor = GlobalKey();
+  final GlobalKey _magicSectionAnchor = GlobalKey();
+  final GlobalKey _passiveSectionAnchor = GlobalKey();
 
   @override
   bool get wantKeepAlive => true;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   // --- Safe Helpers ---
 
@@ -82,434 +104,20 @@ class _AbilitiesTabState extends State<AbilitiesTab>
 
   // --- Deep Search & Filtering ---
 
-  bool _shouldShowInList(CharacterFeature feature) {
-    try {
-      // Universal Parent Deduplication:
-      // If a feature is a parent container (has options), and ANY of its options
-      // are currently possessed by the character (rendered as child options),
-      // we hide the parent container from the generic list to avoid duplication.
-      if (feature.options != null && feature.options!.isNotEmpty) {
-        bool hasAtLeastOneChild = widget.character.features
-            .any((f) => feature.options!.contains(f.id));
-        if (hasAtLeastOneChild) {
-          return false;
-        }
-      }
-
-      // NUCLEAR OPTION: Safe access to properties
-      final id = (feature.id).toLowerCase();
-      final name = (feature.nameEn).toLowerCase();
-      final usageCost = (feature.usageCostId ?? '').toLowerCase();
-
-      // Dedicated Widget Handling (Deduplication)
-      if (id.contains('action_surge') || name.contains('action surge')) {
-        return false;
-      }
-      if (id.contains('second_wind') || name.contains('second wind')) {
-        return false;
-      }
-      if (id.contains('indomitable')) return false;
-      if (id.contains('rage') || name == 'rage') return false;
-      if (id.contains('ki') || name.startsWith('ki')) return false;
-      if (id.contains('sneak_attack') || name.contains('sneak attack')) {
-        return false;
-      }
-
-      // Monk Martial Arts Deduplication
-      if (id.contains('martial_arts') ||
-          id.contains('martial-arts') ||
-          name.contains('martial arts')) {
-        return false;
-      }
-      final monkTactics = [
-        'flurry_of_blows',
-        'flurry-of-blows',
-        'patient_defense',
-        'patient-defense',
-        'step_of_the_wind',
-        'step-of-the-wind',
-        'stunning_strike',
-        'stunning-strike',
-        'unarmored_movement',
-        'unarmored-movement',
-        'шквал ударов',
-        'терпеливая оборона',
-        'поступь ветра',
-        'оглушающий удар',
-        'движение без доспехов'
-      ];
-      if (monkTactics.any((t) => id.contains(t) || name.contains(t))) {
-        return false;
-      }
-
-      // Bard Deduplication
-      if (id.contains('bardic_inspiration') ||
-          id.contains('bardic-inspiration') ||
-          name.contains('bardic inspiration') ||
-          name.contains('бардовское вдохновение')) {
-        return false; // Handled by widget
-      }
-      final bardTactics = [
-        'cutting_words',
-        'cutting-words',
-        'cutting words',
-        'острые слова',
-        'combat_inspiration',
-        'combat-inspiration',
-        'combat inspiration',
-        'боевое вдохновение',
-        'countercharm',
-        'контрочарование',
-        'song_of_rest',
-        'song-of-rest',
-        'song of rest',
-        'песнь отдыха',
-      ];
-      if (bardTactics.any((t) => id.contains(t) || name.contains(t))) {
-        return false;
-      }
-
-      // Rogue Deduplication
-      final rogueTactics = [
-        'sneak_attack',
-        'sneak-attack',
-        'sneak attack',
-        'скрытая атака',
-        'cunning_action',
-        'cunning-action',
-        'cunning action',
-        'хитрое действие',
-        'uncanny_dodge',
-        'uncanny-dodge',
-        'uncanny dodge',
-        'невероятное уклонение',
-        'evasion',
-        'увертливость',
-      ];
-      if (rogueTactics.any((t) => id.contains(t) || name.contains(t))) {
-        return false;
-      }
-
-      // Paladin Deduplication
-      if (id.contains('lay-on-hands') || id.contains('lay_on_hands')) {
-        return false;
-      }
-      if (id.contains('divine-sense') || id.contains('divine_sense')) {
-        return false;
-      }
-      if (id == 'channel-divinity' || id == 'channel_divinity') return false;
-      if (id == 'divine-smite' ||
-          id == 'divine_smite' ||
-          name.contains('divine smite') ||
-          name.contains('божественная кара')) {
-        return false; // Handled exclusively by PaladinDivineWidget
-      }
-      if (id.startsWith('channel-divinity-') ||
-          id.startsWith('channel_divinity_')) {
-        return false;
-      }
-      if (usageCost.contains('channel-divinity') ||
-          usageCost.contains('channel_divinity')) {
-        return false;
-      }
-
-      // Ranger Deduplication
-      if (id == 'primeval-awareness' || id == 'primeval_awareness') {
-        return false;
-      }
-      if (id == 'favored-enemy' || id == 'favored_enemy') return false;
-      if (id == 'natural-explorer' || id == 'natural_explorer') return false;
-      if (id == 'hunters-mark' ||
-          id == 'hunters_mark' ||
-          name.contains("hunter's mark") ||
-          name.contains("метка охотника")) {
-        return false;
-      }
-      if (id == 'hide-in-plain-sight' ||
-          id == 'hide_in_plain_sight' ||
-          name.contains("hide in plain sight") ||
-          name.contains("маскировка")) {
-        return false;
-      }
-
-      final rangerTactics = [
-        'colossus',
-        'horde breaker',
-        'giant killer',
-        'volley',
-        'whirlwind',
-        'evasion',
-        'uncanny dodge',
-        'multiattack defense',
-        'steel will',
-        'stand against',
-        'escape the horde'
-      ];
-      if (rangerTactics.any((t) =>
-          id.contains(t.replaceAll(' ', '-')) ||
-          id.contains(t.replaceAll(' ', '_')) ||
-          name.contains(t))) {
-        return false;
-      }
-
-      // Barbarian Deduplication
-      if (id.contains('reckless-attack') ||
-          id.contains('reckless_attack') ||
-          name.contains('reckless attack') ||
-          name.contains('безрассудная атака')) {
-        return false;
-      }
-      if (id.contains('frenzy') ||
-          name.contains('frenzy') ||
-          name.contains('бешенство')) {
-        return false;
-      }
-      if (id.contains('primal_path') ||
-          id.contains('primal-path') ||
-          name.contains('primal path') ||
-          name.contains('путь дикости')) {
-        return false;
-      }
-
-      // Sorcerer Deduplication
-
-      if (id.contains('sorcery_point') ||
-          id.contains('sorcery-point') ||
-          name.contains('sorcery point') ||
-          name.contains('единицы чародейства')) {
-        return false;
-      }
-
-      if (id.contains('font_of_magic') ||
-          id.contains('font-of-magic') ||
-          name.contains('font of magic') ||
-          name.contains('источник магии')) {
-        return false;
-      }
-
-      if (id.contains('flexible_casting') ||
-          id.contains('flexible-casting') ||
-          name.contains('flexible casting') ||
-          name.contains('гибкое накладывание') ||
-          name.contains('гибкая магия')) {
-        return false;
-      }
-
-      if (id.contains('metamagic') ||
-          name.contains('metamagic') ||
-          name.contains('метамагия')) {
-        return false;
-      }
-
-      if (id.contains('dragon-ancestor') ||
-          id.contains('draconic') ||
-          id.contains('dragon') ||
-          name.contains('dragon') ||
-          name.contains('дракон')) {
-        return false;
-      }
-
-      // Warlock Deduplication
-      if (id.contains('eldritch-invocation') ||
-          id.contains('eldritch_invocation') ||
-          id.contains('invocation') ||
-          name.contains('invocation') ||
-          name.contains('воззвание')) {
-        return false;
-      }
-
-      if (id.contains('pact-boon') ||
-          id.contains('pact_boon') ||
-          id.contains('pact-of-the-') ||
-          id.contains('pact_of_the_') ||
-          name.contains('pact boon') ||
-          name.contains('предмет договора') ||
-          name.contains('договор пакта')) {
-        return false;
-      }
-
-      if (id.contains('mystic-arcanum') ||
-          id.contains('mystic_arcanum') ||
-          name.contains('mystic arcanum') ||
-          name.contains('таинственный арканум')) {
-        return false;
-      }
-
-      // Druid Deduplication
-      if (name.contains('wild shape') ||
-          name.contains('дикий облик') ||
-          id.contains('wild_shape') ||
-          id.contains('wild-shape')) {
-        return false;
-      }
-
-      if (name.contains('natural recovery') ||
-          name.contains('естественное восстановление') ||
-          id.contains('natural_recovery') ||
-          id.contains('natural-recovery')) {
-        return false;
-      }
-
-      // Wizard Deduplication
-      if (name.contains('arcane recovery') ||
-          name.contains('арканное восстановление') ||
-          id.contains('arcane_recovery') ||
-          id.contains('arcane-recovery')) {
-        return false;
-      }
-
-      if (id.contains('arcane-tradition') ||
-          id.contains('arcane_tradition') ||
-          name.contains('arcane tradition') ||
-          name.contains('магическая традиция')) {
-        return false;
-      }
-
-      // Cleric Deduplication
-      if (id.contains('divine-domain') ||
-          id.contains('divine_domain') ||
-          name.contains('divine domain') ||
-          name.contains('божественный домен')) {
-        return false;
-      }
-
-      if (id == 'channel_divinity' ||
-          id == 'channel-divinity' ||
-          name.contains('channel divinity') ||
-          name.contains('божественный канал')) {
-        // Only hide the base feature, not subclass specific ones if they are actions
-        // But for Cleric, we handle the pool in the widget.
-        return false;
-      }
-
-      // Hide "Fighting Style" grouping feature if it exists (usually just a header)
-
-      if (id == 'fighting_style') return false;
-
-      return true;
-    } catch (e) {
-      debugPrint('Error in _shouldShowInList: $e');
-      return false; // Fail safe: don't show potentially broken features
-    }
-  }
+  bool _shouldShowInList(CharacterFeature feature) =>
+      AbilitiesTabLogic(widget.character).shouldShowInList(feature);
 
   CharacterFeature? _findFeatureDeep(
-      List<CharacterFeature> list, List<String> keywords) {
-    try {
-      // 1. Exact ID Match first
-      for (final keyword in keywords) {
-        try {
-          final match = list.where((f) => (f.id) == keyword).firstOrNull;
-          if (match != null) return match;
-        } catch (_) {}
-      }
+          List<CharacterFeature> list, List<String> keywords) =>
+      AbilitiesTabLogic(widget.character).findFeatureDeep(list, keywords);
 
-      // 2. Contains ID
-      for (final keyword in keywords) {
-        try {
-          // Sort by level descending to get the best version
-          final candidates =
-              list.where((f) => (f.id).contains(keyword)).toList();
-          candidates.sort((a, b) => (b.minLevel).compareTo(a.minLevel));
-          if (candidates.isNotEmpty) return candidates.first;
-        } catch (_) {}
-      }
-
-      // 3. Name Match
-      for (final keyword in keywords) {
-        try {
-          final cleanKeyword = keyword.replaceAll('_', ' ');
-          final candidates = list
-              .where((f) => (f.nameEn).toLowerCase().contains(cleanKeyword))
-              .toList();
-          candidates.sort((a, b) => (b.minLevel).compareTo(a.minLevel));
-          if (candidates.isNotEmpty) return candidates.first;
-        } catch (_) {}
-      }
-
-      return null;
-    } catch (e) {
-      debugPrint('Deep search failed: $e');
-      return null;
-    }
-  }
-
-  CharacterFeature? _findResourceFeature(String id) {
-    try {
-      return widget.character.features.where((f) => f.id == id).firstOrNull;
-    } catch (_) {
-      return null;
-    }
-  }
+  CharacterFeature? _findResourceFeature(String id) =>
+      AbilitiesTabLogic(widget.character).findResourceFeature(id);
 
   List<CharacterFeature> _deduplicateAndFilterFeatures(
-      List<CharacterFeature> list, String locale) {
-    debugPrint('--- Smart Deduplicating ${list.length} features ---');
-    try {
-      final Map<String, CharacterFeature> bestFeatures = {};
-
-      for (final feature in list) {
-        // ignore: unnecessary_null_comparison
-        if (feature == null) continue;
-
-        // Group by Localized Name to catch duplicates with different IDs
-        final String groupKey = feature.getName(locale).toLowerCase().trim();
-
-        // Special handling for upgradable features (scaling values)
-        // e.g., "Destroy Undead (CR 1/2)" vs "Destroy Undead (CR 1)"
-        // We look for common prefixes
-        String baseName = groupKey;
-        final upgradeRegex =
-            RegExp(r'^(.*?)\s*\(.*?\)$'); // Matches "Name (Detail)"
-        if (upgradeRegex.hasMatch(groupKey)) {
-          baseName = upgradeRegex.firstMatch(groupKey)!.group(1)!.trim();
-        }
-
-        if (!bestFeatures.containsKey(baseName)) {
-          bestFeatures[baseName] = feature;
-        } else {
-          final existing = bestFeatures[baseName]!;
-          final currentLevel = feature.minLevel;
-          final existingLevel = existing.minLevel;
-
-          // Rule: Keep the one with higher level requirement (The "Upgrade")
-          if (currentLevel > existingLevel) {
-            bestFeatures[baseName] = feature;
-          } else if (currentLevel == existingLevel) {
-            // If levels are same, prefer the one with a more specific ID or longer description
-            if ((feature.id).length > (existing.id).length) {
-              bestFeatures[baseName] = feature;
-            }
-          }
-        }
-      }
-
-      // Standard ID-based fallback deduplication (for things without names or specific IDs)
-      final List<CharacterFeature> result = bestFeatures.values.toList();
-      final Map<String, CharacterFeature> finalMap = {};
-
-      for (var f in result) {
-        String baseId = f.id;
-        final versionRegex = RegExp(r'(_|-)\d+$');
-        if (versionRegex.hasMatch(baseId)) {
-          baseId = baseId.replaceAll(versionRegex, '');
-        }
-
-        if (!finalMap.containsKey(baseId)) {
-          finalMap[baseId] = f;
-        } else {
-          if ((f.minLevel) > (finalMap[baseId]!.minLevel)) {
-            finalMap[baseId] = f;
-          }
-        }
-      }
-
-      return finalMap.values.toList();
-    } catch (e) {
-      debugPrint('Error in smart deduplication: $e');
-      return list;
-    }
-  }
+          List<CharacterFeature> list, String locale) =>
+      AbilitiesTabLogic(widget.character)
+          .deduplicateAndFilterFeatures(list, locale);
 
   // --- Actions ---
 
@@ -964,6 +572,158 @@ class _AbilitiesTabState extends State<AbilitiesTab>
     });
   }
 
+  bool _isRenderableWidget(Widget widget) {
+    return widget is! SizedBox ||
+        widget.width != null ||
+        widget.height != null ||
+        widget.child != null;
+  }
+
+  Widget _sectionAnchor({
+    required GlobalKey anchorKey,
+    required Key testKey,
+    required Widget child,
+  }) {
+    return Container(
+      key: anchorKey,
+      child: KeyedSubtree(
+        key: testKey,
+        child: child,
+      ),
+    );
+  }
+
+  Future<void> _scrollToSection(GlobalKey key) async {
+    final context = key.currentContext;
+    if (context == null) return;
+
+    HapticFeedback.selectionClick();
+    final disableAnimations =
+        MediaQuery.maybeOf(this.context)?.disableAnimations ?? false;
+    await Scrollable.ensureVisible(
+      context,
+      duration: disableAnimations
+          ? Duration.zero
+          : AbilitiesShellTokens.scrollDuration,
+      curve: Curves.easeOutCubic,
+      alignment: 0.04,
+    );
+  }
+
+  void _openSpellAlmanac() {
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (context) =>
+                SpellAlmanacScreen(character: widget.character),
+          ),
+        )
+        .then((_) => setState(() {}));
+  }
+
+  void _showFeatureSheet(CharacterFeature feature) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (context) => FeatureDetailsSheet(feature: feature),
+    );
+  }
+
+  void _showSpellSheet(Spell spell, {VoidCallback? onToggleKnown}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (context) => SpellDetailsSheet(
+        spell: spell,
+        character: widget.character,
+        onToggleKnown: onToggleKnown,
+      ),
+    );
+  }
+
+  void _useResource(CharacterFeature feature) {
+    final pool = feature.resourcePool;
+    if (pool == null || pool.isEmpty) return;
+
+    setState(() {
+      pool.use(1);
+      widget.character.save();
+    });
+  }
+
+  void _restoreResource(CharacterFeature feature) {
+    final pool = feature.resourcePool;
+    if (pool == null || pool.isFull) return;
+
+    setState(() {
+      pool.restore(1);
+      widget.character.save();
+    });
+  }
+
+  String? _buildResourceCostLabel(CharacterFeature feature, String locale) {
+    if (feature.consumption != null) {
+      final resource = _findResourceFeature(feature.consumption!.resourceId);
+      if (resource != null) {
+        return '${feature.consumption!.amount} ${resource.getName(locale)}';
+      }
+    } else if (feature.usageCostId != null) {
+      try {
+        final usageCostId = feature.usageCostId!;
+        final resource = widget.character.features
+            .where(
+              (f) =>
+                  f.resourcePool != null &&
+                  (f.id == usageCostId ||
+                      f.id.endsWith('-$usageCostId') ||
+                      f.id.startsWith('$usageCostId-') ||
+                      (usageCostId == 'ki' && f.id.contains('ki'))),
+            )
+            .firstOrNull;
+        if (resource != null) {
+          return '1 ${resource.getName(locale)}';
+        }
+      } catch (_) {}
+    }
+
+    return null;
+  }
+
+  bool _shouldShowUseAction(CharacterFeature feature) {
+    return feature.consumption != null ||
+        feature.usageCostId != null ||
+        feature.nameEn.contains('Channel Divinity');
+  }
+
+  Widget _buildMagicEmptyState(AppLocalizations l10n) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AbilitiesShellTokens.nestedRadius),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.auto_fix_off,
+            size: 40,
+            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.65),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            l10n.noSpellsLearned,
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+
   // --- Build Methods ---
 
   @override
@@ -1175,309 +935,392 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       debugPrint(
           'Features Filtered: Res=${resourceFeatures.length}, Active=${activeFeatures.length}, Passive=${passiveFeatures.length}');
 
-      // Check for empty state
-      final isEmpty = resourceFeatures.isEmpty &&
+      final featuredModules = <Widget>[];
+
+      void addFeaturedModule(Widget widget) {
+        if (_isRenderableWidget(widget)) {
+          featuredModules.add(widget);
+        }
+      }
+
+      if (classId.contains('monk')) {
+        addFeaturedModule(_safeBuildWidget(() {
+          final martialArts =
+              _findFeatureDeep(allFeatures, ['martial_arts', 'martial-arts']);
+          if (monkKiFeature == null && martialArts == null) {
+            return const SizedBox.shrink();
+          }
+          return KiTrackerWidget(
+            character: widget.character,
+            kiFeature: monkKiFeature ??
+                CharacterFeature(
+                  id: 'ki_fallback',
+                  nameEn: 'Ki',
+                  nameRu: 'Энергия Ци',
+                  descriptionEn: '',
+                  descriptionRu: '',
+                  type: FeatureType.resourcePool,
+                  minLevel: 2,
+                  resourcePool: ResourcePool(
+                    currentUses: 0,
+                    maxUses: 0,
+                    recoveryType: RecoveryType.shortRest,
+                  ),
+                ),
+            onChanged: () => setState(() {}),
+          );
+        }));
+      }
+
+      if (classId.contains('barbarian') && barbarianRageFeature != null) {
+        addFeaturedModule(_safeBuildWidget(() => RageControlWidget(
+              character: widget.character,
+              rageFeature: barbarianRageFeature,
+              onChanged: () => setState(() {}),
+            )));
+      }
+
+      if (classId.contains('rogue') && rogueSneakAttack != null) {
+        addFeaturedModule(_safeBuildWidget(
+            () => RogueToolsWidget(character: widget.character)));
+      }
+
+      if (classId.contains('fighter') &&
+          (fighterSecondWind != null ||
+              fighterActionSurge != null ||
+              fighterIndomitable != null)) {
+        addFeaturedModule(_safeBuildWidget(() => FighterCombatWidget(
+              character: widget.character,
+              secondWindFeature: fighterSecondWind,
+              actionSurgeFeature: fighterActionSurge,
+              indomitableFeature: fighterIndomitable,
+              onChanged: () => setState(() {}),
+            )));
+      }
+
+      if (classId.contains('bard') && bardInspiration != null) {
+        addFeaturedModule(_safeBuildWidget(() => BardInspirationWidget(
+              character: widget.character,
+              inspirationFeature: bardInspiration,
+              onChanged: () => setState(() {}),
+            )));
+      }
+
+      if (classId.contains('paladin')) {
+        addFeaturedModule(_safeBuildWidget(() {
+          if (paladinLayOnHands == null &&
+              paladinDivineSense == null &&
+              paladinChannelDivinity == null) {
+            return const SizedBox.shrink();
+          }
+          return PaladinDivineWidget(
+            character: widget.character,
+            layOnHands: paladinLayOnHands ??
+                CharacterFeature(
+                  id: 'lay_on_hands_fallback',
+                  nameEn: 'Lay on Hands',
+                  nameRu: 'Наложение рук',
+                  descriptionEn: '',
+                  descriptionRu: '',
+                  type: FeatureType.resourcePool,
+                  minLevel: 1,
+                  resourcePool: ResourcePool(
+                    currentUses: 0,
+                    maxUses: 0,
+                    recoveryType: RecoveryType.longRest,
+                  ),
+                ),
+            divineSense: paladinDivineSense,
+            divineSmite: paladinDivineSmite,
+            channelDivinityResource: paladinChannelDivinity,
+            channelDivinitySpells: paladinChannelSpells,
+            onChanged: () => setState(() {}),
+          );
+        }));
+      }
+
+      if (classId.contains('sorcerer')) {
+        addFeaturedModule(_safeBuildWidget(() {
+          if (sorceryPoints == null &&
+              metamagicOptions.isEmpty &&
+              sorcererAncestry.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return SorcererMagicWidget(
+            character: widget.character,
+            sorceryPoints: sorceryPoints,
+            metamagic: metamagicOptions,
+            ancestryFeatures: sorcererAncestry,
+            onChanged: () => setState(() {}),
+          );
+        }));
+      }
+
+      if (classId.contains('warlock')) {
+        addFeaturedModule(_safeBuildWidget(() {
+          if (warlockPatron == null &&
+              warlockPactBoon == null &&
+              warlockInvocations.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return WarlockMagicWidget(
+            character: widget.character,
+            patron: warlockPatron,
+            pactBoon: warlockPactBoon,
+            invocations: warlockInvocations,
+            onChanged: () => setState(() {}),
+          );
+        }));
+      }
+
+      if (classId.contains('druid')) {
+        addFeaturedModule(_safeBuildWidget(() => DruidMagicWidget(
+              character: widget.character,
+              onStateChanged: () => setState(() {}),
+            )));
+      }
+
+      if (classId.contains('wizard')) {
+        addFeaturedModule(_safeBuildWidget(() => WizardMagicWidget(
+              character: widget.character,
+              onStateChanged: () => setState(() {}),
+            )));
+      }
+
+      if (classId.contains('cleric')) {
+        addFeaturedModule(_safeBuildWidget(() => ClericMagicWidget(
+              character: widget.character,
+              onStateChanged: () => setState(() {}),
+            )));
+      }
+
+      if (classId.contains('ranger') || classId.contains('следопыт')) {
+        addFeaturedModule(_safeBuildWidget(() {
+          if (primevalAwareness == null &&
+              widget.character.favoredEnemies.isEmpty &&
+              widget.character.naturalExplorers.isEmpty &&
+              widget.character.beastName == null) {
+            return const SizedBox.shrink();
+          }
+          return RangerSurvivalWidget(
+            character: widget.character,
+            primevalAwareness: primevalAwareness,
+            onChanged: () => setState(() {}),
+          );
+        }));
+      }
+
+      final hasFeaturedModules = featuredModules.isNotEmpty;
+      final isEmpty = featuredModules.isEmpty &&
+          resourceFeatures.isEmpty &&
           activeFeatures.isEmpty &&
           !showMagicSection &&
-          passiveFeatures.isEmpty &&
-          monkKiFeature == null &&
-          barbarianRageFeature == null &&
-          rogueSneakAttack == null &&
-          fighterSecondWind == null &&
-          fighterActionSurge == null &&
-          bardInspiration == null &&
-          !classId.contains('sorcerer') &&
-          paladinLayOnHands == null;
+          passiveFeatures.isEmpty;
 
-      return Stack(
-        children: [
-          Column(
-            children: [
-              Expanded(
-                child: isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.library_books_outlined,
-                                size: 64, color: colorScheme.outlineVariant),
-                            const SizedBox(height: 16),
-                            Text(locale == 'ru' ? 'Нет умений' : 'No traits',
-                                style: TextStyle(
-                                    color: colorScheme.onSurfaceVariant)),
-                          ],
-                        ),
-                      )
-                    : ListView(
-                        padding: const EdgeInsets.all(16),
-                        children: [
-                          // --- Class Specific Dashboards (with Render Guards) ---
-
-                          // MONK GUARD
-                          if (classId.contains('monk'))
-                            _safeBuildWidget(() {
-                              final martialArts = _findFeatureDeep(allFeatures,
-                                  ['martial_arts', 'martial-arts']);
-                              if (monkKiFeature == null &&
-                                  martialArts == null) {
-                                return const SizedBox.shrink();
-                              }
-                              return KiTrackerWidget(
-                                character: widget.character,
-                                kiFeature: monkKiFeature ??
-                                    CharacterFeature(
-                                      id: 'ki_fallback',
-                                      nameEn: 'Ki',
-                                      nameRu: 'Энергия Ци',
-                                      descriptionEn: '',
-                                      descriptionRu: '',
-                                      type: FeatureType.resourcePool,
-                                      minLevel: 2,
-                                      resourcePool: ResourcePool(
-                                          currentUses: 0,
-                                          maxUses: 0,
-                                          recoveryType: RecoveryType.shortRest),
-                                    ),
-                                onChanged: () => setState(() {}),
-                              );
-                            }),
-
-                          // BARBARIAN GUARD
-                          if (classId.contains('barbarian') &&
-                              barbarianRageFeature != null)
-                            _safeBuildWidget(() => RageControlWidget(
-                                  character: widget.character,
-                                  rageFeature: barbarianRageFeature,
-                                  onChanged: () => setState(() {}),
-                                )),
-
-                          // ROGUE GUARD
-                          if (classId.contains('rogue') &&
-                              rogueSneakAttack != null)
-                            _safeBuildWidget(() =>
-                                RogueToolsWidget(character: widget.character)),
-
-                          // FIGHTER GUARD
-                          if (classId.contains('fighter') &&
-                              (fighterSecondWind != null ||
-                                  fighterActionSurge != null ||
-                                  fighterIndomitable != null))
-                            _safeBuildWidget(() => FighterCombatWidget(
-                                  character: widget.character,
-                                  secondWindFeature: fighterSecondWind,
-                                  actionSurgeFeature: fighterActionSurge,
-                                  indomitableFeature: fighterIndomitable,
-                                  onChanged: () => setState(() {}),
-                                )),
-
-                          // BARD GUARD
-                          if (classId.contains('bard') &&
-                              bardInspiration != null)
-                            _safeBuildWidget(() => BardInspirationWidget(
-                                  character: widget.character,
-                                  inspirationFeature: bardInspiration,
-                                  onChanged: () => setState(() {}),
-                                )),
-
-                          // PALADIN GUARD
-                          if (classId.contains('paladin'))
-                            _safeBuildWidget(() {
-                              if (paladinLayOnHands == null &&
-                                  paladinDivineSense == null &&
-                                  paladinChannelDivinity == null) {
-                                return const SizedBox.shrink();
-                              }
-                              return PaladinDivineWidget(
-                                character: widget.character,
-                                // Provide fallback if LoH is missing but other Paladin features exist
-                                layOnHands: paladinLayOnHands ??
-                                    CharacterFeature(
-                                      id: 'lay_on_hands_fallback',
-                                      nameEn: 'Lay on Hands',
-                                      nameRu: 'Наложение рук',
-                                      descriptionEn: '',
-                                      descriptionRu: '',
-                                      type: FeatureType.resourcePool,
-                                      minLevel: 1,
-                                      resourcePool: ResourcePool(
-                                          currentUses: 0,
-                                          maxUses: 0,
-                                          recoveryType: RecoveryType.longRest),
-                                    ),
-                                divineSense: paladinDivineSense,
-                                divineSmite: paladinDivineSmite,
-                                channelDivinityResource: paladinChannelDivinity,
-                                channelDivinitySpells: paladinChannelSpells,
-                                onChanged: () => setState(() {}),
-                              );
-                            }),
-
-                          // SORCERER GUARD
-                          if (classId.contains('sorcerer'))
-                            _safeBuildWidget(() {
-                              if (sorceryPoints == null &&
-                                  metamagicOptions.isEmpty &&
-                                  sorcererAncestry.isEmpty) {
-                                return const SizedBox.shrink();
-                              }
-                              return SorcererMagicWidget(
-                                character: widget.character,
-                                sorceryPoints: sorceryPoints,
-                                metamagic: metamagicOptions,
-                                ancestryFeatures: sorcererAncestry,
-                                onChanged: () => setState(() {}),
-                              );
-                            }),
-
-                          // WARLOCK GUARD
-                          if (classId.contains('warlock'))
-                            _safeBuildWidget(() {
-                              if (warlockPatron == null &&
-                                  warlockPactBoon == null &&
-                                  warlockInvocations.isEmpty) {
-                                return const SizedBox.shrink();
-                              }
-                              return WarlockMagicWidget(
-                                character: widget.character,
-                                patron: warlockPatron,
-                                pactBoon: warlockPactBoon,
-                                invocations: warlockInvocations,
-                                onChanged: () => setState(() {}),
-                              );
-                            }),
-
-                          // DRUID GUARD
-                          if (classId.contains('druid'))
-                            _safeBuildWidget(() => DruidMagicWidget(
-                                  character: widget.character,
-                                  onStateChanged: () => setState(() {}),
-                                )),
-
-                          // WIZARD GUARD
-                          if (classId.contains('wizard'))
-                            _safeBuildWidget(() => WizardMagicWidget(
-                                  character: widget.character,
-                                  onStateChanged: () => setState(() {}),
-                                )),
-
-                          // CLERIC GUARD
-                          if (classId.contains('cleric'))
-                            _safeBuildWidget(() => ClericMagicWidget(
-                                  character: widget.character,
-                                  onStateChanged: () => setState(() {}),
-                                )),
-
-                          // RANGER GUARD
-                          if (classId.contains('ranger') ||
-                              classId.contains('следопыт'))
-                            _safeBuildWidget(() {
-                              if (primevalAwareness == null &&
-                                  widget.character.favoredEnemies.isEmpty &&
-                                  widget.character.naturalExplorers.isEmpty &&
-                                  widget.character.beastName == null) {
-                                return const SizedBox.shrink();
-                              }
-                              return RangerSurvivalWidget(
-                                character: widget.character,
-                                primevalAwareness: primevalAwareness,
-                                onChanged: () => setState(() {}),
-                              );
-                            }),
-
-                          // --- General Lists ---
-                          if (resourceFeatures.isNotEmpty) ...[
-                            _buildSectionHeader(l10n.resources.toUpperCase()),
-                            ..._buildResourceSection(resourceFeatures, locale),
-                            const SizedBox(height: 16),
-                          ],
-
-                          if (activeFeatures.isNotEmpty) ...[
-                            _buildSectionHeader(
-                                l10n.activeAbilities.toUpperCase()),
-                            ..._buildActiveSection(
-                                activeFeatures, locale, l10n),
-                            const SizedBox(height: 16),
-                          ],
-
-                          if (showMagicSection) ...[
-                            _buildSectionHeader(
-                              l10n.magic.toUpperCase(),
-                              trailing: _buildPreparationCounter(context, l10n),
-                            ),
-                            _buildMagicSection(context, l10n,
-                                showCounter: false),
-                            const SizedBox(height: 16),
-
-                            // --- Wizard VIP Spells ---
-                            if (isWizard &&
-                                widget.character.spellMasterySpells
-                                    .isNotEmpty) ...[
-                              _buildSpellMasteryBlock(context, l10n, locale),
-                              const SizedBox(height: 16),
-                            ],
-                            if (isWizard &&
-                                widget
-                                    .character.signatureSpells.isNotEmpty) ...[
-                              _buildSignatureSpellsBlock(context, l10n, locale),
-                              const SizedBox(height: 16),
-                            ],
-
-                            if (displaySpells.isEmpty)
-                              Center(
-                                  child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  children: [
-                                    Icon(Icons.auto_fix_off,
-                                        size: 48,
-                                        color: colorScheme.onSurface
-                                            .withValues(alpha: 0.3)),
-                                    const SizedBox(height: 8),
-                                    Text(l10n.noSpellsLearned,
-                                        style: TextStyle(
-                                            color: colorScheme.onSurface
-                                                .withValues(alpha: 0.5))),
-                                  ],
-                                ),
-                              ))
-                            else
-                              ..._buildSpellList(spellsByLevel, locale, l10n),
-                            const SizedBox(height: 16),
-                          ],
-
-                          if (passiveFeatures.isNotEmpty) ...[
-                            _buildSectionHeader(
-                                l10n.passiveTraits.toUpperCase()),
-                            _buildPassiveSection(
-                                passiveFeatures, locale, l10n, colorScheme),
-                          ],
-
-                          const SizedBox(height: 80),
-                        ],
-                      ),
-              ),
-            ],
+      final quickJumpItems = <AbilitiesQuickJumpItem>[
+        if (resourceFeatures.isNotEmpty)
+          AbilitiesQuickJumpItem(
+            label: l10n.resources,
+            icon: Icons.tune,
+            onTap: () => _scrollToSection(_resourcesSectionAnchor),
           ),
-          if (showMagicSection)
-            Positioned(
-              right: 16,
-              bottom: 16,
-              child: FloatingActionButton.extended(
-                onPressed: () {
-                  Navigator.of(context)
-                      .push(
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              SpellAlmanacScreen(character: widget.character),
-                        ),
-                      )
-                      .then((_) => setState(() {}));
-                },
-                icon: const Icon(Icons.library_books),
-                label: Text(l10n.spellAlmanac),
+        if (activeFeatures.isNotEmpty)
+          AbilitiesQuickJumpItem(
+            label: l10n.activeAbilities,
+            icon: Icons.bolt,
+            onTap: () => _scrollToSection(_activeSectionAnchor),
+          ),
+        if (showMagicSection)
+          AbilitiesQuickJumpItem(
+            label: l10n.magic,
+            icon: Icons.auto_awesome,
+            onTap: () => _scrollToSection(_magicSectionAnchor),
+          ),
+        if (passiveFeatures.isNotEmpty)
+          AbilitiesQuickJumpItem(
+            label: l10n.passiveTraits,
+            icon: Icons.auto_stories,
+            onTap: () => _scrollToSection(_passiveSectionAnchor),
+          ),
+      ];
+
+      final magicVipBlocks = <Widget>[
+        if (isWizard && widget.character.spellMasterySpells.isNotEmpty)
+          _buildSpellMasteryBlock(context, l10n, locale),
+        if (isWizard && widget.character.signatureSpells.isNotEmpty)
+          _buildSignatureSpellsBlock(context, l10n, locale),
+      ];
+
+      final children = <Widget>[];
+
+      if (hasFeaturedModules) {
+        children.add(
+          KeyedSubtree(
+            key: const Key('abilities_featured_modules'),
+            child: Column(
+              children: [
+                for (int index = 0; index < featuredModules.length; index++)
+                  AbilitiesReveal(
+                    delay: Duration(milliseconds: index * 70),
+                    beginOffset: const Offset(0, 0.035),
+                    child: featuredModules[index],
+                  ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      if (hasFeaturedModules && quickJumpItems.length >= 3) {
+        if (children.isNotEmpty) {
+          children.add(const SizedBox(height: 8));
+        }
+        children.add(
+          AbilitiesReveal(
+            delay: const Duration(milliseconds: 160),
+            child: AbilitiesQuickJumpRow(items: quickJumpItems),
+          ),
+        );
+      }
+
+      if (resourceFeatures.isNotEmpty) {
+        if (children.isNotEmpty) {
+          children
+              .add(const SizedBox(height: AbilitiesShellTokens.sectionSpacing));
+        }
+        children.add(
+          _sectionAnchor(
+            anchorKey: _resourcesSectionAnchor,
+            testKey: const Key('abilities_section_resources'),
+            child: AbilitiesReveal(
+              delay: const Duration(milliseconds: 220),
+              child: AbilitiesResourcesSection(
+                features: resourceFeatures,
+                locale: locale,
+                onOpenDetails: _showFeatureSheet,
+                onIncrement: _restoreResource,
+                onDecrement: _useResource,
               ),
             ),
-        ],
+          ),
+        );
+      }
+
+      if (activeFeatures.isNotEmpty) {
+        if (children.isNotEmpty) {
+          children
+              .add(const SizedBox(height: AbilitiesShellTokens.sectionSpacing));
+        }
+        children.add(
+          _sectionAnchor(
+            anchorKey: _activeSectionAnchor,
+            testKey: const Key('abilities_section_active'),
+            child: AbilitiesReveal(
+              delay: const Duration(milliseconds: 280),
+              child: AbilitiesActiveAbilitiesSection(
+                features: activeFeatures,
+                locale: locale,
+                actionLabelBuilder: (economy) =>
+                    _getLocalizedActionEconomy(l10n, economy),
+                resourceCostBuilder: (feature) =>
+                    _buildResourceCostLabel(feature, locale),
+                shouldShowUseAction: (feature) => _shouldShowUseAction(feature),
+                onOpenDetails: _showFeatureSheet,
+                onUseFeature: (feature) => _useFeature(feature, locale, l10n),
+              ),
+            ),
+          ),
+        );
+      }
+
+      if (showMagicSection) {
+        if (children.isNotEmpty) {
+          children
+              .add(const SizedBox(height: AbilitiesShellTokens.sectionSpacing));
+        }
+        children.add(
+          _sectionAnchor(
+            anchorKey: _magicSectionAnchor,
+            testKey: const Key('abilities_section_magic'),
+            child: AbilitiesReveal(
+              delay: const Duration(milliseconds: 340),
+              child: AbilitiesMagicSection(
+                stats: [
+                  MagicStatData(
+                    label: l10n.spellAbility,
+                    value: _getAbilityAbbr(
+                      l10n,
+                      SpellcastingService.getSpellcastingAbilityName(
+                        widget.character.characterClass,
+                      ),
+                    ),
+                  ),
+                  MagicStatData(
+                    label: l10n.spellSaveDC,
+                    value:
+                        '${SpellcastingService.getSpellSaveDC(widget.character)}',
+                  ),
+                  MagicStatData(
+                    label: l10n.spellAttack,
+                    value:
+                        '+${SpellcastingService.getSpellAttackBonus(widget.character)}',
+                  ),
+                ],
+                preparationStatus: _buildPreparationCounter(context, l10n),
+                slotsLabel: SpellcastingService.getSpellcastingType(
+                            widget.character.characterClass) ==
+                        'pact_magic'
+                    ? (locale == 'ru'
+                        ? 'Магия Договора (Короткий отдых)'
+                        : 'Pact Magic (Short Rest)')
+                    : null,
+                slotsWidget: widget.character.maxSpellSlots.any((s) => s > 0)
+                    ? SpellSlotsWidget(
+                        character: widget.character,
+                        onChanged: () =>
+                            setState(() => widget.character.save()),
+                      )
+                    : null,
+                onOpenSpellAlmanac: _openSpellAlmanac,
+                vipBlocks: magicVipBlocks,
+                spellGroups: _buildSpellList(spellsByLevel, locale, l10n),
+                emptySpellState:
+                    displaySpells.isEmpty ? _buildMagicEmptyState(l10n) : null,
+              ),
+            ),
+          ),
+        );
+      }
+
+      if (passiveFeatures.isNotEmpty) {
+        if (children.isNotEmpty) {
+          children
+              .add(const SizedBox(height: AbilitiesShellTokens.sectionSpacing));
+        }
+        children.add(
+          _sectionAnchor(
+            anchorKey: _passiveSectionAnchor,
+            testKey: const Key('abilities_section_passive'),
+            child: AbilitiesReveal(
+              delay: const Duration(milliseconds: 400),
+              child: AbilitiesPassiveTraitsSection(
+                features: passiveFeatures,
+                locale: locale,
+                onOpenDetails: _showFeatureSheet,
+              ),
+            ),
+          ),
+        );
+      }
+
+      return ListView(
+        controller: _scrollController,
+        padding: AbilitiesShellTokens.pagePadding,
+        children: isEmpty
+            ? const [
+                AbilitiesEmptyState(),
+              ]
+            : children,
       );
     } catch (e, stack) {
       debugPrint('CRITICAL ERROR in AbilitiesTab.build: $e');
@@ -1515,130 +1358,6 @@ class _AbilitiesTabState extends State<AbilitiesTab>
     }
   }
 
-  // --- Imperative List Builders (Fault Tolerant) ---
-
-  List<Widget> _buildResourceSection(
-      List<CharacterFeature> features, String locale) {
-    final List<Widget> children = [];
-    for (final feature in features) {
-      // PROMPT: Isolate the Crash (True Try-Catch)
-      try {
-        final id = feature.id;
-        final name = feature.nameEn;
-        debugPrint('Processing resource feature: $id ($name)');
-
-        children.add(_buildResourceFeature(feature, locale));
-      } catch (e, stack) {
-        debugPrint('🔥 CRITICAL FAIL on feature: ${feature.id} -> $e');
-        debugPrint('Stack: $stack');
-        // Add a red placeholder so user knows something broke
-        children.add(Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('Error loading resource: ${feature.nameEn}',
-              style: const TextStyle(color: Colors.red)),
-        ));
-      }
-    }
-    return children;
-  }
-
-  List<Widget> _buildActiveSection(
-      List<CharacterFeature> features, String locale, AppLocalizations l10n) {
-    final List<Widget> children = [];
-    for (final feature in features) {
-      // PROMPT: Isolate the Crash (True Try-Catch)
-      try {
-        final id = feature.id;
-        final name = feature.nameEn;
-        debugPrint('Processing active feature: $id ($name)');
-
-        children.add(_buildActiveFeature(feature, locale, l10n));
-      } catch (e, stack) {
-        debugPrint('🔥 CRITICAL FAIL on feature: ${feature.id} -> $e');
-        debugPrint('Stack: $stack');
-        children.add(Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('Error loading active feature: ${feature.nameEn}',
-              style: const TextStyle(color: Colors.red)),
-        ));
-      }
-    }
-    return children;
-  }
-
-  Widget _buildPassiveSection(List<CharacterFeature> features, String locale,
-      AppLocalizations l10n, ColorScheme colorScheme) {
-    debugPrint('--- Building Passive Section (${features.length} items) ---');
-    try {
-      // Safely build subtitle string
-      final List<String> featureNames = [];
-      for (final f in features) {
-        try {
-          featureNames.add(f.getName(locale));
-        } catch (_) {}
-      }
-      final subtitle = featureNames.join(', ');
-
-      // Safely build children list
-      final List<Widget> children = [];
-      for (final feature in features) {
-        // PROMPT: Isolate the Crash (True Try-Catch)
-        try {
-          final id = feature.id;
-          final name = feature.nameEn;
-          debugPrint('Processing passive item: $name (ID: $id)');
-
-          // PROMPT: Sanitize Text() widgets
-          children.add(ListTile(
-            title: Text(feature.getName(locale),
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-            subtitle: Text(feature.getDescription(locale),
-                style: const TextStyle(fontSize: 12)),
-            dense: true,
-            leading: Icon(_getFeatureIcon(feature.iconName),
-                size: 18, color: colorScheme.secondary.withValues(alpha: 0.7)),
-          ));
-        } catch (e, stack) {
-          debugPrint('🔥 CRITICAL FAIL on feature: ${feature.id} -> $e');
-          debugPrint('Stack: $stack');
-          children.add(ListTile(
-            title: Text('Error loading: ${feature.nameEn}',
-                style: const TextStyle(
-                    color: Colors.red, fontWeight: FontWeight.bold)),
-            subtitle: const Text('Details in logs',
-                style: TextStyle(color: Colors.red)),
-            leading: const Icon(Icons.error, color: Colors.red),
-          ));
-        }
-      }
-
-      return Card(
-        elevation: 1,
-        child: Theme(
-          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-          child: ExpansionTile(
-            shape: const Border(),
-            collapsedShape: const Border(),
-            title: Text('${features.length} ${l10n.passiveTraits}'),
-            subtitle: Text(
-              subtitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style:
-                  TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
-            ),
-            leading: Icon(Icons.psychology, color: colorScheme.secondary),
-            children: children,
-          ),
-        ),
-      );
-    } catch (e) {
-      debugPrint('Error building passive section: $e');
-      return const SizedBox.shrink();
-    }
-  }
-
   List<Widget> _buildSpellList(Map<int, List<Spell>> spellsByLevel,
       String locale, AppLocalizations l10n) {
     final List<Widget> children = [];
@@ -1655,27 +1374,6 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       }
     }
     return children;
-  }
-
-  Widget _buildSectionHeader(String title, {Widget? trailing}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0, left: 4.0, right: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-              color: Theme.of(context).colorScheme.primary,
-              letterSpacing: 1.5,
-            ),
-          ),
-          if (trailing != null) trailing,
-        ],
-      ),
-    );
   }
 
   Widget? _buildPreparationCounter(
@@ -1731,513 +1429,49 @@ class _AbilitiesTabState extends State<AbilitiesTab>
     }
   }
 
-  Widget _buildResourceFeature(CharacterFeature feature, String locale) {
-    // NUCLEAR OPTION: Paranoia
-    final pool = feature.resourcePool;
-    if (pool == null) return const SizedBox.shrink();
-
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: () => showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          builder: (context) => FeatureDetailsSheet(feature: feature),
-        ),
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Icon(_getFeatureIcon(feature.iconName),
-                            size: 20, color: colorScheme.primary),
-                        const SizedBox(width: 8),
-                        Expanded(
-                            child: Text(feature.getName(locale),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600))),
-                      ],
-                    ),
-                  ),
-                  Text('${pool.currentUses}/${pool.maxUses}',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: pool.isEmpty
-                              ? colorScheme.error
-                              : colorScheme.primary)),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: pool.maxUses > 0
-                            ? pool.currentUses / pool.maxUses
-                            : 0,
-                        color: pool.isEmpty
-                            ? colorScheme.error
-                            : colorScheme.primary,
-                        backgroundColor: colorScheme.surfaceContainerHighest,
-                        minHeight: 8,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  IconButton(
-                    icon: const Icon(Icons.remove_circle_outline),
-                    onPressed: pool.isEmpty
-                        ? null
-                        : () => setState(() {
-                              pool.use(1);
-                              widget.character.save();
-                            }),
-                    visualDensity: VisualDensity.compact,
-                    constraints: const BoxConstraints(),
-                    padding: EdgeInsets.zero,
-                    iconSize: 24,
-                  ),
-                  const SizedBox(width: 12),
-                  IconButton(
-                    icon: const Icon(Icons.add_circle_outline),
-                    onPressed: pool.isFull
-                        ? null
-                        : () => setState(() {
-                              pool.restore(1);
-                              widget.character.save();
-                            }),
-                    visualDensity: VisualDensity.compact,
-                    constraints: const BoxConstraints(),
-                    padding: EdgeInsets.zero,
-                    iconSize: 24,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActiveFeature(
-      CharacterFeature feature, String locale, AppLocalizations l10n) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    // Find linked resource for display
-    String? resourceCost;
-    if (feature.consumption != null) {
-      final res = _findResourceFeature(feature.consumption!.resourceId);
-      if (res != null) {
-        resourceCost = '${feature.consumption!.amount} ${res.getName(locale)}';
-      }
-    } else if (feature.usageCostId != null) {
-      try {
-        final usageCostId = feature.usageCostId!;
-        final res = widget.character.features
-            .where(
-              (f) =>
-                  f.resourcePool != null &&
-                  ((f.id) == usageCostId ||
-                      (f.id).endsWith('-$usageCostId') ||
-                      (f.id).startsWith('$usageCostId-') ||
-                      (usageCostId == 'ki' && (f.id).contains('ki'))),
-            )
-            .firstOrNull;
-        if (res != null) {
-          resourceCost = '1 ${res.getName(locale)}';
-        }
-      } catch (_) {}
-    }
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      elevation: 1,
-      child: InkWell(
-        onTap: () => showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          builder: (context) => FeatureDetailsSheet(feature: feature),
-        ),
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: colorScheme.secondaryContainer,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(_getFeatureIcon(feature.iconName),
-                        size: 20, color: colorScheme.onSecondaryContainer),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(feature.getName(locale),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 15)),
-                        if (feature.actionEconomy != null)
-                          Text(
-                            _getLocalizedActionEconomy(
-                                    l10n, feature.actionEconomy ?? '')
-                                .toUpperCase(),
-                            style: TextStyle(
-                                fontSize: 10,
-                                color: colorScheme.secondary,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.5),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(feature.getDescription(locale),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                      color: colorScheme.onSurfaceVariant, fontSize: 13)),
-              if (resourceCost != null ||
-                  feature.usageCostId != null ||
-                  ((feature.nameEn).contains('Channel Divinity'))) ...[
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.tonalIcon(
-                    onPressed: () => _useFeature(feature, locale, l10n),
-                    icon: const Icon(Icons.bolt, size: 16),
-                    label: Text(
-                      resourceCost != null
-                          ? l10n.useActionCost(resourceCost)
-                          : l10n.useAction,
-                    ),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                    ),
-                  ),
-                ),
-              ]
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMagicSection(BuildContext context, AppLocalizations l10n,
-      {bool showCounter = true}) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final locale = Localizations.localeOf(context).languageCode;
-    final isPactMagic = SpellcastingService.getSpellcastingType(
-            widget.character.characterClass) ==
-        'pact_magic';
-    final maxPrepared =
-        SpellcastingService.getMaxPreparedSpells(widget.character);
-    final currentPrepared = widget.character.preparedSpells.length;
-
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            if (showCounter) ...[
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: currentPrepared > maxPrepared
-                      ? colorScheme.errorContainer
-                      : colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.auto_awesome,
-                        size: 16,
-                        color: currentPrepared > maxPrepared
-                            ? colorScheme.onErrorContainer
-                            : colorScheme.onSecondaryContainer),
-                    const SizedBox(width: 8),
-                    Text(
-                      l10n.preparedSpellsCount(currentPrepared, maxPrepared),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: currentPrepared > maxPrepared
-                            ? colorScheme.onErrorContainer
-                            : colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildMagicStat(
-                    l10n.spellAbility,
-                    _getAbilityAbbr(
-                        l10n,
-                        SpellcastingService.getSpellcastingAbilityName(
-                            widget.character.characterClass))),
-                Container(
-                    width: 1, height: 30, color: colorScheme.outlineVariant),
-                _buildMagicStat(l10n.spellSaveDC,
-                    '${SpellcastingService.getSpellSaveDC(widget.character)}'),
-                Container(
-                    width: 1, height: 30, color: colorScheme.outlineVariant),
-                _buildMagicStat(l10n.spellAttack,
-                    '+${SpellcastingService.getSpellAttackBonus(widget.character)}'),
-              ],
-            ),
-            if (widget.character.maxSpellSlots.any((s) => s > 0)) ...[
-              const Divider(height: 32),
-              if (isPactMagic)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                      locale == 'ru'
-                          ? 'Магия Договора (Короткий отдых)'
-                          : 'Pact Magic (Short Rest)',
-                      style: TextStyle(
-                          color: colorScheme.secondary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12)),
-                ),
-              SpellSlotsWidget(
-                character: widget.character,
-                onChanged: () => setState(() => widget.character.save()),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMagicStat(String label, String value) {
-    return Column(
-      children: [
-        Text(label,
-            style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.secondary)),
-        const SizedBox(height: 2),
-        Text(value,
-            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
-      ],
-    );
-  }
-
   Widget _buildSpellLevelGroup(
       int level, List<Spell> spells, String locale, AppLocalizations l10n) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final title = level == 0
-        ? l10n.cantrips.toUpperCase()
-        : l10n.levelLabel(level).toUpperCase();
-
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        shape: const Border(),
-        collapsedShape: const Border(),
-        key: PageStorageKey('spell_level_$level'),
-        initiallyExpanded: _expandedLevels[level] ?? true,
-        onExpansionChanged: (expanded) => _expandedLevels[level] = expanded,
-        tilePadding: EdgeInsets.zero,
-        title: Text(title,
-            style: TextStyle(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.0,
-                fontSize: 14)),
-        children: spells.map((spell) {
-          // Basic validation to prevent crashes if spell data is weird
-          try {
-            final characterClassId =
-                widget.character.characterClass.toLowerCase();
-            final isSpontaneous = [
-              'sorcerer',
-              'bard',
-              'warlock',
-              'ranger',
-              'чародей',
-              'бард',
-              'колдун',
-              'следопыт'
-            ].contains(characterClassId);
-            final isPactMagic =
-                SpellcastingService.getSpellcastingType(characterClassId) ==
-                    'pact_magic';
-
-            final isPrepared = isSpontaneous ||
-                widget.character.preparedSpells.contains(spell.id);
-
-            // Allow casting if level 0 (cantrip) OR standard slots available
-            // OR if Warlock Arcanum level (>=6) - handled by specific logic inside _showCastSpellDialog
-            bool canCast = spell.level == 0;
-            if (!canCast) {
-              // Pact Magic override for Arcanum levels
-              if (isPactMagic) {
-                if (spell.level >= 6) {
-                  canCast = true;
-                } else {
-                  // Check if ANY pact slots remain. They are all same level.
-                  final pactSlots =
-                      SpellSlotsTable.getPactSlots(widget.character.level);
-                  final pactSlotLevel = pactSlots
-                      .length; // Length corresponds to max level (e.g. 5)
-
-                  if (pactSlotLevel > 0 &&
-                      pactSlotLevel <= widget.character.spellSlots.length) {
-                    canCast =
-                        widget.character.spellSlots[pactSlotLevel - 1] > 0;
-                  }
-                }
-              } else {
-                canCast = (spell.level <= widget.character.spellSlots.length &&
-                    widget.character.spellSlots[spell.level - 1] > 0);
-              }
+    return AbilitiesSpellLevelGroup(
+      key: PageStorageKey('spell_level_$level'),
+      character: widget.character,
+      level: level,
+      spells: spells,
+      locale: locale,
+      initiallyExpanded: _expandedLevels[level] ?? true,
+      onExpandedChanged: (expanded) => _expandedLevels[level] = expanded,
+      onOpenDetails: (spell) {
+        _showSpellSheet(
+          spell,
+          onToggleKnown: () => setState(() {
+            if (widget.character.knownSpells.contains(spell.id)) {
+              widget.character.knownSpells.remove(spell.id);
+              widget.character.preparedSpells.remove(spell.id);
+            } else {
+              widget.character.knownSpells.add(spell.id);
             }
-
-            final isHC = colorScheme.outlineVariant == colorScheme.primary &&
-                Theme.of(context).dividerTheme.thickness == 2;
-
-            return Card(
-              margin: const EdgeInsets.only(bottom: 6),
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                    color:
-                        isHC ? colorScheme.primary : colorScheme.outlineVariant,
-                    width: isHC ? 2 : 1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ListTile(
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                dense: true,
-                leading: isSpontaneous
-                    ? null
-                    : GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            final success =
-                                SpellPreparationManager.togglePreparation(
-                                    widget.character, spell, context);
-                            if (!success) {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: const Text(
-                                    'Cannot prepare more spells! Limit reached.'), // Using hardcoded English as fallback or use a suitable l10n key if found
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.error,
-                              ));
-                            }
-                          });
-                        },
-                        child: Icon(isPrepared ? Icons.star : Icons.star_border,
-                            color:
-                                isPrepared ? Colors.amber : colorScheme.outline,
-                            size: 24),
-                      ),
-                title: Text(spell.getName(locale),
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text(
-                    SpellUtils.getLocalizedSchool(l10n, spell.school),
-                    style:
-                        TextStyle(color: colorScheme.secondary, fontSize: 11)),
-                trailing: IconButton(
-                  icon: const Icon(Icons.auto_fix_high),
-                  onPressed: canCast
-                      ? () => _showCastSpellDialog(spell, locale, l10n)
-                      : null,
-                  color: canCast
-                      ? colorScheme.primary
-                      : colorScheme.onSurface.withValues(alpha: 0.2),
-                  tooltip: l10n.castSpell,
-                ),
-                onTap: () => showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (context) => SpellDetailsSheet(
-                    spell: spell,
-                    character: widget.character,
-                    onToggleKnown: () => setState(() {
-                      if (widget.character.knownSpells.contains(spell.id)) {
-                        widget.character.knownSpells.remove(spell.id);
-                        widget.character.preparedSpells.remove(spell.id);
-                      } else {
-                        widget.character.knownSpells.add(spell.id);
-                      }
-                      widget.character.save();
-                    }),
-                  ),
-                ),
+            widget.character.save();
+          }),
+        );
+      },
+      onCastSpell: (spell) => _showCastSpellDialog(spell, locale, l10n),
+      onTogglePreparation: (spell) {
+        setState(() {
+          final success = SpellPreparationManager.togglePreparation(
+            widget.character,
+            spell,
+            context,
+          );
+          if (!success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(l10n.preparedSpellsLimitReached),
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
-          } catch (e) {
-            debugPrint('Error building spell tile for ${spell.id}: $e');
-            return const SizedBox.shrink();
           }
-        }).toList(),
-      ),
+        });
+      },
     );
-  }
-
-  IconData _getFeatureIcon(String? iconName) {
-    switch (iconName) {
-      case 'healing':
-        return Icons.favorite;
-      case 'visibility':
-        return Icons.visibility;
-      case 'flash_on':
-        return Icons.flash_on;
-      case 'swords':
-        return Icons.shield;
-      case 'auto_fix_high':
-        return Icons.auto_fix_high;
-      case 'health_and_safety':
-        return Icons.health_and_safety;
-      case 'auto_awesome':
-        return Icons.auto_awesome;
-      case 'filter_2':
-        return Icons.filter_2;
-      case 'security':
-        return Icons.security;
-      case 'back_hand':
-        return Icons.back_hand;
-      case 'wifi_tethering':
-        return Icons.wifi_tethering;
-      default:
-        return Icons.star;
-    }
   }
 
   // --- Wizard VIP Block Builders ---
@@ -2245,11 +1479,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
   void _showFeatureLore(String featureId) {
     final feature = FeatureService.getFeatureById(featureId);
     if (feature != null) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (context) => FeatureDetailsSheet(feature: feature),
-      );
+      _showFeatureSheet(feature);
     }
   }
 
@@ -2429,15 +1659,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           color: isUsed ? colorScheme.primary : colorScheme.primary,
           tooltip: l10n.castSpell,
         ),
-        onTap: () => showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          builder: (context) => SpellDetailsSheet(
-            spell: spell,
-            character: widget.character,
-            onToggleKnown: null, // VIP spells are permanent
-          ),
-        ),
+        onTap: () => _showSpellSheet(spell),
       ),
     );
   }
