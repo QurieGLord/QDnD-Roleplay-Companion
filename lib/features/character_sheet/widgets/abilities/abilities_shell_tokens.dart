@@ -20,7 +20,7 @@ class AbilitiesShellTokens {
   static const double pillRadius = 999;
 
   static const Duration pressDuration = Duration(milliseconds: 120);
-  static const Duration revealDuration = Duration(milliseconds: 420);
+  static const Duration revealDuration = Duration(milliseconds: 380);
   static const Duration expandDuration = Duration(milliseconds: 220);
   static const Duration scrollDuration = Duration(milliseconds: 420);
 

@@ -23,9 +23,9 @@ class AbilitiesPassiveTraitsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final preview =
-        features.take(3).map((feature) => feature.getName(locale)).join(' • ');
     final colorScheme = Theme.of(context).colorScheme;
+    final previewIcons = features.take(3).toList();
+    final overflowCount = features.length - previewIcons.length;
 
     return AbilitiesSectionSurface(
       quiet: true,
@@ -35,7 +35,6 @@ class AbilitiesPassiveTraitsSection extends StatelessWidget {
           AbilitiesSectionHeader(
             title: AppLocalizations.of(context)!.passiveTraits,
             icon: Icons.auto_stories,
-            subtitle: preview,
             trailing: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
@@ -70,14 +69,40 @@ class AbilitiesPassiveTraitsSection extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      preview,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w600,
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final feature in previewIcons)
+                          _PassiveFeaturePreviewIcon(feature: feature),
+                        if (overflowCount > 0)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: colorScheme.surfaceContainerLow,
+                              borderRadius: BorderRadius.circular(
+                                AbilitiesShellTokens.pillRadius,
+                              ),
+                              border: Border.all(
+                                color: colorScheme.outlineVariant
+                                    .withValues(alpha: 0.5),
+                              ),
+                            ),
+                            child: Text(
+                              '+$overflowCount',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                            ),
                           ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -104,6 +129,31 @@ class AbilitiesPassiveTraitsSection extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PassiveFeaturePreviewIcon extends StatelessWidget {
+  const _PassiveFeaturePreviewIcon({required this.feature});
+
+  final CharacterFeature feature;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: colorScheme.secondaryContainer.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Icon(
+        resolveAbilitiesFeatureIcon(feature.iconName),
+        size: 18,
+        color: colorScheme.onSecondaryContainer,
       ),
     );
   }

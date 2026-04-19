@@ -21,12 +21,14 @@ class AbilitiesSectionHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final accent = emphasized ? colorScheme.primary : colorScheme.secondary;
+    final hasSubtitle = subtitle != null && subtitle!.isNotEmpty;
     final iconBackground = emphasized
         ? colorScheme.primaryContainer
         : colorScheme.secondaryContainer.withValues(alpha: 0.8);
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          hasSubtitle ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
         Container(
           width: 40,
@@ -54,7 +56,7 @@ class AbilitiesSectionHeader extends StatelessWidget {
                   color: colorScheme.onSurface,
                 ),
               ),
-              if (subtitle != null && subtitle!.isNotEmpty) ...[
+              if (hasSubtitle) ...[
                 const SizedBox(height: 4),
                 Text(
                   subtitle!,

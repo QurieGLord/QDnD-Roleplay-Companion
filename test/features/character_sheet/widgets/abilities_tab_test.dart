@@ -221,6 +221,51 @@ void main() {
       expect(find.text('Action Surge'), findsOneWidget);
       expect(find.text('Battle Cry'), findsOneWidget);
     });
+
+    testWidgets('does not render a duplicated passive trait text preview',
+        (tester) async {
+      final character = _buildCharacter(
+        id: 'passive-preview',
+        name: 'Lorekeeper',
+        characterClass: 'Custom Hero',
+        features: [
+          CharacterFeature(
+            id: 'keen-mind',
+            nameEn: 'Keen Mind',
+            nameRu: 'Острый ум',
+            descriptionEn: 'You can accurately recall anything.',
+            descriptionRu: 'Вы можете точно вспоминать всё, что видели.',
+            type: FeatureType.passive,
+            minLevel: 1,
+          ),
+          CharacterFeature(
+            id: 'observant',
+            nameEn: 'Observant',
+            nameRu: 'Наблюдательность',
+            descriptionEn: 'You notice important details around you.',
+            descriptionRu: 'Вы замечаете важные детали вокруг себя.',
+            type: FeatureType.passive,
+            minLevel: 1,
+          ),
+        ],
+      );
+
+      await tester.pumpWidget(_wrap(AbilitiesTab(character: character)));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Keen Mind • Observant'), findsNothing);
+
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(const Key('abilities_section_passive')),
+          matching: find.byIcon(Icons.expand_more),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Keen Mind'), findsOneWidget);
+      expect(find.text('Observant'), findsOneWidget);
+    });
   });
 
   group('AbilitiesTabLogic', () {

@@ -1152,6 +1152,8 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       ];
 
       final children = <Widget>[];
+      final hasQuickJumpRow = hasFeaturedModules && quickJumpItems.length >= 3;
+      var hasAddedGenericSection = false;
 
       if (hasFeaturedModules) {
         children.add(
@@ -1161,7 +1163,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
               children: [
                 for (int index = 0; index < featuredModules.length; index++)
                   AbilitiesReveal(
-                    delay: Duration(milliseconds: index * 70),
+                    delay: Duration(milliseconds: index * 36),
                     beginOffset: const Offset(0, 0.035),
                     child: featuredModules[index],
                   ),
@@ -1171,13 +1173,13 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         );
       }
 
-      if (hasFeaturedModules && quickJumpItems.length >= 3) {
+      if (hasQuickJumpRow) {
         if (children.isNotEmpty) {
           children.add(const SizedBox(height: 8));
         }
         children.add(
           AbilitiesReveal(
-            delay: const Duration(milliseconds: 160),
+            delay: const Duration(milliseconds: 72),
             child: AbilitiesQuickJumpRow(items: quickJumpItems),
           ),
         );
@@ -1185,15 +1187,22 @@ class _AbilitiesTabState extends State<AbilitiesTab>
 
       if (resourceFeatures.isNotEmpty) {
         if (children.isNotEmpty) {
-          children
-              .add(const SizedBox(height: AbilitiesShellTokens.sectionSpacing));
+          children.add(
+            SizedBox(
+              height: hasFeaturedModules &&
+                      !hasQuickJumpRow &&
+                      !hasAddedGenericSection
+                  ? 0
+                  : AbilitiesShellTokens.sectionSpacing,
+            ),
+          );
         }
         children.add(
           _sectionAnchor(
             anchorKey: _resourcesSectionAnchor,
             testKey: const Key('abilities_section_resources'),
             child: AbilitiesReveal(
-              delay: const Duration(milliseconds: 220),
+              delay: const Duration(milliseconds: 96),
               child: AbilitiesResourcesSection(
                 features: resourceFeatures,
                 locale: locale,
@@ -1204,19 +1213,27 @@ class _AbilitiesTabState extends State<AbilitiesTab>
             ),
           ),
         );
+        hasAddedGenericSection = true;
       }
 
       if (activeFeatures.isNotEmpty) {
         if (children.isNotEmpty) {
-          children
-              .add(const SizedBox(height: AbilitiesShellTokens.sectionSpacing));
+          children.add(
+            SizedBox(
+              height: hasFeaturedModules &&
+                      !hasQuickJumpRow &&
+                      !hasAddedGenericSection
+                  ? 0
+                  : AbilitiesShellTokens.sectionSpacing,
+            ),
+          );
         }
         children.add(
           _sectionAnchor(
             anchorKey: _activeSectionAnchor,
             testKey: const Key('abilities_section_active'),
             child: AbilitiesReveal(
-              delay: const Duration(milliseconds: 280),
+              delay: const Duration(milliseconds: 128),
               child: AbilitiesActiveAbilitiesSection(
                 features: activeFeatures,
                 locale: locale,
@@ -1231,19 +1248,27 @@ class _AbilitiesTabState extends State<AbilitiesTab>
             ),
           ),
         );
+        hasAddedGenericSection = true;
       }
 
       if (showMagicSection) {
         if (children.isNotEmpty) {
-          children
-              .add(const SizedBox(height: AbilitiesShellTokens.sectionSpacing));
+          children.add(
+            SizedBox(
+              height: hasFeaturedModules &&
+                      !hasQuickJumpRow &&
+                      !hasAddedGenericSection
+                  ? 0
+                  : AbilitiesShellTokens.sectionSpacing,
+            ),
+          );
         }
         children.add(
           _sectionAnchor(
             anchorKey: _magicSectionAnchor,
             testKey: const Key('abilities_section_magic'),
             child: AbilitiesReveal(
-              delay: const Duration(milliseconds: 340),
+              delay: const Duration(milliseconds: 160),
               child: AbilitiesMagicSection(
                 stats: [
                   MagicStatData(
@@ -1290,19 +1315,27 @@ class _AbilitiesTabState extends State<AbilitiesTab>
             ),
           ),
         );
+        hasAddedGenericSection = true;
       }
 
       if (passiveFeatures.isNotEmpty) {
         if (children.isNotEmpty) {
-          children
-              .add(const SizedBox(height: AbilitiesShellTokens.sectionSpacing));
+          children.add(
+            SizedBox(
+              height: hasFeaturedModules &&
+                      !hasQuickJumpRow &&
+                      !hasAddedGenericSection
+                  ? 0
+                  : AbilitiesShellTokens.sectionSpacing,
+            ),
+          );
         }
         children.add(
           _sectionAnchor(
             anchorKey: _passiveSectionAnchor,
             testKey: const Key('abilities_section_passive'),
             child: AbilitiesReveal(
-              delay: const Duration(milliseconds: 400),
+              delay: const Duration(milliseconds: 192),
               child: AbilitiesPassiveTraitsSection(
                 features: passiveFeatures,
                 locale: locale,
@@ -1311,6 +1344,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
             ),
           ),
         );
+        hasAddedGenericSection = true;
       }
 
       return ListView(
