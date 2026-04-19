@@ -1396,12 +1396,22 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       String locale, AppLocalizations l10n) {
     final List<Widget> children = [];
     final levels = spellsByLevel.keys.toList()..sort();
+    final defaultExpandedLevel =
+        AbilitiesTabLogic.defaultExpandedSpellLevel(levels);
 
     for (final level in levels) {
       try {
         final spells = spellsByLevel[level] ?? [];
         if (spells.isNotEmpty) {
-          children.add(_buildSpellLevelGroup(level, spells, locale, l10n));
+          children.add(
+            _buildSpellLevelGroup(
+              level,
+              spells,
+              locale,
+              l10n,
+              defaultExpandedLevel: defaultExpandedLevel,
+            ),
+          );
         }
       } catch (e) {
         debugPrint('Error rendering spell level $level: $e');
@@ -1464,14 +1474,16 @@ class _AbilitiesTabState extends State<AbilitiesTab>
   }
 
   Widget _buildSpellLevelGroup(
-      int level, List<Spell> spells, String locale, AppLocalizations l10n) {
+      int level, List<Spell> spells, String locale, AppLocalizations l10n,
+      {required int? defaultExpandedLevel}) {
     return AbilitiesSpellLevelGroup(
       key: PageStorageKey('spell_level_$level'),
       character: widget.character,
       level: level,
       spells: spells,
       locale: locale,
-      initiallyExpanded: _expandedLevels[level] ?? true,
+      initiallyExpanded:
+          _expandedLevels[level] ?? level == defaultExpandedLevel,
       onExpandedChanged: (expanded) => _expandedLevels[level] = expanded,
       onOpenDetails: (spell) {
         _showSpellSheet(

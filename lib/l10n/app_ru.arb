@@ -714,7 +714,7 @@
   "cantripsTab": "Заговоры ({current}/{max})",
   "level1TabKnown": "1-й круг ({current}/{max})",
   "level1TabAll": "1-й круг (Все)",
-  "noSpellsAtLevel1": "Нет доступных заклинаний 1-го круга",
+  "noSpellsAtLevel1": "На 1-м уровне ваш персонаж пока не может изучать заклинания.",
   "selectSpellsInstruction": "Выберите заклинания для вашего персонажа (Заговоры и 1-й круг).",
   "selectSkillsInstruction": "Выберите навыки, которыми вы владеете.",
   "selectSkillsFirst": "Сначала выберите навыки",

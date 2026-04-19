@@ -8,6 +8,14 @@ class AbilitiesTabLogic {
 
   final Character character;
 
+  static int? defaultExpandedSpellLevel(Iterable<int> levels) {
+    if (levels.isEmpty) {
+      return null;
+    }
+
+    return levels.reduce((current, next) => current > next ? current : next);
+  }
+
   bool shouldShowInList(CharacterFeature feature) {
     try {
       if (feature.options != null && feature.options!.isNotEmpty) {

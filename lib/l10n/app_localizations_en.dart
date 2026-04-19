@@ -2277,7 +2277,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get level1TabAll => 'Level 1 (All)';
 
   @override
-  String get noSpellsAtLevel1 => 'No spells available at level 1';
+  String get noSpellsAtLevel1 =>
+      'At 1st level, your character can\'t learn spells yet.';
 
   @override
   String get useAction => 'Use';

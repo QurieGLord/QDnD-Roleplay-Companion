@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/models/race_data.dart';
 import '../../core/models/class_data.dart';
+import '../../core/models/spell_slots_table.dart';
 import '../../core/models/background_data.dart';
 import '../../core/services/feature_service.dart';
 import '../../core/services/spell_service.dart';
@@ -202,8 +203,11 @@ class CharacterCreationState extends ChangeNotifier {
 
     // Spellcasting Validation
     if (selectedClass!.spellcasting != null) {
-      final cantripLimit = getSpellLimits().cantrips;
-      final spellLimit = getSpellLimits().spellsKnown;
+      final limits = getSpellLimits();
+      final cantripLimit = limits.cantrips;
+      final spellLimit = limits.spellsKnown;
+      final hasCantripChoices = hasCantripChoicesAtLevel1;
+      final hasLevel1SpellChoices = hasLevel1SpellChoicesAtLevel1;
 
       int selectedCantripsCount = 0;
       int selectedLvl1Count = 0;
@@ -224,13 +228,16 @@ class CharacterCreationState extends ChangeNotifier {
         }
       }
 
-      if (cantripLimit > 0 && selectedCantripsCount != cantripLimit) {
+      if (hasCantripChoices &&
+          cantripLimit > 0 &&
+          selectedCantripsCount != cantripLimit) {
         return false;
       }
 
       // Prepared casters (Cleric/Druid) don't strictly *learn* spells at creation in our UI the same way,
       // so we use a loose check, but Wizards/Bards/Sorcs/Warlocks MUST learn their required spells.
-      if (spellLimit > 0 &&
+      if (hasLevel1SpellChoices &&
+          spellLimit > 0 &&
           spellLimit < 999 &&
           selectedLvl1Count != spellLimit) {
         return false;
@@ -240,35 +247,55 @@ class CharacterCreationState extends ChangeNotifier {
     return true;
   }
 
+  List<dynamic> get availableClassSpellsAtLevel1 {
+    if (selectedClass == null) return const [];
+    return SpellService.getSpellsForClass(selectedClass!.id);
+  }
+
+  bool get hasCantripChoicesAtLevel1 {
+    return availableClassSpellsAtLevel1.any((spell) => spell.level == 0);
+  }
+
+  bool get hasLevel1SpellChoicesAtLevel1 {
+    if (selectedClass?.spellcasting == null) return false;
+
+    final casterType = selectedClass!.spellcasting!.type;
+    final slots = SpellSlotsTable.getSlots(1, casterType);
+    final hasLevel1Slots = slots.isNotEmpty && slots.first > 0;
+    if (!hasLevel1Slots) return false;
+
+    return availableClassSpellsAtLevel1.any((spell) => spell.level == 1);
+  }
+
+  bool get hasAnySpellChoicesAtLevel1 {
+    return hasCantripChoicesAtLevel1 || hasLevel1SpellChoicesAtLevel1;
+  }
+
   SpellLimits getSpellLimits() {
     if (selectedClass == null) return SpellLimits(0, 0);
 
     // Level 1 Limits for standard SRD classes
     // Note: This logic can be moved to a service or JSON later
     final classId = selectedClass!.id.toLowerCase();
-    switch (classId) {
-      case 'bard':
-        return SpellLimits(2, 4); // 2 Cantrips, 4 Known
-      case 'cleric':
-        return SpellLimits(
-            3, 999); // 3 Cantrips, All Lvl 1 available (Prepared)
-      case 'druid':
-        return SpellLimits(
-            2, 999); // 2 Cantrips, All Lvl 1 available (Prepared)
-      case 'sorcerer':
-        return SpellLimits(4, 2); // 4 Cantrips, 2 Known
-      case 'warlock':
-        return SpellLimits(2, 2); // 2 Cantrips, 2 Known
-      case 'wizard':
-        return SpellLimits(3, 6); // 3 Cantrips, 6 in Spellbook
-      default:
-        // Paladin, Ranger, Fighter, etc. usually don't have spells at lvl 1
-        // But for safety/custom classes, we can allow 0 or generic
-        if (selectedClass!.spellcasting != null) {
-          return SpellLimits(2, 2); // Generic fallback
-        }
-        return SpellLimits(0, 0);
-    }
+    final hasCantripChoices = hasCantripChoicesAtLevel1;
+    final hasLevel1SpellChoices = hasLevel1SpellChoicesAtLevel1;
+
+    final baseLimits = switch (classId) {
+      'bard' => SpellLimits(2, 4),
+      'cleric' => SpellLimits(3, 999),
+      'druid' => SpellLimits(2, 999),
+      'sorcerer' => SpellLimits(4, 2),
+      'warlock' => SpellLimits(2, 2),
+      'wizard' => SpellLimits(3, 6),
+      _ => selectedClass!.spellcasting != null
+          ? SpellLimits(2, 2)
+          : SpellLimits(0, 0),
+    };
+
+    return SpellLimits(
+      hasCantripChoices ? baseLimits.cantrips : 0,
+      hasLevel1SpellChoices ? baseLimits.spellsKnown : 0,
+    );
   }
 
   void toggleSpell(String spellId) {

@@ -323,5 +323,11 @@ void main() {
       expect(deduped, hasLength(1));
       expect(deduped.single.id, higher.id);
     });
+
+    test('defaults spell expansion to the highest available circle', () {
+      expect(AbilitiesTabLogic.defaultExpandedSpellLevel([0, 1, 2, 3]), 3);
+      expect(AbilitiesTabLogic.defaultExpandedSpellLevel([0]), 0);
+      expect(AbilitiesTabLogic.defaultExpandedSpellLevel(const []), isNull);
+    });
   });
 }

@@ -7,7 +7,6 @@ import '../../../core/models/ability_scores.dart';
 import '../../../core/models/character_feature.dart';
 import '../../../core/services/feature_service.dart';
 import '../../../core/services/spell_service.dart';
-import '../../../core/models/spell_slots_table.dart';
 import '../../../core/models/class_data.dart';
 import '../../../core/constants/ranger_options.dart';
 import '../character_creation_state.dart';
@@ -784,15 +783,8 @@ class FeaturesSpellsStep extends StatelessWidget {
               final level1Spells =
                   classSpells.where((s) => s.level == 1).toList();
 
-              // Check slots for Level 1 logic
-              final spellcasting = state.selectedClass!.spellcasting;
-              final casterType = spellcasting?.type ?? 'none';
-              final slots = SpellSlotsTable.getSlots(1, casterType);
-              // Check if we have any Level 1 slots (index 0) or if it's Pact Magic (handled differently but usually has slot at lvl 1)
-              final hasLevel1Slots = slots.isNotEmpty && slots[0] > 0;
-
               // If no cantrips and no level 1 slots (e.g. Paladin Level 1), show message
-              if (level0Spells.isEmpty && !hasLevel1Slots) {
+              if (!state.hasAnySpellChoicesAtLevel1) {
                 return Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(24.0),

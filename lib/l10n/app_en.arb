@@ -3093,7 +3093,7 @@
   "@level1TabAll": {
     "description": "No description provided"
   },
-  "noSpellsAtLevel1": "No spells available at level 1",
+  "noSpellsAtLevel1": "At 1st level, your character can't learn spells yet.",
   "@noSpellsAtLevel1": {
     "description": "No description provided"
   },

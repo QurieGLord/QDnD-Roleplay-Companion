@@ -4331,7 +4331,7 @@ abstract class AppLocalizations {
   /// No description provided
   ///
   /// In en, this message translates to:
-  /// **'No spells available at level 1'**
+  /// **'At 1st level, your character can\'t learn spells yet.'**
   String get noSpellsAtLevel1;
 
   /// No description provided

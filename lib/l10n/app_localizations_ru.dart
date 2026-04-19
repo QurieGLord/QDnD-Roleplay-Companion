@@ -2257,7 +2257,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get level1TabAll => '1-й круг (Все)';
 
   @override
-  String get noSpellsAtLevel1 => 'Нет доступных заклинаний 1-го круга';
+  String get noSpellsAtLevel1 =>
+      'На 1-м уровне ваш персонаж пока не может изучать заклинания.';
 
   @override
   String get useAction => 'Использовать';
