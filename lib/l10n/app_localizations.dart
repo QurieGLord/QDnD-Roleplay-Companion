@@ -284,6 +284,54 @@ abstract class AppLocalizations {
   /// **'View Details'**
   String get viewDetails;
 
+  /// Supporting copy for the expressive character roster header
+  ///
+  /// In en, this message translates to:
+  /// **'Your gathered adventurers, ready for the next tale.'**
+  String get rosterHeaderSubtitle;
+
+  /// No description provided for @rosterCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No heroes in the roster yet} =1{1 hero in the roster} other{{count} heroes in the roster}}'**
+  String rosterCount(int count);
+
+  /// Hint that explains how to open contextual actions from the character roster
+  ///
+  /// In en, this message translates to:
+  /// **'Long press for quick actions'**
+  String get rosterLongPressHint;
+
+  /// Subtitle for the create character action sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Start a fresh hero or bring one in from FC5.'**
+  String get createCharacterSheetSubtitle;
+
+  /// Supporting copy for creating a brand new character from the roster
+  ///
+  /// In en, this message translates to:
+  /// **'Build a new hero step by step.'**
+  String get createCharacterActionDescription;
+
+  /// Supporting copy for importing a character into the roster
+  ///
+  /// In en, this message translates to:
+  /// **'Bring an existing FC5 sheet into the roster.'**
+  String get importCharacterActionDescription;
+
+  /// Title for the contextual action sheet shown from the character roster
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get characterActionsTitle;
+
+  /// Subtitle for the contextual action sheet shown from the character roster
+  ///
+  /// In en, this message translates to:
+  /// **'Manage this adventurer without leaving the roster.'**
+  String get characterActionsSubtitle;
+
   /// No description provided
   ///
   /// In en, this message translates to:
@@ -325,6 +373,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} imported successfully!'**
   String importedSuccess(String name);
+
+  /// No description provided for @duplicateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to duplicate character: {error}'**
+  String duplicateFailed(String error);
+
+  /// No description provided for @importFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to import character: {error}'**
+  String importFailed(String error);
+
+  /// Long-form label for initiative in the character details dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Initiative'**
+  String get initiativeLabel;
+
+  /// Long-form label for proficiency bonus in the character details dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Proficiency Bonus'**
+  String get proficiencyBonusLabel;
+
+  /// Section title for character ability scores
+  ///
+  /// In en, this message translates to:
+  /// **'Ability Scores'**
+  String get abilityScoresTitle;
 
   /// No description provided
   ///

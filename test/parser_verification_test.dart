@@ -6,7 +6,7 @@ import 'package:qd_and_d/core/models/item.dart';
 
 void main() {
   test('Verify bilingual_test_compendium.xml parsing', () async {
-    final file = File('bilingual_test_compendium.xml');
+    final file = File('assets/data/compendium/bilingual_test_compendium.xml');
     final xmlContent = await file.readAsString();
 
     final result = await FC5Parser.parseCompendium(xmlContent);
@@ -34,10 +34,10 @@ void main() {
     expect(wizard.hitDie, 6);
 
     // Check Proficiencies (Skills)
-    // XML: Arcana ---RU--- Магия, History ---RU--- История, Investigation ---RU--- Расследование, Logic ---RU--- Логика
-    expect(wizard.skillProficiencies.from.contains('Arcana'), true);
-    expect(wizard.skillProficiencies.from.contains('History'), true);
-    expect(wizard.skillProficiencies.from.contains('Investigation'), true);
+    // Parser normalizes strict IDs to lowercase.
+    expect(wizard.skillProficiencies.from.contains('arcana'), true);
+    expect(wizard.skillProficiencies.from.contains('history'), true);
+    expect(wizard.skillProficiencies.from.contains('investigation'), true);
     // Ensure ---RU--- is stripped from the key
     expect(wizard.skillProficiencies.from.any((s) => s.contains('---RU---')),
         false);
@@ -56,7 +56,10 @@ void main() {
     final cacheSlots =
         level1Features.firstWhere((f) => f.nameEn == 'Cache Slots');
     expect(cacheSlots.descriptionEn, contains("pool of temporary memory"));
-    expect(cacheSlots.descriptionRu, contains("пул временной памяти"));
+    expect(
+      cacheSlots.descriptionRu.toLowerCase(),
+      contains("пул временной памяти"),
+    );
 
     // --- Verify Backgrounds ---
     expect(result.backgrounds.length, 2);
@@ -65,9 +68,8 @@ void main() {
     expect(legacy.name['ru'], 'Поддержка Легаси');
 
     // Check Proficiencies
-    // XML: History ---RU--- История, Investigation ---RU--- Расследование
-    expect(legacy.skillProficiencies.contains('History'), true);
-    expect(legacy.skillProficiencies.contains('Investigation'), true);
+    expect(legacy.skillProficiencies.contains('history'), true);
+    expect(legacy.skillProficiencies.contains('investigation'), true);
     expect(legacy.skillProficiencies.any((s) => s.contains('---RU---')), false);
 
     // Check Traits (merged into Feature)

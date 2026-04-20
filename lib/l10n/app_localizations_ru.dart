@@ -103,6 +103,46 @@ class AppLocalizationsRu extends AppLocalizations {
   String get viewDetails => 'Подробнее';
 
   @override
+  String get rosterHeaderSubtitle =>
+      'Собранный ростер героев, готовых к следующей истории.';
+
+  @override
+  String rosterCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '# героя в ростере',
+      many: '# героев в ростере',
+      few: '# героя в ростере',
+      one: '# герой в ростере',
+      zero: 'В ростере пока нет героев',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rosterLongPressHint => 'Удерживайте для быстрых действий';
+
+  @override
+  String get createCharacterSheetSubtitle =>
+      'Создайте нового героя или перенесите лист из FC5.';
+
+  @override
+  String get createCharacterActionDescription =>
+      'Соберите нового героя шаг за шагом.';
+
+  @override
+  String get importCharacterActionDescription =>
+      'Добавьте в ростер готовый лист из FC5.';
+
+  @override
+  String get characterActionsTitle => 'Быстрые действия';
+
+  @override
+  String get characterActionsSubtitle =>
+      'Управляйте этим героем, не покидая ростер.';
+
+  @override
   String get duplicate => 'Дублировать';
 
   @override
@@ -130,6 +170,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String importedSuccess(String name) {
     return '$name успешно импортирован!';
   }
+
+  @override
+  String duplicateFailed(String error) {
+    return 'Не удалось скопировать персонажа: $error';
+  }
+
+  @override
+  String importFailed(String error) {
+    return 'Не удалось импортировать персонажа: $error';
+  }
+
+  @override
+  String get initiativeLabel => 'Инициатива';
+
+  @override
+  String get proficiencyBonusLabel => 'Бонус мастерства';
+
+  @override
+  String get abilityScoresTitle => 'Характеристики';
 
   @override
   String get abilities => 'Характеристики';

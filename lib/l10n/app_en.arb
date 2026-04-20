@@ -124,6 +124,42 @@
   "@viewDetails": {
     "description": "No description provided"
   },
+  "rosterHeaderSubtitle": "Your gathered adventurers, ready for the next tale.",
+  "@rosterHeaderSubtitle": {
+    "description": "Supporting copy for the expressive character roster header"
+  },
+  "rosterCount": "{count, plural, =0{No heroes in the roster yet} =1{1 hero in the roster} other{{count} heroes in the roster}}",
+  "@rosterCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rosterLongPressHint": "Long press for quick actions",
+  "@rosterLongPressHint": {
+    "description": "Hint that explains how to open contextual actions from the character roster"
+  },
+  "createCharacterSheetSubtitle": "Start a fresh hero or bring one in from FC5.",
+  "@createCharacterSheetSubtitle": {
+    "description": "Subtitle for the create character action sheet"
+  },
+  "createCharacterActionDescription": "Build a new hero step by step.",
+  "@createCharacterActionDescription": {
+    "description": "Supporting copy for creating a brand new character from the roster"
+  },
+  "importCharacterActionDescription": "Bring an existing FC5 sheet into the roster.",
+  "@importCharacterActionDescription": {
+    "description": "Supporting copy for importing a character into the roster"
+  },
+  "characterActionsTitle": "Quick actions",
+  "@characterActionsTitle": {
+    "description": "Title for the contextual action sheet shown from the character roster"
+  },
+  "characterActionsSubtitle": "Manage this adventurer without leaving the roster.",
+  "@characterActionsSubtitle": {
+    "description": "Subtitle for the contextual action sheet shown from the character roster"
+  },
   "duplicate": "Duplicate",
   "@duplicate": {
     "description": "No description provided"
@@ -167,6 +203,34 @@
         "type": "String"
       }
     }
+  },
+  "duplicateFailed": "Failed to duplicate character: {error}",
+  "@duplicateFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "importFailed": "Failed to import character: {error}",
+  "@importFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "initiativeLabel": "Initiative",
+  "@initiativeLabel": {
+    "description": "Long-form label for initiative in the character details dialog"
+  },
+  "proficiencyBonusLabel": "Proficiency Bonus",
+  "@proficiencyBonusLabel": {
+    "description": "Long-form label for proficiency bonus in the character details dialog"
+  },
+  "abilityScoresTitle": "Ability Scores",
+  "@abilityScoresTitle": {
+    "description": "Section title for character ability scores"
   },
   "abilities": "Abilities",
   "@abilities": {

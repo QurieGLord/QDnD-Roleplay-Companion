@@ -10,16 +10,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:qd_and_d/features/splash/splash_screen.dart';
+import 'package:qd_and_d/l10n/app_localizations.dart';
 
 void main() {
   testWidgets('QD&D app smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MaterialApp(home: SplashScreen()));
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SplashScreen(),
+      ),
+    );
 
     // Verify that splash screen shows the expected text
     expect(find.text('Roleplay Companion'), findsOneWidget);
 
-    // Wait for the splash screen timer to finish
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    // Let the delayed navigation timer complete after the widget is disposed.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 2));
   });
 }

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<compendium version="5">
+  <race>
+    <name>Silicon Elf</name>
+    <name_ru>Кремниевый Эльф</name_ru>
+    <size>M</size>
+    <speed>30</speed>
+    <ability>DEX 2, INT 1</ability>
+    <trait>
+      <name>Wireless Trance</name>
+      <name_ru>Беспроводной Транс</name_ru>
+      <text>Long rest takes 4 hours.</text>
+      <text_ru>Длинный отдых занимает 4 часа.</text_ru>
+    </trait>
+  </race>
+
+  <race>
+    <name>Copper Dwarf</name>
+    <name_ru>Медный Дварф</name_ru>
+    <size>M</size>
+    <speed>25</speed>
+    <ability>CON 2</ability>
+    <trait>
+      <name>Forge Sense</name>
+      <name_ru>Чутье Кузни</name_ru>
+      <text>You know the craft of old halls.</text>
+      <text_ru>Вы знаете ремесло древних чертогов.</text_ru>
+    </trait>
+  </race>
+
+  <class>
+    <name>Code Wizard</name>
+    <name_ru>Код-Волшебник</name_ru>
+    <hd>6</hd>
+    <proficiency>Saving Throws: Intelligence, Wisdom; Skills: Arcana, History, Investigation, Logic</proficiency>
+    <numSkills>2</numSkills>
+    <spellAbility>Intelligence</spellAbility>
+    <autolevel level="1">
+      <feature>
+        <name>Cache Slots</name>
+        <name_ru>Слоты Кэша</name_ru>
+        <text>A pool of temporary memory fuels your spells.</text>
+        <text_ru>Пул временной памяти питает ваши заклинания.</text_ru>
+      </feature>
+      <feature>
+        <name>Syntax Highlighting</name>
+        <name_ru>Подсветка Синтаксиса</name_ru>
+        <text>Your arcane formulas become easier to read.</text>
+        <text_ru>Ваши магические формулы становятся понятнее.</text_ru>
+      </feature>
+    </autolevel>
+  </class>
+
+  <class>
+    <name>Packet Ranger</name>
+    <name_ru>Рейнджер Пакетов</name_ru>
+    <hd>10</hd>
+    <proficiency>Saving Throws: Strength, Dexterity; Skills: Nature, Survival, Perception</proficiency>
+    <numSkills>2</numSkills>
+    <autolevel level="1">
+      <feature>
+        <name>Trail Cache</name>
+        <name_ru>Полевой Кэш</name_ru>
+        <text>You hide supplies along your route.</text>
+        <text_ru>Вы прячете припасы вдоль своего пути.</text_ru>
+      </feature>
+    </autolevel>
+  </class>
+
+  <background>
+    <name>Legacy Maintainer</name>
+    <name_ru>Поддержка Легаси</name_ru>
+    <proficiency>History, Investigation</proficiency>
+    <trait>
+      <name>Ancient Knowledge</name>
+      <name_ru>Древнее знание</name_ru>
+      <text>You remember languages that no one speaks.</text>
+      <text_ru>Вы помните языки, на которых никто больше не говорит.</text_ru>
+    </trait>
+  </background>
+
+  <background>
+    <name>Bug Hunter</name>
+    <name_ru>Охотник за Багами</name_ru>
+    <proficiency>Perception, Survival</proficiency>
+    <trait>
+      <name>Repro Steps</name>
+      <name_ru>Шаги Воспроизведения</name_ru>
+      <text>You can always retrace what went wrong.</text>
+      <text_ru>Вы всегда можете восстановить ход ошибки.</text_ru>
+    </trait>
+  </background>
+
+  <item>
+    <name>Keyboard of Warriors</name>
+    <name_ru>Клавиатура Воинов</name_ru>
+    <type>weapon</type>
+    <weight>2.0</weight>
+    <dmg1>1d8</dmg1>
+    <dmgType>slashing</dmgType>
+    <text>A sturdy board made for battle.</text>
+    <text_ru>Надежная доска, созданная для битвы.</text_ru>
+  </item>
+
+  <spell>
+    <name>Hello World</name>
+    <name_ru>Привет Мир</name_ru>
+    <level>0</level>
+    <school>Evocation</school>
+    <time>1 action</time>
+    <range>Self</range>
+    <components>V, S</components>
+    <duration>Instantaneous</duration>
+    <classes>Wizard</classes>
+    <text>You create a floating text greeting above your hand.</text>
+    <text_ru>Вы создаете парящий текст приветствия над своей рукой.</text_ru>
+  </spell>
+</compendium>

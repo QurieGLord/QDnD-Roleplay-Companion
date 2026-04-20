@@ -103,6 +103,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String get viewDetails => 'View Details';
 
   @override
+  String get rosterHeaderSubtitle =>
+      'Your gathered adventurers, ready for the next tale.';
+
+  @override
+  String rosterCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count heroes in the roster',
+      one: '1 hero in the roster',
+      zero: 'No heroes in the roster yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rosterLongPressHint => 'Long press for quick actions';
+
+  @override
+  String get createCharacterSheetSubtitle =>
+      'Start a fresh hero or bring one in from FC5.';
+
+  @override
+  String get createCharacterActionDescription =>
+      'Build a new hero step by step.';
+
+  @override
+  String get importCharacterActionDescription =>
+      'Bring an existing FC5 sheet into the roster.';
+
+  @override
+  String get characterActionsTitle => 'Quick actions';
+
+  @override
+  String get characterActionsSubtitle =>
+      'Manage this adventurer without leaving the roster.';
+
+  @override
   String get duplicate => 'Duplicate';
 
   @override
@@ -130,6 +168,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String importedSuccess(String name) {
     return '$name imported successfully!';
   }
+
+  @override
+  String duplicateFailed(String error) {
+    return 'Failed to duplicate character: $error';
+  }
+
+  @override
+  String importFailed(String error) {
+    return 'Failed to import character: $error';
+  }
+
+  @override
+  String get initiativeLabel => 'Initiative';
+
+  @override
+  String get proficiencyBonusLabel => 'Proficiency Bonus';
+
+  @override
+  String get abilityScoresTitle => 'Ability Scores';
 
   @override
   String get abilities => 'Abilities';
