@@ -2958,7 +2958,72 @@
   "@license": {
     "description": "No description provided"
   },
-  "d20wish": "May your d20 always land on 20!",
+  "settingsHeroSubtitle": "Tune language, visuals, and content for your table.",
+  "@settingsHeroSubtitle": {
+    "description": "Compact intro copy for the redesigned settings screen"
+  },
+  "settingsLanguageSectionDesc": "Choose the language that feels quickest to read at the table.",
+  "@settingsLanguageSectionDesc": {
+    "description": "Supporting copy for the language section on settings"
+  },
+  "settingsAppearanceSectionDesc": "Tune mode, contrast, and palette without losing speed or clarity.",
+  "@settingsAppearanceSectionDesc": {
+    "description": "Supporting copy for the appearance section on settings"
+  },
+  "settingsThemeSectionDesc": "System, light, or dark, with quick switching for different lighting.",
+  "@settingsThemeSectionDesc": {
+    "description": "Supporting copy for the theme mode control on settings"
+  },
+  "settingsPaletteSectionDesc": "Each preset keeps the structure familiar while shifting the app's atmosphere.",
+  "@settingsPaletteSectionDesc": {
+    "description": "Supporting copy for the palette preset grid on settings"
+  },
+  "settingsContentSectionDesc": "Import, review, and maintain the external libraries the companion uses.",
+  "@settingsContentSectionDesc": {
+    "description": "Supporting copy for the content management section on settings"
+  },
+  "settingsAboutSectionDesc": "Version info, authorship, legal details, and quiet ways to keep in touch.",
+  "@settingsAboutSectionDesc": {
+    "description": "Supporting copy for the about section on settings"
+  },
+  "settingsHighContrastOn": "On",
+  "@settingsHighContrastOn": {
+    "description": "Short badge label for enabled high contrast on settings"
+  },
+  "settingsHighContrastOff": "Off",
+  "@settingsHighContrastOff": {
+    "description": "Short badge label for disabled high contrast on settings"
+  },
+  "settingsCurrent": "Current",
+  "@settingsCurrent": {
+    "description": "Short badge label for the currently selected settings option"
+  },
+  "settingsImportedLibraries": "{count, plural, =0{No imported libraries} one{1 imported library} other{{count} imported libraries}}",
+  "@settingsImportedLibraries": {
+    "description": "Summary label showing how many imported libraries are available",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsProjectLinks": "Project links",
+  "@settingsProjectLinks": {
+    "description": "Small heading above external project links in the about section"
+  },
+  "settingsGitHubTooltip": "Open GitHub repository",
+  "@settingsGitHubTooltip": {
+    "description": "Tooltip for the GitHub link in settings"
+  },
+  "settingsTelegramTooltip": "Open Telegram channel",
+  "@settingsTelegramTooltip": {
+    "description": "Tooltip for the Telegram link in settings"
+  },
+  "settingsUnableToOpenLink": "Couldn't open the link",
+  "@settingsUnableToOpenLink": {
+    "description": "Snackbar message shown when an external link cannot be opened"
+  },
+  "d20wish": "Ready for the next roll.",
   "@d20wish": {
     "description": "No description provided"
   },

@@ -4166,10 +4166,100 @@ abstract class AppLocalizations {
   /// **'License'**
   String get license;
 
+  /// Compact intro copy for the redesigned settings screen
+  ///
+  /// In en, this message translates to:
+  /// **'Tune language, visuals, and content for your table.'**
+  String get settingsHeroSubtitle;
+
+  /// Supporting copy for the language section on settings
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the language that feels quickest to read at the table.'**
+  String get settingsLanguageSectionDesc;
+
+  /// Supporting copy for the appearance section on settings
+  ///
+  /// In en, this message translates to:
+  /// **'Tune mode, contrast, and palette without losing speed or clarity.'**
+  String get settingsAppearanceSectionDesc;
+
+  /// Supporting copy for the theme mode control on settings
+  ///
+  /// In en, this message translates to:
+  /// **'System, light, or dark, with quick switching for different lighting.'**
+  String get settingsThemeSectionDesc;
+
+  /// Supporting copy for the palette preset grid on settings
+  ///
+  /// In en, this message translates to:
+  /// **'Each preset keeps the structure familiar while shifting the app\'s atmosphere.'**
+  String get settingsPaletteSectionDesc;
+
+  /// Supporting copy for the content management section on settings
+  ///
+  /// In en, this message translates to:
+  /// **'Import, review, and maintain the external libraries the companion uses.'**
+  String get settingsContentSectionDesc;
+
+  /// Supporting copy for the about section on settings
+  ///
+  /// In en, this message translates to:
+  /// **'Version info, authorship, legal details, and quiet ways to keep in touch.'**
+  String get settingsAboutSectionDesc;
+
+  /// Short badge label for enabled high contrast on settings
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get settingsHighContrastOn;
+
+  /// Short badge label for disabled high contrast on settings
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingsHighContrastOff;
+
+  /// Short badge label for the currently selected settings option
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get settingsCurrent;
+
+  /// Summary label showing how many imported libraries are available
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No imported libraries} one{1 imported library} other{{count} imported libraries}}'**
+  String settingsImportedLibraries(int count);
+
+  /// Small heading above external project links in the about section
+  ///
+  /// In en, this message translates to:
+  /// **'Project links'**
+  String get settingsProjectLinks;
+
+  /// Tooltip for the GitHub link in settings
+  ///
+  /// In en, this message translates to:
+  /// **'Open GitHub repository'**
+  String get settingsGitHubTooltip;
+
+  /// Tooltip for the Telegram link in settings
+  ///
+  /// In en, this message translates to:
+  /// **'Open Telegram channel'**
+  String get settingsTelegramTooltip;
+
+  /// Snackbar message shown when an external link cannot be opened
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the link'**
+  String get settingsUnableToOpenLink;
+
   /// No description provided
   ///
   /// In en, this message translates to:
-  /// **'May your d20 always land on 20!'**
+  /// **'Ready for the next roll.'**
   String get d20wish;
 
   /// No description provided

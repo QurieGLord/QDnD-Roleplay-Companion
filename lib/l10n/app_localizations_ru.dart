@@ -2183,7 +2183,70 @@ class AppLocalizationsRu extends AppLocalizations {
   String get license => 'Лицензия';
 
   @override
-  String get d20wish => 'Пусть на вашем d20 всегда выпадает 20!';
+  String get settingsHeroSubtitle =>
+      'Подстройте язык, внешний вид и контент под свой стол.';
+
+  @override
+  String get settingsLanguageSectionDesc =>
+      'Выберите язык, который быстрее и комфортнее считывается за столом.';
+
+  @override
+  String get settingsAppearanceSectionDesc =>
+      'Подстройте режим, контраст и палитру, не теряя скорости и ясности.';
+
+  @override
+  String get settingsThemeSectionDesc =>
+      'Системный, светлый или тёмный режим для разных условий освещения.';
+
+  @override
+  String get settingsPaletteSectionDesc =>
+      'Каждый пресет сохраняет знакомую структуру, но меняет атмосферу приложения.';
+
+  @override
+  String get settingsContentSectionDesc =>
+      'Импортируйте, проверяйте и поддерживайте внешние библиотеки, с которыми работает companion.';
+
+  @override
+  String get settingsAboutSectionDesc =>
+      'Информация о версии, авторстве, лицензии и аккуратные ссылки на проект.';
+
+  @override
+  String get settingsHighContrastOn => 'Вкл';
+
+  @override
+  String get settingsHighContrastOff => 'Выкл';
+
+  @override
+  String get settingsCurrent => 'Текущая';
+
+  @override
+  String settingsImportedLibraries(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '# импортированной библиотеки',
+      many: '# импортированных библиотек',
+      few: '# импортированные библиотеки',
+      one: '# импортированная библиотека',
+      zero: 'Нет импортированных библиотек',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsProjectLinks => 'Ссылки проекта';
+
+  @override
+  String get settingsGitHubTooltip => 'Открыть репозиторий GitHub';
+
+  @override
+  String get settingsTelegramTooltip => 'Открыть Telegram-канал';
+
+  @override
+  String get settingsUnableToOpenLink => 'Не удалось открыть ссылку';
+
+  @override
+  String get d20wish => 'Готово к следующему броску.';
 
   @override
   String get characterReady => 'Персонаж готов!';

@@ -2200,7 +2200,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String get license => 'License';
 
   @override
-  String get d20wish => 'May your d20 always land on 20!';
+  String get settingsHeroSubtitle =>
+      'Tune language, visuals, and content for your table.';
+
+  @override
+  String get settingsLanguageSectionDesc =>
+      'Choose the language that feels quickest to read at the table.';
+
+  @override
+  String get settingsAppearanceSectionDesc =>
+      'Tune mode, contrast, and palette without losing speed or clarity.';
+
+  @override
+  String get settingsThemeSectionDesc =>
+      'System, light, or dark, with quick switching for different lighting.';
+
+  @override
+  String get settingsPaletteSectionDesc =>
+      'Each preset keeps the structure familiar while shifting the app\'s atmosphere.';
+
+  @override
+  String get settingsContentSectionDesc =>
+      'Import, review, and maintain the external libraries the companion uses.';
+
+  @override
+  String get settingsAboutSectionDesc =>
+      'Version info, authorship, legal details, and quiet ways to keep in touch.';
+
+  @override
+  String get settingsHighContrastOn => 'On';
+
+  @override
+  String get settingsHighContrastOff => 'Off';
+
+  @override
+  String get settingsCurrent => 'Current';
+
+  @override
+  String settingsImportedLibraries(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count imported libraries',
+      one: '1 imported library',
+      zero: 'No imported libraries',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsProjectLinks => 'Project links';
+
+  @override
+  String get settingsGitHubTooltip => 'Open GitHub repository';
+
+  @override
+  String get settingsTelegramTooltip => 'Open Telegram channel';
+
+  @override
+  String get settingsUnableToOpenLink => 'Couldn\'t open the link';
+
+  @override
+  String get d20wish => 'Ready for the next roll.';
 
   @override
   String get characterReady => 'Character Ready!';
