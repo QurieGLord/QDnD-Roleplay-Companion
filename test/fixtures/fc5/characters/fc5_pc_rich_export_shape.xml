@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pc version="5">
+  <character>
+    <version>37</version>
+    <uid>2001</uid>
+    <name>Mira Dawnward</name>
+    <abilities>10,14,13,12,16,8,</abilities>
+    <hpMax>27</hpMax>
+    <hpCurrent>21</hpCurrent>
+    <race>
+      <name>Elf</name>
+      <age>116</age>
+      <height>165</height>
+      <weight>54</weight>
+      <eyes>Green</eyes>
+      <skin>Bronze</skin>
+      <hair>Silver</hair>
+      <feat>
+        <name>Keen Senses</name>
+        <text>Proficiency in Perception.</text>
+        <expanded>0</expanded>
+      </feat>
+    </race>
+    <background>
+      <name>Acolyte</name>
+      <proficiency>Insight</proficiency>
+      <proficiency>Religion</proficiency>
+      <feat>
+        <name>Feature: Shelter of the Faithful</name>
+        <text>Faith communities recognize and aid you.</text>
+        <expanded>0</expanded>
+      </feat>
+    </background>
+    <class>
+      <name>Cleric: Life Domain</name>
+      <level>3</level>
+      <hdCurrent>3</hdCurrent>
+      <slots>0,4,2,0,0,0,0,0,0,0,</slots>
+      <slotsCurrent>0,2,1,0,0,0,0,0,0,0,</slotsCurrent>
+      <proficiency>Wisdom</proficiency>
+      <proficiency>Charisma</proficiency>
+      <proficiency>Medicine</proficiency>
+      <proficiency>Insight</proficiency>
+      <feat>
+        <name>Channel Divinity</name>
+        <text>You can channel divine energy to fuel magical effects.</text>
+        <expanded>0</expanded>
+      </feat>
+      <spell>
+        <name>Bless</name>
+        <level>1</level>
+        <prepared>1</prepared>
+      </spell>
+      <spell>
+        <name>Cure Wounds</name>
+        <level>1</level>
+        <prepared>1</prepared>
+      </spell>
+    </class>
+    <item>
+      <name>Mace</name>
+      <type>M</type>
+      <weight>4</weight>
+      <quantity>1</quantity>
+      <equipped>1</equipped>
+      <dmg1>1d6</dmg1>
+      <dmgType>B</dmgType>
+      <text>A simple melee weapon.</text>
+    </item>
+    <item>
+      <name>Chain Shirt</name>
+      <type>MA</type>
+      <weight>20</weight>
+      <quantity>1</quantity>
+      <equipped>1</equipped>
+      <ac>13</ac>
+      <text>Medium armor.</text>
+    </item>
+    <item>
+      <name>Gold (gp)</name>
+      <type>$</type>
+      <quantity>25</quantity>
+      <value>1.0</value>
+      <weight>0.02</weight>
+    </item>
+    <note>
+      <name>Quest: Dawn Chapel</name>
+      <text>Restore the old chapel bell. Objective: find the missing clapper.</text>
+    </note>
+    <note>
+      <name>Session 3</name>
+      <text>Met the village elder and learned about the ruined road shrine.</text>
+    </note>
+    <money>25.0</money>
+  </character>
+</pc>

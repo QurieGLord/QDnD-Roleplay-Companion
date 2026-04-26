@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pc version="5">
+  <character>
+    <version>37</version>
+    <uid>1001</uid>
+    <name>Test Paladin</name>
+    <abilities>15,12,14,10,10,16,</abilities>
+    <hpMax>30</hpMax>
+    <hpCurrent>30</hpCurrent>
+    <race>
+      <name>Human</name>
+      <age>29</age>
+      <height>183</height>
+      <weight>86</weight>
+      <eyes>Brown</eyes>
+      <skin>Tan</skin>
+      <hair>Black</hair>
+    </race>
+    <background>
+      <name>Acolyte</name>
+    </background>
+    <class>
+      <name>Paladin: Oath of Devotion</name>
+      <level>5</level>
+      <slots>0,4,2,0,0,0,0,0,0,0,</slots>
+      <slotsCurrent>0,4,2,0,0,0,0,0,0,0,</slotsCurrent>
+      <proficiency>Athletics</proficiency>
+      <proficiency>Persuasion</proficiency>
+    </class>
+  </character>
+</pc>

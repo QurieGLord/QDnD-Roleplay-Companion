@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<characters>
+  <npc>
+    <version>37</version>
+    <uid>3001</uid>
+    <name>GM Export Fighter</name>
+    <abilities>16,12,14,10,11,9,</abilities>
+    <hpMax>22</hpMax>
+    <hpCurrent>18</hpCurrent>
+    <race>
+      <name>Human</name>
+    </race>
+    <background>
+      <name>Soldier</name>
+    </background>
+    <class>
+      <name>Fighter: Champion</name>
+      <level>2</level>
+      <slots>0,0,0,0,0,0,0,0,0,0,</slots>
+      <slotsCurrent>0,0,0,0,0,0,0,0,0,0,</slotsCurrent>
+      <proficiency>Athletics</proficiency>
+      <proficiency>Intimidation</proficiency>
+    </class>
+  </npc>
+  <npc>
+    <version>37</version>
+    <uid>3002</uid>
+    <name>GM Export Wizard</name>
+    <abilities>8,14,12,16,10,11,</abilities>
+    <hpMax>14</hpMax>
+    <hpCurrent>14</hpCurrent>
+    <race>
+      <name>Elf</name>
+    </race>
+    <background>
+      <name>Acolyte</name>
+    </background>
+    <class>
+      <name>Wizard: Evocation</name>
+      <level>2</level>
+      <slots>0,3,0,0,0,0,0,0,0,0,</slots>
+      <slotsCurrent>0,1,0,0,0,0,0,0,0,0,</slotsCurrent>
+      <proficiency>Arcana</proficiency>
+      <proficiency>History</proficiency>
+    </class>
+  </npc>
+</characters>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<compendium version="5" auto_indent="NO">
+  <race>
+    <name>Human</name>
+    <size>M</size>
+    <speed>30</speed>
+    <ability>Str 1, Dex 1, Con 1, Int 1, Wis 1, Cha 1</ability>
+    <proficiency></proficiency>
+    <spellAbility></spellAbility>
+    <trait>
+      <name>Languages</name>
+      <text>You can speak, read, and write Common and one extra language.</text>
+    </trait>
+  </race>
+  <class>
+    <name>Fighter</name>
+    <hd>10</hd>
+    <proficiency>Strength Saving Throws, Constitution Saving Throws, Acrobatics, Athletics, History, Insight, Intimidation, Perception, Survival</proficiency>
+    <numSkills>2</numSkills>
+    <autolevel level="1">
+      <feature>
+        <name>Fighting Style</name>
+        <text>You adopt a particular style of fighting as your specialty.</text>
+      </feature>
+      <feature>
+        <name>Second Wind</name>
+        <text>You have a limited well of stamina that you can draw on to protect yourself.</text>
+      </feature>
+    </autolevel>
+  </class>
+  <background>
+    <name>Acolyte</name>
+    <proficiency>Insight, Religion</proficiency>
+    <trait>
+      <name>Shelter of the Faithful</name>
+      <text>Faith communities recognize and aid you.</text>
+    </trait>
+  </background>
+  <feat>
+    <name>Grappler</name>
+    <prerequisite>Strength 13 or higher</prerequisite>
+    <text>You have developed the skills necessary to hold your own in close-quarters grappling.</text>
+  </feat>
+  <item>
+    <name>Longsword</name>
+    <detail>Martial Melee Weapon</detail>
+    <type>M</type>
+    <weight>3</weight>
+    <value>15.0</value>
+    <dmg1>1d8</dmg1>
+    <dmg2>1d10</dmg2>
+    <dmgType>S</dmgType>
+    <property>V</property>
+    <text>A versatile martial melee weapon.</text>
+  </item>
+  <spell>
+    <name>Bless</name>
+    <classes>Cleric, Paladin</classes>
+    <level>1</level>
+    <school>EN</school>
+    <ritual>NO</ritual>
+    <time>1 action</time>
+    <range>30 feet</range>
+    <components>V, S, M (a sprinkling of holy water)</components>
+    <duration>Concentration, up to 1 minute</duration>
+    <text>You bless up to three creatures of your choice within range.</text>
+  </spell>
+</compendium>
