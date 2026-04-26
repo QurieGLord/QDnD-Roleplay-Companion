@@ -116,6 +116,7 @@ class CharacterFeature extends HiveObject {
       'actionEconomy': actionEconomy,
       'iconName': iconName,
       'consumption': consumption?.toJson(),
+      'sourceId': sourceId,
       'usageCostId': usageCostId,
       'usageInputMode': usageInputMode,
       'options': options,

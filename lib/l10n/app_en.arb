@@ -120,6 +120,34 @@
   "@importFC5": {
     "description": "No description provided"
   },
+  "importCharacter": "Import Character",
+  "@importCharacter": {
+    "description": "Generic label for opening character import options"
+  },
+  "importQdndBundle": "Import QDND Bundle",
+  "@importQdndBundle": {
+    "description": "Action label for importing the app-native QDND bundle format"
+  },
+  "importQdndBundleActionDescription": "Restore a bundled character with saved state and references.",
+  "@importQdndBundleActionDescription": {
+    "description": "Supporting copy for QDND bundle import"
+  },
+  "importFC5Character": "Import FC5 Character",
+  "@importFC5Character": {
+    "description": "Action label for importing a Fight Club 5 character XML"
+  },
+  "importFC5CharacterActionDescription": "Add a character sheet from Fight Club 5 XML.",
+  "@importFC5CharacterActionDescription": {
+    "description": "Supporting copy for FC5 character import"
+  },
+  "exportQdndBundle": "Export QDND Bundle",
+  "@exportQdndBundle": {
+    "description": "Action label for exporting the app-native QDND bundle format"
+  },
+  "exportQdndBundleActionDescription": "Save this character as a portable QDND bundle.",
+  "@exportQdndBundleActionDescription": {
+    "description": "Supporting copy for QDND bundle export"
+  },
   "viewDetails": "View Details",
   "@viewDetails": {
     "description": "No description provided"
@@ -140,7 +168,7 @@
   "@rosterLongPressHint": {
     "description": "Hint that explains how to open contextual actions from the character roster"
   },
-  "createCharacterSheetSubtitle": "Start a fresh hero or bring one in from FC5.",
+  "createCharacterSheetSubtitle": "Start a fresh hero or bring one in.",
   "@createCharacterSheetSubtitle": {
     "description": "Subtitle for the create character action sheet"
   },
@@ -148,7 +176,7 @@
   "@createCharacterActionDescription": {
     "description": "Supporting copy for creating a brand new character from the roster"
   },
-  "importCharacterActionDescription": "Bring an existing FC5 sheet into the roster.",
+  "importCharacterActionDescription": "Bring an existing character into the roster.",
   "@importCharacterActionDescription": {
     "description": "Supporting copy for importing a character into the roster"
   },
@@ -255,6 +283,78 @@
   },
   "importFailed": "Failed to import character: {error}",
   "@importFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "qdndBundleImportedSuccess": "{name} imported from QDND bundle.",
+  "@qdndBundleImportedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "qdndBundleImportedWithWarnings": "{name} imported with {warnings} warnings.",
+  "@qdndBundleImportedWithWarnings": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "warnings": {
+        "type": "int"
+      }
+    }
+  },
+  "qdndBundleImportFailed": "Failed to import QDND bundle: {error}",
+  "@qdndBundleImportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "qdndBundlePreviewTitle": "Import QDND Bundle?",
+  "@qdndBundlePreviewTitle": {
+    "description": "Title for QDND bundle import preview"
+  },
+  "qdndBundlePreviewSummary": "{name} · Level {level}",
+  "@qdndBundlePreviewSummary": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "qdndBundlePreviewDetails": "{embedded} embedded, {resolved} resolved, {missing} missing",
+  "@qdndBundlePreviewDetails": {
+    "placeholders": {
+      "embedded": {
+        "type": "int"
+      },
+      "resolved": {
+        "type": "int"
+      },
+      "missing": {
+        "type": "int"
+      }
+    }
+  },
+  "qdndBundleExportedSuccess": "Exported {name}.",
+  "@qdndBundleExportedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "qdndBundleExportFailed": "Failed to export QDND bundle: {error}",
+  "@qdndBundleExportFailed": {
     "placeholders": {
       "error": {
         "type": "String"
@@ -3107,6 +3207,10 @@
   "manageLibrariesSubtitle": "Import and manage external content (XML)",
   "@manageLibrariesSubtitle": {
     "description": "No description provided"
+  },
+  "importContentLibrary": "Import Content Library",
+  "@importContentLibrary": {
+    "description": "Action label for importing an external content library"
   },
   "importXML": "Import XML",
   "@importXML": {

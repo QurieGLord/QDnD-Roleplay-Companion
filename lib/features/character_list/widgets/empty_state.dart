@@ -6,10 +6,12 @@ class EmptyState extends StatelessWidget {
     super.key,
     this.onCreate,
     this.onImport,
+    this.importLabel,
   });
 
   final VoidCallback? onCreate;
   final VoidCallback? onImport;
+  final String? importLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +98,7 @@ class EmptyState extends StatelessWidget {
                             OutlinedButton.icon(
                               onPressed: onImport,
                               icon: const Icon(Icons.upload_file_rounded),
-                              label: Text(l10n.importFC5),
+                              label: Text(importLabel ?? l10n.importFC5),
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 18,

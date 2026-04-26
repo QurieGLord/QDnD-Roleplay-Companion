@@ -278,6 +278,48 @@ abstract class AppLocalizations {
   /// **'Import from Fight Club 5'**
   String get importFC5;
 
+  /// Generic label for opening character import options
+  ///
+  /// In en, this message translates to:
+  /// **'Import Character'**
+  String get importCharacter;
+
+  /// Action label for importing the app-native QDND bundle format
+  ///
+  /// In en, this message translates to:
+  /// **'Import QDND Bundle'**
+  String get importQdndBundle;
+
+  /// Supporting copy for QDND bundle import
+  ///
+  /// In en, this message translates to:
+  /// **'Restore a bundled character with saved state and references.'**
+  String get importQdndBundleActionDescription;
+
+  /// Action label for importing a Fight Club 5 character XML
+  ///
+  /// In en, this message translates to:
+  /// **'Import FC5 Character'**
+  String get importFC5Character;
+
+  /// Supporting copy for FC5 character import
+  ///
+  /// In en, this message translates to:
+  /// **'Add a character sheet from Fight Club 5 XML.'**
+  String get importFC5CharacterActionDescription;
+
+  /// Action label for exporting the app-native QDND bundle format
+  ///
+  /// In en, this message translates to:
+  /// **'Export QDND Bundle'**
+  String get exportQdndBundle;
+
+  /// Supporting copy for QDND bundle export
+  ///
+  /// In en, this message translates to:
+  /// **'Save this character as a portable QDND bundle.'**
+  String get exportQdndBundleActionDescription;
+
   /// No description provided
   ///
   /// In en, this message translates to:
@@ -305,7 +347,7 @@ abstract class AppLocalizations {
   /// Subtitle for the create character action sheet
   ///
   /// In en, this message translates to:
-  /// **'Start a fresh hero or bring one in from FC5.'**
+  /// **'Start a fresh hero or bring one in.'**
   String get createCharacterSheetSubtitle;
 
   /// Supporting copy for creating a brand new character from the roster
@@ -317,7 +359,7 @@ abstract class AppLocalizations {
   /// Supporting copy for importing a character into the roster
   ///
   /// In en, this message translates to:
-  /// **'Bring an existing FC5 sheet into the roster.'**
+  /// **'Bring an existing character into the roster.'**
   String get importCharacterActionDescription;
 
   /// Title for the contextual action sheet shown from the character roster
@@ -415,6 +457,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to import character: {error}'**
   String importFailed(String error);
+
+  /// No description provided for @qdndBundleImportedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} imported from QDND bundle.'**
+  String qdndBundleImportedSuccess(String name);
+
+  /// No description provided for @qdndBundleImportedWithWarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} imported with {warnings} warnings.'**
+  String qdndBundleImportedWithWarnings(String name, int warnings);
+
+  /// No description provided for @qdndBundleImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to import QDND bundle: {error}'**
+  String qdndBundleImportFailed(String error);
+
+  /// Title for QDND bundle import preview
+  ///
+  /// In en, this message translates to:
+  /// **'Import QDND Bundle?'**
+  String get qdndBundlePreviewTitle;
+
+  /// No description provided for @qdndBundlePreviewSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · Level {level}'**
+  String qdndBundlePreviewSummary(String name, int level);
+
+  /// No description provided for @qdndBundlePreviewDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'{embedded} embedded, {resolved} resolved, {missing} missing'**
+  String qdndBundlePreviewDetails(int embedded, int resolved, int missing);
+
+  /// No description provided for @qdndBundleExportedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Exported {name}.'**
+  String qdndBundleExportedSuccess(String name);
+
+  /// No description provided for @qdndBundleExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to export QDND bundle: {error}'**
+  String qdndBundleExportFailed(String error);
 
   /// Long-form label for initiative in the character details dialog
   ///
@@ -4351,6 +4441,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Import and manage external content (XML)'**
   String get manageLibrariesSubtitle;
+
+  /// Action label for importing an external content library
+  ///
+  /// In en, this message translates to:
+  /// **'Import Content Library'**
+  String get importContentLibrary;
 
   /// No description provided
   ///

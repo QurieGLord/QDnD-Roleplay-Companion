@@ -25,7 +25,7 @@ class LibraryManagerScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            tooltip: l10n.importXML,
+            tooltip: l10n.importContentLibrary,
             onPressed: () => _importFile(context),
           ),
         ],

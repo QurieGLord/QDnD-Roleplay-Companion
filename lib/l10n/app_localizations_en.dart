@@ -100,6 +100,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importFC5 => 'Import from Fight Club 5';
 
   @override
+  String get importCharacter => 'Import Character';
+
+  @override
+  String get importQdndBundle => 'Import QDND Bundle';
+
+  @override
+  String get importQdndBundleActionDescription =>
+      'Restore a bundled character with saved state and references.';
+
+  @override
+  String get importFC5Character => 'Import FC5 Character';
+
+  @override
+  String get importFC5CharacterActionDescription =>
+      'Add a character sheet from Fight Club 5 XML.';
+
+  @override
+  String get exportQdndBundle => 'Export QDND Bundle';
+
+  @override
+  String get exportQdndBundleActionDescription =>
+      'Save this character as a portable QDND bundle.';
+
+  @override
   String get viewDetails => 'View Details';
 
   @override
@@ -123,7 +147,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createCharacterSheetSubtitle =>
-      'Start a fresh hero or bring one in from FC5.';
+      'Start a fresh hero or bring one in.';
 
   @override
   String get createCharacterActionDescription =>
@@ -131,7 +155,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importCharacterActionDescription =>
-      'Bring an existing FC5 sheet into the roster.';
+      'Bring an existing character into the roster.';
 
   @override
   String get characterActionsTitle => 'Quick actions';
@@ -216,6 +240,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String importFailed(String error) {
     return 'Failed to import character: $error';
+  }
+
+  @override
+  String qdndBundleImportedSuccess(String name) {
+    return '$name imported from QDND bundle.';
+  }
+
+  @override
+  String qdndBundleImportedWithWarnings(String name, int warnings) {
+    return '$name imported with $warnings warnings.';
+  }
+
+  @override
+  String qdndBundleImportFailed(String error) {
+    return 'Failed to import QDND bundle: $error';
+  }
+
+  @override
+  String get qdndBundlePreviewTitle => 'Import QDND Bundle?';
+
+  @override
+  String qdndBundlePreviewSummary(String name, int level) {
+    return '$name · Level $level';
+  }
+
+  @override
+  String qdndBundlePreviewDetails(int embedded, int resolved, int missing) {
+    return '$embedded embedded, $resolved resolved, $missing missing';
+  }
+
+  @override
+  String qdndBundleExportedSuccess(String name) {
+    return 'Exported $name.';
+  }
+
+  @override
+  String qdndBundleExportFailed(String error) {
+    return 'Failed to export QDND bundle: $error';
   }
 
   @override
@@ -2333,6 +2395,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get manageLibrariesSubtitle =>
       'Import and manage external content (XML)';
+
+  @override
+  String get importContentLibrary => 'Import Content Library';
 
   @override
   String get importXML => 'Import XML';

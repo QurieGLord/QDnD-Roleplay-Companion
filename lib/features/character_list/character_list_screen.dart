@@ -14,6 +14,9 @@ import '../../../core/models/character_feature.dart';
 import '../../../core/models/item.dart';
 import '../../../core/services/fc5_parser.dart';
 import '../../../core/services/import_service.dart';
+import '../../../core/services/qdnd_bundle_export_service.dart';
+import '../../../core/services/qdnd_bundle_import_service.dart';
+import '../../../core/services/qdnd_bundle_schema.dart';
 import '../../../core/services/storage_service.dart';
 import 'widgets/character_card.dart';
 import 'widgets/character_roster_visuals.dart';
@@ -139,7 +142,9 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                             delay: const Duration(milliseconds: 120),
                             child: EmptyState(
                               onCreate: () => _openCharacterCreation(context),
-                              onImport: () => _importFromFC5(context),
+                              onImport: () =>
+                                  _showCreateCharacterDialog(context),
+                              importLabel: l10n.importCharacter,
                             ),
                           ),
                         ),
@@ -260,10 +265,26 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
               delay: const Duration(milliseconds: 90),
               beginOffset: const Offset(0, 0.04),
               child: _SheetActionTile(
-                icon: Icons.upload_file_rounded,
-                title: l10n.importFC5,
-                subtitle: l10n.importCharacterActionDescription,
+                icon: Icons.inventory_2_outlined,
+                title: l10n.importQdndBundle,
+                subtitle: l10n.importQdndBundleActionDescription,
                 accent: colorScheme.secondary,
+                onTap: () {
+                  _dismissSheetThen(sheetContext, () {
+                    _importFromQdndBundle(context);
+                  });
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
+            RosterReveal(
+              delay: const Duration(milliseconds: 140),
+              beginOffset: const Offset(0, 0.04),
+              child: _SheetActionTile(
+                icon: Icons.upload_file_rounded,
+                title: l10n.importFC5Character,
+                subtitle: l10n.importFC5CharacterActionDescription,
+                accent: colorScheme.tertiary,
                 onTap: () {
                   _dismissSheetThen(sheetContext, () {
                     _importFromFC5(context);
@@ -342,9 +363,24 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                 },
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             RosterReveal(
               delay: const Duration(milliseconds: 190),
+              beginOffset: const Offset(0, 0.04),
+              child: _SheetActionTile(
+                icon: Icons.inventory_2_outlined,
+                title: l10n.exportQdndBundle,
+                subtitle: l10n.exportQdndBundleActionDescription,
+                onTap: () {
+                  _dismissSheetThen(sheetContext, () async {
+                    await _exportQdndBundle(context, character);
+                  });
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            RosterReveal(
+              delay: const Duration(milliseconds: 240),
               beginOffset: const Offset(0, 0.04),
               child: _SheetActionTile(
                 icon: Icons.delete_outline_rounded,
@@ -900,6 +936,172 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
     }
   }
 
+  Future<void> _exportQdndBundle(
+    BuildContext context,
+    Character character,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final exportResult = await QdndBundleExportService.exportCharacter(
+        character,
+        options: const QdndBundleExportOptions(
+          includeUserCreatedContent: true,
+        ),
+      );
+      final fileName = '${_safeBundleFileName(character.name)}.qdnd';
+      final outputPath = await FilePicker.platform.saveFile(
+        dialogTitle: l10n.exportQdndBundle,
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['qdnd'],
+        bytes: exportResult.bytes,
+      );
+
+      if (outputPath == null) {
+        return;
+      }
+
+      if (!Platform.isAndroid && !Platform.isIOS) {
+        await File(outputPath).writeAsBytes(exportResult.bytes, flush: true);
+      }
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.qdndBundleExportedSuccess(fileName)),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.qdndBundleExportFailed('$e')),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _importFromQdndBundle(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['qdnd', 'zip'],
+      );
+
+      if (result == null || result.files.isEmpty) {
+        return;
+      }
+
+      final file = File(result.files.single.path!);
+      final preview = await QdndBundleImportService.previewFile(file);
+      if (!context.mounted) return;
+      final confirmed = await _showQdndBundlePreview(context, preview);
+      if (confirmed != true) {
+        return;
+      }
+
+      final importResult = await QdndBundleImportService.importFile(file);
+      final warningCount = importResult.diagnostics
+          .where(
+            (entry) => entry.severity == QdndBundleDiagnosticSeverity.warning,
+          )
+          .length;
+
+      if (context.mounted) {
+        final message = warningCount > 0
+            ? l10n.qdndBundleImportedWithWarnings(
+                importResult.character.name,
+                warningCount,
+              )
+            : l10n.qdndBundleImportedSuccess(importResult.character.name);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            duration: const Duration(seconds: 2),
+            action: warningCount > 0
+                ? SnackBarAction(
+                    label: l10n.importWarningsAction,
+                    onPressed: () {
+                      if (mounted) {
+                        _showQdndBundleDiagnostics(
+                          context,
+                          importResult.diagnostics,
+                        );
+                      }
+                    },
+                  )
+                : null,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.qdndBundleImportFailed('$e')),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<bool?> _showQdndBundlePreview(
+    BuildContext context,
+    QdndBundleImportPreview preview,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    final classes =
+        preview.classes.where((value) => value.isNotEmpty).join(', ');
+
+    return showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.qdndBundlePreviewTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.qdndBundlePreviewSummary(
+              preview.characterName,
+              preview.level,
+            )),
+            if (classes.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text('${l10n.classLabel}: $classes'),
+            ],
+            const SizedBox(height: 8),
+            Text(l10n.qdndBundlePreviewDetails(
+              preview.embeddedContentCount,
+              preview.resolvedDependencyCount,
+              preview.missingDependencyCount,
+            )),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.importQdndBundle),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _importFromFC5(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     try {
@@ -1085,6 +1287,115 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
         ),
       ),
     );
+  }
+
+  void _showQdndBundleDiagnostics(
+    BuildContext context,
+    List<QdndBundleDiagnostic> diagnostics,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    final visibleEntries = diagnostics
+        .where((entry) => entry.severity != QdndBundleDiagnosticSeverity.info)
+        .toList();
+    final entries = visibleEntries.isEmpty ? diagnostics : visibleEntries;
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => _ExpressiveSheetShell(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SheetTitleBlock(
+              icon: Icons.rule_rounded,
+              title: l10n.importWarningsTitle,
+              subtitle: l10n.importWarningsSubtitle(entries.length),
+            ),
+            const SizedBox(height: 16),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 360),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: entries.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final entry = entries[index];
+                  final colorScheme = Theme.of(context).colorScheme;
+                  final isError =
+                      entry.severity == QdndBundleDiagnosticSeverity.error;
+                  final tone =
+                      isError ? colorScheme.error : colorScheme.tertiary;
+                  return Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Color.alphaBlend(
+                        tone.withValues(alpha: 0.08),
+                        colorScheme.surfaceContainerHighest,
+                      ),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: tone.withValues(alpha: 0.18),
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          isError
+                              ? Icons.error_outline_rounded
+                              : Icons.warning_amber_rounded,
+                          color: tone,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                entry.message,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              if (entry.context != null) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  entry.context!,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _safeBundleFileName(String name) {
+    final normalized = name
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9а-яё]+'), '_')
+        .replaceAll(RegExp(r'_+'), '_')
+        .replaceAll(RegExp(r'^_|_$'), '');
+    return normalized.isEmpty ? 'character' : normalized;
   }
 }
 
