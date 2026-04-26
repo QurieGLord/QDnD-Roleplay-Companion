@@ -12,6 +12,7 @@ import '../../../core/models/ability_scores.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/character_feature.dart';
 import '../../../core/models/item.dart';
+import '../../../core/services/fc5_parser.dart';
 import '../../../core/services/import_service.dart';
 import '../../../core/services/storage_service.dart';
 import 'widgets/character_card.dart';
@@ -917,18 +918,46 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       print('🔧 _importFromFC5: File selected: ${result.files.single.path}');
 
       final file = File(result.files.single.path!);
-      final character = await ImportService.importFromFC5File(file);
+      final importResult =
+          await ImportService.importCharactersFromFC5File(file);
+      final importedCharacters = importResult.characters;
+      final firstName = importedCharacters.first.name;
 
       print(
-        '🔧 _importFromFC5: Character imported successfully: ${character.name}',
+        '🔧 _importFromFC5: Imported ${importedCharacters.length} character(s)',
       );
 
       if (context.mounted) {
+        final warningCount = importResult.warningCount;
+        final message = warningCount > 0
+            ? l10n.importedCharactersWithWarnings(
+                importedCharacters.length,
+                firstName,
+                warningCount,
+              )
+            : l10n.importedCharactersSuccess(
+                importedCharacters.length,
+                firstName,
+              );
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.importedSuccess(character.name)),
+            content: Text(message),
             backgroundColor: Theme.of(context).colorScheme.primary,
             duration: const Duration(seconds: 2),
+            action: warningCount > 0
+                ? SnackBarAction(
+                    label: l10n.importWarningsAction,
+                    onPressed: () {
+                      if (mounted) {
+                        _showImportDiagnostics(
+                          context,
+                          importResult.diagnostics,
+                        );
+                      }
+                    },
+                  )
+                : null,
           ),
         );
       }
@@ -937,15 +966,125 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       print('❌ Stack trace: $stackTrace');
 
       if (context.mounted) {
+        final diagnostics = e is ImportServiceException ? e.diagnostics : null;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.importFailed('$e')),
             backgroundColor: Theme.of(context).colorScheme.error,
             duration: const Duration(seconds: 2),
+            action: diagnostics != null && !diagnostics.isEmpty
+                ? SnackBarAction(
+                    label: l10n.importWarningsAction,
+                    onPressed: () {
+                      if (mounted) {
+                        _showImportDiagnostics(context, diagnostics);
+                      }
+                    },
+                  )
+                : null,
           ),
         );
       }
     }
+  }
+
+  void _showImportDiagnostics(
+    BuildContext context,
+    FC5ParseDiagnostics diagnostics,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    final visibleEntries = diagnostics.entries
+        .where((entry) => entry.severity != FC5DiagnosticSeverity.info)
+        .toList();
+    final entries =
+        visibleEntries.isEmpty ? diagnostics.entries : visibleEntries;
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => _ExpressiveSheetShell(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SheetTitleBlock(
+              icon: Icons.rule_rounded,
+              title: l10n.importWarningsTitle,
+              subtitle: l10n.importWarningsSubtitle(entries.length),
+            ),
+            const SizedBox(height: 16),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 360),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: entries.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final entry = entries[index];
+                  final colorScheme = Theme.of(context).colorScheme;
+                  final isError = entry.severity == FC5DiagnosticSeverity.error;
+                  final tone =
+                      isError ? colorScheme.error : colorScheme.tertiary;
+                  return Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Color.alphaBlend(
+                        tone.withValues(alpha: 0.08),
+                        colorScheme.surfaceContainerHighest,
+                      ),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: tone.withValues(alpha: 0.18),
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          isError
+                              ? Icons.error_outline_rounded
+                              : Icons.warning_amber_rounded,
+                          color: tone,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                entry.message,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              if (entry.context != null) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  entry.context!,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

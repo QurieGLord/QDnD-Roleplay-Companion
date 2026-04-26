@@ -9,6 +9,8 @@ import '../../core/services/storage_service.dart';
 import '../../core/services/import_service.dart';
 import '../../core/services/item_service.dart';
 import '../../core/services/spell_service.dart';
+import '../../core/services/character_data_service.dart';
+import '../../core/services/fc5_parser.dart';
 
 class LibraryManagerScreen extends StatelessWidget {
   const LibraryManagerScreen({super.key});
@@ -116,6 +118,7 @@ class LibraryManagerScreen extends StatelessWidget {
       final file = File(result.files.single.path!);
 
       if (!context.mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -123,23 +126,262 @@ class LibraryManagerScreen extends StatelessWidget {
       );
 
       try {
-        final message = await ImportService.importCompendiumFile(file);
+        final importResult =
+            await ImportService.importCompendiumFileDetailed(file);
 
         if (!context.mounted) return;
         Navigator.pop(context); // Close loader
 
+        final parsed = importResult.parseResult;
+        final message = importResult.warningCount > 0
+            ? l10n.libraryImportedWithWarnings(
+                importResult.sourceName,
+                importResult.warningCount,
+                parsed.items.length,
+                parsed.spells.length,
+                parsed.races.length,
+                parsed.classes.length,
+                parsed.backgrounds.length,
+                parsed.feats.length,
+              )
+            : l10n.libraryImportedSuccess(
+                importResult.sourceName,
+                parsed.items.length,
+                parsed.spells.length,
+                parsed.races.length,
+                parsed.classes.length,
+                parsed.backgrounds.length,
+                parsed.feats.length,
+              );
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
+          SnackBar(
+            content: Text(message),
+            action: importResult.warningCount > 0
+                ? SnackBarAction(
+                    label: l10n.importWarningsAction,
+                    onPressed: () {
+                      _showImportDiagnostics(
+                        context,
+                        importResult.diagnostics,
+                      );
+                    },
+                  )
+                : null,
+          ),
         );
       } catch (e) {
         if (!context.mounted) return;
         Navigator.pop(context); // Close loader
 
+        final diagnostics = e is ImportServiceException ? e.diagnostics : null;
+        final message = e is ImportServiceException
+            ? l10n.libraryImportFailed(
+                diagnostics != null && diagnostics.hasErrors
+                    ? l10n.libraryImportUnsupported
+                    : e.message,
+              )
+            : l10n.libraryImportFailed(e.toString());
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            action: diagnostics != null && !diagnostics.isEmpty
+                ? SnackBarAction(
+                    label: l10n.importWarningsAction,
+                    onPressed: () {
+                      _showImportDiagnostics(context, diagnostics);
+                    },
+                  )
+                : null,
+          ),
         );
       }
     }
+  }
+
+  void _showImportDiagnostics(
+    BuildContext context,
+    FC5ParseDiagnostics diagnostics,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+    final visibleEntries = diagnostics.entries
+        .where((entry) => entry.severity != FC5DiagnosticSeverity.info)
+        .toList();
+    final entries =
+        visibleEntries.isEmpty ? diagnostics.entries : visibleEntries;
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 640),
+              child: Material(
+                color: colorScheme.surfaceContainerLow,
+                elevation: 8,
+                shadowColor: colorScheme.shadow.withValues(alpha: 0.18),
+                surfaceTintColor: colorScheme.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(32),
+                  side: BorderSide(
+                    color: colorScheme.outlineVariant.withValues(alpha: 0.68),
+                  ),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Align(
+                        child: Container(
+                          width: 42,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: colorScheme.onSurfaceVariant
+                                .withValues(alpha: 0.28),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Row(
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: Color.alphaBlend(
+                                colorScheme.tertiary.withValues(alpha: 0.14),
+                                colorScheme.surfaceContainerHighest,
+                              ),
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: Icon(
+                              Icons.rule_rounded,
+                              color: colorScheme.tertiary,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.importWarningsTitle,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(fontWeight: FontWeight.w800),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  l10n.importWarningsSubtitle(entries.length),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 360),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: entries.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 8),
+                          itemBuilder: (context, index) {
+                            final entry = entries[index];
+                            final isError =
+                                entry.severity == FC5DiagnosticSeverity.error;
+                            final tone = isError
+                                ? colorScheme.error
+                                : colorScheme.tertiary;
+                            return Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Color.alphaBlend(
+                                  tone.withValues(alpha: 0.08),
+                                  colorScheme.surfaceContainerHighest,
+                                ),
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                  color: tone.withValues(alpha: 0.18),
+                                ),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    isError
+                                        ? Icons.error_outline_rounded
+                                        : Icons.warning_amber_rounded,
+                                    color: tone,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          entry.message,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                        ),
+                                        if (entry.context != null) ...[
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            entry.context!,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color: colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _confirmDelete(
@@ -176,6 +418,7 @@ class LibraryManagerScreen extends StatelessWidget {
         // Reload in-memory caches to reflect changes immediately
         await ItemService.reload();
         await SpellService.reload();
+        await CharacterDataService.reload();
 
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

@@ -10,29 +10,120 @@ import 'item_service.dart';
 import 'spell_service.dart';
 import 'character_data_service.dart';
 
+class ImportServiceException implements Exception {
+  final String message;
+  final FC5ParseDiagnostics diagnostics;
+
+  ImportServiceException(this.message, {FC5ParseDiagnostics? diagnostics})
+      : diagnostics = diagnostics ?? FC5ParseDiagnostics();
+
+  @override
+  String toString() => message;
+}
+
+class CharacterImportResult {
+  final List<Character> characters;
+  final FC5ParseDiagnostics diagnostics;
+
+  CharacterImportResult({
+    required this.characters,
+    required this.diagnostics,
+  });
+
+  bool get hasWarnings => diagnostics.hasWarnings;
+  int get warningCount => diagnostics.warningCount;
+}
+
+class CompendiumImportResult {
+  final String sourceId;
+  final String sourceName;
+  final FC5ParseResult parseResult;
+
+  CompendiumImportResult({
+    required this.sourceId,
+    required this.sourceName,
+    required this.parseResult,
+  });
+
+  FC5ParseDiagnostics get diagnostics => parseResult.diagnostics;
+  bool get hasWarnings => diagnostics.hasWarnings;
+  int get warningCount => diagnostics.warningCount;
+
+  String get summary {
+    return 'Imported successfully: ${parseResult.items.length} items, '
+        '${parseResult.spells.length} spells, ${parseResult.races.length} races, '
+        '${parseResult.classes.length} classes, '
+        '${parseResult.backgrounds.length} backgrounds, '
+        '${parseResult.feats.length} feats.';
+  }
+}
+
 class ImportService {
   // Import from FC5 XML file
   static Future<Character> importFromFC5File(File file) async {
+    final result = await importCharactersFromFC5File(file);
+    if (result.characters.isEmpty) {
+      throw ImportServiceException(
+        'No supported FC5 characters found.',
+        diagnostics: result.diagnostics,
+      );
+    }
+    return result.characters.first;
+  }
+
+  static Future<CharacterImportResult> importCharactersFromFC5File(
+    File file,
+  ) async {
     final xmlContent = await file.readAsString();
-    final character = FC5Parser.parseCharacter(xmlContent);
+    final parseResult = FC5Parser.parseCharacters(xmlContent);
 
-    // Add class features to character
-    FeatureService.addFeaturesToCharacter(character);
+    if (parseResult.candidates.isEmpty) {
+      throw ImportServiceException(
+        parseResult.diagnostics.entries.firstOrNull?.message ??
+            'No supported FC5 characters found.',
+        diagnostics: parseResult.diagnostics,
+      );
+    }
 
-    await StorageService.saveCharacter(character);
-    return character;
+    final imported = <Character>[];
+    for (final candidate in parseResult.candidates) {
+      final character = candidate.character;
+      FeatureService.addFeaturesToCharacter(character);
+      character.recalculateAC();
+      await StorageService.saveCharacter(character);
+      imported.add(character);
+    }
+
+    return CharacterImportResult(
+      characters: imported,
+      diagnostics: parseResult.diagnostics,
+    );
   }
 
   // Import Compendium (Items, Spells, Races, Classes, etc.) from FC5 XML file
   static Future<String> importCompendiumFile(File file) async {
+    final result = await importCompendiumFileDetailed(file);
+    return result.summary;
+  }
+
+  static Future<CompendiumImportResult> importCompendiumFileDetailed(
+    File file,
+  ) async {
     try {
       final xmlContent = await file.readAsString();
       final sourceId = const Uuid().v4();
-      // Use parseCompendium for the universal import
       final parseResult =
           await FC5Parser.parseCompendium(xmlContent, sourceId: sourceId);
 
       final fileName = file.path.split(Platform.pathSeparator).last;
+
+      if (parseResult.isEmpty) {
+        throw ImportServiceException(
+          parseResult.diagnostics.entries.firstOrNull?.message ??
+              'This XML file does not contain supported FC5 compendium content.',
+          diagnostics: parseResult.diagnostics,
+        );
+      }
 
       // Create and save source metadata
       final source = CompendiumSource(
@@ -79,10 +170,22 @@ class ImportService {
       // CharacterDataService handles races/classes usually, now needs to handle backgrounds/feats too
       await CharacterDataService.reload();
 
-      return 'Imported successfully: ${parseResult.items.length} items, ${parseResult.spells.length} spells, ${parseResult.races.length} races, ${parseResult.classes.length} classes, ${parseResult.backgrounds.length} backgrounds, ${parseResult.feats.length} feats.';
+      return CompendiumImportResult(
+        sourceId: sourceId,
+        sourceName: fileName,
+        parseResult: parseResult,
+      );
+    } on ImportServiceException {
+      rethrow;
     } catch (e) {
-      print('❌ ImportService: Failed to import compendium: $e');
-      throw Exception('Failed to import compendium: $e');
+      print('ImportService: Failed to import compendium: $e');
+      throw ImportServiceException('Failed to import compendium: $e');
     }
+  }
+
+  static Future<void> reloadImportedContentServices() async {
+    await ItemService.reload();
+    await SpellService.reload();
+    await CharacterDataService.reload();
   }
 }

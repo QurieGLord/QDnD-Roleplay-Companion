@@ -204,6 +204,47 @@
       }
     }
   },
+  "importedCharactersSuccess": "{count, plural, =1{{name} imported successfully!} other{{count} characters imported successfully!}}",
+  "@importedCharactersSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "importedCharactersWithWarnings": "{count, plural, =1{{name} imported with {warnings} warnings.} other{{count} characters imported with {warnings} warnings.}}",
+  "@importedCharactersWithWarnings": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      },
+      "warnings": {
+        "type": "int"
+      }
+    }
+  },
+  "importWarningsAction": "Warnings",
+  "@importWarningsAction": {
+    "description": "SnackBar action label for opening import diagnostics"
+  },
+  "importWarningsTitle": "Import warnings",
+  "@importWarningsTitle": {
+    "description": "Title for import diagnostics sheet"
+  },
+  "importWarningsSubtitle": "{count, plural, =1{1 field needs attention} other{{count} fields need attention}}",
+  "@importWarningsSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "duplicateFailed": "Failed to duplicate character: {error}",
   "@duplicateFailed": {
     "placeholders": {
@@ -3097,6 +3138,73 @@
         "type": "String"
       }
     }
+  },
+  "libraryImportedSuccess": "Imported {name}: {items} items, {spells} spells, {races} races, {classes} classes, {backgrounds} backgrounds, {feats} feats.",
+  "@libraryImportedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "items": {
+        "type": "int"
+      },
+      "spells": {
+        "type": "int"
+      },
+      "races": {
+        "type": "int"
+      },
+      "classes": {
+        "type": "int"
+      },
+      "backgrounds": {
+        "type": "int"
+      },
+      "feats": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryImportedWithWarnings": "Imported {name} with {warnings} warnings: {items} items, {spells} spells, {races} races, {classes} classes, {backgrounds} backgrounds, {feats} feats.",
+  "@libraryImportedWithWarnings": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "warnings": {
+        "type": "int"
+      },
+      "items": {
+        "type": "int"
+      },
+      "spells": {
+        "type": "int"
+      },
+      "races": {
+        "type": "int"
+      },
+      "classes": {
+        "type": "int"
+      },
+      "backgrounds": {
+        "type": "int"
+      },
+      "feats": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryImportFailed": "Failed to import library: {error}",
+  "@libraryImportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryImportUnsupported": "This XML does not contain supported FC5 compendium content.",
+  "@libraryImportUnsupported": {
+    "description": "Shown when an XML import has no supported compendium entities"
   },
   "deleteLibraryTitle": "Delete Library?",
   "@deleteLibraryTitle": {

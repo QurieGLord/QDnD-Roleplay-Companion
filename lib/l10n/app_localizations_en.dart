@@ -170,6 +170,45 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String importedCharactersSuccess(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count characters imported successfully!',
+      one: '$name imported successfully!',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importedCharactersWithWarnings(int count, String name, int warnings) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count characters imported with $warnings warnings.',
+      one: '$name imported with $warnings warnings.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importWarningsAction => 'Warnings';
+
+  @override
+  String get importWarningsTitle => 'Import warnings';
+
+  @override
+  String importWarningsSubtitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fields need attention',
+      one: '1 field needs attention',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String duplicateFailed(String error) {
     return 'Failed to duplicate character: $error';
   }
@@ -2313,6 +2352,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String libraryImportedDate(String date) {
     return 'Imported $date';
   }
+
+  @override
+  String libraryImportedSuccess(String name, int items, int spells, int races,
+      int classes, int backgrounds, int feats) {
+    return 'Imported $name: $items items, $spells spells, $races races, $classes classes, $backgrounds backgrounds, $feats feats.';
+  }
+
+  @override
+  String libraryImportedWithWarnings(String name, int warnings, int items,
+      int spells, int races, int classes, int backgrounds, int feats) {
+    return 'Imported $name with $warnings warnings: $items items, $spells spells, $races races, $classes classes, $backgrounds backgrounds, $feats feats.';
+  }
+
+  @override
+  String libraryImportFailed(String error) {
+    return 'Failed to import library: $error';
+  }
+
+  @override
+  String get libraryImportUnsupported =>
+      'This XML does not contain supported FC5 compendium content.';
 
   @override
   String get deleteLibraryTitle => 'Delete Library?';

@@ -172,6 +172,51 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String importedCharactersSuccess(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '# персонажа успешно импортированы!',
+      many: '# персонажей успешно импортированы!',
+      few: '# персонажа успешно импортированы!',
+      one: '$name успешно импортирован!',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importedCharactersWithWarnings(int count, String name, int warnings) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '# персонажа импортированы с предупреждениями: $warnings.',
+      many: '# персонажей импортированы с предупреждениями: $warnings.',
+      few: '# персонажа импортированы с предупреждениями: $warnings.',
+      one: '$name импортирован с предупреждениями: $warnings.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importWarningsAction => 'Предупреждения';
+
+  @override
+  String get importWarningsTitle => 'Предупреждения импорта';
+
+  @override
+  String importWarningsSubtitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '# поля требуют внимания',
+      many: '# полей требуют внимания',
+      few: '# поля требуют внимания',
+      one: '# поле требует внимания',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String duplicateFailed(String error) {
     return 'Не удалось скопировать персонажа: $error';
   }
@@ -2297,6 +2342,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String libraryImportedDate(String date) {
     return 'Импортировано $date';
   }
+
+  @override
+  String libraryImportedSuccess(String name, int items, int spells, int races,
+      int classes, int backgrounds, int feats) {
+    return 'Импортировано $name: предметы $items, заклинания $spells, расы $races, классы $classes, предыстории $backgrounds, черты $feats.';
+  }
+
+  @override
+  String libraryImportedWithWarnings(String name, int warnings, int items,
+      int spells, int races, int classes, int backgrounds, int feats) {
+    return 'Импортировано $name с предупреждениями: $warnings. Предметы $items, заклинания $spells, расы $races, классы $classes, предыстории $backgrounds, черты $feats.';
+  }
+
+  @override
+  String libraryImportFailed(String error) {
+    return 'Не удалось импортировать библиотеку: $error';
+  }
+
+  @override
+  String get libraryImportUnsupported =>
+      'Этот XML не содержит поддерживаемого FC5 compendium-контента.';
 
   @override
   String get deleteLibraryTitle => 'Удалить библиотеку?';

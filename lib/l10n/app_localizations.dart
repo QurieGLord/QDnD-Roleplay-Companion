@@ -374,6 +374,36 @@ abstract class AppLocalizations {
   /// **'{name} imported successfully!'**
   String importedSuccess(String name);
 
+  /// No description provided for @importedCharactersSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{name} imported successfully!} other{{count} characters imported successfully!}}'**
+  String importedCharactersSuccess(int count, String name);
+
+  /// No description provided for @importedCharactersWithWarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{name} imported with {warnings} warnings.} other{{count} characters imported with {warnings} warnings.}}'**
+  String importedCharactersWithWarnings(int count, String name, int warnings);
+
+  /// SnackBar action label for opening import diagnostics
+  ///
+  /// In en, this message translates to:
+  /// **'Warnings'**
+  String get importWarningsAction;
+
+  /// Title for import diagnostics sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Import warnings'**
+  String get importWarningsTitle;
+
+  /// No description provided for @importWarningsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 field needs attention} other{{count} fields need attention}}'**
+  String importWarningsSubtitle(int count);
+
   /// No description provided for @duplicateFailed.
   ///
   /// In en, this message translates to:
@@ -4351,6 +4381,32 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Imported {date}'**
   String libraryImportedDate(String date);
+
+  /// No description provided for @libraryImportedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {name}: {items} items, {spells} spells, {races} races, {classes} classes, {backgrounds} backgrounds, {feats} feats.'**
+  String libraryImportedSuccess(String name, int items, int spells, int races,
+      int classes, int backgrounds, int feats);
+
+  /// No description provided for @libraryImportedWithWarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {name} with {warnings} warnings: {items} items, {spells} spells, {races} races, {classes} classes, {backgrounds} backgrounds, {feats} feats.'**
+  String libraryImportedWithWarnings(String name, int warnings, int items,
+      int spells, int races, int classes, int backgrounds, int feats);
+
+  /// No description provided for @libraryImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to import library: {error}'**
+  String libraryImportFailed(String error);
+
+  /// Shown when an XML import has no supported compendium entities
+  ///
+  /// In en, this message translates to:
+  /// **'This XML does not contain supported FC5 compendium content.'**
+  String get libraryImportUnsupported;
 
   /// No description provided
   ///
