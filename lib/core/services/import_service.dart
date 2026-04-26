@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:uuid/uuid.dart';
 import '../models/character.dart';
 import '../models/compendium_source.dart';
+import 'fc5_compendium_identity_service.dart';
+import 'fc5_media_import_service.dart';
 import 'fc5_parser.dart';
 import 'storage_service.dart';
 import 'feature_service.dart';
@@ -89,6 +91,11 @@ class ImportService {
     final imported = <Character>[];
     for (final candidate in parseResult.candidates) {
       final character = candidate.character;
+      await FC5MediaImportService.materializeCharacterMedia(
+        character: character,
+        media: candidate.media,
+        diagnostics: parseResult.diagnostics,
+      );
       FeatureService.addFeaturesToCharacter(character);
       final hydration = FeatureHydrationService.hydrateCharacter(character);
       character.features
@@ -117,6 +124,23 @@ class ImportService {
   ) async {
     try {
       final xmlContent = await file.readAsString();
+      final fingerprint = FC5CompendiumIdentityService.fingerprintXml(
+        xmlContent,
+      );
+      final duplicateSource = await _findDuplicateSource(fingerprint);
+      if (duplicateSource != null) {
+        final diagnostics = FC5ParseDiagnostics()
+          ..warning(
+            'duplicate_source',
+            'This FC5 compendium has already been imported.',
+            context: duplicateSource.name,
+          );
+        throw ImportServiceException(
+          'This FC5 compendium has already been imported as "${duplicateSource.name}".',
+          diagnostics: diagnostics,
+        );
+      }
+
       final sourceId = const Uuid().v4();
       final parseResult =
           await FC5Parser.parseCompendium(xmlContent, sourceId: sourceId);
@@ -145,6 +169,7 @@ class ImportService {
       );
 
       await StorageService.saveSource(source);
+      await StorageService.saveSourceFingerprint(fingerprint, sourceId);
 
       if (parseResult.items.isNotEmpty) {
         await StorageService.saveItems(parseResult.items);
@@ -193,6 +218,20 @@ class ImportService {
     await ItemService.reload();
     await SpellService.reload();
     await CharacterDataService.reload();
+  }
+
+  static Future<CompendiumSource?> _findDuplicateSource(
+    String fingerprint,
+  ) async {
+    final sourceId = StorageService.getSourceIdForFingerprint(fingerprint);
+    if (sourceId == null) return null;
+
+    for (final source in StorageService.getAllSources()) {
+      if (source.id == sourceId) return source;
+    }
+
+    await StorageService.deleteSourceFingerprint(fingerprint);
+    return null;
   }
 
   static void _mergeHydrationDiagnostics(

@@ -28,6 +28,7 @@ class StorageService {
   static const String _classesBoxName = 'classes_library';
   static const String _backgroundsBoxName = 'backgrounds_library';
   static const String _featsBoxName = 'feats_library';
+  static const String _fc5SourceFingerprintPrefix = 'fc5_source_fingerprint:';
 
   static late Box<Character> _characterBox;
   static late Box _settingsBox;
@@ -207,6 +208,8 @@ class StorageService {
   }
 
   static Future<void> deleteSource(String sourceId) async {
+    await deleteSourceFingerprintsForSource(sourceId);
+
     // 1. Delete source record
     await _sourcesBox.delete(sourceId);
 
@@ -290,6 +293,38 @@ class StorageService {
 
   static dynamic getSetting(String key, {dynamic defaultValue}) {
     return _settingsBox.get(key, defaultValue: defaultValue);
+  }
+
+  static String? getSourceIdForFingerprint(String fingerprint) {
+    return _settingsBox.get(
+      '$_fc5SourceFingerprintPrefix$fingerprint',
+    ) as String?;
+  }
+
+  static Future<void> saveSourceFingerprint(
+    String fingerprint,
+    String sourceId,
+  ) async {
+    await _settingsBox.put(
+      '$_fc5SourceFingerprintPrefix$fingerprint',
+      sourceId,
+    );
+  }
+
+  static Future<void> deleteSourceFingerprint(String fingerprint) async {
+    await _settingsBox.delete('$_fc5SourceFingerprintPrefix$fingerprint');
+  }
+
+  static Future<void> deleteSourceFingerprintsForSource(String sourceId) async {
+    final keys = _settingsBox.keys
+        .where((key) =>
+            key is String &&
+            key.startsWith(_fc5SourceFingerprintPrefix) &&
+            _settingsBox.get(key) == sourceId)
+        .toList();
+    if (keys.isNotEmpty) {
+      await _settingsBox.deleteAll(keys);
+    }
   }
 
   // Clear all data (for testing)

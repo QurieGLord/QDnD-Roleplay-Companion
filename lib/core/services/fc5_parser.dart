@@ -130,12 +130,40 @@ class FC5CharacterImportCandidate {
   final int index;
   final String sourceNode;
   final FC5ParseDiagnostics diagnostics;
+  final List<FC5EmbeddedMedia> media;
 
   FC5CharacterImportCandidate({
     required this.character,
     required this.index,
     required this.sourceNode,
     required this.diagnostics,
+    this.media = const [],
+  });
+}
+
+class FC5EmbeddedMedia {
+  final String kind;
+  final String rawData;
+  final String? encoding;
+  final String? source;
+  final String? referenceId;
+  final String? mimeType;
+  final String? format;
+  final int? noteIndex;
+  final int? itemIndex;
+  final String context;
+
+  const FC5EmbeddedMedia({
+    required this.kind,
+    required this.rawData,
+    this.encoding,
+    this.source,
+    this.referenceId,
+    this.mimeType,
+    this.format,
+    this.noteIndex,
+    this.itemIndex,
+    required this.context,
   });
 }
 
@@ -511,6 +539,7 @@ class FC5Parser {
       final document = XmlDocument.parse(xmlContent);
       final root = document.rootElement;
       final characterNodes = _findCharacterNodes(root, diagnostics);
+      final imageDataDefinitions = _extractImageDataDefinitions(root);
 
       if (characterNodes.isEmpty) {
         diagnostics.error(
@@ -541,12 +570,18 @@ class FC5Parser {
             localDiagnostics,
             index: i,
           );
+          final media = _extractCharacterMedia(
+            node,
+            localDiagnostics,
+            imageDataDefinitions,
+          );
           candidates.add(
             FC5CharacterImportCandidate(
               character: character,
               index: i,
               sourceNode: node.name.local,
               diagnostics: localDiagnostics,
+              media: media,
             ),
           );
         } catch (error) {
@@ -558,8 +593,6 @@ class FC5Parser {
         }
         diagnostics.merge(localDiagnostics);
       }
-
-      _recordSkippedImageData(root, diagnostics);
 
       return FC5CharacterParseResult(
         candidates: candidates,
@@ -611,6 +644,222 @@ class FC5Parser {
         );
         return root.findAllElements('character').toList();
     }
+  }
+
+  static List<FC5EmbeddedMedia> _extractCharacterMedia(
+    XmlElement node,
+    FC5ParseDiagnostics diagnostics,
+    Map<String, _FC5ImageDataDefinition> imageDataDefinitions,
+  ) {
+    final media = <FC5EmbeddedMedia>[];
+    final supportedNodes = <XmlElement>{};
+    final noteNodes = node.findElements('note').toList();
+    final itemNodes = node.findElements('item').toList();
+
+    for (var noteIndex = 0; noteIndex < noteNodes.length; noteIndex++) {
+      final noteNode = noteNodes[noteIndex];
+      final title = _getTag(noteNode, 'name').ifEmpty('Imported note');
+      var noteImageIndex = 0;
+      for (final imageNode in noteNode.findAllElements('imageData')) {
+        supportedNodes.add(imageNode);
+        media.add(
+          _embeddedMediaFromNode(
+            imageNode,
+            kind: 'note',
+            noteIndex: noteIndex,
+            imageDataDefinitions: imageDataDefinitions,
+            context: noteImageIndex == 0
+                ? 'note "$title"'
+                : 'note "$title" image #$noteImageIndex',
+          ),
+        );
+        noteImageIndex++;
+      }
+    }
+
+    var parsedItemIndex = 0;
+    for (final itemNode in itemNodes) {
+      final itemName = _getTag(itemNode, 'name').ifEmpty('Imported item');
+      if (_isCurrencyItem(itemNode)) continue;
+      var itemImageIndex = 0;
+      for (final imageNode in itemNode.findAllElements('imageData')) {
+        supportedNodes.add(imageNode);
+        media.add(
+          _embeddedMediaFromNode(
+            imageNode,
+            kind: 'item',
+            itemIndex: parsedItemIndex,
+            imageDataDefinitions: imageDataDefinitions,
+            context: itemImageIndex == 0
+                ? 'item "$itemName"'
+                : 'item "$itemName" image #$itemImageIndex',
+          ),
+        );
+        itemImageIndex++;
+      }
+      parsedItemIndex++;
+    }
+
+    var avatarIndex = 0;
+    for (final imageNode in node.findAllElements('imageData')) {
+      if (supportedNodes.contains(imageNode)) continue;
+      if (!_isCharacterAvatarImageData(imageNode, node)) continue;
+
+      supportedNodes.add(imageNode);
+      media.add(
+        _embeddedMediaFromNode(
+          imageNode,
+          kind: 'avatar',
+          imageDataDefinitions: imageDataDefinitions,
+          context: avatarIndex == 0 ? 'avatar' : 'avatar#$avatarIndex',
+        ),
+      );
+      avatarIndex++;
+    }
+
+    for (final imageNode in node.findAllElements('imageData')) {
+      if (supportedNodes.contains(imageNode)) continue;
+      diagnostics.warning(
+        'unsupported_image_data_location',
+        'Embedded imageData outside character avatar or notes was skipped.',
+        context: _getTag(node, 'name').ifEmpty(node.name.local),
+      );
+    }
+
+    return media;
+  }
+
+  static Map<String, _FC5ImageDataDefinition> _extractImageDataDefinitions(
+    XmlElement root,
+  ) {
+    final definitions = <String, _FC5ImageDataDefinition>{};
+    for (final imageNode in root.findAllElements('imageData')) {
+      final uid = _imageDataUid(imageNode);
+      if (uid.isEmpty) continue;
+
+      final encodedNode = imageNode.findElements('encoded').firstOrNull;
+      final encoded = encodedNode?.innerText.trim() ??
+          imageNode.getAttribute('encoded')?.trim() ??
+          '';
+      if (encoded.isEmpty) continue;
+
+      definitions[uid] = _FC5ImageDataDefinition(
+        encoded: encoded,
+        encoding: imageNode.getAttribute('encoding') ??
+            encodedNode?.getAttribute('encoding'),
+        mimeType: imageNode.getAttribute('mime') ??
+            imageNode.getAttribute('mimeType') ??
+            encodedNode?.getAttribute('mime') ??
+            encodedNode?.getAttribute('mimeType'),
+        format: imageNode.getAttribute('format') ??
+            imageNode.getAttribute('extension') ??
+            encodedNode?.getAttribute('format') ??
+            encodedNode?.getAttribute('extension'),
+      );
+    }
+    return definitions;
+  }
+
+  static String _imageDataUid(XmlElement node) {
+    return (node.getAttribute('uid') ?? _getTag(node, 'uid')).trim();
+  }
+
+  static bool _isCharacterAvatarImageData(
+    XmlElement imageNode,
+    XmlElement characterNode,
+  ) {
+    final source = _normalizeLoose(
+      imageNode.getAttribute('source') ?? imageNode.getAttribute('kind') ?? '',
+    );
+    if (source == 'avatar' ||
+        source == 'portrait' ||
+        source == 'token' ||
+        source == 'character_avatar' ||
+        source == 'character portrait') {
+      return true;
+    }
+
+    final directParent = imageNode.parentElement;
+    if (directParent == characterNode) return true;
+
+    const directAvatarContainers = {
+      'avatar',
+      'portrait',
+      'token',
+      'picture',
+      'image',
+    };
+    if (directParent?.parentElement == characterNode &&
+        directAvatarContainers.contains(directParent!.name.local)) {
+      return true;
+    }
+
+    final avatarContainers = {'avatar', 'portrait', 'token', 'picture'};
+    final unsupportedOwners = {
+      'item',
+      'spell',
+      'race',
+      'class',
+      'background',
+      'feat',
+      'feature',
+      'trait',
+      'note',
+    };
+
+    XmlElement? current = directParent;
+    while (current != null && current != characterNode) {
+      final name = current.name.local;
+      if (unsupportedOwners.contains(name)) return false;
+      if (avatarContainers.contains(name)) return true;
+      current = current.parentElement;
+    }
+
+    return false;
+  }
+
+  static FC5EmbeddedMedia _embeddedMediaFromNode(
+    XmlElement node, {
+    required String kind,
+    required String context,
+    required Map<String, _FC5ImageDataDefinition> imageDataDefinitions,
+    int? noteIndex,
+    int? itemIndex,
+  }) {
+    final uid = _imageDataUid(node);
+    final definition = uid.isEmpty ? null : imageDataDefinitions[uid];
+    final encoded = node.findElements('encoded').firstOrNull;
+    final directEncoded = encoded?.innerText.trim() ??
+        node.getAttribute('encoded')?.trim() ??
+        _directImageDataText(node);
+
+    return FC5EmbeddedMedia(
+      kind: kind,
+      rawData: definition?.encoded ?? directEncoded,
+      encoding: node.getAttribute('encoding') ??
+          encoded?.getAttribute('encoding') ??
+          definition?.encoding,
+      source: node.getAttribute('source'),
+      referenceId: uid.isEmpty ? null : uid,
+      mimeType: node.getAttribute('mime') ??
+          node.getAttribute('mimeType') ??
+          encoded?.getAttribute('mime') ??
+          encoded?.getAttribute('mimeType') ??
+          definition?.mimeType,
+      format: node.getAttribute('format') ??
+          node.getAttribute('extension') ??
+          encoded?.getAttribute('format') ??
+          encoded?.getAttribute('extension') ??
+          definition?.format,
+      noteIndex: noteIndex,
+      itemIndex: itemIndex,
+      context: context,
+    );
+  }
+
+  static String _directImageDataText(XmlElement node) {
+    if (node.childElements.isEmpty) return node.innerText.trim();
+    return '';
   }
 
   static Character _parseCharacterNode(
@@ -1131,14 +1380,6 @@ class FC5Parser {
           tags: const ['fc5'],
         ),
       );
-
-      if (noteNode.findAllElements('imageData').isNotEmpty) {
-        diagnostics.warning(
-          'note_image_skipped',
-          'Embedded imageData for note "$title" was skipped.',
-          context: title,
-        );
-      }
     }
     return notes;
   }
@@ -2398,20 +2639,6 @@ class FC5Parser {
     return _ParsedInventory(goldPieces: quantity);
   }
 
-  static void _recordSkippedImageData(
-    XmlElement root,
-    FC5ParseDiagnostics diagnostics,
-  ) {
-    final count = root.findAllElements('imageData').length;
-    if (count > 0) {
-      diagnostics.warning(
-        'skipped_image_data',
-        'Skipped $count embedded imageData node(s).',
-        context: root.name.local,
-      );
-    }
-  }
-
   static bool _hasNonWhitespaceText(XmlElement node) {
     return node.innerText.trim().isNotEmpty;
   }
@@ -2672,6 +2899,20 @@ class _ClassNameParts {
   const _ClassNameParts({
     required this.base,
     this.subclass,
+  });
+}
+
+class _FC5ImageDataDefinition {
+  final String encoded;
+  final String? encoding;
+  final String? mimeType;
+  final String? format;
+
+  const _FC5ImageDataDefinition({
+    required this.encoded,
+    this.encoding,
+    this.mimeType,
+    this.format,
   });
 }
 
