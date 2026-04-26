@@ -115,9 +115,8 @@ class FeatureService {
     String? subclassId,
   }) {
     final normalizedClass = _normalizeClassName(classId);
-    final normalizedSubclass = subclassId != null
-        ? _normalizeClassName(subclassId)
-        : null;
+    final normalizedSubclass =
+        subclassId != null ? _normalizeClassName(subclassId) : null;
 
     return _features.values.where((f) {
       if (_isPlaceholderFeature(f)) return false;
@@ -569,6 +568,7 @@ class FeatureService {
       actionEconomy: 'action',
       iconName: 'psychology_alt',
       resourcePool: null, // Uses the main Channel Divinity pool
+      usageCostId: 'channel-divinity',
     );
 
     // Guided Strike
@@ -588,6 +588,7 @@ class FeatureService {
       actionEconomy: 'free',
       iconName: 'gps_fixed',
       resourcePool: null, // Uses the main Channel Divinity pool
+      usageCostId: 'channel-divinity',
     );
 
     // Note: Add other oath-specific Channel Divinity options when needed

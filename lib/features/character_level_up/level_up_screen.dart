@@ -90,33 +90,12 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       subclassId: widget.character.subclass,
     );
 
-    // Get features from ClassData (XML)
     final classFeatures = _classData.features[_nextLevel] ?? [];
-
-    // Filter class features by subclass if applicable
-    final filteredClassFeatures = classFeatures.where((f) {
-      // If feature has no associated subclass, include it
-      if (f.associatedSubclass == null || f.associatedSubclass!.isEmpty) {
-        return true;
-      }
-      // If character has a subclass, check match
-      if (widget.character.subclass != null) {
-        return f.associatedSubclass!.toLowerCase() ==
-            widget.character.subclass!.toLowerCase();
-      }
-      return f.associatedSubclass == null;
-    }).toList();
-
-    // Merge
-    final allFeatures = [...standardFeatures];
-    final existingIds = standardFeatures.map((f) => f.id).toSet();
-
-    for (var feature in filteredClassFeatures) {
-      if (!existingIds.contains(feature.id)) {
-        allFeatures.add(feature);
-        existingIds.add(feature.id);
-      }
-    }
+    final allFeatures = CharacterDataService.getFeaturesForLevel(
+      classId: widget.character.characterClass,
+      level: _nextLevel,
+      subclassId: widget.character.subclass,
+    ).toList();
 
     // Filter out "Circle of the Land: *" options to enforce single choice
     _landOptions = allFeatures
@@ -320,11 +299,9 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
             char.abilityScores.strength + (_asiAllocations['strength'] ?? 0),
         dexterity:
             char.abilityScores.dexterity + (_asiAllocations['dexterity'] ?? 0),
-        constitution:
-            char.abilityScores.constitution +
+        constitution: char.abilityScores.constitution +
             (_asiAllocations['constitution'] ?? 0),
-        intelligence:
-            char.abilityScores.intelligence +
+        intelligence: char.abilityScores.intelligence +
             (_asiAllocations['intelligence'] ?? 0),
         wisdom: char.abilityScores.wisdom + (_asiAllocations['wisdom'] ?? 0),
         charisma:
@@ -386,8 +363,8 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
     ];
 
     if (_selectedOptions.containsKey('hunter_tactic')) {
-      final chosenIdStr = (_selectedOptions['hunter_tactic'] as String)
-          .toLowerCase();
+      final chosenIdStr =
+          (_selectedOptions['hunter_tactic'] as String).toLowerCase();
 
       // Find the active tier for this tactic
       List<String>? activeTier;

@@ -6,6 +6,9 @@ import '../models/class_data.dart';
 import '../models/background_data.dart';
 import '../models/character_feature.dart';
 import 'storage_service.dart';
+import 'feature_service.dart';
+import 'feature_hydration_service.dart';
+import 'imported_progression_service.dart';
 
 class CharacterDataService {
   static List<RaceData>? _races;
@@ -97,7 +100,10 @@ class CharacterDataService {
       // Load storage classes
       final storageClasses = StorageService.getAllClasses();
 
-      _classes = [...assetClasses, ...storageClasses];
+      _classes = ImportedProgressionService.overlayImportedClasses(
+        assetClasses: assetClasses,
+        importedClasses: storageClasses,
+      );
       print(
           '✅ Loaded ${_classes!.length} classes (${assetClasses.length} assets + ${storageClasses.length} custom)');
     } catch (e) {
@@ -151,6 +157,43 @@ class CharacterDataService {
   static List<ClassData> getAllClasses() => _classes ?? [];
   static List<BackgroundData> getAllBackgrounds() => _backgrounds ?? [];
   static List<CharacterFeature> getAllFeats() => _feats ?? [];
+
+  static List<CharacterFeature> getFeaturesForLevel({
+    required String classId,
+    required int level,
+    String? subclassId,
+  }) {
+    final standardFeatures = FeatureService.getFeaturesForLevel(
+      classId: classId,
+      level: level,
+      subclassId: subclassId,
+    );
+    final classData = getClassById(classId);
+    final classFeatures = classData?.features[level] ?? const [];
+
+    final features = <CharacterFeature>[...standardFeatures];
+    final keys = features.map(FeatureHydrationService.featureDedupeKey).toSet();
+
+    for (final feature in classFeatures) {
+      if (!_subclassMatches(feature.associatedSubclass, subclassId)) {
+        continue;
+      }
+      if (standardFeatures.any(
+        (standard) => FeatureHydrationService.featureMatchesBuiltIn(
+          feature,
+          standard,
+        ),
+      )) {
+        continue;
+      }
+      final key = FeatureHydrationService.featureDedupeKey(feature);
+      if (keys.add(key)) {
+        features.add(feature);
+      }
+    }
+
+    return features;
+  }
 
   static String _normalizeId(String input) {
     final lower = input.toLowerCase().trim();
@@ -212,6 +255,29 @@ class CharacterDataService {
       default:
         return lower;
     }
+  }
+
+  static bool _subclassMatches(String? featureSubclass, String? subclassId) {
+    if (featureSubclass == null || featureSubclass.isEmpty) {
+      return true;
+    }
+    if (subclassId == null || subclassId.isEmpty) {
+      return false;
+    }
+    final featureKey = _normalizeLoose(featureSubclass);
+    final targetKey = _normalizeLoose(subclassId);
+    return featureKey == targetKey ||
+        featureKey.contains(targetKey) ||
+        targetKey.contains(featureKey);
+  }
+
+  static String _normalizeLoose(String input) {
+    return input
+        .toLowerCase()
+        .replaceAll('ё', 'е')
+        .replaceAll(RegExp(r'[_-]+'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
   }
 
   static RaceData? getRaceById(String idOrName) {

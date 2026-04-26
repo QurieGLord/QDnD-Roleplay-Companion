@@ -6,6 +6,7 @@ import '../models/compendium_source.dart';
 import 'fc5_parser.dart';
 import 'storage_service.dart';
 import 'feature_service.dart';
+import 'feature_hydration_service.dart';
 import 'item_service.dart';
 import 'spell_service.dart';
 import 'character_data_service.dart';
@@ -89,6 +90,11 @@ class ImportService {
     for (final candidate in parseResult.candidates) {
       final character = candidate.character;
       FeatureService.addFeaturesToCharacter(character);
+      final hydration = FeatureHydrationService.hydrateCharacter(character);
+      character.features
+        ..clear()
+        ..addAll(hydration.features);
+      _mergeHydrationDiagnostics(parseResult.diagnostics, hydration);
       character.recalculateAC();
       await StorageService.saveCharacter(character);
       imported.add(character);
@@ -187,5 +193,29 @@ class ImportService {
     await ItemService.reload();
     await SpellService.reload();
     await CharacterDataService.reload();
+  }
+
+  static void _mergeHydrationDiagnostics(
+    FC5ParseDiagnostics diagnostics,
+    FeatureHydrationResult hydration,
+  ) {
+    for (final entry in hydration.diagnostics) {
+      switch (entry.severity) {
+        case FeatureHydrationDiagnosticSeverity.warning:
+          diagnostics.warning(
+            entry.code,
+            entry.message,
+            context: entry.context,
+          );
+          break;
+        case FeatureHydrationDiagnosticSeverity.info:
+          diagnostics.info(
+            entry.code,
+            entry.message,
+            context: entry.context,
+          );
+          break;
+      }
+    }
   }
 }

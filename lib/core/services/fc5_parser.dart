@@ -13,6 +13,7 @@ import '../models/item.dart';
 import '../models/journal_note.dart';
 import '../models/race_data.dart';
 import '../models/spell.dart';
+import 'feature_hydration_service.dart';
 import 'spell_service.dart';
 
 enum FC5DiagnosticSeverity { info, warning, error }
@@ -149,12 +150,7 @@ class FC5CharacterParseResult {
 
   bool get isEmpty => candidates.isEmpty;
 
-  int get warningCount =>
-      diagnostics.warningCount +
-      candidates.fold<int>(
-        0,
-        (sum, candidate) => sum + candidate.diagnostics.warningCount,
-      );
+  int get warningCount => diagnostics.warningCount;
 }
 
 class FC5Parser {
@@ -446,7 +442,7 @@ class FC5Parser {
               races.add(_parseRace(node, sid));
               break;
             case 'class':
-              classes.add(_parseClass(node, sid));
+              classes.add(_parseClass(node, sid, diagnostics));
               break;
             case 'background':
               backgrounds.add(_parseBackground(node, sid));
@@ -1293,7 +1289,12 @@ class FC5Parser {
       _addAllUnique(skills, parsed.skillValuesForCharacter);
       _addAllUnique(savingThrows, parsed.savingThrows);
       if (expert) {
-        _addAllUnique(expertSkills, parsed.skillIds);
+        final parsedSkillIds = parsed.skillIds.isNotEmpty
+            ? parsed.skillIds
+            : parsed.skillValuesForCharacter
+                .map(_normalizeSkillId)
+                .whereType<String>();
+        _addAllUnique(expertSkills, parsedSkillIds);
       }
       _addAllUnique(expertSkills, parsed.expertSkills);
     }
@@ -1405,7 +1406,6 @@ class FC5Parser {
     final skillId = _normalizeSkillId(value);
     if (skillId == null) return;
     _addUnique(target, skillId);
-    _addUnique(target, _skillDisplayName(skillId));
   }
 
   static Item _parseItem(XmlElement node, String? sourceId) {
@@ -1578,7 +1578,11 @@ class FC5Parser {
     );
   }
 
-  static ClassData _parseClass(XmlElement node, String sourceId) {
+  static ClassData _parseClass(
+    XmlElement node,
+    String sourceId,
+    FC5ParseDiagnostics diagnostics,
+  ) {
     final nameEn = _getTag(node, 'name').ifEmpty('Unnamed Class');
     final nameRu = _getTag(node, 'name_ru');
     final hitDie = _parseInt(_getTag(node, 'hd')) ?? 8;
@@ -1594,6 +1598,7 @@ class FC5Parser {
       final subclassEn = autolevel.getAttribute('subclass') ??
           autolevel.getAttribute('name') ??
           '';
+      final normalizedSubclass = subclassEn.trim().isEmpty ? null : subclassEn;
       if (subclassEn.trim().isNotEmpty) {
         final subclassRu = autolevel.getAttribute('subclass_ru') ??
             autolevel.getAttribute('name_ru') ??
@@ -1617,28 +1622,26 @@ class FC5Parser {
           featureNode,
           sourceId,
           className: nameEn,
+          subclassName: normalizedSubclass,
           level: level,
         );
         if (feature != null) {
-          features[level]!.add(feature);
+          final hydration = FeatureHydrationService.hydrateClassFeatures(
+            [feature],
+            className: nameEn,
+            subclassName: normalizedSubclass,
+          );
+          _mergeHydrationDiagnostics(diagnostics, hydration.diagnostics);
+          features[level]!.addAll(hydration.features);
         }
       }
 
       final slots = _getTag(autolevel, 'slots');
       if (slots.isNotEmpty) {
-        features[level]!.add(
-          CharacterFeature(
-            id: _entityId(
-                '$nameEn spell slots $level', 'class_feature', sourceId),
-            nameEn: 'Spell Slots',
-            nameRu: 'Spell Slots',
-            descriptionEn: 'Spell slots: $slots',
-            descriptionRu: 'Spell slots: $slots',
-            type: FeatureType.passive,
-            minLevel: level,
-            associatedClass: nameEn,
-            sourceId: sourceId,
-          ),
+        diagnostics.info(
+          'class_spell_slots_progression',
+          'Spell slot progression for "$nameEn" level $level was imported as progression data for future support, not as a character feature.',
+          context: nameEn,
         );
       }
     }
@@ -1690,6 +1693,7 @@ class FC5Parser {
     XmlElement featureNode,
     String sourceId, {
     required String className,
+    String? subclassName,
     required int level,
   }) {
     var fNameEn = _getTag(featureNode, 'name');
@@ -1718,6 +1722,7 @@ class FC5Parser {
       type: FeatureType.passive,
       minLevel: level,
       associatedClass: className,
+      associatedSubclass: subclassName,
       sourceId: sourceId,
     );
   }
@@ -2094,20 +2099,6 @@ class FC5Parser {
         .replaceAll('_', ' ')
         .trim();
     return _skillMap[normalized];
-  }
-
-  static String _skillDisplayName(String skillId) {
-    switch (skillId) {
-      case 'animal_handling':
-        return 'Animal Handling';
-      case 'sleight_of_hand':
-        return 'Sleight of Hand';
-      default:
-        return skillId
-            .split('_')
-            .map((part) => part[0].toUpperCase() + part.substring(1))
-            .join(' ');
-    }
   }
 
   static String _canonicalClassName(String value) {
@@ -2506,6 +2497,30 @@ class FC5Parser {
   ) {
     for (final value in values) {
       _addFeature(target, value);
+    }
+  }
+
+  static void _mergeHydrationDiagnostics(
+    FC5ParseDiagnostics diagnostics,
+    Iterable<FeatureHydrationDiagnostic> entries,
+  ) {
+    for (final entry in entries) {
+      switch (entry.severity) {
+        case FeatureHydrationDiagnosticSeverity.warning:
+          diagnostics.warning(
+            entry.code,
+            entry.message,
+            context: entry.context,
+          );
+          break;
+        case FeatureHydrationDiagnosticSeverity.info:
+          diagnostics.info(
+            entry.code,
+            entry.message,
+            context: entry.context,
+          );
+          break;
+      }
     }
   }
 }

@@ -20,7 +20,7 @@ void main() {
       expect(character.level, 5);
       expect(character.maxSpellSlots[0], 4);
       expect(character.maxSpellSlots[1], 2);
-      expect(character.proficientSkills, contains('Athletics'));
+      expect(character.proficientSkills, contains('athletics'));
     });
 
     test('parses first character from GM players wrapper fixture', () async {
@@ -69,7 +69,7 @@ void main() {
       expect(character.savingThrowProficiencies, contains('wisdom'));
       expect(character.savingThrowProficiencies, contains('charisma'));
       expect(character.proficientSkills, contains('insight'));
-      expect(character.proficientSkills, contains('Religion'));
+      expect(character.proficientSkills, contains('religion'));
 
       expect(character.inventory.length, 2);
       final mace = character.inventory.firstWhere((i) => i.nameEn == 'Mace');

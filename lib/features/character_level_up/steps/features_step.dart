@@ -267,7 +267,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
     final landOptionIds =
         widget.landOptions.map((feature) => feature.id).toSet();
 
-    return FeatureService.getFeaturesForLevel(
+    return CharacterDataService.getFeaturesForLevel(
       classId: widget.classData.id,
       level: widget.nextLevel,
       subclassId: selectedSubclassId,
