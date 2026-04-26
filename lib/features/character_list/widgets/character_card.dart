@@ -50,6 +50,11 @@ class _CharacterCardState extends State<CharacterCard> {
             widget.character.subclass!,
           )
         : null;
+    final identityLine = l10n.characterCardIdentity(
+      localizedRaceName,
+      widget.character.level,
+      localizedClassName,
+    );
     final accent =
         resolveClassAccent(colorScheme, widget.character.characterClass);
     final cardShape = RoundedRectangleBorder(
@@ -128,7 +133,10 @@ class _CharacterCardState extends State<CharacterCard> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -141,27 +149,18 @@ class _CharacterCardState extends State<CharacterCard> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: _IdentityBadge(
-                                  text: localizedRaceName,
-                                  accent: accent,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
                               Text(
                                 widget.character.name,
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w800,
                                   height: 1.05,
-                                  letterSpacing: -0.2,
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${l10n.levelShort} ${widget.character.level} $localizedClassName',
+                                identityLine,
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   color: colorScheme.onSurface
                                       .withValues(alpha: 0.82),
@@ -171,13 +170,13 @@ class _CharacterCardState extends State<CharacterCard> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               if (localizedSubclass != null) ...[
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 6),
                                 _SubclassSurface(
                                   label: localizedSubclass,
                                   accent: accent,
                                 ),
                               ],
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 8),
                               Wrap(
                                 spacing: 6,
                                 runSpacing: 6,
@@ -199,11 +198,6 @@ class _CharacterCardState extends State<CharacterCard> {
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        _TrailingAffordance(
-                          accent: accent,
-                          hovered: _hovered,
                         ),
                       ],
                     ),
@@ -234,8 +228,8 @@ class _AvatarBlock extends StatelessWidget {
     return Hero(
       tag: 'character-avatar-${character.id}',
       child: Container(
-        width: 74,
-        height: 74,
+        width: 68,
+        height: 68,
         padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -252,7 +246,7 @@ class _AvatarBlock extends StatelessWidget {
               ),
             ],
           ),
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(21),
           border: Border.all(color: accent.withValues(alpha: 0.22)),
           boxShadow: [
             BoxShadow(
@@ -352,42 +346,6 @@ class _FallbackAvatar extends StatelessWidget {
   }
 }
 
-class _IdentityBadge extends StatelessWidget {
-  const _IdentityBadge({
-    required this.text,
-    required this.accent,
-  });
-
-  final String text;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Color.alphaBlend(
-          accent.withValues(alpha: 0.12),
-          colorScheme.surfaceContainerHighest,
-        ),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: accent.withValues(alpha: 0.18)),
-      ),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w700,
-            ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
-  }
-}
-
 class _SubclassSurface extends StatelessWidget {
   const _SubclassSurface({
     required this.label,
@@ -403,7 +361,7 @@ class _SubclassSurface extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: Color.alphaBlend(
           accent.withValues(alpha: 0.1),
@@ -493,53 +451,6 @@ class _MetricChip extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _TrailingAffordance extends StatelessWidget {
-  const _TrailingAffordance({
-    required this.accent,
-    required this.hovered,
-  });
-
-  final Color accent;
-  final bool hovered;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return AnimatedContainer(
-      duration: MediaQuery.maybeOf(context)?.disableAnimations ?? false
-          ? Duration.zero
-          : const Duration(milliseconds: 160),
-      curve: Curves.easeOutCubic,
-      width: 36,
-      height: 52,
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-      decoration: BoxDecoration(
-        color: hovered
-            ? Color.alphaBlend(
-                accent.withValues(alpha: 0.14),
-                colorScheme.surfaceContainerHighest,
-              )
-            : colorScheme.surfaceContainerHighest.withValues(alpha: 0.82),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: (hovered ? accent : colorScheme.outlineVariant)
-              .withValues(alpha: hovered ? 0.24 : 0.48),
-        ),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.chevron_right_rounded,
-          size: 20,
-          color: hovered
-              ? accent
-              : colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-        ),
       ),
     );
   }

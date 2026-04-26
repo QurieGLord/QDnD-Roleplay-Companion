@@ -21,13 +21,18 @@ import 'storage_service.dart';
 
 class QdndBundleExportService {
   static const String _appVersion = '0.13.0';
+  static const int _maxMediaFiles = 24;
+  static const int _maxMediaFileBytes = 8 * 1024 * 1024;
+  static const int _maxMediaTotalBytes = 18 * 1024 * 1024;
 
   static Future<QdndBundleExportResult> exportCharacter(
     Character character, {
     QdndBundleExportOptions options = const QdndBundleExportOptions(),
   }) async {
+    final diagnostics = QdndBundleDiagnostics();
     final dependencies = _buildDependencies(character);
     final embedded = _buildEmbeddedContent(character, options);
+    final media = await _collectMediaFiles(character, diagnostics);
 
     final files = <String, List<int>>{
       'character.json': _jsonBytes({
@@ -127,7 +132,12 @@ class QdndBundleExportService {
         'schemaVersion': qdndBundleSchemaVersion,
         'quests': character.quests.map((quest) => quest.toJson()).toList(),
       }),
+      'media/manifest.json': _jsonBytes({
+        'schemaVersion': qdndBundleSchemaVersion,
+        'entries': media.entries.map((entry) => entry.toJson()).toList(),
+      }),
     };
+    files.addAll(media.files);
 
     final checksums = files.map(
       (path, bytes) => MapEntry(path, QdndBundleHashes.bytesHash(bytes)),
@@ -154,6 +164,7 @@ class QdndBundleExportService {
         'races': embedded.races.length,
         'classes': embedded.classes.length,
         'backgrounds': embedded.backgrounds.length,
+        'media': media.embeddedCount,
       },
       'dependencies':
           dependencies.map((dependency) => dependency.toJson()).toList(),
@@ -174,6 +185,7 @@ class QdndBundleExportService {
       manifest: manifest,
       embeddedContentCount: embedded.count,
       dependencyCount: dependencies.length,
+      diagnostics: diagnostics.entries,
     );
   }
 
@@ -350,6 +362,156 @@ class QdndBundleExportService {
   static List<int> _jsonBytes(Map<String, dynamic> json) {
     return utf8.encode(const JsonEncoder.withIndent('  ').convert(json));
   }
+
+  static Future<_ExportedMedia> _collectMediaFiles(
+    Character character,
+    QdndBundleDiagnostics diagnostics,
+  ) async {
+    final entries = <QdndBundleMediaEntry>[];
+    final files = <String, List<int>>{};
+    var totalBytes = 0;
+
+    Future<void> addMedia({
+      required String kind,
+      required String ownerId,
+      required String fieldName,
+      required String? path,
+    }) async {
+      final value = path?.trim();
+      if (value == null || value.isEmpty) return;
+
+      if (_isRemoteMedia(value)) {
+        entries.add(
+          QdndBundleMediaEntry(
+            kind: kind,
+            ownerId: ownerId,
+            fieldName: fieldName,
+            originalName: value,
+            embedded: false,
+            exportPolicy: QdndBundleExportPolicy.referenceOnly,
+          ),
+        );
+        return;
+      }
+
+      final file = File(value);
+      if (!await file.exists()) {
+        diagnostics.warning(
+          'media_missing',
+          'Media file was not included because it was not found.',
+          context: _baseName(value),
+        );
+        return;
+      }
+
+      final length = await file.length();
+      if (length > _maxMediaFileBytes) {
+        diagnostics.warning(
+          'media_too_large',
+          'Media file was not included because it is too large.',
+          context: _baseName(value),
+        );
+        return;
+      }
+
+      if (entries.where((entry) => entry.embedded).length >= _maxMediaFiles) {
+        diagnostics.warning(
+          'media_file_limit',
+          'Some media files were not included because the bundle media limit was reached.',
+          context: _baseName(value),
+        );
+        return;
+      }
+
+      if (totalBytes + length > _maxMediaTotalBytes) {
+        diagnostics.warning(
+          'media_total_limit',
+          'Media file was not included because the bundle media size limit was reached.',
+          context: _baseName(value),
+        );
+        return;
+      }
+
+      final bytes = await file.readAsBytes();
+      totalBytes += bytes.length;
+      final fileName = _safeMediaFileName(
+        '${entries.length + 1}_${kind}_${_baseName(value)}',
+      );
+      final bundlePath = 'media/$fileName';
+      files[bundlePath] = bytes;
+      entries.add(
+        QdndBundleMediaEntry(
+          kind: kind,
+          ownerId: ownerId,
+          fieldName: fieldName,
+          originalName: _baseName(value),
+          bundlePath: bundlePath,
+          fileName: fileName,
+          sizeBytes: bytes.length,
+          contentHash: QdndBundleHashes.bytesHash(bytes),
+        ),
+      );
+    }
+
+    await addMedia(
+      kind: 'characterAvatar',
+      ownerId: character.id,
+      fieldName: 'avatarPath',
+      path: character.avatarPath,
+    );
+    for (final note in character.journalNotes) {
+      await addMedia(
+        kind: 'journalNoteImage',
+        ownerId: note.id,
+        fieldName: 'imagePath',
+        path: note.imagePath,
+      );
+    }
+    for (final quest in character.quests) {
+      await addMedia(
+        kind: 'questImage',
+        ownerId: quest.id,
+        fieldName: 'imagePath',
+        path: quest.imagePath,
+      );
+    }
+    for (final item in character.inventory) {
+      await addMedia(
+        kind: 'itemImage',
+        ownerId: item.id,
+        fieldName: 'customImagePath',
+        path: item.customImagePath,
+      );
+    }
+
+    return _ExportedMedia(entries: entries, files: files);
+  }
+
+  static bool _isRemoteMedia(String value) {
+    final normalized = value.toLowerCase();
+    return normalized.startsWith('http://') ||
+        normalized.startsWith('https://') ||
+        normalized.startsWith('data:');
+  }
+
+  static String _baseName(String path) {
+    final parts = path.split(RegExp(r'[\\/]'));
+    return parts.isEmpty ? path : parts.last;
+  }
+
+  static String _safeMediaFileName(String input) {
+    final trimmed = input.trim();
+    final dot = trimmed.lastIndexOf('.');
+    final rawName = dot > 0 ? trimmed.substring(0, dot) : trimmed;
+    final rawExt = dot > 0 ? trimmed.substring(dot).toLowerCase() : '';
+    final name = rawName
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9а-яё]+'), '_')
+        .replaceAll(RegExp(r'_+'), '_')
+        .replaceAll(RegExp(r'^_|_$'), '');
+    final ext = rawExt.replaceAll(RegExp(r'[^a-z0-9.]'), '');
+    return '${name.isEmpty ? 'media' : name}${ext.isEmpty ? '.bin' : ext}';
+  }
 }
 
 class _EmbeddedContent {
@@ -376,6 +538,18 @@ class _EmbeddedContent {
       races.length +
       classes.length +
       backgrounds.length;
+}
+
+class _ExportedMedia {
+  final List<QdndBundleMediaEntry> entries;
+  final Map<String, List<int>> files;
+
+  const _ExportedMedia({
+    required this.entries,
+    required this.files,
+  });
+
+  int get embeddedCount => entries.where((entry) => entry.embedded).length;
 }
 
 class _DependencyBuilder {

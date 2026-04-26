@@ -12,9 +12,11 @@ import '../../../core/models/ability_scores.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/character_feature.dart';
 import '../../../core/models/item.dart';
+import '../../../core/services/fc5_export_service.dart';
 import '../../../core/services/fc5_parser.dart';
 import '../../../core/services/import_service.dart';
 import '../../../core/services/qdnd_bundle_export_service.dart';
+import '../../../core/services/qdnd_bundle_file_service.dart';
 import '../../../core/services/qdnd_bundle_import_service.dart';
 import '../../../core/services/qdnd_bundle_schema.dart';
 import '../../../core/services/storage_service.dart';
@@ -368,12 +370,12 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
               delay: const Duration(milliseconds: 190),
               beginOffset: const Offset(0, 0.04),
               child: _SheetActionTile(
-                icon: Icons.inventory_2_outlined,
-                title: l10n.exportQdndBundle,
-                subtitle: l10n.exportQdndBundleActionDescription,
+                icon: Icons.ios_share_rounded,
+                title: l10n.exportCharacter,
+                subtitle: l10n.exportCharacterActionDescription,
                 onTap: () {
-                  _dismissSheetThen(sheetContext, () async {
-                    await _exportQdndBundle(context, character);
+                  _dismissSheetThen(sheetContext, () {
+                    _showExportOptions(context, character);
                   });
                 },
               ),
@@ -403,6 +405,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final localizedRaceName = getLocalizedRaceName(context, character.race);
     final localizedClassName =
         getLocalizedClassName(context, character.characterClass);
     final localizedSubclass = character.subclass != null
@@ -412,168 +415,205 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             character.subclass!,
           )
         : null;
-
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(28),
-        ),
-        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-        contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
-        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        title: Text(
-          character.name,
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '${character.race} • ${l10n.level} ${character.level} $localizedClassName',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              if (localizedSubclass != null) ...[
-                const SizedBox(height: 10),
-                Text(
-                  '${l10n.subclass}: $localizedSubclass',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-              if (character.background != null &&
-                  character.background!.trim().isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text(
-                  '${l10n.background}: ${character.background}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-              const SizedBox(height: 18),
-              _DetailStatRow(
-                label: l10n.hitPoints,
-                value: '${character.currentHp}/${character.maxHp}',
-                icon: Icons.favorite_rounded,
-                accent: colorScheme.error,
-              ),
-              _DetailStatRow(
-                label: l10n.armorClass,
-                value: '${character.armorClass}',
-                icon: Icons.shield_rounded,
-                accent: colorScheme.secondary,
-              ),
-              _DetailStatRow(
-                label: l10n.speed(character.speed),
-                value: '',
-                icon: Icons.directions_run_rounded,
-                accent: colorScheme.tertiary,
-              ),
-              _DetailStatRow(
-                label: l10n.initiativeLabel,
-                value: character.formatModifier(character.initiativeBonus),
-                icon: Icons.bolt_rounded,
-                accent: colorScheme.primary,
-              ),
-              _DetailStatRow(
-                label: l10n.proficiencyBonusLabel,
-                value: '+${character.proficiencyBonus}',
-                icon: Icons.workspace_premium_rounded,
-                accent: colorScheme.secondary,
-              ),
-              const SizedBox(height: 18),
-              Text(
-                l10n.abilityScoresTitle,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 10),
-              _buildAbilityRow(
-                l10n.abilityStrAbbr,
-                character.abilityScores.strength,
-                character.abilityScores.strengthModifier,
-              ),
-              _buildAbilityRow(
-                l10n.abilityDexAbbr,
-                character.abilityScores.dexterity,
-                character.abilityScores.dexterityModifier,
-              ),
-              _buildAbilityRow(
-                l10n.abilityConAbbr,
-                character.abilityScores.constitution,
-                character.abilityScores.constitutionModifier,
-              ),
-              _buildAbilityRow(
-                l10n.abilityIntAbbr,
-                character.abilityScores.intelligence,
-                character.abilityScores.intelligenceModifier,
-              ),
-              _buildAbilityRow(
-                l10n.abilityWisAbbr,
-                character.abilityScores.wisdom,
-                character.abilityScores.wisdomModifier,
-              ),
-              _buildAbilityRow(
-                l10n.abilityChaAbbr,
-                character.abilityScores.charisma,
-                character.abilityScores.charismaModifier,
-              ),
-              if (character.appearance != null &&
-                  character.appearance!.trim().isNotEmpty) ...[
-                const SizedBox(height: 18),
-                Text(
-                  l10n.appearance,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  character.appearance!,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    height: 1.35,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(l10n.close),
-          ),
-        ],
-      ),
+    final accent = resolveClassAccent(colorScheme, character.characterClass);
+    final identity = l10n.characterCardIdentity(
+      localizedRaceName,
+      character.level,
+      localizedClassName,
     );
-  }
+    final appearanceText = [
+      character.appearance,
+      character.appearanceDescription,
+    ].whereType<String>().where((value) => value.trim().isNotEmpty).join('\n');
+    final abilityTiles = [
+      _AbilityScoreTile(
+        label: l10n.abilityStrAbbr,
+        score: character.abilityScores.strength,
+        modifier: character.abilityScores.strengthModifier,
+        accent: accent,
+      ),
+      _AbilityScoreTile(
+        label: l10n.abilityDexAbbr,
+        score: character.abilityScores.dexterity,
+        modifier: character.abilityScores.dexterityModifier,
+        accent: accent,
+      ),
+      _AbilityScoreTile(
+        label: l10n.abilityConAbbr,
+        score: character.abilityScores.constitution,
+        modifier: character.abilityScores.constitutionModifier,
+        accent: accent,
+      ),
+      _AbilityScoreTile(
+        label: l10n.abilityIntAbbr,
+        score: character.abilityScores.intelligence,
+        modifier: character.abilityScores.intelligenceModifier,
+        accent: accent,
+      ),
+      _AbilityScoreTile(
+        label: l10n.abilityWisAbbr,
+        score: character.abilityScores.wisdom,
+        modifier: character.abilityScores.wisdomModifier,
+        accent: accent,
+      ),
+      _AbilityScoreTile(
+        label: l10n.abilityChaAbbr,
+        score: character.abilityScores.charisma,
+        modifier: character.abilityScores.charismaModifier,
+        accent: accent,
+      ),
+    ];
 
-  Widget _buildAbilityRow(String name, int score, int modifier) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 46,
-            child: Text(
-              name,
-              style: const TextStyle(fontWeight: FontWeight.w800),
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => _ExpressiveSheetShell(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Color.alphaBlend(
+                  accent.withValues(alpha: 0.1),
+                  colorScheme.surfaceContainerHighest,
+                ),
+                borderRadius: BorderRadius.circular(26),
+                border: Border.all(color: accent.withValues(alpha: 0.16)),
+              ),
+              child: Row(
+                children: [
+                  _ActionSheetAvatar(character: character, accent: accent),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          character.name,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          identity,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (localizedSubclass != null) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            localizedSubclass,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: accent,
+                              fontWeight: FontWeight.w800,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Text('$score (${modifier >= 0 ? '+' : ''}$modifier)'),
-        ],
+            const SizedBox(height: 16),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final tileWidth = (constraints.maxWidth - 8) / 2;
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _DetailMetricTile(
+                      width: tileWidth,
+                      label: l10n.hpShort,
+                      value: '${character.currentHp}/${character.maxHp}',
+                      icon: Icons.favorite_rounded,
+                      accent: colorScheme.error,
+                    ),
+                    _DetailMetricTile(
+                      width: tileWidth,
+                      label: l10n.armorClassAC,
+                      value: '${character.armorClass}',
+                      icon: Icons.shield_rounded,
+                      accent: colorScheme.secondary,
+                    ),
+                    _DetailMetricTile(
+                      width: tileWidth,
+                      label: l10n.speedSPEED,
+                      value: '${character.speed}',
+                      icon: Icons.directions_run_rounded,
+                      accent: colorScheme.tertiary,
+                    ),
+                    _DetailMetricTile(
+                      width: tileWidth,
+                      label: l10n.initiativeINIT,
+                      value: character.formatModifier(
+                        character.initiativeBonus,
+                      ),
+                      icon: Icons.bolt_rounded,
+                      accent: colorScheme.primary,
+                    ),
+                    _DetailMetricTile(
+                      width: tileWidth,
+                      label: l10n.proficiencyPROF,
+                      value: '+${character.proficiencyBonus}',
+                      icon: Icons.workspace_premium_rounded,
+                      accent: colorScheme.secondary,
+                    ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 18),
+            Text(
+              l10n.abilityScoresTitle,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 10),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final tileWidth = (constraints.maxWidth - 16) / 3;
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: abilityTiles
+                      .map((tile) => SizedBox(width: tileWidth, child: tile))
+                      .toList(),
+                );
+              },
+            ),
+            if (character.background != null &&
+                character.background!.trim().isNotEmpty) ...[
+              const SizedBox(height: 18),
+              _DetailTextPanel(
+                title: l10n.background,
+                text: character.background!,
+              ),
+            ],
+            if (appearanceText.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              _DetailTextPanel(
+                title: l10n.appearance,
+                text: appearanceText,
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -936,6 +976,33 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
     }
   }
 
+  void _showExportOptions(BuildContext context, Character character) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => _ExpressiveSheetShell(
+        child: CharacterExportOptionsContent(
+          onQdndBundle: () {
+            _dismissSheetThen(sheetContext, () async {
+              await _exportQdndBundle(context, character);
+            });
+          },
+          onFc5Xml: () {
+            _dismissSheetThen(sheetContext, () async {
+              await _exportFC5Xml(context, character);
+            });
+          },
+          primaryAccent: colorScheme.primary,
+          secondaryAccent: colorScheme.secondary,
+        ),
+      ),
+    );
+  }
+
   Future<void> _exportQdndBundle(
     BuildContext context,
     Character character,
@@ -966,11 +1033,29 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       }
 
       if (context.mounted) {
+        final warningCount = exportResult.diagnostics
+            .where(
+              (entry) => entry.severity == QdndBundleDiagnosticSeverity.warning,
+            )
+            .length;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.qdndBundleExportedSuccess(fileName)),
             backgroundColor: Theme.of(context).colorScheme.primary,
             duration: const Duration(seconds: 2),
+            action: warningCount > 0
+                ? SnackBarAction(
+                    label: l10n.importWarningsAction,
+                    onPressed: () {
+                      if (mounted) {
+                        _showQdndBundleDiagnostics(
+                          context,
+                          exportResult.diagnostics,
+                        );
+                      }
+                    },
+                  )
+                : null,
           ),
         );
       }
@@ -987,27 +1072,74 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
     }
   }
 
+  Future<void> _exportFC5Xml(
+    BuildContext context,
+    Character character,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      final exportResult = await FC5ExportService.exportCharacter(character);
+      final fileName = '${_safeBundleFileName(character.name)}.xml';
+      final outputPath = await FilePicker.platform.saveFile(
+        dialogTitle: l10n.exportFC5Xml,
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['xml'],
+        bytes: exportResult.bytes,
+      );
+
+      if (outputPath == null) {
+        return;
+      }
+
+      if (!Platform.isAndroid && !Platform.isIOS) {
+        await File(outputPath).writeAsBytes(exportResult.bytes, flush: true);
+      }
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.fc5XmlExportedSuccess(fileName)),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.fc5XmlExportFailed('$e')),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _importFromQdndBundle(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['qdnd', 'zip'],
+        type: FileType.any,
+        withReadStream: true,
       );
 
       if (result == null || result.files.isEmpty) {
         return;
       }
 
-      final file = File(result.files.single.path!);
-      final preview = await QdndBundleImportService.previewFile(file);
+      final selectedFile = result.files.single;
+      final bytes = await QdndBundleFileService.readPlatformFile(selectedFile);
+      final preview = await QdndBundleImportService.previewBytes(bytes);
       if (!context.mounted) return;
       final confirmed = await _showQdndBundlePreview(context, preview);
       if (confirmed != true) {
         return;
       }
 
-      final importResult = await QdndBundleImportService.importFile(file);
+      final importResult = await QdndBundleImportService.importBytes(bytes);
       final warningCount = importResult.diagnostics
           .where(
             (entry) => entry.severity == QdndBundleDiagnosticSeverity.warning,
@@ -1396,6 +1528,63 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
         .replaceAll(RegExp(r'_+'), '_')
         .replaceAll(RegExp(r'^_|_$'), '');
     return normalized.isEmpty ? 'character' : normalized;
+  }
+}
+
+class CharacterExportOptionsContent extends StatelessWidget {
+  const CharacterExportOptionsContent({
+    super.key,
+    required this.onQdndBundle,
+    required this.onFc5Xml,
+    this.primaryAccent,
+    this.secondaryAccent,
+  });
+
+  final VoidCallback onQdndBundle;
+  final VoidCallback onFc5Xml;
+  final Color? primaryAccent;
+  final Color? secondaryAccent;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SheetTitleBlock(
+          icon: Icons.ios_share_rounded,
+          title: l10n.exportCharacter,
+          subtitle: l10n.exportFormatSubtitle,
+        ),
+        const SizedBox(height: 20),
+        RosterReveal(
+          delay: const Duration(milliseconds: 40),
+          beginOffset: const Offset(0, 0.04),
+          child: _SheetActionTile(
+            icon: Icons.inventory_2_outlined,
+            title: l10n.exportQdndBundle,
+            subtitle: l10n.exportQdndBundleActionDescription,
+            accent: primaryAccent ?? colorScheme.primary,
+            onTap: onQdndBundle,
+          ),
+        ),
+        const SizedBox(height: 12),
+        RosterReveal(
+          delay: const Duration(milliseconds: 90),
+          beginOffset: const Offset(0, 0.04),
+          child: _SheetActionTile(
+            icon: Icons.code_rounded,
+            title: l10n.exportFC5Xml,
+            subtitle: l10n.exportFC5XmlActionDescription,
+            accent: secondaryAccent ?? colorScheme.secondary,
+            onTap: onFc5Xml,
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -1988,14 +2177,16 @@ class _SheetActionTile extends StatelessWidget {
   }
 }
 
-class _DetailStatRow extends StatelessWidget {
-  const _DetailStatRow({
+class _DetailMetricTile extends StatelessWidget {
+  const _DetailMetricTile({
+    required this.width,
     required this.label,
     required this.value,
     required this.icon,
     required this.accent,
   });
 
+  final double width;
   final String label;
   final String value;
   final IconData icon;
@@ -2005,37 +2196,161 @@ class _DetailStatRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+    return SizedBox(
+      width: width,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 34,
-            height: 34,
+            width: 42,
+            height: 42,
             decoration: BoxDecoration(
               color: accent.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, size: 18, color: accent),
+            child: Icon(icon, size: 20, color: accent),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color:
+                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.76),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: accent.withValues(alpha: 0.12)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w700,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  const SizedBox(height: 2),
+                  Text(
+                    value,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
           ),
-          if (value.isNotEmpty)
-            Text(
-              value,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AbilityScoreTile extends StatelessWidget {
+  const _AbilityScoreTile({
+    required this.label,
+    required this.score,
+    required this.modifier,
+    required this.accent,
+  });
+
+  final String label;
+  final int score;
+  final int modifier;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final modifierText = modifier >= 0 ? '+$modifier' : '$modifier';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      decoration: BoxDecoration(
+        color: Color.alphaBlend(
+          accent.withValues(alpha: 0.08),
+          colorScheme.surfaceContainerHighest,
+        ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: accent.withValues(alpha: 0.13)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w800,
+                ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '$score',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+          ),
+          Text(
+            modifierText,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: accent,
+                  fontWeight: FontWeight.w800,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailTextPanel extends StatelessWidget {
+  const _DetailTextPanel({
+    required this.title,
+    required this.text,
+  });
+
+  final String title;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.76),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.56),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            text,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  height: 1.35,
+                ),
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );

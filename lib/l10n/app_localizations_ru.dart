@@ -124,7 +124,29 @@ class AppLocalizationsRu extends AppLocalizations {
       'Сохранить персонажа в переносимый QDND Bundle.';
 
   @override
+  String get exportCharacter => 'Экспорт';
+
+  @override
+  String get exportCharacterActionDescription =>
+      'Выберите переносимый формат для персонажа.';
+
+  @override
+  String get exportFormatSubtitle => 'Выберите, как сохранить этого персонажа.';
+
+  @override
+  String get exportFC5Xml => 'FC5 XML';
+
+  @override
+  String get exportFC5XmlActionDescription =>
+      'Сохранить совместимый XML персонажа Fight Club 5.';
+
+  @override
   String get viewDetails => 'Подробнее';
+
+  @override
+  String characterCardIdentity(String race, int level, String className) {
+    return '$race • ур. $level • $className';
+  }
 
   @override
   String get rosterHeaderSubtitle =>
@@ -286,6 +308,16 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String qdndBundleExportFailed(String error) {
     return 'Не удалось экспортировать QDND Bundle: $error';
+  }
+
+  @override
+  String fc5XmlExportedSuccess(String name) {
+    return 'Экспортировано: $name.';
+  }
+
+  @override
+  String fc5XmlExportFailed(String error) {
+    return 'Не удалось экспортировать FC5 XML: $error';
   }
 
   @override

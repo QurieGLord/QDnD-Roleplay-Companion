@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../models/background_data.dart';
 import '../models/character.dart';
@@ -26,6 +27,8 @@ class QdndBundleImportService {
   static const int _maxFileCount = 128;
   static const int _maxTotalUncompressedBytes = 25 * 1024 * 1024;
   static const int _maxSingleFileBytes = 10 * 1024 * 1024;
+  static const int _maxMediaFiles = 24;
+  static const int _maxMediaFileBytes = 8 * 1024 * 1024;
 
   static Future<QdndBundleImportPreview> previewFile(File file) async {
     return previewBytes(await file.readAsBytes());
@@ -96,6 +99,13 @@ class QdndBundleImportService {
       character,
       mapper,
       resolution.resolved,
+    );
+    await _restoreMediaFiles(
+      character: character,
+      oldCharacterId: oldCharacterId,
+      files: bundle.files,
+      mapper: mapper,
+      diagnostics: diagnostics,
     );
 
     final resourceStates = _captureResourceStates(character);
@@ -644,6 +654,157 @@ class QdndBundleImportService {
       return Map<String, dynamic>.from(data);
     }
     return wrapper;
+  }
+
+  static Future<void> _restoreMediaFiles({
+    required Character character,
+    required String oldCharacterId,
+    required Map<String, Uint8List> files,
+    required BundleIdMapper mapper,
+    required QdndBundleDiagnostics diagnostics,
+  }) async {
+    final manifest = _jsonMap(files['media/manifest.json']);
+    final rawEntries = manifest['entries'];
+    if (rawEntries is! List || rawEntries.isEmpty) return;
+
+    final entries = rawEntries
+        .whereType<Map>()
+        .map((entry) => QdndBundleMediaEntry.fromJson(
+              Map<String, dynamic>.from(entry),
+            ))
+        .toList();
+    final embeddedEntries =
+        entries.where((entry) => entry.embedded).toList(growable: false);
+
+    if (embeddedEntries.length > _maxMediaFiles) {
+      throw const QdndBundleException(
+        'too_many_media_files',
+        'QDND bundle contains too many media files.',
+      );
+    }
+
+    if (embeddedEntries.isEmpty) return;
+
+    final documentsDir = await getApplicationDocumentsDirectory();
+    final importDir = Directory(
+      '${documentsDir.path}${Platform.pathSeparator}qdnd_media'
+      '${Platform.pathSeparator}${character.id}',
+    );
+    await importDir.create(recursive: true);
+
+    for (final entry in embeddedEntries) {
+      final bundlePath = entry.bundlePath;
+      if (bundlePath == null || bundlePath.isEmpty) {
+        diagnostics.warning(
+          'media_missing',
+          'Media entry is missing its bundle path.',
+          context: entry.originalName,
+        );
+        continue;
+      }
+      _validateMediaPath(bundlePath);
+
+      final bytes = files[bundlePath];
+      if (bytes == null) {
+        diagnostics.warning(
+          'media_missing',
+          'Media file referenced by the bundle manifest was not found.',
+          context: entry.originalName,
+        );
+        continue;
+      }
+      if (bytes.length > _maxMediaFileBytes) {
+        throw QdndBundleException(
+          'media_file_too_large',
+          'Media file ${entry.originalName} is too large.',
+        );
+      }
+      if (entry.contentHash != null &&
+          QdndBundleHashes.bytesHash(bytes) != entry.contentHash) {
+        throw QdndBundleException(
+          'media_checksum_mismatch',
+          'Checksum mismatch for media file ${entry.originalName}.',
+        );
+      }
+
+      final fileName =
+          _safeMediaFileName(entry.fileName ?? _baseName(bundlePath));
+      final outputFile = File('${importDir.path}${Platform.pathSeparator}'
+          '$fileName');
+      await outputFile.writeAsBytes(bytes, flush: true);
+      _applyMediaPath(
+        character: character,
+        oldCharacterId: oldCharacterId,
+        mapper: mapper,
+        entry: entry,
+        localPath: outputFile.path,
+      );
+    }
+  }
+
+  static void _applyMediaPath({
+    required Character character,
+    required String oldCharacterId,
+    required BundleIdMapper mapper,
+    required QdndBundleMediaEntry entry,
+    required String localPath,
+  }) {
+    switch (entry.kind) {
+      case 'characterAvatar':
+        if (entry.ownerId == oldCharacterId || entry.ownerId == character.id) {
+          character.avatarPath = localPath;
+        }
+        break;
+      case 'journalNoteImage':
+        for (final note in character.journalNotes) {
+          if (note.id == entry.ownerId) {
+            note.imagePath = localPath;
+            break;
+          }
+        }
+        break;
+      case 'questImage':
+        for (final quest in character.quests) {
+          if (quest.id == entry.ownerId) {
+            quest.imagePath = localPath;
+            break;
+          }
+        }
+        break;
+      case 'itemImage':
+        final mappedOwnerId = mapper.mapContentId('item', entry.ownerId);
+        for (final item in character.inventory) {
+          if (item.id == mappedOwnerId || item.id == entry.ownerId) {
+            item.customImagePath = localPath;
+            break;
+          }
+        }
+        break;
+    }
+  }
+
+  static void _validateMediaPath(String path) {
+    _validatePath(path);
+    if (!path.startsWith('media/') || path == 'media/manifest.json') {
+      throw QdndBundleException(
+        'unsafe_media_path',
+        'Unsafe media path in QDND bundle: $path',
+      );
+    }
+  }
+
+  static String _baseName(String path) {
+    final parts = path.split(RegExp(r'[\\/]'));
+    return parts.isEmpty ? path : parts.last;
+  }
+
+  static String _safeMediaFileName(String input) {
+    final name = _baseName(input)
+        .trim()
+        .replaceAll(RegExp(r'[^a-zA-Z0-9а-яА-ЯёЁ._-]+'), '_')
+        .replaceAll(RegExp(r'_+'), '_')
+        .replaceAll(RegExp(r'^_|_$'), '');
+    return name.isEmpty ? 'media.bin' : name;
   }
 
   static const List<String> _knownResourceIds = [

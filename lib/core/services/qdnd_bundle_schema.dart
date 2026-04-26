@@ -125,13 +125,72 @@ class QdndBundleExportResult {
   final Map<String, dynamic> manifest;
   final int embeddedContentCount;
   final int dependencyCount;
+  final List<QdndBundleDiagnostic> diagnostics;
 
   const QdndBundleExportResult({
     required this.bytes,
     required this.manifest,
     required this.embeddedContentCount,
     required this.dependencyCount,
+    this.diagnostics = const [],
   });
+}
+
+class QdndBundleMediaEntry {
+  final String kind;
+  final String ownerId;
+  final String fieldName;
+  final String originalName;
+  final String? bundlePath;
+  final String? fileName;
+  final int? sizeBytes;
+  final String? contentHash;
+  final bool embedded;
+  final QdndBundleExportPolicy exportPolicy;
+
+  const QdndBundleMediaEntry({
+    required this.kind,
+    required this.ownerId,
+    required this.fieldName,
+    required this.originalName,
+    this.bundlePath,
+    this.fileName,
+    this.sizeBytes,
+    this.contentHash,
+    this.embedded = true,
+    this.exportPolicy = QdndBundleExportPolicy.userCreated,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'kind': kind,
+        'ownerId': ownerId,
+        'fieldName': fieldName,
+        'originalName': originalName,
+        'bundlePath': bundlePath,
+        'fileName': fileName,
+        'sizeBytes': sizeBytes,
+        'contentHash': contentHash,
+        'embedded': embedded,
+        'exportPolicy': exportPolicy.name,
+      };
+
+  factory QdndBundleMediaEntry.fromJson(Map<String, dynamic> json) {
+    return QdndBundleMediaEntry(
+      kind: json['kind'] as String? ?? 'unknown',
+      ownerId: json['ownerId'] as String? ?? '',
+      fieldName: json['fieldName'] as String? ?? '',
+      originalName: json['originalName'] as String? ?? '',
+      bundlePath: json['bundlePath'] as String?,
+      fileName: json['fileName'] as String?,
+      sizeBytes: json['sizeBytes'] as int?,
+      contentHash: json['contentHash'] as String?,
+      embedded: json['embedded'] as bool? ?? false,
+      exportPolicy: QdndBundleExportPolicy.values.firstWhere(
+        (policy) => policy.name == json['exportPolicy'],
+        orElse: () => QdndBundleExportPolicy.referenceOnly,
+      ),
+    );
+  }
 }
 
 class QdndBundleImportPreview {

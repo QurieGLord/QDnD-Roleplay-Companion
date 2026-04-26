@@ -320,11 +320,47 @@ abstract class AppLocalizations {
   /// **'Save this character as a portable QDND bundle.'**
   String get exportQdndBundleActionDescription;
 
+  /// Generic action label for exporting a character
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get exportCharacter;
+
+  /// Supporting copy for the generic character export action
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a portable format for this character.'**
+  String get exportCharacterActionDescription;
+
+  /// Subtitle for the export format picker sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how to save this character.'**
+  String get exportFormatSubtitle;
+
+  /// Action label for exporting a Fight Club 5 compatible XML file
+  ///
+  /// In en, this message translates to:
+  /// **'FC5 XML'**
+  String get exportFC5Xml;
+
+  /// Supporting copy for FC5 XML export
+  ///
+  /// In en, this message translates to:
+  /// **'Save a Fight Club 5 compatible character XML.'**
+  String get exportFC5XmlActionDescription;
+
   /// No description provided
   ///
   /// In en, this message translates to:
   /// **'View Details'**
   String get viewDetails;
+
+  /// No description provided for @characterCardIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'{race} • Level {level} • {className}'**
+  String characterCardIdentity(String race, int level, String className);
 
   /// Supporting copy for the expressive character roster header
   ///
@@ -505,6 +541,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to export QDND bundle: {error}'**
   String qdndBundleExportFailed(String error);
+
+  /// No description provided for @fc5XmlExportedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Exported {name}.'**
+  String fc5XmlExportedSuccess(String name);
+
+  /// No description provided for @fc5XmlExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to export FC5 XML: {error}'**
+  String fc5XmlExportFailed(String error);
 
   /// Long-form label for initiative in the character details dialog
   ///

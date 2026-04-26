@@ -148,9 +148,43 @@
   "@exportQdndBundleActionDescription": {
     "description": "Supporting copy for QDND bundle export"
   },
+  "exportCharacter": "Export",
+  "@exportCharacter": {
+    "description": "Generic action label for exporting a character"
+  },
+  "exportCharacterActionDescription": "Choose a portable format for this character.",
+  "@exportCharacterActionDescription": {
+    "description": "Supporting copy for the generic character export action"
+  },
+  "exportFormatSubtitle": "Choose how to save this character.",
+  "@exportFormatSubtitle": {
+    "description": "Subtitle for the export format picker sheet"
+  },
+  "exportFC5Xml": "FC5 XML",
+  "@exportFC5Xml": {
+    "description": "Action label for exporting a Fight Club 5 compatible XML file"
+  },
+  "exportFC5XmlActionDescription": "Save a Fight Club 5 compatible character XML.",
+  "@exportFC5XmlActionDescription": {
+    "description": "Supporting copy for FC5 XML export"
+  },
   "viewDetails": "View Details",
   "@viewDetails": {
     "description": "No description provided"
+  },
+  "characterCardIdentity": "{race} • Level {level} • {className}",
+  "@characterCardIdentity": {
+    "placeholders": {
+      "race": {
+        "type": "String"
+      },
+      "level": {
+        "type": "int"
+      },
+      "className": {
+        "type": "String"
+      }
+    }
   },
   "rosterHeaderSubtitle": "Your gathered adventurers, ready for the next tale.",
   "@rosterHeaderSubtitle": {
@@ -355,6 +389,22 @@
   },
   "qdndBundleExportFailed": "Failed to export QDND bundle: {error}",
   "@qdndBundleExportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "fc5XmlExportedSuccess": "Exported {name}.",
+  "@fc5XmlExportedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc5XmlExportFailed": "Failed to export FC5 XML: {error}",
+  "@fc5XmlExportFailed": {
     "placeholders": {
       "error": {
         "type": "String"

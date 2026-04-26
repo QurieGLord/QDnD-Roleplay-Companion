@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:archive/archive.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -23,6 +24,7 @@ import 'package:qd_and_d/core/services/character_data_service.dart';
 import 'package:qd_and_d/core/services/feature_service.dart';
 import 'package:qd_and_d/core/services/item_service.dart';
 import 'package:qd_and_d/core/services/qdnd_bundle_export_service.dart';
+import 'package:qd_and_d/core/services/qdnd_bundle_file_service.dart';
 import 'package:qd_and_d/core/services/qdnd_bundle_import_service.dart';
 import 'package:qd_and_d/core/services/qdnd_bundle_schema.dart';
 import 'package:qd_and_d/core/services/spell_service.dart';
@@ -361,6 +363,120 @@ void main() {
       );
       expect(flurry.usageCostId, 'ki');
       expect(flurry.actionEconomy, 'bonus_action');
+    });
+
+    test('imports selected QDND PlatformFile through path and bytes fallback',
+        () async {
+      final character = _richCharacter();
+      final bundleFile = File('${tempDir.path}/picked.qdnd');
+      final exportResult = await QdndBundleExportService.exportCharacterToFile(
+        character,
+        bundleFile,
+      );
+
+      final fromPath = await QdndBundleFileService.importPlatformFile(
+        PlatformFile(
+          name: 'picked.qdnd',
+          path: bundleFile.path,
+          size: await bundleFile.length(),
+        ),
+      );
+      expect(fromPath.character.name, character.name);
+
+      await _clearStorageBoxes();
+      final fromBytes = await QdndBundleFileService.importPlatformFile(
+        PlatformFile(
+          name: 'picked.qdnd',
+          size: exportResult.bytes.length,
+          bytes: exportResult.bytes,
+        ),
+      );
+      expect(fromBytes.character.name, character.name);
+
+      await _clearStorageBoxes();
+      final fromStream = await QdndBundleFileService.importPlatformFile(
+        PlatformFile(
+          name: 'picked.qdnd',
+          size: exportResult.bytes.length,
+          readStream: Stream.value(exportResult.bytes),
+        ),
+      );
+      expect(fromStream.character.name, character.name);
+
+      await expectLater(
+        QdndBundleFileService.readPlatformFile(
+          PlatformFile(
+            name: 'picked.txt',
+            size: exportResult.bytes.length,
+            bytes: exportResult.bytes,
+          ),
+        ),
+        throwsA(isA<QdndBundleException>()
+            .having((e) => e.code, 'code', 'unsupported_file_type')),
+      );
+    });
+
+    test('roundtrips local media through media manifest', () async {
+      final avatar = File('${tempDir.path}/avatar.bin')
+        ..writeAsBytesSync([1, 2, 3]);
+      final noteImage = File('${tempDir.path}/note.bin')
+        ..writeAsBytesSync([4, 5, 6]);
+      final questImage = File('${tempDir.path}/quest.bin')
+        ..writeAsBytesSync([7, 8, 9]);
+      final itemImage = File('${tempDir.path}/item.bin')
+        ..writeAsBytesSync([10, 11, 12]);
+      final character = _richCharacter()
+        ..avatarPath = avatar.path
+        ..journalNotes.single.imagePath = noteImage.path
+        ..quests.single.imagePath = questImage.path
+        ..inventory.single.customImagePath = itemImage.path;
+
+      final exportResult = await QdndBundleExportService.exportCharacter(
+        character,
+      );
+      final mediaManifest =
+          _jsonFile(exportResult.bytes, 'media/manifest.json');
+      expect(mediaManifest['entries'], hasLength(4));
+      expect(
+        (mediaManifest['entries'] as List).map((e) => e['bundlePath']),
+        everyElement(startsWith('media/')),
+      );
+
+      await _clearStorageBoxes();
+      final importResult =
+          await QdndBundleImportService.importBytes(exportResult.bytes);
+      final imported = importResult.character;
+
+      expect(imported.avatarPath, isNot(avatar.path));
+      expect(File(imported.avatarPath!).readAsBytesSync(), [1, 2, 3]);
+      expect(
+        File(imported.journalNotes.single.imagePath!).readAsBytesSync(),
+        [4, 5, 6],
+      );
+      expect(
+        File(imported.quests.single.imagePath!).readAsBytesSync(),
+        [7, 8, 9],
+      );
+      expect(
+        File(imported.inventory.single.customImagePath!).readAsBytesSync(),
+        [10, 11, 12],
+      );
+    });
+
+    test('missing local media produces export warning without crashing',
+        () async {
+      final character = _richCharacter()
+        ..avatarPath = '${tempDir.path}/missing-avatar.bin';
+
+      final exportResult = await QdndBundleExportService.exportCharacter(
+        character,
+      );
+
+      expect(exportResult.diagnostics.map((entry) => entry.code),
+          contains('media_missing'));
+      final mediaManifest =
+          _jsonFile(exportResult.bytes, 'media/manifest.json');
+      expect(mediaManifest['entries'], isEmpty);
     });
   });
 }
