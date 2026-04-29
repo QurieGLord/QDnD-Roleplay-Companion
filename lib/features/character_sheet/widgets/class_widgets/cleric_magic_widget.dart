@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/services/character_data_service.dart';
@@ -617,13 +618,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
                           widget.character.save();
                           widget.onStateChanged();
                         });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(l10n.usedChannelDivinity),
-                            backgroundColor: colorScheme.secondary,
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
+                        AppSnackBar.success(context, l10n.usedChannelDivinity);
                       }
                     : null,
                 color: accentColor,

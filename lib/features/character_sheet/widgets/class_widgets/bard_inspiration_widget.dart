@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -74,11 +75,11 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
       });
     } else {
       final isRu = Localizations.localeOf(context).languageCode == 'ru';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(isRu ? 'Нет зарядов Вдохновения!' : 'No charges left!'),
-        backgroundColor: Theme.of(context).colorScheme.error,
-        duration: const Duration(seconds: 1),
-      ));
+      AppSnackBar.warning(
+        context,
+        isRu ? 'Нет зарядов Вдохновения!' : 'No charges left!',
+        duration: const Duration(seconds: 2),
+      );
     }
   }
 
@@ -100,11 +101,11 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
     final pool = widget.inspirationFeature.resourcePool;
     if (pool == null || pool.isEmpty) {
       final isRu = Localizations.localeOf(context).languageCode == 'ru';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(isRu ? 'Нет зарядов Вдохновения!' : 'No charges left!'),
-        backgroundColor: Theme.of(context).colorScheme.error,
-        duration: const Duration(seconds: 1),
-      ));
+      AppSnackBar.warning(
+        context,
+        isRu ? 'Нет зарядов Вдохновения!' : 'No charges left!',
+        duration: const Duration(seconds: 2),
+      );
       return;
     }
 
@@ -144,14 +145,11 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
       msg = isRu ? 'Вдохновение восстановлено!' : 'Inspiration recovered!';
     }
 
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(msg, style: const TextStyle(fontWeight: FontWeight.bold)),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-      ),
+    AppSnackBar.success(
+      context,
+      msg,
+      duration: const Duration(seconds: 2),
+      clearQueue: true,
     );
   }
 
@@ -299,26 +297,21 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
           widget.onChanged?.call();
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(locale == 'ru'
-                ? 'Нет зарядов Вдохновения!'
-                : 'No Inspiration charges left!'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-          ),
+        AppSnackBar.warning(
+          context,
+          locale == 'ru'
+              ? 'Нет зарядов Вдохновения!'
+              : 'No Inspiration charges left!',
+          duration: const Duration(seconds: 2),
         );
         return; // Early return, action not performed
       }
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${feature.getName(locale)} $usedText'),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 1),
-      ),
+    AppSnackBar.info(
+      context,
+      '${feature.getName(locale)} $usedText',
+      duration: const Duration(seconds: 2),
     );
   }
 

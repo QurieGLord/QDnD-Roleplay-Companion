@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
@@ -675,12 +676,13 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
       widget.character.save();
       widget.onChanged?.call();
     });
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(Localizations.localeOf(context).languageCode == 'ru'
+    AppSnackBar.success(
+      context,
+      Localizations.localeOf(context).languageCode == 'ru'
           ? "Ячейка $lvl-го уровня создана! (-$cost ОЧ)"
-          : "Level $lvl slot created! (-$cost SP)"),
-      duration: const Duration(seconds: 1),
-    ));
+          : "Level $lvl slot created! (-$cost SP)",
+      duration: const Duration(seconds: 2),
+    );
   }
 
   void _burnSlot(int lvl, ResourcePool pool) {
@@ -692,12 +694,13 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
       widget.character.save();
       widget.onChanged?.call();
     });
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(Localizations.localeOf(context).languageCode == 'ru'
+    AppSnackBar.info(
+      context,
+      Localizations.localeOf(context).languageCode == 'ru'
           ? "Ячейка $lvl-го уровня поглощена! (+$lvl ОЧ)"
-          : "Level $lvl slot burned! (+$lvl SP)"),
-      duration: const Duration(seconds: 1),
-    ));
+          : "Level $lvl slot burned! (+$lvl SP)",
+      duration: const Duration(seconds: 2),
+    );
   }
 
   void _useMetamagic(CharacterFeature opt) {
@@ -811,12 +814,13 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
                           widget.onChanged?.call();
                         });
                         Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(locale == 'ru'
+                        AppSnackBar.success(
+                          context,
+                          locale == 'ru'
                               ? "Применено! (-$tempCost ОЧ)"
-                              : "Applied! (-$tempCost SP)"),
-                          duration: const Duration(seconds: 1),
-                        ));
+                              : "Applied! (-$tempCost SP)",
+                          duration: const Duration(seconds: 2),
+                        );
                       }
                     : null,
                 child: Text(locale == 'ru' ? "Применить" : "Apply"),

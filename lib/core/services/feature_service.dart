@@ -120,6 +120,7 @@ class FeatureService {
 
     return _features.values.where((f) {
       if (_isPlaceholderFeature(f)) return false;
+      if (f.isOptional) return false;
 
       // 1. Strict Level Check
       if (f.minLevel != level) return false;
@@ -162,6 +163,7 @@ class FeatureService {
 
     return _features.values.where((feature) {
       if (_isPlaceholderFeature(feature)) return false;
+      if (feature.isOptional) return false;
 
       // Check if feature belongs to this class
       if (feature.associatedClass != null) {
@@ -501,6 +503,7 @@ class FeatureService {
           usageCostId: feature.usageCostId,
           usageInputMode: feature.usageInputMode,
           options: feature.options != null ? List.from(feature.options!) : null,
+          isOptional: feature.isOptional,
           resourcePool: feature.resourcePool != null
               ? ResourcePool(
                   currentUses: maxUses,

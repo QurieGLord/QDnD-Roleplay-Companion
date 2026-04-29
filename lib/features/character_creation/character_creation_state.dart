@@ -312,6 +312,15 @@ class CharacterCreationState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void toggleOptionalFeature(String featureId, bool selected) {
+    if (selected) {
+      selectedFeatureOptions[featureId] = featureId;
+    } else {
+      selectedFeatureOptions.remove(featureId);
+    }
+    notifyListeners();
+  }
+
   void toggleExpertise(String skillId) {
     if (selectedExpertise.contains(skillId)) {
       selectedExpertise.remove(skillId);

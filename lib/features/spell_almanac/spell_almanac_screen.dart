@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/models/spell.dart';
 import '../../core/models/character.dart';
@@ -129,15 +130,12 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
     await widget.character!.save();
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isKnown
-                ? l10n.removedFromKnown(spell.getName(locale))
-                : l10n.addedToKnown(spell.getName(locale)),
-          ),
-          duration: const Duration(seconds: 2),
-        ),
+      AppSnackBar.success(
+        context,
+        isKnown
+            ? l10n.removedFromKnown(spell.getName(locale))
+            : l10n.addedToKnown(spell.getName(locale)),
+        duration: const Duration(seconds: 2),
       );
     }
   }
@@ -482,14 +480,16 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                       children: [
                         Icon(Icons.search_off,
                             size: 64,
-                            color: colorScheme.onSurface.withValues(alpha: 0.3)),
+                            color:
+                                colorScheme.onSurface.withValues(alpha: 0.3)),
                         const SizedBox(height: 16),
                         Text(l10n.noSpellsFound,
                             style: Theme.of(context).textTheme.titleMedium),
                         const SizedBox(height: 8),
                         Text(l10n.tryAdjustingFilters,
                             style: TextStyle(
-                                color: colorScheme.onSurface.withValues(alpha: 0.6))),
+                                color: colorScheme.onSurface
+                                    .withValues(alpha: 0.6))),
                       ],
                     ),
                   )
@@ -531,8 +531,8 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                                 Text(
                                   l10n.spellsCount(spells.length),
                                   style: TextStyle(
-                                    color:
-                                        colorScheme.onSurface.withValues(alpha: 0.6),
+                                    color: colorScheme.onSurface
+                                        .withValues(alpha: 0.6),
                                     fontSize: 12,
                                   ),
                                 ),

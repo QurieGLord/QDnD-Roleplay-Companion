@@ -186,6 +186,45 @@ void main() {
         'Oath of Conquest',
       );
     });
+
+    test('normalizes imported optional feature names and preserves opt-in flag',
+        () async {
+      const xml = '''
+<compendium version="5">
+  <class>
+    <name>Паладин: Клятва покорения</name>
+    <hd>10</hd>
+    <autolevel level="7">
+      <feature optional="YES">
+        <name>[Optional] [Optional] Праведное восстановление, дважды (Опциональное)</name>
+        <text>Original optional text stays intact.</text>
+      </feature>
+    </autolevel>
+  </class>
+</compendium>
+''';
+
+      final imported = await FC5Parser.parseCompendium(
+        xml,
+        sourceId: 'optional-feature-source',
+      );
+      final paladin = imported.classes.single;
+      final feature = paladin.features[7]!.single;
+
+      expect(feature.nameEn, 'Праведное восстановление, дважды');
+      expect(feature.nameRu, 'Праведное восстановление, дважды');
+      expect(feature.isOptional, isTrue);
+      expect(feature.descriptionEn, contains('Original optional text'));
+      expect(feature.associatedSubclass, 'Oath of Conquest');
+
+      final hydrated = FeatureHydrationService.hydrateClassFeatures(
+        [feature],
+        className: 'Paladin',
+        subclassName: feature.associatedSubclass,
+      ).features.single;
+      expect(hydrated.isOptional, isTrue);
+      expect(hydrated.nameEn, 'Праведное восстановление, дважды');
+    });
   });
 
   group('FC5 parser import regressions', () {

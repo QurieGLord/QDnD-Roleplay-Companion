@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../../core/services/character_data_service.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
@@ -703,13 +704,11 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
         widget.onChanged?.call();
       });
     }
-    // Logic to just show a snackbar if it's an "at will" active ability without tracking
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(
-          '${inv.getName(Localizations.localeOf(context).languageCode)} ${Localizations.localeOf(context).languageCode == 'ru' ? "активировано!" : "activated!"}'),
-      backgroundColor: Colors.deepPurple,
-      duration: const Duration(seconds: 1),
-    ));
+    AppSnackBar.success(
+      context,
+      '${inv.getName(Localizations.localeOf(context).languageCode)} ${Localizations.localeOf(context).languageCode == 'ru' ? "активировано!" : "activated!"}',
+      duration: const Duration(seconds: 2),
+    );
   }
 
   void _showInvocationsInfo(BuildContext context, String locale) {

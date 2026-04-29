@@ -307,6 +307,22 @@
       }
     }
   },
+  "importDiagnosticsAction": "Details",
+  "@importDiagnosticsAction": {
+    "description": "SnackBar action label for opening import diagnostics"
+  },
+  "importDiagnosticsTitle": "Import details",
+  "@importDiagnosticsTitle": {
+    "description": "Title for import diagnostics sheet"
+  },
+  "importDiagnosticsSubtitle": "{count, plural, =1{1 import note} other{{count} import notes}}",
+  "@importDiagnosticsSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "duplicateFailed": "Failed to duplicate character: {error}",
   "@duplicateFailed": {
     "placeholders": {
@@ -2357,6 +2373,10 @@
   "@newFeaturesLabel": {
     "description": "No description provided"
   },
+  "optionalFeaturesLabel": "Optional features",
+  "@optionalFeaturesLabel": {
+    "description": "Section title for imported optional class features"
+  },
   "searchJournal": "Search journal...",
   "@searchJournal": {
     "description": "No description provided"
@@ -3121,12 +3141,12 @@
   "@themeDark": {
     "description": "No description provided"
   },
-  "highContrast": "High Contrast",
-  "@highContrast": {
+  "basicMode": "Basic",
+  "@basicMode": {
     "description": "No description provided"
   },
-  "highContrastDesc": "Increases visibility with sharper colors",
-  "@highContrastDesc": {
+  "basicModeDesc": "Keeps the interface calmer with less color noise.",
+  "@basicModeDesc": {
     "description": "No description provided"
   },
   "colorScheme": "Color Scheme",
@@ -3157,7 +3177,7 @@
   "@settingsLanguageSectionDesc": {
     "description": "Supporting copy for the language section on settings"
   },
-  "settingsAppearanceSectionDesc": "Tune mode, contrast, and palette without losing speed or clarity.",
+  "settingsAppearanceSectionDesc": "Tune mode, calmness, and palette without losing speed or clarity.",
   "@settingsAppearanceSectionDesc": {
     "description": "Supporting copy for the appearance section on settings"
   },
@@ -3177,13 +3197,13 @@
   "@settingsAboutSectionDesc": {
     "description": "Supporting copy for the about section on settings"
   },
-  "settingsHighContrastOn": "On",
-  "@settingsHighContrastOn": {
-    "description": "Short badge label for enabled high contrast on settings"
+  "settingsBasicModeOn": "On",
+  "@settingsBasicModeOn": {
+    "description": "Short badge label for enabled Basic mode on settings"
   },
-  "settingsHighContrastOff": "Off",
-  "@settingsHighContrastOff": {
-    "description": "Short badge label for disabled high contrast on settings"
+  "settingsBasicModeOff": "Off",
+  "@settingsBasicModeOff": {
+    "description": "Short badge label for disabled Basic mode on settings"
   },
   "settingsCurrent": "Current",
   "@settingsCurrent": {
@@ -3254,7 +3274,7 @@
   "@manageLibraries": {
     "description": "No description provided"
   },
-  "manageLibrariesSubtitle": "Import and manage external content (XML)",
+  "manageLibrariesSubtitle": "Import and manage external content (XML or ZIP)",
   "@manageLibrariesSubtitle": {
     "description": "No description provided"
   },
@@ -3270,7 +3290,7 @@
   "@noLibraries": {
     "description": "No description provided"
   },
-  "noLibrariesHint": "Tap + to import content from FC5 XML files",
+  "noLibrariesHint": "Tap + to import content from FC5 XML or ZIP files",
   "@noLibrariesHint": {
     "description": "No description provided"
   },
@@ -3281,6 +3301,32 @@
         "type": "int"
       },
       "spells": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryArchiveStats": "{modules} modules: {items} items, {spells} spells, {races} races, {classes} classes, {backgrounds} backgrounds, {feats} feats",
+  "@libraryArchiveStats": {
+    "placeholders": {
+      "modules": {
+        "type": "int"
+      },
+      "items": {
+        "type": "int"
+      },
+      "spells": {
+        "type": "int"
+      },
+      "races": {
+        "type": "int"
+      },
+      "classes": {
+        "type": "int"
+      },
+      "backgrounds": {
+        "type": "int"
+      },
+      "feats": {
         "type": "int"
       }
     }
@@ -3348,6 +3394,17 @@
       }
     }
   },
+  "libraryImportSkippedSummary": "Skipped {duplicates} duplicates and {unsupported} unsupported monsters.",
+  "@libraryImportSkippedSummary": {
+    "placeholders": {
+      "duplicates": {
+        "type": "int"
+      },
+      "unsupported": {
+        "type": "int"
+      }
+    }
+  },
   "libraryImportFailed": "Failed to import library: {error}",
   "@libraryImportFailed": {
     "placeholders": {
@@ -3360,6 +3417,206 @@
   "@libraryImportUnsupported": {
     "description": "Shown when an XML import has no supported compendium entities"
   },
+  "fc5ZipPreviewTitle": "FC5 ZIP preview",
+  "@fc5ZipPreviewTitle": {
+    "description": "Title for FC5 compendium ZIP import preview"
+  },
+  "fc5ZipPreviewSummary": "{xmlFiles} XML files found, {ignoredFiles} non-XML files ignored.",
+  "@fc5ZipPreviewSummary": {
+    "placeholders": {
+      "xmlFiles": {
+        "type": "int"
+      },
+      "ignoredFiles": {
+        "type": "int"
+      }
+    }
+  },
+  "fc5ZipImportSuggested": "Import {name}",
+  "@fc5ZipImportSuggested": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fc5ZipImportThisXml": "Import",
+  "@fc5ZipImportThisXml": {
+    "description": "Action label to import one XML from a ZIP preview"
+  },
+  "fc5LoadingScanTitle": "Scanning compendium",
+  "@fc5LoadingScanTitle": {
+    "description": "Title for FC5 ZIP scan progress dialog"
+  },
+  "fc5LoadingImportTitle": "Importing compendium",
+  "@fc5LoadingImportTitle": {
+    "description": "Title for FC5 import progress dialog"
+  },
+  "fc5LoadingStageReadingArchive": "Reading archive",
+  "fc5LoadingStageScanningXml": "Scanning XML",
+  "fc5LoadingStageScanningXmlProgress": "Scanning XML {current} of {total}",
+  "@fc5LoadingStageScanningXmlProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "fc5LoadingStagePreparingModules": "Preparing modules",
+  "fc5LoadingStageImportingSelectedModules": "Importing selected modules",
+  "fc5ZipSelectAll": "Select all",
+  "fc5ZipClearSelection": "Clear",
+  "fc5ZipImportSelected": "Import selected",
+  "fc5ZipRecommendedBadge": "recommended",
+  "fc5ZipUnsupportedBadge": "unsupported",
+  "fc5ZipSelectedSummary": "{selected} selected: {items} items, {spells} spells, {races} races, {classes} classes, {backgrounds} backgrounds, {feats} feats. Monsters skipped: {monsters}.",
+  "@fc5ZipSelectedSummary": {
+    "placeholders": {
+      "selected": {
+        "type": "int"
+      },
+      "items": {
+        "type": "int"
+      },
+      "spells": {
+        "type": "int"
+      },
+      "races": {
+        "type": "int"
+      },
+      "classes": {
+        "type": "int"
+      },
+      "backgrounds": {
+        "type": "int"
+      },
+      "feats": {
+        "type": "int"
+      },
+      "monsters": {
+        "type": "int"
+      }
+    }
+  },
+  "fc5ZipBatchImported": "Imported {modules} module(s): {items} items, {spells} spells, {races} races, {classes} classes, {backgrounds} backgrounds, {feats} feats. Skipped {duplicates} duplicates and {unsupported} unsupported monsters.",
+  "@fc5ZipBatchImported": {
+    "placeholders": {
+      "modules": {
+        "type": "int"
+      },
+      "items": {
+        "type": "int"
+      },
+      "spells": {
+        "type": "int"
+      },
+      "races": {
+        "type": "int"
+      },
+      "classes": {
+        "type": "int"
+      },
+      "backgrounds": {
+        "type": "int"
+      },
+      "feats": {
+        "type": "int"
+      },
+      "duplicates": {
+        "type": "int"
+      },
+      "unsupported": {
+        "type": "int"
+      }
+    }
+  },
+  "fc5ZipBatchImportedWithIssues": "Imported {modules} module(s), {failed} failed: {items} items, {spells} spells, {races} races, {classes} classes, {backgrounds} backgrounds, {feats} feats. Skipped {duplicates} duplicates and {unsupported} unsupported monsters.",
+  "@fc5ZipBatchImportedWithIssues": {
+    "placeholders": {
+      "modules": {
+        "type": "int"
+      },
+      "failed": {
+        "type": "int"
+      },
+      "items": {
+        "type": "int"
+      },
+      "spells": {
+        "type": "int"
+      },
+      "races": {
+        "type": "int"
+      },
+      "classes": {
+        "type": "int"
+      },
+      "backgrounds": {
+        "type": "int"
+      },
+      "feats": {
+        "type": "int"
+      },
+      "duplicates": {
+        "type": "int"
+      },
+      "unsupported": {
+        "type": "int"
+      }
+    }
+  },
+  "fc5ZipDuplicateRisk": "The combined compendium already overlaps the separate XML modules. Importing both is allowed, but semantic duplicates will be skipped.",
+  "@fc5ZipDuplicateRisk": {
+    "description": "Warning shown in FC5 ZIP import preview"
+  },
+  "fc5ZipNoXml": "This ZIP does not contain XML files.",
+  "@fc5ZipNoXml": {
+    "description": "Shown when a selected FC5 ZIP has no XML entries"
+  },
+  "fc5ZipCombinedBadge": "combined",
+  "@fc5ZipCombinedBadge": {
+    "description": "Badge for a combined FC5 compendium XML inside a ZIP"
+  },
+  "fc5ZipEntryStats": "{supported} supported: {items} items, {spells} spells, {races} races, {classes} classes, {backgrounds} backgrounds, {feats} feats. Monsters skipped: {monsters}.",
+  "@fc5ZipEntryStats": {
+    "placeholders": {
+      "supported": {
+        "type": "int"
+      },
+      "items": {
+        "type": "int"
+      },
+      "spells": {
+        "type": "int"
+      },
+      "races": {
+        "type": "int"
+      },
+      "classes": {
+        "type": "int"
+      },
+      "backgrounds": {
+        "type": "int"
+      },
+      "feats": {
+        "type": "int"
+      },
+      "monsters": {
+        "type": "int"
+      }
+    }
+  },
+  "fc5ZipEntryUnsupportedStats": "No supported compendium entities. Monsters skipped: {monsters}.",
+  "@fc5ZipEntryUnsupportedStats": {
+    "placeholders": {
+      "monsters": {
+        "type": "int"
+      }
+    }
+  },
   "deleteLibraryTitle": "Delete Library?",
   "@deleteLibraryTitle": {
     "description": "No description provided"
@@ -3369,6 +3626,27 @@
     "placeholders": {
       "name": {
         "type": "String"
+      },
+      "items": {
+        "type": "int"
+      },
+      "spells": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteArchiveTitle": "Delete archive?",
+  "@deleteArchiveTitle": {
+    "description": "Title for deleting a ZIP archive group"
+  },
+  "deleteArchiveMessage": "This will remove \"{name}\" and all {modules} imported modules:\n\n• {items} Items\n• {spells} Spells\n\nThis action cannot be undone.",
+  "@deleteArchiveMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "modules": {
+        "type": "int"
       },
       "items": {
         "type": "int"

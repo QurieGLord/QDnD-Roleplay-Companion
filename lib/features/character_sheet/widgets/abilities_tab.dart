@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/spell.dart';
@@ -176,9 +177,10 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       // 2. Granular Spending (Slider)
       if (feature.usageInputMode == 'slider') {
         if (pool.currentUses <= 0) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('No charges left for ${resource.getName(locale)}!'),
-              backgroundColor: Theme.of(context).colorScheme.error));
+          AppSnackBar.warning(
+            context,
+            'No charges left for ${resource.getName(locale)}!',
+          );
           return;
         }
         _showUsageDialog(context, feature, resource, locale);
@@ -196,16 +198,16 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           pool.use(cost);
           widget.character.save();
         });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              '${feature.getName(locale)} used! (-$cost ${resource.getName(locale)})'),
-          duration: const Duration(milliseconds: 1000),
-        ));
+        AppSnackBar.success(
+          context,
+          '${feature.getName(locale)} used! (-$cost ${resource.getName(locale)})',
+          duration: const Duration(milliseconds: 1500),
+        );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content:
-                Text('Not enough ${resource.getName(locale)} (Need $cost)!'),
-            backgroundColor: Theme.of(context).colorScheme.error));
+        AppSnackBar.warning(
+          context,
+          'Not enough ${resource.getName(locale)} (Need $cost)!',
+        );
       }
     } catch (e) {
       debugPrint('Error using feature: $e');
@@ -227,14 +229,13 @@ class _AbilitiesTabState extends State<AbilitiesTab>
             pool.use(1);
             widget.character.save();
           });
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(l10n.useChannelDivinity(pool.currentUses)),
-            duration: const Duration(milliseconds: 1000),
-          ));
+          AppSnackBar.success(
+            context,
+            l10n.useChannelDivinity(pool.currentUses),
+            duration: const Duration(milliseconds: 1500),
+          );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(l10n.noChannelDivinity),
-              backgroundColor: Theme.of(context).colorScheme.error));
+          AppSnackBar.warning(context, l10n.noChannelDivinity);
         }
       }
     } catch (_) {}
@@ -282,10 +283,10 @@ class _AbilitiesTabState extends State<AbilitiesTab>
                     widget.character.save();
                   });
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                        '${feature.getName(locale)} used! (-$spendAmount ${resource.getName(locale)})'),
-                  ));
+                  AppSnackBar.success(
+                    context,
+                    '${feature.getName(locale)} used! (-$spendAmount ${resource.getName(locale)})',
+                  );
                 },
                 child: const Text('Spend'),
               ),
@@ -335,22 +336,20 @@ class _AbilitiesTabState extends State<AbilitiesTab>
             arcanumFeature.resourcePool!.currentUses = 0;
             widget.character.save();
           });
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(locale == 'ru'
+          AppSnackBar.success(
+            context,
+            locale == 'ru'
                 ? '${spell.getName(locale)} — Таинственный Арканум ${spell.level} круга!'
-                : '${spell.getName(locale)} — Mystic Arcanum (${spell.level}th level)!'),
-            backgroundColor: Colors.deepPurple,
-            behavior: SnackBarBehavior.floating,
+                : '${spell.getName(locale)} — Mystic Arcanum (${spell.level}th level)!',
             duration: const Duration(seconds: 2),
-          ));
+          );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(locale == 'ru'
+          AppSnackBar.warning(
+            context,
+            locale == 'ru'
                 ? 'Арканум ${spell.level} круга уже использован!'
-                : 'Arcanum (${spell.level}th level) already used!'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            behavior: SnackBarBehavior.floating,
-          ));
+                : 'Arcanum (${spell.level}th level) already used!',
+          );
         }
         return;
       }
@@ -387,19 +386,13 @@ class _AbilitiesTabState extends State<AbilitiesTab>
               ? '${spell.getName(locale)} наложено ($pactSlotLevel круг)'
               : '${spell.getName(locale)} cast (level $pactSlotLevel)';
         }
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(message,
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          behavior: SnackBarBehavior.floating,
+        AppSnackBar.success(
+          context,
+          message,
           duration: const Duration(seconds: 2),
-        ));
+        );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(l10n.noSlotsAvailable),
-          backgroundColor: Theme.of(context).colorScheme.error,
-          behavior: SnackBarBehavior.floating,
-        ));
+        AppSnackBar.warning(context, l10n.noSlotsAvailable);
       }
       return;
     }
@@ -457,12 +450,10 @@ class _AbilitiesTabState extends State<AbilitiesTab>
     }
 
     if (availableSlots.isEmpty && primaryAction == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.noSlotsAvailable),
-          backgroundColor: colorScheme.error,
-          duration: const Duration(seconds: 2),
-        ),
+      AppSnackBar.warning(
+        context,
+        l10n.noSlotsAvailable,
+        duration: const Duration(seconds: 2),
       );
       return;
     }
@@ -560,14 +551,10 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         message = l10n.spellCastSuccess(spell.getName(locale));
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message,
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
-        ),
+      AppSnackBar.success(
+        context,
+        message,
+        duration: const Duration(seconds: 2),
       );
     });
   }
@@ -1508,12 +1495,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
             context,
           );
           if (!success) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(l10n.preparedSpellsLimitReached),
-                backgroundColor: Theme.of(context).colorScheme.error,
-              ),
-            );
+            AppSnackBar.warning(context, l10n.preparedSpellsLimitReached);
           }
         });
       },
@@ -1722,14 +1704,10 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           ? '${spell.getName(locale)} наложено (${type == "Mastery" ? "Мастерство заклинаний" : "Фирменное заклинание"})'
           : '${spell.getName(locale)} cast (${type == "Mastery" ? "Spell Mastery" : "Signature Spell"})';
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor:
-              Theme.of(context).colorScheme.tertiary, // Golden color for VIP
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
-        ),
+      AppSnackBar.success(
+        context,
+        message,
+        duration: const Duration(seconds: 2),
       );
     });
   }

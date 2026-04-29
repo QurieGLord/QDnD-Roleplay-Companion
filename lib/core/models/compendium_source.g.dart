@@ -26,13 +26,18 @@ class CompendiumSourceAdapter extends TypeAdapter<CompendiumSource> {
       classCount: fields[6] == null ? 0 : fields[6] as int,
       backgroundCount: fields[7] == null ? 0 : fields[7] as int,
       featCount: fields[8] == null ? 0 : fields[8] as int,
+      archiveId: fields[9] as String?,
+      archiveName: fields[10] as String?,
+      moduleName: fields[11] as String?,
+      modulePath: fields[12] as String?,
+      sourceKind: fields[13] == null ? 'xml' : fields[13] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, CompendiumSource obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -50,7 +55,17 @@ class CompendiumSourceAdapter extends TypeAdapter<CompendiumSource> {
       ..writeByte(7)
       ..write(obj.backgroundCount)
       ..writeByte(8)
-      ..write(obj.featCount);
+      ..write(obj.featCount)
+      ..writeByte(9)
+      ..write(obj.archiveId)
+      ..writeByte(10)
+      ..write(obj.archiveName)
+      ..writeByte(11)
+      ..write(obj.moduleName)
+      ..writeByte(12)
+      ..write(obj.modulePath)
+      ..writeByte(13)
+      ..write(obj.sourceKind);
   }
 
   @override

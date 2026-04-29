@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
@@ -10,12 +11,15 @@ import 'core/services/character_data_service.dart';
 import 'core/services/item_service.dart';
 import 'core/services/theme_provider.dart';
 import 'core/services/locale_provider.dart';
+import 'core/ui/app_scroll_behavior.dart';
+import 'core/ui/app_system_ui.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/character_list/character_list_screen.dart';
 import 'features/settings/settings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   String? initError;
 
@@ -43,6 +47,7 @@ void main() async {
   if (initError != null) {
     runApp(
       MaterialApp(
+        scrollBehavior: const AppScrollBehavior(),
         home: Scaffold(
           backgroundColor: Colors.red.shade900,
           body: Padding(
@@ -114,6 +119,10 @@ class QDnDApp extends StatelessWidget {
             Locale('en'), // English
             Locale('ru'), // Russian
           ],
+          scrollBehavior: const AppScrollBehavior(),
+          builder: (context, child) => AppSystemUiOverlay(
+            child: child ?? const SizedBox.shrink(),
+          ),
           initialRoute: '/',
           routes: {
             '/': (context) => const SplashScreen(),

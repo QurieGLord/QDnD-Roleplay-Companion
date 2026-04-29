@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../core/models/class_data.dart';
@@ -47,17 +48,11 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
           .getName(Localizations.localeOf(context).languageCode)
           .replaceAll(RegExp(r'\s*\(.*?\)'), '');
 
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            customMessage ??
-                '$cleanName ${Localizations.localeOf(context).languageCode == 'ru' ? 'использовано!' : 'used!'}',
-          ),
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-        ),
+      AppSnackBar.success(
+        context,
+        customMessage ??
+            '$cleanName ${Localizations.localeOf(context).languageCode == 'ru' ? 'использовано!' : 'used!'}',
+        duration: const Duration(seconds: 2),
       );
     }
   }
@@ -78,15 +73,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
       });
 
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.secondWindHeal(amount)),
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-        ),
-      );
+      AppSnackBar.success(context, l10n.secondWindHeal(amount));
     }
   }
 

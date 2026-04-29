@@ -568,6 +568,7 @@ class QdndBundleImportService {
       usageCostId: template.usageCostId ?? state.usageCostId,
       usageInputMode: template.usageInputMode ?? state.usageInputMode,
       options: template.options ?? state.options,
+      isOptional: template.isOptional || state.isOptional,
     );
   }
 

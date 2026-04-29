@@ -14,6 +14,7 @@ import '../models/journal_note.dart';
 import '../models/race_data.dart';
 import '../models/spell.dart';
 import 'feature_hydration_service.dart';
+import 'fc5_imported_name_normalizer.dart';
 import 'spell_service.dart';
 
 enum FC5DiagnosticSeverity { info, warning, error }
@@ -455,6 +456,7 @@ class FC5Parser {
       final classes = <ClassData>[];
       final backgrounds = <BackgroundData>[];
       final feats = <CharacterFeature>[];
+      final unsupportedCounts = <String, int>{};
 
       for (final node in nodes) {
         final nodeName = node.name.local;
@@ -480,11 +482,8 @@ class FC5Parser {
               break;
             case 'monster':
             case 'vehicle':
-              diagnostics.warning(
-                'unsupported_node',
-                'Unsupported FC5 node <$nodeName> was skipped.',
-                context: nodeName,
-              );
+              unsupportedCounts[nodeName] =
+                  (unsupportedCounts[nodeName] ?? 0) + 1;
               break;
             case 'imageData':
               diagnostics.warning(
@@ -513,11 +512,14 @@ class FC5Parser {
         }
       }
 
+      _addUnsupportedNodeDiagnostics(diagnostics, unsupportedCounts);
+      final aggregatedClasses = _aggregateParsedClasses(classes, diagnostics);
+
       return FC5ParseResult(
         items: items,
         spells: spells,
         races: races,
-        classes: classes,
+        classes: aggregatedClasses,
         backgrounds: backgrounds,
         feats: feats,
         diagnostics: diagnostics,
@@ -1476,15 +1478,17 @@ class FC5Parser {
     String? associatedSubclass,
     required int minLevel,
   }) {
-    var name = _getTag(node, 'name');
-    if (name.isEmpty) return null;
+    final rawName = _getTag(node, 'name');
+    if (rawName.isEmpty) return null;
 
-    final optional = _parseBool(
+    final optionalAttr = _parseBool(
             node.getAttribute('optional') ?? _getTag(node, 'optional')) ==
         true;
-    if (optional && !name.toLowerCase().contains('optional')) {
-      name = '$name (Optional)';
-    }
+    final normalizedName = FC5ImportedNameNormalizer.normalize(
+      rawName,
+      optional: optionalAttr,
+    );
+    final name = normalizedName.displayName.ifEmpty(rawName);
 
     final text = _getText(node);
     final id =
@@ -1500,6 +1504,7 @@ class FC5Parser {
       minLevel: minLevel,
       associatedClass: associatedClass,
       associatedSubclass: associatedSubclass,
+      isOptional: normalizedName.isOptional,
     );
   }
 
@@ -1650,8 +1655,14 @@ class FC5Parser {
   }
 
   static Item _parseItem(XmlElement node, String? sourceId) {
-    final nameEn = _getTag(node, 'name').ifEmpty('Unnamed Item');
-    final nameRu = _getTag(node, 'name_ru');
+    final rawNameEn = _getTag(node, 'name').ifEmpty('Unnamed Item');
+    final rawNameRu = _getTag(node, 'name_ru');
+    final nameEn = FC5ImportedNameNormalizer.normalizedDisplayName(rawNameEn)
+        .ifEmpty(rawNameEn);
+    final nameRu = rawNameRu.isEmpty
+        ? ''
+        : FC5ImportedNameNormalizer.normalizedDisplayName(rawNameRu)
+            .ifEmpty(rawNameRu);
     final descEn = _getText(node);
     final descRu = _getText(node, suffix: '_ru');
     final typeCode = _normalizeLoose(_getTag(node, 'type'));
@@ -1730,8 +1741,14 @@ class FC5Parser {
   }
 
   static Spell _parseSpell(XmlElement node, String sourceId) {
-    final nameEn = _getTag(node, 'name').ifEmpty('Unnamed Spell');
-    final nameRu = _getTag(node, 'name_ru');
+    final rawNameEn = _getTag(node, 'name').ifEmpty('Unnamed Spell');
+    final rawNameRu = _getTag(node, 'name_ru');
+    final nameEn = FC5ImportedNameNormalizer.normalizedDisplayName(rawNameEn)
+        .ifEmpty(rawNameEn);
+    final nameRu = rawNameRu.isEmpty
+        ? ''
+        : FC5ImportedNameNormalizer.normalizedDisplayName(rawNameRu)
+            .ifEmpty(rawNameRu);
     final levelStr = _getTag(node, 'level');
     final time = _getTag(node, 'time');
     final range = _getTag(node, 'range');
@@ -1773,8 +1790,14 @@ class FC5Parser {
   }
 
   static RaceData _parseRace(XmlElement node, String sourceId) {
-    final nameEn = _getTag(node, 'name').ifEmpty('Unnamed Race');
-    final nameRu = _getTag(node, 'name_ru');
+    final rawNameEn = _getTag(node, 'name').ifEmpty('Unnamed Race');
+    final rawNameRu = _getTag(node, 'name_ru');
+    final nameEn = FC5ImportedNameNormalizer.normalizedDisplayName(rawNameEn)
+        .ifEmpty(rawNameEn);
+    final nameRu = rawNameRu.isEmpty
+        ? ''
+        : FC5ImportedNameNormalizer.normalizedDisplayName(rawNameRu)
+            .ifEmpty(rawNameRu);
     final size = _sizeFromText(_getTag(node, 'size'));
     final speed =
         _parseInt(_getTag(node, 'speed').replaceAll(RegExp(r'[^0-9-]'), '')) ??
@@ -1783,9 +1806,16 @@ class FC5Parser {
 
     final traits = <CharacterFeature>[];
     for (final traitNode in node.findElements('trait')) {
-      final tNameEn = _getTag(traitNode, 'name');
-      if (tNameEn.isEmpty) continue;
-      final tNameRu = _getTag(traitNode, 'name_ru');
+      final rawTraitNameEn = _getTag(traitNode, 'name');
+      if (rawTraitNameEn.isEmpty) continue;
+      final rawTraitNameRu = _getTag(traitNode, 'name_ru');
+      final tNameEn =
+          FC5ImportedNameNormalizer.normalizedDisplayName(rawTraitNameEn)
+              .ifEmpty(rawTraitNameEn);
+      final tNameRu = rawTraitNameRu.isEmpty
+          ? ''
+          : FC5ImportedNameNormalizer.normalizedDisplayName(rawTraitNameRu)
+              .ifEmpty(rawTraitNameRu);
       final tDescEn = _getText(traitNode);
       final tDescRu = _getText(traitNode, suffix: '_ru');
       traits.add(
@@ -1824,31 +1854,60 @@ class FC5Parser {
     String sourceId,
     FC5ParseDiagnostics diagnostics,
   ) {
-    final nameEn = _getTag(node, 'name').ifEmpty('Unnamed Class');
-    final nameRu = _getTag(node, 'name_ru');
+    final rawName = FC5ImportedNameNormalizer.normalizedDisplayName(
+      _getTag(node, 'name').ifEmpty('Unnamed Class'),
+    );
+    final rawNameRu = FC5ImportedNameNormalizer.normalizedDisplayName(
+      _getTag(node, 'name_ru'),
+    );
+    final nameParts = _splitClassName(rawName);
+    final nameRuParts = rawNameRu.isEmpty
+        ? const _ClassNameParts(base: '')
+        : _splitClassName(rawNameRu);
+    final baseNameEn = _canonicalClassName(nameParts.base);
+    final baseNameRu = nameRuParts.base.isNotEmpty
+        ? nameRuParts.base
+        : _localizedClassName(baseNameEn, fallback: nameParts.base);
+    final classSubclassName = nameParts.subclass == null
+        ? null
+        : _canonicalSubclassName(nameParts.subclass!);
+    final classSubclassRu = nameRuParts.subclass ?? nameParts.subclass;
     final hitDie = _parseInt(_getTag(node, 'hd')) ?? 8;
     final features = <int, List<CharacterFeature>>{};
     final subclassMap = <String, Map<String, String>>{};
     int? detectedSubclassLevel;
+
+    if (classSubclassName != null) {
+      subclassMap[_stableId(classSubclassName)] = {
+        'en': classSubclassName,
+        'ru': classSubclassRu ?? classSubclassName,
+      };
+    }
 
     for (final autolevel in node.findElements('autolevel')) {
       final level = _autolevelNumber(autolevel);
       if (level == null || level < 1) continue;
       features.putIfAbsent(level, () => []);
 
-      final subclassEn = autolevel.getAttribute('subclass') ??
+      final subclassEnRaw = autolevel.getAttribute('subclass') ??
           autolevel.getAttribute('name') ??
           '';
-      final normalizedSubclass = subclassEn.trim().isEmpty ? null : subclassEn;
-      if (subclassEn.trim().isNotEmpty) {
+      final normalizedSubclass = subclassEnRaw.trim().isEmpty
+          ? classSubclassName
+          : _canonicalSubclassName(subclassEnRaw);
+      if (subclassEnRaw.trim().isNotEmpty) {
         final subclassRu = autolevel.getAttribute('subclass_ru') ??
             autolevel.getAttribute('name_ru') ??
-            subclassEn;
-        final id = _stableId(subclassEn);
+            subclassEnRaw;
+        final id = _stableId(normalizedSubclass!);
         subclassMap.putIfAbsent(
           id,
-          () => {'en': subclassEn, 'ru': subclassRu},
+          () => {'en': normalizedSubclass, 'ru': subclassRu},
         );
+        detectedSubclassLevel = detectedSubclassLevel == null
+            ? level
+            : math.min(detectedSubclassLevel, level);
+      } else if (classSubclassName != null) {
         detectedSubclassLevel = detectedSubclassLevel == null
             ? level
             : math.min(detectedSubclassLevel, level);
@@ -1862,14 +1921,14 @@ class FC5Parser {
         final feature = _parseClassFeature(
           featureNode,
           sourceId,
-          className: nameEn,
+          className: baseNameEn,
           subclassName: normalizedSubclass,
           level: level,
         );
         if (feature != null) {
           final hydration = FeatureHydrationService.hydrateClassFeatures(
             [feature],
-            className: nameEn,
+            className: baseNameEn,
             subclassName: normalizedSubclass,
           );
           _mergeHydrationDiagnostics(diagnostics, hydration.diagnostics);
@@ -1881,8 +1940,8 @@ class FC5Parser {
       if (slots.isNotEmpty) {
         diagnostics.info(
           'class_spell_slots_progression',
-          'Spell slot progression for "$nameEn" level $level was imported as progression data for future support, not as a character feature.',
-          context: nameEn,
+          'Spell slot progression for "$baseNameEn" level $level was imported as progression data for future support, not as a character feature.',
+          context: baseNameEn,
         );
       }
     }
@@ -1895,15 +1954,15 @@ class FC5Parser {
         id: entry.key,
         name: entry.value,
         description: {
-          'en': 'Subclass of $nameEn',
-          'ru': nameRu.isNotEmpty ? 'Подкласс $nameRu' : '',
+          'en': 'Subclass of $baseNameEn',
+          'ru': baseNameRu.isNotEmpty ? 'Подкласс $baseNameRu' : '',
         },
       );
     }).toList();
 
     return ClassData(
-      id: _entityId(nameEn, 'class', sourceId),
-      name: {'en': nameEn, 'ru': nameRu.isNotEmpty ? nameRu : nameEn},
+      id: _entityId(baseNameEn, 'class', sourceId),
+      name: {'en': baseNameEn, 'ru': baseNameRu},
       description: {
         'en': _getText(node),
         'ru': _getText(node, suffix: '_ru').ifEmpty(_getText(node)),
@@ -1924,9 +1983,213 @@ class FC5Parser {
           ? null
           : SpellcastingInfo(
               ability: spellAbility,
-              type: _spellcastingTypeForClass(nameEn),
+              type: _spellcastingTypeForClass(baseNameEn),
             ),
       sourceId: sourceId,
+    );
+  }
+
+  static List<ClassData> _aggregateParsedClasses(
+    List<ClassData> parsedClasses,
+    FC5ParseDiagnostics diagnostics,
+  ) {
+    if (parsedClasses.length < 2) return parsedClasses;
+
+    final grouped = <String, List<ClassData>>{};
+    for (final classData in parsedClasses) {
+      grouped.putIfAbsent(_classDataKey(classData), () => []).add(classData);
+    }
+
+    return grouped.values
+        .map((group) => _mergeParsedClassGroup(group, diagnostics))
+        .toList(growable: false);
+  }
+
+  static ClassData _mergeParsedClassGroup(
+    List<ClassData> group,
+    FC5ParseDiagnostics diagnostics,
+  ) {
+    final seed = group.firstWhere(
+      (classData) => classData.subclasses.isEmpty,
+      orElse: () => group.first,
+    );
+    final subclasses = <SubclassData>[];
+    final subclassKeys = <String>{};
+
+    for (final classData in group) {
+      for (final subclass in classData.subclasses) {
+        final key = _subclassDataKey(subclass);
+        if (subclassKeys.add(key)) {
+          subclasses.add(subclass);
+        }
+      }
+    }
+
+    final features = <int, List<CharacterFeature>>{};
+    final rawFeaturesByLevel = <int, List<CharacterFeature>>{};
+    for (final classData in group) {
+      for (final entry in classData.features.entries) {
+        rawFeaturesByLevel.putIfAbsent(entry.key, () => []).addAll(entry.value);
+      }
+    }
+
+    for (final entry in rawFeaturesByLevel.entries) {
+      final level = entry.key;
+      final commonKeys = _commonClassFeatureKeys(entry.value);
+      final target = <CharacterFeature>[];
+      final seenFeatureKeys = <String>{};
+
+      for (final feature in entry.value) {
+        final normalizedFeature =
+            commonKeys.contains(_classFeatureCommonKey(feature))
+                ? _copyFeature(feature, associatedSubclass: '')
+                : feature;
+        final key = _classFeatureAggregateKey(level, normalizedFeature);
+        if (seenFeatureKeys.add(key)) {
+          target.add(normalizedFeature);
+        }
+      }
+
+      if (target.isNotEmpty) {
+        features[level] = target;
+      }
+    }
+
+    if (group.length > 1) {
+      diagnostics.info(
+        'class_overlays_aggregated',
+        'Aggregated ${group.length} FC5 class overlays into "${seed.name['en'] ?? seed.id}".',
+        context: seed.name['en'] ?? seed.id,
+      );
+    }
+
+    return ClassData(
+      id: seed.id,
+      name: seed.name,
+      description: seed.description,
+      hitDie: seed.hitDie,
+      primaryAbilities: seed.primaryAbilities,
+      savingThrowProficiencies: seed.savingThrowProficiencies,
+      armorProficiencies: seed.armorProficiencies,
+      weaponProficiencies: seed.weaponProficiencies,
+      skillProficiencies: seed.skillProficiencies,
+      subclasses: subclasses,
+      subclassLevel: seed.subclassLevel,
+      spellcasting: seed.spellcasting,
+      features: features,
+      sourceId: seed.sourceId,
+    );
+  }
+
+  static void _addUnsupportedNodeDiagnostics(
+    FC5ParseDiagnostics diagnostics,
+    Map<String, int> unsupportedCounts,
+  ) {
+    for (final entry in unsupportedCounts.entries) {
+      diagnostics.info(
+        'unsupported_nodes_skipped',
+        'Skipped ${entry.value} unsupported FC5 <${entry.key}> node(s).',
+        context: '${entry.key}:${entry.value}',
+      );
+    }
+  }
+
+  static Set<String> _commonClassFeatureKeys(
+    List<CharacterFeature> features,
+  ) {
+    final subclassesByFeature = <String, Set<String>>{};
+
+    for (final feature in features) {
+      final subclass = feature.associatedSubclass;
+      if (subclass == null || subclass.trim().isEmpty) continue;
+      subclassesByFeature
+          .putIfAbsent(_classFeatureCommonKey(feature), () => <String>{})
+          .add(_normalizeLoose(subclass));
+    }
+
+    return subclassesByFeature.entries
+        .where((entry) => entry.value.length > 1)
+        .map((entry) => entry.key)
+        .toSet();
+  }
+
+  static String _classDataKey(ClassData classData) {
+    final candidates = [
+      classData.name['en'] ?? '',
+      classData.name['ru'] ?? '',
+      classData.id,
+    ];
+    for (final candidate in candidates) {
+      final canonical = _stableId(_canonicalClassName(candidate));
+      if (canonical.isNotEmpty &&
+          _classNameMap.containsValue(_titleCase(canonical))) {
+        return canonical;
+      }
+      final mapped = _classNameMap[_normalizeLoose(candidate)];
+      if (mapped != null) return _stableId(mapped);
+    }
+    return _stableId(classData.name['en'] ?? classData.id);
+  }
+
+  static String _subclassDataKey(SubclassData subclass) {
+    return [
+      subclass.id,
+      ...subclass.name.values,
+    ].map(_normalizeLoose).join('|');
+  }
+
+  static String _classFeatureCommonKey(CharacterFeature feature) {
+    return [
+      _stableId(feature.associatedClass ?? ''),
+      _stableId(feature.nameEn),
+    ].join(':');
+  }
+
+  static String _classFeatureAggregateKey(
+    int level,
+    CharacterFeature feature,
+  ) {
+    return '$level:${FeatureHydrationService.featureDedupeKey(feature)}';
+  }
+
+  static CharacterFeature _copyFeature(
+    CharacterFeature feature, {
+    String? associatedSubclass,
+  }) {
+    return CharacterFeature(
+      id: feature.id,
+      nameEn: feature.nameEn,
+      nameRu: feature.nameRu,
+      descriptionEn: feature.descriptionEn,
+      descriptionRu: feature.descriptionRu,
+      type: feature.type,
+      resourcePool: feature.resourcePool == null
+          ? null
+          : ResourcePool(
+              currentUses: feature.resourcePool!.currentUses,
+              maxUses: feature.resourcePool!.maxUses,
+              recoveryType: feature.resourcePool!.recoveryType,
+              calculationFormula: feature.resourcePool!.calculationFormula,
+            ),
+      minLevel: feature.minLevel,
+      associatedClass: feature.associatedClass,
+      associatedSubclass: associatedSubclass == ''
+          ? null
+          : associatedSubclass ?? feature.associatedSubclass,
+      requiresRest: feature.requiresRest,
+      actionEconomy: feature.actionEconomy,
+      iconName: feature.iconName,
+      consumption: feature.consumption == null
+          ? null
+          : FeatureConsumption(
+              resourceId: feature.consumption!.resourceId,
+              amount: feature.consumption!.amount,
+            ),
+      sourceId: feature.sourceId,
+      usageCostId: feature.usageCostId,
+      usageInputMode: feature.usageInputMode,
+      options: feature.options == null ? null : List.of(feature.options!),
+      isOptional: feature.isOptional,
     );
   }
 
@@ -1937,19 +2200,28 @@ class FC5Parser {
     String? subclassName,
     required int level,
   }) {
-    var fNameEn = _getTag(featureNode, 'name');
-    if (fNameEn.isEmpty) return null;
-    var fNameRu = _getTag(featureNode, 'name_ru');
-    final optional = _parseBool(
+    final rawNameEn = _getTag(featureNode, 'name');
+    if (rawNameEn.isEmpty) return null;
+    final rawNameRu = _getTag(featureNode, 'name_ru');
+    final optionalAttr = _parseBool(
           featureNode.getAttribute('optional') ??
               _getTag(featureNode, 'optional'),
         ) ==
         true;
-    if (optional) {
-      fNameEn = '[Optional] $fNameEn';
-      fNameRu =
-          fNameRu.isNotEmpty ? '[Опционально] $fNameRu' : '[Optional] $fNameEn';
-    }
+    final normalizedNameEn = FC5ImportedNameNormalizer.normalize(
+      rawNameEn,
+      optional: optionalAttr,
+    );
+    final normalizedNameRu = rawNameRu.isEmpty
+        ? null
+        : FC5ImportedNameNormalizer.normalize(
+            rawNameRu,
+            optional: normalizedNameEn.isOptional,
+          );
+    final fNameEn = normalizedNameEn.displayName.ifEmpty(rawNameEn);
+    final fNameRu = normalizedNameRu?.displayName.ifEmpty(rawNameRu) ?? fNameEn;
+    final isOptional =
+        normalizedNameEn.isOptional || (normalizedNameRu?.isOptional ?? false);
 
     final fDescEn = _getText(featureNode);
     final fDescRu = _getText(featureNode, suffix: '_ru');
@@ -1965,12 +2237,19 @@ class FC5Parser {
       associatedClass: className,
       associatedSubclass: subclassName,
       sourceId: sourceId,
+      isOptional: isOptional,
     );
   }
 
   static BackgroundData _parseBackground(XmlElement node, String sourceId) {
-    final nameEn = _getTag(node, 'name').ifEmpty('Unnamed Background');
-    final nameRu = _getTag(node, 'name_ru');
+    final rawNameEn = _getTag(node, 'name').ifEmpty('Unnamed Background');
+    final rawNameRu = _getTag(node, 'name_ru');
+    final nameEn = FC5ImportedNameNormalizer.normalizedDisplayName(rawNameEn)
+        .ifEmpty(rawNameEn);
+    final nameRu = rawNameRu.isEmpty
+        ? ''
+        : FC5ImportedNameNormalizer.normalizedDisplayName(rawNameRu)
+            .ifEmpty(rawNameRu);
     var skillStr = _getTag(node, 'skill');
     if (skillStr.isEmpty) {
       skillStr = _getTag(node, 'proficiency');
@@ -1978,18 +2257,32 @@ class FC5Parser {
     final skills = _parseIds(skillStr);
 
     final traitNodes = node.findElements('trait').toList();
-    final featureNameEn = traitNodes.isNotEmpty
+    final rawFeatureNameEn = traitNodes.isNotEmpty
         ? _getTag(traitNodes.first, 'name')
         : _getTag(node, 'name');
-    final featureNameRu = traitNodes.isNotEmpty
+    final rawFeatureNameRu = traitNodes.isNotEmpty
         ? _getTag(traitNodes.first, 'name_ru')
         : _getTag(node, 'name_ru');
+    final featureNameEn =
+        FC5ImportedNameNormalizer.normalizedDisplayName(rawFeatureNameEn)
+            .ifEmpty(rawFeatureNameEn);
+    final featureNameRu = rawFeatureNameRu.isEmpty
+        ? ''
+        : FC5ImportedNameNormalizer.normalizedDisplayName(rawFeatureNameRu)
+            .ifEmpty(rawFeatureNameRu);
     final descEn = StringBuffer();
     final descRu = StringBuffer();
 
     for (final trait in traitNodes) {
-      final traitNameEn = _getTag(trait, 'name');
-      final traitNameRu = _getTag(trait, 'name_ru');
+      final rawTraitNameEn = _getTag(trait, 'name');
+      final rawTraitNameRu = _getTag(trait, 'name_ru');
+      final traitNameEn =
+          FC5ImportedNameNormalizer.normalizedDisplayName(rawTraitNameEn)
+              .ifEmpty(rawTraitNameEn);
+      final traitNameRu = rawTraitNameRu.isEmpty
+          ? ''
+          : FC5ImportedNameNormalizer.normalizedDisplayName(rawTraitNameRu)
+              .ifEmpty(rawTraitNameRu);
       final traitTextEn = _getText(trait);
       final traitTextRu = _getText(trait, suffix: '_ru');
       if (descEn.isNotEmpty) descEn.write('\n\n');
@@ -2034,8 +2327,14 @@ class FC5Parser {
   }
 
   static CharacterFeature _parseFeat(XmlElement node, String sourceId) {
-    final nameEn = _getTag(node, 'name').ifEmpty('Unnamed Feat');
-    final nameRu = _getTag(node, 'name_ru');
+    final rawNameEn = _getTag(node, 'name').ifEmpty('Unnamed Feat');
+    final rawNameRu = _getTag(node, 'name_ru');
+    final normalizedNameEn = FC5ImportedNameNormalizer.normalize(rawNameEn);
+    final normalizedNameRu = rawNameRu.isEmpty
+        ? null
+        : FC5ImportedNameNormalizer.normalize(rawNameRu);
+    final nameEn = normalizedNameEn.displayName.ifEmpty(rawNameEn);
+    final nameRu = normalizedNameRu?.displayName.ifEmpty(rawNameRu) ?? '';
     final textEn = _getText(node);
     final textRu = _getText(node, suffix: '_ru');
     final prerequisiteEn = _getTag(node, 'prerequisite');
@@ -2065,6 +2364,8 @@ class FC5Parser {
       type: FeatureType.passive,
       minLevel: 1,
       sourceId: sourceId,
+      isOptional: normalizedNameEn.isOptional ||
+          (normalizedNameRu?.isOptional ?? false),
     );
   }
 
@@ -2347,6 +2648,25 @@ class FC5Parser {
     if (trimmed.isEmpty) return trimmed;
     final normalized = _normalizeLoose(trimmed);
     return _classNameMap[normalized] ?? _titleCase(trimmed);
+  }
+
+  static String _localizedClassName(String canonicalName, {String? fallback}) {
+    const names = {
+      'Paladin': 'Паладин',
+      'Fighter': 'Воин',
+      'Barbarian': 'Варвар',
+      'Monk': 'Монах',
+      'Rogue': 'Плут',
+      'Ranger': 'Следопыт',
+      'Druid': 'Друид',
+      'Cleric': 'Жрец',
+      'Wizard': 'Волшебник',
+      'Sorcerer': 'Чародей',
+      'Warlock': 'Колдун',
+      'Bard': 'Бард',
+      'Artificer': 'Изобретатель',
+    };
+    return names[canonicalName] ?? fallback ?? canonicalName;
   }
 
   static String _canonicalRaceName(String value) {

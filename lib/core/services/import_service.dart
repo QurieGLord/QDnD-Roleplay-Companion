@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../models/character.dart';
 import '../models/compendium_source.dart';
 import 'fc5_compendium_identity_service.dart';
+import 'fc5_content_identity_service.dart';
 import 'fc5_media_import_service.dart';
 import 'fc5_parser.dart';
 import 'storage_service.dart';
@@ -53,11 +54,33 @@ class CompendiumImportResult {
   int get warningCount => diagnostics.warningCount;
 
   String get summary {
+    final duplicateCount = skippedDuplicateCount;
+    final duplicateSummary =
+        duplicateCount > 0 ? ' Skipped $duplicateCount duplicates.' : '';
     return 'Imported successfully: ${parseResult.items.length} items, '
         '${parseResult.spells.length} spells, ${parseResult.races.length} races, '
         '${parseResult.classes.length} classes, '
         '${parseResult.backgrounds.length} backgrounds, '
-        '${parseResult.feats.length} feats.';
+        '${parseResult.feats.length} feats.$duplicateSummary';
+  }
+
+  int get skippedDuplicateCount =>
+      _diagnosticAggregateCount('duplicates_skipped');
+
+  int get skippedUnsupportedCount =>
+      _diagnosticAggregateCount('unsupported_nodes_skipped');
+
+  int _diagnosticAggregateCount(String code) {
+    var total = 0;
+    for (final entry
+        in diagnostics.entries.where((entry) => entry.code == code)) {
+      final raw = entry.context ?? entry.message;
+      final match = RegExp(r'\d+').firstMatch(raw);
+      if (match != null) {
+        total += int.tryParse(match.group(0) ?? '') ?? 0;
+      }
+    }
+    return total;
   }
 }
 
@@ -122,8 +145,24 @@ class ImportService {
   static Future<CompendiumImportResult> importCompendiumFileDetailed(
     File file,
   ) async {
+    final fileName = file.path.split(Platform.pathSeparator).last;
+    final xmlContent = await file.readAsString();
+    return importCompendiumXmlContentDetailed(
+      xmlContent,
+      sourceName: fileName,
+    );
+  }
+
+  static Future<CompendiumImportResult> importCompendiumXmlContentDetailed(
+    String xmlContent, {
+    required String sourceName,
+    String? archiveId,
+    String? archiveName,
+    String? moduleName,
+    String? modulePath,
+    String sourceKind = 'xml',
+  }) async {
     try {
-      final xmlContent = await file.readAsString();
       final fingerprint = FC5CompendiumIdentityService.fingerprintXml(
         xmlContent,
       );
@@ -142,15 +181,24 @@ class ImportService {
       }
 
       final sourceId = const Uuid().v4();
-      final parseResult =
+      final rawParseResult =
           await FC5Parser.parseCompendium(xmlContent, sourceId: sourceId);
+      final deduped = FC5CompendiumDeduplicationService.dedupe(rawParseResult);
+      final parseResult = deduped.parseResult;
 
-      final fileName = file.path.split(Platform.pathSeparator).last;
+      if (rawParseResult.isEmpty) {
+        throw ImportServiceException(
+          rawParseResult.diagnostics.entries.firstOrNull?.message ??
+              'This XML file does not contain supported FC5 compendium content.',
+          diagnostics: rawParseResult.diagnostics,
+        );
+      }
 
       if (parseResult.isEmpty) {
         throw ImportServiceException(
-          parseResult.diagnostics.entries.firstOrNull?.message ??
-              'This XML file does not contain supported FC5 compendium content.',
+          deduped.stats.total > 0
+              ? 'This FC5 compendium does not contain new importable content.'
+              : 'This XML file does not contain supported FC5 compendium content.',
           diagnostics: parseResult.diagnostics,
         );
       }
@@ -158,7 +206,7 @@ class ImportService {
       // Create and save source metadata
       final source = CompendiumSource(
         id: sourceId,
-        name: fileName,
+        name: moduleName ?? sourceName,
         importedAt: DateTime.now(),
         itemCount: parseResult.items.length,
         spellCount: parseResult.spells.length,
@@ -166,6 +214,11 @@ class ImportService {
         classCount: parseResult.classes.length,
         backgroundCount: parseResult.backgrounds.length,
         featCount: parseResult.feats.length,
+        archiveId: archiveId,
+        archiveName: archiveName,
+        moduleName: moduleName,
+        modulePath: modulePath,
+        sourceKind: sourceKind,
       );
 
       await StorageService.saveSource(source);
@@ -203,7 +256,7 @@ class ImportService {
 
       return CompendiumImportResult(
         sourceId: sourceId,
-        sourceName: fileName,
+        sourceName: moduleName ?? sourceName,
         parseResult: parseResult,
       );
     } on ImportServiceException {

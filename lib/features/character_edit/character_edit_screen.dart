@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../core/models/character.dart';
 import '../../core/services/storage_service.dart';
 
@@ -101,9 +102,7 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error picking image: $e')),
-        );
+        AppSnackBar.error(context, 'Error picking image: $e');
       }
     }
   }
@@ -138,22 +137,11 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
 
       if (mounted) {
         Navigator.of(context).pop(true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Character updated successfully'),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        AppSnackBar.success(context, 'Character updated successfully');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error saving character: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
+        AppSnackBar.error(context, 'Error saving character: $e');
       }
     }
   }
@@ -250,7 +238,8 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                              color: theme.colorScheme.primary
+                                  .withValues(alpha: 0.3),
                               blurRadius: 8,
                               spreadRadius: 1,
                             ),
@@ -278,8 +267,8 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
                 labelText: 'Character Name',
                 border: const OutlineInputBorder(),
                 filled: true,
-                fillColor:
-                    theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                fillColor: theme.colorScheme.surfaceContainerHighest
+                    .withValues(alpha: 0.3),
                 prefixIcon: const Icon(Icons.person_outline),
               ),
               style: theme.textTheme.titleMedium,

@@ -190,9 +190,15 @@ class FeaturesSpellsStep extends StatelessWidget {
 
         // Filter and Categorize Features
         final choiceFeatures = <CharacterFeature>[];
+        final optionalFeatures = <CharacterFeature>[];
         final passiveFeatures = <CharacterFeature>[];
 
         for (var f in allFeatures) {
+          if (f.isOptional) {
+            optionalFeatures.add(f);
+            continue;
+          }
+
           // Skip known individual option features
           if (f.id.startsWith('dragon-ancestor-')) continue;
 
@@ -249,7 +255,9 @@ class FeaturesSpellsStep extends StatelessWidget {
                 const SizedBox(height: 24),
               ],
 
-              if (choiceFeatures.isEmpty && passiveFeatures.isEmpty)
+              if (choiceFeatures.isEmpty &&
+                  passiveFeatures.isEmpty &&
+                  optionalFeatures.isEmpty)
                 _buildNoFeaturesMessage(context, l10n)
               else
                 ...choiceFeatures.map((feature) =>
@@ -260,6 +268,23 @@ class FeaturesSpellsStep extends StatelessWidget {
                 if (choiceFeatures.isNotEmpty) const Divider(height: 32),
                 ...passiveFeatures.map((feature) =>
                     _buildFeatureItem(context, state, feature, l10n, locale)),
+              ],
+
+              if (optionalFeatures.isNotEmpty) ...[
+                if (choiceFeatures.isNotEmpty || passiveFeatures.isNotEmpty)
+                  const Divider(height: 32),
+                Text(
+                  l10n.optionalFeaturesLabel,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                ),
+                const SizedBox(height: 12),
+                ...optionalFeatures.map(
+                  (feature) => _buildOptionalFeatureCard(
+                      context, state, feature, locale),
+                ),
               ],
 
               // Spell Selection
@@ -473,6 +498,41 @@ class FeaturesSpellsStep extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildOptionalFeatureCard(
+    BuildContext context,
+    CharacterCreationState state,
+    CharacterFeature feature,
+    String locale,
+  ) {
+    final selected = state.selectedFeatureOptions[feature.id] == feature.id;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: selected ? 3 : 1,
+      child: CheckboxListTile(
+        value: selected,
+        onChanged: (value) {
+          state.toggleOptionalFeature(feature.id, value ?? false);
+        },
+        secondary: Icon(
+          Icons.tune_rounded,
+          color: selected ? colorScheme.primary : colorScheme.outline,
+        ),
+        title: Text(
+          feature.getName(locale),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          feature.getDescription(locale),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        ),
+        controlAffinity: ListTileControlAffinity.leading,
       ),
     );
   }

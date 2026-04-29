@@ -168,7 +168,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
         color: colorScheme.secondaryContainer, // Accent color background
         borderRadius: BorderRadius.circular(20),
         boxShadow: isHC
-            ? [] // No glow in high contrast mode
+            ? []
             : [
                 BoxShadow(
                   color: colorScheme.secondary

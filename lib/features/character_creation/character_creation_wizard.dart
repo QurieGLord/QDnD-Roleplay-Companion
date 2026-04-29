@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:uuid/uuid.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/models/character.dart';
@@ -156,12 +157,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
     if (_currentStep < 7) {
       // STRICT MODE VALIDATION
       if (!_state.isStepValid(_currentStep)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.errorMissingFields),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
+        AppSnackBar.warning(context, l10n.errorMissingFields);
         return; // BLOCK PROGRESSION
       }
 
@@ -181,17 +177,10 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
 
         if (!context.mounted) return;
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.characterCreated)),
-        );
+        AppSnackBar.success(context, l10n.characterCreated);
       } catch (e) {
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.errorCreatingCharacter(e.toString())),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
+        AppSnackBar.error(context, l10n.errorCreatingCharacter(e.toString()));
       } finally {
         if (mounted) {
           setState(() {
@@ -364,7 +353,11 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       if (classFeatures != null) {
         // Avoid duplicates if FeatureService already added them (by ID)
         final existingIds = character.features.map((f) => f.id).toSet();
+        final selectedOptions = _state.selectedFeatureOptions.values.toSet();
         for (var feature in classFeatures) {
+          if (feature.isOptional && !selectedOptions.contains(feature.id)) {
+            continue;
+          }
           if (!existingIds.contains(feature.id)) {
             character.features.add(feature);
           }
@@ -397,6 +390,7 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
               consumption: feature.consumption,
               usageCostId: feature.usageCostId,
               usageInputMode: feature.usageInputMode,
+              isOptional: feature.isOptional,
               resourcePool: feature.resourcePool != null
                   ? ResourcePool(
                       currentUses:
@@ -421,6 +415,10 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       final selectedOptions = _state.selectedFeatureOptions.values.toSet();
 
       character.features.removeWhere((feature) {
+        if (feature.isOptional) {
+          return !selectedOptions.contains(feature.id);
+        }
+
         // Fighting Styles: Remove specific styles if not selected
         // Pattern: contains 'fighting-style' BUT is not the generic parent (which usually ends in 'fighting-style' like 'fighter-fighting-style')
         if (feature.id.contains('fighting-style') &&

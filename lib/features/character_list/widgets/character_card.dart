@@ -256,49 +256,23 @@ class _AvatarBlock extends StatelessWidget {
             ),
           ],
         ),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(19),
-                child: character.avatarPath != null
-                    ? Image.file(
-                        File(character.avatarPath!),
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return _FallbackAvatar(
-                            icon: getClassIcon(character.characterClass),
-                            accent: accent,
-                          );
-                        },
-                      )
-                    : _FallbackAvatar(
-                        icon: getClassIcon(character.characterClass),
-                        accent: accent,
-                      ),
-              ),
-            ),
-            Positioned(
-              top: 7,
-              right: 7,
-              child: Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: colorScheme.surface.withValues(alpha: 0.88),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: accent.withValues(alpha: 0.22),
-                  ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(19),
+          child: character.avatarPath != null
+              ? Image.file(
+                  File(character.avatarPath!),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return _FallbackAvatar(
+                      icon: getClassIcon(character.characterClass),
+                      accent: accent,
+                    );
+                  },
+                )
+              : _FallbackAvatar(
+                  icon: getClassIcon(character.characterClass),
+                  accent: accent,
                 ),
-                child: Icon(
-                  getClassIcon(character.characterClass),
-                  size: 14,
-                  color: accent,
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );

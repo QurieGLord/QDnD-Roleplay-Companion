@@ -64,7 +64,8 @@ void main() {
 
       final optionalFeature =
           features.firstWhere((f) => f.nameEn.contains('Optional Feature'));
-      expect(optionalFeature.nameEn, startsWith('[Optional]'));
+      expect(optionalFeature.nameEn, 'Optional Feature');
+      expect(optionalFeature.isOptional, isTrue);
     });
   });
 }

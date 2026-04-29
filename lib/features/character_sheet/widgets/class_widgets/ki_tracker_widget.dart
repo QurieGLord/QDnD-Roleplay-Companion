@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../core/models/class_data.dart';
@@ -171,11 +172,11 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
     final pool = widget.kiFeature.resourcePool;
     if (pool == null || pool.currentUses < 1) {
       HapticFeedback.heavyImpact();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(locale == 'ru' ? 'Недостаточно Ци!' : 'Not enough Ki!'),
-        backgroundColor: Theme.of(context).colorScheme.error,
-        duration: const Duration(seconds: 1),
-      ));
+      AppSnackBar.warning(
+        context,
+        locale == 'ru' ? 'Недостаточно Ци!' : 'Not enough Ki!',
+        duration: const Duration(seconds: 2),
+      );
       return;
     }
 
@@ -184,15 +185,10 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
 
     final cleanName =
         actionFeature.getName(locale).replaceAll(RegExp(r'\s*\(.*?\)'), '');
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-            '$cleanName ${locale == 'ru' ? 'использовано! (-1 Ци)' : 'used! (-1 Ki)'}'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
+    AppSnackBar.success(
+      context,
+      '$cleanName ${locale == 'ru' ? 'использовано! (-1 Ци)' : 'used! (-1 Ki)'}',
+      duration: const Duration(seconds: 2),
     );
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/models/character.dart';
 import '../../core/models/item.dart';
@@ -325,9 +326,11 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
     widget.character.save();
     final locale = Localizations.localeOf(context).languageCode;
     final l10n = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(l10n.itemAdded(newItem.getName(locale), quantity)),
-        duration: const Duration(seconds: 2)));
+    AppSnackBar.success(
+      context,
+      l10n.itemAdded(newItem.getName(locale), quantity),
+      duration: const Duration(seconds: 2),
+    );
     setState(() {});
   }
 }
@@ -413,10 +416,9 @@ class _AddItemDialogState extends State<_AddItemDialog> {
       if (!context.mounted) return;
 
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(l10n.itemAdded(
-                newItem.getName(widget.locale), newItem.quantity))),
+      AppSnackBar.success(
+        context,
+        l10n.itemAdded(newItem.getName(widget.locale), newItem.quantity),
       );
     }
   }
@@ -476,9 +478,11 @@ class _AddItemDialogState extends State<_AddItemDialog> {
     }
     widget.character.updatedAt = DateTime.now();
     widget.character.save();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(l10n.itemAdded('Items', _selectedItems.length)),
-        duration: const Duration(seconds: 2)));
+    AppSnackBar.success(
+      context,
+      l10n.itemAdded('Items', _selectedItems.length),
+      duration: const Duration(seconds: 2),
+    );
     Navigator.pop(context);
   }
 

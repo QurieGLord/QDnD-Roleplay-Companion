@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../core/models/class_data.dart';
@@ -411,10 +412,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                     spell: spell, character: widget.character),
               );
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(l10n.spellNotFound),
-                backgroundColor: colorScheme.error,
-              ));
+              AppSnackBar.warning(context, l10n.spellNotFound);
             }
           },
           child: Column(
@@ -590,12 +588,12 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
     }
 
     if (availableLevels.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(locale == 'ru'
+      AppSnackBar.warning(
+        context,
+        locale == 'ru'
             ? 'Нет доступных ячеек заклинаний!'
-            : 'No spell slots available!'),
-        backgroundColor: colorScheme.error,
-      ));
+            : 'No spell slots available!',
+      );
       return;
     }
 
@@ -647,13 +645,13 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                         widget.character.save();
                         widget.onChanged?.call();
                       });
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text(locale == 'ru'
+                      AppSnackBar.success(
+                        context,
+                        locale == 'ru'
                             ? 'Метка наложена (уровень $level)'
-                            : 'Mark cast (Level $level)'),
-                        backgroundColor: colorScheme.tertiaryContainer,
+                            : 'Mark cast (Level $level)',
                         duration: const Duration(seconds: 2),
-                      ));
+                      );
                     },
                     child: Text(
                       locale == 'ru' ? 'Уровень $level' : 'Level $level',
@@ -766,16 +764,11 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                       widget.onChanged?.call();
                     });
                     if (val) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text(
-                          l10n.hideSpentMinute,
-                          style: TextStyle(
-                            color: colorScheme.onInverseSurface,
-                          ),
-                        ),
-                        backgroundColor: colorScheme.inverseSurface,
+                      AppSnackBar.info(
+                        context,
+                        l10n.hideSpentMinute,
                         duration: const Duration(seconds: 2),
-                      ));
+                      );
                     }
                   },
                   activeThumbColor: colorScheme.onPrimary,
@@ -998,12 +991,12 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
     }
 
     if (availableLevels.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(locale == 'ru'
+      AppSnackBar.warning(
+        context,
+        locale == 'ru'
             ? 'Нет доступных ячеек заклинаний!'
-            : 'No spell slots available!'),
-        backgroundColor: colorScheme.error,
-      ));
+            : 'No spell slots available!',
+      );
       return;
     }
 
@@ -1053,13 +1046,13 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                         widget.character.save();
                         widget.onChanged?.call();
                       });
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text(locale == 'ru'
+                      AppSnackBar.success(
+                        context,
+                        locale == 'ru'
                             ? 'Радар запущен на $level минут(ы)'
-                            : 'Radar active for $level minute(s)'),
-                        backgroundColor: colorScheme.primary,
+                            : 'Radar active for $level minute(s)',
                         duration: const Duration(seconds: 3),
-                      ));
+                      );
                     },
                     child: Text(
                       locale == 'ru' ? 'Уровень $level' : 'Level $level',

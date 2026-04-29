@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -232,27 +233,18 @@ class _RageControlWidgetState extends State<RageControlWidget>
           widget.character.save();
           widget.onChanged?.call();
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isUnlimited
-                  ? '${l10n.rage} $usedText $unlimText'
-                  : '${l10n.rage} $usedText (-1)',
-            ),
-            duration: const Duration(seconds: 1),
-            behavior: SnackBarBehavior.floating,
-          ),
+        AppSnackBar.success(
+          context,
+          isUnlimited
+              ? '${l10n.rage} $usedText $unlimText'
+              : '${l10n.rage} $usedText (-1)',
+          duration: const Duration(seconds: 2),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              locale == 'ru' ? 'Нет зарядов Ярости!' : 'No Rage charges left!',
-            ),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-          ),
+        AppSnackBar.warning(
+          context,
+          locale == 'ru' ? 'Нет зарядов Ярости!' : 'No Rage charges left!',
+          duration: const Duration(seconds: 2),
         );
       }
     } else {

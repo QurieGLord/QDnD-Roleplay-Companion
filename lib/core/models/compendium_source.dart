@@ -31,6 +31,21 @@ class CompendiumSource extends HiveObject {
   @HiveField(8, defaultValue: 0)
   int featCount;
 
+  @HiveField(9, defaultValue: null)
+  String? archiveId;
+
+  @HiveField(10, defaultValue: null)
+  String? archiveName;
+
+  @HiveField(11, defaultValue: null)
+  String? moduleName;
+
+  @HiveField(12, defaultValue: null)
+  String? modulePath;
+
+  @HiveField(13, defaultValue: 'xml')
+  String sourceKind;
+
   CompendiumSource({
     required this.id,
     required this.name,
@@ -41,5 +56,10 @@ class CompendiumSource extends HiveObject {
     this.classCount = 0,
     this.backgroundCount = 0,
     this.featCount = 0,
+    this.archiveId,
+    this.archiveName,
+    this.moduleName,
+    this.modulePath,
+    this.sourceKind = 'xml',
   });
 }

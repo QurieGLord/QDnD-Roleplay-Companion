@@ -21,14 +21,16 @@ void main() {
     );
 
     expect(find.text('Settings'), findsOneWidget);
-    expect(find.byKey(const Key('settings_language_segmented')), findsOneWidget);
+    expect(
+        find.byKey(const Key('settings_language_segmented')), findsOneWidget);
     expect(find.byKey(const Key('settings_theme_segmented')), findsOneWidget);
     expect(
-      find.byKey(const Key('settings_high_contrast_toggle')),
+      find.byKey(const Key('settings_basic_mode_toggle')),
       findsOneWidget,
     );
-    expect(find.byKey(const Key('settings_palette_qMonokai')), findsOneWidget);
-    expect(find.byKey(const Key('settings_manage_libraries_tile')), findsOneWidget);
+    expect(find.byKey(const Key('settings_palette_monokai')), findsOneWidget);
+    expect(find.byKey(const Key('settings_manage_libraries_tile')),
+        findsOneWidget);
   });
 
   testWidgets('SettingsScreen keeps core sections on narrow width', (
@@ -55,11 +57,14 @@ void main() {
     await pumpInteraction(tester);
 
     expect(
-      tester.getRect(find.byKey(const Key('settings_manage_libraries_tile'))).top,
+      tester
+          .getRect(find.byKey(const Key('settings_manage_libraries_tile')))
+          .top,
       lessThan(824),
     );
     expect(find.byKey(const Key('settings_theme_segmented')), findsOneWidget);
-    expect(find.byKey(const Key('settings_palette_qMonokai')), findsOneWidget);
-    expect(find.byKey(const Key('settings_manage_libraries_tile')), findsOneWidget);
+    expect(find.byKey(const Key('settings_palette_monokai')), findsOneWidget);
+    expect(find.byKey(const Key('settings_manage_libraries_tile')),
+        findsOneWidget);
   });
 }

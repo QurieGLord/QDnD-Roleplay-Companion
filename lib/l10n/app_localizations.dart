@@ -482,6 +482,24 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 field needs attention} other{{count} fields need attention}}'**
   String importWarningsSubtitle(int count);
 
+  /// SnackBar action label for opening import diagnostics
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get importDiagnosticsAction;
+
+  /// Title for import diagnostics sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Import details'**
+  String get importDiagnosticsTitle;
+
+  /// No description provided for @importDiagnosticsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 import note} other{{count} import notes}}'**
+  String importDiagnosticsSubtitle(int count);
+
   /// No description provided for @duplicateFailed.
   ///
   /// In en, this message translates to:
@@ -3284,6 +3302,12 @@ abstract class AppLocalizations {
   /// **'New Features'**
   String get newFeaturesLabel;
 
+  /// Section title for imported optional class features
+  ///
+  /// In en, this message translates to:
+  /// **'Optional features'**
+  String get optionalFeaturesLabel;
+
   /// No description provided
   ///
   /// In en, this message translates to:
@@ -4295,14 +4319,14 @@ abstract class AppLocalizations {
   /// No description provided
   ///
   /// In en, this message translates to:
-  /// **'High Contrast'**
-  String get highContrast;
+  /// **'Basic'**
+  String get basicMode;
 
   /// No description provided
   ///
   /// In en, this message translates to:
-  /// **'Increases visibility with sharper colors'**
-  String get highContrastDesc;
+  /// **'Keeps the interface calmer with less color noise.'**
+  String get basicModeDesc;
 
   /// No description provided
   ///
@@ -4349,7 +4373,7 @@ abstract class AppLocalizations {
   /// Supporting copy for the appearance section on settings
   ///
   /// In en, this message translates to:
-  /// **'Tune mode, contrast, and palette without losing speed or clarity.'**
+  /// **'Tune mode, calmness, and palette without losing speed or clarity.'**
   String get settingsAppearanceSectionDesc;
 
   /// Supporting copy for the theme mode control on settings
@@ -4376,17 +4400,17 @@ abstract class AppLocalizations {
   /// **'Version info, authorship, legal details, and quiet ways to keep in touch.'**
   String get settingsAboutSectionDesc;
 
-  /// Short badge label for enabled high contrast on settings
+  /// Short badge label for enabled Basic mode on settings
   ///
   /// In en, this message translates to:
   /// **'On'**
-  String get settingsHighContrastOn;
+  String get settingsBasicModeOn;
 
-  /// Short badge label for disabled high contrast on settings
+  /// Short badge label for disabled Basic mode on settings
   ///
   /// In en, this message translates to:
   /// **'Off'**
-  String get settingsHighContrastOff;
+  String get settingsBasicModeOff;
 
   /// Short badge label for the currently selected settings option
   ///
@@ -4487,7 +4511,7 @@ abstract class AppLocalizations {
   /// No description provided
   ///
   /// In en, this message translates to:
-  /// **'Import and manage external content (XML)'**
+  /// **'Import and manage external content (XML or ZIP)'**
   String get manageLibrariesSubtitle;
 
   /// Action label for importing an external content library
@@ -4511,7 +4535,7 @@ abstract class AppLocalizations {
   /// No description provided
   ///
   /// In en, this message translates to:
-  /// **'Tap + to import content from FC5 XML files'**
+  /// **'Tap + to import content from FC5 XML or ZIP files'**
   String get noLibrariesHint;
 
   /// No description provided for @libraryStats.
@@ -4519,6 +4543,13 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{items} Items, {spells} Spells'**
   String libraryStats(int items, int spells);
+
+  /// No description provided for @libraryArchiveStats.
+  ///
+  /// In en, this message translates to:
+  /// **'{modules} modules: {items} items, {spells} spells, {races} races, {classes} classes, {backgrounds} backgrounds, {feats} feats'**
+  String libraryArchiveStats(int modules, int items, int spells, int races,
+      int classes, int backgrounds, int feats);
 
   /// No description provided for @libraryImportedDate.
   ///
@@ -4540,6 +4571,12 @@ abstract class AppLocalizations {
   String libraryImportedWithWarnings(String name, int warnings, int items,
       int spells, int races, int classes, int backgrounds, int feats);
 
+  /// No description provided for @libraryImportSkippedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped {duplicates} duplicates and {unsupported} unsupported monsters.'**
+  String libraryImportSkippedSummary(int duplicates, int unsupported);
+
   /// No description provided for @libraryImportFailed.
   ///
   /// In en, this message translates to:
@@ -4552,6 +4589,163 @@ abstract class AppLocalizations {
   /// **'This XML does not contain supported FC5 compendium content.'**
   String get libraryImportUnsupported;
 
+  /// Title for FC5 compendium ZIP import preview
+  ///
+  /// In en, this message translates to:
+  /// **'FC5 ZIP preview'**
+  String get fc5ZipPreviewTitle;
+
+  /// No description provided for @fc5ZipPreviewSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{xmlFiles} XML files found, {ignoredFiles} non-XML files ignored.'**
+  String fc5ZipPreviewSummary(int xmlFiles, int ignoredFiles);
+
+  /// No description provided for @fc5ZipImportSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Import {name}'**
+  String fc5ZipImportSuggested(String name);
+
+  /// Action label to import one XML from a ZIP preview
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get fc5ZipImportThisXml;
+
+  /// Title for FC5 ZIP scan progress dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning compendium'**
+  String get fc5LoadingScanTitle;
+
+  /// Title for FC5 import progress dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Importing compendium'**
+  String get fc5LoadingImportTitle;
+
+  /// No description provided for @fc5LoadingStageReadingArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading archive'**
+  String get fc5LoadingStageReadingArchive;
+
+  /// No description provided for @fc5LoadingStageScanningXml.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning XML'**
+  String get fc5LoadingStageScanningXml;
+
+  /// No description provided for @fc5LoadingStageScanningXmlProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning XML {current} of {total}'**
+  String fc5LoadingStageScanningXmlProgress(int current, int total);
+
+  /// No description provided for @fc5LoadingStagePreparingModules.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing modules'**
+  String get fc5LoadingStagePreparingModules;
+
+  /// No description provided for @fc5LoadingStageImportingSelectedModules.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing selected modules'**
+  String get fc5LoadingStageImportingSelectedModules;
+
+  /// No description provided for @fc5ZipSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get fc5ZipSelectAll;
+
+  /// No description provided for @fc5ZipClearSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get fc5ZipClearSelection;
+
+  /// No description provided for @fc5ZipImportSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Import selected'**
+  String get fc5ZipImportSelected;
+
+  /// No description provided for @fc5ZipRecommendedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'recommended'**
+  String get fc5ZipRecommendedBadge;
+
+  /// No description provided for @fc5ZipUnsupportedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'unsupported'**
+  String get fc5ZipUnsupportedBadge;
+
+  /// No description provided for @fc5ZipSelectedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{selected} selected: {items} items, {spells} spells, {races} races, {classes} classes, {backgrounds} backgrounds, {feats} feats. Monsters skipped: {monsters}.'**
+  String fc5ZipSelectedSummary(int selected, int items, int spells, int races,
+      int classes, int backgrounds, int feats, int monsters);
+
+  /// No description provided for @fc5ZipBatchImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {modules} module(s): {items} items, {spells} spells, {races} races, {classes} classes, {backgrounds} backgrounds, {feats} feats. Skipped {duplicates} duplicates and {unsupported} unsupported monsters.'**
+  String fc5ZipBatchImported(int modules, int items, int spells, int races,
+      int classes, int backgrounds, int feats, int duplicates, int unsupported);
+
+  /// No description provided for @fc5ZipBatchImportedWithIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {modules} module(s), {failed} failed: {items} items, {spells} spells, {races} races, {classes} classes, {backgrounds} backgrounds, {feats} feats. Skipped {duplicates} duplicates and {unsupported} unsupported monsters.'**
+  String fc5ZipBatchImportedWithIssues(
+      int modules,
+      int failed,
+      int items,
+      int spells,
+      int races,
+      int classes,
+      int backgrounds,
+      int feats,
+      int duplicates,
+      int unsupported);
+
+  /// Warning shown in FC5 ZIP import preview
+  ///
+  /// In en, this message translates to:
+  /// **'The combined compendium already overlaps the separate XML modules. Importing both is allowed, but semantic duplicates will be skipped.'**
+  String get fc5ZipDuplicateRisk;
+
+  /// Shown when a selected FC5 ZIP has no XML entries
+  ///
+  /// In en, this message translates to:
+  /// **'This ZIP does not contain XML files.'**
+  String get fc5ZipNoXml;
+
+  /// Badge for a combined FC5 compendium XML inside a ZIP
+  ///
+  /// In en, this message translates to:
+  /// **'combined'**
+  String get fc5ZipCombinedBadge;
+
+  /// No description provided for @fc5ZipEntryStats.
+  ///
+  /// In en, this message translates to:
+  /// **'{supported} supported: {items} items, {spells} spells, {races} races, {classes} classes, {backgrounds} backgrounds, {feats} feats. Monsters skipped: {monsters}.'**
+  String fc5ZipEntryStats(int supported, int items, int spells, int races,
+      int classes, int backgrounds, int feats, int monsters);
+
+  /// No description provided for @fc5ZipEntryUnsupportedStats.
+  ///
+  /// In en, this message translates to:
+  /// **'No supported compendium entities. Monsters skipped: {monsters}.'**
+  String fc5ZipEntryUnsupportedStats(int monsters);
+
   /// No description provided
   ///
   /// In en, this message translates to:
@@ -4563,6 +4757,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This will remove \"{name}\" and all associated content:\n\n• {items} Items\n• {spells} Spells\n\nThis action cannot be undone.'**
   String deleteLibraryMessage(String name, int items, int spells);
+
+  /// Title for deleting a ZIP archive group
+  ///
+  /// In en, this message translates to:
+  /// **'Delete archive?'**
+  String get deleteArchiveTitle;
+
+  /// No description provided for @deleteArchiveMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This will remove \"{name}\" and all {modules} imported modules:\n\n• {items} Items\n• {spells} Spells\n\nThis action cannot be undone.'**
+  String deleteArchiveMessage(String name, int modules, int items, int spells);
 
   /// No description provided
   ///

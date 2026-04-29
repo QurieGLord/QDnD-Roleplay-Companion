@@ -9,7 +9,8 @@ import 'settings_test_harness.dart';
 void main() {
   configureSettingsStorageHarness('qdnd_settings_navigation_');
 
-  testWidgets('SettingsScreen opens library manager from content section', (tester) async {
+  testWidgets('SettingsScreen opens library manager from content section',
+      (tester) async {
     final themeProvider = ThemeProvider();
     final localeProvider = LocaleProvider();
 

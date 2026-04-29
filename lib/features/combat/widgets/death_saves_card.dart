@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/combat_state.dart';
 import 'package:uuid/uuid.dart';
@@ -52,14 +53,12 @@ class DeathSavesCard extends StatelessWidget {
 
     onCharacterUpdated();
 
-    // Show result
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-        backgroundColor: roll >= 10 ? Colors.green : Colors.red,
-      ),
-    );
+    if (roll >= 10) {
+      AppSnackBar.success(context, message,
+          duration: const Duration(seconds: 2));
+    } else {
+      AppSnackBar.error(context, message, duration: const Duration(seconds: 2));
+    }
   }
 
   void _resetDeathSaves() {

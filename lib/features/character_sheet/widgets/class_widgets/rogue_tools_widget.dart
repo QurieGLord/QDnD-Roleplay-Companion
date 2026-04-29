@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -58,27 +59,13 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
     }
 
     final l10n = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.flash_on, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                l10n.sneakAttackRoll(total.toString(),
-                    DiceUtils.formatDice('${diceCount}d6', context)),
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-            ),
-          ],
-        ),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Theme.of(context).colorScheme.tertiary,
-        duration: const Duration(seconds: 3),
+    AppSnackBar.success(
+      context,
+      l10n.sneakAttackRoll(
+        total.toString(),
+        DiceUtils.formatDice('${diceCount}d6', context),
       ),
+      duration: const Duration(seconds: 3),
     );
   }
 
@@ -161,21 +148,13 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
     final roll = Random().nextInt(20) + 1;
     final total = roll + totalMod;
 
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
     if (total >= dc) {
       setState(() => _isHidden = true);
       HapticFeedback.heavyImpact();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            l10n.stealthSuccess(total, dc),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
-        ),
+      AppSnackBar.success(
+        context,
+        l10n.stealthSuccess(total, dc),
+        duration: const Duration(seconds: 2),
       );
     } else {
       final failPhrases = [
@@ -199,16 +178,10 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
 
       setState(() => _isHidden = false);
       HapticFeedback.vibrate();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            l10n.stealthFailure(total, dc, reason),
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.error,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 3),
-        ),
+      AppSnackBar.error(
+        context,
+        l10n.stealthFailure(total, dc, reason),
+        duration: const Duration(seconds: 3),
       );
     }
   }
@@ -216,12 +189,10 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
   void _executeQuickAction(String actionName, String snackbarMsg,
       {bool triggersStealth = false}) {
     HapticFeedback.heavyImpact();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(snackbarMsg),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 1),
-      ),
+    AppSnackBar.info(
+      context,
+      snackbarMsg,
+      duration: const Duration(seconds: 2),
     );
 
     if (triggersStealth) {

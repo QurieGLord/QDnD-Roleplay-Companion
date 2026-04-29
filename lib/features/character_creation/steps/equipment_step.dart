@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:uuid/uuid.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../character_creation_state.dart';
@@ -486,11 +487,10 @@ class _EquipmentStepState extends State<EquipmentStep> {
             // Show feedback
             final item = ItemService.getItemById(itemId);
             if (item != null && context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.itemAdded(item.getName(locale), quantity)),
-                  duration: const Duration(seconds: 1),
-                ),
+              AppSnackBar.success(
+                context,
+                l10n.itemAdded(item.getName(locale), quantity),
+                duration: const Duration(seconds: 2),
               );
             }
           }
@@ -1147,9 +1147,10 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(widget.l10n.errorLoadingImage(e.toString())),
-            backgroundColor: Theme.of(context).colorScheme.error));
+        AppSnackBar.error(
+          context,
+          widget.l10n.errorLoadingImage(e.toString()),
+        );
       }
     }
   }
@@ -1196,12 +1197,9 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
       final customItemId = 'custom_${const Uuid().v4()}';
       widget.state.addCustomEquipment(customItemId, quantity: quantity);
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(widget.l10n.itemAdded(name, quantity))));
+      AppSnackBar.success(context, widget.l10n.itemAdded(name, quantity));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(widget.l10n.errorCreatingItem(e.toString())),
-          backgroundColor: Theme.of(context).colorScheme.error));
+      AppSnackBar.error(context, widget.l10n.errorCreatingItem(e.toString()));
     }
   }
 

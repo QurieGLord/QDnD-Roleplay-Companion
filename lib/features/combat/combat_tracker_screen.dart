@@ -1,8 +1,11 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'dart:math';
-import 'dart:async';
+import 'package:qd_and_d/core/ui/app_scroll_behavior.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/models/character.dart';
 import '../../core/models/combat_state.dart';
@@ -172,15 +175,11 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
               character.increaseRelentlessRageSaveDc();
               Navigator.pop(context);
 
-              ScaffoldMessenger.of(this.context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    succeeded
-                        ? '${feature.getName(locale)}: $roll + $conSaveBonus = $total, 1 HP'
-                        : '${feature.getName(locale)}: $roll + $conSaveBonus = $total, 0 HP',
-                  ),
-                  behavior: SnackBarBehavior.floating,
-                ),
+              AppSnackBar.info(
+                this.context,
+                succeeded
+                    ? '${feature.getName(locale)}: $roll + $conSaveBonus = $total, 1 HP'
+                    : '${feature.getName(locale)}: $roll + $conSaveBonus = $total, 0 HP',
               );
             },
             child: Text(l10n.roll),
@@ -426,12 +425,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
     }
 
     if (!character.combatState.canRollDeathSaveThisRound) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.deathSaveAlreadyRolled),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      AppSnackBar.warning(context, l10n.deathSaveAlreadyRolled);
       return;
     }
 
@@ -522,14 +516,11 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
       _lastDeathSaveMessage = message;
     });
 
-    final colorScheme = Theme.of(context).colorScheme;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: wasSuccess ? Colors.green : colorScheme.error,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    if (wasSuccess) {
+      AppSnackBar.success(context, message);
+    } else {
+      AppSnackBar.error(context, message);
+    }
   }
 
   @override
@@ -595,7 +586,6 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
             return ScrollConfiguration(
               behavior: const _CombatTrackerScrollBehavior(),
               child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.only(bottom: 8),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: constraints.maxHeight),
@@ -1374,7 +1364,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
   }
 }
 
-class _CombatTrackerScrollBehavior extends MaterialScrollBehavior {
+class _CombatTrackerScrollBehavior extends AppScrollBehavior {
   const _CombatTrackerScrollBehavior();
 
   @override

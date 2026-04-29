@@ -201,8 +201,11 @@ void main() {
 <compendium version="5"><monster><name>Fixture Beast</name></monster></compendium>
 ''');
       expect(monsterOnly.isEmpty, isTrue);
-      expect(monsterOnly.diagnostics.hasWarnings, isTrue);
-      expect(monsterOnly.diagnostics.entries.single.code, 'unsupported_node');
+      expect(monsterOnly.diagnostics.hasWarnings, isFalse);
+      expect(
+        monsterOnly.diagnostics.entries.single.code,
+        'unsupported_nodes_skipped',
+      );
     });
   });
 }

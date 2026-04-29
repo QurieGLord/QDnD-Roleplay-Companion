@@ -255,6 +255,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get importDiagnosticsAction => 'Details';
+
+  @override
+  String get importDiagnosticsTitle => 'Import details';
+
+  @override
+  String importDiagnosticsSubtitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count import notes',
+      one: '1 import note',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String duplicateFailed(String error) {
     return 'Failed to duplicate character: $error';
   }
@@ -1744,6 +1761,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newFeaturesLabel => 'New Features';
 
   @override
+  String get optionalFeaturesLabel => 'Optional features';
+
+  @override
   String get searchJournal => 'Search journal...';
 
   @override
@@ -2312,10 +2332,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeDark => 'Dark';
 
   @override
-  String get highContrast => 'High Contrast';
+  String get basicMode => 'Basic';
 
   @override
-  String get highContrastDesc => 'Increases visibility with sharper colors';
+  String get basicModeDesc =>
+      'Keeps the interface calmer with less color noise.';
 
   @override
   String get colorScheme => 'Color Scheme';
@@ -2342,7 +2363,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAppearanceSectionDesc =>
-      'Tune mode, contrast, and palette without losing speed or clarity.';
+      'Tune mode, calmness, and palette without losing speed or clarity.';
 
   @override
   String get settingsThemeSectionDesc =>
@@ -2361,10 +2382,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Version info, authorship, legal details, and quiet ways to keep in touch.';
 
   @override
-  String get settingsHighContrastOn => 'On';
+  String get settingsBasicModeOn => 'On';
 
   @override
-  String get settingsHighContrastOff => 'Off';
+  String get settingsBasicModeOff => 'Off';
 
   @override
   String get settingsCurrent => 'Current';
@@ -2426,7 +2447,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manageLibrariesSubtitle =>
-      'Import and manage external content (XML)';
+      'Import and manage external content (XML or ZIP)';
 
   @override
   String get importContentLibrary => 'Import Content Library';
@@ -2438,11 +2459,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noLibraries => 'No imported libraries';
 
   @override
-  String get noLibrariesHint => 'Tap + to import content from FC5 XML files';
+  String get noLibrariesHint =>
+      'Tap + to import content from FC5 XML or ZIP files';
 
   @override
   String libraryStats(int items, int spells) {
     return '$items Items, $spells Spells';
+  }
+
+  @override
+  String libraryArchiveStats(int modules, int items, int spells, int races,
+      int classes, int backgrounds, int feats) {
+    return '$modules modules: $items items, $spells spells, $races races, $classes classes, $backgrounds backgrounds, $feats feats';
   }
 
   @override
@@ -2463,6 +2491,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String libraryImportSkippedSummary(int duplicates, int unsupported) {
+    return 'Skipped $duplicates duplicates and $unsupported unsupported monsters.';
+  }
+
+  @override
   String libraryImportFailed(String error) {
     return 'Failed to import library: $error';
   }
@@ -2472,11 +2505,130 @@ class AppLocalizationsEn extends AppLocalizations {
       'This XML does not contain supported FC5 compendium content.';
 
   @override
+  String get fc5ZipPreviewTitle => 'FC5 ZIP preview';
+
+  @override
+  String fc5ZipPreviewSummary(int xmlFiles, int ignoredFiles) {
+    return '$xmlFiles XML files found, $ignoredFiles non-XML files ignored.';
+  }
+
+  @override
+  String fc5ZipImportSuggested(String name) {
+    return 'Import $name';
+  }
+
+  @override
+  String get fc5ZipImportThisXml => 'Import';
+
+  @override
+  String get fc5LoadingScanTitle => 'Scanning compendium';
+
+  @override
+  String get fc5LoadingImportTitle => 'Importing compendium';
+
+  @override
+  String get fc5LoadingStageReadingArchive => 'Reading archive';
+
+  @override
+  String get fc5LoadingStageScanningXml => 'Scanning XML';
+
+  @override
+  String fc5LoadingStageScanningXmlProgress(int current, int total) {
+    return 'Scanning XML $current of $total';
+  }
+
+  @override
+  String get fc5LoadingStagePreparingModules => 'Preparing modules';
+
+  @override
+  String get fc5LoadingStageImportingSelectedModules =>
+      'Importing selected modules';
+
+  @override
+  String get fc5ZipSelectAll => 'Select all';
+
+  @override
+  String get fc5ZipClearSelection => 'Clear';
+
+  @override
+  String get fc5ZipImportSelected => 'Import selected';
+
+  @override
+  String get fc5ZipRecommendedBadge => 'recommended';
+
+  @override
+  String get fc5ZipUnsupportedBadge => 'unsupported';
+
+  @override
+  String fc5ZipSelectedSummary(int selected, int items, int spells, int races,
+      int classes, int backgrounds, int feats, int monsters) {
+    return '$selected selected: $items items, $spells spells, $races races, $classes classes, $backgrounds backgrounds, $feats feats. Monsters skipped: $monsters.';
+  }
+
+  @override
+  String fc5ZipBatchImported(
+      int modules,
+      int items,
+      int spells,
+      int races,
+      int classes,
+      int backgrounds,
+      int feats,
+      int duplicates,
+      int unsupported) {
+    return 'Imported $modules module(s): $items items, $spells spells, $races races, $classes classes, $backgrounds backgrounds, $feats feats. Skipped $duplicates duplicates and $unsupported unsupported monsters.';
+  }
+
+  @override
+  String fc5ZipBatchImportedWithIssues(
+      int modules,
+      int failed,
+      int items,
+      int spells,
+      int races,
+      int classes,
+      int backgrounds,
+      int feats,
+      int duplicates,
+      int unsupported) {
+    return 'Imported $modules module(s), $failed failed: $items items, $spells spells, $races races, $classes classes, $backgrounds backgrounds, $feats feats. Skipped $duplicates duplicates and $unsupported unsupported monsters.';
+  }
+
+  @override
+  String get fc5ZipDuplicateRisk =>
+      'The combined compendium already overlaps the separate XML modules. Importing both is allowed, but semantic duplicates will be skipped.';
+
+  @override
+  String get fc5ZipNoXml => 'This ZIP does not contain XML files.';
+
+  @override
+  String get fc5ZipCombinedBadge => 'combined';
+
+  @override
+  String fc5ZipEntryStats(int supported, int items, int spells, int races,
+      int classes, int backgrounds, int feats, int monsters) {
+    return '$supported supported: $items items, $spells spells, $races races, $classes classes, $backgrounds backgrounds, $feats feats. Monsters skipped: $monsters.';
+  }
+
+  @override
+  String fc5ZipEntryUnsupportedStats(int monsters) {
+    return 'No supported compendium entities. Monsters skipped: $monsters.';
+  }
+
+  @override
   String get deleteLibraryTitle => 'Delete Library?';
 
   @override
   String deleteLibraryMessage(String name, int items, int spells) {
     return 'This will remove \"$name\" and all associated content:\n\n• $items Items\n• $spells Spells\n\nThis action cannot be undone.';
+  }
+
+  @override
+  String get deleteArchiveTitle => 'Delete archive?';
+
+  @override
+  String deleteArchiveMessage(String name, int modules, int items, int spells) {
+    return 'This will remove \"$name\" and all $modules imported modules:\n\n• $items Items\n• $spells Spells\n\nThis action cannot be undone.';
   }
 
   @override

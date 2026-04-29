@@ -23,6 +23,7 @@ class FeaturesStep extends StatefulWidget {
   final int spellsToLearnCount;
   final Function(String featureId, String optionId) onOptionSelected;
   final Function(Set<String> expertSkills) onExpertiseChanged;
+  final Function(Set<String> featureIds) onOptionalFeaturesChanged;
   final Function(List<String> spells) onSpellsSelected;
   final Function(List<String> spells) onMasterySpellsSelected;
   final Function(List<String> spells) onSignatureSpellsSelected;
@@ -40,6 +41,7 @@ class FeaturesStep extends StatefulWidget {
     required this.spellsToLearnCount,
     required this.onOptionSelected,
     required this.onExpertiseChanged,
+    required this.onOptionalFeaturesChanged,
     required this.onSpellsSelected,
     required this.onMasterySpellsSelected,
     required this.onSignatureSpellsSelected,
@@ -52,6 +54,7 @@ class FeaturesStep extends StatefulWidget {
 class _FeaturesStepState extends State<FeaturesStep> {
   final Map<String, String> _selections = {}; // featureId -> string ID
   final Set<String> _selectedExpertise = {};
+  final Set<String> _selectedOptionalFeatures = {};
   final Set<String> _selectedSpells = {};
   final Set<String> _selectedMasterySpells = {};
   final Set<String> _selectedSignatureSpells = {};
@@ -315,6 +318,16 @@ class _FeaturesStepState extends State<FeaturesStep> {
         ? _getSelectedSubclassPreviewFeatures()
         : const <CharacterFeature>[];
     bool needsLandChoice = widget.landOptions.isNotEmpty;
+    final optionalImportedFeatures = widget.newFeatures.where((feature) {
+      if (!feature.isOptional) return false;
+      if (feature.id.contains('fighting-style') ||
+          feature.id.contains('pact-boon')) {
+        return false;
+      }
+      if (optionalFeaturesPool.contains(feature.id)) return false;
+      if (feature.options != null && feature.options!.isNotEmpty) return false;
+      return true;
+    }).toList(growable: false);
 
     bool needsExpertise = false;
     int expertiseCount = 2;
@@ -629,6 +642,10 @@ class _FeaturesStepState extends State<FeaturesStep> {
                     return false;
                   }
 
+                  if (f.isOptional) {
+                    return false;
+                  }
+
                   if (f.options != null && f.options!.isNotEmpty) {
                     return false;
                   }
@@ -646,6 +663,10 @@ class _FeaturesStepState extends State<FeaturesStep> {
                       return false;
                     }
 
+                    if (f.isOptional) {
+                      return false;
+                    }
+
                     if (f.options != null && f.options!.isNotEmpty) {
                       return false;
                     }
@@ -654,6 +675,14 @@ class _FeaturesStepState extends State<FeaturesStep> {
                   }).map((feature) {
                     return _buildFeatureCard(context, feature);
                   }),
+                  const SizedBox(height: 16),
+                ],
+
+                if (optionalImportedFeatures.isNotEmpty) ...[
+                  _buildSectionHeader(context, l10n.optionalFeaturesLabel),
+                  ...optionalImportedFeatures.map(
+                    (feature) => _buildOptionalFeatureCard(context, feature),
+                  ),
                   const SizedBox(height: 16),
                 ],
 
@@ -1964,6 +1993,46 @@ class _FeaturesStepState extends State<FeaturesStep> {
             Text(feature.getDescription(locale)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildOptionalFeatureCard(
+    BuildContext context,
+    CharacterFeature feature,
+  ) {
+    final locale = Localizations.localeOf(context).languageCode;
+    final colorScheme = Theme.of(context).colorScheme;
+    final selected = _selectedOptionalFeatures.contains(feature.id);
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: CheckboxListTile(
+        value: selected,
+        onChanged: (value) {
+          setState(() {
+            if (value == true) {
+              _selectedOptionalFeatures.add(feature.id);
+            } else {
+              _selectedOptionalFeatures.remove(feature.id);
+            }
+            widget.onOptionalFeaturesChanged(_selectedOptionalFeatures);
+          });
+        },
+        secondary: Icon(
+          Icons.tune_rounded,
+          color: selected ? colorScheme.primary : colorScheme.outline,
+        ),
+        title: Text(
+          feature.getName(locale),
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          feature.getDescription(locale),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        ),
+        controlAffinity: ListTileControlAffinity.leading,
       ),
     );
   }

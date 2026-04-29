@@ -263,6 +263,25 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get importDiagnosticsAction => 'Детали';
+
+  @override
+  String get importDiagnosticsTitle => 'Детали импорта';
+
+  @override
+  String importDiagnosticsSubtitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '# заметки импорта',
+      many: '# заметок импорта',
+      few: '# заметки импорта',
+      one: '# заметка импорта',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String duplicateFailed(String error) {
     return 'Не удалось скопировать персонажа: $error';
   }
@@ -1747,6 +1766,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get newFeaturesLabel => 'Новые умения';
 
   @override
+  String get optionalFeaturesLabel => 'Опциональные умения';
+
+  @override
   String get searchJournal => 'Поиск в журнале...';
 
   @override
@@ -2300,11 +2322,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get themeDark => 'Темная';
 
   @override
-  String get highContrast => 'Высокий контраст';
+  String get basicMode => 'Базовый';
 
   @override
-  String get highContrastDesc =>
-      'Повышает читаемость за счет контрастных цветов';
+  String get basicModeDesc =>
+      'Делает интерфейс спокойнее и убирает лишний цветовой шум.';
 
   @override
   String get colorScheme => 'Цветовая схема';
@@ -2331,7 +2353,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsAppearanceSectionDesc =>
-      'Подстройте режим, контраст и палитру, не теряя скорости и ясности.';
+      'Подстройте режим, спокойствие интерфейса и палитру, не теряя скорости и ясности.';
 
   @override
   String get settingsThemeSectionDesc =>
@@ -2350,10 +2372,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Информация о версии, авторстве, лицензии и аккуратные ссылки на проект.';
 
   @override
-  String get settingsHighContrastOn => 'Вкл';
+  String get settingsBasicModeOn => 'Вкл';
 
   @override
-  String get settingsHighContrastOff => 'Выкл';
+  String get settingsBasicModeOff => 'Выкл';
 
   @override
   String get settingsCurrent => 'Текущая';
@@ -2416,7 +2438,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get manageLibraries => 'Управление библиотеками';
 
   @override
-  String get manageLibrariesSubtitle => 'Импорт внешнего контента (XML)';
+  String get manageLibrariesSubtitle =>
+      'Импорт внешнего контента (XML или ZIP)';
 
   @override
   String get importContentLibrary => 'Импорт библиотеки контента';
@@ -2428,11 +2451,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get noLibraries => 'Нет импортированных библиотек';
 
   @override
-  String get noLibrariesHint => 'Нажмите +, чтобы импортировать файлы FC5 XML';
+  String get noLibrariesHint =>
+      'Нажмите +, чтобы импортировать файлы FC5 XML или ZIP';
 
   @override
   String libraryStats(int items, int spells) {
     return '$items предметов, $spells заклинаний';
+  }
+
+  @override
+  String libraryArchiveStats(int modules, int items, int spells, int races,
+      int classes, int backgrounds, int feats) {
+    return '$modules модулей: предметы $items, заклинания $spells, расы $races, классы $classes, предыстории $backgrounds, черты $feats';
   }
 
   @override
@@ -2453,6 +2483,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String libraryImportSkippedSummary(int duplicates, int unsupported) {
+    return 'Пропущено дублей: $duplicates; неподдерживаемых монстров: $unsupported.';
+  }
+
+  @override
   String libraryImportFailed(String error) {
     return 'Не удалось импортировать библиотеку: $error';
   }
@@ -2462,11 +2497,130 @@ class AppLocalizationsRu extends AppLocalizations {
       'Этот XML не содержит поддерживаемого FC5 compendium-контента.';
 
   @override
+  String get fc5ZipPreviewTitle => 'Предпросмотр FC5 ZIP';
+
+  @override
+  String fc5ZipPreviewSummary(int xmlFiles, int ignoredFiles) {
+    return 'Найдено XML: $xmlFiles, не-XML файлов пропущено: $ignoredFiles.';
+  }
+
+  @override
+  String fc5ZipImportSuggested(String name) {
+    return 'Импортировать $name';
+  }
+
+  @override
+  String get fc5ZipImportThisXml => 'Импорт';
+
+  @override
+  String get fc5LoadingScanTitle => 'Сканируем компендиум';
+
+  @override
+  String get fc5LoadingImportTitle => 'Импортируем компендиум';
+
+  @override
+  String get fc5LoadingStageReadingArchive => 'Читаем архив';
+
+  @override
+  String get fc5LoadingStageScanningXml => 'Сканируем XML';
+
+  @override
+  String fc5LoadingStageScanningXmlProgress(int current, int total) {
+    return 'Сканируем XML $current из $total';
+  }
+
+  @override
+  String get fc5LoadingStagePreparingModules => 'Готовим модули';
+
+  @override
+  String get fc5LoadingStageImportingSelectedModules =>
+      'Импортируем выбранные модули';
+
+  @override
+  String get fc5ZipSelectAll => 'Выбрать все';
+
+  @override
+  String get fc5ZipClearSelection => 'Очистить';
+
+  @override
+  String get fc5ZipImportSelected => 'Импортировать выбранное';
+
+  @override
+  String get fc5ZipRecommendedBadge => 'рекомендуется';
+
+  @override
+  String get fc5ZipUnsupportedBadge => 'не поддерживается';
+
+  @override
+  String fc5ZipSelectedSummary(int selected, int items, int spells, int races,
+      int classes, int backgrounds, int feats, int monsters) {
+    return 'Выбрано: $selected. Предметы $items, заклинания $spells, расы $races, классы $classes, предыстории $backgrounds, черты $feats. Монстры будут пропущены: $monsters.';
+  }
+
+  @override
+  String fc5ZipBatchImported(
+      int modules,
+      int items,
+      int spells,
+      int races,
+      int classes,
+      int backgrounds,
+      int feats,
+      int duplicates,
+      int unsupported) {
+    return 'Импортировано модулей: $modules. Предметы $items, заклинания $spells, расы $races, классы $classes, предыстории $backgrounds, черты $feats. Пропущено дублей: $duplicates; неподдерживаемых монстров: $unsupported.';
+  }
+
+  @override
+  String fc5ZipBatchImportedWithIssues(
+      int modules,
+      int failed,
+      int items,
+      int spells,
+      int races,
+      int classes,
+      int backgrounds,
+      int feats,
+      int duplicates,
+      int unsupported) {
+    return 'Импортировано модулей: $modules, с ошибками: $failed. Предметы $items, заклинания $spells, расы $races, классы $classes, предыстории $backgrounds, черты $feats. Пропущено дублей: $duplicates; неподдерживаемых монстров: $unsupported.';
+  }
+
+  @override
+  String get fc5ZipDuplicateRisk =>
+      'Общий compendium пересекается с отдельными XML-модулями. Можно импортировать оба варианта, но смысловые дубли будут пропущены.';
+
+  @override
+  String get fc5ZipNoXml => 'В этом ZIP нет XML-файлов.';
+
+  @override
+  String get fc5ZipCombinedBadge => 'общий';
+
+  @override
+  String fc5ZipEntryStats(int supported, int items, int spells, int races,
+      int classes, int backgrounds, int feats, int monsters) {
+    return 'Поддерживается: $supported. Предметы $items, заклинания $spells, расы $races, классы $classes, предыстории $backgrounds, черты $feats. Монстры пропущены: $monsters.';
+  }
+
+  @override
+  String fc5ZipEntryUnsupportedStats(int monsters) {
+    return 'Нет поддерживаемых сущностей compendium. Монстры пропущены: $monsters.';
+  }
+
+  @override
   String get deleteLibraryTitle => 'Удалить библиотеку?';
 
   @override
   String deleteLibraryMessage(String name, int items, int spells) {
     return 'Это удалит \"$name\" и весь связанный контент:\n\n• $items предметов\n• $spells заклинаний\n\nЭто действие нельзя отменить.';
+  }
+
+  @override
+  String get deleteArchiveTitle => 'Удалить архив?';
+
+  @override
+  String deleteArchiveMessage(String name, int modules, int items, int spells) {
+    return 'Это удалит \"$name\" и все импортированные модули ($modules):\n\n• $items предметов\n• $spells заклинаний\n\nЭто действие нельзя отменить.';
   }
 
   @override

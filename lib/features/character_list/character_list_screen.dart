@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:uuid/uuid.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 
@@ -621,7 +622,6 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   void _confirmDelete(BuildContext context, Character character) {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
-    final messenger = ScaffoldMessenger.of(context);
     final accent = resolveClassAccent(colorScheme, character.characterClass);
     final localizedRaceName = getLocalizedRaceName(context, character.race);
     final localizedClassName =
@@ -807,12 +807,14 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                               ).pop();
                             }
 
-                            messenger.showSnackBar(
-                              SnackBar(
-                                content:
-                                    Text(l10n.deletedSuccess(character.name)),
-                                duration: const Duration(seconds: 2),
-                              ),
+                            if (!context.mounted) {
+                              return;
+                            }
+
+                            AppSnackBar.success(
+                              context,
+                              l10n.deletedSuccess(character.name),
+                              duration: const Duration(seconds: 2),
                             );
                           },
                           icon: const Icon(Icons.delete_rounded),
@@ -955,22 +957,18 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       await StorageService.saveCharacter(duplicate);
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.duplicatedSuccess(original.name)),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            duration: const Duration(seconds: 2),
-          ),
+        AppSnackBar.success(
+          context,
+          l10n.duplicatedSuccess(original.name),
+          duration: const Duration(seconds: 2),
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.duplicateFailed('$e')),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            duration: const Duration(seconds: 2),
-          ),
+        AppSnackBar.error(
+          context,
+          l10n.duplicateFailed('$e'),
+          duration: const Duration(seconds: 2),
         );
       }
     }
@@ -1038,35 +1036,29 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
               (entry) => entry.severity == QdndBundleDiagnosticSeverity.warning,
             )
             .length;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.qdndBundleExportedSuccess(fileName)),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            duration: const Duration(seconds: 2),
-            action: warningCount > 0
-                ? SnackBarAction(
-                    label: l10n.importWarningsAction,
-                    onPressed: () {
-                      if (mounted) {
-                        _showQdndBundleDiagnostics(
-                          context,
-                          exportResult.diagnostics,
-                        );
-                      }
-                    },
-                  )
-                : null,
-          ),
+        AppSnackBar.success(
+          context,
+          l10n.qdndBundleExportedSuccess(fileName),
+          duration: const Duration(seconds: 2),
+          actionLabel: warningCount > 0 ? l10n.importWarningsAction : null,
+          onAction: warningCount > 0
+              ? () {
+                  if (mounted) {
+                    _showQdndBundleDiagnostics(
+                      context,
+                      exportResult.diagnostics,
+                    );
+                  }
+                }
+              : null,
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.qdndBundleExportFailed('$e')),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            duration: const Duration(seconds: 2),
-          ),
+        AppSnackBar.error(
+          context,
+          l10n.qdndBundleExportFailed('$e'),
+          duration: const Duration(seconds: 2),
         );
       }
     }
@@ -1097,22 +1089,18 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       }
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.fc5XmlExportedSuccess(fileName)),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            duration: const Duration(seconds: 2),
-          ),
+        AppSnackBar.success(
+          context,
+          l10n.fc5XmlExportedSuccess(fileName),
+          duration: const Duration(seconds: 2),
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.fc5XmlExportFailed('$e')),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            duration: const Duration(seconds: 2),
-          ),
+        AppSnackBar.error(
+          context,
+          l10n.fc5XmlExportFailed('$e'),
+          duration: const Duration(seconds: 2),
         );
       }
     }
@@ -1154,35 +1142,29 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
               )
             : l10n.qdndBundleImportedSuccess(importResult.character.name);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            duration: const Duration(seconds: 2),
-            action: warningCount > 0
-                ? SnackBarAction(
-                    label: l10n.importWarningsAction,
-                    onPressed: () {
-                      if (mounted) {
-                        _showQdndBundleDiagnostics(
-                          context,
-                          importResult.diagnostics,
-                        );
-                      }
-                    },
-                  )
-                : null,
-          ),
+        AppSnackBar.success(
+          context,
+          message,
+          duration: const Duration(seconds: 2),
+          actionLabel: warningCount > 0 ? l10n.importWarningsAction : null,
+          onAction: warningCount > 0
+              ? () {
+                  if (mounted) {
+                    _showQdndBundleDiagnostics(
+                      context,
+                      importResult.diagnostics,
+                    );
+                  }
+                }
+              : null,
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.qdndBundleImportFailed('$e')),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            duration: const Duration(seconds: 2),
-          ),
+        AppSnackBar.error(
+          context,
+          l10n.qdndBundleImportFailed('$e'),
+          duration: const Duration(seconds: 2),
         );
       }
     }
@@ -1274,25 +1256,21 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                 firstName,
               );
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            duration: const Duration(seconds: 2),
-            action: warningCount > 0
-                ? SnackBarAction(
-                    label: l10n.importWarningsAction,
-                    onPressed: () {
-                      if (mounted) {
-                        _showImportDiagnostics(
-                          context,
-                          importResult.diagnostics,
-                        );
-                      }
-                    },
-                  )
-                : null,
-          ),
+        AppSnackBar.success(
+          context,
+          message,
+          duration: const Duration(seconds: 2),
+          actionLabel: warningCount > 0 ? l10n.importWarningsAction : null,
+          onAction: warningCount > 0
+              ? () {
+                  if (mounted) {
+                    _showImportDiagnostics(
+                      context,
+                      importResult.diagnostics,
+                    );
+                  }
+                }
+              : null,
         );
       }
     } catch (e, stackTrace) {
@@ -1301,22 +1279,20 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
 
       if (context.mounted) {
         final diagnostics = e is ImportServiceException ? e.diagnostics : null;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.importFailed('$e')),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            duration: const Duration(seconds: 2),
-            action: diagnostics != null && !diagnostics.isEmpty
-                ? SnackBarAction(
-                    label: l10n.importWarningsAction,
-                    onPressed: () {
-                      if (mounted) {
-                        _showImportDiagnostics(context, diagnostics);
-                      }
-                    },
-                  )
-                : null,
-          ),
+        AppSnackBar.error(
+          context,
+          l10n.importFailed('$e'),
+          duration: const Duration(seconds: 2),
+          actionLabel: diagnostics != null && !diagnostics.isEmpty
+              ? l10n.importWarningsAction
+              : null,
+          onAction: diagnostics != null && !diagnostics.isEmpty
+              ? () {
+                  if (mounted) {
+                    _showImportDiagnostics(context, diagnostics);
+                  }
+                }
+              : null,
         );
       }
     }

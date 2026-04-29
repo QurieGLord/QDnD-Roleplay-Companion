@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../character_creation_state.dart';
 
@@ -188,9 +189,7 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to pick avatar: $e')),
-        );
+        AppSnackBar.error(context, 'Failed to pick avatar: $e');
       }
     }
   }

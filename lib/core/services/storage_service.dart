@@ -286,6 +286,12 @@ class StorageService {
     }
   }
 
+  static Future<void> deleteSources(Iterable<String> sourceIds) async {
+    for (final sourceId in sourceIds) {
+      await deleteSource(sourceId);
+    }
+  }
+
   // Settings
   static Future<void> saveSetting(String key, dynamic value) async {
     await _settingsBox.put(key, value);

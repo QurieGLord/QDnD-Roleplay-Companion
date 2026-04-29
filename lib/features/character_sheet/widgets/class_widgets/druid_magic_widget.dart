@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/services/character_data_service.dart';
@@ -38,11 +39,9 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
         _showTransformModal();
       } else {
         HapticFeedback.heavyImpact();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.noWildShapeCharges),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
+        AppSnackBar.warning(
+          context,
+          AppLocalizations.of(context)!.noWildShapeCharges,
         );
       }
     }

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/character_feature.dart';
@@ -437,14 +438,11 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
       widget.onChanged();
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.localeName == 'ru'
-            ? "Короткий отдых завершен. Ячейки восстановлены!"
-            : "Short rest completed. Slots restored!"),
-        backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-        behavior: SnackBarBehavior.floating,
-      ),
+    AppSnackBar.success(
+      context,
+      l10n.localeName == 'ru'
+          ? "Короткий отдых завершен. Ячейки восстановлены!"
+          : "Short rest completed. Slots restored!",
     );
   }
 
@@ -620,23 +618,19 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
               widget.character.useSpellSlot(level);
               widget.onChanged();
 
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.spellCastLevelSuccess(
-                      l10n.levelSlot(level), level.toString())),
-                  duration: const Duration(milliseconds: 1000),
-                  behavior: SnackBarBehavior.floating,
+              AppSnackBar.success(
+                context,
+                l10n.spellCastLevelSuccess(
+                  l10n.levelSlot(level),
+                  level.toString(),
                 ),
+                duration: const Duration(milliseconds: 1500),
               );
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.noSlotsAvailable),
-                  backgroundColor: colorScheme.error,
-                  duration: const Duration(milliseconds: 1000),
-                  behavior: SnackBarBehavior.floating,
-                ),
+              AppSnackBar.warning(
+                context,
+                l10n.noSlotsAvailable,
+                duration: const Duration(milliseconds: 1500),
               );
             }
           },
@@ -663,17 +657,14 @@ class _SpellSlotsWidgetState extends State<SpellSlotsWidget> {
                 widget.character.useSpellSlot(level);
                 widget.onChanged();
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(l10n.noSlotsAvailable),
-                    backgroundColor: colorScheme.error));
+                AppSnackBar.warning(context, l10n.noSlotsAvailable);
               }
             },
             onLongPress: () {
               if (current < max) {
                 widget.character.restoreSpellSlot(level);
                 widget.onChanged();
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Restored Level $level Slot")));
+                AppSnackBar.success(context, "Restored Level $level Slot");
               }
             },
             borderRadius: BorderRadius.circular(8),

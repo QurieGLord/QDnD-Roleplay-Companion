@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../core/models/class_data.dart';
@@ -415,20 +416,19 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
               onTap: () {
                 if (pool.currentUses > 0) {
                   _modifyPool(pool, -1);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(locale == 'ru'
+                  AppSnackBar.success(
+                    context,
+                    locale == 'ru'
                         ? 'Божественное чувство использовано'
-                        : 'Divine Sense used'),
-                    backgroundColor: dotColor,
-                    duration: const Duration(milliseconds: 800),
-                  ));
+                        : 'Divine Sense used',
+                    duration: const Duration(milliseconds: 1500),
+                  );
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                        locale == 'ru' ? 'Нет зарядов!' : 'No charges left!'),
-                    backgroundColor: colorScheme.error,
-                    duration: const Duration(milliseconds: 800),
-                  ));
+                  AppSnackBar.warning(
+                    context,
+                    locale == 'ru' ? 'Нет зарядов!' : 'No charges left!',
+                    duration: const Duration(milliseconds: 1500),
+                  );
                 }
               },
             ),
@@ -508,12 +508,12 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
 
     if (availableSlots.isEmpty) {
       final locale = Localizations.localeOf(context).languageCode;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(locale == 'ru'
+      AppSnackBar.warning(
+        context,
+        locale == 'ru'
             ? 'Нет доступных ячеек заклинаний для Кары!'
-            : 'No spell slots available for Smite!'),
-        backgroundColor: Theme.of(context).colorScheme.error,
-      ));
+            : 'No spell slots available for Smite!',
+      );
       return;
     }
 
@@ -636,15 +636,13 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
     // Notify parent so SpellSlotsWidget rebuilds to show consumed slot
     widget.onChanged?.call();
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(
-        locale == 'ru'
-            ? '💥 Божественная Кара ($level-й круг): ${damageDice}d8 урона излучением!'
-            : '💥 Divine Smite (Level $level): ${damageDice}d8 radiant damage!',
-      ),
-      backgroundColor: Theme.of(context).colorScheme.primary,
+    AppSnackBar.success(
+      context,
+      locale == 'ru'
+          ? '💥 Божественная Кара ($level-й круг): ${damageDice}d8 урона излучением!'
+          : '💥 Divine Smite (Level $level): ${damageDice}d8 radiant damage!',
       duration: const Duration(seconds: 2),
-    ));
+    );
   }
 
   // ===========================================================================
@@ -792,13 +790,13 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
 
                       if (!hasUses &&
                           !(isSacredWeapon && _isSacredWeaponActive)) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(locale == 'ru'
+                        AppSnackBar.warning(
+                          context,
+                          locale == 'ru'
                               ? 'Нет зарядов Божественного Канала!'
-                              : 'No Channel Divinity charges left!'),
-                          backgroundColor: colorScheme.error,
-                          duration: const Duration(milliseconds: 800),
-                        ));
+                              : 'No Channel Divinity charges left!',
+                          duration: const Duration(milliseconds: 1500),
+                        );
                         return;
                       }
 
@@ -808,13 +806,13 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
                         });
                         if (_isSacredWeaponActive) {
                           _useChannelDivinity(pool, name);
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(locale == 'ru'
+                          AppSnackBar.success(
+                            context,
+                            locale == 'ru'
                                 ? '⚔️ Священное оружие активно! Оружие светится ярким светом.'
-                                : '⚔️ Sacred Weapon is active! The weapon emits bright light.'),
-                            backgroundColor: colorScheme.primary,
+                                : '⚔️ Sacred Weapon is active! The weapon emits bright light.',
                             duration: const Duration(seconds: 2),
-                          ));
+                          );
                         }
                       } else {
                         _useChannelDivinity(pool, name);
@@ -933,12 +931,10 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
         widget.onChanged?.call();
       });
       final locale = Localizations.localeOf(context).languageCode;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              '$featureName ${locale == 'ru' ? 'использовано!' : 'used!'}'),
-          duration: const Duration(seconds: 1),
-        ),
+      AppSnackBar.success(
+        context,
+        '$featureName ${locale == 'ru' ? 'использовано!' : 'used!'}',
+        duration: const Duration(seconds: 2),
       );
     }
   }

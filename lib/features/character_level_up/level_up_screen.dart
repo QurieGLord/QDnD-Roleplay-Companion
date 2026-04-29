@@ -47,6 +47,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
 
   // Selections
   final Map<String, String> _selectedOptions = {};
+  final Set<String> _selectedOptionalFeatureIds = {};
   final Set<String> _selectedExpertise = {};
 
   bool _hasAsi = false;
@@ -492,6 +493,10 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
 
     // Adding standard features manually to avoid auto-adding all land options
     for (var feature in _newFeatures) {
+      if (feature.isOptional &&
+          !_selectedOptionalFeatureIds.contains(feature.id)) {
+        continue;
+      }
       if (feature.id.toLowerCase().contains('slayer') ||
           feature.id.toLowerCase().contains('killer') ||
           feature.id.toLowerCase().contains('horde')) {
@@ -539,6 +544,9 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       // 2. Iterate and add features, filtering out unselected options.
       for (var feature in subclassFeatures) {
         final fId = feature.id;
+        if (feature.isOptional && !_selectedOptionalFeatureIds.contains(fId)) {
+          continue;
+        }
 
         // If the feature is known to be an option (it exists in our pool),
         // we ONLY add it if the user explicitly selected its exact ID.
@@ -624,6 +632,13 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
                 _selectedExpertise.addAll(expertSkills);
               });
             },
+            onOptionalFeaturesChanged: (featureIds) {
+              setState(() {
+                _selectedOptionalFeatureIds
+                  ..clear()
+                  ..addAll(featureIds);
+              });
+            },
             onSpellsSelected: (spells) {
               setState(() => _selectedSpells = spells);
             },
@@ -647,7 +662,11 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
             character: widget.character,
             nextLevel: _nextLevel,
             hpIncrease: _hpIncrease,
-            newFeatures: _newFeatures,
+            newFeatures: _newFeatures
+                .where((feature) =>
+                    !feature.isOptional ||
+                    _selectedOptionalFeatureIds.contains(feature.id))
+                .toList(growable: false),
             onConfirm: _finishLevelUp,
           ),
         ],

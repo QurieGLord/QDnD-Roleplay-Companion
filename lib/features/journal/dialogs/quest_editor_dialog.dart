@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/models/quest.dart';
 
@@ -60,9 +61,7 @@ class _QuestEditorDialogState extends State<QuestEditorDialog> {
 
   void _save() {
     if (_titleController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Title is required')),
-      );
+      AppSnackBar.warning(context, 'Title is required');
       return;
     }
 

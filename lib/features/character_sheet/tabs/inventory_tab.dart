@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/item.dart';
@@ -438,10 +439,9 @@ class _InventoryTabState extends State<InventoryTab> {
 
       final l10n = AppLocalizations.of(context)!;
       final locale = Localizations.localeOf(context).languageCode;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                l10n.itemAdded(newItem.getName(locale), newItem.quantity))),
+      AppSnackBar.success(
+        context,
+        l10n.itemAdded(newItem.getName(locale), newItem.quantity),
       );
     }
   }
@@ -631,12 +631,7 @@ class _InventoryTabState extends State<InventoryTab> {
 
       if (currentAttuned >= 3) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.attunementLimitReached),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-          );
+          AppSnackBar.warning(context, l10n.attunementLimitReached);
         }
         return;
       }
@@ -680,15 +675,12 @@ class _InventoryTabState extends State<InventoryTab> {
 
     // Show feedback
     final l10n = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          widget.character.inventory[index].isEquipped
-              ? l10n.itemEquipped
-              : l10n.itemUnequipped,
-        ),
-        duration: const Duration(seconds: 1),
-      ),
+    AppSnackBar.info(
+      context,
+      widget.character.inventory[index].isEquipped
+          ? l10n.itemEquipped
+          : l10n.itemUnequipped,
+      duration: const Duration(seconds: 2),
     );
   }
 
@@ -707,12 +699,7 @@ class _InventoryTabState extends State<InventoryTab> {
 
     // Show feedback
     final l10n = AppLocalizations.of(context)!;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.itemRemoved),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    AppSnackBar.info(context, l10n.itemRemoved);
   }
 
   void _changeQuantity(Item item, int delta) async {
@@ -872,12 +859,7 @@ class _InventoryTabState extends State<InventoryTab> {
               setState(() {});
 
               // Show feedback
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.currencyUpdated),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
+              AppSnackBar.success(context, l10n.currencyUpdated);
             },
             child: Text(l10n.save),
           ),

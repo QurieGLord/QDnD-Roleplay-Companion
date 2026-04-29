@@ -62,6 +62,9 @@ class CharacterFeature extends HiveObject {
   List<String>?
       options; // IDs of mutually exclusive sub-features to choose from
 
+  @HiveField(18, defaultValue: false)
+  bool isOptional;
+
   CharacterFeature({
     required this.id,
     required this.nameEn,
@@ -81,6 +84,7 @@ class CharacterFeature extends HiveObject {
     this.usageCostId,
     this.usageInputMode,
     this.options,
+    this.isOptional = false,
   });
 
   String getName(String locale) {
@@ -120,6 +124,7 @@ class CharacterFeature extends HiveObject {
       'usageCostId': usageCostId,
       'usageInputMode': usageInputMode,
       'options': options,
+      'isOptional': isOptional,
     };
   }
 
@@ -147,6 +152,7 @@ class CharacterFeature extends HiveObject {
       usageInputMode: json['usageInputMode'],
       options:
           json['options'] != null ? List<String>.from(json['options']) : null,
+      isOptional: json['isOptional'] ?? false,
     );
   }
 

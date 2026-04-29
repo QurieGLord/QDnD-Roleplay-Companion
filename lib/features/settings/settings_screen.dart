@@ -14,6 +14,7 @@ import '../../core/services/locale_provider.dart';
 import '../../core/services/storage_service.dart';
 import '../../core/services/theme_provider.dart';
 import '../../core/theme/app_palettes.dart';
+import '../../core/ui/app_snack_bar.dart';
 import 'library_manager_screen.dart';
 
 const String _kAppVersionLabel = '0.13.0 (Beta)';
@@ -47,14 +48,14 @@ class SettingsScreen extends StatelessWidget {
             expandedHeight: _kHeaderExpandedHeight,
             backgroundColor: colorScheme.surface,
             surfaceTintColor: Colors.transparent,
-            scrolledUnderElevation: themeProvider.isHighContrast ? 0 : 0.5,
+            scrolledUnderElevation: themeProvider.isBasicMode ? 0.2 : 0.5,
             flexibleSpace: _SettingsHeaderShell(
               title: l10n.settings,
               subtitle: l10n.settingsHeroSubtitle,
               localeLabel: _localeLabel(localeProvider.locale),
               themeLabel: _themeModeLabel(l10n, themeProvider.themeMode),
-              highContrastLabel: l10n.highContrast,
-              showHighContrast: themeProvider.isHighContrast,
+              basicModeLabel: l10n.basicMode,
+              showBasicMode: themeProvider.isBasicMode,
               onBack: canPop
                   ? () {
                       _playNavigationHaptic();
@@ -103,7 +104,8 @@ class SettingsScreen extends StatelessWidget {
                         selected: {localeProvider.locale.languageCode},
                         onSelectionChanged: (selection) {
                           final localeCode = selection.first;
-                          if (localeCode == localeProvider.locale.languageCode) {
+                          if (localeCode ==
+                              localeProvider.locale.languageCode) {
                             return;
                           }
 
@@ -123,71 +125,72 @@ class SettingsScreen extends StatelessWidget {
                       description: l10n.settingsAppearanceSectionDesc,
                       child: Column(
                         children: [
-                        _ControlSurface(
-                          title: l10n.theme,
-                          description: l10n.settingsThemeSectionDesc,
-                          contentSpacing: 10,
-                          child: _AdaptiveSegmentedControl<ThemeMode>(
-                            segmentedKey: const Key('settings_theme_segmented'),
-                            verticalBreakpoint: 430,
-                            segments: [
-                              ButtonSegment<ThemeMode>(
-                                value: ThemeMode.system,
-                                icon: const Icon(Icons.brightness_auto),
-                                label: Text(
-                                  l10n.themeSystem,
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.fade,
-                                  softWrap: false,
+                          _ControlSurface(
+                            title: l10n.theme,
+                            description: l10n.settingsThemeSectionDesc,
+                            contentSpacing: 10,
+                            child: _AdaptiveSegmentedControl<ThemeMode>(
+                              segmentedKey:
+                                  const Key('settings_theme_segmented'),
+                              verticalBreakpoint: 430,
+                              segments: [
+                                ButtonSegment<ThemeMode>(
+                                  value: ThemeMode.system,
+                                  icon: const Icon(Icons.brightness_auto),
+                                  label: Text(
+                                    l10n.themeSystem,
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.fade,
+                                    softWrap: false,
+                                  ),
                                 ),
-                              ),
-                              ButtonSegment<ThemeMode>(
-                                value: ThemeMode.light,
-                                icon: const Icon(Icons.light_mode_rounded),
-                                label: Text(
-                                  l10n.themeLight,
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.fade,
-                                  softWrap: false,
+                                ButtonSegment<ThemeMode>(
+                                  value: ThemeMode.light,
+                                  icon: const Icon(Icons.light_mode_rounded),
+                                  label: Text(
+                                    l10n.themeLight,
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.fade,
+                                    softWrap: false,
+                                  ),
                                 ),
-                              ),
-                              ButtonSegment<ThemeMode>(
-                                value: ThemeMode.dark,
-                                icon: const Icon(Icons.dark_mode_rounded),
-                                label: Text(
-                                  l10n.themeDark,
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.fade,
-                                  softWrap: false,
+                                ButtonSegment<ThemeMode>(
+                                  value: ThemeMode.dark,
+                                  icon: const Icon(Icons.dark_mode_rounded),
+                                  label: Text(
+                                    l10n.themeDark,
+                                    textAlign: TextAlign.center,
+                                    overflow: TextOverflow.fade,
+                                    softWrap: false,
+                                  ),
                                 ),
-                              ),
-                            ],
-                            selected: {themeProvider.themeMode},
-                            onSelectionChanged: (selection) {
-                              final mode = selection.first;
-                              if (mode == themeProvider.themeMode) {
+                              ],
+                              selected: {themeProvider.themeMode},
+                              onSelectionChanged: (selection) {
+                                final mode = selection.first;
+                                if (mode == themeProvider.themeMode) {
+                                  return;
+                                }
+
+                                _playSelectionHaptic();
+                                themeProvider.setThemeMode(mode);
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          _BasicModeCard(
+                            key: const Key('settings_basic_mode_card'),
+                            isEnabled: themeProvider.isBasicMode,
+                            onChanged: (value) {
+                              if (value == themeProvider.isBasicMode) {
                                 return;
                               }
 
                               _playSelectionHaptic();
-                              themeProvider.setThemeMode(mode);
+                              themeProvider.setBasicMode(value);
                             },
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        _HighContrastCard(
-                          key: const Key('settings_high_contrast_card'),
-                          isEnabled: themeProvider.isHighContrast,
-                          onChanged: (value) {
-                            if (value == themeProvider.isHighContrast) {
-                              return;
-                            }
-
-                            _playSelectionHaptic();
-                            themeProvider.setHighContrast(value);
-                          },
-                        ),
-                        const SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           _ControlSurface(
                             title: l10n.colorScheme,
                             description: l10n.settingsPaletteSectionDesc,
@@ -202,8 +205,7 @@ class SettingsScreen extends StatelessWidget {
 
                                 return GridView.builder(
                                   shrinkWrap: true,
-                                  physics:
-                                      const NeverScrollableScrollPhysics(),
+                                  physics: const NeverScrollableScrollPhysics(),
                                   gridDelegate:
                                       SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: crossAxisCount,
@@ -344,14 +346,13 @@ class SettingsScreen extends StatelessWidget {
     final uri = Uri.parse(url);
     final launched = await launchUrl(
       uri,
-      mode: kIsWeb ? LaunchMode.platformDefault : LaunchMode.externalApplication,
+      mode:
+          kIsWeb ? LaunchMode.platformDefault : LaunchMode.externalApplication,
       webOnlyWindowName: '_blank',
     );
 
     if (!launched && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(failureMessage)),
-      );
+      AppSnackBar.error(context, failureMessage);
     }
   }
 
@@ -389,8 +390,8 @@ class _SettingsHeaderShell extends StatelessWidget {
     required this.subtitle,
     required this.localeLabel,
     required this.themeLabel,
-    required this.highContrastLabel,
-    required this.showHighContrast,
+    required this.basicModeLabel,
+    required this.showBasicMode,
     this.onBack,
   });
 
@@ -398,8 +399,8 @@ class _SettingsHeaderShell extends StatelessWidget {
   final String subtitle;
   final String localeLabel;
   final String themeLabel;
-  final String highContrastLabel;
-  final bool showHighContrast;
+  final String basicModeLabel;
+  final bool showBasicMode;
   final VoidCallback? onBack;
 
   @override
@@ -545,14 +546,14 @@ class _SettingsHeaderShell extends StatelessWidget {
                                                   label: localeLabel,
                                                 ),
                                                 _SummaryChip(
-                                                  icon:
-                                                      Icons.auto_awesome_rounded,
+                                                  icon: Icons
+                                                      .auto_awesome_rounded,
                                                   label: themeLabel,
                                                 ),
-                                                if (showHighContrast)
+                                                if (showBasicMode)
                                                   _SummaryChip(
-                                                    icon: Icons.contrast_rounded,
-                                                    label: highContrastLabel,
+                                                    icon: Icons.tune_rounded,
+                                                    label: basicModeLabel,
                                                   ),
                                               ],
                                             ),
@@ -829,7 +830,7 @@ class _SettingsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(28),
       child: DecoratedBox(
@@ -1203,8 +1204,9 @@ class _VerticalSegmentTile<T> extends StatelessWidget {
                     ),
                     AnimatedOpacity(
                       opacity: isSelected ? 1 : 0,
-                      duration:
-                          disableAnimations ? Duration.zero : _kSettingsFastMotion,
+                      duration: disableAnimations
+                          ? Duration.zero
+                          : _kSettingsFastMotion,
                       curve: Curves.easeOutCubic,
                       child: Icon(
                         Icons.check_rounded,
@@ -1223,8 +1225,8 @@ class _VerticalSegmentTile<T> extends StatelessWidget {
   }
 }
 
-class _HighContrastCard extends StatelessWidget {
-  const _HighContrastCard({
+class _BasicModeCard extends StatelessWidget {
+  const _BasicModeCard({
     super.key,
     required this.isEnabled,
     required this.onChanged,
@@ -1271,7 +1273,7 @@ class _HighContrastCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
-                  Icons.contrast_rounded,
+                  Icons.tune_rounded,
                   color: isEnabled
                       ? colorScheme.secondary
                       : colorScheme.onSurfaceVariant,
@@ -1288,7 +1290,7 @@ class _HighContrastCard extends StatelessWidget {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
-                          l10n.highContrast,
+                          l10n.basicMode,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w800,
                           ),
@@ -1308,8 +1310,8 @@ class _HighContrastCard extends StatelessWidget {
                           ),
                           child: Text(
                             isEnabled
-                                ? l10n.settingsHighContrastOn
-                                : l10n.settingsHighContrastOff,
+                                ? l10n.settingsBasicModeOn
+                                : l10n.settingsBasicModeOff,
                             style: theme.textTheme.labelMedium?.copyWith(
                               color: isEnabled
                                   ? colorScheme.onSecondary
@@ -1322,7 +1324,7 @@ class _HighContrastCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      l10n.highContrastDesc,
+                      l10n.basicModeDesc,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                         height: 1.32,
@@ -1334,7 +1336,7 @@ class _HighContrastCard extends StatelessWidget {
               const SizedBox(width: 8),
               ExcludeSemantics(
                 child: Switch(
-                  key: const Key('settings_high_contrast_toggle'),
+                  key: const Key('settings_basic_mode_toggle'),
                   value: isEnabled,
                   onChanged: onChanged,
                 ),
@@ -1914,7 +1916,8 @@ class _ThemePreviewCard extends StatelessWidget {
                                 width: compact ? 40 : 50,
                                 height: 8,
                                 decoration: BoxDecoration(
-                                  color: scheme.onSurface.withValues(alpha: 0.16),
+                                  color:
+                                      scheme.onSurface.withValues(alpha: 0.16),
                                   borderRadius: BorderRadius.circular(999),
                                 ),
                               ),
@@ -1923,7 +1926,8 @@ class _ThemePreviewCard extends StatelessWidget {
                                 width: compact ? 62 : 78,
                                 height: 8,
                                 decoration: BoxDecoration(
-                                  color: scheme.onSurface.withValues(alpha: 0.1),
+                                  color:
+                                      scheme.onSurface.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(999),
                                 ),
                               ),
@@ -1937,13 +1941,14 @@ class _ThemePreviewCard extends StatelessWidget {
                                 ? Duration.zero
                                 : _kSettingsFastMotion,
                             curve: Curves.easeOutCubic,
-                              width: compact ? 22 : 26,
-                              height: compact ? 22 : 26,
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? scheme.primary
-                                    : scheme.tertiaryContainer,
-                              borderRadius: BorderRadius.circular(compact ? 9 : 11),
+                            width: compact ? 22 : 26,
+                            height: compact ? 22 : 26,
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? scheme.primary
+                                  : scheme.tertiaryContainer,
+                              borderRadius:
+                                  BorderRadius.circular(compact ? 9 : 11),
                             ),
                             child: Icon(
                               isSelected
@@ -2105,15 +2110,13 @@ class _TactileSurfaceState extends State<_TactileSurface> {
       offset: disableAnimations || widget.onTap == null
           ? Offset.zero
           : (_pressed ? const Offset(0, 0.006) : Offset.zero),
-      duration:
-          disableAnimations ? Duration.zero : _kSettingsFastMotion,
+      duration: disableAnimations ? Duration.zero : _kSettingsFastMotion,
       curve: Curves.easeOutCubic,
       child: AnimatedScale(
         scale: disableAnimations || widget.onTap == null
             ? 1
             : (_pressed ? widget.pressedScale : 1),
-        duration:
-            disableAnimations ? Duration.zero : _kSettingsFastMotion,
+        duration: disableAnimations ? Duration.zero : _kSettingsFastMotion,
         curve: Curves.easeOutCubic,
         child: Material(
           color: Colors.transparent,
@@ -2176,7 +2179,8 @@ class _SelectionPulseState extends State<_SelectionPulse>
         tween: Tween<double>(begin: 0.992, end: 1),
         weight: 58,
       ),
-    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    ]).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
     _offset = TweenSequence<Offset>([
       TweenSequenceItem(
         tween: Tween<Offset>(begin: Offset.zero, end: const Offset(0, 0.005)),
@@ -2186,7 +2190,8 @@ class _SelectionPulseState extends State<_SelectionPulse>
         tween: Tween<Offset>(begin: const Offset(0, 0.005), end: Offset.zero),
         weight: 58,
       ),
-    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    ]).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
   }
 
   @override

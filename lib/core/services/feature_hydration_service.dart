@@ -2,6 +2,7 @@ import '../models/character.dart';
 import '../models/character_class.dart';
 import '../models/character_feature.dart';
 import 'feature_service.dart';
+import 'fc5_imported_name_normalizer.dart';
 
 enum FeatureHydrationDiagnosticSeverity { info, warning }
 
@@ -239,7 +240,9 @@ class FeatureHydrationService {
           'Imported feature "${feature.nameEn}" was matched to built-in mechanics.',
           context: feature.nameEn,
         );
-        return copied;
+        return feature.isOptional
+            ? _copyFeature(copied, isOptional: true)
+            : copied;
       }
 
       final syntheticResource = _syntheticResourceFeature(
@@ -292,7 +295,9 @@ class FeatureHydrationService {
         'Imported feature "${feature.nameEn}" was matched to built-in mechanics.',
         context: feature.nameEn,
       );
-      return copied;
+      return feature.isOptional
+          ? _copyFeature(copied, isOptional: true)
+          : copied;
     }
 
     if (isImported && !textOnly) {
@@ -730,6 +735,7 @@ class FeatureHydrationService {
     String? usageCostId,
     String? usageInputMode,
     List<String>? options,
+    bool? isOptional,
   }) {
     return CharacterFeature(
       id: id ?? feature.id,
@@ -759,6 +765,7 @@ class FeatureHydrationService {
       usageInputMode: usageInputMode ?? feature.usageInputMode,
       options: options ??
           (feature.options == null ? null : List.of(feature.options!)),
+      isOptional: isOptional ?? feature.isOptional,
     );
   }
 
@@ -946,7 +953,9 @@ class FeatureHydrationService {
   }
 
   static String _canonicalFeatureName(String value) {
-    var result = _normalizeLoose(value);
+    var result = _normalizeLoose(
+      FC5ImportedNameNormalizer.normalizedDisplayName(value),
+    );
     result = result.replaceFirst(RegExp(r'\s*\([^)]*\)$'), '');
     return result.trim();
   }

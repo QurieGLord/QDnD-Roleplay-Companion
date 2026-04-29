@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/item.dart';
@@ -539,9 +540,7 @@ class OverviewTab extends StatelessWidget {
       await StorageService.saveCharacter(character);
       onCharacterUpdated?.call();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(l10n.restedSuccess),
-            duration: const Duration(seconds: 2)));
+        AppSnackBar.success(context, l10n.restedSuccess);
       }
     }
   }

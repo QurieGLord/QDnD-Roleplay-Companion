@@ -139,7 +139,8 @@ class StatsTab extends StatelessWidget {
               ),
         ),
         const SizedBox(width: 8),
-        Expanded(child: Divider(color: colorScheme.primary.withValues(alpha: 0.2))),
+        Expanded(
+            child: Divider(color: colorScheme.primary.withValues(alpha: 0.2))),
       ],
     );
   }

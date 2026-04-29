@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
+import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
+import 'package:uuid/uuid.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/spell.dart';
 import '../../../core/models/combat_state.dart';
@@ -86,12 +87,7 @@ class _CombatSpellcasterSheetState extends State<CombatSpellcasterSheet> {
     }
 
     if (availableSlots.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.noSlotsAvailable),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
+      AppSnackBar.warning(context, l10n.noSlotsAvailable);
       return;
     }
 
@@ -148,14 +144,10 @@ class _CombatSpellcasterSheetState extends State<CombatSpellcasterSheet> {
     widget.character.combatState.addLogEntry(entry);
     widget.onStateChange(); // Save and update parent
 
-    // In a sheet, showing a SnackBar might be hidden by the sheet itself in some contexts,
-    // but usually fine.
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(milliseconds: 1000),
-        behavior: SnackBarBehavior.floating,
-      ),
+    AppSnackBar.info(
+      context,
+      message,
+      duration: const Duration(milliseconds: 1500),
     );
 
     // Close sheet after cast?
@@ -352,7 +344,8 @@ class _CombatSpellcasterSheetState extends State<CombatSpellcasterSheet> {
                               icon: const Icon(Icons.flash_on),
                               color: canCast
                                   ? colorScheme.primary
-                                  : colorScheme.onSurface.withValues(alpha: 0.1),
+                                  : colorScheme.onSurface
+                                      .withValues(alpha: 0.1),
                               onPressed: canCast
                                   ? () => _castSpell(spell, l10n, locale)
                                   : null,
