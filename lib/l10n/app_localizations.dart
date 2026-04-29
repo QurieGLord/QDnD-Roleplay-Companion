@@ -2678,6 +2678,60 @@ abstract class AppLocalizations {
   /// **'Chaotic Evil'**
   String get ce;
 
+  /// Compact code for Lawful Good alignment
+  ///
+  /// In en, this message translates to:
+  /// **'LG'**
+  String get alignmentCodeLg;
+
+  /// Compact code for Neutral Good alignment
+  ///
+  /// In en, this message translates to:
+  /// **'NG'**
+  String get alignmentCodeNg;
+
+  /// Compact code for Chaotic Good alignment
+  ///
+  /// In en, this message translates to:
+  /// **'CG'**
+  String get alignmentCodeCg;
+
+  /// Compact code for Lawful Neutral alignment
+  ///
+  /// In en, this message translates to:
+  /// **'LN'**
+  String get alignmentCodeLn;
+
+  /// Compact code for True Neutral alignment
+  ///
+  /// In en, this message translates to:
+  /// **'TN'**
+  String get alignmentCodeTn;
+
+  /// Compact code for Chaotic Neutral alignment
+  ///
+  /// In en, this message translates to:
+  /// **'CN'**
+  String get alignmentCodeCn;
+
+  /// Compact code for Lawful Evil alignment
+  ///
+  /// In en, this message translates to:
+  /// **'LE'**
+  String get alignmentCodeLe;
+
+  /// Compact code for Neutral Evil alignment
+  ///
+  /// In en, this message translates to:
+  /// **'NE'**
+  String get alignmentCodeNe;
+
+  /// Compact code for Chaotic Evil alignment
+  ///
+  /// In en, this message translates to:
+  /// **'CE'**
+  String get alignmentCodeCe;
+
   /// No description provided
   ///
   /// In en, this message translates to:

@@ -1,4 +1,8 @@
+import 'dart:ui' show lerpDouble;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:uuid/uuid.dart';
@@ -29,8 +33,13 @@ class CharacterCreationWizard extends StatefulWidget {
 }
 
 class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
+  static const int _stepCount = 8;
+  static const Duration _fastMotion = Duration(milliseconds: 160);
+  static const Duration _revealMotion = Duration(milliseconds: 220);
+
   int _currentStep = 0;
   bool _isSaving = false;
+  double _fabMorphProgress = 0;
   final _state = CharacterCreationState();
 
   String _getStepTitle(int index, AppLocalizations l10n) {
@@ -59,63 +68,73 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final currentTitle = _getStepTitle(_currentStep, l10n);
+    final nextTitle = _currentStep < _stepCount - 1
+        ? _getStepTitle(_currentStep + 1, l10n)
+        : null;
 
     return ChangeNotifierProvider.value(
       value: _state,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(_getStepTitle(_currentStep, l10n)),
-          leading: IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
-          ),
-        ),
         body: Column(
           children: [
-            // Progress Indicator
-            LinearProgressIndicator(
-              value: (_currentStep + 1) / 8,
-              backgroundColor:
-                  Theme.of(context).colorScheme.surfaceContainerHighest,
+            SafeArea(
+              bottom: false,
+              child: _WizardHeader(
+                currentStep: _currentStep,
+                stepCount: _stepCount,
+                title: currentTitle,
+                nextTitle: nextTitle,
+                isSaving: _isSaving,
+                onClose: () {
+                  _playNavigationHaptic();
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
-
             Expanded(
               child: IgnorePointer(
                 ignoring: _isSaving,
-                child: _buildStep(_currentStep),
-              ),
-            ),
-
-            // Navigation Buttons
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Back Button
-                  if (_currentStep > 0)
-                    OutlinedButton(
-                      onPressed: _isSaving ? null : _prevStep,
-                      child: Text(l10n.back),
-                    )
-                  else
-                    const SizedBox(width: 80), // Spacer to keep alignment
-
-                  // Next/Finish Button
-                  FilledButton(
-                    onPressed: _isSaving ? null : () => _nextStep(context),
-                    child: _isSaving
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white))
-                        : Text(_currentStep == 7 ? l10n.finish : l10n.next),
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: _handleStepScrollNotification,
+                  child: AnimatedSwitcher(
+                    duration: _motionDuration(context, _revealMotion),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeOutCubic,
+                    transitionBuilder: (child, animation) {
+                      final curved = CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeOutCubic,
+                      );
+                      return FadeTransition(
+                        opacity: curved,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0.025, 0),
+                            end: Offset.zero,
+                          ).animate(curved),
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: KeyedSubtree(
+                      key: ValueKey<int>(_currentStep),
+                      child: _buildStep(_currentStep),
+                    ),
                   ),
-                ],
+                ),
               ),
             ),
           ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: _WizardFloatingActions(
+          currentStep: _currentStep,
+          lastStep: _stepCount - 1,
+          isSaving: _isSaving,
+          morphProgress: _fabMorphProgress,
+          onBack: _currentStep > 0 ? _prevStep : null,
+          onNext: () => _nextStep(context),
         ),
       ),
     );
@@ -146,28 +165,33 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
 
   void _prevStep() {
     if (_currentStep > 0) {
+      _playNavigationHaptic();
       setState(() {
         _currentStep--;
+        _fabMorphProgress = 0;
       });
     }
   }
 
   void _nextStep(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
-    if (_currentStep < 7) {
+    if (_currentStep < _stepCount - 1) {
       // STRICT MODE VALIDATION
       if (!_state.isStepValid(_currentStep)) {
         AppSnackBar.warning(context, l10n.errorMissingFields);
         return; // BLOCK PROGRESSION
       }
 
+      _playNavigationHaptic();
       setState(() {
         _currentStep++;
+        _fabMorphProgress = 0;
       });
     } else {
       // Create character
       if (_isSaving) return;
 
+      _playNavigationHaptic();
       setState(() {
         _isSaving = true;
       });
@@ -188,6 +212,46 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
           });
         }
       }
+    }
+  }
+
+  static Duration _motionDuration(BuildContext context, Duration duration) {
+    return MediaQuery.of(context).disableAnimations ? Duration.zero : duration;
+  }
+
+  bool _handleStepScrollNotification(ScrollNotification notification) {
+    if (notification.metrics.axis != Axis.vertical) {
+      return false;
+    }
+
+    final nextProgress = _fabProgressFromExtentAfter(
+      notification.metrics.maxScrollExtent <= 0
+          ? double.infinity
+          : notification.metrics.extentAfter,
+    );
+    if ((nextProgress - _fabMorphProgress).abs() > 0.01) {
+      setState(() {
+        _fabMorphProgress = nextProgress;
+      });
+    }
+
+    return false;
+  }
+
+  static double _fabProgressFromExtentAfter(double extentAfter) {
+    const compactAfter = 160.0;
+    const extendedAfter = 24.0;
+
+    if (extentAfter <= extendedAfter) return 1;
+    if (extentAfter >= compactAfter) return 0;
+
+    return ((compactAfter - extentAfter) / (compactAfter - extendedAfter))
+        .clamp(0.0, 1.0);
+  }
+
+  static void _playNavigationHaptic() {
+    if (!kIsWeb) {
+      HapticFeedback.lightImpact();
     }
   }
 
@@ -601,5 +665,429 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       default:
         return ['leather_armor', 'dagger', 'explorers_pack'];
     }
+  }
+}
+
+class _WizardHeader extends StatelessWidget {
+  const _WizardHeader({
+    required this.currentStep,
+    required this.stepCount,
+    required this.title,
+    required this.nextTitle,
+    required this.isSaving,
+    required this.onClose,
+  });
+
+  final int currentStep;
+  final int stepCount;
+  final String title;
+  final String? nextTitle;
+  final bool isSaving;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+    final duration = _CharacterCreationWizardState._motionDuration(
+      context,
+      _CharacterCreationWizardState._revealMotion,
+    );
+
+    return Material(
+      color: colorScheme.surface,
+      surfaceTintColor: colorScheme.surfaceTint,
+      elevation: 1,
+      shadowColor: colorScheme.shadow.withValues(alpha: 0.12),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.45),
+            ),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 14),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  IconButton.filledTonal(
+                    tooltip: MaterialLocalizations.of(context).closeButtonLabel,
+                    onPressed: isSaving ? null : onClose,
+                    icon: const Icon(Icons.close_rounded),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: duration,
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeOutCubic,
+                      transitionBuilder: (child, animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SizeTransition(
+                            sizeFactor: animation,
+                            axisAlignment: -1,
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: _WizardHeaderTitle(
+                        key: ValueKey<String>(title),
+                        stepLabel: '${currentStep + 1} / $stepCount',
+                        title: title,
+                        nextLabel: nextTitle == null
+                            ? null
+                            : '${l10n.next}: $nextTitle',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _StepSegmentedRail(
+                currentStep: currentStep,
+                stepCount: stepCount,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WizardHeaderTitle extends StatelessWidget {
+  const _WizardHeaderTitle({
+    super.key,
+    required this.stepLabel,
+    required this.title,
+    required this.nextLabel,
+  });
+
+  final String stepLabel;
+  final String title;
+  final String? nextLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                stepLabel,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            if (nextLabel != null) ...[
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  nextLabel!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 5),
+        Text(
+          title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StepSegmentedRail extends StatelessWidget {
+  const _StepSegmentedRail({
+    required this.currentStep,
+    required this.stepCount,
+  });
+
+  final int currentStep;
+  final int stepCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final duration = _CharacterCreationWizardState._motionDuration(
+      context,
+      _CharacterCreationWizardState._fastMotion,
+    );
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(end: currentStep.toDouble()),
+      duration: duration,
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Row(
+          children: List.generate(stepCount, (index) {
+            final isComplete = value >= index;
+            final isCurrent = currentStep == index;
+            final color = isComplete
+                ? colorScheme.primary
+                : colorScheme.surfaceContainerHighest;
+            final borderColor = isCurrent
+                ? colorScheme.primary
+                : colorScheme.outlineVariant.withValues(alpha: 0.55);
+
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsetsDirectional.only(
+                  start: index == 0 ? 0 : 3,
+                  end: index == stepCount - 1 ? 0 : 3,
+                ),
+                child: AnimatedContainer(
+                  duration: duration,
+                  curve: Curves.easeOutCubic,
+                  height: isCurrent ? 10 : 8,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: borderColor),
+                    boxShadow: isCurrent
+                        ? [
+                            BoxShadow(
+                              color:
+                                  colorScheme.primary.withValues(alpha: 0.22),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ]
+                        : null,
+                  ),
+                ),
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
+}
+
+class _WizardFloatingActions extends StatelessWidget {
+  const _WizardFloatingActions({
+    required this.currentStep,
+    required this.lastStep,
+    required this.isSaving,
+    required this.morphProgress,
+    required this.onBack,
+    required this.onNext,
+  });
+
+  final int currentStep;
+  final int lastStep;
+  final bool isSaving;
+  final double morphProgress;
+  final VoidCallback? onBack;
+  final VoidCallback onNext;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+    final isLastStep = currentStep == lastStep;
+    final fabLabel = isLastStep ? l10n.finish : l10n.next;
+
+    return SafeArea(
+      minimum: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: SizedBox(
+        width: MediaQuery.sizeOf(context).width,
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 720),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                AnimatedSwitcher(
+                  duration: _CharacterCreationWizardState._motionDuration(
+                    context,
+                    _CharacterCreationWizardState._fastMotion,
+                  ),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeOutCubic,
+                  child: onBack == null
+                      ? const SizedBox(
+                          key: ValueKey('back-empty'),
+                          width: 56,
+                          height: 56,
+                        )
+                      : Material(
+                          key: const ValueKey('back-button'),
+                          color: colorScheme.secondaryContainer,
+                          elevation: 3,
+                          shadowColor:
+                              colorScheme.shadow.withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(20),
+                          clipBehavior: Clip.antiAlias,
+                          child: IconButton(
+                            tooltip: l10n.back,
+                            onPressed: isSaving ? null : onBack,
+                            icon: Icon(
+                              Icons.arrow_back_rounded,
+                              color: colorScheme.onSecondaryContainer,
+                            ),
+                          ),
+                        ),
+                ),
+                const Spacer(),
+                _MorphingNextFab(
+                  progress: morphProgress,
+                  isSaving: isSaving,
+                  isLastStep: isLastStep,
+                  label: fabLabel,
+                  onPressed: isSaving ? null : onNext,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MorphingNextFab extends StatelessWidget {
+  const _MorphingNextFab({
+    required this.progress,
+    required this.isSaving,
+    required this.isLastStep,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final double progress;
+  final bool isSaving;
+  final bool isLastStep;
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final duration = _CharacterCreationWizardState._motionDuration(
+      context,
+      const Duration(milliseconds: 240),
+    );
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(end: progress.clamp(0.0, 1.0)),
+      duration: duration,
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        final eased = value.clamp(0.0, 1.0);
+        final width = lerpDouble(56, isLastStep ? 150 : 132, eased)!;
+        final radius = lerpDouble(28, 22, eased)!;
+        final iconOpacity = isSaving ? 0.0 : (1 - eased).clamp(0.0, 1.0);
+        final labelOpacity = isSaving ? 0.0 : eased.clamp(0.0, 1.0);
+        final labelWidth = lerpDouble(0, isLastStep ? 94 : 76, eased)!;
+        final translateY = lerpDouble(-4, 0, eased)!;
+
+        return Transform.translate(
+          offset: Offset(0, translateY),
+          child: Material(
+            key: const Key('character_creation_next_fab'),
+            color: colorScheme.primaryContainer,
+            elevation: 5,
+            shadowColor: colorScheme.shadow.withValues(alpha: 0.22),
+            borderRadius: BorderRadius.circular(radius),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onPressed,
+              borderRadius: BorderRadius.circular(radius),
+              child: SizedBox(
+                width: width,
+                height: 56,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Opacity(
+                      opacity: iconOpacity,
+                      child: Icon(
+                        isLastStep
+                            ? Icons.check_rounded
+                            : Icons.arrow_forward_rounded,
+                        key: const Key(
+                          'character_creation_next_fab_compact_icon',
+                        ),
+                        color: colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                    Offstage(
+                      offstage: labelWidth <= 0.5 || isSaving,
+                      child: SizedBox(
+                        width: labelWidth,
+                        child: Opacity(
+                          opacity: labelOpacity,
+                          child: Text(
+                            label,
+                            key: const Key(
+                              'character_creation_next_fab_extended_label',
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.fade,
+                            softWrap: false,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                  color: colorScheme.onPrimaryContainer,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (isSaving)
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          color: colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

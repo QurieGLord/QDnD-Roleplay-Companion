@@ -1434,6 +1434,33 @@ class AppLocalizationsRu extends AppLocalizations {
   String get ce => 'Хаотично-Злой';
 
   @override
+  String get alignmentCodeLg => 'ЗД';
+
+  @override
+  String get alignmentCodeNg => 'НД';
+
+  @override
+  String get alignmentCodeCg => 'ХД';
+
+  @override
+  String get alignmentCodeLn => 'ЗН';
+
+  @override
+  String get alignmentCodeTn => 'ИН';
+
+  @override
+  String get alignmentCodeCn => 'ХН';
+
+  @override
+  String get alignmentCodeLe => 'ЗЗ';
+
+  @override
+  String get alignmentCodeNe => 'НЗ';
+
+  @override
+  String get alignmentCodeCe => 'ХЗ';
+
+  @override
   String get lgDesc => 'Честь, сострадание, долг';
 
   @override

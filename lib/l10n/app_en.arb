@@ -1904,6 +1904,42 @@
   "@ce": {
     "description": "No description provided"
   },
+  "alignmentCodeLg": "LG",
+  "@alignmentCodeLg": {
+    "description": "Compact code for Lawful Good alignment"
+  },
+  "alignmentCodeNg": "NG",
+  "@alignmentCodeNg": {
+    "description": "Compact code for Neutral Good alignment"
+  },
+  "alignmentCodeCg": "CG",
+  "@alignmentCodeCg": {
+    "description": "Compact code for Chaotic Good alignment"
+  },
+  "alignmentCodeLn": "LN",
+  "@alignmentCodeLn": {
+    "description": "Compact code for Lawful Neutral alignment"
+  },
+  "alignmentCodeTn": "TN",
+  "@alignmentCodeTn": {
+    "description": "Compact code for True Neutral alignment"
+  },
+  "alignmentCodeCn": "CN",
+  "@alignmentCodeCn": {
+    "description": "Compact code for Chaotic Neutral alignment"
+  },
+  "alignmentCodeLe": "LE",
+  "@alignmentCodeLe": {
+    "description": "Compact code for Lawful Evil alignment"
+  },
+  "alignmentCodeNe": "NE",
+  "@alignmentCodeNe": {
+    "description": "Compact code for Neutral Evil alignment"
+  },
+  "alignmentCodeCe": "CE",
+  "@alignmentCodeCe": {
+    "description": "Compact code for Chaotic Evil alignment"
+  },
   "lgDesc": "Honor, compassion, duty",
   "@lgDesc": {
     "description": "No description provided"

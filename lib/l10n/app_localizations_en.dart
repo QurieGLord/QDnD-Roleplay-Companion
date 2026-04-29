@@ -1429,6 +1429,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ce => 'Chaotic Evil';
 
   @override
+  String get alignmentCodeLg => 'LG';
+
+  @override
+  String get alignmentCodeNg => 'NG';
+
+  @override
+  String get alignmentCodeCg => 'CG';
+
+  @override
+  String get alignmentCodeLn => 'LN';
+
+  @override
+  String get alignmentCodeTn => 'TN';
+
+  @override
+  String get alignmentCodeCn => 'CN';
+
+  @override
+  String get alignmentCodeLe => 'LE';
+
+  @override
+  String get alignmentCodeNe => 'NE';
+
+  @override
+  String get alignmentCodeCe => 'CE';
+
+  @override
   String get lgDesc => 'Honor, compassion, duty';
 
   @override
