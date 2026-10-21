@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class AbilitiesShellTokens {
   const AbilitiesShellTokens._();
@@ -24,7 +25,7 @@ class AbilitiesShellTokens {
   static const Duration expandDuration = Duration(milliseconds: 220);
   static const Duration scrollDuration = Duration(milliseconds: 420);
 
-  static const Curve revealCurve = Curves.easeOutCubic;
+  static const Curve revealCurve = AppMotion.standard;
   static const Curve springCurve = Curves.easeOutBack;
-  static const Curve emphasisCurve = Curves.easeOutQuart;
+  static const Curve emphasisCurve = AppMotion.standard;
 }

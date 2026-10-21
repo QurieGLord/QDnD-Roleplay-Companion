@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../character_creation_state.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class SkillsStep extends StatelessWidget {
   const SkillsStep({super.key});
@@ -220,7 +221,7 @@ class SkillsStep extends StatelessWidget {
                       ? theme.colorScheme.onPrimaryContainer
                       : theme.colorScheme.onSecondaryContainer,
                   minHeight: 8,
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(AppRadii.xs),
                 ),
               ],
             ),
@@ -240,7 +241,7 @@ class SkillsStep extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 12),
             child: InkWell(
               onTap: canSelect ? () => state.toggleSkill(skill) : null,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppRadii.md),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
@@ -265,7 +266,7 @@ class SkillsStep extends StatelessWidget {
                             ? theme.colorScheme.onPrimaryContainer
                                 .withValues(alpha: 0.15)
                             : theme.colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(AppRadii.sm),
                       ),
                       child: Icon(
                         skillIcon,

@@ -15,6 +15,7 @@ import '../../../../core/services/feature_service.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../core/models/spell_slots_table.dart';
 import 'shared/class_tools_layout_builder.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class DruidMagicWidget extends StatefulWidget {
   final Character character;
@@ -132,7 +133,7 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
       isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
       ),
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) {
@@ -264,7 +265,7 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
                                     .colorScheme
                                     .surfaceContainerHighest
                                     .withValues(alpha: 0.5),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                               ),
                               child: ListTile(
                                 title: Text(AppLocalizations.of(context)!
@@ -492,7 +493,7 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
       ),
       child: Material(
         color: Colors.transparent,
@@ -526,7 +527,7 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
               context: context,
               isScrollControlled: true,
               shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
               ),
               builder: (context) => DraggableScrollableSheet(
                 initialChildSize: 0.6,
@@ -538,7 +539,7 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
                     borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(24)),
+                        const BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
                   ),
                   child: ListView(
                     controller: scrollController,
@@ -550,7 +551,7 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
                           margin: const EdgeInsets.only(bottom: 24),
                           decoration: BoxDecoration(
                             color: theme.colorScheme.outlineVariant,
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius: BorderRadius.circular(AppRadii.xs),
                           ),
                         ),
                       ),
@@ -653,7 +654,7 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
         border: Border.all(color: accentColor.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
@@ -697,7 +698,7 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
                 onTap: () {
                   _showBeastHpOverrideDialog(context, currentHp);
                 },
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppRadii.sm),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                       vertical: 8.0, horizontal: 4.0),
@@ -726,7 +727,7 @@ class _DruidMagicWidgetState extends State<DruidMagicWidget> {
                       ),
                       const SizedBox(height: 8),
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(AppRadii.sm),
                         child: TweenAnimationBuilder<double>(
                           duration: const Duration(milliseconds: 600),
                           curve:

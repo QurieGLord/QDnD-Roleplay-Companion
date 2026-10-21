@@ -133,9 +133,9 @@ class AppPalettes {
     AppColorPreset.monokai: _PaletteSpec(
       lightSurface: Color(0xFFFCFAF4),
       darkSurface: Color(0xFF272822),
-      lightAccent: Color(0xFFF92672),
-      darkAccent: Color(0xFFF92672),
-      lightSecondary: Color(0xFF008EA6),
+      lightAccent: Color(0xFFF5206F),
+      darkAccent: Color(0xFFFE5685),
+      lightSecondary: Color(0xFF168CA3),
       darkSecondary: Color(0xFF66D9EF),
       lightTertiary: Color(0xFFC26900),
       darkTertiary: Color(0xFFFD971F),
@@ -165,12 +165,12 @@ class AppPalettes {
       darkSurface: Color(0xFF282828),
       lightAccent: Color(0xFFAF3A03),
       darkAccent: Color(0xFFFE8019),
-      lightSecondary: Color(0xFF427B58),
+      lightSecondary: Color(0xFF3F7855),
       darkSecondary: Color(0xFF83A598),
-      lightTertiary: Color(0xFFB57614),
+      lightTertiary: Color(0xFF976002),
       darkTertiary: Color(0xFFFABD2F),
-      lightOnSurface: Color(0xFF3C3836),
-      darkOnSurface: Color(0xFFEBDBB2),
+      lightOnSurface: Color(0xFF393533),
+      darkOnSurface: Color(0xFFF5E5BC),
       lightSurfaceLow: Color(0xFFF2E5BC),
       darkSurfaceLow: Color(0xFF32302F),
       lightSurfaceContainer: Color(0xFFEBDBB2),
@@ -197,10 +197,10 @@ class AppPalettes {
       darkAccent: Color(0xFFCBA6F7),
       lightSecondary: Color(0xFF1E66F5),
       darkSecondary: Color(0xFF89B4FA),
-      lightTertiary: Color(0xFFEA76CB),
+      lightTertiary: Color(0xFFB8489D),
       darkTertiary: Color(0xFFF5C2E7),
-      lightOnSurface: Color(0xFF4C4F69),
-      darkOnSurface: Color(0xFFCDD6F4),
+      lightOnSurface: Color(0xFF383B54),
+      darkOnSurface: Color(0xFFD9E2FE),
       lightSurfaceLow: Color(0xFFE6E9EF),
       darkSurfaceLow: Color(0xFF181825),
       lightSurfaceContainer: Color(0xFFDCE0E8),
@@ -217,11 +217,11 @@ class AppPalettes {
     AppColorPreset.nord: _PaletteSpec(
       lightSurface: Color(0xFFECEFF4),
       darkSurface: Color(0xFF2E3440),
-      lightAccent: Color(0xFF5E81AC),
+      lightAccent: Color(0xFF53759F),
       darkAccent: Color(0xFF88C0D0),
-      lightSecondary: Color(0xFF88C0D0),
+      lightSecondary: Color(0xFF447B89),
       darkSecondary: Color(0xFF81A1C1),
-      lightTertiary: Color(0xFF8FBCBB),
+      lightTertiary: Color(0xFF507B7B),
       darkTertiary: Color(0xFFB48EAD),
       lightOnSurface: Color(0xFF2E3440),
       darkOnSurface: Color(0xFFECEFF4),
@@ -241,14 +241,14 @@ class AppPalettes {
     AppColorPreset.everforest: _PaletteSpec(
       lightSurface: Color(0xFFFDF6E3),
       darkSurface: Color(0xFF2D353B),
-      lightAccent: Color(0xFF8DA101),
+      lightAccent: Color(0xFF76870D),
       darkAccent: Color(0xFFA7C080),
-      lightSecondary: Color(0xFFDFA000),
+      lightSecondary: Color(0xFFA57712),
       darkSecondary: Color(0xFFDBBC7F),
-      lightTertiary: Color(0xFF35A77C),
+      lightTertiary: Color(0xFF119168),
       darkTertiary: Color(0xFF83C092),
-      lightOnSurface: Color(0xFF5C6A72),
-      darkOnSurface: Color(0xFFD3C6AA),
+      lightOnSurface: Color(0xFF3D4A52),
+      darkOnSurface: Color(0xFFECDEC2),
       lightSurfaceLow: Color(0xFFF4F0D9),
       darkSurfaceLow: Color(0xFF232A2E),
       lightSurfaceContainer: Color(0xFFEFEBD4),
@@ -269,7 +269,7 @@ class AppPalettes {
       darkAccent: Color(0xFFE8B965),
       lightSecondary: Color(0xFF8B6F61),
       darkSecondary: Color(0xFFE08F87),
-      lightTertiary: Color(0xFFA97835),
+      lightTertiary: Color(0xFFA77733),
       darkTertiary: Color(0xFFCFA76A),
       lightOnSurface: Color(0xFF4B3A30),
       darkOnSurface: Color(0xFFF6E4CC),
@@ -394,7 +394,8 @@ class AppPalettes {
       onTertiaryContainer: onSurface,
       surface: surface,
       onSurface: onSurface,
-      onSurfaceVariant: _blend(onSurface, surface, isDark ? 0.72 : 0.68),
+      onSurfaceVariant: _readableMuted(
+          onSurface, surface, surfaceHigh, isDark ? 0.72 : 0.68),
       surfaceContainerLowest: _blend(
         onSurface,
         surface,
@@ -416,6 +417,24 @@ class AppPalettes {
       scrim: Colors.black.withValues(alpha: 0.42),
       surfaceTint: accent,
     );
+  }
+
+  /// Secondary text starts as a soft blend and firms up only as far as needed
+  /// to stay readable (4.5:1) on both the page and its raised containers.
+  static Color _readableMuted(
+      Color text, Color surface, Color raised, double opacity) {
+    var muted = _blend(text, surface, opacity);
+    while (opacity < 0.95 &&
+        (_contrast(muted, surface) < 4.5 || _contrast(muted, raised) < 4.5)) {
+      opacity += 0.02;
+      muted = _blend(text, surface, opacity);
+    }
+    return muted;
+  }
+
+  static double _contrast(Color a, Color b) {
+    final la = a.computeLuminance(), lb = b.computeLuminance();
+    return (la > lb ? la + .05 : lb + .05) / (la > lb ? lb + .05 : la + .05);
   }
 
   static Color _blend(Color foreground, Color background, double opacity) {

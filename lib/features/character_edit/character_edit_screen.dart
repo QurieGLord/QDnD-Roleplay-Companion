@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../core/models/character.dart';
 import '../../core/services/storage_service.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class CharacterEditScreen extends StatefulWidget {
   final Character character;
@@ -289,7 +290,7 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
               elevation: 0,
               color: theme.colorScheme.surfaceContainerLow,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadii.md),
                 side: BorderSide(color: theme.colorScheme.outlineVariant),
               ),
               child: Padding(
@@ -515,7 +516,7 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           border: Border.all(color: theme.colorScheme.outline),
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(AppRadii.xs),
           color: theme.colorScheme.surface,
         ),
         child: Row(
@@ -647,7 +648,7 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           border: Border.all(color: theme.colorScheme.outline),
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(AppRadii.xs),
           color: theme.colorScheme.surface,
         ),
         child: Row(
@@ -858,7 +859,7 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           border: Border.all(color: theme.colorScheme.outline),
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(AppRadii.xs),
           color: theme.colorScheme.surface,
         ),
         child: Row(

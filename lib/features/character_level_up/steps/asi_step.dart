@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../../core/models/ability_scores.dart';
 import '../widgets/advancement_layout.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class AsiStep extends StatefulWidget {
   const AsiStep(
@@ -82,7 +83,7 @@ class _AsiStepState extends State<AsiStep> with AutomaticKeepAliveClientMixin {
                                 color: _active == i
                                     ? colors.secondaryContainer
                                     : colors.surfaceContainerLow,
-                                borderRadius: BorderRadius.circular(22),
+                                borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                                 clipBehavior: Clip.antiAlias,
                                 child: InkWell(
                                   key: ValueKey('asi-point-$i'),
@@ -148,7 +149,7 @@ class _AsiStepState extends State<AsiStep> with AutomaticKeepAliveClientMixin {
             color: extra > 0
                 ? colors.secondaryContainer.withValues(alpha: .55)
                 : colors.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(AppRadii.lgPlus),
             clipBehavior: Clip.antiAlias,
             animationDuration: MediaQuery.disableAnimationsOf(context)
                 ? Duration.zero

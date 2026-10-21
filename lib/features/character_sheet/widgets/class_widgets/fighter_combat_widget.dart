@@ -12,6 +12,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import '../session/value_editors.dart';
 import 'fighter_tactics_surface.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class FighterCombatWidget extends StatefulWidget {
   const FighterCombatWidget(
@@ -199,7 +200,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
                               horizontal: 12, vertical: 7),
                           decoration: BoxDecoration(
                               color: colors.surfaceContainerLow,
-                              borderRadius: BorderRadius.circular(22)),
+                              borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
                           child: Text('${l10n.level} ${_fighter.level}',
                               style: theme.textTheme.labelLarge
                                   ?.copyWith(fontWeight: FontWeight.w600))),
@@ -208,7 +209,7 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
                     if (subclass != null && subclass.isNotEmpty)
                       InkWell(
                           onTap: _subclassDetails,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(AppRadii.md),
                           child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 5),
                               child: Row(
@@ -332,9 +333,9 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
     final t = Theme.of(context);
     return Material(
         color: t.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         child: InkWell(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppRadii.lgPlus),
             onTap: () => _details(feature, icon),
             child: Padding(
                 padding:

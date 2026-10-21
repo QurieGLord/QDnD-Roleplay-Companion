@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../../core/ui/sheet_drag_region.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class SheetNumberField {
   const SheetNumberField(this.id, this.label, this.value,
@@ -39,7 +40,7 @@ Future<bool> showSheetValueEditor(
                 duration: Duration(milliseconds: 300),
                 reverseDuration: Duration(milliseconds: 220)),
         shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xlPlus))),
         builder: (_) => _SheetValueEditor(
             title: title,
             icon: icon,
@@ -153,7 +154,7 @@ class _SheetValueEditorState extends State<_SheetValueEditor> {
                             decoration: BoxDecoration(
                                 color: theme.colorScheme.onSurfaceVariant
                                     .withValues(alpha: .45),
-                                borderRadius: BorderRadius.circular(99))))),
+                                borderRadius: BorderRadius.circular(AppRadii.pill))))),
                 Padding(
                     padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -164,7 +165,7 @@ class _SheetValueEditorState extends State<_SheetValueEditor> {
                             height: 48,
                             decoration: BoxDecoration(
                                 color: theme.colorScheme.secondaryContainer,
-                                borderRadius: BorderRadius.circular(18)),
+                                borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
                             child: Icon(widget.icon,
                                 color: theme.colorScheme.onSecondaryContainer)),
                         const SizedBox(width: 16),
@@ -235,10 +236,10 @@ class _SheetValueEditorState extends State<_SheetValueEditor> {
                                     fillColor:
                                         theme.colorScheme.surfaceContainerHigh,
                                     border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(18),
+                                        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                                         borderSide: BorderSide.none),
                                     enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(18),
+                                        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                                         borderSide: BorderSide.none)),
                                 validator: (text) {
                                   if (widget.calculatedValue != null &&

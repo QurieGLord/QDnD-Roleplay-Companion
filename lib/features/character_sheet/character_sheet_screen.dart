@@ -12,6 +12,7 @@ import 'widgets/abilities_tab.dart';
 import 'tabs/inventory_tab.dart';
 import 'tabs/journal_tab.dart';
 import '../inventory/inventory_add_sheet.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class CharacterSheetScreen extends StatefulWidget {
   final Character character;
@@ -42,7 +43,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
       value: 1);
   late final CurvedAnimation _headerCurve = CurvedAnimation(
       parent: _headerReveal,
-      curve: Curves.easeOutCubic,
+      curve: AppMotion.standard,
       reverseCurve: Curves.easeInOutCubic);
 
   @override
@@ -76,7 +77,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
     } else {
       _scrollController.animateTo(0,
           duration: const Duration(milliseconds: 260),
-          curve: Curves.easeOutCubic);
+          curve: AppMotion.standard);
     }
   }
 
@@ -322,7 +323,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
           child: InkWell(
             key: ValueKey('sheet-tab-$index'),
             onTap: () => _onTabChanged(index),
-            borderRadius: BorderRadius.circular(32),
+            borderRadius: BorderRadius.circular(AppRadii.xlPlus),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

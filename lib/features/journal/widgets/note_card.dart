@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/models/journal_note.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class NoteCard extends StatelessWidget {
   final JournalNote note;
@@ -28,7 +29,7 @@ class NoteCard extends StatelessWidget {
       color: theme.colorScheme.surfaceContainerLow,
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         side: BorderSide(
           color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
           width: 1,
@@ -37,7 +38,7 @@ class NoteCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         onLongPress: onDelete,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
@@ -98,7 +99,7 @@ class NoteCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: theme.colorScheme.secondaryContainer
                             .withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(AppRadii.xs),
                       ),
                       child: Text(
                         '#${note.tags.first}${note.tags.length > 1 ? ' +${note.tags.length - 1}' : ''}',
@@ -117,6 +118,6 @@ class NoteCard extends StatelessWidget {
     )
         .animate()
         .fadeIn(duration: 300.ms)
-        .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad);
+        .slideY(begin: 0.1, end: 0, curve: AppMotion.standard);
   }
 }

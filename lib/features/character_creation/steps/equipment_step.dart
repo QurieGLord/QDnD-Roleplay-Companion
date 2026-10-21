@@ -9,6 +9,7 @@ import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../character_creation_state.dart';
 import '../../../core/services/item_service.dart';
 import '../../../core/models/item.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class EquipmentStep extends StatefulWidget {
   const EquipmentStep({super.key});
@@ -133,7 +134,7 @@ class _EquipmentStepState extends State<EquipmentStep> {
           : theme.colorScheme.surfaceContainerHighest,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -422,7 +423,7 @@ class _EquipmentStepState extends State<EquipmentStep> {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: accentColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadii.sm),
                   ),
                   child: Icon(
                     icon,
@@ -958,7 +959,7 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
                           })
                       : null,
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(AppRadii.md)),
                 ),
                 onChanged: (value) => setState(() => _searchQuery = value),
               ),
@@ -1217,7 +1218,7 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
                 decoration: BoxDecoration(
                     color: theme.colorScheme.primaryContainer,
                     borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(28))),
+                        const BorderRadius.vertical(top: Radius.circular(AppRadii.xl))),
                 child: Row(children: [
                   Icon(Icons.add_circle,
                       color: theme.colorScheme.onPrimaryContainer),
@@ -1248,7 +1249,7 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
                                               color: theme.colorScheme
                                                   .surfaceContainerHighest,
                                               borderRadius:
-                                                  BorderRadius.circular(12),
+                                                  BorderRadius.circular(AppRadii.md),
                                               border: Border.all(
                                                   color:
                                                       theme.colorScheme.outline,
@@ -1256,7 +1257,7 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
                                           child: _imagePath != null
                                               ? ClipRRect(
                                                   borderRadius:
-                                                      BorderRadius.circular(10),
+                                                      BorderRadius.circular(AppRadii.md),
                                                   child: Image.file(
                                                       File(_imagePath!),
                                                       fit: BoxFit.cover))

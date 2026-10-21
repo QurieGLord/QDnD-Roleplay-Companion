@@ -24,6 +24,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import '../../../../shared/widgets/spell_details_sheet.dart';
 import 'shared/class_tools_layout_builder.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class RangerSurvivalWidget extends StatefulWidget {
   final Character character;
@@ -326,7 +327,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
       ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.6,
@@ -337,7 +338,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
           ),
           child: ListView(
             controller: scrollController,
@@ -349,7 +350,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                   margin: const EdgeInsets.only(bottom: 24),
                   decoration: BoxDecoration(
                     color: colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(AppRadii.xs),
                   ),
                 ),
               ),
@@ -447,7 +448,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
         Container(
           decoration: BoxDecoration(
             color: colorScheme.surface.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: TextField(
@@ -552,7 +553,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           onTap: () => _showDetails(feature),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

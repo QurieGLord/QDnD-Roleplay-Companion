@@ -11,6 +11,7 @@ import 'entity_editor.dart';
 import 'journal_entry_page.dart';
 import 'journal_story_carousel.dart';
 import 'journal_strings.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class JournalAtlasPage extends StatefulWidget {
   const JournalAtlasPage({super.key, required this.character, this.selected});
@@ -193,7 +194,7 @@ class _JournalAtlasPageState extends State<JournalAtlasPage> {
                                       top: 0, left: 0, right: 0, child: child),
                                 if (current != null) current,
                               ]),
-                      switchInCurve: Curves.easeOutCubic,
+                      switchInCurve: AppMotion.standard,
                       switchOutCurve: Curves.easeInCubic,
                       child: entity == null
                           ? const SizedBox.shrink()

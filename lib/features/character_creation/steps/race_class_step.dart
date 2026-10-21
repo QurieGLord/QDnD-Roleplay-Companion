@@ -6,6 +6,7 @@ import '../../../core/services/character_data_service.dart';
 import '../../../core/models/race_data.dart';
 import '../../../core/models/class_data.dart';
 import '../character_creation_state.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class RaceClassStep extends StatefulWidget {
   const RaceClassStep({super.key});
@@ -299,7 +300,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
                 children: [
                   InkWell(
                     onTap: () => state.updateRace(race),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadii.md),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Row(
@@ -460,7 +461,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
                                           Navigator.pop(context, data)))));
                       if (resolved != null) state.updateClass(resolved);
                     },
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadii.md),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Row(

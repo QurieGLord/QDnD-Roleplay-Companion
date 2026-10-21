@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'abilities_shell_tokens.dart';
 import 'abilities_tap_feedback.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class AbilitiesExpander extends StatefulWidget {
   const AbilitiesExpander({
@@ -69,8 +70,8 @@ class _AbilitiesExpanderState extends State<AbilitiesExpander> {
               _expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
           duration: duration,
           sizeCurve: Curves.easeInOutCubic,
-          firstCurve: Curves.easeOut,
-          secondCurve: Curves.easeOutCubic,
+          firstCurve: AppMotion.standard,
+          secondCurve: AppMotion.standard,
         ),
       ],
     );

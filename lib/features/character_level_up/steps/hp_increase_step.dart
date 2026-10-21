@@ -6,6 +6,7 @@ import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../widgets/advancement_layout.dart';
 import '../../../core/ui/companion_surface.dart';
 import '../../character_sheet/widgets/session/value_editor_dialog.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class HpIncreaseStep extends StatefulWidget {
   const HpIncreaseStep(
@@ -155,7 +156,7 @@ class _HpIncreaseStepState extends State<HpIncreaseStep>
                                 padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
                                     color: colors.surface.withValues(alpha: .7),
-                                    borderRadius: BorderRadius.circular(22)),
+                                    borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
                                 child: Column(children: [
                                   Icon(Icons.casino_outlined,
                                       color: colors.onSecondaryContainer,
@@ -251,7 +252,7 @@ class _HpIncreaseStepState extends State<HpIncreaseStep>
             color: selected
                 ? colors.surfaceContainerHigh
                 : colors.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(AppRadii.lgPlus),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
                 key: ValueKey('hp-method-$id'),

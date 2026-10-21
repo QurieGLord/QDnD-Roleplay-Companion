@@ -18,13 +18,38 @@ void main() {
     }
   });
 
+  test('every palette keeps text and accents readable on raised surfaces', () {
+    double contrast(Color a, Color b) {
+      final la = a.computeLuminance(), lb = b.computeLuminance();
+      return la > lb ? (la + .05) / (lb + .05) : (lb + .05) / (la + .05);
+    }
+
+    for (final preset in AppColorPreset.values) {
+      for (final brightness in Brightness.values) {
+        final s = AppPalettes.getScheme(preset, brightness);
+        final label = '$preset $brightness';
+        for (final surface in [s.surface, s.surfaceContainerHigh]) {
+          expect(contrast(s.onSurface, surface), greaterThanOrEqualTo(7.0),
+              reason: '$label text');
+          expect(contrast(s.onSurfaceVariant, surface),
+              greaterThanOrEqualTo(4.5),
+              reason: '$label secondary text');
+          for (final accent in [s.primary, s.secondary, s.tertiary]) {
+            expect(contrast(accent, surface), greaterThanOrEqualTo(3.0),
+                reason: '$label accent $accent');
+          }
+        }
+      }
+    }
+  });
+
   test('AppPalettes keeps canonical anchor colors', () {
     final monokaiDark = AppPalettes.getScheme(
       AppColorPreset.monokai,
       Brightness.dark,
     );
     expect(monokaiDark.surface, const Color(0xFF272822));
-    expect(monokaiDark.primary, const Color(0xFFF92672));
+    expect(monokaiDark.primary, const Color(0xFFFE5685));
     expect(monokaiDark.secondary, const Color(0xFF66D9EF));
     expect(monokaiDark.tertiary, const Color(0xFFFD971F));
     expect(monokaiDark.onSurface, const Color(0xFFF8F8F2));
@@ -33,8 +58,8 @@ void main() {
       AppColorPreset.monokai,
       Brightness.light,
     );
-    expect(monokaiLight.primary, const Color(0xFFF92672));
-    expect(monokaiLight.secondary, const Color(0xFF008EA6));
+    expect(monokaiLight.primary, const Color(0xFFF5206F));
+    expect(monokaiLight.secondary, const Color(0xFF168CA3));
     expect(monokaiLight.tertiary, const Color(0xFFC26900));
 
     final gruvboxLight = AppPalettes.getScheme(
@@ -43,8 +68,8 @@ void main() {
     );
     expect(gruvboxLight.surface, const Color(0xFFFBF1C7));
     expect(gruvboxLight.primary, const Color(0xFFAF3A03));
-    expect(gruvboxLight.secondary, const Color(0xFF427B58));
-    expect(gruvboxLight.tertiary, const Color(0xFFB57614));
+    expect(gruvboxLight.secondary, const Color(0xFF3F7855));
+    expect(gruvboxLight.tertiary, const Color(0xFF976002));
 
     final gruvboxDark = AppPalettes.getScheme(
       AppColorPreset.gruvbox,
@@ -54,7 +79,7 @@ void main() {
     expect(gruvboxDark.primary, const Color(0xFFFE8019));
     expect(gruvboxDark.secondary, const Color(0xFF83A598));
     expect(gruvboxDark.tertiary, const Color(0xFFFABD2F));
-    expect(gruvboxDark.onSurface, const Color(0xFFEBDBB2));
+    expect(gruvboxDark.onSurface, const Color(0xFFF5E5BC));
     expect(gruvboxDark.surfaceContainerHigh, const Color(0xFF504945));
 
     final catppuccinLight = AppPalettes.getScheme(
@@ -63,7 +88,7 @@ void main() {
     );
     expect(catppuccinLight.primary, const Color(0xFF8839EF));
     expect(catppuccinLight.secondary, const Color(0xFF1E66F5));
-    expect(catppuccinLight.tertiary, const Color(0xFFEA76CB));
+    expect(catppuccinLight.tertiary, const Color(0xFFB8489D));
 
     final catppuccinDark = AppPalettes.getScheme(
       AppColorPreset.catppuccin,
@@ -78,9 +103,9 @@ void main() {
       Brightness.light,
     );
     expect(nordLight.surface, const Color(0xFFECEFF4));
-    expect(nordLight.primary, const Color(0xFF5E81AC));
-    expect(nordLight.secondary, const Color(0xFF88C0D0));
-    expect(nordLight.tertiary, const Color(0xFF8FBCBB));
+    expect(nordLight.primary, const Color(0xFF53759F));
+    expect(nordLight.secondary, const Color(0xFF447B89));
+    expect(nordLight.tertiary, const Color(0xFF507B7B));
     expect(nordLight.onSurface, const Color(0xFF2E3440));
 
     final everforestDark = AppPalettes.getScheme(

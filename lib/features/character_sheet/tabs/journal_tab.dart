@@ -17,6 +17,7 @@ import '../../journal/journal_strings.dart';
 import '../../journal/journal_appear.dart';
 import '../../journal/journal_reorder_section.dart';
 import '../../journal/widgets/adventurer_quote_card.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class JournalTab extends StatefulWidget {
   const JournalTab({super.key, required this.character});
@@ -386,7 +387,7 @@ class _JournalTabState extends State<JournalTab>
               height: 36,
               decoration: BoxDecoration(
                   color: quest ? c.tertiaryContainer : c.secondaryContainer,
-                  borderRadius: BorderRadius.circular(13)),
+                  borderRadius: BorderRadius.circular(AppRadii.md)),
               child: Icon(
                   quest ? Icons.flag_outlined : Icons.auto_stories_outlined,
                   size: 19,

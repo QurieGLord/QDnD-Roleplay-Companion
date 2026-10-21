@@ -17,6 +17,7 @@ import '../../core/search/journal_search.dart';
 import 'entity_editor.dart';
 import 'journal_strings.dart';
 import 'journal_selection.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class JournalEntryEditor extends StatefulWidget {
   const JournalEntryEditor(
@@ -106,7 +107,7 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
             duration: MediaQuery.disableAnimationsOf(context)
                 ? Duration.zero
                 : const Duration(milliseconds: 180),
-            curve: Curves.easeOutCubic);
+            curve: AppMotion.standard);
       }
     });
   }
@@ -377,7 +378,7 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
         duration: MediaQuery.disableAnimationsOf(context)
             ? Duration.zero
             : const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
+        curve: AppMotion.standard,
         builder: (_, value, child) => Opacity(
             opacity: value,
             child: Transform.translate(
@@ -437,7 +438,7 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
               duration: MediaQuery.disableAnimationsOf(context)
                   ? Duration.zero
                   : const Duration(milliseconds: 200),
-              curve: Curves.easeOutCubic,
+              curve: AppMotion.standard,
               alignment: Alignment.bottomCenter,
               child: liveSuggestions
                   ? SafeArea(
@@ -786,7 +787,7 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
                             const SizedBox(height: 18),
                             if (_image != null) ...[
                               ClipRRect(
-                                  borderRadius: BorderRadius.circular(22),
+                                  borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                                   child: _image!.startsWith('http')
                                       ? Image.network(_image!,
                                           height: 180,

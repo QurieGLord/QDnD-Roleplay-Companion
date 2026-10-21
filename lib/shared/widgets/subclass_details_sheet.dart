@@ -4,6 +4,7 @@ import '../../core/progression/character_class_context.dart';
 import '../../core/services/class_reference_actions_service.dart';
 import '../../core/services/storage_service.dart';
 import '../../core/ui/sheet_drag_region.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 Future<void> showClassSubclassDetails(
         BuildContext context, Character character, String classId) =>
@@ -86,7 +87,7 @@ class _SubclassDetailsSheetState extends State<SubclassDetailsSheet> {
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
                   color: colors.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(24)),
+                  borderRadius: BorderRadius.circular(AppRadii.xl)),
               child: Text(
                   missing
                       ? ru
@@ -112,9 +113,9 @@ class _SubclassDetailsSheetState extends State<SubclassDetailsSheet> {
                     tilePadding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(22)),
+                        borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
                     collapsedShape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(22)),
+                        borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
                     backgroundColor: colors.surfaceContainerLow,
                     collapsedBackgroundColor: colors.surfaceContainerLow,
                     title: Text(feature.getName(locale),
@@ -137,9 +138,9 @@ class _SubclassDetailsSheetState extends State<SubclassDetailsSheet> {
               initiallyExpanded: missing || ambiguous,
               tilePadding: const EdgeInsets.symmetric(horizontal: 16),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24)),
+                  borderRadius: BorderRadius.circular(AppRadii.xl)),
               collapsedShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24)),
+                  borderRadius: BorderRadius.circular(AppRadii.xl)),
               backgroundColor: colors.surfaceContainerLow,
               collapsedBackgroundColor: colors.surfaceContainerLow,
               leading: const Icon(Icons.auto_stories_rounded),

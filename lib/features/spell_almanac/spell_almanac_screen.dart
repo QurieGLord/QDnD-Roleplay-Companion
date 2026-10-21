@@ -20,6 +20,7 @@ import '../../core/ui/sheet_drag_region.dart';
 import '../../core/utils/spell_utils.dart';
 import '../../shared/widgets/spell_details_sheet.dart';
 import 'spell_almanac_strings.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class SpellAlmanacScreen extends StatefulWidget {
   const SpellAlmanacScreen({super.key, this.character});
@@ -285,7 +286,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
                                             },
                                           ),
                                     border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(22),
+                                      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                                       borderSide: BorderSide.none,
                                     ),
                                   ),
@@ -553,7 +554,7 @@ class _SpellTile extends StatelessWidget {
                 color: known
                     ? c.primaryContainer
                     : c.secondaryContainer.withValues(alpha: .55),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(AppRadii.lg),
               ),
               child: Text(
                 spell.level == 0 ? '∞' : '${spell.level}',

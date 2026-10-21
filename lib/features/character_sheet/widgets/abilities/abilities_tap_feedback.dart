@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'abilities_shell_tokens.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class AbilitiesTapFeedback extends StatefulWidget {
   const AbilitiesTapFeedback({
@@ -37,7 +38,7 @@ class _AbilitiesTapFeedbackState extends State<AbilitiesTapFeedback> {
       duration: disableAnimations
           ? Duration.zero
           : AbilitiesShellTokens.pressDuration,
-      curve: Curves.easeOutCubic,
+      curve: AppMotion.standard,
       child: Material(
         color: widget.color ?? Colors.transparent,
         borderRadius: widget.borderRadius,

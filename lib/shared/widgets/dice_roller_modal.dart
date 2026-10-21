@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 enum DiceType {
   d4(4, 'd4'),
@@ -123,7 +124,7 @@ class _DiceRollerModalState extends State<DiceRollerModal>
     _scaleAnimation = TweenSequence<double>([
       TweenSequenceItem(
           tween: Tween(begin: 1.0, end: 0.7)
-              .chain(CurveTween(curve: Curves.easeOut)),
+              .chain(CurveTween(curve: AppMotion.standard)),
           weight: 20),
       TweenSequenceItem(
           tween: Tween(begin: 0.7, end: 1.1)
@@ -242,7 +243,7 @@ class _DiceRollerModalState extends State<DiceRollerModal>
           BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.xlPlus)),
         boxShadow: [
           BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 20)
         ],
@@ -362,7 +363,7 @@ class _DiceRollerModalState extends State<DiceRollerModal>
                 color:
                     colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(32)),
+                    const BorderRadius.vertical(top: Radius.circular(AppRadii.xlPlus)),
               ),
               child: Column(
                 children: [
@@ -372,7 +373,7 @@ class _DiceRollerModalState extends State<DiceRollerModal>
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(AppRadii.lg),
                       border: Border.all(color: colorScheme.outlineVariant),
                     ),
                     child: Row(
@@ -385,7 +386,7 @@ class _DiceRollerModalState extends State<DiceRollerModal>
                           children: [
                             InkWell(
                                 onTap: () => setState(() => _modifier--),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                                 child: const Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Icon(Icons.remove_circle_outline,
@@ -401,7 +402,7 @@ class _DiceRollerModalState extends State<DiceRollerModal>
                             ),
                             InkWell(
                                 onTap: () => setState(() => _modifier++),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                                 child: const Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Icon(Icons.add_circle_outline,
@@ -473,7 +474,7 @@ class _DiceRollerModalState extends State<DiceRollerModal>
                               color: isSelected
                                   ? colorScheme.primary
                                   : colorScheme.surface,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(AppRadii.md),
                               border: Border.all(
                                 color: isSelected
                                     ? colorScheme.primary
@@ -573,7 +574,7 @@ class DiceShapePainter extends CustomPainter {
 
       case DiceType.d6:
         final rect = Rect.fromCircle(center: center, radius: radius * 0.75);
-        path.addRRect(RRect.fromRectAndRadius(rect, const Radius.circular(16)));
+        path.addRRect(RRect.fromRectAndRadius(rect, const Radius.circular(AppRadii.lg)));
         break;
 
       case DiceType.d8:

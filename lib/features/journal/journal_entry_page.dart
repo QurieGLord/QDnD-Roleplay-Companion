@@ -14,6 +14,7 @@ import 'journal_atlas_page.dart';
 import 'journal_strings.dart';
 import 'journal_selection.dart';
 import 'entity_editor.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class JournalEntryPage extends StatefulWidget {
   const JournalEntryPage(
@@ -306,7 +307,7 @@ class _JournalEntryPageState extends State<JournalEntryPage> {
                                           ? c.secondaryContainer
                                               .withValues(alpha: .45)
                                           : c.surface,
-                                      borderRadius: BorderRadius.circular(18),
+                                      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                                       clipBehavior: Clip.antiAlias,
                                       child: CheckboxListTile(
                                           controlAffinity:
@@ -416,7 +417,7 @@ class _JournalEntryPageState extends State<JournalEntryPage> {
                               padding: const EdgeInsets.only(bottom: 10),
                               child: Material(
                                   color: c.surface,
-                                  borderRadius: BorderRadius.circular(18),
+                                  borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                                   clipBehavior: Clip.antiAlias,
                                   child: ListTile(
                                       contentPadding: const EdgeInsets.symmetric(
@@ -486,7 +487,7 @@ class _ReaderSection extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
             color: c.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(26)),
+            borderRadius: BorderRadius.circular(AppRadii.xl)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(icon, size: 20, color: c.primary),

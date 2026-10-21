@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class ExpressiveChoiceSelector<T> extends StatelessWidget {
   final T? value;
@@ -29,7 +30,7 @@ class ExpressiveChoiceSelector<T> extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: theme.colorScheme.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
       ),
       builder: (bottomSheetContext) {
         return SafeArea(
@@ -45,7 +46,7 @@ class ExpressiveChoiceSelector<T> extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: theme.colorScheme.onSurfaceVariant
                         .withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(AppRadii.xs),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -74,7 +75,7 @@ class ExpressiveChoiceSelector<T> extends StatelessWidget {
                         child: Material(
                           color: Colors.transparent,
                           child: InkWell(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(AppRadii.md),
                             onTap: () {
                               Navigator.pop(context);
                               onChanged!(item);
@@ -87,7 +88,7 @@ class ExpressiveChoiceSelector<T> extends StatelessWidget {
                                     ? theme.colorScheme.primaryContainer
                                     : theme.colorScheme.surfaceContainerHighest
                                         .withValues(alpha: 0.3),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(AppRadii.md),
                                 border: Border.all(
                                   color: isSelected
                                       ? theme.colorScheme.primary
@@ -140,13 +141,13 @@ class ExpressiveChoiceSelector<T> extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         onTap: onChanged != null ? () => _showSelectionSheet(context) : null,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
             color: theme.colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppRadii.md),
             border: Border.all(
                 color: theme.colorScheme.outline.withValues(alpha: 0.2)),
           ),

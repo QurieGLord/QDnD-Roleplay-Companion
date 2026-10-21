@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/journal/journal_service.dart';
 import 'journal_strings.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 /// Hold/release opens actions; hold/move uses Flutter's reorder gaps and autoscroll.
 class JournalReorderSection extends StatefulWidget {
@@ -94,12 +95,12 @@ class _JournalReorderSectionState extends State<JournalReorderSection> {
           builder: (_, child) => Transform.scale(
               scale: MediaQuery.disableAnimationsOf(context)
                   ? 1
-                  : 1 + .025 * Curves.easeOut.transform(animation.value),
+                  : 1 + .025 * AppMotion.standard.transform(animation.value),
               child: Material(
                   type: MaterialType.transparency,
                   elevation: 5 * animation.value,
                   shadowColor: c.shadow.withValues(alpha: .18),
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(AppRadii.xl),
                   child: child))),
       itemBuilder: (context, index) {
         final key = rows[index];

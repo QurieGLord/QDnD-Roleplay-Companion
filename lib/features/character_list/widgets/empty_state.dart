@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class EmptyState extends StatelessWidget {
   const EmptyState({
@@ -33,7 +34,7 @@ class EmptyState extends StatelessWidget {
               shadowColor: colorScheme.shadow.withValues(alpha: 0.08),
               surfaceTintColor: colorScheme.primary,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(32),
+                borderRadius: BorderRadius.circular(AppRadii.xlPlus),
                 side: BorderSide(
                   color: colorScheme.outlineVariant.withValues(alpha: 0.65),
                 ),
@@ -90,7 +91,7 @@ class EmptyState extends StatelessWidget {
                                   vertical: 16,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                                 ),
                               ),
                             ),
@@ -105,7 +106,7 @@ class EmptyState extends StatelessWidget {
                                   vertical: 16,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                                 ),
                               ),
                             ),
@@ -159,7 +160,7 @@ class _EmptyRosterScene extends StatelessWidget {
                     ),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(28),
+                borderRadius: BorderRadius.circular(AppRadii.xl),
               ),
             ),
           ),
@@ -187,7 +188,7 @@ class _EmptyRosterScene extends StatelessWidget {
               height: 18,
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(999),
+                borderRadius: BorderRadius.circular(AppRadii.pill),
                 boxShadow: [
                   BoxShadow(
                     color: colorScheme.shadow.withValues(alpha: 0.08),
@@ -215,7 +216,7 @@ class _EmptyRosterScene extends StatelessWidget {
               ),
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(isWide ? 72 : 60),
-                bottom: const Radius.circular(28),
+                bottom: const Radius.circular(AppRadii.xl),
               ),
               border: Border.all(
                 color: colorScheme.outlineVariant.withValues(alpha: 0.7),
@@ -232,7 +233,7 @@ class _EmptyRosterScene extends StatelessWidget {
                     decoration: BoxDecoration(
                       color:
                           colorScheme.onSurfaceVariant.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: BorderRadius.circular(AppRadii.pill),
                     ),
                   ),
                 ),
@@ -246,7 +247,7 @@ class _EmptyRosterScene extends StatelessWidget {
                         colorScheme.primary.withValues(alpha: 0.12),
                         colorScheme.surfaceContainer,
                       ),
-                      borderRadius: BorderRadius.circular(999),
+                      borderRadius: BorderRadius.circular(AppRadii.pill),
                       border: Border.all(
                         color:
                             colorScheme.outlineVariant.withValues(alpha: 0.45),
@@ -309,7 +310,7 @@ class _PortraitPlaceholder extends StatelessWidget {
           accent.withValues(alpha: isCenter ? 0.14 : 0.09),
           colorScheme.surfaceContainer,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(AppRadii.xl),
         border: Border.all(
           color: accent.withValues(alpha: isCenter ? 0.24 : 0.18),
         ),
@@ -336,7 +337,7 @@ class _PortraitPlaceholder extends StatelessWidget {
             height: 6,
             decoration: BoxDecoration(
               color: colorScheme.onSurfaceVariant.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: BorderRadius.circular(AppRadii.pill),
             ),
           ),
           const SizedBox(height: 6),
@@ -345,7 +346,7 @@ class _PortraitPlaceholder extends StatelessWidget {
             height: 6,
             decoration: BoxDecoration(
               color: colorScheme.onSurfaceVariant.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: BorderRadius.circular(AppRadii.pill),
             ),
           ),
         ],

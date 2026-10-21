@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/magic/spell_preparation_rules.dart';
 import '../../core/ui/companion_surface.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 /// A small explicit declaration, shared by advancement and the session sheet.
 class SpellPreparationRulesEditor extends StatefulWidget {
@@ -88,7 +89,7 @@ class _SpellPreparationRulesEditorState
               duration: MediaQuery.disableAnimationsOf(context)
                   ? Duration.zero
                   : const Duration(milliseconds: 220),
-              curve: Curves.easeOutCubic,
+              curve: AppMotion.standard,
               alignment: Alignment.topCenter,
               child: _mode == null
                   ? const SizedBox.shrink()

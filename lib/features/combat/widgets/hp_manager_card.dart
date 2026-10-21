@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/models/character.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class HpManagerCard extends StatelessWidget {
   final Character character;
@@ -166,7 +167,7 @@ class HpManagerCard extends StatelessWidget {
 
             // HP Bar
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppRadii.sm),
               child: LinearProgressIndicator(
                 value: hpPercentage,
                 minHeight: 24,
@@ -183,7 +184,7 @@ class HpManagerCard extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.tertiaryContainer,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadii.md),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,

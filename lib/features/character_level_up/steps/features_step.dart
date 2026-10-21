@@ -25,6 +25,7 @@ import '../widgets/advancement_choice_card.dart';
 import '../widgets/advancement_selection.dart';
 import '../widgets/advancement_layout.dart';
 import '../../../core/progression/character_class_rules.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 enum FeaturesStepContent { combined, features, magic }
 
@@ -780,7 +781,7 @@ class _FeaturesStepState extends State<FeaturesStep>
                     padding: const EdgeInsets.only(bottom: 20),
                     child: Material(
                         color: colorScheme.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                         clipBehavior: Clip.antiAlias,
                         child: ExpansionTile(
                             shape: const Border(),
@@ -865,7 +866,7 @@ class _FeaturesStepState extends State<FeaturesStep>
                   color: selectedCount == count
                       ? theme.colorScheme.primaryContainer
                       : theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppRadii.lg),
                 ),
                 child: Text(
                   '$selectedCount / $count',
@@ -901,15 +902,15 @@ class _FeaturesStepState extends State<FeaturesStep>
                 filled: true,
                 fillColor: theme.colorScheme.surfaceContainerLow,
                 enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(22),
+                    borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                     borderSide: BorderSide.none),
                 focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(22),
+                    borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                     borderSide: BorderSide(
                         color:
                             theme.colorScheme.primary.withValues(alpha: .5))),
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(22),
+                    borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                     borderSide: BorderSide.none)),
             onChanged: (value) => setState(() => _spellQuery = value)),
         const SizedBox(height: 12),
@@ -979,7 +980,7 @@ class _FeaturesStepState extends State<FeaturesStep>
               color: isSelected
                   ? colors.secondaryContainer.withValues(alpha: .7)
                   : colors.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.circular(AppRadii.lgPlus),
               clipBehavior: Clip.antiAlias,
               child: InkWell(
                   key: ValueKey('advancement-spell-${spell.id}'),
@@ -1139,7 +1140,7 @@ class _FeaturesStepState extends State<FeaturesStep>
                 margin: const EdgeInsets.only(bottom: 8),
                 child: InkWell(
                   onTap: () => _selectChoice('subclass', subclass.id),
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Row(
@@ -1373,7 +1374,7 @@ class _FeaturesStepState extends State<FeaturesStep>
                 margin: const EdgeInsets.only(bottom: 8),
                 child: InkWell(
                   onTap: () => _selectChoice('land_terrain', feature.id),
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Row(
@@ -1873,7 +1874,7 @@ class _FeaturesStepState extends State<FeaturesStep>
       elevation: isSelected ? 2 : 0,
       color: isSelected ? null : theme.colorScheme.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         side: isSelected
             ? BorderSide(color: theme.colorScheme.primary, width: 2)
             : BorderSide(
@@ -1882,7 +1883,7 @@ class _FeaturesStepState extends State<FeaturesStep>
       ),
       child: InkWell(
         onTap: isEnabled ? () => onToggle(!isSelected) : null,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Opacity(
@@ -1893,7 +1894,7 @@ class _FeaturesStepState extends State<FeaturesStep>
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: cardColor,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadii.sm),
                   ),
                   child: Icon(
                     Icons.auto_awesome,
@@ -2051,7 +2052,7 @@ class _FeaturesStepState extends State<FeaturesStep>
         padding: const EdgeInsets.only(bottom: 8),
         child: Material(
           color: colors.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           clipBehavior: Clip.antiAlias,
           child: ExpansionTile(
             shape: const Border(),

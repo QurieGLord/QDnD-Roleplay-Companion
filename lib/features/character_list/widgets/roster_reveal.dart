@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class RosterReveal extends StatefulWidget {
   const RosterReveal({
@@ -38,21 +39,21 @@ class _RosterRevealState extends State<RosterReveal>
     );
     _opacity = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeOutCubic,
+      curve: AppMotion.standard,
     );
     _slide = Tween<Offset>(
       begin: widget.beginOffset,
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeOutQuart,
+      curve: AppMotion.standard,
     ));
     _scale = Tween<double>(
       begin: widget.beginScale,
       end: 1,
     ).animate(CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeOutCubic,
+      curve: AppMotion.standard,
     ));
   }
 

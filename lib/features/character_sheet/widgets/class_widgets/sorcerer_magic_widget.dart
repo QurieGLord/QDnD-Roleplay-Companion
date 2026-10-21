@@ -10,6 +10,7 @@ import '../../../../core/models/character_feature.dart';
 import '../../../../core/services/sorcery_actions_service.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import 'shared/class_tools_layout_builder.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class SorcererMagicWidget extends StatefulWidget {
   final Character character;
@@ -322,13 +323,13 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _showDetails(opt),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
@@ -337,7 +338,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadii.sm),
                   ),
                   child: Icon(Icons.flash_on,
                       size: 20, color: colorScheme.primary),
@@ -372,7 +373,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
                       foregroundColor: btnContent,
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
+                          borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
                       elevation: 0,
                     ),
                     child: const Icon(Icons.auto_fix_high, size: 20),
@@ -540,7 +541,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
                         decoration: BoxDecoration(
                           color:
                               Theme.of(context).colorScheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(AppRadii.lg),
                           border: Border.all(
                             color: Theme.of(context).colorScheme.secondary,
                             width: 2,
@@ -644,7 +645,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
                 hintText: "0",
                 suffixText: "/ $maxSp",
                 border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
               ),
             ),
           ],
@@ -710,7 +711,7 @@ class _ExchangeButton extends StatelessWidget {
 
     return InkWell(
       onTap: isEnabled ? onTap : null,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
       child: AnimatedContainer(
         duration: MediaQuery.disableAnimationsOf(context)
             ? Duration.zero

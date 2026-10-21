@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../../core/ui/companion_surface.dart';
 import '../session/expressive_hold_surface.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 enum FighterTactic { secondWind, actionSurge, indomitable }
 
@@ -153,7 +154,7 @@ class FighterTacticsSurface extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
             color: c.surface.withValues(alpha: .78),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(AppRadii.xl),
             boxShadow: [
               BoxShadow(
                   color: c.shadow.withValues(alpha: .025),
@@ -284,7 +285,7 @@ class _TacticShape extends OutlinedBorder {
   @override
   Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
     final r = rect;
-    if (!joined) return Path()..addRRect(BorderRadius.circular(28).toRRect(r));
+    if (!joined) return Path()..addRRect(BorderRadius.circular(AppRadii.xl).toRRect(r));
     if (tactic == FighterTactic.secondWind) {
       final b = r.bottom - 28, m = r.center.dx;
       return Path()
@@ -305,7 +306,7 @@ class _TacticShape extends OutlinedBorder {
         ..quadraticBezierTo(r.left, r.top, r.left + 30, r.top)
         ..close();
     }
-    final base = Path()..addRRect(BorderRadius.circular(28).toRRect(r));
+    final base = Path()..addRRect(BorderRadius.circular(AppRadii.xl).toRRect(r));
     // Leave space for the matching point of Second Wind, rather than drawing
     // an arbitrary notch unrelated to the controls above it.
     final cut = Path();
@@ -344,7 +345,7 @@ class _VitalEmblem extends StatelessWidget {
       height: 56,
       decoration: BoxDecoration(
           color: background.withValues(alpha: .8),
-          borderRadius: BorderRadius.circular(18)),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
       child: Center(
           child: SizedBox(
               width: 38,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/combat_state.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class CombatSummaryCard extends StatelessWidget {
   final CombatState combatState;
@@ -100,7 +101,7 @@ class CombatSummaryCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadii.md),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

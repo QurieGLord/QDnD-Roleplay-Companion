@@ -6,6 +6,7 @@ import '../../../core/models/character.dart';
 import '../../../core/progression/skill_check.dart';
 import '../../../core/progression/proficiency_identity.dart';
 import '../../../shared/widgets/dice_roller_modal.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class StatsTab extends StatelessWidget {
   final Character character;
@@ -385,7 +386,7 @@ class StatsTab extends StatelessWidget {
 
     return InkWell(
       onTap: () => showDiceRoller(context, title: title, modifier: modifier),
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(AppRadii.sm),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         margin: const EdgeInsets.only(bottom: 4),
@@ -393,7 +394,7 @@ class StatsTab extends StatelessWidget {
           color: (isProficient || isExpert)
               ? colorScheme.secondaryContainer.withValues(alpha: 0.3)
               : null,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadii.sm),
           border: (isProficient || isExpert)
               ? Border.all(color: colorScheme.secondary.withValues(alpha: 0.2))
               : null,

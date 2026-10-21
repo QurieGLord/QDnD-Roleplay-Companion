@@ -13,6 +13,7 @@ import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../../core/models/character.dart';
 import 'shared/class_tools_layout_builder.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class ClericMagicWidget extends StatefulWidget {
   final Character character;
@@ -60,7 +61,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
       ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.5,
@@ -71,7 +72,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
           ),
           child: ListView(
             controller: scrollController,
@@ -83,7 +84,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
                   margin: const EdgeInsets.only(bottom: 24),
                   decoration: BoxDecoration(
                     color: colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(AppRadii.xs),
                   ),
                 ),
               ),
@@ -125,7 +126,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
       ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.6,
@@ -136,7 +137,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
           ),
           child: ListView(
             controller: scrollController,
@@ -148,7 +149,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
                   margin: const EdgeInsets.only(bottom: 24),
                   decoration: BoxDecoration(
                     color: colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(AppRadii.xs),
                   ),
                 ),
               ),
@@ -201,7 +202,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
       ),
       builder: (context) => DraggableScrollableSheet(
         initialChildSize: 0.5,
@@ -212,7 +213,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
           ),
           child: ListView(
             controller: scrollController,
@@ -224,7 +225,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
                   margin: const EdgeInsets.only(bottom: 24),
                   decoration: BoxDecoration(
                     color: colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(AppRadii.xs),
                   ),
                 ),
               ),

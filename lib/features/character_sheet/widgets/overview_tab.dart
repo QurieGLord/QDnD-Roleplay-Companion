@@ -17,6 +17,7 @@ import 'session/value_editors.dart';
 import 'session/expressive_hold_surface.dart';
 import 'abilities/abilities_section_header.dart';
 import 'abilities/abilities_section_surface.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class OverviewTab extends StatefulWidget {
   final Character character;
@@ -220,7 +221,7 @@ class _OverviewTabState extends State<OverviewTab> {
             quiet: true,
             color: colorScheme.surfaceContainer,
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(22))),
+                borderRadius: BorderRadius.circular(AppRadii.lgPlus))),
         child: Column(
           children: [
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [

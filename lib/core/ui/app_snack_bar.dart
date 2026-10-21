@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 enum AppSnackBarTone {
   info,
@@ -144,7 +145,7 @@ class AppSnackBar {
       elevation: tone == AppSnackBarTone.error ? 4 : 2,
       backgroundColor: colors.background,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         side: BorderSide(color: colors.border),
       ),
       content: Row(

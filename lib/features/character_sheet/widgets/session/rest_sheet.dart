@@ -11,6 +11,7 @@ import '../../../../core/services/spell_service.dart';
 import '../abilities/abilities_section_header.dart';
 import '../abilities/abilities_section_surface.dart';
 import 'value_editor_dialog.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class SheetRestActions extends StatelessWidget {
   const SheetRestActions({
@@ -35,7 +36,7 @@ class SheetRestActions extends StatelessWidget {
               minimumSize: const Size(0, 80),
               padding: const EdgeInsets.all(12),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(22)),
+                  borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
             ),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               Icon(icon, size: 24),
@@ -196,7 +197,7 @@ class _RestPreview extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(22)),
+              borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
           child: Column(children: [
             for (int i = 0; i < changes.length; i++) ...[
               if (i > 0) const Divider(height: 1),

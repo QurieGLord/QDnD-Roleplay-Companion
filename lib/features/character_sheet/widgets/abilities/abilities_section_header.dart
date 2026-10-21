@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class AbilitiesSectionHeader extends StatelessWidget {
   const AbilitiesSectionHeader({
@@ -35,7 +36,7 @@ class AbilitiesSectionHeader extends StatelessWidget {
           height: 40,
           decoration: BoxDecoration(
             color: iconBackground,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppRadii.lg),
           ),
           child: Icon(
             icon,

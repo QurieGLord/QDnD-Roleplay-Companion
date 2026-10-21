@@ -12,6 +12,7 @@ import '../../../core/constants/ranger_options.dart';
 import '../character_creation_state.dart';
 import '../../../ui/widgets/expressive_choice_selector.dart';
 import '../../../core/utils/localization_helper.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class FeaturesSpellsStep extends StatelessWidget {
   const FeaturesSpellsStep({super.key});
@@ -331,7 +332,7 @@ class FeaturesSpellsStep extends StatelessWidget {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         side: BorderSide(
             color:
                 Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
@@ -389,7 +390,7 @@ class FeaturesSpellsStep extends StatelessWidget {
       padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
       ),
       child: Column(
         children: [
@@ -419,7 +420,7 @@ class FeaturesSpellsStep extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.md)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -432,7 +433,7 @@ class FeaturesSpellsStep extends StatelessWidget {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadii.sm),
                   ),
                   child: Icon(
                     _getFeatureIcon(feature.iconName),
@@ -462,7 +463,7 @@ class FeaturesSpellsStep extends StatelessWidget {
                                 .colorScheme
                                 .secondary
                                 .withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(AppRadii.xs),
                             border: Border.all(
                               color: Theme.of(context)
                                   .colorScheme
@@ -551,7 +552,7 @@ class FeaturesSpellsStep extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         side: BorderSide(
             color: Theme.of(context).colorScheme.secondary, width: 2),
       ),
@@ -624,7 +625,7 @@ class FeaturesSpellsStep extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         side: BorderSide(
             color: Theme.of(context).colorScheme.secondary, width: 2),
       ),
@@ -682,7 +683,7 @@ class FeaturesSpellsStep extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.md)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -694,7 +695,7 @@ class FeaturesSpellsStep extends StatelessWidget {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadii.sm),
                   ),
                   child: Icon(Icons.gps_fixed,
                       color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -753,7 +754,7 @@ class FeaturesSpellsStep extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.md)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -765,7 +766,7 @@ class FeaturesSpellsStep extends StatelessWidget {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadii.sm),
                   ),
                   child: Icon(Icons.terrain,
                       color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -851,7 +852,7 @@ class FeaturesSpellsStep extends StatelessWidget {
                   decoration: BoxDecoration(
                     color:
                         Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(AppRadii.lg),
                   ),
                   child: Column(
                     children: [
@@ -1003,7 +1004,7 @@ class FeaturesSpellsStep extends StatelessWidget {
       elevation: isSelected ? 3 : 0,
       color: isSelected ? null : theme.colorScheme.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         side: isSelected
             ? BorderSide(color: theme.colorScheme.primary, width: 2)
             : BorderSide(
@@ -1011,7 +1012,7 @@ class FeaturesSpellsStep extends StatelessWidget {
       ),
       child: InkWell(
         onTap: canInteract ? () => state.toggleSpell(spell.id) : null,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Opacity(
@@ -1025,7 +1026,7 @@ class FeaturesSpellsStep extends StatelessWidget {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: cardColor,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(AppRadii.sm),
                       ),
                       child: Icon(
                         isAllSpellsKnown ? Icons.lock : Icons.auto_fix_high,

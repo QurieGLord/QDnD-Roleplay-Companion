@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 /// Transient presentation only. No state from this scope is written to a sheet.
 class CompanionMotionScope extends InheritedWidget {
@@ -79,7 +80,7 @@ class _CompanionEntranceState extends State<CompanionEntrance>
         builder: (context, child) {
           final remaining = reduced || !widget.active
               ? 0.0
-              : 1 - Curves.easeOutCubic.transform(_arrival.value);
+              : 1 - AppMotion.standard.transform(_arrival.value);
           return CompanionMotionScope(
               amount: reduced ? 0 : math.max(inherited, remaining * .8),
               child: Transform.translate(

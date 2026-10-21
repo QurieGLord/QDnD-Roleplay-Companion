@@ -8,6 +8,7 @@ import '../abilities_section_header.dart';
 import '../abilities_section_surface.dart';
 import '../abilities_shell_tokens.dart';
 import '../abilities_tap_feedback.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class AbilitiesActiveAbilitiesSection extends StatelessWidget {
   const AbilitiesActiveAbilitiesSection({
@@ -119,7 +120,7 @@ class _ActiveFeatureCard extends StatelessWidget {
                   height: 40,
                   decoration: BoxDecoration(
                     color: colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(AppRadii.lg),
                   ),
                   child: Icon(
                     resolveAbilitiesFeatureIcon(feature.iconName),

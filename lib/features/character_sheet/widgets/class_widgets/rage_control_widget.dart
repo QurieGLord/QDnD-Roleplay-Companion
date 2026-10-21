@@ -12,6 +12,7 @@ import '../../../../core/models/character_feature.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import 'shared/class_tools_layout_builder.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class RageControlWidget extends StatefulWidget {
   final Character character;
@@ -285,7 +286,7 @@ class _RageControlWidgetState extends State<RageControlWidget>
                                 decoration: BoxDecoration(
                                     color: colorScheme.surface
                                         .withValues(alpha: .75),
-                                    borderRadius: BorderRadius.circular(22)),
+                                    borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
                                 child: Text(
                                     _isRaging ? l10n.raging : l10n.rageInactive,
                                     style: Theme.of(context)
@@ -348,7 +349,7 @@ class _RageControlWidgetState extends State<RageControlWidget>
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                     onLongPress: () => _showFeatureDetails(
                         recklessFeature, Icons.warning_amber),
                     onTap: _rageBusy

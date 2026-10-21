@@ -6,6 +6,7 @@ import 'package:qd_and_d/l10n/app_localizations.dart';
 
 import '../../../core/models/character.dart';
 import 'character_roster_visuals.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class CharacterCard extends StatefulWidget {
   const CharacterCard({
@@ -58,7 +59,7 @@ class _CharacterCardState extends State<CharacterCard> {
     final accent =
         resolveClassAccent(colorScheme, widget.character.characterClass);
     final cardShape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(AppRadii.xl),
       side: BorderSide(
         color: (_hovered ? accent : colorScheme.outlineVariant)
             .withValues(alpha: _hovered ? 0.32 : 0.56),
@@ -85,7 +86,7 @@ class _CharacterCardState extends State<CharacterCard> {
         duration: disableAnimations
             ? Duration.zero
             : const Duration(milliseconds: 140),
-        curve: Curves.easeOutCubic,
+        curve: AppMotion.standard,
         child: AnimatedSlide(
           offset: disableAnimations
               ? Offset.zero
@@ -93,7 +94,7 @@ class _CharacterCardState extends State<CharacterCard> {
           duration: disableAnimations
               ? Duration.zero
               : const Duration(milliseconds: 180),
-          curve: Curves.easeOutCubic,
+          curve: AppMotion.standard,
           child: Material(
             color: colorScheme.surfaceContainerLow,
             elevation: _hovered ? 2 : 0,
@@ -247,7 +248,7 @@ class _AvatarBlock extends StatelessWidget {
               ),
             ],
           ),
-          borderRadius: BorderRadius.circular(21),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           border: Border.all(color: accent.withValues(alpha: 0.22)),
           boxShadow: [
             BoxShadow(
@@ -342,7 +343,7 @@ class _SubclassSurface extends StatelessWidget {
           accent.withValues(alpha: 0.1),
           colorScheme.surfaceContainerHighest,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
         border: Border.all(
           color: accent.withValues(alpha: 0.16),
         ),
@@ -397,7 +398,7 @@ class _MetricChip extends StatelessWidget {
           accent.withValues(alpha: 0.12),
           colorScheme.surfaceContainerHighest,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
         border: Border.all(color: accent.withValues(alpha: 0.16)),
       ),
       child: Row(
@@ -408,7 +409,7 @@ class _MetricChip extends StatelessWidget {
             height: 22,
             decoration: BoxDecoration(
               color: accent.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppRadii.sm),
             ),
             child: Icon(
               icon,

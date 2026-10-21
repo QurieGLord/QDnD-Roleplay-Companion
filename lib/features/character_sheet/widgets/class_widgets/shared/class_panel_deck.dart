@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class ClassPanelEntry {
   const ClassPanelEntry(
@@ -96,7 +97,7 @@ class _ClassPanelDeckState extends State<ClassPanelDeck> {
             duration: MediaQuery.disableAnimationsOf(context)
                 ? Duration.zero
                 : const Duration(milliseconds: 180),
-            curve: Curves.easeOutCubic);
+            curve: AppMotion.standard);
       }
     });
   }
@@ -191,7 +192,7 @@ class _ClassPanelDeckState extends State<ClassPanelDeck> {
           duration: reduced || _paging
               ? Duration.zero
               : const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
+          curve: AppMotion.standard,
           child: NotificationListener<ScrollNotification>(
             onNotification: _scrolling,
             child: PageView(

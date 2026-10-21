@@ -14,6 +14,7 @@ import '../../../../core/services/feature_service.dart';
 import '../../../../core/services/class_session_actions_service.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import 'shared/class_tools_layout_builder.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class RogueToolsWidget extends StatefulWidget {
   final Character character;
@@ -104,7 +105,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
           builder: (context, setStateDialog) {
             return AlertDialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24.0),
+                borderRadius: BorderRadius.circular(AppRadii.xl),
               ),
               title: Text(
                 l10n.stealthDifficulty,
@@ -260,12 +261,12 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -275,7 +276,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadii.sm),
                   ),
                   child: Icon(icon, color: theme.colorScheme.primary, size: 20),
                 ),
@@ -299,7 +300,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                       backgroundColor: theme.colorScheme.primary,
                       foregroundColor: theme.colorScheme.onPrimary,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
+                          borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
                     ),
                     onPressed: onActionPress,
                     child: Icon(actionIcon, size: 18),
@@ -323,12 +324,12 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           onTap: () => _showFeatureDetails(feature, icon),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -338,7 +339,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadii.sm),
                   ),
                   child: Icon(icon, color: theme.colorScheme.primary, size: 20),
                 ),
@@ -579,7 +580,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(AppRadii.xl),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

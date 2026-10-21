@@ -6,6 +6,7 @@ import '../../../../../core/models/spell.dart';
 import '../../../../../core/utils/spell_utils.dart';
 import '../abilities_shell_tokens.dart';
 import '../abilities_tap_feedback.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class AbilitiesSpellListItem extends StatelessWidget {
   const AbilitiesSpellListItem({
@@ -51,7 +52,7 @@ class AbilitiesSpellListItem extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 10),
                 child: AbilitiesTapFeedback(
                   onTap: onTogglePreparation,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(AppRadii.md),
                   color: isPrepared
                       ? colorScheme.tertiaryContainer
                       : colorScheme.surfaceContainerHighest,

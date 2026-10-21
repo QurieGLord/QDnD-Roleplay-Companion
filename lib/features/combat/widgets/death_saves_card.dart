@@ -4,6 +4,7 @@ import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/combat_state.dart';
 import 'package:uuid/uuid.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class DeathSavesCard extends StatelessWidget {
   final Character character;
@@ -95,7 +96,7 @@ class DeathSavesCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: Colors.green,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppRadii.md),
                     ),
                     child: const Text(
                       'STABILIZED',
@@ -114,7 +115,7 @@ class DeathSavesCard extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: Colors.black,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppRadii.md),
                     ),
                     child: const Text(
                       'DEAD',

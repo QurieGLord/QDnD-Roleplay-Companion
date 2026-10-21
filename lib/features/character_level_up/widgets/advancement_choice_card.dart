@@ -8,6 +8,7 @@ import '../../../../core/progression/proficiency_identity.dart';
 import '../../../../core/ui/sheet_drag_region.dart';
 import 'advancement_choice_captions.dart';
 import 'advancement_selection.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class AdvancementChoiceCard extends StatefulWidget {
   const AdvancementChoiceCard(
@@ -157,7 +158,7 @@ class _AdvancementChoiceCardState extends State<AdvancementChoiceCard> {
                     color: complete
                         ? colors.primaryContainer
                         : colors.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(24)),
+                    borderRadius: BorderRadius.circular(AppRadii.xl)),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   if (complete) ...[
                     Icon(Icons.check_rounded,
@@ -195,7 +196,7 @@ class _AdvancementChoiceCardState extends State<AdvancementChoiceCard> {
           const SizedBox(height: 16),
           AnimatedSize(
               duration: _motion,
-              curve: Curves.easeOutCubic,
+              curve: AppMotion.standard,
               alignment: Alignment.topCenter,
               child: Column(children: [
                 for (final o in visible)

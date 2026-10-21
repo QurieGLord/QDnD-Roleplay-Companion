@@ -6,6 +6,7 @@ import '../../core/journal/journal_service.dart';
 import '../../core/models/quest.dart';
 import '../../core/models/journal_note.dart';
 import 'journal_strings.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 Widget journalImage(BuildContext context, String path,
     {double height = 160, double? width}) {
@@ -22,7 +23,7 @@ Widget journalImage(BuildContext context, String path,
             Text(s.t('Фото недоступно', 'Image unavailable'))
           ]));
   return ClipRRect(
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
       child: path.startsWith('http')
           ? Image.network(path,
               height: height,
@@ -87,7 +88,7 @@ class _JournalEntryTileState extends State<JournalEntryTile>
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
             color: c.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(10)),
+            borderRadius: BorderRadius.circular(AppRadii.md)),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, size: 13, color: c.onSurfaceVariant),
           const SizedBox(width: 5),
@@ -193,7 +194,7 @@ class _JournalEntryTileState extends State<JournalEntryTile>
                             decoration: BoxDecoration(
                                 color: c.surfaceContainerHigh
                                     .withValues(alpha: .55),
-                                borderRadius: BorderRadius.circular(18)),
+                                borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
                             child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -242,7 +243,7 @@ class _JournalEntryTileState extends State<JournalEntryTile>
                                           : const Duration(milliseconds: 240),
                                       builder: (_, value, __) => ClipRRect(
                                           borderRadius:
-                                              BorderRadius.circular(8),
+                                              BorderRadius.circular(AppRadii.sm),
                                           child: LinearProgressIndicator(
                                               value: value,
                                               minHeight: 4,

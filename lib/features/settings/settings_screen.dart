@@ -16,6 +16,7 @@ import '../../core/services/theme_provider.dart';
 import '../../core/theme/app_palettes.dart';
 import '../../core/ui/app_snack_bar.dart';
 import 'library_manager_screen.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 const String _kAppVersionLabel = '0.13.0 (Beta)';
 const String _kAppVersionShort = '0.13.0';
@@ -420,14 +421,14 @@ class _SettingsHeaderShell extends StatelessWidget {
                 .clamp(0.0, 1.0);
         final progress = disableAnimations
             ? rawProgress
-            : Curves.easeOutCubic.transform(rawProgress);
+            : AppMotion.standard.transform(rawProgress);
         final canShowDetails =
             constraints.maxHeight > (topPadding + _kHeaderCollapsedHeight + 56);
         final detailProgress = !canShowDetails
             ? 0.0
             : disableAnimations
                 ? progress
-                : Curves.easeOutCubic.transform(
+                : AppMotion.standard.transform(
                     ((progress - 0.28) / 0.72).clamp(0.0, 1.0),
                   );
         final shellRadius = lerpDouble(24, 32, progress) ?? 24;
@@ -606,11 +607,11 @@ class _HeaderBackButton extends StatelessWidget {
 
     return _TactileSurface(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppRadii.lg),
       pressedScale: 0.96,
       decoration: BoxDecoration(
         color: colorScheme.surface.withValues(alpha: 0.86),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
         border: Border.all(
           color: colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
@@ -665,7 +666,7 @@ class _HeaderPaletteToken extends StatelessWidget {
 
     return AnimatedContainer(
       duration: disableAnimations ? Duration.zero : _kSettingsFastMotion,
-      curve: Curves.easeOutCubic,
+      curve: AppMotion.standard,
       width: width,
       height: height,
       padding: padding,
@@ -719,7 +720,7 @@ class _HeaderPaletteToken extends StatelessWidget {
                       height: lerpDouble(0, 7, detailProgress) ?? 0,
                       decoration: BoxDecoration(
                         color: onSurface.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(999),
+                        borderRadius: BorderRadius.circular(AppRadii.pill),
                       ),
                     ),
                     SizedBox(height: lerpDouble(0, 6, detailProgress) ?? 0),
@@ -728,7 +729,7 @@ class _HeaderPaletteToken extends StatelessWidget {
                       height: lerpDouble(0, 7, detailProgress) ?? 0,
                       decoration: BoxDecoration(
                         color: onSurface.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(999),
+                        borderRadius: BorderRadius.circular(AppRadii.pill),
                       ),
                     ),
                   ],
@@ -745,7 +746,7 @@ class _HeaderPaletteToken extends StatelessWidget {
                   height: lerpDouble(0, 18, detailProgress) ?? 0,
                   decoration: BoxDecoration(
                     color: tertiary.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(AppRadii.md),
                   ),
                   child: Icon(
                     Icons.auto_awesome_rounded,
@@ -781,7 +782,7 @@ class _SummaryChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: colorScheme.surface.withValues(alpha: 0.76),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           border: Border.all(
             color: colorScheme.outlineVariant.withValues(alpha: 0.44),
           ),
@@ -832,11 +833,11 @@ class _SettingsSection extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(28),
+      borderRadius: BorderRadius.circular(AppRadii.xl),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(AppRadii.xl),
           border: Border.all(
             color: colorScheme.outlineVariant.withValues(alpha: 0.66),
           ),
@@ -862,7 +863,7 @@ class _SettingsSection extends StatelessWidget {
                     height: 46,
                     decoration: BoxDecoration(
                       color: accent.withValues(alpha: 0.14),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(AppRadii.lg),
                     ),
                     child: Icon(icon, color: accent),
                   ),
@@ -921,11 +922,11 @@ class _ControlSurface extends StatelessWidget {
     final hasHeader = title != null || description != null;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(AppRadii.xl),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.92),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(AppRadii.xl),
           border: Border.all(
             color: colorScheme.outlineVariant.withValues(alpha: 0.5),
           ),
@@ -1008,7 +1009,7 @@ class _AdaptiveSegmentedControl<T> extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: colorScheme.surface.withValues(alpha: 0.62),
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                 border: Border.all(
                   color: colorScheme.outlineVariant.withValues(alpha: 0.46),
                 ),
@@ -1049,7 +1050,7 @@ class _AdaptiveSegmentedControl<T> extends StatelessWidget {
                     side: const WidgetStatePropertyAll(BorderSide.none),
                     shape: WidgetStatePropertyAll(
                       RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                       ),
                     ),
                     textStyle: WidgetStatePropertyAll(
@@ -1101,11 +1102,11 @@ class _VerticalSegmentedControl<T> extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: colorScheme.surface.withValues(alpha: 0.62),
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(AppRadii.lgPlus),
             border: Border.all(
               color: colorScheme.outlineVariant.withValues(alpha: 0.46),
             ),
@@ -1170,7 +1171,7 @@ class _VerticalSegmentTile<T> extends StatelessWidget {
           onTap: segment.enabled ? onTap : null,
           child: AnimatedContainer(
             duration: disableAnimations ? Duration.zero : _kSettingsFastMotion,
-            curve: Curves.easeOutCubic,
+            curve: AppMotion.standard,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             decoration: BoxDecoration(
               color: isSelected
@@ -1207,7 +1208,7 @@ class _VerticalSegmentTile<T> extends StatelessWidget {
                       duration: disableAnimations
                           ? Duration.zero
                           : _kSettingsFastMotion,
-                      curve: Curves.easeOutCubic,
+                      curve: AppMotion.standard,
                       child: Icon(
                         Icons.check_rounded,
                         size: 18,
@@ -1244,13 +1245,13 @@ class _BasicModeCard extends StatelessWidget {
     return MergeSemantics(
       child: _TactileSurface(
         onTap: () => onChanged(!isEnabled),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(AppRadii.xl),
         pressedScale: 0.985,
         decoration: BoxDecoration(
           color: isEnabled
               ? colorScheme.secondaryContainer.withValues(alpha: 0.72)
               : colorScheme.surfaceContainerHigh.withValues(alpha: 0.92),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(AppRadii.xl),
           border: Border.all(
             color: isEnabled
                 ? colorScheme.secondary.withValues(alpha: 0.6)
@@ -1270,7 +1271,7 @@ class _BasicModeCard extends StatelessWidget {
                   color: isEnabled
                       ? colorScheme.secondary.withValues(alpha: 0.14)
                       : colorScheme.surface.withValues(alpha: 0.78),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppRadii.lg),
                 ),
                 child: Icon(
                   Icons.tune_rounded,
@@ -1297,7 +1298,7 @@ class _BasicModeCard extends StatelessWidget {
                         ),
                         AnimatedContainer(
                           duration: _kSettingsFastMotion,
-                          curve: Curves.easeOutCubic,
+                          curve: AppMotion.standard,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
                             vertical: 6,
@@ -1306,7 +1307,7 @@ class _BasicModeCard extends StatelessWidget {
                             color: isEnabled
                                 ? colorScheme.secondary
                                 : colorScheme.surface,
-                            borderRadius: BorderRadius.circular(999),
+                            borderRadius: BorderRadius.circular(AppRadii.pill),
                           ),
                           child: Text(
                             isEnabled
@@ -1367,11 +1368,11 @@ class _ContentManagementCard extends StatelessWidget {
     return _TactileSurface(
       key: const Key('settings_manage_libraries_tile'),
       onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(AppRadii.xl),
       pressedScale: 0.982,
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(AppRadii.xl),
         border: Border.all(
           color: colorScheme.outlineVariant.withValues(alpha: 0.54),
         ),
@@ -1395,7 +1396,7 @@ class _ContentManagementCard extends StatelessWidget {
               height: 56,
               decoration: BoxDecoration(
                 color: colorScheme.tertiaryContainer,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(AppRadii.lgPlus),
               ),
               child: Icon(
                 Icons.library_books_outlined,
@@ -1481,7 +1482,7 @@ class _MetaBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: colorScheme.surface.withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadii.pill),
       ),
       child: Text(
         label,
@@ -1616,7 +1617,7 @@ class _AboutInfoTile extends StatelessWidget {
               height: 44,
               decoration: BoxDecoration(
                 color: colorScheme.surface.withValues(alpha: 0.8),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(AppRadii.lg),
               ),
               child: Icon(icon, color: colorScheme.primary),
             ),
@@ -1658,7 +1659,7 @@ class _AboutInfoTile extends StatelessWidget {
       return DecoratedBox(
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.92),
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           border: Border.all(
             color: colorScheme.outlineVariant.withValues(alpha: 0.48),
           ),
@@ -1669,11 +1670,11 @@ class _AboutInfoTile extends StatelessWidget {
 
     return _TactileSurface(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
       pressedScale: 0.982,
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         border: Border.all(
           color: colorScheme.outlineVariant.withValues(alpha: 0.52),
         ),
@@ -1710,11 +1711,11 @@ class _ContactChip extends StatelessWidget {
         label: tooltip,
         child: _TactileSurface(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(AppRadii.pill),
           pressedScale: 0.97,
           decoration: BoxDecoration(
             color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.92),
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: BorderRadius.circular(AppRadii.pill),
             border: Border.all(
               color: colorScheme.outlineVariant.withValues(alpha: 0.5),
             ),
@@ -1764,7 +1765,7 @@ class _SettingsFooter extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(AppRadii.pill),
           border: Border.all(
             color: colorScheme.outlineVariant.withValues(alpha: 0.35),
           ),
@@ -1831,11 +1832,11 @@ class _ThemePreviewCard extends StatelessWidget {
           label: preset.label,
           child: _TactileSurface(
             onTap: onTap,
-            borderRadius: BorderRadius.circular(26),
+            borderRadius: BorderRadius.circular(AppRadii.xl),
             pressedScale: 0.98,
             decoration: BoxDecoration(
               color: scheme.surface,
-              borderRadius: BorderRadius.circular(26),
+              borderRadius: BorderRadius.circular(AppRadii.xl),
               border: Border.all(
                 color: isSelected ? scheme.primary : scheme.outlineVariant,
                 width: isSelected ? 2 : 1,
@@ -1870,7 +1871,7 @@ class _ThemePreviewCard extends StatelessWidget {
                     height: previewHeight,
                     padding: EdgeInsets.all(compact ? 9 : 11),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -1918,7 +1919,7 @@ class _ThemePreviewCard extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color:
                                       scheme.onSurface.withValues(alpha: 0.16),
-                                  borderRadius: BorderRadius.circular(999),
+                                  borderRadius: BorderRadius.circular(AppRadii.pill),
                                 ),
                               ),
                               SizedBox(height: compact ? 5 : 7),
@@ -1928,7 +1929,7 @@ class _ThemePreviewCard extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color:
                                       scheme.onSurface.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(999),
+                                  borderRadius: BorderRadius.circular(AppRadii.pill),
                                 ),
                               ),
                             ],
@@ -1940,7 +1941,7 @@ class _ThemePreviewCard extends StatelessWidget {
                             duration: disableAnimations
                                 ? Duration.zero
                                 : _kSettingsFastMotion,
-                            curve: Curves.easeOutCubic,
+                            curve: AppMotion.standard,
                             width: compact ? 22 : 26,
                             height: compact ? 22 : 26,
                             decoration: BoxDecoration(
@@ -2000,7 +2001,7 @@ class _ThemePreviewCard extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: scheme.primary,
-                              borderRadius: BorderRadius.circular(999),
+                              borderRadius: BorderRadius.circular(AppRadii.pill),
                             ),
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
@@ -2111,13 +2112,13 @@ class _TactileSurfaceState extends State<_TactileSurface> {
           ? Offset.zero
           : (_pressed ? const Offset(0, 0.006) : Offset.zero),
       duration: disableAnimations ? Duration.zero : _kSettingsFastMotion,
-      curve: Curves.easeOutCubic,
+      curve: AppMotion.standard,
       child: AnimatedScale(
         scale: disableAnimations || widget.onTap == null
             ? 1
             : (_pressed ? widget.pressedScale : 1),
         duration: disableAnimations ? Duration.zero : _kSettingsFastMotion,
-        curve: Curves.easeOutCubic,
+        curve: AppMotion.standard,
         child: Material(
           color: Colors.transparent,
           clipBehavior: Clip.antiAlias,
@@ -2180,7 +2181,7 @@ class _SelectionPulseState extends State<_SelectionPulse>
         weight: 58,
       ),
     ]).animate(
-        CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+        CurvedAnimation(parent: _controller, curve: AppMotion.standard));
     _offset = TweenSequence<Offset>([
       TweenSequenceItem(
         tween: Tween<Offset>(begin: Offset.zero, end: const Offset(0, 0.005)),
@@ -2191,7 +2192,7 @@ class _SelectionPulseState extends State<_SelectionPulse>
         weight: 58,
       ),
     ]).animate(
-        CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+        CurvedAnimation(parent: _controller, curve: AppMotion.standard));
   }
 
   @override
@@ -2266,16 +2267,16 @@ class _SettingsEntranceState extends State<_SettingsEntrance>
     );
     _opacity = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeOutCubic,
+      curve: AppMotion.standard,
     );
     _offset = Tween<Offset>(
       begin: widget.offset,
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    ).animate(CurvedAnimation(parent: _controller, curve: AppMotion.standard));
     _scale = Tween<double>(
       begin: widget.beginScale,
       end: 1,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    ).animate(CurvedAnimation(parent: _controller, curve: AppMotion.standard));
   }
 
   @override

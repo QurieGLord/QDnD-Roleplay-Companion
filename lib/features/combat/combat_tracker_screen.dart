@@ -18,6 +18,7 @@ import 'widgets/combat_log_view.dart';
 import 'widgets/combat_spellcaster_sheet.dart';
 
 import '../character_sheet/widgets/gameplay_state_editor.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class CombatTrackerScreen extends StatefulWidget {
   final Character character;
@@ -335,7 +336,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
               decoration: InputDecoration(
                 hintText: '0',
                 border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadii.lg)),
                 prefixIcon:
                     heal ? const Icon(Icons.add) : const Icon(Icons.remove),
               ),
@@ -743,7 +744,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
                                   ),
                                   decoration: BoxDecoration(
                                     color: colorScheme.secondaryContainer,
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                                     border: Border.all(
                                       color: colorScheme.secondary,
                                     ),
@@ -935,7 +936,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
         border: Border.all(color: colorScheme.error.withValues(alpha: 0.5)),
       ),
       child: Column(
@@ -1081,7 +1082,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
         border: Border.all(color: accent.withValues(alpha: 0.35)),
       ),
       child: Row(
@@ -1154,7 +1155,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.lg)),
         ),
         onPressed: () {
           showModalBottomSheet(
@@ -1181,7 +1182,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
                 color: colorScheme.onPrimary.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadii.md),
               ),
               child: Text(
                 l10n.slotsRemaining(remaining),
@@ -1217,7 +1218,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadii.pill),
       ),
       child: Text(
         label,
@@ -1241,7 +1242,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadii.md),
           border: Border.all(color: colorScheme.outlineVariant),
         ),
         child: Column(
@@ -1281,7 +1282,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadii.md),
         border: Border.all(color: accent.withValues(alpha: 0.35)),
       ),
       child: Row(
@@ -1336,10 +1337,10 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
       Color color, VoidCallback onTap) {
     return Material(
       color: color.withValues(alpha: 0.15),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         child: Container(
           height: 80,
           alignment: Alignment.center,

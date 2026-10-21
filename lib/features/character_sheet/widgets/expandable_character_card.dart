@@ -7,6 +7,7 @@ import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/services/character_data_service.dart';
 import '../../character_level_up/level_up_screen.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class ExpandableCharacterCard extends StatefulWidget {
   final Character character;
@@ -41,7 +42,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
       value: widget.isExpanded ? 1 : 0);
   late final CurvedAnimation _reveal = CurvedAnimation(
       parent: _details,
-      curve: Curves.easeOutCubic,
+      curve: AppMotion.standard,
       reverseCurve: Curves.easeInOutCubic);
 
   @override
@@ -101,7 +102,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
             constraints: BoxConstraints(maxWidth: bounds.maxWidth),
             child: Material(
                 color: c.surface,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                 child: ExpressiveHoldSurface(
                     key: const ValueKey('character-level-control'),
                     semanticLabel:
@@ -255,7 +256,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
       duration: MediaQuery.disableAnimationsOf(context) || _scrollChanged
           ? Duration.zero
           : const Duration(milliseconds: 280),
-      curve: Curves.easeOutCubic,
+      curve: AppMotion.standard,
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -310,18 +311,18 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                                       MediaQuery.disableAnimationsOf(context)
                                           ? Duration.zero
                                           : const Duration(milliseconds: 280),
-                                  curve: Curves.easeOutCubic,
+                                  curve: AppMotion.standard,
                                   width: widget.isExpanded ? 92 : 84,
                                   height: widget.isExpanded ? 92 : 84,
                                   decoration: BoxDecoration(
                                       color: colorScheme.surface,
                                       borderRadius: BorderRadius.only(
-                                          topLeft: const Radius.circular(28),
+                                          topLeft: const Radius.circular(AppRadii.xl),
                                           topRight: Radius.circular(
                                               widget.isExpanded ? 28 : 18),
-                                          bottomLeft: const Radius.circular(18),
+                                          bottomLeft: const Radius.circular(AppRadii.lgPlus),
                                           bottomRight:
-                                              const Radius.circular(28)),
+                                              const Radius.circular(AppRadii.xl)),
                                       border: Border.all(
                                           color: colorScheme.surface
                                               .withValues(alpha: .75),
@@ -393,7 +394,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                   padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
                   decoration: BoxDecoration(
                       color: colorScheme.surface.withValues(alpha: .4),
-                      borderRadius: BorderRadius.circular(21)),
+                      borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
                   child: _identityFooter(
                       context, localizedClassName, localizedSubclass, l10n))),
 
@@ -404,8 +405,8 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                 widget.onDetailsToggled?.call(!widget.isExpanded);
               },
               borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
+                bottomLeft: Radius.circular(AppRadii.lgPlus),
+                bottomRight: Radius.circular(AppRadii.lgPlus),
               ),
               child: Column(
                 children: [
@@ -452,8 +453,8 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                         decoration: const BoxDecoration(
                           borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(20),
-                            bottomRight: Radius.circular(20),
+                            bottomLeft: Radius.circular(AppRadii.lgPlus),
+                            bottomRight: Radius.circular(AppRadii.lgPlus),
                           ),
                         ),
                         child: Column(
@@ -601,7 +602,7 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: colorScheme.surface.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadii.md),
       ),
       child: Text(label,
           style: TextStyle(

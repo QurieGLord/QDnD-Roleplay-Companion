@@ -4,6 +4,7 @@ import '../../../../core/models/character.dart';
 import 'value_editors.dart';
 import '../../../../core/ui/companion_surface.dart';
 import 'expressive_hold_surface.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class SheetHealthPanel extends StatefulWidget {
   const SheetHealthPanel({super.key, required this.character, this.onChanged});
@@ -60,10 +61,10 @@ class _SheetHealthPanelState extends State<SheetHealthPanel> {
             accent: color.secondary,
             shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(18)))),
+                    topLeft: Radius.circular(AppRadii.xlPlus),
+                    topRight: Radius.circular(AppRadii.xlPlus),
+                    bottomLeft: Radius.circular(AppRadii.xlPlus),
+                    bottomRight: Radius.circular(AppRadii.lgPlus)))),
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           LayoutBuilder(
@@ -108,7 +109,7 @@ class _SheetHealthPanelState extends State<SheetHealthPanel> {
                   )),
           const SizedBox(height: 8),
           ClipRRect(
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: BorderRadius.circular(AppRadii.pill),
               child: LinearProgressIndicator(
                   value: maximum > 0 ? ratio : (current > 0 ? 1 : 0),
                   minHeight: 8,

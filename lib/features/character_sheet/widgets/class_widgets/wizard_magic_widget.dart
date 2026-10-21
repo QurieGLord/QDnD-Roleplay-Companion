@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../../core/models/character.dart';
 import 'shared/class_tools_layout_builder.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class WizardMagicWidget extends StatefulWidget {
   final Character character;
@@ -58,7 +59,7 @@ class _WizardMagicWidgetState extends State<WizardMagicWidget> {
       isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
       ),
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) {
@@ -189,7 +190,7 @@ class _WizardMagicWidgetState extends State<WizardMagicWidget> {
                                     .colorScheme
                                     .surfaceContainerHighest
                                     .withValues(alpha: 0.5),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                               ),
                               child: ListTile(
                                 title: Text(AppLocalizations.of(context)!

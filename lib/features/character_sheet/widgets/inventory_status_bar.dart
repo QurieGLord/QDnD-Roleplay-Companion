@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class InventoryStatusBar extends StatelessWidget {
   final double currentWeight;
@@ -62,7 +63,7 @@ class InventoryStatusBar extends StatelessWidget {
             value: weightPercent,
             color: weightColor,
             backgroundColor: colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(AppRadii.xs),
             minHeight: 6,
           ),
 

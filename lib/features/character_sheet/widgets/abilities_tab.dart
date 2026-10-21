@@ -46,6 +46,7 @@ import 'class_widgets/druid_magic_widget.dart';
 import 'class_widgets/wizard_magic_widget.dart';
 import 'class_widgets/cleric_magic_widget.dart';
 import 'class_widgets/ranger_survival_widget.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class AbilitiesTab extends StatefulWidget {
   final Character character;
@@ -88,7 +89,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           _scrollController.animateTo(
             0,
             duration: const Duration(milliseconds: 260),
-            curve: Curves.easeOutCubic,
+            curve: AppMotion.standard,
           );
         }
       });
@@ -404,7 +405,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       duration: disableAnimations
           ? Duration.zero
           : AbilitiesShellTokens.scrollDuration,
-      curve: Curves.easeOutCubic,
+      curve: AppMotion.standard,
       alignment: 0.04,
     );
   }
@@ -1375,7 +1376,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           color: isHC ? theme.colorScheme.primary : theme.colorScheme.tertiary,
           width: 2,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1383,7 +1384,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           // Header: Giant Clickable Area
           InkWell(
             onTap: () => _showFeatureLore('spell-mastery'),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.lg)),
             child: Padding(
               padding: const EdgeInsets.all(16.0), // Generous padding
               child: Row(
@@ -1447,7 +1448,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           color: isHC ? theme.colorScheme.primary : theme.colorScheme.tertiary,
           width: 2,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1455,7 +1456,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           // Header: Giant Clickable Area
           InkWell(
             onTap: () => _showFeatureLore('signature-spell'),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.lg)),
             child: Padding(
               padding: const EdgeInsets.all(16.0), // Generous padding
               child: Row(
@@ -1521,7 +1522,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
           color: isHC ? colorScheme.primary : colorScheme.outlineVariant,
           width: isHC ? 2 : 1,
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadii.md),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),

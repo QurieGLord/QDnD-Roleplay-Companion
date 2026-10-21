@@ -6,6 +6,7 @@ import '../../../../core/services/gameplay_actions_service.dart';
 import '../../../../core/ui/app_snack_bar.dart';
 import '../../../../core/ui/condition_presentation.dart';
 import 'value_editor_dialog.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class SheetConditionChips extends StatefulWidget {
   const SheetConditionChips(
@@ -95,7 +96,7 @@ class _SheetConditionChipsState extends State<SheetConditionChips> {
                   : colors.onSecondaryContainer),
           side: BorderSide.none,
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.md)),
           materialTapTargetSize: MaterialTapTargetSize.padded,
           onPressed: _busy ? null : () => _details(condition),
           deleteIcon: const Icon(Icons.close, size: 18),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/search/journal_search.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 /// An isolated, in-memory comparison. It never reads or saves a character.
 class JournalCycleScreen extends StatefulWidget {
@@ -145,7 +146,7 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
         filled: true,
         fillColor: scheme.surfaceContainerHigh,
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(AppRadii.lgPlus),
             borderSide: BorderSide.none),
       ),
       chipTheme: ChipThemeData(
@@ -258,7 +259,7 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
                               decoration: BoxDecoration(
                                 color: scheme.secondaryContainer
                                     .withValues(alpha: .45),
-                                borderRadius: BorderRadius.circular(28),
+                                borderRadius: BorderRadius.circular(AppRadii.xl),
                               ),
                               child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,7 +400,7 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
         padding: const EdgeInsets.only(bottom: 10),
         child: Material(
           color: c.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: () {
@@ -675,7 +676,7 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
                                                     ? c.primaryContainer
                                                     : c.surfaceContainerLow,
                                                 borderRadius:
-                                                    BorderRadius.circular(26),
+                                                    BorderRadius.circular(AppRadii.xl),
                                                 border: Border.all(
                                                     color: selected == id
                                                         ? c.primary
@@ -759,7 +760,7 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
                                           c.secondaryContainer,
                                           c.surfaceContainerLow
                                         ]),
-                                    borderRadius: BorderRadius.circular(30),
+                                    borderRadius: BorderRadius.circular(AppRadii.xlPlus),
                                   ),
                                   child: Column(
                                       crossAxisAlignment:
@@ -829,7 +830,7 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
                                 decoration: BoxDecoration(
                                     color: c.tertiaryContainer
                                         .withValues(alpha: .5),
-                                    borderRadius: BorderRadius.circular(24)),
+                                    borderRadius: BorderRadius.circular(AppRadii.xl)),
                                 child: Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -889,9 +890,9 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
     final c = Theme.of(context).colorScheme;
     return Material(
       color: c.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(AppRadii.xl),
       child: InkWell(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(AppRadii.xl),
         onTap: () {
           _touch();
           _detail(context, e);

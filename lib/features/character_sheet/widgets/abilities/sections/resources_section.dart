@@ -7,6 +7,7 @@ import '../abilities_section_header.dart';
 import '../abilities_section_surface.dart';
 import '../abilities_shell_tokens.dart';
 import '../abilities_tap_feedback.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class AbilitiesResourcesSection extends StatelessWidget {
   const AbilitiesResourcesSection({
@@ -110,7 +111,7 @@ class _ResourceFeatureCard extends StatelessWidget {
                   height: 40,
                   decoration: BoxDecoration(
                     color: colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(AppRadii.lg),
                   ),
                   child: Icon(
                     resolveAbilitiesFeatureIcon(feature.iconName),
@@ -155,14 +156,14 @@ class _ResourceFeatureCard extends StatelessWidget {
                       final isFilled = index < pool.currentUses;
                       return AnimatedContainer(
                         duration: AbilitiesShellTokens.expandDuration,
-                        curve: Curves.easeOutCubic,
+                        curve: AppMotion.standard,
                         width: 16,
                         height: 16,
                         decoration: BoxDecoration(
                           color: isFilled
                               ? accent
                               : colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(99),
+                          borderRadius: BorderRadius.circular(AppRadii.pill),
                           border: Border.all(
                             color:
                                 isFilled ? accent : colorScheme.outlineVariant,
@@ -175,7 +176,7 @@ class _ResourceFeatureCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(999),
+                        borderRadius: BorderRadius.circular(AppRadii.pill),
                         child: TweenAnimationBuilder<double>(
                           tween: Tween<double>(
                             begin: 0,
@@ -187,7 +188,7 @@ class _ResourceFeatureCard extends StatelessWidget {
                                   ),
                           ),
                           duration: AbilitiesShellTokens.expandDuration,
-                          curve: Curves.easeOutCubic,
+                          curve: AppMotion.standard,
                           builder: (context, value, child) {
                             return LinearProgressIndicator(
                               value: value,

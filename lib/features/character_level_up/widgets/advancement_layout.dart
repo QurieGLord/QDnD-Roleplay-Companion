@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/ui/companion_surface.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class AdvancementFooter extends StatelessWidget {
   const AdvancementFooter(
@@ -39,7 +40,7 @@ class AdvancementFooter extends StatelessWidget {
                       backgroundColor: colors.secondaryContainer,
                       foregroundColor: colors.onSecondaryContainer,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(22))),
+                          borderRadius: BorderRadius.circular(AppRadii.lgPlus))),
                   onPressed: busy || onPressed == null
                       ? null
                       : () {
@@ -114,7 +115,7 @@ class _AdvancementRouteState extends State<AdvancementRoute> {
             duration: MediaQuery.disableAnimationsOf(context)
                 ? Duration.zero
                 : const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic);
+            curve: AppMotion.standard);
       }
     });
   }
@@ -183,7 +184,7 @@ class _AdvancementRouteState extends State<AdvancementRoute> {
                           : const Duration(milliseconds: 220),
                       child: InkWell(
                         key: ValueKey('advancement-route-$i'),
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(AppRadii.xl),
                         onTap: widget.enabled && i < widget.current
                             ? () => widget.onBackTo(i)
                             : null,

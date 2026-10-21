@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_palettes.dart';
+import '../theme/app_tokens.dart';
 import '../ui/app_menu_style.dart';
 import 'storage_service.dart';
 
@@ -82,20 +83,21 @@ class ThemeProvider extends ChangeNotifier {
       useMaterial3: true,
       brightness: brightness,
       colorScheme: colorScheme,
-      fontFamily: 'Roboto',
+      fontFamily: AppType.body,
     );
 
-    final rounded24 = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(24),
-    );
-    final rounded16 = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
-    );
-    final rounded28 = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(28),
-    );
+    RoundedRectangleBorder rounded(double radius) =>
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius));
+    // Shape carries state: a capsule at rest firms up while pressed.
+    final buttonShape = WidgetStateProperty.resolveWith<OutlinedBorder>(
+        (states) => rounded(states.contains(WidgetState.pressed)
+            ? AppRadii.md
+            : AppRadii.pill));
+    const buttonMotion = Duration(milliseconds: 220);
 
     return baseTheme.copyWith(
+      textTheme: AppType.textTheme(baseTheme.textTheme),
+      primaryTextTheme: AppType.textTheme(baseTheme.primaryTextTheme),
       scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.surface,
@@ -108,47 +110,55 @@ class ThemeProvider extends ChangeNotifier {
       cardTheme: CardThemeData(
         color: colorScheme.surfaceContainerLow,
         elevation: _isBasicMode ? 1 : 2,
-        shape: rounded28,
+        shape: rounded(AppRadii.xl),
         margin: const EdgeInsets.symmetric(vertical: 4),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          shape: rounded24,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           elevation: _isBasicMode ? 1 : null,
-        ),
+          animationDuration: buttonMotion,
+        ).copyWith(shape: buttonShape),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          shape: rounded24,
           elevation: _isBasicMode ? 1 : null,
-        ),
+          animationDuration: buttonMotion,
+        ).copyWith(shape: buttonShape),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(animationDuration: buttonMotion)
+            .copyWith(shape: buttonShape),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(animationDuration: buttonMotion)
+            .copyWith(shape: buttonShape),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: colorScheme.tertiaryContainer,
         foregroundColor: colorScheme.onTertiaryContainer,
-        shape: rounded16,
+        shape: rounded(AppRadii.lgPlus),
         elevation: _isBasicMode ? 3 : 6,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           borderSide: _isBasicMode
               ? BorderSide(color: colorScheme.outline)
               : BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           borderSide: _isBasicMode
               ? BorderSide(color: colorScheme.outline.withValues(alpha: .5))
               : BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           borderSide: BorderSide(
               color: colorScheme.secondary, width: _isBasicMode ? 2 : 1.2),
         ),
@@ -158,14 +168,15 @@ class ThemeProvider extends ChangeNotifier {
         thickness: 1,
       ),
       listTileTheme: ListTileThemeData(
-        shape: rounded24,
+        shape: rounded(AppRadii.lgPlus),
         iconColor: colorScheme.secondary,
         textColor: colorScheme.onSurface,
       ),
-      dialogTheme: DialogThemeData(shape: rounded28),
+      dialogTheme: DialogThemeData(shape: rounded(AppRadii.xl)),
       bottomSheetTheme: const BottomSheetThemeData(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
         ),
       ),
       chipTheme: const ChipThemeData(shape: StadiumBorder()),
@@ -192,8 +203,10 @@ class ThemeProvider extends ChangeNotifier {
         behavior: SnackBarBehavior.floating,
         dismissDirection: DismissDirection.horizontal,
         backgroundColor: colorScheme.surfaceContainerHigh,
-        contentTextStyle: TextStyle(color: colorScheme.onSurface),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        contentTextStyle:
+            TextStyle(fontFamily: AppType.body, color: colorScheme.onSurface),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
       ),
     );
   }

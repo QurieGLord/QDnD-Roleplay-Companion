@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'companion_motion.dart';
 import 'expressive_hold_surface.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 /// Shared geometry, not a shared layout: each class composes its own controls.
 enum CompanionContour { soft, facet, cadence, seal, fold, focus }
@@ -36,7 +37,7 @@ class CompanionShape extends OutlinedBorder {
             bottomRight: Radius.circular(36)),
       };
   BorderRadius get radius => BorderRadius.lerp(_baseRadius,
-      _baseRadius + BorderRadius.circular(8), morph.clamp(0.0, 1.0))!;
+      _baseRadius + BorderRadius.circular(AppRadii.sm), morph.clamp(0.0, 1.0))!;
   @override
   EdgeInsetsGeometry get dimensions => EdgeInsets.all(side.width);
   @override
@@ -220,7 +221,7 @@ class CompanionSurface extends StatelessWidget {
           duration: MediaQuery.disableAnimationsOf(context)
               ? Duration.zero
               : const Duration(milliseconds: 200),
-          curve: Curves.easeOutCubic,
+          curve: AppMotion.standard,
           decoration: companionDecoration(context,
               shape: shape,
               color: color ?? c.surfaceContainerLow,
@@ -255,13 +256,13 @@ class CompanionNavigationGlass extends StatelessWidget {
             color: opaque
                 ? c.secondaryContainer
                 : c.secondaryContainer.withValues(alpha: .88),
-            borderRadius: BorderRadius.circular(32),
+            borderRadius: BorderRadius.circular(AppRadii.xlPlus),
             border:
                 Border.all(color: c.surface.withValues(alpha: .6), width: .7)),
         child: child);
     return RepaintBoundary(
         child: ClipRRect(
-            borderRadius: BorderRadius.circular(32),
+            borderRadius: BorderRadius.circular(AppRadii.xlPlus),
             child: opaque
                 ? panel
                 : BackdropFilter(

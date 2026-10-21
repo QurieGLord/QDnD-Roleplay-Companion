@@ -14,6 +14,7 @@ import '../../../core/services/spell_service.dart';
 import '../../../core/services/storage_service.dart';
 import '../../../core/ui/app_snack_bar.dart';
 import '../../../core/ui/condition_presentation.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 Future<bool> showGameplayStateEditor(
   BuildContext context,
@@ -125,13 +126,13 @@ class _GameplayStateEditorState extends State<GameplayStateEditor> {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(AppRadii.lgPlus),
             borderSide: BorderSide.none),
         enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(AppRadii.lgPlus),
             borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(AppRadii.lgPlus),
             borderSide: BorderSide(
                 color: Theme.of(context).colorScheme.primary, width: 2)),
       );
@@ -379,7 +380,7 @@ class _GameplayStateEditorState extends State<GameplayStateEditor> {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                         color: theme.colorScheme.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(24)),
+                        borderRadius: BorderRadius.circular(AppRadii.xl)),
                     child: Padding(
                         padding: const EdgeInsets.all(4),
                         child: TabBar(
@@ -387,7 +388,7 @@ class _GameplayStateEditorState extends State<GameplayStateEditor> {
                           indicatorSize: TabBarIndicatorSize.tab,
                           indicator: BoxDecoration(
                               color: theme.colorScheme.secondaryContainer,
-                              borderRadius: BorderRadius.circular(20)),
+                              borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
                           labelColor: theme.colorScheme.onSecondaryContainer,
                           unselectedLabelColor:
                               theme.colorScheme.onSurfaceVariant,
@@ -515,7 +516,7 @@ class _GameplayStateEditorState extends State<GameplayStateEditor> {
                                     minimumSize: const Size(0, 52),
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
-                                            BorderRadius.circular(20))),
+                                            BorderRadius.circular(AppRadii.lgPlus))),
                                 icon: _saving
                                     ? const SizedBox(
                                         width: 20,
@@ -673,7 +674,7 @@ class _GameplayStateEditorState extends State<GameplayStateEditor> {
                         Theme.of(context).colorScheme.secondaryContainer,
                     side: BorderSide.none,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
+                        borderRadius: BorderRadius.circular(AppRadii.md)),
                     avatar: Icon(
                         _draft.activeConditions.contains(condition)
                             ? Icons.check_rounded
@@ -827,7 +828,7 @@ class _GameplayStateEditorState extends State<GameplayStateEditor> {
     final theme = Theme.of(context);
     return Material(
       color: theme.colorScheme.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(26),
+      borderRadius: BorderRadius.circular(AppRadii.xl),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child:
@@ -838,7 +839,7 @@ class _GameplayStateEditorState extends State<GameplayStateEditor> {
                 height: 36,
                 decoration: BoxDecoration(
                     color: theme.colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(13)),
+                    borderRadius: BorderRadius.circular(AppRadii.md)),
                 child: Icon(icon,
                     size: 20, color: theme.colorScheme.onSecondaryContainer)),
             const SizedBox(width: 12),

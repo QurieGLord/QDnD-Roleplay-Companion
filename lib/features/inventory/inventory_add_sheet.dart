@@ -11,6 +11,7 @@ import '../../shared/widgets/item_details_sheet.dart';
 import 'create_item_screen.dart';
 import 'inventory_presentation.dart';
 import 'widgets/inventory_item_tile.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 Future<bool?> showInventoryAddSheet(BuildContext context, Character hero) =>
     showResponsiveSheet<bool>(
@@ -136,7 +137,7 @@ class _AddSheetState extends State<_AddSheet> {
                                         fillColor: c.surfaceContainerHigh,
                                         border: OutlineInputBorder(
                                             borderRadius:
-                                                BorderRadius.circular(24),
+                                                BorderRadius.circular(AppRadii.xl),
                                             borderSide: BorderSide.none))),
                               ])),
                       SingleChildScrollView(

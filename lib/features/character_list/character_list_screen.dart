@@ -26,6 +26,7 @@ import 'widgets/roster_reveal.dart';
 import 'package:qd_and_d/features/character_creation/character_creation_wizard.dart';
 import 'package:qd_and_d/features/character_edit/character_edit_screen.dart';
 import 'package:qd_and_d/features/character_sheet/character_sheet_screen.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class CharacterListScreen extends StatefulWidget {
   const CharacterListScreen({super.key});
@@ -69,7 +70,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                     ),
                     label: Text(l10n.createNewCharacter),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(AppRadii.xl),
                     ),
                   ),
                 )
@@ -477,7 +478,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                   accent.withValues(alpha: 0.1),
                   colorScheme.surfaceContainerHighest,
                 ),
-                borderRadius: BorderRadius.circular(26),
+                borderRadius: BorderRadius.circular(AppRadii.xl),
                 border: Border.all(color: accent.withValues(alpha: 0.16)),
               ),
               child: Row(
@@ -640,7 +641,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             shadowColor: colorScheme.shadow.withValues(alpha: 0.18),
             surfaceTintColor: colorScheme.primary,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(32),
+              borderRadius: BorderRadius.circular(AppRadii.xlPlus),
               side: BorderSide(
                 color: colorScheme.outlineVariant.withValues(alpha: 0.68),
               ),
@@ -660,7 +661,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                         height: 48,
                         decoration: BoxDecoration(
                           color: colorScheme.errorContainer,
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                           border: Border.all(
                             color: colorScheme.error.withValues(alpha: 0.28),
                           ),
@@ -708,7 +709,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                         accent.withValues(alpha: 0.08),
                         colorScheme.surfaceContainerHighest,
                       ),
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                       border: Border.all(
                         color: accent.withValues(alpha: 0.16),
                       ),
@@ -778,7 +779,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
+                              borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                             ),
                           ),
                           child: Text(l10n.cancel),
@@ -818,7 +819,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                             foregroundColor: colorScheme.onError,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
+                              borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                             ),
                           ),
                         ),
@@ -1236,7 +1237,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                         tone.withValues(alpha: 0.08),
                         colorScheme.surfaceContainerHighest,
                       ),
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                       border: Border.all(
                         color: tone.withValues(alpha: 0.18),
                       ),
@@ -1335,7 +1336,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                         tone.withValues(alpha: 0.08),
                         colorScheme.surfaceContainerHighest,
                       ),
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                       border: Border.all(
                         color: tone.withValues(alpha: 0.18),
                       ),
@@ -1483,7 +1484,7 @@ class _RosterHeader extends StatelessWidget {
           shadowColor: colorScheme.shadow.withValues(alpha: 0.08),
           surfaceTintColor: colorScheme.primary,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(32),
+            borderRadius: BorderRadius.circular(AppRadii.xlPlus),
             side: BorderSide(
               color: colorScheme.outlineVariant.withValues(alpha: 0.65),
             ),
@@ -1586,7 +1587,7 @@ class _HeaderCountBadge extends StatelessWidget {
           colorScheme.primary.withValues(alpha: 0.16),
           colorScheme.surfaceContainerHighest,
         ),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadii.pill),
         border: Border.all(
           color: colorScheme.primary.withValues(alpha: 0.24),
         ),
@@ -1633,7 +1634,7 @@ class _HeaderChip extends StatelessWidget {
           accent.withValues(alpha: 0.1),
           colorScheme.surfaceContainerHighest,
         ),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadii.pill),
         border: Border.all(
           color: accent.withValues(alpha: 0.14),
         ),
@@ -1678,7 +1679,7 @@ class _ExpressiveSheetShell extends StatelessWidget {
               shadowColor: colorScheme.shadow.withValues(alpha: 0.18),
               surfaceTintColor: colorScheme.primary,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(32),
+                borderRadius: BorderRadius.circular(AppRadii.xlPlus),
                 side: BorderSide(
                   color: colorScheme.outlineVariant.withValues(alpha: 0.68),
                 ),
@@ -1698,7 +1699,7 @@ class _ExpressiveSheetShell extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: colorScheme.onSurfaceVariant
                                 .withValues(alpha: 0.28),
-                            borderRadius: BorderRadius.circular(999),
+                            borderRadius: BorderRadius.circular(AppRadii.pill),
                           ),
                         ),
                       ),
@@ -1743,7 +1744,7 @@ class _SheetTitleBlock extends StatelessWidget {
               colorScheme.primary.withValues(alpha: 0.14),
               colorScheme.surfaceContainerHighest,
             ),
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(AppRadii.lgPlus),
             border: Border.all(
               color: colorScheme.primary.withValues(alpha: 0.2),
             ),
@@ -1808,7 +1809,7 @@ class _CharacterActionSheetHeader extends StatelessWidget {
               accent.withValues(alpha: 0.1),
               colorScheme.surfaceContainerHighest,
             ),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(AppRadii.xl),
             border: Border.all(
               color: accent.withValues(alpha: 0.16),
             ),
@@ -1910,7 +1911,7 @@ class _ActionSheetAvatar extends StatelessWidget {
             ),
           ],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         border: Border.all(color: accent.withValues(alpha: 0.18)),
       ),
       clipBehavior: Clip.antiAlias,
@@ -1971,7 +1972,7 @@ class _SheetActionTile extends StatelessWidget {
     return Material(
       color: backgroundColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         side: BorderSide(
           color: destructive
               ? colorScheme.error.withValues(alpha: 0.42)
@@ -1998,7 +1999,7 @@ class _SheetActionTile extends StatelessWidget {
                           colorScheme.errorContainer,
                         )
                       : tone.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppRadii.lg),
                 ),
                 child: Icon(icon, color: iconTone),
               ),
@@ -2072,7 +2073,7 @@ class _DetailMetricTile extends StatelessWidget {
             height: 42,
             decoration: BoxDecoration(
               color: accent.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppRadii.lg),
             ),
             child: Icon(icon, size: 20, color: accent),
           ),
@@ -2083,7 +2084,7 @@ class _DetailMetricTile extends StatelessWidget {
               decoration: BoxDecoration(
                 color:
                     colorScheme.surfaceContainerHighest.withValues(alpha: 0.76),
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                 border: Border.all(color: accent.withValues(alpha: 0.12)),
               ),
               child: Column(
@@ -2142,7 +2143,7 @@ class _AbilityScoreTile extends StatelessWidget {
           accent.withValues(alpha: 0.08),
           colorScheme.surfaceContainerHighest,
         ),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         border: Border.all(color: accent.withValues(alpha: 0.13)),
       ),
       child: Column(
@@ -2194,7 +2195,7 @@ class _DetailTextPanel extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.76),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         border: Border.all(
           color: colorScheme.outlineVariant.withValues(alpha: 0.56),
         ),

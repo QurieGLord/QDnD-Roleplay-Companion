@@ -60,3 +60,41 @@ flutter:
     - assets/data/backgrounds/
     - assets/data/features/
     - assets/data/items.json
+    - assets/fonts/Rubik-OFL.txt
+    - assets/fonts/Inter-OFL.txt
+
+  # Bundled for offline use; static instances of the variable fonts,
+  # subset to Latin, Cyrillic and common symbols (see AppType).
+  fonts:
+    # Rubik is optically heavier than the Roboto these weights were tuned
+    # for: the files registered as 700/800 carry semibold outlines and 900
+    # carries bold ones (their OS/2 weight matches), so headings keep their
+    # lightness and hierarchy comes from size.
+    - family: Rubik
+      fonts:
+        - asset: assets/fonts/Rubik-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Rubik-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Rubik-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Rubik-SemiBold-w700.ttf
+          weight: 700
+        - asset: assets/fonts/Rubik-SemiBold-w800.ttf
+          weight: 800
+        - asset: assets/fonts/Rubik-Bold-w900.ttf
+          weight: 900
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Inter-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Inter-Black.ttf
+          weight: 900

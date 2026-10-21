@@ -5,6 +5,7 @@ import 'package:qd_and_d/l10n/app_localizations.dart';
 import 'package:qd_and_d/core/models/character_feature.dart';
 import 'package:qd_and_d/core/services/spell_service.dart';
 import '../character_creation_state.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class ReviewStep extends StatefulWidget {
   const ReviewStep({super.key});
@@ -147,7 +148,7 @@ class _ReviewStepState extends State<ReviewStep> {
     return Card(
       elevation: 0,
       color: theme.colorScheme.primaryContainer,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.xl)),
       clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -211,7 +212,7 @@ class _ReviewStepState extends State<ReviewStep> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppRadii.lg),
                 ),
                 child: Column(
                   children: [
@@ -317,7 +318,7 @@ class _ReviewStepState extends State<ReviewStep> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: theme.colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadii.lg),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -343,7 +344,7 @@ class _ReviewStepState extends State<ReviewStep> {
                       const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadii.md),
                     border: Border.all(
                         color:
                             theme.colorScheme.outline.withValues(alpha: 0.2)),
@@ -403,7 +404,7 @@ class _ReviewStepState extends State<ReviewStep> {
       elevation: 0,
       color: theme.colorScheme.surfaceContainer,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         side:
             BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
       ),
@@ -414,7 +415,7 @@ class _ReviewStepState extends State<ReviewStep> {
             _isLoreExpanded = !_isLoreExpanded;
           });
         },
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -426,7 +427,7 @@ class _ReviewStepState extends State<ReviewStep> {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.secondaryContainer,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppRadii.md),
                     ),
                     child: Icon(
                       Icons.history_edu,
@@ -453,7 +454,7 @@ class _ReviewStepState extends State<ReviewStep> {
             ),
             AnimatedSize(
               duration: const Duration(milliseconds: 400),
-              curve: Curves.easeOutQuart,
+              curve: AppMotion.standard,
               child: _isLoreExpanded
                   ? Padding(
                       padding: const EdgeInsets.only(
@@ -602,7 +603,7 @@ class _ReviewStepState extends State<ReviewStep> {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
         border:
             Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
@@ -653,7 +654,7 @@ class _ReviewStepState extends State<ReviewStep> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
       ),
       child: GridView.count(
         crossAxisCount: 3,
@@ -677,7 +678,7 @@ class _ReviewStepState extends State<ReviewStep> {
           return Container(
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppRadii.lg),
               border: Border.all(
                   color: theme.colorScheme.outline.withValues(alpha: 0.2),
                   width: 1),
@@ -703,7 +704,7 @@ class _ReviewStepState extends State<ReviewStep> {
                           horizontal: 4, vertical: 2),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(AppRadii.sm),
                       ),
                       child: Text(
                         '+$racialBonus',
@@ -733,7 +734,7 @@ class _ReviewStepState extends State<ReviewStep> {
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surfaceContainer,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(AppRadii.sm),
                         ),
                         child: Text(
                           modifierStr,
@@ -802,7 +803,7 @@ class _ReviewStepState extends State<ReviewStep> {
               side: BorderSide(
                   color: theme.colorScheme.outline.withValues(alpha: 0.2)),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(AppRadii.sm)),
               avatar: isExpertise
                   ? Icon(Icons.stars,
                       color: theme.colorScheme.onTertiaryContainer)
@@ -875,7 +876,7 @@ class _ReviewStepState extends State<ReviewStep> {
 
             return AnimatedSize(
               duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutQuart,
+              curve: AppMotion.standard,
               child: Column(
                 children: [
                   ...displaySpells.map((spellId) =>
@@ -905,7 +906,7 @@ class _ReviewStepState extends State<ReviewStep> {
                       style: TextButton.styleFrom(
                         foregroundColor: theme.colorScheme.primary,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                            borderRadius: BorderRadius.circular(AppRadii.md)),
                       ),
                     ),
                   ],
@@ -947,7 +948,7 @@ class _ReviewStepState extends State<ReviewStep> {
       elevation: 0,
       color: theme.colorScheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
         side:
             BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
@@ -958,7 +959,7 @@ class _ReviewStepState extends State<ReviewStep> {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: theme.colorScheme.tertiaryContainer,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppRadii.md),
           ),
           child: Icon(Icons.auto_fix_high,
               color: theme.colorScheme.onTertiaryContainer, size: 20),
@@ -992,7 +993,7 @@ class _ReviewStepState extends State<ReviewStep> {
       elevation: 0,
       color: theme.colorScheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
         side:
             BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
@@ -1003,7 +1004,7 @@ class _ReviewStepState extends State<ReviewStep> {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: theme.colorScheme.secondaryContainer,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppRadii.md),
           ),
           child: Icon(Icons.auto_awesome,
               color: theme.colorScheme.onSecondaryContainer, size: 20),
@@ -1031,7 +1032,7 @@ class _ReviewStepState extends State<ReviewStep> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadii.lg),
       ),
       child: Row(
         children: [

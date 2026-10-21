@@ -15,6 +15,7 @@ import '../../core/services/spell_service.dart';
 import '../../core/services/character_data_service.dart';
 import '../../core/services/fc5_compendium_zip_service.dart';
 import '../../core/services/fc5_parser.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class LibraryManagerScreen extends StatelessWidget {
   const LibraryManagerScreen({super.key});
@@ -451,7 +452,7 @@ class LibraryManagerScreen extends StatelessWidget {
                         shadowColor: colorScheme.shadow.withValues(alpha: 0.18),
                         surfaceTintColor: colorScheme.primary,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(32),
+                          borderRadius: BorderRadius.circular(AppRadii.xlPlus),
                           side: BorderSide(
                             color: colorScheme.outlineVariant
                                 .withValues(alpha: 0.68),
@@ -473,7 +474,7 @@ class LibraryManagerScreen extends StatelessWidget {
                                         color: colorScheme.onSurfaceVariant
                                             .withValues(alpha: 0.28),
                                         borderRadius:
-                                            BorderRadius.circular(999),
+                                            BorderRadius.circular(AppRadii.pill),
                                       ),
                                     ),
                                   ),
@@ -492,7 +493,7 @@ class LibraryManagerScreen extends StatelessWidget {
                                             colorScheme.surfaceContainerHighest,
                                           ),
                                           borderRadius:
-                                              BorderRadius.circular(18),
+                                              BorderRadius.circular(AppRadii.lgPlus),
                                         ),
                                         child: Icon(
                                           Icons.folder_zip_rounded,
@@ -789,7 +790,7 @@ class LibraryManagerScreen extends StatelessWidget {
                 shadowColor: colorScheme.shadow.withValues(alpha: 0.18),
                 surfaceTintColor: colorScheme.primary,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(32),
+                  borderRadius: BorderRadius.circular(AppRadii.xlPlus),
                   side: BorderSide(
                     color: colorScheme.outlineVariant.withValues(alpha: 0.68),
                   ),
@@ -808,7 +809,7 @@ class LibraryManagerScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: colorScheme.onSurfaceVariant
                                 .withValues(alpha: 0.28),
-                            borderRadius: BorderRadius.circular(999),
+                            borderRadius: BorderRadius.circular(AppRadii.pill),
                           ),
                         ),
                       ),
@@ -823,7 +824,7 @@ class LibraryManagerScreen extends StatelessWidget {
                                 colorScheme.tertiary.withValues(alpha: 0.14),
                                 colorScheme.surfaceContainerHighest,
                               ),
-                              borderRadius: BorderRadius.circular(18),
+                              borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                             ),
                             child: Icon(
                               Icons.rule_rounded,
@@ -884,7 +885,7 @@ class LibraryManagerScreen extends StatelessWidget {
                                   tone.withValues(alpha: 0.08),
                                   colorScheme.surfaceContainerHighest,
                                 ),
-                                borderRadius: BorderRadius.circular(18),
+                                borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                                 border: Border.all(
                                   color: tone.withValues(alpha: 0.18),
                                 ),
@@ -1256,7 +1257,7 @@ class _FC5ImportProgressDialog extends StatelessWidget {
             shadowColor: colorScheme.shadow.withValues(alpha: 0.18),
             surfaceTintColor: colorScheme.primary,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(AppRadii.xl),
               side: BorderSide(
                 color: colorScheme.outlineVariant.withValues(alpha: 0.6),
               ),
@@ -1281,7 +1282,7 @@ class _FC5ImportProgressDialog extends StatelessWidget {
                                 colorScheme.secondary.withValues(alpha: 0.14),
                                 colorScheme.surfaceContainerHighest,
                               ),
-                              borderRadius: BorderRadius.circular(18),
+                              borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                             ),
                             child: Icon(
                               state.icon,
@@ -1450,7 +1451,7 @@ class _ZipPreviewInfoCard extends StatelessWidget {
           tone.withValues(alpha: 0.08),
           colorScheme.surfaceContainerHighest,
         ),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         border: Border.all(
           color: tone.withValues(alpha: 0.18),
         ),
@@ -1500,10 +1501,10 @@ class _ZipEntryTile extends StatelessWidget {
       color: colorScheme.surfaceContainerHigh.withValues(
         alpha: enabled ? 0.92 : 0.5,
       ),
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
       child: InkWell(
         onTap: enabled ? () => onChanged?.call(!selected) : null,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -1516,7 +1517,7 @@ class _ZipEntryTile extends StatelessWidget {
                   value: enabled ? selected : false,
                   onChanged: onChanged,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(AppRadii.sm),
                   ),
                 ),
               ),
@@ -1563,7 +1564,7 @@ class _ZipEntryTile extends StatelessWidget {
                     tone.withValues(alpha: enabled ? 0.14 : 0.08),
                     colorScheme.surfaceContainerHighest,
                   ),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(AppRadii.md),
                 ),
                 child: Icon(
                   enabled ? Icons.description_outlined : Icons.block_rounded,
@@ -1590,7 +1591,7 @@ class _ZipEntryBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadii.pill),
       ),
       child: Text(
         label,

@@ -5,6 +5,7 @@ import '../../../core/ui/companion_surface.dart';
 import '../../../l10n/app_localizations.dart';
 import '../inventory_presentation.dart';
 import 'inventory_item_tile.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class EquipmentDeck extends StatelessWidget {
   const EquipmentDeck(
@@ -60,7 +61,7 @@ class EquipmentDeck extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                     color: c.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(22)),
+                    borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
                 child: Column(children: [
                   Text(l.armorClassAC, style: t.textTheme.labelSmall),
                   Text('${hero.armorClass}',

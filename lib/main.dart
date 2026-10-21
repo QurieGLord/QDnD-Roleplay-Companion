@@ -1,5 +1,6 @@
 import 'core/content/content_reference_repair.dart';
 // ignore_for_file: avoid_print
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +25,12 @@ import 'features/expressive_cycle/cycle_fixture.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  LicenseRegistry.addLicense(() async* {
+    for (final family in const ['Rubik', 'Inter']) {
+      yield LicenseEntryWithLineBreaks([family],
+          await rootBundle.loadString('assets/fonts/$family-OFL.txt'));
+    }
+  });
 
   String? initError;
 

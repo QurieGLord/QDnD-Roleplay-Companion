@@ -11,6 +11,7 @@ import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 
 import '../character_creation_state.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 const double _kBasicInfoMaxWidth = 720;
 const Duration _kBasicFastMotion = Duration(milliseconds: 160);
@@ -457,7 +458,7 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
     final l10n = AppLocalizations.of(context)!;
     final width = isWide ? 184.0 : 218.0;
     final height = isWide ? 224.0 : 218.0;
-    final radius = BorderRadius.circular(28);
+    final radius = BorderRadius.circular(AppRadii.xl);
 
     return Semantics(
       button: true,
@@ -467,7 +468,7 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
         message: l10n.choose,
         child: AnimatedScale(
           duration: _basicMotionDuration(context, _kBasicFastMotion),
-          curve: Curves.easeOutCubic,
+          curve: AppMotion.standard,
           scale: _avatarPressed ? 0.985 : 1,
           child: DecoratedBox(
             decoration: BoxDecoration(
@@ -522,7 +523,7 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                     child: Padding(
                       padding: const EdgeInsets.all(3),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(25),
+                        borderRadius: BorderRadius.circular(AppRadii.xl),
                         child: Stack(
                           children: [
                             Positioned.fill(
@@ -552,7 +553,7 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
                                   color: colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(999),
+                                  borderRadius: BorderRadius.circular(AppRadii.pill),
                                   boxShadow: [
                                     BoxShadow(
                                       color: colorScheme.shadow
@@ -602,15 +603,15 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
         hintText: l10n.charNameHint,
         prefixIcon: const Icon(Icons.person_outline_rounded),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         filled: true,
@@ -655,8 +656,8 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
           _buildAlignmentGrid(context, state),
           AnimatedSwitcher(
             duration: _basicMotionDuration(context, _kBasicFastMotion),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeOutCubic,
+            switchInCurve: AppMotion.standard,
+            switchOutCurve: AppMotion.standard,
             child: selectedName == null
                 ? const SizedBox.shrink(key: ValueKey('alignment-empty'))
                 : Padding(
@@ -765,13 +766,13 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
         label: localizedName,
         child: AnimatedScale(
           duration: duration,
-          curve: Curves.easeOutCubic,
+          curve: AppMotion.standard,
           scale: selected ? 1.02 : 1,
           child: Material(
             color: Colors.transparent,
             child: InkWell(
               key: Key('alignment_${option.code}'),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(AppRadii.lgPlus),
               onTap: () {
                 _playSelectionHaptic();
                 context
@@ -780,13 +781,13 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
               },
               child: AnimatedContainer(
                 duration: duration,
-                curve: Curves.easeOutCubic,
+                curve: AppMotion.standard,
                 decoration: BoxDecoration(
                   color: selected
                       ? colorScheme.secondaryContainer
                       : colorScheme.surfaceContainerHighest
                           .withValues(alpha: 0.62),
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                   border: Border.all(
                     color: selected
                         ? colorScheme.secondary
@@ -1009,15 +1010,15 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
         hintText: hint,
         prefixIcon: Icon(icon),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         filled: true,
@@ -1580,7 +1581,7 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
       builder: (sheetContext) {
         return AnimatedPadding(
           duration: _basicMotionDuration(sheetContext, _kBasicFastMotion),
-          curve: Curves.easeOutCubic,
+          curve: AppMotion.standard,
           padding: EdgeInsets.only(
             bottom: MediaQuery.viewInsetsOf(sheetContext).bottom,
           ),
@@ -1588,7 +1589,7 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
             heightFactor: 0.94,
             child: ClipRRect(
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(30),
+                top: Radius.circular(AppRadii.xlPlus),
               ),
               child: Material(
                 color: colorScheme.surface,
@@ -1670,19 +1671,19 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
                               hintText: l10n.backstoryHint,
                               alignLabelWithHint: true,
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius: BorderRadius.circular(AppRadii.xl),
                                 borderSide: BorderSide(
                                   color: colorScheme.outlineVariant,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius: BorderRadius.circular(AppRadii.xl),
                                 borderSide: BorderSide(
                                   color: colorScheme.outlineVariant,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius: BorderRadius.circular(AppRadii.xl),
                                 borderSide: BorderSide(
                                   color: colorScheme.primary,
                                   width: 2,
@@ -1720,8 +1721,8 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
 
     return AnimatedSwitcher(
       duration: _basicMotionDuration(context, _kBasicRevealMotion),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeOutCubic,
+      switchInCurve: AppMotion.standard,
+      switchOutCurve: AppMotion.standard,
       transitionBuilder: (child, animation) {
         return FadeTransition(
           opacity: animation,
@@ -1777,7 +1778,7 @@ class _BasicRevealState extends State<_BasicReveal>
     );
     _animation = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeOutQuart,
+      curve: AppMotion.standard,
     );
     widget.scrollController.addListener(_checkVisibility);
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkVisibility());
@@ -1941,7 +1942,7 @@ class _ExpressiveSurface extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(AppRadii.xl),
         border: Border.all(
           color: accent.withValues(alpha: 0.14),
         ),
@@ -1985,7 +1986,7 @@ class _SectionHeading extends StatelessWidget {
         DecoratedBox(
           decoration: BoxDecoration(
             color: accent.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppRadii.lg),
           ),
           child: Padding(
             padding: const EdgeInsets.all(10),
@@ -2045,12 +2046,12 @@ class _GenderSegment extends StatelessWidget {
       selected: selected,
       child: AnimatedContainer(
         duration: duration,
-        curve: Curves.easeOutCubic,
+        curve: AppMotion.standard,
         decoration: BoxDecoration(
           color: selected
               ? colorScheme.primaryContainer
               : colorScheme.surfaceContainerHigh.withValues(alpha: 0.45),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadii.md),
           border: Border.all(
             color: selected
                 ? colorScheme.primary
@@ -2059,7 +2060,7 @@ class _GenderSegment extends StatelessWidget {
         ),
         child: Material(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadii.md),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onTap,
@@ -2122,7 +2123,7 @@ class _BackstoryCard extends StatelessWidget {
         accent: accent,
         padding: EdgeInsets.zero,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(AppRadii.xl),
           child: Material(
             color: Colors.transparent,
             clipBehavior: Clip.antiAlias,
@@ -2147,7 +2148,7 @@ class _BackstoryCard extends StatelessWidget {
                     DecoratedBox(
                       decoration: BoxDecoration(
                         color: accent.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(12),
@@ -2247,7 +2248,7 @@ class _CounterChip extends StatelessWidget {
         color: filled
             ? accent.withValues(alpha: 0.15)
             : colorScheme.surfaceContainerHighest.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadii.pill),
         border: Border.all(
           color: filled
               ? accent.withValues(alpha: 0.24)
@@ -2317,7 +2318,7 @@ class _SelectedSummaryChip extends StatelessWidget {
     final chip = DecoratedBox(
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadii.pill),
         border: Border.all(color: accent.withValues(alpha: 0.2)),
       ),
       child: Padding(
@@ -2394,16 +2395,16 @@ class _ExpressiveExpansionSectionState
       accent: widget.accent,
       padding: EdgeInsets.zero,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(AppRadii.xl),
         child: Material(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(AppRadii.xl),
           clipBehavior: Clip.antiAlias,
           child: Column(
             children: [
               InkWell(
                 borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(28),
+                  top: Radius.circular(AppRadii.xl),
                 ),
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
@@ -2437,7 +2438,7 @@ class _ExpressiveExpansionSectionState
                       AnimatedRotation(
                         turns: _expanded ? 0.5 : 0,
                         duration: duration,
-                        curve: Curves.easeOutCubic,
+                        curve: AppMotion.standard,
                         child: Icon(
                           Icons.keyboard_arrow_down_rounded,
                           color: colorScheme.onSurfaceVariant,
@@ -2452,7 +2453,7 @@ class _ExpressiveExpansionSectionState
               else
                 AnimatedSize(
                   duration: duration,
-                  curve: Curves.easeOutCubic,
+                  curve: AppMotion.standard,
                   alignment: Alignment.topCenter,
                   child: body,
                 ),
@@ -2483,7 +2484,7 @@ class _InputTileFrame extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Padding(
@@ -2544,15 +2545,15 @@ class _ChoiceInputTile extends StatelessWidget {
       button: true,
       child: Material(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           onTap: onTap,
           child: Container(
             constraints: const BoxConstraints(minHeight: 72),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(AppRadii.lgPlus),
               border: Border.all(color: colorScheme.outlineVariant),
             ),
             child: Row(

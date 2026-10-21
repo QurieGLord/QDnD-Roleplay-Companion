@@ -12,6 +12,7 @@ import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import 'shared/class_tools_layout_builder.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class WarlockMagicWidget extends StatefulWidget {
   final Character character;
@@ -398,13 +399,13 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _showDetails(inv),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
@@ -413,7 +414,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: warlockColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadii.sm),
                   ),
                   child: Icon(Icons.bolt, size: 20, color: warlockColor),
                 ),
@@ -461,7 +462,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: colorScheme.surfaceDim,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
       ),
       child: ListTile(
         dense: true,

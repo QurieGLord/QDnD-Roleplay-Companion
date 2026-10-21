@@ -3,6 +3,7 @@ import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import 'expressive_hold_surface.dart';
 import '../../../../core/ui/companion_surface.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 /// Reading is quiet. Tap spends one; hold opens the full value editor.
 class SheetResourceCounter extends StatefulWidget {
@@ -72,7 +73,7 @@ class _SheetResourceCounterState extends State<SheetResourceCounter> {
             duration: MediaQuery.disableAnimationsOf(context)
                 ? Duration.zero
                 : const Duration(milliseconds: 240),
-            curve: Curves.easeOutCubic,
+            curve: AppMotion.standard,
             padding: EdgeInsets.symmetric(
                 horizontal: widget.prominent ? 18 : 8,
                 vertical: widget.prominent ? 14 : 6),
@@ -88,7 +89,7 @@ class _SheetResourceCounterState extends State<SheetResourceCounter> {
                 shape: widget.prominent
                     ? const CompanionShape(contour: CompanionContour.seal)
                     : RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14))),
+                        borderRadius: BorderRadius.circular(AppRadii.md))),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               Row(
                   mainAxisSize: MainAxisSize.min,

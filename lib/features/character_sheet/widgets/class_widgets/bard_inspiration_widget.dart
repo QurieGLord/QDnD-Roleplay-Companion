@@ -13,6 +13,7 @@ import '../../../../core/models/character_feature.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import 'shared/class_tools_layout_builder.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class BardInspirationWidget extends StatefulWidget {
   final Character character;
@@ -320,7 +321,7 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 18, vertical: 13),
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(25))),
+                                      borderRadius: BorderRadius.circular(AppRadii.xl))),
                               onPressed: !_busy && currentCharges > 0
                                   ? _giveInspiration
                                   : null,

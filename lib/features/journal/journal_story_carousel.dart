@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/ui/companion_surface.dart';
 import '../../core/journal/journal_graph.dart';
 import 'journal_strings.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class JournalStoryCarousel extends StatefulWidget {
   const JournalStoryCarousel(
@@ -48,7 +49,7 @@ class _JournalStoryCarouselState extends State<JournalStoryCarousel> {
         } else {
           _pages.animateToPage(index,
               duration: const Duration(milliseconds: 260),
-              curve: Curves.easeOutCubic);
+              curve: AppMotion.standard);
         }
       });
     }
@@ -70,7 +71,7 @@ class _JournalStoryCarouselState extends State<JournalStoryCarousel> {
       _pages
           .animateToPage(index,
               duration: const Duration(milliseconds: 260),
-              curve: Curves.easeOutCubic)
+              curve: AppMotion.standard)
           .whenComplete(() {
         if (mounted && _requested == index) _requested = null;
       });
@@ -98,7 +99,7 @@ class _JournalStoryCarouselState extends State<JournalStoryCarousel> {
               duration: MediaQuery.disableAnimationsOf(context)
                   ? Duration.zero
                   : const Duration(milliseconds: 180),
-              curve: Curves.easeOutCubic)
+              curve: AppMotion.standard)
           .whenComplete(() {
         if (mounted) _settling = false;
       });
@@ -140,7 +141,7 @@ class _JournalStoryCarouselState extends State<JournalStoryCarousel> {
                         final magnification =
                             MediaQuery.disableAnimationsOf(context)
                                 ? 1.0
-                                : 1 - .14 * Curves.easeOut.transform(distance);
+                                : 1 - .14 * AppMotion.standard.transform(distance);
                         return Transform.scale(
                             key: ValueKey('story-scale-${e.id}'),
                             scale: magnification,

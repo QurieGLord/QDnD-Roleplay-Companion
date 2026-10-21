@@ -11,6 +11,7 @@ import '../../../core/progression/feature_evolution.dart';
 import '../../../core/progression/proficiency_identity.dart';
 import '../widgets/advancement_layout.dart';
 import '../../../core/ui/sheet_drag_region.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class SummaryStep extends StatelessWidget {
   final Character character;
@@ -77,7 +78,7 @@ class SummaryStep extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                       color: colors.secondaryContainer,
-                      borderRadius: BorderRadius.circular(18)),
+                      borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
                   child: Text(
                       '${character.level} → ${proposed?.level ?? nextLevel}',
                       style: theme.textTheme.titleMedium)),

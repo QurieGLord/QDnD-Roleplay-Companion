@@ -26,6 +26,7 @@ import 'steps/equipment_step.dart';
 import 'steps/background_step.dart';
 import 'steps/skills_step.dart';
 import 'steps/review_step.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class CharacterCreationWizard extends StatefulWidget {
   const CharacterCreationWizard({super.key});
@@ -102,12 +103,12 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
                   onNotification: _handleStepScrollNotification,
                   child: AnimatedSwitcher(
                     duration: _motionDuration(context, _revealMotion),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeOutCubic,
+                    switchInCurve: AppMotion.standard,
+                    switchOutCurve: AppMotion.standard,
                     transitionBuilder: (child, animation) {
                       final curved = CurvedAnimation(
                         parent: animation,
-                        curve: Curves.easeOutCubic,
+                        curve: AppMotion.standard,
                       );
                       return FadeTransition(
                         opacity: curved,
@@ -751,8 +752,8 @@ class _WizardHeader extends StatelessWidget {
                   Expanded(
                     child: AnimatedSwitcher(
                       duration: duration,
-                      switchInCurve: Curves.easeOutCubic,
-                      switchOutCurve: Curves.easeOutCubic,
+                      switchInCurve: AppMotion.standard,
+                      switchOutCurve: AppMotion.standard,
                       transitionBuilder: (child, animation) {
                         return FadeTransition(
                           opacity: animation,
@@ -815,7 +816,7 @@ class _WizardHeaderTitle extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color: colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(999),
+                borderRadius: BorderRadius.circular(AppRadii.pill),
               ),
               child: Text(
                 stepLabel,
@@ -875,7 +876,7 @@ class _StepSegmentedRail extends StatelessWidget {
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(end: currentStep.toDouble()),
       duration: duration,
-      curve: Curves.easeOutCubic,
+      curve: AppMotion.standard,
       builder: (context, value, child) {
         return Row(
           children: List.generate(stepCount, (index) {
@@ -896,11 +897,11 @@ class _StepSegmentedRail extends StatelessWidget {
                 ),
                 child: AnimatedContainer(
                   duration: duration,
-                  curve: Curves.easeOutCubic,
+                  curve: AppMotion.standard,
                   height: isCurrent ? 10 : 8,
                   decoration: BoxDecoration(
                     color: color,
-                    borderRadius: BorderRadius.circular(999),
+                    borderRadius: BorderRadius.circular(AppRadii.pill),
                     border: Border.all(color: borderColor),
                     boxShadow: isCurrent
                         ? [
@@ -963,8 +964,8 @@ class _WizardFloatingActions extends StatelessWidget {
                     context,
                     _CharacterCreationWizardState._fastMotion,
                   ),
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeOutCubic,
+                  switchInCurve: AppMotion.standard,
+                  switchOutCurve: AppMotion.standard,
                   child: onBack == null
                       ? const SizedBox(
                           key: ValueKey('back-empty'),
@@ -977,7 +978,7 @@ class _WizardFloatingActions extends StatelessWidget {
                           elevation: 3,
                           shadowColor:
                               colorScheme.shadow.withValues(alpha: 0.18),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
                           clipBehavior: Clip.antiAlias,
                           child: IconButton(
                             tooltip: l10n.back,
@@ -1032,7 +1033,7 @@ class _MorphingNextFab extends StatelessWidget {
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(end: progress.clamp(0.0, 1.0)),
       duration: duration,
-      curve: Curves.easeOutCubic,
+      curve: AppMotion.standard,
       builder: (context, value, child) {
         final eased = value.clamp(0.0, 1.0);
         final width = lerpDouble(56, isLastStep ? 150 : 132, eased)!;

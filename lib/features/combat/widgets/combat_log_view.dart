@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/combat_state.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class CombatLogView extends StatelessWidget {
   final List<CombatLogEntry> combatLog;
@@ -104,7 +105,7 @@ class CombatLogView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadii.md),
               ),
               child: Text(
                 entry.amount.toString(),

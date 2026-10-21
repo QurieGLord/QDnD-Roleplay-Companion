@@ -4,6 +4,7 @@ import '../../../core/magic/spell_preparation_rules.dart';
 import '../../../shared/widgets/spell_preparation_rules_editor.dart';
 import '../../../core/models/class_data.dart';
 import '../../../core/services/qdnd_bundle_codec.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 bool classNeedsRuleReview(ClassData data) =>
     !data.declares('hitDie') ||
@@ -55,7 +56,7 @@ class _ClassRulesReviewState extends State<ClassRulesReview> {
               setState(() => changed(value));
             },
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
           )
       ]);
   @override
@@ -110,7 +111,7 @@ class _ClassRulesReviewState extends State<ClassRulesReview> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                         color: colors.primaryContainer,
-                        borderRadius: BorderRadius.circular(24)),
+                        borderRadius: BorderRadius.circular(AppRadii.xl)),
                     child: Icon(Icons.auto_stories_rounded,
                         size: 28, color: colors.onPrimaryContainer))),
             const SizedBox(height: 20),
@@ -142,7 +143,7 @@ class _ClassRulesReviewState extends State<ClassRulesReview> {
                 duration: MediaQuery.disableAnimationsOf(context)
                     ? Duration.zero
                     : const Duration(milliseconds: 220),
-                curve: Curves.easeOutCubic,
+                curve: AppMotion.standard,
                 child: _caster == null || _caster == 'none'
                     ? const SizedBox.shrink()
                     : Padding(

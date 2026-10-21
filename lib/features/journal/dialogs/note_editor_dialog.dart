@@ -5,6 +5,7 @@ import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:uuid/uuid.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../../core/models/journal_note.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class NoteEditorDialog extends StatefulWidget {
   final JournalNote? note;
@@ -191,7 +192,7 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
                 Stack(
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppRadii.md),
                       child: Image.file(
                         File(_imagePath!),
                         width: double.infinity,

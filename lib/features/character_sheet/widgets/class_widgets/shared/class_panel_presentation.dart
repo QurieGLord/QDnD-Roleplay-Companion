@@ -6,6 +6,7 @@ import '../../../../../core/progression/character_class_context.dart';
 import '../../../../../core/ui/companion_surface.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../session/expressive_hold_surface.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 String classRecoveryLabel(AppLocalizations l, RecoveryType type) =>
     switch (type) {
@@ -99,7 +100,7 @@ class ClassPanelFrame extends StatelessWidget {
                             horizontal: 12, vertical: 7),
                         decoration: BoxDecoration(
                             color: c.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(24)),
+                            borderRadius: BorderRadius.circular(AppRadii.xl)),
                         child: Text(
                             '${AppLocalizations.of(context)!.level} ${owner.level}',
                             style: t.textTheme.labelLarge)),
@@ -173,7 +174,7 @@ class ClassPrimaryControl extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
                   decoration: BoxDecoration(
                       color: c.surface.withValues(alpha: .8),
-                      borderRadius: BorderRadius.circular(24)),
+                      borderRadius: BorderRadius.circular(AppRadii.xl)),
                   child:
                       CompanionReserve(current: current!, maximum: maximum!)),
             ],

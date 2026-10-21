@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import 'dart:math';
 import '../character_creation_state.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class AbilityScoresStep extends StatefulWidget {
   const AbilityScoresStep({super.key});
@@ -537,7 +538,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.tertiaryContainer,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppRadii.sm),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -601,7 +602,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: theme.colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppRadii.sm),
       ),
       child: DropdownButton<int>(
         borderRadius: AppMenuStyle.radius,
@@ -658,7 +659,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color: theme.colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadii.sm),
           ),
           child: Column(
             children: [
@@ -704,7 +705,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color: theme.colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppRadii.sm),
           ),
           child: Column(
             children: [

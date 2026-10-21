@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 /// A short reveal when an entry actually reaches its viewport, once per visit.
 /// Geometry is unchanged; the scroll position is never part of the animation.
@@ -23,7 +24,7 @@ class _JournalAppearState extends State<JournalAppear>
       duration: const Duration(milliseconds: 280),
       value: widget.seen ? 1 : 0);
   late final _curve =
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
+      CurvedAnimation(parent: _controller, curve: AppMotion.standard);
   ScrollPosition? _position;
   bool _scheduled = false;
   late bool _revealed = widget.seen;

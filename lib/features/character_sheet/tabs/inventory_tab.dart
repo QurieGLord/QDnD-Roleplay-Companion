@@ -13,6 +13,7 @@ import '../../inventory/inventory_presentation.dart';
 import '../../inventory/inventory_sheets.dart';
 import '../../inventory/widgets/equipment_deck.dart';
 import '../../inventory/widgets/inventory_item_tile.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class InventoryTab extends StatefulWidget {
   const InventoryTab(
@@ -301,7 +302,7 @@ class _InventoryTabState extends State<InventoryTab> {
                                           : c.onSurfaceVariant)),
                               const SizedBox(height: 10),
                               ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(AppRadii.md),
                                   child: LinearProgressIndicator(
                                       minHeight: 4,
                                       value: capacity > 0
@@ -394,7 +395,7 @@ class _InventoryTabState extends State<InventoryTab> {
                                       fillColor: c.surfaceContainerHigh,
                                       border: OutlineInputBorder(
                                           borderRadius:
-                                              BorderRadius.circular(26),
+                                              BorderRadius.circular(AppRadii.xl),
                                           borderSide: BorderSide.none)))),
                           const SizedBox(width: 10),
                           IconButton.filledTonal(
