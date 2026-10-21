@@ -74,7 +74,18 @@
         "description": {
           "en": "You have learned to untangle and reshape the fabric of reality in harmony with your wishes and music. Your spells are part of your vast repertoire, magic that you can tune to different situations.",
           "ru": "Вы научились изменять ткань реальности в гармонии с вашими желаниями и музыкой."
-        }
+        },
+        "minLevel": 1,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "auto_fix_high",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "bardic-inspiration-d6",
@@ -85,7 +96,23 @@
         "description": {
           "en": "You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die, a d6. Once within the next 10 minutes, the creature can roll the die and add the number rolled to one ability check, attack roll, or saving throw it makes. The creature can wait until after it rolls the d20 before deciding to use the Bardic Inspiration die, but must decide before the GM says whether the roll succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A creature can have only one Bardic Inspiration die at a time.\nYou can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain any expended uses when you finish a long rest. \nYour Bardic Inspiration die changes when you reach certain levels in this class. The die becomes a d8 at 5th level, a d10 at 10th level, and a d12 at 15th level.",
           "ru": "Вы можете вдохновлять других словами или музыкой. Бонусным действием в свой ход вы можете выбрать одно существо, отличное от вас, в пределах 60 футов, которое может вас слышать. Это существо получает одну кость Бардовского вдохновения, к6."
-        }
+        },
+        "minLevel": 1,
+        "associatedClass": "bard",
+        "type": "resource_pool",
+        "associatedSubclass": null,
+        "resourcePool": {
+          "currentUses": 1,
+          "maxUses": 1,
+          "recoveryType": "longRest",
+          "calculationFormula": "max(1, cha_mod)"
+        },
+        "requiresRest": true,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "2": [
@@ -98,7 +125,18 @@
         "description": {
           "en": "Starting at 2nd level, you can add half your proficiency bonus, rounded down, to any ability check you make that doesn't already include your proficiency bonus.",
           "ru": "Начиная со 2-го уровня, вы можете добавлять половину вашего бонуса мастерства, округленного в меньшую сторону, к любой проверке характеристики, которую вы совершаете, если она еще не включает ваш бонус мастерства."
-        }
+        },
+        "minLevel": 2,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "song-of-rest-d6",
@@ -109,7 +147,18 @@
         "description": {
           "en": "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains extra hit points. \nThe extra hit points increase when you reach certain levels in this class.",
           "ru": "Начиная со 2-го уровня, вы можете использовать успокаивающую музыку или речь, чтобы помочь оживить ваших раненых союзников во время короткого отдыха. Если вы или любые дружественные существа, которые могут слышать ваше исполнение, восстанавливают хиты в конце короткого отдыха, тратя Кости Хитов, каждое из этих существ восстанавливает дополнительные хиты.\nДополнительные хиты увеличиваются на определенных уровнях в этом классе."
-        }
+        },
+        "minLevel": 2,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "3": [
@@ -122,7 +171,18 @@
         "description": {
           "en": "When you join the College of Lore at 3rd level, you gain proficiency with three skills of your choice.",
           "ru": "Когда вы присоединяетесь к Коллегии Знаний на 3-м уровне, вы получаете владение тремя навыками по вашему выбору."
-        }
+        },
+        "minLevel": 3,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": "Lore",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "cutting-words",
@@ -133,7 +193,18 @@
         "description": {
           "en": "Also at 3rd level, you learn how to use your wit to distract, confuse, and otherwise sap the confidence and competence of others.\nWhen a creature that you can see within 60 feet of you makes an attack roll, an ability check, or a damage roll, you can use your reaction to expend one of your uses of Bardic Inspiration, rolling a Bardic Inspiration die and subtracting the number rolled from the creature's roll.\nYou can choose to use this feature after the creature makes its roll, but before the GM determines whether the attack roll or ability check succeeds or fails, or before the creature deals its damage. The creature is immune if it can't hear you or if it's immune to being charmed.",
           "ru": "Также на 3-м уровне вы учитесь использовать свое остроумие, чтобы отвлекать, сбивать с толку и иным образом подрывать уверенность и компетентность других."
-        }
+        },
+        "minLevel": 3,
+        "associatedClass": "bard",
+        "type": "reaction",
+        "associatedSubclass": "Lore",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": "reaction",
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "4": [
@@ -146,7 +217,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 4,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "5": [
@@ -159,7 +241,23 @@
         "description": {
           "en": "You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die, a d6. Once within the next 10 minutes, the creature can roll the die and add the number rolled to one ability check, attack roll, or saving throw it makes. The creature can wait until after it rolls the d20 before deciding to use the Bardic Inspiration die, but must decide before the GM says whether the roll succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A creature can have only one Bardic Inspiration die at a time.\nYou can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain any expended uses when you finish a long rest. \nYour Bardic Inspiration die changes when you reach certain levels in this class. The die becomes a d8 at 5th level, a d10 at 10th level, and a d12 at 15th level.",
           "ru": "Ваша кость Бардовского вдохновения становится к8 на 5-м уровне."
-        }
+        },
+        "minLevel": 5,
+        "associatedClass": "bard",
+        "type": "resource_pool",
+        "associatedSubclass": null,
+        "resourcePool": {
+          "currentUses": 1,
+          "maxUses": 1,
+          "recoveryType": "shortRest",
+          "calculationFormula": "max(1, cha_mod)"
+        },
+        "requiresRest": true,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "font-of-inspiration",
@@ -169,8 +267,19 @@
         },
         "description": {
           "en": "Beginning when you reach 5th level, you regain all of your expended uses of Bardic Inspiration when you finish a short or long rest.",
-          "ru": "Начиная с 5-го уровня, вы восстанавливаете все свои потраченные использования Бардовского вдохновения, когда заканчиваете короткий или продолжительный отдых."
-        }
+          "ru": "Начиная с 5-го уровня, вы восстанавливаете все свои потраченные использования Бардовского вдохновения, когда заканчиваете короткий или длительный отдых."
+        },
+        "minLevel": 5,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "6": [
@@ -183,7 +292,18 @@
         "description": {
           "en": "At 6th level, you learn two spells of your choice from any class. A spell you choose must be of a level you can cast, as shown on the Bard table, or a cantrip. The chosen spells count as bard spells for you but don't count against the number of bard spells you know.",
           "ru": "На 6-м уровне вы узнаете два заклинания по вашему выбору из любого класса."
-        }
+        },
+        "minLevel": 6,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": "Lore",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "8": [
@@ -196,7 +316,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 8,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "9": [
@@ -209,7 +340,18 @@
         "description": {
           "en": "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains extra hit points. \nThe extra hit points increase when you reach certain levels in this class.",
           "ru": "Начиная со 2-го уровня, вы можете использовать успокаивающую музыку или речь, чтобы помочь оживить ваших раненых союзников во время короткого отдыха. Если вы или любые дружественные существа, которые могут слышать ваше исполнение, восстанавливают хиты в конце короткого отдыха, тратя Кости Хитов, каждое из этих существ восстанавливает дополнительные хиты.\nДополнительные хиты увеличиваются на определенных уровнях в этом классе."
-        }
+        },
+        "minLevel": 9,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "10": [
@@ -222,7 +364,18 @@
         "description": {
           "en": "At 3rd level, choose two of your skill proficiencies. Your proficiency bonus is doubled for any ability check you make that uses either of the chosen proficiencies. At 10th level, you can choose another two skill proficiencies to gain this benefit.",
           "ru": "На 10-м уровне вы можете выбрать еще два владения в навыках, чтобы получить это преимущество."
-        }
+        },
+        "minLevel": 10,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "bardic-inspiration-d10",
@@ -233,7 +386,23 @@
         "description": {
           "en": "You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die, a d6. Once within the next 10 minutes, the creature can roll the die and add the number rolled to one ability check, attack roll, or saving throw it makes. The creature can wait until after it rolls the d20 before deciding to use the Bardic Inspiration die, but must decide before the GM says whether the roll succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A creature can have only one Bardic Inspiration die at a time.\nYou can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain any expended uses when you finish a long rest. \nYour Bardic Inspiration die changes when you reach certain levels in this class. The die becomes a d8 at 5th level, a d10 at 10th level, and a d12 at 15th level.",
           "ru": "Ваша кость Бардовского вдохновения становится к10 на 10-м уровне."
-        }
+        },
+        "minLevel": 10,
+        "associatedClass": "bard",
+        "type": "resource_pool",
+        "associatedSubclass": null,
+        "resourcePool": {
+          "currentUses": 1,
+          "maxUses": 1,
+          "recoveryType": "shortRest",
+          "calculationFormula": "max(1, cha_mod)"
+        },
+        "requiresRest": true,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "magical-secrets-1",
@@ -244,7 +413,18 @@
         "description": {
           "en": "By 10th level, you have plundered magical knowledge from a wide spectrum of disciplines. Choose two spells from any class, including this one. A spell you choose must be of a level you can cast, as shown on the Bard table, or a cantrip. \nThe chosen spells count as bard spells for you and are included in the number in the Spells Known column of the Bard table. \nYou learn two additional spells from any class at 14th level and again at 18th level.",
           "ru": "К 10-му уровню вы похитили магические знания из широкого спектра дисциплин. Выберите два заклинания из любого класса, включая этот."
-        }
+        },
+        "minLevel": 10,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "12": [
@@ -257,7 +437,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 12,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "13": [
@@ -270,7 +461,18 @@
         "description": {
           "en": "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains extra hit points. \nThe extra hit points increase when you reach certain levels in this class.",
           "ru": "Начиная со 2-го уровня, вы можете использовать успокаивающую музыку или речь, чтобы помочь оживить ваших раненых союзников во время короткого отдыха. Если вы или любые дружественные существа, которые могут слышать ваше исполнение, восстанавливают хиты в конце короткого отдыха, тратя Кости Хитов, каждое из этих существ восстанавливает дополнительные хиты.\nДополнительные хиты увеличиваются на определенных уровнях в этом классе."
-        }
+        },
+        "minLevel": 13,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "14": [
@@ -283,7 +485,18 @@
         "description": {
           "en": "Starting at 14th level, when you make an ability check, you can expend one use of Bardic Inspiration. Roll a Bardic Inspiration die and add the number rolled to your ability check. You can choose to do so after you roll the die for the ability check, but before the GM tells you whether you succeed or fail.",
           "ru": "Начиная с 14-го уровня, когда вы совершаете проверку характеристики, вы можете потратить одно использование Бардовского вдохновения. Бросьте кость Бардовского вдохновения и добавьте выпавшее число к вашей проверке характеристики."
-        }
+        },
+        "minLevel": 14,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": "Lore",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "15": [
@@ -296,7 +509,23 @@
         "description": {
           "en": "You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die, a d6. Once within the next 10 minutes, the creature can roll the die and add the number rolled to one ability check, attack roll, or saving throw it makes. The creature can wait until after it rolls the d20 before deciding to use the Bardic Inspiration die, but must decide before the GM says whether the roll succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A creature can have only one Bardic Inspiration die at a time.\nYou can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain any expended uses when you finish a long rest. \nYour Bardic Inspiration die changes when you reach certain levels in this class. The die becomes a d8 at 5th level, a d10 at 10th level, and a d12 at 15th level.",
           "ru": "Ваша кость Бардовского вдохновения становится к12 на 15-м уровне."
-        }
+        },
+        "minLevel": 15,
+        "associatedClass": "bard",
+        "type": "resource_pool",
+        "associatedSubclass": null,
+        "resourcePool": {
+          "currentUses": 1,
+          "maxUses": 1,
+          "recoveryType": "shortRest",
+          "calculationFormula": "max(1, cha_mod)"
+        },
+        "requiresRest": true,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "16": [
@@ -309,7 +538,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 16,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "17": [
@@ -322,7 +562,18 @@
         "description": {
           "en": "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains extra hit points. \nThe extra hit points increase when you reach certain levels in this class.",
           "ru": "Начиная со 2-го уровня, вы можете использовать успокаивающую музыку или речь, чтобы помочь оживить ваших раненых союзников во время короткого отдыха. Если вы или любые дружественные существа, которые могут слышать ваше исполнение, восстанавливают хиты в конце короткого отдыха, тратя Кости Хитов, каждое из этих существ восстанавливает дополнительные хиты.\nДополнительные хиты увеличиваются на определенных уровнях в этом классе."
-        }
+        },
+        "minLevel": 17,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "18": [
@@ -335,7 +586,18 @@
         "description": {
           "en": "By 10th level, you have plundered magical knowledge from a wide spectrum of disciplines. Choose two spells from any class, including this one. A spell you choose must be of a level you can cast, as shown on the Bard table, or a cantrip. \nThe chosen spells count as bard spells for you and are included in the number in the Spells Known column of the Bard table. \nYou learn two additional spells from any class at 14th level and again at 18th level.",
           "ru": "Вы узнаете два дополнительных заклинания из любого класса на 18-м уровне."
-        }
+        },
+        "minLevel": 18,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "19": [
@@ -348,7 +610,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 19,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "20": [
@@ -361,7 +634,18 @@
         "description": {
           "en": "At 20th level, when you roll initiative and have no uses of Bardic Inspiration left, you regain one use.",
           "ru": "На 20-м уровне, когда вы бросаете инициативу и у вас не осталось использований Бардовского вдохновения, вы восстанавливаете одно использование."
-        }
+        },
+        "minLevel": 20,
+        "associatedClass": "bard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "music_note",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ]
   },

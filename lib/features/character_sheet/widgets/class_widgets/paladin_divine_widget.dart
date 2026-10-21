@@ -1,11 +1,17 @@
+import '../../../../core/magic/magic_slots.dart';
+import '../../../../core/services/magic_resource_actions_service.dart';
+import '../../../../core/ui/companion_surface.dart';
+import '../../../../core/ui/sheet_drag_region.dart';
+import '../../../../core/services/gameplay_actions_service.dart';
+import '../session/value_editors.dart';
+import '../session/value_editor_dialog.dart';
+import 'shared/class_panel_presentation.dart';
+import '../../../../core/progression/character_class_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
-import '../../../../core/models/class_data.dart';
-import '../../../../core/services/character_data_service.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import '../../../../l10n/app_localizations.dart';
 import 'shared/class_tools_layout_builder.dart';
@@ -36,18 +42,8 @@ class PaladinDivineWidget extends StatefulWidget {
 
 class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
   bool _isChannelActive = false;
-  bool _isSacredWeaponActive = false;
-
-  String _getLocalizedSubclass(AppLocalizations l10n, String? subclass) {
-    if (subclass == null) return l10n.sacredOath;
-    final lower = subclass.toLowerCase();
-    if (lower.contains('devotion')) return l10n.oathDevotion;
-    if (lower.contains('ancients')) return l10n.oathAncients;
-    if (lower.contains('vengeance')) return l10n.oathVengeance;
-    if (lower.contains('conquest')) return l10n.oathConquest;
-    if (lower.contains('redemption')) return l10n.oathRedemption;
-    return subclass;
-  }
+  bool _resourceBusy = false;
+  bool get _isSacredWeaponActive => widget.character.isSacredWeaponActive;
 
   @override
   void initState() {
@@ -68,87 +64,78 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
     final onBeige = colorScheme.onSecondary;
 
     // Explicit background for inner blocks to visually separate them
-    final blockBg = colorScheme.surfaceContainerHighest;
+    final blockBg = colorScheme.surfaceContainerLow;
 
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: colorScheme.outline, width: 1.5),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      margin: const EdgeInsets.only(bottom: 24),
-      clipBehavior: Clip.antiAlias,
-      child: ClassToolsLayoutBuilder(
-        padding: const EdgeInsets.all(12),
-        spacing: 12,
-        children: [
-          // --- BLOCK 0: SUBCLASS (OATH) ---
-          if (widget.character.subclass != null)
-            _buildSubclassBlock(context, colorScheme, orangeAccent),
+    return ClassPanelFrame(
+        character: widget.character,
+        classId: 'paladin',
+        child: ClassToolsLayoutBuilder(
+          padding: EdgeInsets.zero,
+          spacing: 12,
+          children: [
+            // --- BLOCK 0: SUBCLASS (OATH) ---
+            if (CharacterClassContext(widget.character, 'paladin').subclass !=
+                null)
+              _buildSubclassBlock(context, colorScheme, orangeAccent),
 
-          // --- BLOCK 1: LAY ON HANDS ---
-          _buildBlockContainer(
-            color: blockBg,
-            onTap: () => _showDetails(widget.layOnHands),
-            // Padding inside the block for content
-            padding: const EdgeInsets.all(12),
-            child: _buildLayOnHandsContent(
+            _buildLayOnHandsContent(
                 context, colorScheme, orangeAccent, beigeAccent, onBeige),
-          ),
 
-          // --- BLOCK 2: DIVINE SENSE & SMITE ---
-          if (widget.divineSense != null || widget.divineSmite != null)
-            IntrinsicHeight(
-              child: Row(
-                spacing: 12,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+            if (widget.divineSense != null || widget.divineSmite != null)
+              LayoutBuilder(builder: (context, constraints) {
+                final controls = <Widget>[
                   if (widget.divineSense != null)
-                    Expanded(
-                      child: _buildBlockContainer(
-                        color: blockBg,
+                    _buildBlockContainer(
+                        color: colorScheme.secondaryContainer,
+                        padding: const EdgeInsets.all(16),
                         onTap: () => _showDetails(widget.divineSense!),
-                        padding: const EdgeInsets.all(12),
                         child: _buildDivineSenseContent(context, colorScheme,
-                            orangeAccent, beigeAccent, onBeige),
-                      ),
-                    ),
-                  if (widget.divineSmite != null)
-                    Expanded(
-                      child: _buildBlockContainer(
-                        color: blockBg,
+                            orangeAccent, beigeAccent, onBeige)),
+                  if (widget.divineSmite != null &&
+                      CharacterClassContext(widget.character, 'paladin')
+                          .canUseFeature(widget.divineSmite!))
+                    _buildBlockContainer(
+                        color: colorScheme.primaryContainer,
+                        padding: const EdgeInsets.all(16),
                         onTap: () => _showDetails(widget.divineSmite!),
-                        padding: const EdgeInsets.all(12),
                         child: _buildDivineSmiteContent(context, colorScheme,
-                            orangeAccent, beigeAccent, onBeige),
-                      ),
-                    ),
-                ],
-              ),
-            ),
+                            orangeAccent, beigeAccent, onBeige)),
+                ];
+                if (controls.length == 2 &&
+                    constraints.maxWidth >= 330 &&
+                    MediaQuery.textScalerOf(context).scale(1) <= 1.2) {
+                  return IntrinsicHeight(
+                      child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                        Expanded(child: controls[0]),
+                        const SizedBox(width: 8),
+                        Expanded(child: controls[1])
+                      ]));
+                }
+                return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final control in controls) ...[
+                        control,
+                        const SizedBox(height: 8)
+                      ]
+                    ]);
+              }),
 
-          // --- BLOCK 3: CHANNEL DIVINITY ---
-          if (widget.channelDivinityResource != null)
-            // Special container logic for the "Full Width Header"
-            Container(
-              decoration: BoxDecoration(
-                color: blockBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: colorScheme.outline.withValues(alpha: 0.3)),
-              ),
-              // CRITICAL: AntiAlias clip ensures the header's top corners match the container's
-              clipBehavior: Clip.antiAlias,
-              child: _buildChannelDivinityContent(
-                  context, colorScheme, beigeAccent, onBeige, orangeAccent),
-            ),
-        ],
-      ),
-    )
-        .animate()
-        .fadeIn(duration: 300.ms)
-        .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad);
+            // --- BLOCK 3: CHANNEL DIVINITY ---
+            if (widget.channelDivinityResource != null &&
+                CharacterClassContext(widget.character, 'paladin')
+                    .canUseFeature(widget.channelDivinityResource!))
+              // Special container logic for the "Full Width Header"
+              CompanionSurface(
+                  color: blockBg,
+                  quiet: true,
+                  padding: EdgeInsets.zero,
+                  child: _buildChannelDivinityContent(context, colorScheme,
+                      beigeAccent, onBeige, orangeAccent)),
+          ],
+        ));
   }
 
   /// Helper to create the visual "tiles"
@@ -158,26 +145,13 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
     required EdgeInsetsGeometry padding,
     VoidCallback? onTap,
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
+    return CompanionSurface(
         color: color,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: padding,
-            child: child,
-          ),
-        ),
-      ),
-    );
+        contour: CompanionContour.focus,
+        padding: padding,
+        onTap: onTap,
+        child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 154), child: child));
   }
 
   // ===========================================================================
@@ -187,462 +161,228 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
       Color barColor, Color btnColor, Color onBtnColor) {
     final pool = widget.layOnHands.resourcePool;
     if (pool == null) return const SizedBox.shrink();
-
-    final calculatedMax = widget.character.level * 5;
-    final max = calculatedMax > 0
-        ? calculatedMax
-        : (pool.maxUses > 0 ? pool.maxUses : 5);
-    final current = pool.currentUses.clamp(0, max);
-    final progress = max > 0 ? current / max : 0.0;
-
+    final l = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
-    final featureName = widget.layOnHands.getName(locale).toUpperCase();
-
-    return Column(
-      children: [
-        // Header
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            children: [
-              Icon(Icons.favorite, color: barColor, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  featureName,
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                      color: colorScheme.onSurfaceVariant),
-                ),
-              ),
-              Icon(Icons.info_outline,
-                  size: 16, color: colorScheme.outline.withValues(alpha: 0.5)),
-            ],
-          ),
-        ),
-
-        Align(
-          alignment: Alignment.centerRight,
-          child: Text(
-            '$current / $max',
-            style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w900,
-                color: colorScheme.onSurface),
-          ),
-        ),
-
-        const SizedBox(height: 6),
-
-        // Progress Bar
-        GestureDetector(
-          onTap: () => _showCustomHealDialog(context, pool, max),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: TweenAnimationBuilder<double>(
-              tween: Tween<double>(begin: 0, end: progress),
-              duration: const Duration(milliseconds: 800),
-              curve: Curves.easeOutQuart,
-              builder: (context, value, _) {
-                return LinearProgressIndicator(
-                  value: value,
-                  minHeight: 14,
-                  backgroundColor: colorScheme.surfaceDim,
-                  valueColor: AlwaysStoppedAnimation(barColor),
-                );
-              },
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        // Buttons
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            _buildTonalBtn(
-                context,
-                "-1",
-                () => _modifyPool(pool, -1, maxOverride: max),
-                current >= 1,
-                btnColor,
-                onBtnColor),
-            const SizedBox(width: 8),
-            _buildTonalBtn(
-                context,
-                "-5",
-                () => _modifyPool(pool, -5, maxOverride: max),
-                current >= 5,
-                btnColor,
-                onBtnColor),
-            const SizedBox(width: 8),
-            _buildTonalBtn(
-                context,
-                "-10",
-                () => _modifyPool(pool, -10, maxOverride: max),
-                current >= 10,
-                btnColor,
-                onBtnColor),
-            const SizedBox(width: 8),
-            // Undo/Reset
-            IconButton.filledTonal(
-              onPressed: () =>
-                  _modifyPool(pool, max - current, maxOverride: max),
-              icon: const Icon(Icons.refresh, size: 18),
-              style: IconButton.styleFrom(
-                backgroundColor: colorScheme.surfaceDim,
-                foregroundColor: colorScheme.onSurfaceVariant,
-                minimumSize: const Size(36, 36),
-                padding: EdgeInsets.zero,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
+    return ClassPrimaryControl(
+        classId: 'paladin',
+        title: widget.layOnHands.getName(locale),
+        current: pool.currentUses,
+        maximum: pool.maxUses,
+        tone: colorScheme.tertiaryContainer,
+        footer: classRecoveryLabel(l, pool.recoveryType),
+        onEdit: () async {
+          final changed = await showResourceValueEditor(
+              context, widget.character, widget.layOnHands);
+          if (mounted && changed) setState(() => widget.onChanged?.call());
+        },
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text('${pool.currentUses} ${l.hpShort}',
+              style: Theme.of(context)
+                  .textTheme
+                  .displaySmall
+                  ?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 16),
+          FilledButton.tonalIcon(
+              onPressed: pool.currentUses > 0
+                  ? () => _showCustomHealDialog(context, pool, pool.maxUses)
+                  : null,
+              icon: const Icon(Icons.favorite_outline_rounded),
+              label: Text(locale == 'ru' ? 'Выбрать объём' : 'Choose amount')),
+        ]));
   }
 
-  Widget _buildTonalBtn(BuildContext context, String label, VoidCallback onTap,
-      bool enabled, Color bg, Color fg) {
-    return SizedBox(
-      height: 32,
-      child: FilledButton(
-        onPressed: enabled
-            ? () {
-                HapticFeedback.lightImpact();
-                onTap();
-              }
-            : null,
-        style: FilledButton.styleFrom(
-          backgroundColor: bg,
-          foregroundColor: fg,
-          disabledBackgroundColor: Theme.of(context).colorScheme.surfaceDim,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          elevation: 0,
-        ),
-        child: Text(label,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-      ),
-    );
+  Future<void> _usePaladinResource(CharacterFeature feature,
+      {bool sacredWeapon = false}) async {
+    if (_resourceBusy) return;
+    setState(() => _resourceBusy = true);
+    final l = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
+    try {
+      final spent = sacredWeapon && _isSacredWeaponActive
+          ? await GameplayActionsService.endSacredWeapon(widget.character)
+          : (await GameplayActionsService.activateResource(
+                  widget.character, feature,
+                  activateSacredWeapon: sacredWeapon))
+              .spent;
+      if (mounted && spent) {
+        HapticFeedback.mediumImpact();
+        widget.onChanged?.call();
+        if (!sacredWeapon || _isSacredWeaponActive) {
+          AppSnackBar.success(
+              context, l.gameStateResourceUsed(feature.getName(locale)));
+        }
+      }
+    } catch (_) {
+      if (mounted) AppSnackBar.error(context, l.sheetSaveFailed);
+    } finally {
+      if (mounted) setState(() => _resourceBusy = false);
+    }
   }
 
-  // ===========================================================================
-  // 2. DIVINE SENSE CONTENT
-  // ===========================================================================
   Widget _buildDivineSenseContent(BuildContext context, ColorScheme colorScheme,
       Color dotColor, Color buttonColor, Color onButtonColor) {
-    final pool = widget.divineSense?.resourcePool;
-    if (pool == null) return const SizedBox.shrink();
-
+    final f = widget.divineSense!;
+    final pool = f.resourcePool;
     final locale = Localizations.localeOf(context).languageCode;
-    final featureName =
-        widget.divineSense?.getName(locale).toUpperCase() ?? 'DIVINE SENSE';
-
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            children: [
-              Icon(Icons.visibility, color: dotColor, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  featureName,
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                      color: colorScheme.onSurfaceVariant),
-                ),
-              ),
-              Icon(Icons.info_outline,
-                  size: 16, color: colorScheme.outline.withValues(alpha: 0.5)),
-            ],
-          ),
-        ),
-        const Spacer(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Charges
-            Expanded(
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: List.generate(pool.maxUses, (index) {
-                  final isActive = index < pool.currentUses;
-                  return GestureDetector(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      // Toggle logic: click active dot to spend, click inactive to restore
-                      if (isActive) {
-                        _modifyPool(pool, -1);
-                      } else {
-                        _modifyPool(pool, 1);
-                      }
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: isActive ? dotColor : Colors.transparent,
-                        border: Border.all(
-                          color: isActive
-                              ? dotColor
-                              : colorScheme.outline.withValues(alpha: 0.5),
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ),
-            // Sensor Button
-            _DivineSenseSensorButton(
-              hasCharges: pool.currentUses > 0,
-              backgroundColor: buttonColor,
-              iconColor: onButtonColor,
-              disabledColor: colorScheme.surfaceDim,
-              onTap: () {
-                if (pool.currentUses > 0) {
-                  _modifyPool(pool, -1);
-                  AppSnackBar.success(
-                    context,
-                    locale == 'ru'
-                        ? 'Божественное чувство использовано'
-                        : 'Divine Sense used',
-                    duration: const Duration(milliseconds: 1500),
-                  );
-                } else {
-                  AppSnackBar.warning(
-                    context,
-                    locale == 'ru' ? 'Нет зарядов!' : 'No charges left!',
-                    duration: const Duration(milliseconds: 1500),
-                  );
-                }
-              },
-            ),
-          ],
-        ),
-      ],
-    );
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(f.getName(locale),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 12),
+          if (pool != null)
+            Align(
+                alignment: Alignment.centerLeft,
+                child: CompanionReserve(
+                    current: pool.currentUses,
+                    maximum: pool.maxUses,
+                    large: true)),
+          const SizedBox(height: 12),
+          FilledButton.tonalIcon(
+              style: FilledButton.styleFrom(
+                  minimumSize: const Size(0, 64),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                  textStyle: Theme.of(context).textTheme.labelLarge),
+              onPressed: !_resourceBusy && (pool?.currentUses ?? 0) > 0
+                  ? () => _usePaladinResource(f)
+                  : null,
+              icon: const Icon(Icons.visibility_outlined, size: 18),
+              label: Text(AppLocalizations.of(context)!.useAction)),
+        ]);
   }
 
   Widget _buildDivineSmiteContent(BuildContext context, ColorScheme colorScheme,
       Color dotColor, Color buttonColor, Color onButtonColor) {
     final locale = Localizations.localeOf(context).languageCode;
-    final featureName =
-        widget.divineSmite?.getName(locale).toUpperCase() ?? 'DIVINE SMITE';
-
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            children: [
-              Icon(Icons.local_fire_department, color: dotColor, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  featureName,
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                      color: colorScheme.onSurfaceVariant),
-                ),
-              ),
-              Icon(Icons.info_outline,
-                  size: 16, color: colorScheme.outline.withValues(alpha: 0.5)),
-            ],
-          ),
-        ),
-        const Spacer(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Base Damage Indicator
-            Expanded(
-              child: Text(
-                locale == 'ru' ? '2к8+' : '2d8+',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.w900,
-                    ),
-              ),
-            ),
-            // Smite Button
-            _DivineSenseSensorButton(
-              hasCharges: true,
-              backgroundColor: buttonColor,
-              iconColor: onButtonColor,
-              disabledColor: colorScheme.surfaceDim,
-              icon: Icons.local_fire_department,
-              onTap: () => _showSmiteDialog(context),
-            ),
-          ],
-        ),
-      ],
-    );
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(widget.divineSmite!.getName(locale),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 12),
+          Text(locale == 'ru' ? '2к8' : '2d8',
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineMedium
+                  ?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 12),
+          FilledButton.tonalIcon(
+              style: FilledButton.styleFrom(
+                  minimumSize: const Size(0, 64),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                  textStyle: Theme.of(context).textTheme.labelLarge),
+              onPressed:
+                  !_resourceBusy ? () => _showSmiteDialog(context) : null,
+              icon: const Icon(Icons.bolt_rounded, size: 18),
+              label: Text(locale == 'ru' ? 'Выбрать ячейку' : 'Choose slot')),
+        ]);
   }
 
   void _showSmiteDialog(BuildContext context) {
-    final availableSlots = <int>[];
-    for (int i = 0; i < widget.character.spellSlots.length; i++) {
-      if (widget.character.spellSlots[i] > 0) {
-        availableSlots.add(i + 1);
-      }
-    }
-
-    if (availableSlots.isEmpty) {
-      final locale = Localizations.localeOf(context).languageCode;
+    MagicSlots slots;
+    try {
+      slots = MagicSlots.read(widget.character);
+    } catch (_) {
       AppSnackBar.warning(
-        context,
-        locale == 'ru'
-            ? 'Нет доступных ячеек заклинаний для Кары!'
-            : 'No spell slots available for Smite!',
-      );
+          context,
+          Localizations.localeOf(context).languageCode == 'ru'
+              ? 'Сначала уточни запасы магии.'
+              : 'Resolve spell pools first.');
       return;
     }
-
-    final theme = Theme.of(context);
-    final locale = Localizations.localeOf(context).languageCode;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: theme.colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (bottomSheetContext) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 8),
-              Container(
-                width: 32,
-                height: 4,
-                decoration: BoxDecoration(
-                  color:
-                      theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text(
-                  locale == 'ru'
-                      ? 'Выберите ячейку для кары'
-                      : 'Select slot for Smite',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Flexible(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: availableSlots.length,
-                  itemBuilder: (context, index) {
-                    final level = availableSlots[index];
-                    final damageDice = 2 +
-                        (level -
-                            1); // 2d8 for 1st level, +1d8 for each slot level above 1st
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 4.0),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
-                          onTap: () {
-                            Navigator.pop(context);
-                            _executeSmite(level, damageDice, locale);
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 16),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.surfaceContainerHighest
-                                  .withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                  color: theme.colorScheme.outline
-                                      .withValues(alpha: 0.1)),
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    locale == 'ru'
-                                        ? 'Круг $level (${damageDice}d8 урона)'
-                                        : 'Circle $level (${damageDice}d8 damage)',
-                                    style: theme.textTheme.bodyLarge
-                                        ?.copyWith(fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: theme.colorScheme.primary
-                                        .withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Icon(Icons.local_fire_department,
-                                      color: theme.colorScheme.primary),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      },
-    );
+    final choices = [
+      for (final circle in slots.availableCircles(1))
+        (MagicPool.shared, circle),
+      if ((slots.pact?.current ?? 0) > 0) (MagicPool.pact, slots.pact!.circle)
+    ];
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    showResponsiveSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        builder: (context) => SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SheetDragRegion(
+                      child: Text(ru ? 'Божественная кара' : 'Divine Smite',
+                          style: Theme.of(context).textTheme.headlineSmall)),
+                  const SizedBox(height: 12),
+                  Text(ru
+                      ? 'Применяется после попадания рукопашным оружием. По нежити или исчадию добавляется ещё 1к8.'
+                      : 'Use after a melee weapon hit. Add 1d8 against an undead or a fiend.'),
+                  const SizedBox(height: 16),
+                  if (choices.isEmpty)
+                    Text(AppLocalizations.of(context)!.noSlotsAvailable),
+                  for (final choice in choices)
+                    Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: CompanionSurface(
+                            quiet: true,
+                            onTap: () {
+                              Navigator.pop(context);
+                              _executeSmite(choice.$1, choice.$2, ru);
+                            },
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                      choice.$1 == MagicPool.pact
+                                          ? (ru
+                                              ? 'Магия договора'
+                                              : 'Pact Magic')
+                                          : (ru
+                                              ? 'Общая ячейка'
+                                              : 'Shared slot'),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelLarge),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                      '${ru ? 'Круг' : 'Circle'} ${choice.$2} · ${choice.$2 >= 4 ? 5 : choice.$2 + 1}${ru ? 'к8' : 'd8'}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium),
+                                ]))),
+                ])));
   }
 
-  void _executeSmite(int level, int damageDice, String locale) {
-    setState(() {
-      if (level > 0 && level <= widget.character.spellSlots.length) {
-        widget.character.spellSlots[level - 1]--;
-        widget.character.save();
+  Future<void> _executeSmite(MagicPool pool, int circle, bool ru) async {
+    if (_resourceBusy) return;
+    setState(() => _resourceBusy = true);
+    try {
+      await MagicResourceActionsService.spendSlot(
+          widget.character, pool, circle);
+      if (!mounted) return;
+      widget.onChanged?.call();
+      AppSnackBar.success(
+          context,
+          ru
+              ? 'Божественная кара · ${circle >= 4 ? 5 : circle + 1}к8'
+              : 'Divine Smite · ${circle >= 4 ? 5 : circle + 1}d8');
+    } catch (_) {
+      if (mounted) {
+        AppSnackBar.error(context,
+            ru ? 'Не удалось применить кару.' : 'Could not apply Smite.');
       }
-    });
-
-    // Notify parent so SpellSlotsWidget rebuilds to show consumed slot
-    widget.onChanged?.call();
-
-    AppSnackBar.success(
-      context,
-      locale == 'ru'
-          ? '💥 Божественная Кара ($level-й круг): ${damageDice}d8 урона излучением!'
-          : '💥 Divine Smite (Level $level): ${damageDice}d8 radiant damage!',
-      duration: const Duration(seconds: 2),
-    );
+    } finally {
+      if (mounted) setState(() => _resourceBusy = false);
+    }
   }
 
   // ===========================================================================
@@ -654,95 +394,34 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
       Color activeBg,
       Color activeContent,
       Color iconColor) {
-    final pool = widget.channelDivinityResource?.resourcePool;
-    if (pool == null) return const SizedBox.shrink();
-
-    final locale = Localizations.localeOf(context).languageCode;
-    final featureName =
-        widget.channelDivinityResource?.getName(locale).toUpperCase() ??
-            'CHANNEL DIVINITY';
-
-    final isActive = _isChannelActive;
-
-    // Header Colors
-    final pillColor = isActive ? activeBg : colorScheme.surfaceDim;
-    final pillContentColor =
-        isActive ? activeContent : colorScheme.onSurfaceVariant;
-    final shieldIconColor = isActive ? activeContent : iconColor;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // HEADER: Merged "Cap"
-        // Uses Material to handle InkWell splash properly over colored bg
-        Material(
-          color: pillColor,
-          // No rounded corners here on Material itself because the Parent clips it.
-          // BUT, we can add bottom radius to create the separation effect from the list.
-          borderRadius:
-              const BorderRadius.vertical(bottom: Radius.circular(12)),
-          child: InkWell(
-            onTap: () => _showDetails(widget.channelDivinityResource!),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  Icon(Icons.shield, color: shieldIconColor, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      featureName,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                        color: pillContentColor,
-                      ),
-                    ),
-                  ),
-                  Icon(Icons.info_outline,
-                      size: 16, color: pillContentColor.withValues(alpha: 0.5)),
-                  const SizedBox(width: 8),
-                  // Expand Button
-                  IconButton(
-                    icon: Icon(isActive ? Icons.expand_less : Icons.expand_more,
-                        color: pillContentColor),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      setState(() {
-                        _isChannelActive = !_isChannelActive;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-
-        // Spells Grid
-        AnimatedSize(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          child: (!isActive || widget.channelDivinitySpells.isEmpty)
-              ? const SizedBox.shrink()
-              : Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: widget.channelDivinitySpells.map((f) {
-                      return _buildSpellGridTile(context, f, colorScheme,
-                          activeBg, activeContent, locale, pool);
-                    }).toList(),
-                  ),
-                ),
-        ),
-      ],
-    );
+    final resource = widget.channelDivinityResource;
+    if (resource?.resourcePool == null) return const SizedBox.shrink();
+    return ExpansionTile(
+        initiallyExpanded: _isChannelActive,
+        onExpansionChanged: (value) => setState(() => _isChannelActive = value),
+        shape: const RoundedRectangleBorder(),
+        collapsedShape: const RoundedRectangleBorder(),
+        title: Text(AppLocalizations.of(context)!.channelDivinity,
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(fontWeight: FontWeight.w700)),
+        subtitle: CompanionReserve(
+            current: GameplayActionsService.resourceCurrent(
+                widget.character, resource!),
+            maximum: resource.resourcePool!.maxUses),
+        childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        children: [
+          for (final f in widget.channelDivinitySpells)
+            _buildSpellGridTile(
+                context,
+                f,
+                colorScheme,
+                activeBg,
+                activeContent,
+                Localizations.localeOf(context).languageCode,
+                resource.resourcePool!),
+        ]);
   }
 
   Widget _buildSpellGridTile(
@@ -753,119 +432,47 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
       Color buttonContent,
       String locale,
       ResourcePool pool) {
-    String name = feature.getName(locale);
-    name = name
+    final name = feature
+        .getName(locale)
         .replaceAll('Божественный Канал: ', '')
         .replaceAll('Channel Divinity: ', '')
         .trim();
-    final icon = _getSmartIcon(name, feature.iconName);
-
-    final isSacredWeapon = feature.id == 'channel-divinity-sacred-weapon';
-    final hasUses = pool.currentUses > 0;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showDetails(feature),
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Interactive Icon Container
-                Opacity(
-                  opacity: hasUses
-                      ? 1.0
-                      : (isSacredWeapon && _isSacredWeaponActive ? 1.0 : 0.5),
-                  child: InkWell(
-                    onTap: () {
-                      HapticFeedback.mediumImpact();
-
-                      if (!hasUses &&
-                          !(isSacredWeapon && _isSacredWeaponActive)) {
-                        AppSnackBar.warning(
-                          context,
-                          locale == 'ru'
-                              ? 'Нет зарядов Божественного Канала!'
-                              : 'No Channel Divinity charges left!',
-                          duration: const Duration(milliseconds: 1500),
-                        );
-                        return;
-                      }
-
-                      if (isSacredWeapon) {
-                        setState(() {
-                          _isSacredWeaponActive = !_isSacredWeaponActive;
-                        });
-                        if (_isSacredWeaponActive) {
-                          _useChannelDivinity(pool, name);
-                          AppSnackBar.success(
-                            context,
-                            locale == 'ru'
-                                ? '⚔️ Священное оружие активно! Оружие светится ярким светом.'
-                                : '⚔️ Sacred Weapon is active! The weapon emits bright light.',
-                            duration: const Duration(seconds: 2),
-                          );
-                        }
-                      } else {
-                        _useChannelDivinity(pool, name);
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(32),
-                    child: isSacredWeapon
-                        ? _buildPulsatingSacredWeaponIcon(context)
-                        : Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: colorScheme.surfaceContainerHighest,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                  color: colorScheme.primary
-                                      .withValues(alpha: 0.5),
-                                  width: 1.5),
-                            ),
-                            child: Icon(icon,
-                                size: 28, color: colorScheme.primary),
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                // Name
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      name,
-                      textAlign: TextAlign.center,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurface),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    final sacred = feature.id == 'channel-divinity-sacred-weapon';
+    final active = sacred && _isSacredWeaponActive;
+    final current = GameplayActionsService.resourceCurrent(
+        widget.character, widget.channelDivinityResource!);
+    return Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: CompanionSurface(
+            key: ValueKey('paladin-channel-${feature.id}'),
+            contour: CompanionContour.focus,
+            color: active ? colorScheme.primaryContainer : colorScheme.surface,
+            padding: const EdgeInsets.all(14),
+            onTap: () => _showDetails(feature),
+            child: Row(children: [
+              Icon(_getSmartIcon(name, feature.iconName),
+                  size: 24, color: colorScheme.secondary),
+              const SizedBox(width: 12),
+              Expanded(
+                  child: Text(name,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w600))),
+              const SizedBox(width: 8),
+              IconButton.filledTonal(
+                  tooltip: active
+                      ? (locale == 'ru' ? 'Завершить' : 'End')
+                      : AppLocalizations.of(context)!.useAction,
+                  onPressed: !_resourceBusy && (current > 0 || active)
+                      ? () => _usePaladinResource(
+                          widget.channelDivinityResource!,
+                          sacredWeapon: sacred)
+                      : null,
+                  icon: Icon(
+                      active ? Icons.stop_rounded : Icons.play_arrow_rounded)),
+            ])));
   }
-
-  Widget _buildPulsatingSacredWeaponIcon(BuildContext context) {
-    // The actual animation logic is now encapsulated in _SacredWeaponPulseIcon
-    return _SacredWeaponPulseIcon(isActive: _isSacredWeaponActive);
-  }
-
-  // --- Logic Helpers ---
 
   void _showDetails(CharacterFeature feature) {
     showModalBottomSheet(
@@ -876,67 +483,24 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
     );
   }
 
-  void _showCustomHealDialog(BuildContext context, ResourcePool pool, int max) {
-    final controller = TextEditingController();
-    final l10n = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.customHealAmount),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          autofocus: true,
-          decoration: InputDecoration(labelText: l10n.hpToSpend),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () {
-              final amount = int.tryParse(controller.text) ?? 0;
-              if (amount > 0) {
-                _modifyPool(pool, -amount, maxOverride: max);
-              }
-              Navigator.pop(context);
-            },
-            child: Text(l10n.heal),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _modifyPool(ResourcePool pool, int amount, {int? maxOverride}) {
-    HapticFeedback.lightImpact();
-    setState(() {
-      final effectiveMax = maxOverride ?? pool.maxUses;
-      final newCurrent = (pool.currentUses + amount).clamp(0, effectiveMax);
-      pool.currentUses = newCurrent;
-      if (maxOverride != null && pool.maxUses != maxOverride) {
-        pool.maxUses = maxOverride;
-      }
-      widget.character.save();
-      widget.onChanged?.call();
+  Future<void> _showCustomHealDialog(
+      BuildContext context, ResourcePool pool, int max) async {
+    if (pool.currentUses <= 0) return;
+    final l = AppLocalizations.of(context)!;
+    final changed = await showSheetValueEditor(context,
+        title: l.customHealAmount,
+        icon: Icons.favorite_outline_rounded,
+        actionLabel: l.heal,
+        fields: [
+          SheetNumberField('amount', l.hpToSpend, 1,
+              minimum: 1, maximum: pool.currentUses)
+        ], onSave: (values, _) async {
+      final spent = await GameplayActionsService.spendResource(
+          widget.character, widget.layOnHands,
+          amount: values['amount']!);
+      if (!spent) throw StateError('insufficient-resource');
     });
-  }
-
-  void _useChannelDivinity(ResourcePool pool, String featureName) {
-    if (pool.currentUses > 0) {
-      setState(() {
-        pool.use(1);
-        widget.character.save();
-        widget.onChanged?.call();
-      });
-      final locale = Localizations.localeOf(context).languageCode;
-      AppSnackBar.success(
-        context,
-        '$featureName ${locale == 'ru' ? 'использовано!' : 'used!'}',
-        duration: const Duration(seconds: 2),
-      );
-    }
+    if (mounted && changed) setState(() => widget.onChanged?.call());
   }
 
   IconData _getSmartIcon(String name, String? iconName) {
@@ -955,308 +519,8 @@ class _PaladinDivineWidgetState extends State<PaladinDivineWidget> {
   }
 
   Widget _buildSubclassBlock(
-      BuildContext context, ColorScheme colorScheme, Color accentColor) {
-    final l10n = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context).languageCode;
-
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accentColor.withValues(alpha: 0.3)),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            HapticFeedback.lightImpact();
-
-            // Fetch lore
-            final classData = CharacterDataService.getClassById(
-                widget.character.characterClass);
-            SubclassData? subclassData;
-
-            if (classData != null && widget.character.subclass != null) {
-              try {
-                subclassData = classData.subclasses.firstWhere((s) {
-                  return s.name.values
-                          .any((val) => val == widget.character.subclass) ||
-                      s.id ==
-                          widget.character.subclass!
-                              .toLowerCase()
-                              .replaceAll(' ', '_');
-                });
-              } catch (_) {}
-            }
-
-            final description =
-                subclassData?.getDescription(locale) ?? l10n.noFeaturesAtLevel1;
-            final subclassDisplay =
-                _getLocalizedSubclass(l10n, widget.character.subclass);
-
-            showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                ),
-                builder: (context) => DraggableScrollableSheet(
-                      initialChildSize: 0.6,
-                      minChildSize: 0.4,
-                      maxChildSize: 0.9,
-                      expand: false,
-                      builder: (context, scrollController) => Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: colorScheme.surface,
-                          borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(24)),
-                        ),
-                        child: ListView(
-                          controller: scrollController,
-                          children: [
-                            Center(
-                              child: Container(
-                                width: 40,
-                                height: 4,
-                                margin: const EdgeInsets.only(bottom: 24),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.outlineVariant,
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                            ),
-                            Row(children: [
-                              Icon(Icons.gavel, color: accentColor, size: 28),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  subclassDisplay,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall
-                                      ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: colorScheme.onSurface),
-                                ),
-                              ),
-                            ]),
-                            const SizedBox(height: 16),
-                            const Divider(),
-                            const SizedBox(height: 16),
-                            Text(
-                              description,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(height: 1.5),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ));
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(Icons.gavel, color: accentColor),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.sacredOath,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                      ),
-                      Text(
-                        _getLocalizedSubclass(l10n, widget.character.subclass),
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+          BuildContext context, ColorScheme colorScheme, Color accentColor) =>
+      ClassSubclassLink(character: widget.character, classId: 'paladin');
 }
 
 // --- Internal Widget: Divine Sense Pulse Button ---
-
-class _DivineSenseSensorButton extends StatefulWidget {
-  final bool hasCharges;
-  final VoidCallback onTap;
-  final Color backgroundColor;
-  final Color iconColor;
-  final Color disabledColor;
-  final IconData icon;
-
-  const _DivineSenseSensorButton({
-    required this.hasCharges,
-    required this.onTap,
-    required this.backgroundColor,
-    required this.iconColor,
-    required this.disabledColor,
-    this.icon = Icons.visibility,
-  });
-
-  @override
-  State<_DivineSenseSensorButton> createState() =>
-      _DivineSenseSensorButtonState();
-}
-
-class _DivineSenseSensorButtonState extends State<_DivineSenseSensorButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 150));
-    _scaleAnim = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.85), weight: 50),
-      TweenSequenceItem(tween: Tween(begin: 0.85, end: 1.0), weight: 50),
-    ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        _controller.forward(from: 0.0);
-        widget.onTap();
-      },
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) =>
-            Transform.scale(scale: _scaleAnim.value, child: child),
-        child: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: widget.hasCharges
-                ? widget.backgroundColor
-                : widget.disabledColor,
-            boxShadow: widget.hasCharges
-                ? [
-                    BoxShadow(
-                        color: widget.backgroundColor.withValues(alpha: 0.3),
-                        blurRadius: 12,
-                        spreadRadius: 1)
-                  ]
-                : [],
-          ),
-          child: Icon(widget.icon,
-              size: 28,
-              color: widget.hasCharges ? widget.iconColor : Colors.white38),
-        ),
-      ),
-    );
-  }
-}
-
-class _SacredWeaponPulseIcon extends StatefulWidget {
-  final bool isActive;
-  const _SacredWeaponPulseIcon({required this.isActive});
-
-  @override
-  _SacredWeaponPulseIconState createState() => _SacredWeaponPulseIconState();
-}
-
-class _SacredWeaponPulseIconState extends State<_SacredWeaponPulseIcon>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _glowAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 1));
-    _glowAnimation = Tween<double>(begin: 4.0, end: 12.0)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-    if (widget.isActive) {
-      _controller.repeat(reverse: true);
-    }
-  }
-
-  @override
-  void didUpdateWidget(_SacredWeaponPulseIcon oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.isActive && !oldWidget.isActive) {
-      _controller.repeat(reverse: true);
-    } else if (!widget.isActive && oldWidget.isActive) {
-      _controller.stop();
-      _controller.reverse();
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return AnimatedBuilder(
-        animation: _glowAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: widget.isActive
-                  ? colorScheme.primary
-                  : colorScheme.surfaceContainerHighest,
-              shape: BoxShape.circle,
-              border: Border.all(
-                  color: widget.isActive
-                      ? colorScheme.primary
-                      : colorScheme.primary.withValues(alpha: 0.5),
-                  width: 1.5),
-              boxShadow: widget.isActive
-                  ? [
-                      BoxShadow(
-                        color: colorScheme.primary.withValues(alpha: 0.6),
-                        blurRadius: _glowAnimation.value,
-                        spreadRadius: _glowAnimation.value / 3,
-                      )
-                    ]
-                  : [],
-            ),
-            child: Transform.rotate(
-              angle: 0.8,
-              child: Icon(Icons.colorize,
-                  size: 28,
-                  color: widget.isActive
-                      ? colorScheme.onPrimary
-                      : colorScheme.primary),
-            ),
-          );
-        });
-  }
-}

@@ -1,290 +1,321 @@
+import '../../features/spell_almanac/spellbook_controls.dart';
+
 import 'package:flutter/material.dart';
-import 'package:qd_and_d/l10n/app_localizations.dart';
+
+import '../../l10n/app_localizations.dart';
 import '../../core/models/spell.dart';
 import '../../core/models/character.dart';
 import '../../core/services/spell_eligibility_service.dart';
+import '../../core/services/storage_service.dart';
+import '../../core/ui/companion_surface.dart';
+import '../../core/ui/sheet_drag_region.dart';
 import '../../core/utils/spell_utils.dart';
+import '../../features/spell_almanac/spell_almanac_strings.dart';
 
-class SpellDetailsSheet extends StatelessWidget {
-  final Spell spell;
-  final Character? character;
-  final VoidCallback? onToggleKnown;
-
+class SpellDetailsSheet extends StatefulWidget {
   const SpellDetailsSheet({
     super.key,
     required this.spell,
     this.character,
-    this.onToggleKnown,
+    this.editable = false,
+    this.onChanged,
   });
+  final Spell spell;
+  final Character? character;
+  final bool editable;
+  final VoidCallback? onChanged;
+  @override
+  State<SpellDetailsSheet> createState() => _SpellDetailsSheetState();
+}
+
+class _SpellDetailsSheetState extends State<SpellDetailsSheet> {
+  bool _busy = false;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context).languageCode;
-
-    final eligibility = character != null
-        ? SpellEligibilityService.checkEligibility(character!, spell)
-        : null;
-
-    return DraggableScrollableSheet(
-      initialChildSize: 0.7,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (context, scrollController) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          child: ListView(
-            controller: scrollController,
-            children: [
-              // Header
-              Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color:
-                          SpellUtils.getSchoolColor(spell.school, colorScheme),
-                      shape: BoxShape.circle,
+    final spell = widget.spell, hero = widget.character;
+    final l = AppLocalizations.of(context)!,
+        s = AlmanacStrings(context),
+        locale = Localizations.localeOf(context).languageCode;
+    final c = Theme.of(context).colorScheme, t = Theme.of(context).textTheme;
+    final eligibility = hero == null
+        ? null
+        : SpellEligibilityService.checkEligibility(hero, spell);
+    final known = hero?.knownSpells.contains(spell.id) ?? false;
+    final editable = hero != null && widget.editable;
+    final source = _source(s);
+    return PopScope(
+      canPop: !_busy,
+      child: DraggableScrollableSheet(
+        initialChildSize: .82,
+        minChildSize: .45,
+        maxChildSize: .96,
+        expand: false,
+        builder: (context, controller) => ListView(
+          controller: controller,
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+          children: [
+            SheetDragRegion(
+              enabled: !_busy,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(4, 6, 4, 18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${spell.level == 0 ? l.cantrips : l.levelLabel(spell.level)} · ${SpellUtils.getLocalizedSchool(l, spell.school)}',
+                      style: t.labelLarge?.copyWith(color: c.secondary),
                     ),
-                    child: Center(
-                      child: Text(
-                        spell.level == 0 ? '∞' : '${spell.level}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 20,
+                    const SizedBox(height: 8),
+                    Text(
+                      spell.getName(locale),
+                      style: t.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        height: 1.1,
+                      ),
+                    ),
+                    if (source != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          source,
+                          style: t.bodySmall?.copyWith(
+                            color: c.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            CompanionSurface(
+              quiet: true,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final stats = [
+                        (
+                          l.castingTime,
+                          SpellUtils.getLocalizedValue(
+                            l,
+                            spell.castingTime,
+                          ),
+                        ),
+                        (
+                          l.range,
+                          SpellUtils.getLocalizedValue(l, spell.range),
+                        ),
+                        (
+                          l.duration,
+                          SpellUtils.getLocalizedValue(l, spell.duration),
+                        ),
+                        (l.components, spell.components.join(' · ')),
+                      ];
+                      final stacked =
+                          MediaQuery.textScalerOf(context).scale(14) > 22 ||
+                              constraints.maxWidth < 280;
+                      return Wrap(
+                        spacing: 16,
+                        runSpacing: 16,
+                        children: [
+                          for (final stat in stats)
+                            SizedBox(
+                              width: stacked
+                                  ? constraints.maxWidth
+                                  : (constraints.maxWidth - 16) / 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    stat.$1,
+                                    style: t.labelMedium?.copyWith(
+                                      color: c.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    stat.$2,
+                                    style: t.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                  if (spell.getMaterialComponents(locale)?.trim().isNotEmpty ??
+                      false)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '${l.materials}: ${spell.getMaterialComponents(locale)}',
+                          style: t.bodyMedium,
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          spell.getName(locale),
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
+                  if (spell.concentration || spell.ritual)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
+                          children: [
+                            if (spell.concentration)
+                              Chip(
+                                avatar: const Icon(
+                                  Icons.timelapse_rounded,
+                                  size: 17,
+                                ),
+                                label: Text(l.concentration),
                               ),
+                            if (spell.ritual)
+                              Chip(
+                                avatar: const Icon(
+                                  Icons.menu_book_rounded,
+                                  size: 17,
+                                ),
+                                label: Text(l.ritual),
+                              ),
+                          ],
                         ),
-                        Text(
-                          '${SpellUtils.getLocalizedSchool(l10n, spell.school)}${spell.level == 0 ? ' • ${l10n.cantrips}' : ' • ${l10n.levelLabel(spell.level)}'}',
-                          style: TextStyle(
-                              color:
-                                  colorScheme.onSurface.withValues(alpha: 0.7)),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
                 ],
               ),
-
-              // Eligibility badge
-              if (eligibility != null) ...[
-                const SizedBox(height: 16),
-                _buildEligibilityBadge(context, eligibility, l10n),
-              ],
-
-              const SizedBox(height: 24),
-
-              // Stats
-              _buildInfoRow(l10n.castingTime,
-                  SpellUtils.getLocalizedValue(l10n, spell.castingTime)),
-              _buildInfoRow(
-                  l10n.range, SpellUtils.getLocalizedValue(l10n, spell.range)),
-              _buildInfoRow(l10n.duration,
-                  SpellUtils.getLocalizedValue(l10n, spell.duration)),
-              _buildInfoRow(l10n.components, spell.components.join(', ')),
-              if (spell.getMaterialComponents(locale) != null)
-                _buildInfoRow(
-                    l10n.materials, spell.getMaterialComponents(locale)!),
-
-              if (spell.concentration || spell.ritual)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Wrap(
-                    spacing: 8,
-                    children: [
-                      if (spell.concentration)
-                        Chip(
-                          label: Text(l10n.concentration),
-                          avatar: const Icon(Icons.timelapse, size: 16),
-                        ),
-                      if (spell.ritual)
-                        Chip(
-                          label: Text(l10n.ritual),
-                          avatar: const Icon(Icons.book, size: 16),
-                        ),
-                    ],
-                  ),
-                ),
-
-              const Divider(height: 32),
-
-              // Description
-              Text(
-                spell.getDescription(locale),
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-
-              if (spell.getAtHigherLevels(locale) != null) ...[
-                const SizedBox(height: 16),
-                Text(
-                  l10n.atHigherLevels,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  spell.getAtHigherLevels(locale)!,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ],
-
-              const SizedBox(height: 16),
-              Text(
-                '${l10n.classes}: ${spell.availableToClasses.map((c) => SpellUtils.getLocalizedClassName(context, c)).join(', ')}',
-                style: TextStyle(
-                  fontStyle: FontStyle.italic,
-                  color: colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+            const SizedBox(height: 22),
+            for (final paragraph
+                in spell.getDescription(locale).split(RegExp(r'\n\s*\n')))
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: SelectableText(
+                  paragraph,
+                  style: t.bodyLarge?.copyWith(height: 1.5),
                 ),
               ),
-
-              // Add/Remove Action
-              if (character != null &&
-                  onToggleKnown != null &&
-                  eligibility != null &&
-                  eligibility.canLearn) ...[
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: () {
-                      onToggleKnown!();
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(
-                      character!.knownSpells.contains(spell.id)
-                          ? Icons.remove_circle_outline
-                          : Icons.add_circle_outline,
-                    ),
-                    label: Text(
-                      character!.knownSpells.contains(spell.id)
-                          ? l10n.removeFromKnown
-                          : l10n.addToKnown,
-                    ),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: character!.knownSpells.contains(spell.id)
-                          ? colorScheme.error
-                          : colorScheme.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                  ),
+            if (spell.getAtHigherLevels(locale)?.trim().isNotEmpty ??
+                false) ...[
+              const SizedBox(height: 6),
+              Text(
+                l.atHigherLevels,
+                style: t.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
                 ),
-              ],
+              ),
+              const SizedBox(height: 8),
+              SelectableText(
+                spell.getAtHigherLevels(locale)!,
+                style: t.bodyLarge?.copyWith(height: 1.5),
+              ),
+              const SizedBox(height: 20),
             ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildEligibilityBadge(BuildContext context,
-      SpellEligibilityResult eligibility, AppLocalizations l10n) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    if (eligibility.canLearn) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.green.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.green),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.check_circle, color: Colors.green, size: 16),
-            const SizedBox(width: 8),
-            Text(l10n.availableToLearn,
-                style: const TextStyle(
-                    color: Colors.green, fontWeight: FontWeight.bold)),
-          ],
-        ),
-      );
-    } else if (eligibility.canLearnAtLevel != null) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.orange.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.orange),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.lock_clock, color: Colors.orange, size: 16),
-            const SizedBox(width: 8),
-            Text(
-              l10n.availableAtLevel(eligibility.canLearnAtLevel!),
-              style: const TextStyle(
-                  color: Colors.orange, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      );
-    } else {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: colorScheme.errorContainer.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: colorScheme.error),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.block, color: colorScheme.error, size: 16),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                eligibility.reason,
-                style: TextStyle(
-                    color: colorScheme.error, fontWeight: FontWeight.bold),
+            if (eligibility != null) ...[
+              Text(
+                s.t('Для твоего героя', 'For your hero'),
+                style: t.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
+              const SizedBox(height: 10),
+              CompanionSurface(
+                quiet: true,
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final access in eligibility.sources)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${access.label(locale)} · ${s.t('ур.', 'lv.')} ${access.classLevel}',
+                              style: t.labelLarge?.copyWith(
+                                color: c.secondary,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              access.explanation(locale),
+                              style: t.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    if (known)
+                      Text(
+                        s.t(
+                          'Уже есть в твоём листе. Ручные исключения сохраняются.',
+                          'Already on your sheet. Manual exceptions are retained.',
+                        ),
+                        style: t.bodySmall?.copyWith(
+                          color: c.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+            if (spell.availableToClasses.isNotEmpty) ...[
+              Text(
+                l.classes,
+                style: t.labelLarge?.copyWith(color: c.onSurfaceVariant),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: [
+                  for (final id in spell.availableToClasses)
+                    Chip(
+                      label: Text(
+                        SpellUtils.getLocalizedClassName(context, id),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+            if (editable) ...[
+              const SizedBox(height: 24),
+              SpellbookControls(
+                hero: hero,
+                spell: spell,
+                onChanged: () {
+                  setState(() {});
+                  widget.onChanged?.call();
+                },
+                onBusyChanged: (v) => setState(() => _busy = v),
+              ),
+            ],
           ],
         ),
-      );
-    }
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(
-            child: Text(value),
-          ),
-        ],
       ),
     );
+  }
+
+  String? _source(AlmanacStrings s) {
+    if (widget.spell.sourceId == null) {
+      return s.t('Базовая библиотека', 'Core library');
+    }
+    try {
+      return StorageService.getAllSources()
+              .where((v) => v.id == widget.spell.sourceId)
+              .firstOrNull
+              ?.name ??
+          s.t('Подключённая книга', 'Imported book');
+    } catch (_) {
+      return s.t('Подключённая книга', 'Imported book');
+    }
   }
 }

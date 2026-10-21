@@ -1,5 +1,8 @@
+import '../content/content_reference_repair.dart';
+import 'imported_progression_service.dart';
 // ignore_for_file: avoid_print
 import 'dart:io';
+import 'dart:async';
 import 'package:uuid/uuid.dart';
 import '../models/character.dart';
 import '../models/compendium_source.dart';
@@ -85,6 +88,7 @@ class CompendiumImportResult {
 }
 
 class ImportService {
+  static Future<void>? _compendiumPending;
   // Import from FC5 XML file
   static Future<Character> importFromFC5File(File file) async {
     final result = await importCharactersFromFC5File(file);
@@ -154,6 +158,32 @@ class ImportService {
   }
 
   static Future<CompendiumImportResult> importCompendiumXmlContentDetailed(
+      String xmlContent,
+      {required String sourceName,
+      String? archiveId,
+      String? archiveName,
+      String? moduleName,
+      String? modulePath,
+      String sourceKind = 'xml'}) async {
+    final before = _compendiumPending;
+    final done = Completer<void>();
+    _compendiumPending = done.future;
+    if (before != null) await before;
+    try {
+      return await _importCompendiumXmlContentDetailed(xmlContent,
+          sourceName: sourceName,
+          archiveId: archiveId,
+          archiveName: archiveName,
+          moduleName: moduleName,
+          modulePath: modulePath,
+          sourceKind: sourceKind);
+    } finally {
+      done.complete();
+      if (identical(_compendiumPending, done.future)) _compendiumPending = null;
+    }
+  }
+
+  static Future<CompendiumImportResult> _importCompendiumXmlContentDetailed(
     String xmlContent, {
     required String sourceName,
     String? archiveId,
@@ -186,6 +216,11 @@ class ImportService {
       final deduped = FC5CompendiumDeduplicationService.dedupe(rawParseResult);
       final parseResult = deduped.parseResult;
 
+      if (parseResult.diagnostics.hasErrors) {
+        throw ImportServiceException(
+            'The source contains conflicting or invalid definitions. Nothing was installed.',
+            diagnostics: parseResult.diagnostics);
+      }
       if (rawParseResult.isEmpty) {
         throw ImportServiceException(
           rawParseResult.diagnostics.entries.firstOrNull?.message ??
@@ -201,6 +236,20 @@ class ImportService {
               : 'This XML file does not contain supported FC5 compendium content.',
           diagnostics: parseResult.diagnostics,
         );
+      }
+
+      for (final incoming in parseResult.classes) {
+        final base = ImportedProgressionService.matchingClass(
+            CharacterDataService.getAllClasses()
+                .where((c) => c.sourceId == null),
+            incoming);
+        final assessment =
+            ImportedProgressionService.assessClass(base, incoming);
+        if (assessment.relation == ClassLibraryRelation.competingVariant) {
+          parseResult.diagnostics.warning('class_variant_kept_separate',
+              'The class differs from the installed definition and is kept as a separate variant; it does not replace existing heroes’ rules.',
+              context: incoming.getName('en'));
+        }
       }
 
       // Create and save source metadata
@@ -221,38 +270,32 @@ class ImportService {
         sourceKind: sourceKind,
       );
 
-      await StorageService.saveSource(source);
-      await StorageService.saveSourceFingerprint(fingerprint, sourceId);
-
-      if (parseResult.items.isNotEmpty) {
-        await StorageService.saveItems(parseResult.items);
-      }
-
-      if (parseResult.spells.isNotEmpty) {
-        await StorageService.saveSpells(parseResult.spells);
-      }
-
-      if (parseResult.races.isNotEmpty) {
-        await StorageService.saveRaces(parseResult.races);
-      }
-
-      if (parseResult.classes.isNotEmpty) {
-        await StorageService.saveClasses(parseResult.classes);
-      }
-
-      if (parseResult.backgrounds.isNotEmpty) {
-        await StorageService.saveBackgrounds(parseResult.backgrounds);
-      }
-
-      if (parseResult.feats.isNotEmpty) {
-        await StorageService.saveFeats(parseResult.feats);
-      }
+      await StorageService.installSource(
+          source: source,
+          fingerprint: fingerprint,
+          items: parseResult.items,
+          spells: parseResult.spells,
+          races: parseResult.races,
+          classes: parseResult.classes,
+          backgrounds: parseResult.backgrounds,
+          feats: parseResult.feats);
 
       // Reload services to reflect changes
       await ItemService.reload();
       await SpellService.reload();
       // CharacterDataService handles races/classes usually, now needs to handle backgrounds/feats too
       await CharacterDataService.reload();
+      final repaired = await ContentReferenceRepair.repairStoredCharacters();
+      if (repaired.repaired > 0) {
+        parseResult.diagnostics.info('character_spell_links_repaired',
+            'Restored unambiguous saved spell references without reimporting characters.',
+            context: '${repaired.repaired}');
+      }
+      if (repaired.deferred > 0) {
+        parseResult.diagnostics.warning('character_reference_repair_deferred',
+            'Some character references could not be repaired safely and were preserved.',
+            context: '${repaired.deferred}');
+      }
 
       return CompendiumImportResult(
         sourceId: sourceId,
@@ -271,6 +314,7 @@ class ImportService {
     await ItemService.reload();
     await SpellService.reload();
     await CharacterDataService.reload();
+    await ContentReferenceRepair.repairStoredCharacters();
   }
 
   static Future<CompendiumSource?> _findDuplicateSource(

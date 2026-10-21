@@ -1,3 +1,6 @@
+import '../progression/advancement_history.dart';
+import '../magic/spellbook_state.dart';
+
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -38,7 +41,10 @@ class QdndBundleExportService {
       'character.json': _jsonBytes({
         'schemaVersion': qdndBundleSchemaVersion,
         'exportPolicy': QdndBundleExportPolicy.snapshotOnly.name,
-        'character': QdndBundleCodec.characterToJson(character),
+        'character': QdndBundleCodec.characterToJson(
+          character,
+          exportRules: true,
+        ),
       }),
       'content/items.json': _jsonBytes({
         'schemaVersion': qdndBundleSchemaVersion,
@@ -128,6 +134,7 @@ class QdndBundleExportService {
         'schemaVersion': qdndBundleSchemaVersion,
         'notes': character.journalNotes.map((note) => note.toJson()).toList(),
       }),
+      'journal/links.json': _jsonBytes(character.journalData),
       'journal/quests.json': _jsonBytes({
         'schemaVersion': qdndBundleSchemaVersion,
         'quests': character.quests.map((quest) => quest.toJson()).toList(),
@@ -145,17 +152,16 @@ class QdndBundleExportService {
     final manifest = {
       'format': qdndBundleFormat,
       'schemaVersion': qdndBundleSchemaVersion,
-      'app': {
-        'name': 'QD&D',
-        'version': _appVersion,
-      },
+      'app': {'name': 'QD&D', 'version': _appVersion},
       'createdAt': DateTime.now().toUtc().toIso8601String(),
       'exportMode': 'characterBundle',
       'character': {
         'id': character.id,
         'name': character.name,
         'level': character.level,
-        'classes': character.classes.map((cls) => cls.toJson()).toList(),
+        'classes': character.classes
+            .map((cls) => cls.toJson()..remove('rulesSnapshot'))
+            .toList(),
       },
       'contentCounts': {
         'items': embedded.items.length,
@@ -207,6 +213,10 @@ class QdndBundleExportService {
     for (final spellId in {
       ...character.knownSpells,
       ...character.preparedSpells,
+      ...character.spellMasterySpells,
+      ...character.signatureSpells,
+      ...character.signatureSpellsUsed.keys,
+      ...SpellbookState.read(character.spellbookData).allKnown,
       if (character.concentratingOn != null) character.concentratingOn!,
     }) {
       final spell = _findSpell(spellId);
@@ -246,7 +256,15 @@ class QdndBundleExportService {
       }
     }
 
-    return builder.references;
+    final references = <String, BundleDependencyReference>{
+      for (final ref in builder.references) ref.key: ref
+    };
+    for (final view in AdvancementHistory.historicalViews(character)) {
+      for (final ref in _buildDependencies(view)) {
+        references.putIfAbsent(ref.key, () => ref);
+      }
+    }
+    return references.values.toList();
   }
 
   static _EmbeddedContent _buildEmbeddedContent(
@@ -264,10 +282,21 @@ class QdndBundleExportService {
       );
     }
 
+    final historical = AdvancementHistory.historicalViews(character);
     final spells = <Spell>[];
     for (final spellId in {
       ...character.knownSpells,
       ...character.preparedSpells,
+      ...character.spellMasterySpells,
+      ...character.signatureSpells,
+      ...character.signatureSpellsUsed.keys,
+      for (final view in historical) ...view.knownSpells,
+      for (final view in historical) ...view.preparedSpells,
+      ...SpellbookState.read(character.spellbookData).allKnown,
+      for(final view in historical)...SpellbookState.read(view.spellbookData).allKnown,
+      for(final view in historical)...view.spellMasterySpells,
+      for(final view in historical)...view.signatureSpells,
+      for(final view in historical)...view.signatureSpellsUsed.keys,
       if (character.concentratingOn != null) character.concentratingOn!,
     }) {
       final spell = _findSpell(spellId);
@@ -281,13 +310,14 @@ class QdndBundleExportService {
         .map((item) => item)
         .toList();
 
-    final features = character.features
-        .where(
-          (feature) =>
-              feature.sourceId == null &&
-              FeatureService.getFeatureById(feature.id) == null,
-        )
-        .toList();
+    final features =
+        [...character.features, for (final view in historical) ...view.features]
+            .where(
+              (feature) =>
+                  feature.sourceId == null &&
+                  FeatureService.getFeatureById(feature.id) == null,
+            )
+            .toList();
 
     return _EmbeddedContent(
       items: _dedupe(items, (item) => item.id),
@@ -544,10 +574,7 @@ class _ExportedMedia {
   final List<QdndBundleMediaEntry> entries;
   final Map<String, List<int>> files;
 
-  const _ExportedMedia({
-    required this.entries,
-    required this.files,
-  });
+  const _ExportedMedia({required this.entries, required this.files});
 
   int get embeddedCount => entries.where((entry) => entry.embedded).length;
 }
@@ -686,10 +713,7 @@ class _DependencyBuilder {
       sourceKind: existing.sourceKind,
       contentHash: existing.contentHash,
       ruleset: existing.ruleset,
-      requiredFor: {
-        ...existing.requiredFor,
-        ...reference.requiredFor,
-      }.toList(),
+      requiredFor: {...existing.requiredFor, ...reference.requiredFor}.toList(),
       fallbackBehavior: existing.fallbackBehavior,
       exportPolicy: existing.exportPolicy,
     );

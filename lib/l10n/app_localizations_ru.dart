@@ -479,11 +479,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get shortRestDescription =>
-      'Восстановить умения короткого отдыха и потратить кости хитов?';
+      'Восстановятся ресурсы короткого отдыха. Лечение и расход костей хитов отмечайте отдельно.';
 
   @override
   String get longRestDescription =>
-      'Восстановить все ОЗ, ячейки заклинаний и умения?';
+      'Восполняет недостающие ОЗ, ячейки заклинаний и ресурсы умений до обычного максимума.';
 
   @override
   String get restedSuccess => 'Отдых завершен успешно';
@@ -657,7 +657,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get spellsList => 'Список заклинаний';
 
   @override
-  String get passiveTraits => 'Пассивные черты';
+  String get passiveTraits => 'Пассивные умения';
 
   @override
   String get cantrips => 'Заговоры';
@@ -751,7 +751,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get schoolEnchantment => 'Очарование';
 
   @override
-  String get schoolEvocation => 'Эвокация';
+  String get schoolEvocation => 'Воплощение';
 
   @override
   String get schoolIllusion => 'Иллюзия';
@@ -951,7 +951,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String hitDieType(String value) {
-    return 'Кость хитов: d$value';
+    return 'Кость хитов: к$value';
   }
 
   @override
@@ -1008,7 +1008,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get conditionCharmed => 'Очарован';
 
   @override
-  String get conditionDeafened => 'Оглушен';
+  String get conditionDeafened => 'Оглохший';
 
   @override
   String get conditionFrightened => 'Испуган';
@@ -1038,7 +1038,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get conditionRestrained => 'Опутан';
 
   @override
-  String get conditionStunned => 'Ошеломлен';
+  String get conditionStunned => 'Оглушён';
 
   @override
   String get conditionUnconscious => 'Без сознания';
@@ -1182,7 +1182,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String rollDie(int sides) {
-    return 'Бросок d$sides';
+    return 'Бросок к$sides';
   }
 
   @override
@@ -1763,7 +1763,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String hitDieConMod(int die, String mod) {
-    return 'Кость хитов: d$die | ТЕЛ Мод: $mod';
+    return 'Кость хитов: к$die | ТЕЛ Мод: $mod';
   }
 
   @override
@@ -1776,12 +1776,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String hpRollDesc(int die) {
-    return 'Бросок 1d$die для начальных ОЗ';
+    return 'Бросок 1к$die для начальных ОЗ';
   }
 
   @override
   String reRoll(int die, int val) {
-    return 'Перебросить d$die (выпало: $val)';
+    return 'Перебросить к$die (выпало: $val)';
   }
 
   @override
@@ -2035,7 +2035,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get ritual => 'Ритуал';
 
   @override
-  String get atHigherLevels => 'На более высоких уровнях';
+  String get atHigherLevels => 'На более высоких кругах';
 
   @override
   String get classes => 'Классы';
@@ -2071,7 +2071,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filterClass => 'Класс';
 
   @override
-  String get filterLevel => 'Уровень';
+  String get filterLevel => 'Круг заклинания';
 
   @override
   String get filterSchool => 'Школа';
@@ -2089,7 +2089,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get filterAllClasses => 'Все классы';
 
   @override
-  String get filterAllLevels => 'Все уровни';
+  String get filterAllLevels => 'Все круги';
 
   @override
   String get filterAllSchools => 'Все школы';
@@ -2114,7 +2114,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String spellsCount(int count) {
-    return '$count заклинаний';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count заклинания',
+      many: '$count заклинаний',
+      few: '$count заклинания',
+      one: '$count заклинание',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2846,7 +2854,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String selectSlotsToRecover(int max) {
-    return 'Выберите ячейки (Макс. уровней: $max)';
+    return 'Выберите ячейки (Сумма кругов: до $max)';
   }
 
   @override
@@ -2862,7 +2870,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get allSpellSlotsFull => 'Все ячейки магии полны';
 
   @override
-  String get arcaneRecovery => 'Арканное восстановление';
+  String get arcaneRecovery => 'Магическое восстановление';
 
   @override
   String get traditionEvocation => 'Школа Эвокации';
@@ -2986,7 +2994,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get markTargetName => 'Имя цели';
 
   @override
-  String get markBonusDesc => '+1d6 урона / Преимущество';
+  String get markBonusDesc => '+1к6 к урону по цели';
 
   @override
   String get moveMark => 'Переместить';
@@ -3145,4 +3153,508 @@ class AppLocalizationsRu extends AppLocalizations {
   String secondWindHeal(int amount) {
     return 'Второе дыхание: восстановлено $amount ОЗ';
   }
+
+  @override
+  String get editGameState => 'Изменить игровое состояние';
+
+  @override
+  String get gameStateEditorTitle => 'Игровое состояние';
+
+  @override
+  String get gameStateSaved => 'Игровое состояние сохранено';
+
+  @override
+  String gameStateSaveFailed(String error) {
+    return 'Не удалось сохранить игровое состояние: $error';
+  }
+
+  @override
+  String get gameStateNumbersOnly => 'Введите целое неотрицательное число';
+
+  @override
+  String gameStateNormalMaximum(int value) {
+    return 'Обычный максимум: $value. Остаток может быть выше.';
+  }
+
+  @override
+  String gameStateArmorCalculated(int value) {
+    return 'Расчётная КД: $value';
+  }
+
+  @override
+  String get gameStateManualArmor => 'Использовать введённую КД';
+
+  @override
+  String get gameStateEffectsHint =>
+      'Эти отметки сохраняются после отдыха. Снимайте эффект, когда он закончится за вашим столом.';
+
+  @override
+  String get gameStateResourcesHint =>
+      'Укажите фактический остаток, включая дополнительные использования от мастера. Отдых сохраняет превышение.';
+
+  @override
+  String get gameStateCurrentHp => 'Текущие ОЗ';
+
+  @override
+  String get gameStateMaximumHp => 'Максимальные ОЗ';
+
+  @override
+  String get gameStateSpeed => 'Скорость';
+
+  @override
+  String get gameStateExhaustion => 'Истощение (0–6)';
+
+  @override
+  String get gameStateDeathSuccesses => 'Успехи спасбросков от смерти (0–3)';
+
+  @override
+  String get gameStateDeathFailures => 'Провалы спасбросков от смерти (0–3)';
+
+  @override
+  String get gameStateHitDice => 'Оставшиеся кости хитов';
+
+  @override
+  String get gameStateRaging => 'Ярость активна';
+
+  @override
+  String get gameStateFrenzied => 'Неистовство активно';
+
+  @override
+  String get gameStateReckless => 'Безрассудная атака активна';
+
+  @override
+  String get gameStateHidden => 'Скрытность';
+
+  @override
+  String get gameStateSacredWeapon => 'Священное оружие активно';
+
+  @override
+  String get gameStateWildShape => 'Звериная форма активна';
+
+  @override
+  String get gameStateWildShapeUses => 'Оставшиеся превращения';
+
+  @override
+  String get gameStateBeastCurrentHp => 'ОЗ формы';
+
+  @override
+  String get gameStateBeastMaximumHp => 'Максимальные ОЗ формы';
+
+  @override
+  String get gameStateHuntersMark => 'Метка охотника активна';
+
+  @override
+  String get gameStateConcentrationHelp =>
+      'Концентрация на этом заклинании. Снимите отметку, когда концентрация закончится.';
+
+  @override
+  String get gameStateNoConcentration => 'Без концентрации';
+
+  @override
+  String get gameStateRestMarksHint =>
+      'Ресурсы восстанавливаются; активные эффекты и состояния остаются под вашим управлением.';
+
+  @override
+  String get gameStateCurrentValue => 'Текущее значение';
+
+  @override
+  String get gameStateCastWithoutSlot => 'Наложить без ячейки';
+
+  @override
+  String get gameStateSpellSlots => 'Ячейки заклинаний';
+
+  @override
+  String gameStateResourceUsed(String name) {
+    return '$name: использовано';
+  }
+
+  @override
+  String get gameStateRecovery => 'Восстановление';
+
+  @override
+  String get gameStateUseBuiltInRecovery =>
+      'Использовать встроенные правила восстановления ресурсов';
+
+  @override
+  String get gameStateRelentlessDc => 'Сложность спасброска Неукротимой ярости';
+
+  @override
+  String get gameStateHiddenPlain => 'Маскировка на виду';
+
+  @override
+  String get sheetVitals => 'Состояние';
+
+  @override
+  String get sheetAutomaticCalculation => 'Рассчитывать автоматически';
+
+  @override
+  String get sheetSaveFailed =>
+      'Не удалось сохранить. Прежние значения сохранены. Попробуйте ещё раз.';
+
+  @override
+  String get sheetAdjustValue => 'Вписать значение';
+
+  @override
+  String get sheetSpendOne => 'Потратить одно использование';
+
+  @override
+  String get sheetRestoreOne => 'Добавить одно использование';
+
+  @override
+  String get sheetRemainder => 'Остаток';
+
+  @override
+  String get sheetMoreEdits => 'Другие поправки';
+
+  @override
+  String get sheetHealthEditHelp =>
+      'Впишите фактические ОЗ. Для урона и лечения используйте отдельные действия.';
+
+  @override
+  String get sheetArmorEditHelp =>
+      'Используйте расчёт или впишите КД, согласованный за игровым столом.';
+
+  @override
+  String get sheetAdditionalSlots => 'Дополнительные ячейки';
+
+  @override
+  String get sheetHealthBase => 'ОЗ персонажа';
+
+  @override
+  String get sheetHealthForm => 'ОЗ формы';
+
+  @override
+  String get sheetFormMissing => 'Указать ОЗ формы';
+
+  @override
+  String get sheetDamageHelp =>
+      'Урон сначала снимает временные ОЗ, затем ОЗ активной формы. Избыток переходит на персонажа.';
+
+  @override
+  String get sheetHealingHelp =>
+      'Восполняет недостающие ОЗ до максимума. Вручную заданное превышение сохраняется.';
+
+  @override
+  String sheetNumberRange(int minimum, int maximum) {
+    return 'Введите целое число от $minimum до $maximum';
+  }
+
+  @override
+  String sheetCounterDescription(int current, int maximum) {
+    return 'Остаток $current, обычный максимум $maximum';
+  }
+
+  @override
+  String sheetConcentrationDc(int dc) {
+    return 'Концентрация: спасбросок Телосложения, Сл $dc';
+  }
+
+  @override
+  String get sheetSlotLevel => 'Круг ячейки';
+
+  @override
+  String get sheetPositiveAmount => 'Введите целое число больше нуля';
+
+  @override
+  String get sheetAdditionalSlotsHelp =>
+      'Добавляет ячейки выбранного круга. Обычный максимум остаётся прежним.';
+
+  @override
+  String get sheetAddSlotsAmount => 'Добавить ячеек';
+
+  @override
+  String get sheetTapHoldHint => 'Нажатие — потратить · Удержание — изменить';
+
+  @override
+  String get sheetHoldToEdit => 'Удерживайте, чтобы изменить';
+
+  @override
+  String get sheetEditCharacter => 'Редактировать персонажа';
+
+  @override
+  String get sheetEditorCore => 'Основное';
+
+  @override
+  String get sheetArcanum => 'Таинственный арканум';
+
+  @override
+  String get spellMasterySelectionHint =>
+      'Выберите по одному заклинанию 1-го и 2-го кругов из своей книги:';
+
+  @override
+  String signatureSpellsSelectionHint(int count) {
+    return 'Выберите два заклинания 3-го круга ($count / 2):';
+  }
+
+  @override
+  String get sheetRestPreviewTitle => 'Что восстановится';
+
+  @override
+  String get sheetRestReady => 'Снова доступно';
+
+  @override
+  String get sheetRestNothingToRecover =>
+      'Этот отдых ничего не изменит в ресурсах.';
+
+  @override
+  String get sheetRestPreserves =>
+      'Превышение обычного максимума сохраняется. Состояния и активные эффекты снимаются вручную.';
+
+  @override
+  String get sheetEditorDefense => 'Защита и движение';
+
+  @override
+  String get sheetEditorResourceMarks => 'Отметки использования';
+
+  @override
+  String get sheetEditorActiveEffects => 'Активные эффекты';
+
+  @override
+  String get sheetDeathSuccesses => 'Успехи (0–3)';
+
+  @override
+  String get sheetDeathFailures => 'Провалы (0–3)';
+
+  @override
+  String get sheetClearCondition => 'Снять состояние';
+
+  @override
+  String sheetRemoveCondition(String name) {
+    return 'Снять: $name';
+  }
+
+  @override
+  String sheetNormalMaximum(int value) {
+    return 'Обычный максимум: $value';
+  }
+
+  @override
+  String get sheetEditorOtherMarks => 'Другие отметки';
+
+  @override
+  String get advancementHealthTitle => 'Увеличение ОЗ';
+
+  @override
+  String get advancementHealthHint => 'Выбери, как увеличить максимум ОЗ.';
+
+  @override
+  String get advancementMaximumHp => 'Максимум ОЗ';
+
+  @override
+  String advancementConIncluded(String modifier) {
+    return 'Модификатор Телосложения $modifier уже учтён';
+  }
+
+  @override
+  String advancementAverageDie(int result) {
+    return 'Средний результат кости · $result';
+  }
+
+  @override
+  String advancementRollHere(int die) {
+    return 'Бросить к$die в приложении';
+  }
+
+  @override
+  String advancementRollAgain(int result) {
+    return 'На кости $result · нажми, чтобы перебросить';
+  }
+
+  @override
+  String get advancementNoHealing =>
+      'Повышение увеличивает максимум, но не лечит.';
+
+  @override
+  String advancementHpPreserved(int current) {
+    return 'Текущие ОЗ останутся $current.';
+  }
+
+  @override
+  String get advancementRolling => 'Кость ещё катится…';
+
+  @override
+  String get advancementOwnDie => 'Своя кость';
+
+  @override
+  String get advancementOwnDieHint => 'Внести результат броска за столом';
+
+  @override
+  String get advancementOwnHitDie => 'Своя кость хитов';
+
+  @override
+  String advancementDieResult(int die) {
+    return 'Результат к$die';
+  }
+
+  @override
+  String get advancementUseRoll => 'Выбрать результат';
+
+  @override
+  String get advancementAsiTitle => 'Улучшение характеристик';
+
+  @override
+  String get advancementAsiHint =>
+      'Распредели два очка: +2 к одной характеристике или +1 к двум.';
+
+  @override
+  String advancementPoint(int number) {
+    return 'Очко $number';
+  }
+
+  @override
+  String get advancementAssign => 'Выбрать';
+
+  @override
+  String get advancementPointHint =>
+      'Выбери характеристику для отмеченного очка. Его можно переназначить.';
+
+  @override
+  String advancementAssigned(int count) {
+    return 'Распределено $count из 2';
+  }
+
+  @override
+  String advancementModifierChange(String before, String after) {
+    return 'Модификатор $before → $after';
+  }
+
+  @override
+  String get advancementFeaturesTitle => 'Умения класса';
+
+  @override
+  String get advancementFeaturesHint =>
+      'Умения, которые даёт этот уровень класса.';
+
+  @override
+  String get advancementSpellsHint =>
+      'Изучи заклинания, доступные твоему классу.';
+
+  @override
+  String get advancementCompleteChoices => 'Заверши выбор на этом шаге';
+
+  @override
+  String advancementChooseSpells(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Выбери $count заклинания.',
+      many: 'Выбери $count заклинаний.',
+      few: 'Выбери $count заклинания.',
+      one: 'Выбери $count заклинание.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get advancementReviewTitle => 'Итог повышения';
+
+  @override
+  String get advancementReviewHint => 'Проверь изменения перед подтверждением.';
+
+  @override
+  String get advancementApply => 'Подтвердить повышение';
+
+  @override
+  String get advancementAllSaved => 'Изменения сохранятся вместе';
+
+  @override
+  String get advancementRulesTitle => 'Правила героя';
+
+  @override
+  String get advancementRouteFeatures => 'Умения';
+
+  @override
+  String get advancementRouteMagic => 'Магия';
+
+  @override
+  String get advancementRouteAbilities => 'Характеристики';
+
+  @override
+  String get advancementRouteReview => 'Итог';
+
+  @override
+  String get advancementDetails => 'Подробнее';
+
+  @override
+  String get advancementClearSearch => 'Очистить поиск';
+
+  @override
+  String get advancementSlotsHint =>
+      'Проверь, как изменятся ячейки заклинаний.';
+
+  @override
+  String advancementHpBonus(String feature, int amount) {
+    return '$feature · +$amount ОЗ';
+  }
+
+  @override
+  String get advancementMetamagicCareful =>
+      'Выбранные существа успешно проходят спасбросок.';
+
+  @override
+  String get advancementMetamagicDistant =>
+      'Двойная дистанция; касание — 30 футов.';
+
+  @override
+  String get advancementMetamagicEmpowered => 'Переброс части костей урона.';
+
+  @override
+  String get advancementMetamagicExtended =>
+      'Удвоенная длительность, до 24 часов.';
+
+  @override
+  String get advancementMetamagicHeightened =>
+      'Помеха одной цели на первый спасбросок.';
+
+  @override
+  String get advancementMetamagicQuickened =>
+      'Заклинание за бонусное действие.';
+
+  @override
+  String get advancementMetamagicSubtle => 'Без слов и жестов.';
+
+  @override
+  String get advancementMetamagicTwinned =>
+      'Вторая цель для одиночного заклинания.';
+
+  @override
+  String advancementChooseOptions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Выбери $count варианта.',
+      many: 'Выбери $count вариантов.',
+      few: 'Выбери $count варианта.',
+      one: 'Выбери $count вариант.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get advancementSlotsTitle => 'Ячейки заклинаний';
+
+  @override
+  String advancementModifier(String value) {
+    return 'Модификатор $value';
+  }
+
+  @override
+  String get fighterSecondWindPrompt => 'Бросить кость и восстановить ОЗ';
+
+  @override
+  String get fighterSurgePrompt => 'Ещё одно действие';
+
+  @override
+  String get fighterIndomitablePrompt => 'Перебросить спасбросок';
+
+  @override
+  String fighterLastRoll(int roll, int bonus) {
+    return 'Последний бросок: $roll + $bonus';
+  }
+
+  @override
+  String get sheetTabOverview => 'Обзор';
+
+  @override
+  String get sheetTabJournal => 'Журнал';
 }

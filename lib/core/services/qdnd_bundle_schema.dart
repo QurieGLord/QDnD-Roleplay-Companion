@@ -5,7 +5,7 @@ import 'package:crypto/crypto.dart';
 
 import '../models/character.dart';
 
-const int qdndBundleSchemaVersion = 1;
+const int qdndBundleSchemaVersion = 5;
 const String qdndBundleFormat = 'qdnd.bundle';
 
 enum QdndBundleExportPolicy {

@@ -1,10 +1,10 @@
+import '../../../../../core/magic/spellbook_state.dart';
+import '../../../../../core/magic/spell_use.dart';
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 
 import '../../../../../core/models/character.dart';
 import '../../../../../core/models/spell.dart';
-import '../../../../../core/models/spell_slots_table.dart';
-import '../../../../../core/services/spellcasting_service.dart';
 import '../abilities_expander.dart';
 import '../abilities_shell_tokens.dart';
 import 'spell_list_item.dart';
@@ -93,7 +93,10 @@ class AbilitiesSpellLevelGroup extends StatelessWidget {
                   character: character,
                   locale: locale,
                   isPrepared: _isPrepared(spell),
-                  isSpontaneous: _isSpontaneous,
+                  isSpontaneous: spell.level == 0 ||
+                      SpellUse.sources(character, spell).any((s) =>
+                          s.ready &&
+                          !character.preparedSpells.contains(spell.id)),
                   canCast: _canCast(spell),
                   onOpenDetails: () => onOpenDetails(spell),
                   onCastSpell: () => onCastSpell(spell),
@@ -109,46 +112,17 @@ class AbilitiesSpellLevelGroup extends StatelessWidget {
     );
   }
 
-  bool get _isPactMagic =>
-      SpellcastingService.getSpellcastingType(
-        character.characterClass.toLowerCase(),
-      ) ==
-      'pact_magic';
-
-  bool get _isSpontaneous => const [
-        'sorcerer',
-        'bard',
-        'warlock',
-        'ranger',
-        'чародей',
-        'бард',
-        'колдун',
-        'следопыт',
-      ].contains(character.characterClass.toLowerCase());
-
-  bool _isPrepared(Spell spell) {
-    return _isSpontaneous || character.preparedSpells.contains(spell.id);
-  }
-
+  bool _isPrepared(Spell spell) => SpellUse.ready(character, spell);
   bool _canCast(Spell spell) {
-    if (spell.level == 0) {
-      return true;
-    }
-
-    if (_isPactMagic) {
-      if (spell.level >= 6) {
+    try {
+      if (SpellbookState.read(character.spellbookData)
+          .ownersOf(spell.id)
+          .contains('manual')) {
         return true;
       }
-
-      final pactSlots = SpellSlotsTable.getPactSlots(character.level);
-      final pactSlotLevel = pactSlots.length;
-      if (pactSlotLevel > 0 && pactSlotLevel <= character.spellSlots.length) {
-        return character.spellSlots[pactSlotLevel - 1] > 0;
-      }
+      return SpellUse.options(character, spell).isNotEmpty;
+    } catch (_) {
       return false;
     }
-
-    return spell.level <= character.spellSlots.length &&
-        character.spellSlots[spell.level - 1] > 0;
   }
 }

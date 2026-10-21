@@ -469,11 +469,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shortRestDescription =>
-      'Recover short-rest features and spend Hit Dice?';
+      'Recover short rest resources. Record healing and spent hit dice separately.';
 
   @override
   String get longRestDescription =>
-      'Recover all HP, spell slots, and features?';
+      'Replenish missing HP, spell slots, and feature resources up to their normal maximum.';
 
   @override
   String get restedSuccess => 'Rested successfully';
@@ -647,14 +647,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get spellsList => 'Spells List';
 
   @override
-  String get passiveTraits => 'Passive Traits';
+  String get passiveTraits => 'Passive Features';
 
   @override
   String get cantrips => 'Cantrips';
 
   @override
   String levelLabel(int level) {
-    return 'Circle $level';
+    return 'Level $level';
   }
 
   @override
@@ -676,7 +676,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String levelSlot(int level) {
-    return 'Circle $level';
+    return 'Level $level';
   }
 
   @override
@@ -2994,7 +2994,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get markTargetName => 'Target Name';
 
   @override
-  String get markBonusDesc => '+1d6 damage / Advantage';
+  String get markBonusDesc => '+1d6 damage against your target';
 
   @override
   String get moveMark => 'Move Mark';
@@ -3156,4 +3156,499 @@ class AppLocalizationsEn extends AppLocalizations {
   String secondWindHeal(int amount) {
     return 'Second Wind: restored $amount HP';
   }
+
+  @override
+  String get editGameState => 'Edit game state';
+
+  @override
+  String get gameStateEditorTitle => 'Game state';
+
+  @override
+  String get gameStateSaved => 'Game state saved';
+
+  @override
+  String gameStateSaveFailed(String error) {
+    return 'Could not save game state: $error';
+  }
+
+  @override
+  String get gameStateNumbersOnly => 'Enter a non-negative whole number';
+
+  @override
+  String gameStateNormalMaximum(int value) {
+    return 'Normal maximum: $value. Higher remainders are allowed.';
+  }
+
+  @override
+  String gameStateArmorCalculated(int value) {
+    return 'Calculated AC: $value';
+  }
+
+  @override
+  String get gameStateManualArmor => 'Use the entered AC';
+
+  @override
+  String get gameStateEffectsHint =>
+      'These marks remain after resting. Clear an effect when it ends at your table.';
+
+  @override
+  String get gameStateResourcesHint =>
+      'Enter the actual remainder, including uses granted by your GM. Resting preserves any excess.';
+
+  @override
+  String get gameStateCurrentHp => 'Current HP';
+
+  @override
+  String get gameStateMaximumHp => 'Maximum HP';
+
+  @override
+  String get gameStateSpeed => 'Speed';
+
+  @override
+  String get gameStateExhaustion => 'Exhaustion (0–6)';
+
+  @override
+  String get gameStateDeathSuccesses => 'Death save successes (0–3)';
+
+  @override
+  String get gameStateDeathFailures => 'Death save failures (0–3)';
+
+  @override
+  String get gameStateHitDice => 'Remaining hit dice';
+
+  @override
+  String get gameStateRaging => 'Rage active';
+
+  @override
+  String get gameStateFrenzied => 'Frenzy active';
+
+  @override
+  String get gameStateReckless => 'Reckless Attack active';
+
+  @override
+  String get gameStateHidden => 'Hidden';
+
+  @override
+  String get gameStateSacredWeapon => 'Sacred Weapon active';
+
+  @override
+  String get gameStateWildShape => 'Wild Shape active';
+
+  @override
+  String get gameStateWildShapeUses => 'Wild Shape uses remaining';
+
+  @override
+  String get gameStateBeastCurrentHp => 'Form HP';
+
+  @override
+  String get gameStateBeastMaximumHp => 'Form maximum HP';
+
+  @override
+  String get gameStateHuntersMark => 'Hunter’s Mark active';
+
+  @override
+  String get gameStateConcentrationHelp =>
+      'Concentration is on this spell. Clear the mark when concentration ends.';
+
+  @override
+  String get gameStateNoConcentration => 'No concentration';
+
+  @override
+  String get gameStateRestMarksHint =>
+      'Resources are restored; active effects and conditions remain for you to manage.';
+
+  @override
+  String get gameStateCurrentValue => 'Current value';
+
+  @override
+  String get gameStateCastWithoutSlot => 'Cast without a slot';
+
+  @override
+  String get gameStateSpellSlots => 'Spell slots';
+
+  @override
+  String gameStateResourceUsed(String name) {
+    return '$name: used';
+  }
+
+  @override
+  String get gameStateRecovery => 'Recovery';
+
+  @override
+  String get gameStateUseBuiltInRecovery =>
+      'Use built-in resource recovery rules';
+
+  @override
+  String get gameStateRelentlessDc => 'Relentless Rage save DC';
+
+  @override
+  String get gameStateHiddenPlain => 'Hidden in plain sight';
+
+  @override
+  String get sheetVitals => 'Vitals';
+
+  @override
+  String get sheetAutomaticCalculation => 'Calculate automatically';
+
+  @override
+  String get sheetSaveFailed =>
+      'Could not save. Your previous values were kept. Try again.';
+
+  @override
+  String get sheetAdjustValue => 'Set value';
+
+  @override
+  String get sheetSpendOne => 'Spend one use';
+
+  @override
+  String get sheetRestoreOne => 'Add one use';
+
+  @override
+  String get sheetRemainder => 'Remaining';
+
+  @override
+  String get sheetMoreEdits => 'Other adjustments';
+
+  @override
+  String get sheetHealthEditHelp =>
+      'Enter the actual HP. Use the separate actions to apply damage or healing.';
+
+  @override
+  String get sheetArmorEditHelp =>
+      'Use the calculation or enter the AC agreed at your table.';
+
+  @override
+  String get sheetAdditionalSlots => 'Additional slots';
+
+  @override
+  String get sheetHealthBase => 'Character HP';
+
+  @override
+  String get sheetHealthForm => 'Form HP';
+
+  @override
+  String get sheetFormMissing => 'Set form HP';
+
+  @override
+  String get sheetDamageHelp =>
+      'Temporary HP absorbs damage first, then your active form. Excess damage carries over to the character.';
+
+  @override
+  String get sheetHealingHelp =>
+      'Restore missing HP up to the maximum. A manually granted excess is preserved.';
+
+  @override
+  String sheetNumberRange(int minimum, int maximum) {
+    return 'Enter a whole number from $minimum to $maximum';
+  }
+
+  @override
+  String sheetCounterDescription(int current, int maximum) {
+    return 'Remaining $current, normal maximum $maximum';
+  }
+
+  @override
+  String sheetConcentrationDc(int dc) {
+    return 'Concentration: Constitution save DC $dc';
+  }
+
+  @override
+  String get sheetSlotLevel => 'Slot level';
+
+  @override
+  String get sheetPositiveAmount => 'Enter a whole number greater than zero';
+
+  @override
+  String get sheetAdditionalSlotsHelp =>
+      'Add extra slots to the chosen level. The normal maximum stays the same.';
+
+  @override
+  String get sheetAddSlotsAmount => 'Slots to add';
+
+  @override
+  String get sheetTapHoldHint => 'Tap to spend · Hold to edit';
+
+  @override
+  String get sheetHoldToEdit => 'Hold to edit';
+
+  @override
+  String get sheetEditCharacter => 'Edit character';
+
+  @override
+  String get sheetEditorCore => 'Basics';
+
+  @override
+  String get sheetArcanum => 'Mystic Arcanum';
+
+  @override
+  String get spellMasterySelectionHint =>
+      'Choose one 1st-level and one 2nd-level spell from your spellbook:';
+
+  @override
+  String signatureSpellsSelectionHint(int count) {
+    return 'Choose two 3rd-level spells ($count / 2):';
+  }
+
+  @override
+  String get sheetRestPreviewTitle => 'What will recover';
+
+  @override
+  String get sheetRestReady => 'Available again';
+
+  @override
+  String get sheetRestNothingToRecover =>
+      'This rest will not change your resources.';
+
+  @override
+  String get sheetRestPreserves =>
+      'Uses above the normal maximum are preserved. Clear conditions and active effects manually.';
+
+  @override
+  String get sheetEditorDefense => 'Defense and movement';
+
+  @override
+  String get sheetEditorResourceMarks => 'Usage marks';
+
+  @override
+  String get sheetEditorActiveEffects => 'Active effects';
+
+  @override
+  String get sheetDeathSuccesses => 'Successes (0–3)';
+
+  @override
+  String get sheetDeathFailures => 'Failures (0–3)';
+
+  @override
+  String get sheetClearCondition => 'Clear condition';
+
+  @override
+  String sheetRemoveCondition(String name) {
+    return 'Clear: $name';
+  }
+
+  @override
+  String sheetNormalMaximum(int value) {
+    return 'Normal maximum: $value';
+  }
+
+  @override
+  String get sheetEditorOtherMarks => 'Other usage marks';
+
+  @override
+  String get advancementHealthTitle => 'Hit Point Increase';
+
+  @override
+  String get advancementHealthHint => 'Choose how to increase your maximum HP.';
+
+  @override
+  String get advancementMaximumHp => 'Maximum HP';
+
+  @override
+  String advancementConIncluded(String modifier) {
+    return 'Includes Constitution modifier $modifier';
+  }
+
+  @override
+  String advancementAverageDie(int result) {
+    return 'Average die result · $result';
+  }
+
+  @override
+  String advancementRollHere(int die) {
+    return 'Roll d$die here';
+  }
+
+  @override
+  String advancementRollAgain(int result) {
+    return 'Rolled $result · tap to roll again';
+  }
+
+  @override
+  String get advancementNoHealing =>
+      'Levelling increases your maximum without healing.';
+
+  @override
+  String advancementHpPreserved(int current) {
+    return 'Current HP stays at $current.';
+  }
+
+  @override
+  String get advancementRolling => 'The die is rolling…';
+
+  @override
+  String get advancementOwnDie => 'Your own die';
+
+  @override
+  String get advancementOwnDieHint => 'Enter a roll made at the table';
+
+  @override
+  String get advancementOwnHitDie => 'Your Hit Die';
+
+  @override
+  String advancementDieResult(int die) {
+    return 'd$die result';
+  }
+
+  @override
+  String get advancementUseRoll => 'Use result';
+
+  @override
+  String get advancementAsiTitle => 'Ability Score Improvement';
+
+  @override
+  String get advancementAsiHint =>
+      'Assign two points: +2 to one ability or +1 to two.';
+
+  @override
+  String advancementPoint(int number) {
+    return 'Point $number';
+  }
+
+  @override
+  String get advancementAssign => 'Assign';
+
+  @override
+  String get advancementPointHint =>
+      'Choose an ability for the highlighted point. You can assign it elsewhere.';
+
+  @override
+  String advancementAssigned(int count) {
+    return '$count of 2 assigned';
+  }
+
+  @override
+  String advancementModifierChange(String before, String after) {
+    return 'Modifier $before → $after';
+  }
+
+  @override
+  String get advancementFeaturesTitle => 'Class Features';
+
+  @override
+  String get advancementFeaturesHint => 'Features granted by this class level.';
+
+  @override
+  String get advancementSpellsHint => 'Learn spells available to your class.';
+
+  @override
+  String get advancementCompleteChoices => 'Complete the choices on this step';
+
+  @override
+  String advancementChooseSpells(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Choose $count spells.',
+      one: 'Choose $count spell.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get advancementReviewTitle => 'Level-up Review';
+
+  @override
+  String get advancementReviewHint => 'Review the changes before you confirm.';
+
+  @override
+  String get advancementApply => 'Confirm level-up';
+
+  @override
+  String get advancementAllSaved => 'All changes are saved together';
+
+  @override
+  String get advancementRulesTitle => 'Character rules';
+
+  @override
+  String get advancementRouteFeatures => 'Features';
+
+  @override
+  String get advancementRouteMagic => 'Spells';
+
+  @override
+  String get advancementRouteAbilities => 'Abilities';
+
+  @override
+  String get advancementRouteReview => 'Review';
+
+  @override
+  String get advancementDetails => 'Details';
+
+  @override
+  String get advancementClearSearch => 'Clear search';
+
+  @override
+  String get advancementSlotsHint => 'Review the changes to your spell slots.';
+
+  @override
+  String advancementHpBonus(String feature, int amount) {
+    return '$feature · +$amount HP';
+  }
+
+  @override
+  String get advancementMetamagicCareful =>
+      'Chosen creatures succeed on their saving throw.';
+
+  @override
+  String get advancementMetamagicDistant =>
+      'Double range; touch becomes 30 feet.';
+
+  @override
+  String get advancementMetamagicEmpowered => 'Reroll some of the damage dice.';
+
+  @override
+  String get advancementMetamagicExtended => 'Double duration, up to 24 hours.';
+
+  @override
+  String get advancementMetamagicHeightened =>
+      'One target has disadvantage on its first save.';
+
+  @override
+  String get advancementMetamagicQuickened => 'Cast using a bonus action.';
+
+  @override
+  String get advancementMetamagicSubtle => 'No words or gestures.';
+
+  @override
+  String get advancementMetamagicTwinned =>
+      'A second target for a single-target spell.';
+
+  @override
+  String advancementChooseOptions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Choose $count options.',
+      one: 'Choose $count option.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get advancementSlotsTitle => 'Spell Slots';
+
+  @override
+  String advancementModifier(String value) {
+    return 'Modifier $value';
+  }
+
+  @override
+  String get fighterSecondWindPrompt => 'Roll and recover HP';
+
+  @override
+  String get fighterSurgePrompt => 'Take another action';
+
+  @override
+  String get fighterIndomitablePrompt => 'Reroll a saving throw';
+
+  @override
+  String fighterLastRoll(int roll, int bonus) {
+    return 'Last roll: $roll + $bonus';
+  }
+
+  @override
+  String get sheetTabOverview => 'Overview';
+
+  @override
+  String get sheetTabJournal => 'Journal';
 }

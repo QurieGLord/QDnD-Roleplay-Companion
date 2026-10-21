@@ -60,7 +60,8 @@ class CharacterCreationState extends ChangeNotifier {
   List<String> selectedSkills = [];
 
   // Step 4: Equipment
-  String? selectedEquipmentPackage; // 'standard', 'alternative', or 'custom'
+  String? selectedEquipmentPackage =
+      'standard'; // 'standard', 'alternative', or 'custom'
   Map<String, int> customEquipmentQuantities =
       {}; // Item ID -> Quantity for custom equipment
 
@@ -158,7 +159,9 @@ class CharacterCreationState extends ChangeNotifier {
       case 0:
         return name.trim().isNotEmpty;
       case 1:
-        return selectedRace != null && selectedClass != null;
+        return selectedRace != null &&
+            selectedClass != null &&
+            selectedClass!.declares('hitDie');
       case 2:
         return _validateAbilityScores();
       case 3:
@@ -503,7 +506,7 @@ class CharacterCreationState extends ChangeNotifier {
       'charisma': 10,
     };
     selectedSkills.clear();
-    selectedEquipmentPackage = null;
+    selectedEquipmentPackage = 'standard';
     customEquipmentQuantities.clear();
     selectedBackground = null;
     selectedFeatureOptions.clear();

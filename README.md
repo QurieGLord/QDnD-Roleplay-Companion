@@ -17,6 +17,13 @@
 
 </div>
 
+> [!WARNING]
+> **🚧 Work in progress — the `main` branch is a development snapshot, not a release (not even a beta).**
+>
+> The source code here is far ahead of the published APK and PWA: magic and multiclassing, the level-up wizard with advancement rollback, the linked journal and Atlas, all twelve class panels, FC5/QDND transfer and the shared content catalog have been reworked since the last release. Many of these areas are still being finished and verified, and the inventory, the Forge and quest rewards are being rebuilt right now.
+>
+> The Releases page and the web version still contain the previous published build. Progress, accepted decisions and the working to-do list live in [`docs/`](docs/) (in Russian), starting with [`docs/WORKING_VERSION_TODO.md`](docs/WORKING_VERSION_TODO.md).
+
 ---
 
 ## 🌟 About

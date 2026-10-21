@@ -1,3 +1,6 @@
+import '../../../core/ui/expressive_hold_surface.dart';
+import '../../../shared/widgets/advancement_history_sheet.dart';
+import '../../../core/progression/character_class_context.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
@@ -10,6 +13,8 @@ class ExpandableCharacterCard extends StatefulWidget {
   final bool isExpanded;
   final VoidCallback onDicePressed;
   final ValueChanged<bool>? onDetailsToggled;
+  final VoidCallback? onCharacterUpdated;
+  final double scrollProgress;
 
   const ExpandableCharacterCard({
     super.key,
@@ -17,6 +22,8 @@ class ExpandableCharacterCard extends StatefulWidget {
     required this.isExpanded,
     required this.onDicePressed,
     this.onDetailsToggled,
+    this.onCharacterUpdated,
+    this.scrollProgress = 0,
   });
 
   @override
@@ -26,6 +33,39 @@ class ExpandableCharacterCard extends StatefulWidget {
 
 class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
     with SingleTickerProviderStateMixin {
+  bool _scrollChanged = false;
+  late final AnimationController _details = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 320),
+      reverseDuration: const Duration(milliseconds: 240),
+      value: widget.isExpanded ? 1 : 0);
+  late final CurvedAnimation _reveal = CurvedAnimation(
+      parent: _details,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInOutCubic);
+
+  @override
+  void didUpdateWidget(covariant ExpandableCharacterCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _scrollChanged = oldWidget.scrollProgress != widget.scrollProgress;
+    if (oldWidget.isExpanded != widget.isExpanded) {
+      if (MediaQuery.disableAnimationsOf(context)) {
+        _details.value = widget.isExpanded ? 1 : 0;
+      } else if (widget.isExpanded) {
+        _details.forward();
+      } else {
+        _details.reverse();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _reveal.dispose();
+    _details.dispose();
+    super.dispose();
+  }
+
   void _openLevelUpWizard() async {
     final result = await Navigator.push(
       context,
@@ -34,40 +74,77 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
       ),
     );
 
-    if (result == true) {
-      setState(() {
-        // Refresh UI to show new level
+    if (result == true && mounted) {
+      _refreshCharacter();
+    }
+  }
+
+  Widget _identityFooter(BuildContext context, String className,
+          String? subclass, AppLocalizations l10n) =>
+      LayoutBuilder(builder: (context, bounds) {
+        final t = Theme.of(context), c = t.colorScheme;
+        final identity =
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(className,
+              style: t.textTheme.titleMedium
+                  ?.copyWith(color: c.onSurface, fontWeight: FontWeight.w700)),
+          if (subclass != null) ...[
+            const SizedBox(height: 3),
+            Text(subclass,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style:
+                    t.textTheme.bodySmall?.copyWith(color: c.onSurfaceVariant))
+          ],
+        ]);
+        final level = ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: bounds.maxWidth),
+            child: Material(
+                color: c.surface,
+                borderRadius: BorderRadius.circular(20),
+                child: ExpressiveHoldSurface(
+                    key: const ValueKey('character-level-control'),
+                    semanticLabel:
+                        '${l10n.levelShort} ${widget.character.level}',
+                    hint: Localizations.localeOf(context).languageCode == 'ru'
+                        ? 'Удерживай для истории повышений'
+                        : 'Hold for level-up history',
+                    onTap: widget.character.level < 20
+                        ? _openLevelUpWizard
+                        : _openAdvancementHistory,
+                    onHold: _openAdvancementHistory,
+                    child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                        child: Row(mainAxisSize: MainAxisSize.min, children: [
+                          if (widget.character.level < 20) ...[
+                            Icon(Icons.keyboard_double_arrow_up_rounded,
+                                size: 16, color: c.secondary),
+                            const SizedBox(width: 4)
+                          ],
+                          Flexible(
+                              child: Text(
+                                  '${l10n.levelShort} ${widget.character.level}',
+                                  style: t.textTheme.labelLarge?.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      color: c.secondary))),
+                        ])))));
+        if (bounds.maxWidth < 260 ||
+            MediaQuery.textScalerOf(context).scale(1) > 1.35) {
+          return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                identity,
+                const SizedBox(height: 10),
+                Align(alignment: Alignment.centerLeft, child: level)
+              ]);
+        }
+        return Row(children: [
+          Expanded(child: identity),
+          const SizedBox(width: 12),
+          level
+        ]);
       });
-    }
-  }
-
-  String _getLocalizedClassName(BuildContext context, String className) {
-    try {
-      final locale = Localizations.localeOf(context).languageCode;
-      final classData = CharacterDataService.getClassById(className);
-      return classData?.getName(locale) ?? className;
-    } catch (e) {
-      return className;
-    }
-  }
-
-  String _getLocalizedSubclassName(
-      BuildContext context, String className, String subclassName) {
-    try {
-      final locale = Localizations.localeOf(context).languageCode;
-      final classData = CharacterDataService.getClassById(className);
-      if (classData != null) {
-        final subclass = classData.subclasses.firstWhere(
-          (s) => s.id == subclassName || s.name.values.contains(subclassName),
-          orElse: () => throw Exception('Subclass not found'),
-        );
-        return subclass.getName(locale);
-      }
-      return subclassName;
-    } catch (e) {
-      return subclassName;
-    }
-  }
 
   String _getLocalizedValue(AppLocalizations l10n, String value) {
     final normalized = value.trim().toLowerCase();
@@ -151,22 +228,49 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
         widget.character.backstory != null ||
         widget.character.age != null;
 
-    final localizedClassName =
-        _getLocalizedClassName(context, widget.character.characterClass);
-    final localizedSubclass = widget.character.subclass != null
-        ? _getLocalizedSubclassName(context, widget.character.characterClass,
-            widget.character.subclass!)
-        : null;
+    final identityLocale = Localizations.localeOf(context).languageCode;
+    final localizedClassName = widget.character.classes.map((entry) {
+      final owner = CharacterClassContext(widget.character, entry.id);
+      return '${owner.name(identityLocale)}${widget.character.classes.length > 1 ? ' ${entry.level}' : ''}';
+    }).join(' / ');
+    final subclasses = widget.character.classes
+        .map((entry) => CharacterClassContext(widget.character, entry.id)
+            .subclassName(identityLocale))
+        .whereType<String>()
+        .toList();
+    final localizedSubclass =
+        subclasses.isEmpty ? null : subclasses.join(' / ');
 
-    final isHC = Theme.of(context).dividerTheme.thickness == 2;
+    final isHC = MediaQuery.highContrastOf(context);
+    final scroll = MediaQuery.disableAnimationsOf(context)
+        ? 0.0
+        : widget.scrollProgress.clamp(0.0, 1.0);
+    final locale = Localizations.localeOf(context).languageCode;
+    final raceName = CharacterDataService.getRaceById(widget.character.race)
+            ?.getName(locale) ??
+        widget.character.race;
+    final t = Theme.of(context);
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      margin: const EdgeInsets.all(16),
+      duration: MediaQuery.disableAnimationsOf(context) || _scrollChanged
+          ? Duration.zero
+          : const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       decoration: BoxDecoration(
-        color: colorScheme.secondaryContainer, // Accent color background
-        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color.lerp(
+                  colorScheme.secondaryContainer, colorScheme.surface, .08)!,
+              colorScheme.secondaryContainer
+            ]),
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(36 - scroll * 6),
+            topRight: Radius.circular(24 + scroll * 4),
+            bottomLeft: Radius.circular(widget.isExpanded ? 28 : 24),
+            bottomRight: Radius.circular(36 - scroll * 4)),
         boxShadow: isHC
             ? []
             : [
@@ -181,167 +285,117 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
         border: Border.all(
           color: isHC
               ? colorScheme.primary
-              : colorScheme.onSecondaryContainer.withValues(alpha: 0.1),
+              : colorScheme.surface.withValues(
+                  alpha: Theme.of(context).brightness == Brightness.light
+                      ? .7
+                      : .16),
           width: isHC ? 2 : 1,
         ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header Content with Stack for Dice Button
-          Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20),
+          Stack(children: [
+            Padding(
+                padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
                 child: Row(
-                  children: [
-                    // Avatar
-                    Hero(
-                      tag: 'character-avatar-${widget.character.id}',
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: colorScheme.surface,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                              color: isHC
-                                  ? colorScheme.primary
-                                  : colorScheme.onSecondaryContainer
-                                      .withValues(alpha: 0.2),
-                              width: isHC ? 1.5 : 1),
-                        ),
-                        child: widget.character.avatarPath != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.file(
-                                  File(widget.character.avatarPath!),
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Icon(
-                                      _getClassIcon(
-                                          widget.character.characterClass),
-                                      size: 40,
-                                      color: colorScheme.secondary,
-                                    );
-                                  },
-                                ),
-                              )
-                            : Icon(
-                                _getClassIcon(widget.character.characterClass),
-                                size: 40,
-                                color: colorScheme.secondary,
-                              ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-
-                    // Info
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            right: 40.0), // Space for dice button
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.character.name,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    color: colorScheme.onSecondaryContainer,
-                                    height: 1.1,
-                                  ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-
-                            // Level Badge (Capsule Style)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 8.0, bottom: 6.0),
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: _openLevelUpWizard,
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: colorScheme
-                                          .surface, // Distinct form background
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.keyboard_double_arrow_up,
-                                          size: 14,
-                                          color: colorScheme.secondary,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          '${l10n.levelShort} ${widget.character.level}',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: colorScheme.secondary,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            Text(
-                              localizedClassName,
-                              style: TextStyle(
-                                color: colorScheme.onSecondaryContainer
-                                    .withValues(alpha: 0.8),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                              ),
-                            ),
-                            if (localizedSubclass != null)
-                              Text(
-                                localizedSubclass,
-                                style: TextStyle(
-                                  color: colorScheme.onSecondaryContainer
-                                      .withValues(alpha: 0.6),
-                                  fontSize: 12,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Dice Button (Top Right)
-              Positioned(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Hero(
+                          tag: 'character-avatar-${widget.character.id}',
+                          child: Transform.scale(
+                              scale: 1 - scroll * .035,
+                              child: AnimatedContainer(
+                                  duration:
+                                      MediaQuery.disableAnimationsOf(context)
+                                          ? Duration.zero
+                                          : const Duration(milliseconds: 280),
+                                  curve: Curves.easeOutCubic,
+                                  width: widget.isExpanded ? 92 : 84,
+                                  height: widget.isExpanded ? 92 : 84,
+                                  decoration: BoxDecoration(
+                                      color: colorScheme.surface,
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: const Radius.circular(28),
+                                          topRight: Radius.circular(
+                                              widget.isExpanded ? 28 : 18),
+                                          bottomLeft: const Radius.circular(18),
+                                          bottomRight:
+                                              const Radius.circular(28)),
+                                      border: Border.all(
+                                          color: colorScheme.surface
+                                              .withValues(alpha: .75),
+                                          width: 1),
+                                      boxShadow: isHC
+                                          ? []
+                                          : [
+                                              BoxShadow(
+                                                  color: colorScheme.shadow
+                                                      .withValues(alpha: .07),
+                                                  blurRadius: 12,
+                                                  offset: const Offset(0, 4))
+                                            ]),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: widget.character.avatarPath != null
+                                      ? Image.file(
+                                          File(widget.character.avatarPath!),
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stack) =>
+                                              Icon(_getClassIcon(widget.character.characterClass),
+                                                  size: 38,
+                                                  color: colorScheme.secondary))
+                                      : Icon(
+                                          _getClassIcon(widget.character.characterClass),
+                                          size: 38,
+                                          color: colorScheme.secondary)))),
+                      const SizedBox(width: 14),
+                      Expanded(
+                          child: Padding(
+                              padding: const EdgeInsets.only(right: 40),
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(raceName,
+                                        style: t.textTheme.labelMedium
+                                            ?.copyWith(
+                                                color: colorScheme
+                                                    .onSurfaceVariant,
+                                                fontWeight: FontWeight.w500)),
+                                    const SizedBox(height: 7),
+                                    Text(widget.character.name,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: t.textTheme.headlineMedium
+                                            ?.copyWith(
+                                                fontSize: 28,
+                                                fontWeight: FontWeight.w800,
+                                                letterSpacing: -.85,
+                                                height: 1.08,
+                                                color: colorScheme.onSurface)),
+                                  ]))),
+                    ])),
+            Positioned(
                 top: 12,
                 right: 12,
                 child: IconButton.filledTonal(
-                  onPressed: widget.onDicePressed,
-                  icon: const Icon(Icons.casino),
-                  style: IconButton.styleFrom(
-                    backgroundColor: colorScheme.surface,
-                    foregroundColor: colorScheme.secondary,
-                  ),
-                ),
-              ),
-            ],
-          ),
+                    tooltip: l10n.rollDie(20),
+                    onPressed: widget.onDicePressed,
+                    icon: const Icon(Icons.casino_outlined, size: 23),
+                    style: IconButton.styleFrom(
+                        backgroundColor: colorScheme.surface,
+                        foregroundColor: colorScheme.secondary,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(17))))),
+          ]),
+          Padding(
+              padding: const EdgeInsets.fromLTRB(18, 0, 18, 14),
+              child: Container(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+                  decoration: BoxDecoration(
+                      color: colorScheme.surface.withValues(alpha: .4),
+                      borderRadius: BorderRadius.circular(21)),
+                  child: _identityFooter(
+                      context, localizedClassName, localizedSubclass, l10n))),
 
           // Expandable Trigger
           if (hasPersonalityData)
@@ -362,148 +416,168 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard>
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Icon(
-                      widget.isExpanded
-                          ? Icons.keyboard_arrow_up
-                          : Icons.keyboard_arrow_down,
-                      size: 20,
-                      color: colorScheme.onSecondaryContainer
-                          .withValues(alpha: 0.5),
-                    ),
+                    child: RotationTransition(
+                        turns:
+                            Tween<double>(begin: 0, end: .5).animate(_reveal),
+                        child: Icon(
+                          Icons.keyboard_arrow_down,
+                          semanticLabel:
+                              Localizations.localeOf(context).languageCode ==
+                                      'ru'
+                                  ? (widget.isExpanded
+                                      ? 'Свернуть описание'
+                                      : 'О персонаже')
+                                  : (widget.isExpanded
+                                      ? 'Collapse details'
+                                      : 'About the character'),
+                          size: 20,
+                          color: colorScheme.onSecondaryContainer
+                              .withValues(alpha: 0.5),
+                        )),
                   ),
                 ],
               ),
             ),
 
           // Animated Details Section
-          AnimatedCrossFade(
-            firstChild: const SizedBox(width: double.infinity),
-            secondChild: hasPersonalityData
-                ? Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(20),
-                        bottomRight: Radius.circular(20),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (widget.character.age != null ||
-                            widget.character.gender != null ||
-                            widget.character.height != null ||
-                            widget.character.weight != null ||
-                            widget.character.eyes != null ||
-                            widget.character.hair != null ||
-                            widget.character.skin != null) ...[
-                          _buildSectionTitle(
-                              l10n.physicalAppearance, Icons.face),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              if (widget.character.age != null)
-                                _buildInfoChip(
-                                    '${l10n.age}: ${_formatValue(l10n, widget.character.age)}'),
-                              if (widget.character.gender != null)
-                                _buildInfoChip(
-                                    '${l10n.gender}: ${_getLocalizedValue(l10n, widget.character.gender!)}'),
-                              if (widget.character.height != null)
-                                _buildInfoChip(
-                                    '${l10n.height}: ${_formatValue(l10n, widget.character.height)}'),
-                              if (widget.character.weight != null)
-                                _buildInfoChip(
-                                    '${l10n.weight}: ${_formatValue(l10n, widget.character.weight)}'),
-                              if (widget.character.eyes != null)
-                                _buildInfoChip(
-                                    '${l10n.eyes}: ${_getLocalizedValue(l10n, widget.character.eyes!)}'),
-                              if (widget.character.hair != null)
-                                _buildInfoChip(
-                                    '${l10n.hair}: ${_getLocalizedValue(l10n, widget.character.hair!)}'),
-                              if (widget.character.skin != null)
-                                _buildInfoChip(
-                                    '${l10n.skin}: ${_getLocalizedValue(l10n, widget.character.skin!)}'),
-                            ],
+          SizeTransition(
+            key: const ValueKey('character-details-reveal'),
+            alignment: Alignment.topCenter,
+            sizeFactor: _reveal,
+            child: FadeTransition(
+                opacity: _reveal,
+                child: hasPersonalityData
+                    ? Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
                           ),
-                          if (widget.character.appearanceDescription !=
-                              null) ...[
-                            const SizedBox(height: 8),
-                            Text(widget.character.appearanceDescription!,
-                                style: TextStyle(
-                                    color: colorScheme.onSecondaryContainer
-                                        .withValues(alpha: 0.9),
-                                    fontSize: 13)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (widget.character.age != null ||
+                                widget.character.gender != null ||
+                                widget.character.height != null ||
+                                widget.character.weight != null ||
+                                widget.character.eyes != null ||
+                                widget.character.hair != null ||
+                                widget.character.skin != null) ...[
+                              _buildSectionTitle(
+                                  l10n.physicalAppearance, Icons.face),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  if (widget.character.age != null)
+                                    _buildInfoChip(
+                                        '${l10n.age}: ${_formatValue(l10n, widget.character.age)}'),
+                                  if (widget.character.gender != null)
+                                    _buildInfoChip(
+                                        '${l10n.gender}: ${_getLocalizedValue(l10n, widget.character.gender!)}'),
+                                  if (widget.character.height != null)
+                                    _buildInfoChip(
+                                        '${l10n.height}: ${_formatValue(l10n, widget.character.height)}'),
+                                  if (widget.character.weight != null)
+                                    _buildInfoChip(
+                                        '${l10n.weight}: ${_formatValue(l10n, widget.character.weight)}'),
+                                  if (widget.character.eyes != null)
+                                    _buildInfoChip(
+                                        '${l10n.eyes}: ${_getLocalizedValue(l10n, widget.character.eyes!)}'),
+                                  if (widget.character.hair != null)
+                                    _buildInfoChip(
+                                        '${l10n.hair}: ${_getLocalizedValue(l10n, widget.character.hair!)}'),
+                                  if (widget.character.skin != null)
+                                    _buildInfoChip(
+                                        '${l10n.skin}: ${_getLocalizedValue(l10n, widget.character.skin!)}'),
+                                ],
+                              ),
+                              if (widget.character.appearanceDescription !=
+                                  null) ...[
+                                const SizedBox(height: 8),
+                                Text(widget.character.appearanceDescription!,
+                                    style: TextStyle(
+                                        color: colorScheme.onSecondaryContainer
+                                            .withValues(alpha: 0.9),
+                                        fontSize: 13)),
+                              ],
+                              const SizedBox(height: 16),
+                            ],
+                            if (widget.character.personalityTraits != null) ...[
+                              _buildSectionTitle(l10n.traits, Icons.psychology),
+                              const SizedBox(height: 4),
+                              Text(widget.character.personalityTraits!,
+                                  style: TextStyle(
+                                      color: colorScheme.onSecondaryContainer
+                                          .withValues(alpha: 0.9),
+                                      fontSize: 13)),
+                              const SizedBox(height: 12)
+                            ],
+                            if (widget.character.ideals != null) ...[
+                              _buildSectionTitle(
+                                  l10n.ideals, Icons.star_outline),
+                              const SizedBox(height: 4),
+                              Text(widget.character.ideals!,
+                                  style: TextStyle(
+                                      color: colorScheme.onSecondaryContainer
+                                          .withValues(alpha: 0.9),
+                                      fontSize: 13)),
+                              const SizedBox(height: 12)
+                            ],
+                            if (widget.character.bonds != null) ...[
+                              _buildSectionTitle(
+                                  l10n.bonds, Icons.favorite_outline),
+                              const SizedBox(height: 4),
+                              Text(widget.character.bonds!,
+                                  style: TextStyle(
+                                      color: colorScheme.onSecondaryContainer
+                                          .withValues(alpha: 0.9),
+                                      fontSize: 13)),
+                              const SizedBox(height: 12)
+                            ],
+                            if (widget.character.flaws != null) ...[
+                              _buildSectionTitle(
+                                  l10n.flaws, Icons.warning_amber_outlined),
+                              const SizedBox(height: 4),
+                              Text(widget.character.flaws!,
+                                  style: TextStyle(
+                                      color: colorScheme.onSecondaryContainer
+                                          .withValues(alpha: 0.9),
+                                      fontSize: 13)),
+                              const SizedBox(height: 12)
+                            ],
+                            if (widget.character.backstory != null) ...[
+                              _buildSectionTitle(
+                                  l10n.backstory, Icons.auto_stories),
+                              const SizedBox(height: 4),
+                              Text(widget.character.backstory!,
+                                  style: TextStyle(
+                                      color: colorScheme.onSecondaryContainer
+                                          .withValues(alpha: 0.9),
+                                      fontSize: 13))
+                            ],
                           ],
-                          const SizedBox(height: 16),
-                        ],
-                        if (widget.character.personalityTraits != null) ...[
-                          _buildSectionTitle(l10n.traits, Icons.psychology),
-                          const SizedBox(height: 4),
-                          Text(widget.character.personalityTraits!,
-                              style: TextStyle(
-                                  color: colorScheme.onSecondaryContainer
-                                      .withValues(alpha: 0.9),
-                                  fontSize: 13)),
-                          const SizedBox(height: 12)
-                        ],
-                        if (widget.character.ideals != null) ...[
-                          _buildSectionTitle(l10n.ideals, Icons.star_outline),
-                          const SizedBox(height: 4),
-                          Text(widget.character.ideals!,
-                              style: TextStyle(
-                                  color: colorScheme.onSecondaryContainer
-                                      .withValues(alpha: 0.9),
-                                  fontSize: 13)),
-                          const SizedBox(height: 12)
-                        ],
-                        if (widget.character.bonds != null) ...[
-                          _buildSectionTitle(
-                              l10n.bonds, Icons.favorite_outline),
-                          const SizedBox(height: 4),
-                          Text(widget.character.bonds!,
-                              style: TextStyle(
-                                  color: colorScheme.onSecondaryContainer
-                                      .withValues(alpha: 0.9),
-                                  fontSize: 13)),
-                          const SizedBox(height: 12)
-                        ],
-                        if (widget.character.flaws != null) ...[
-                          _buildSectionTitle(
-                              l10n.flaws, Icons.warning_amber_outlined),
-                          const SizedBox(height: 4),
-                          Text(widget.character.flaws!,
-                              style: TextStyle(
-                                  color: colorScheme.onSecondaryContainer
-                                      .withValues(alpha: 0.9),
-                                  fontSize: 13)),
-                          const SizedBox(height: 12)
-                        ],
-                        if (widget.character.backstory != null) ...[
-                          _buildSectionTitle(
-                              l10n.backstory, Icons.auto_stories),
-                          const SizedBox(height: 4),
-                          Text(widget.character.backstory!,
-                              style: TextStyle(
-                                  color: colorScheme.onSecondaryContainer
-                                      .withValues(alpha: 0.9),
-                                  fontSize: 13))
-                        ],
-                      ],
-                    ),
-                  )
-                : const SizedBox.shrink(),
-            crossFadeState: widget.isExpanded
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 300),
-            sizeCurve: Curves.easeInOut,
+                        ),
+                      )
+                    : const SizedBox.shrink()),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _openAdvancementHistory() async {
+    final changed = await showAdvancementHistory(context, widget.character);
+    if (changed == true && mounted) _refreshCharacter();
+  }
+
+  void _refreshCharacter() {
+    setState(() {});
+    widget.onCharacterUpdated?.call();
   }
 
   Widget _buildSectionTitle(String title, IconData icon) {

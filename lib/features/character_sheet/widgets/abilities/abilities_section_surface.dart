@@ -1,3 +1,4 @@
+import '../../../../core/ui/companion_surface.dart';
 import 'package:flutter/material.dart';
 
 import 'abilities_shell_tokens.dart';
@@ -26,23 +27,11 @@ class AbilitiesSectionSurface extends StatelessWidget {
         : (quiet
             ? colorScheme.surfaceContainerLow
             : colorScheme.surfaceContainerLow);
-    final borderColor = quiet
-        ? colorScheme.outlineVariant.withValues(alpha: 0.45)
-        : colorScheme.outlineVariant.withValues(alpha: 0.65);
-
-    return Material(
-      color: background,
-      elevation: quiet ? 0 : 1,
-      shadowColor: colorScheme.shadow.withValues(alpha: 0.08),
-      surfaceTintColor: emphasized ? colorScheme.primary : colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: borderColor),
-        borderRadius: BorderRadius.circular(AbilitiesShellTokens.sectionRadius),
-      ),
-      child: Padding(
+    return CompanionSurface(
+        color: background,
+        quiet: quiet,
+        raised: emphasized,
         padding: padding,
-        child: child,
-      ),
-    );
+        child: child);
   }
 }

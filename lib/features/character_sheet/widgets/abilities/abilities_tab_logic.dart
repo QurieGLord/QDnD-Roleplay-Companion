@@ -18,6 +18,26 @@ class AbilitiesTabLogic {
 
   bool shouldShowInList(CharacterFeature feature) {
     try {
+      // Unknown/imported classes have no dedicated replacement for their tools.
+      const classes = [
+        'barbarian',
+        'bard',
+        'cleric',
+        'druid',
+        'fighter',
+        'monk',
+        'paladin',
+        'ranger',
+        'rogue',
+        'sorcerer',
+        'warlock',
+        'wizard',
+      ];
+      if (!classes.any(
+        (id) => character.characterClass.toLowerCase().contains(id),
+      )) {
+        return true;
+      }
       if (feature.options != null && feature.options!.isNotEmpty) {
         final hasAtLeastOneChild =
             character.features.any((f) => feature.options!.contains(f.id));
@@ -26,6 +46,7 @@ class AbilitiesTabLogic {
         }
       }
 
+      if(feature.id=='druidic' && character.classLevel('druid')==1)return false;
       final id = feature.id.toLowerCase();
       final name = feature.nameEn.toLowerCase();
       final usageCost = (feature.usageCostId ?? '').toLowerCase();
@@ -37,8 +58,12 @@ class AbilitiesTabLogic {
         return false;
       }
       if (id.contains('indomitable')) return false;
-      if (id.contains('rage') || name == 'rage') return false;
-      if (id.contains('ki') || name.startsWith('ki')) return false;
+      if (id == 'rage' || id == 'barbarian-rage' || name == 'rage') {
+        return false;
+      }
+      if (['ki', 'ki-points', 'ki_points', 'monk-ki', 'monk_ki'].contains(id)) {
+        return false;
+      }
       if (id.contains('sneak_attack') || name.contains('sneak attack')) {
         return false;
       }

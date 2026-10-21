@@ -1,3 +1,4 @@
+import '../../../core/ui/app_menu_style.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
@@ -603,10 +604,12 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
         borderRadius: BorderRadius.circular(8),
       ),
       child: DropdownButton<int>(
+        borderRadius: AppMenuStyle.radius,
+        dropdownColor: AppMenuStyle.background(context),
+        elevation: 4,
         value: score,
         underline: const SizedBox(),
         isDense: true,
-        dropdownColor: theme.colorScheme.primaryContainer,
         items: standardArrayValues.map((value) {
           final mod = (value ~/ 2) - 5;
           final modStr = mod >= 0 ? '+$mod' : '$mod';
@@ -616,7 +619,7 @@ class _AbilityScoresStepState extends State<AbilityScoresStep> {
               '$value ($modStr)',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onPrimaryContainer,
+                color: theme.colorScheme.onSurface,
               ),
             ),
           );

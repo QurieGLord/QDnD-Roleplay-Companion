@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qd_and_d/core/models/class_data.dart';
+import 'package:qd_and_d/core/models/character_feature.dart';
 import 'package:qd_and_d/core/services/fc5_parser.dart';
 import 'package:qd_and_d/core/services/feature_hydration_service.dart';
 import 'package:qd_and_d/core/services/feature_service.dart';
@@ -13,6 +14,28 @@ void main() {
   });
 
   group('FC5 feature hydration bridge', () {
+    test(
+        'Explicit rest counters are metadata while named variants remain distinct',
+        () {
+      CharacterFeature feature(String name) => CharacterFeature(
+          id: 'probe',
+          nameEn: name,
+          nameRu: name,
+          descriptionEn: 'A rule.',
+          descriptionRu: 'A rule.',
+          type: FeatureType.passive,
+          minLevel: 1);
+      expect(
+          FeatureHydrationService.featureMatchesBuiltIn(
+              feature('Channel Divinity'),
+              feature('Channel Divinity (2/rest)')),
+          isTrue);
+      expect(
+          FeatureHydrationService.featureMatchesBuiltIn(
+              feature('Aura (Sea)'), feature('Aura (Tundra)')),
+          isFalse);
+    });
+
     test(
       'hydrates imported Paladin Oath of Conquest Channel Divinity mechanics',
       () {

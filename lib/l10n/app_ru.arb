@@ -129,8 +129,8 @@
   "recoveryManual": "Вручную",
   "enterCombatMode": "Начать Бой",
   "rest": "Отдых",
-  "shortRestDescription": "Восстановить умения короткого отдыха и потратить кости хитов?",
-  "longRestDescription": "Восстановить все ОЗ, ячейки заклинаний и умения?",
+  "shortRestDescription": "Восстановятся ресурсы короткого отдыха. Лечение и расход костей хитов отмечайте отдельно.",
+  "longRestDescription": "Восполняет недостающие ОЗ, ячейки заклинаний и ресурсы умений до обычного максимума.",
   "restedSuccess": "Отдых завершен успешно",
   "unarmedStrike": "Безоружный удар",
   "hit": "ПОПАД",
@@ -185,7 +185,7 @@
   "activeAbilities": "Активные умения",
   "magic": "Магия",
   "spellsList": "Список заклинаний",
-  "passiveTraits": "Пассивные черты",
+  "passiveTraits": "Пассивные умения",
   "cantrips": "Заговоры",
   "levelLabel": "Круг {level}",
   "levelShort": "Ур.",
@@ -211,7 +211,7 @@
   "schoolConjuration": "Вызов",
   "schoolDivination": "Прорицание",
   "schoolEnchantment": "Очарование",
-  "schoolEvocation": "Эвокация",
+  "schoolEvocation": "Воплощение",
   "schoolIllusion": "Иллюзия",
   "schoolNecromancy": "Некромантия",
   "schoolTransmutation": "Преобразование",
@@ -285,7 +285,7 @@
   "features": "Умения",
   "chooseRace": "Выберите Расу",
   "chooseClass": "Выберите Класс",
-  "hitDieType": "Кость хитов: d{value}",
+  "hitDieType": "Кость хитов: к{value}",
   "damageTypeAcid": "Кислота",
   "damageTypeCold": "Холод",
   "damageTypeFire": "Огонь",
@@ -303,7 +303,7 @@
   "riskIt": "Рискнуть!",
   "conditionBlinded": "Ослеплен",
   "conditionCharmed": "Очарован",
-  "conditionDeafened": "Оглушен",
+  "conditionDeafened": "Оглохший",
   "conditionFrightened": "Испуган",
   "conditionGrappled": "Схвачен",
   "conditionIncapacitated": "Недееспособен",
@@ -313,7 +313,7 @@
   "conditionPoisoned": "Отравлен",
   "conditionProne": "Сбит с ног",
   "conditionRestrained": "Опутан",
-  "conditionStunned": "Ошеломлен",
+  "conditionStunned": "Оглушён",
   "conditionUnconscious": "Без сознания",
   "conditionExhaustion": "Истощение: {level}",
   "stepBasicInfo": "Основное",
@@ -360,7 +360,7 @@
   "savingThrowProficiencies": "Спасброски",
   "check": "Проверка",
   "saveLabel": "Спасбросок",
-  "rollDie": "Бросок d{sides}",
+  "rollDie": "Бросок к{sides}",
   "skillProficiencies": "Навыки",
   "armorProficiencies": "Доспехи",
   "weaponProficiencies": "Оружие",
@@ -528,11 +528,11 @@
   "chaDesc": "Сила личности",
   "racialBonus": "Расовый бонус: +{bonus} → Итог: {result} ({mod})",
   "startingHitPoints": "Начальные хиты",
-  "hitDieConMod": "Кость хитов: d{die} | ТЕЛ Мод: {mod}",
+  "hitDieConMod": "Кость хитов: к{die} | ТЕЛ Мод: {mod}",
   "hpMaxDesc": "Максимум ОЗ (рекомендуется)",
   "hpAvgDesc": "Средний бросок: {avg} + модификатор ТЕЛ",
-  "hpRollDesc": "Бросок 1d{die} для начальных ОЗ",
-  "reRoll": "Перебросить d{die} (выпало: {val})",
+  "hpRollDesc": "Бросок 1к{die} для начальных ОЗ",
+  "reRoll": "Перебросить к{die} (выпало: {val})",
   "pointsUsed": "Очки: {used} / {total} иcп. (осталось {remaining})",
   "newFeaturesLabel": "Новые умения",
   "optionalFeaturesLabel": "Опциональные умения",
@@ -635,7 +635,7 @@
   "materials": "Материалы",
   "concentration": "Концентрация",
   "ritual": "Ритуал",
-  "atHigherLevels": "На более высоких уровнях",
+  "atHigherLevels": "На более высоких кругах",
   "classes": "Классы",
   "addToKnown": "Добавить в изученные",
   "removeFromKnown": "Забыть заклинание",
@@ -645,20 +645,20 @@
   "availableAtLevel": "Доступно на {level} уровне",
   "filterAvailability": "Доступность",
   "filterClass": "Класс",
-  "filterLevel": "Уровень",
+  "filterLevel": "Круг заклинания",
   "filterSchool": "Школа",
   "filterAllSpells": "Все заклинания",
   "filterCanLearnNow": "Можно изучить",
   "filterAvailableToClass": "Доступно классу",
   "filterAllClasses": "Все классы",
-  "filterAllLevels": "Все уровни",
+  "filterAllLevels": "Все круги",
   "filterAllSchools": "Все школы",
   "clearFilters": "Сбросить",
   "encumbrance": "Нагрузка",
   "attunement": "Настройка",
   "attunementLimitReached": "Все слоты настройки заняты (3/3). Снимите что-нибудь.",
   "deleteItemConfirmation": "Выбросить {name}?",
-  "spellsCount": "{count} заклинаний",
+  "spellsCount": "{count, plural, one{{count} заклинание} few{{count} заклинания} many{{count} заклинаний} other{{count} заклинания}}",
   "preparedSpells": "Подготовлено",
   "preparedSpellsCount": "Подготовлено: {current} / {max}",
   "preparedSpellsLimitReached": "Нельзя подготовить больше заклинаний. Достигнут предел подготовки.",
@@ -865,12 +865,12 @@
   "beastName": "Название облика",
   "naturalRecovery": "Естественное восстановление",
   "recoverSpellSlots": "Восстановить ячейки",
-  "selectSlotsToRecover": "Выберите ячейки (Макс. уровней: {max})",
+  "selectSlotsToRecover": "Выберите ячейки (Сумма кругов: до {max})",
   "currentSpellSlots": "Текущие ячейки",
   "tapToUse": "Нажмите на ноту для использования/восстановления",
   "used": "Потрачено",
   "allSpellSlotsFull": "Все ячейки магии полны",
-  "arcaneRecovery": "Арканное восстановление",
+  "arcaneRecovery": "Магическое восстановление",
   "traditionEvocation": "Школа Эвокации",
   "traditionAbjuration": "Школа Ограждения",
   "traditionConjuration": "Школа Вызова",
@@ -909,7 +909,7 @@
   "hunterArchetype": "АРХЕТИП",
   "huntersMarkTracker": "Метка охотника",
   "markTargetName": "Имя цели",
-  "markBonusDesc": "+1d6 урона / Преимущество",
+  "markBonusDesc": "+1к6 к урону по цели",
   "moveMark": "Переместить",
   "hideInPlainSight": "Маскировка",
   "hideInPlainSightDesc": "+10 к Скрытности, пока не двигаетесь",
@@ -957,5 +957,296 @@
   "hpToSpend": "ХП для траты",
   "damageAmount": "Объем урона",
   "healAmount": "Объем лечения",
-  "secondWindHeal": "Второе дыхание: восстановлено {amount} ОЗ"
+  "secondWindHeal": "Второе дыхание: восстановлено {amount} ОЗ",
+  "editGameState": "Изменить игровое состояние",
+  "gameStateEditorTitle": "Игровое состояние",
+  "gameStateSaved": "Игровое состояние сохранено",
+  "gameStateSaveFailed": "Не удалось сохранить игровое состояние: {error}",
+  "@gameStateSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "gameStateNumbersOnly": "Введите целое неотрицательное число",
+  "gameStateNormalMaximum": "Обычный максимум: {value}. Остаток может быть выше.",
+  "@gameStateNormalMaximum": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "gameStateArmorCalculated": "Расчётная КД: {value}",
+  "@gameStateArmorCalculated": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "gameStateManualArmor": "Использовать введённую КД",
+  "gameStateEffectsHint": "Эти отметки сохраняются после отдыха. Снимайте эффект, когда он закончится за вашим столом.",
+  "gameStateResourcesHint": "Укажите фактический остаток, включая дополнительные использования от мастера. Отдых сохраняет превышение.",
+  "gameStateCurrentHp": "Текущие ОЗ",
+  "gameStateMaximumHp": "Максимальные ОЗ",
+  "gameStateSpeed": "Скорость",
+  "gameStateExhaustion": "Истощение (0–6)",
+  "gameStateDeathSuccesses": "Успехи спасбросков от смерти (0–3)",
+  "gameStateDeathFailures": "Провалы спасбросков от смерти (0–3)",
+  "gameStateHitDice": "Оставшиеся кости хитов",
+  "gameStateRaging": "Ярость активна",
+  "gameStateFrenzied": "Неистовство активно",
+  "gameStateReckless": "Безрассудная атака активна",
+  "gameStateHidden": "Скрытность",
+  "gameStateSacredWeapon": "Священное оружие активно",
+  "gameStateWildShape": "Звериная форма активна",
+  "gameStateWildShapeUses": "Оставшиеся превращения",
+  "gameStateBeastCurrentHp": "ОЗ формы",
+  "gameStateBeastMaximumHp": "Максимальные ОЗ формы",
+  "gameStateHuntersMark": "Метка охотника активна",
+  "gameStateConcentrationHelp": "Концентрация на этом заклинании. Снимите отметку, когда концентрация закончится.",
+  "gameStateNoConcentration": "Без концентрации",
+  "gameStateRestMarksHint": "Ресурсы восстанавливаются; активные эффекты и состояния остаются под вашим управлением.",
+  "gameStateCurrentValue": "Текущее значение",
+  "gameStateCastWithoutSlot": "Наложить без ячейки",
+  "gameStateSpellSlots": "Ячейки заклинаний",
+  "gameStateResourceUsed": "{name}: использовано",
+  "@gameStateResourceUsed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "gameStateRecovery": "Восстановление",
+  "gameStateUseBuiltInRecovery": "Использовать встроенные правила восстановления ресурсов",
+  "gameStateRelentlessDc": "Сложность спасброска Неукротимой ярости",
+  "gameStateHiddenPlain": "Маскировка на виду",
+  "sheetVitals": "Состояние",
+  "sheetAutomaticCalculation": "Рассчитывать автоматически",
+  "sheetSaveFailed": "Не удалось сохранить. Прежние значения сохранены. Попробуйте ещё раз.",
+  "sheetAdjustValue": "Вписать значение",
+  "sheetSpendOne": "Потратить одно использование",
+  "sheetRestoreOne": "Добавить одно использование",
+  "sheetRemainder": "Остаток",
+  "sheetMoreEdits": "Другие поправки",
+  "sheetHealthEditHelp": "Впишите фактические ОЗ. Для урона и лечения используйте отдельные действия.",
+  "sheetArmorEditHelp": "Используйте расчёт или впишите КД, согласованный за игровым столом.",
+  "sheetAdditionalSlots": "Дополнительные ячейки",
+  "sheetHealthBase": "ОЗ персонажа",
+  "sheetHealthForm": "ОЗ формы",
+  "sheetFormMissing": "Указать ОЗ формы",
+  "sheetDamageHelp": "Урон сначала снимает временные ОЗ, затем ОЗ активной формы. Избыток переходит на персонажа.",
+  "sheetHealingHelp": "Восполняет недостающие ОЗ до максимума. Вручную заданное превышение сохраняется.",
+  "sheetNumberRange": "Введите целое число от {minimum} до {maximum}",
+  "@sheetNumberRange": {
+    "placeholders": {
+      "minimum": {
+        "type": "int"
+      },
+      "maximum": {
+        "type": "int"
+      }
+    }
+  },
+  "sheetCounterDescription": "Остаток {current}, обычный максимум {maximum}",
+  "@sheetCounterDescription": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "maximum": {
+        "type": "int"
+      }
+    }
+  },
+  "sheetConcentrationDc": "Концентрация: спасбросок Телосложения, Сл {dc}",
+  "@sheetConcentrationDc": {
+    "placeholders": {
+      "dc": {
+        "type": "int"
+      }
+    }
+  },
+  "sheetSlotLevel": "Круг ячейки",
+  "sheetPositiveAmount": "Введите целое число больше нуля",
+  "sheetAdditionalSlotsHelp": "Добавляет ячейки выбранного круга. Обычный максимум остаётся прежним.",
+  "sheetAddSlotsAmount": "Добавить ячеек",
+  "sheetTapHoldHint": "Нажатие — потратить · Удержание — изменить",
+  "sheetHoldToEdit": "Удерживайте, чтобы изменить",
+  "sheetEditCharacter": "Редактировать персонажа",
+  "sheetEditorCore": "Основное",
+  "sheetArcanum": "Таинственный арканум",
+  "spellMasterySelectionHint": "Выберите по одному заклинанию 1-го и 2-го кругов из своей книги:",
+  "signatureSpellsSelectionHint": "Выберите два заклинания 3-го круга ({count} / 2):",
+  "sheetRestPreviewTitle": "Что восстановится",
+  "sheetRestReady": "Снова доступно",
+  "sheetRestNothingToRecover": "Этот отдых ничего не изменит в ресурсах.",
+  "sheetRestPreserves": "Превышение обычного максимума сохраняется. Состояния и активные эффекты снимаются вручную.",
+  "sheetEditorDefense": "Защита и движение",
+  "sheetEditorResourceMarks": "Отметки использования",
+  "sheetEditorActiveEffects": "Активные эффекты",
+  "sheetDeathSuccesses": "Успехи (0–3)",
+  "sheetDeathFailures": "Провалы (0–3)",
+  "sheetClearCondition": "Снять состояние",
+  "sheetRemoveCondition": "Снять: {name}",
+  "sheetNormalMaximum": "Обычный максимум: {value}",
+  "sheetEditorOtherMarks": "Другие отметки",
+  "advancementHealthTitle": "Увеличение ОЗ",
+  "advancementHealthHint": "Выбери, как увеличить максимум ОЗ.",
+  "advancementMaximumHp": "Максимум ОЗ",
+  "advancementConIncluded": "Модификатор Телосложения {modifier} уже учтён",
+  "@advancementConIncluded": {
+    "placeholders": {
+      "modifier": {
+        "type": "String"
+      }
+    }
+  },
+  "advancementAverageDie": "Средний результат кости · {result}",
+  "@advancementAverageDie": {
+    "placeholders": {
+      "result": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementRollHere": "Бросить к{die} в приложении",
+  "@advancementRollHere": {
+    "placeholders": {
+      "die": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementRollAgain": "На кости {result} · нажми, чтобы перебросить",
+  "@advancementRollAgain": {
+    "placeholders": {
+      "result": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementNoHealing": "Повышение увеличивает максимум, но не лечит.",
+  "advancementHpPreserved": "Текущие ОЗ останутся {current}.",
+  "@advancementHpPreserved": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementRolling": "Кость ещё катится…",
+  "advancementOwnDie": "Своя кость",
+  "advancementOwnDieHint": "Внести результат броска за столом",
+  "advancementOwnHitDie": "Своя кость хитов",
+  "advancementDieResult": "Результат к{die}",
+  "@advancementDieResult": {
+    "placeholders": {
+      "die": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementUseRoll": "Выбрать результат",
+  "advancementAsiTitle": "Улучшение характеристик",
+  "advancementAsiHint": "Распредели два очка: +2 к одной характеристике или +1 к двум.",
+  "advancementPoint": "Очко {number}",
+  "@advancementPoint": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementAssign": "Выбрать",
+  "advancementPointHint": "Выбери характеристику для отмеченного очка. Его можно переназначить.",
+  "advancementAssigned": "Распределено {count} из 2",
+  "@advancementAssigned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementModifierChange": "Модификатор {before} → {after}",
+  "@advancementModifierChange": {
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "advancementFeaturesTitle": "Умения класса",
+  "advancementFeaturesHint": "Умения, которые даёт этот уровень класса.",
+  "advancementSpellsHint": "Изучи заклинания, доступные твоему классу.",
+  "advancementCompleteChoices": "Заверши выбор на этом шаге",
+  "advancementChooseSpells": "{count, plural, one{Выбери {count} заклинание.} few{Выбери {count} заклинания.} many{Выбери {count} заклинаний.} other{Выбери {count} заклинания.}}",
+  "@advancementChooseSpells": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementReviewTitle": "Итог повышения",
+  "advancementReviewHint": "Проверь изменения перед подтверждением.",
+  "advancementApply": "Подтвердить повышение",
+  "advancementAllSaved": "Изменения сохранятся вместе",
+  "advancementRulesTitle": "Правила героя",
+  "advancementRouteFeatures": "Умения",
+  "advancementRouteMagic": "Магия",
+  "advancementRouteAbilities": "Характеристики",
+  "advancementRouteReview": "Итог",
+  "advancementDetails": "Подробнее",
+  "advancementClearSearch": "Очистить поиск",
+  "advancementSlotsHint": "Проверь, как изменятся ячейки заклинаний.",
+  "advancementHpBonus": "{feature} · +{amount} ОЗ",
+  "@advancementHpBonus": {
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementMetamagicCareful": "Выбранные существа успешно проходят спасбросок.",
+  "advancementMetamagicDistant": "Двойная дистанция; касание — 30 футов.",
+  "advancementMetamagicEmpowered": "Переброс части костей урона.",
+  "advancementMetamagicExtended": "Удвоенная длительность, до 24 часов.",
+  "advancementMetamagicHeightened": "Помеха одной цели на первый спасбросок.",
+  "advancementMetamagicQuickened": "Заклинание за бонусное действие.",
+  "advancementMetamagicSubtle": "Без слов и жестов.",
+  "advancementMetamagicTwinned": "Вторая цель для одиночного заклинания.",
+  "advancementChooseOptions": "{count, plural, one{Выбери {count} вариант.} few{Выбери {count} варианта.} many{Выбери {count} вариантов.} other{Выбери {count} варианта.}}",
+  "@advancementChooseOptions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementSlotsTitle": "Ячейки заклинаний",
+  "advancementModifier": "Модификатор {value}",
+  "@advancementModifier": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "fighterSecondWindPrompt": "Бросить кость и восстановить ОЗ",
+  "fighterSurgePrompt": "Ещё одно действие",
+  "fighterIndomitablePrompt": "Перебросить спасбросок",
+  "fighterLastRoll": "Последний бросок: {roll} + {bonus}",
+  "@fighterLastRoll": {"placeholders": {"roll": {"type": "int"}, "bonus": {"type": "int"}}},
+  "sheetTabOverview": "Обзор",
+  "sheetTabJournal": "Журнал"
 }

@@ -1,16 +1,14 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
+import 'catalog_definition_signature.dart';
+import 'qdnd_bundle_codec.dart';
 import '../models/background_data.dart';
 import '../models/character_feature.dart';
 import '../models/class_data.dart';
 import '../models/item.dart';
 import '../models/race_data.dart';
 import '../models/spell.dart';
-import 'character_data_service.dart';
-import 'feature_hydration_service.dart';
-import 'feature_service.dart';
 import 'fc5_imported_name_normalizer.dart';
-import 'item_service.dart';
-import 'spell_service.dart';
-import 'storage_service.dart';
 import 'fc5_parser.dart';
 
 class FC5ContentIdentityService {
@@ -48,6 +46,32 @@ class FC5ContentIdentityService {
   };
 
   static const Map<String, String> _subclassAliases = {
+    'berserker': 'berserker',
+    'path of the berserker': 'berserker',
+    'путь берсерка': 'berserker',
+    'берсерк': 'berserker',
+    'lore': 'college of lore',
+    'college of lore': 'college of lore',
+    'коллегия знаний': 'college of lore',
+    'land': 'circle of the land',
+    'circle of land': 'circle of the land',
+    'open hand': 'way of the open hand',
+    'way of the open hand': 'way of the open hand',
+    'путь открытой ладони': 'way of the open hand',
+    'thief': 'thief',
+    'вор': 'thief',
+    'hunter': 'hunter',
+    'охотник': 'hunter',
+    'draconic': 'draconic bloodline',
+    'draconic bloodline': 'draconic bloodline',
+    'драконья кровь': 'draconic bloodline',
+    'fiend': 'the fiend',
+    'the fiend': 'the fiend',
+    'бестия': 'the fiend',
+    'evocation': 'school of evocation',
+    'school of evocation': 'school of evocation',
+    'школа воплощения': 'school of evocation',
+    'школа эвокации': 'school of evocation',
     'devotion': 'oath of devotion',
     'oath devotion': 'oath of devotion',
     'oath of devotion': 'oath of devotion',
@@ -193,8 +217,8 @@ class FC5ContentIdentityService {
 
   static String canonicalSubclassName(String value) {
     final normalized = _normalize(value)
-        .replaceFirst(RegExp(r'^oath '), 'oath of ')
-        .replaceFirst(RegExp(r'^circle '), 'circle of ');
+        .replaceFirst(RegExp(r'^oath (?!of )'), 'oath of ')
+        .replaceFirst(RegExp(r'^circle (?!of )'), 'circle of ');
     return _subclassAliases[normalized] ?? normalized;
   }
 
@@ -217,7 +241,10 @@ class FC5ContentIdentityService {
 
   static String _canonicalFeatureName(String value) {
     return _normalize(value)
-        .replaceFirst(RegExp(r'\\s*\\([^)]*\\)$'), '')
+        .replaceFirst(
+            RegExp(
+                r'\s*\(\d+(?:\s*/\s*(?:\d+|(?:short|long)\s+rest|rest|отдых))?\s*(?:uses?|раз|заряд(?:а|ов)?)?\)$'),
+            '')
         .trim();
   }
 
@@ -226,8 +253,8 @@ class FC5ContentIdentityService {
         .toLowerCase()
         .replaceAll('ё', 'е')
         .replaceAll(RegExp(r'[_-]+'), ' ')
-        .replaceAll(RegExp(r'[^a-zа-я0-9\\s]+'), ' ')
-        .replaceAll(RegExp(r'\\s+'), ' ')
+        .replaceAll(RegExp(r'[^a-zа-я0-9\s]+'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
   }
 }
@@ -264,260 +291,86 @@ class FC5CompendiumDeduplicationResult {
 }
 
 class FC5CompendiumDeduplicationService {
-  static FC5CompendiumDeduplicationResult dedupe(
-    FC5ParseResult parseResult,
-  ) {
-    final registry = _ContentIdentityRegistry.fromLoadedContent();
+  /// Source ownership matters: independent books retain their definitions even
+  /// when they overlap. Removing one book must not erase another's content.
+  static FC5CompendiumDeduplicationResult dedupe(FC5ParseResult input) {
     final stats = FC5CompendiumDeduplicationStats();
-
-    final items = _dedupeEntities(
-      parseResult.items,
-      FC5ContentIdentityService.itemKeys,
-      registry,
-      onSkipped: () => stats.items += 1,
-    );
-    final spells = _dedupeEntities(
-      parseResult.spells,
-      FC5ContentIdentityService.spellKeys,
-      registry,
-      onSkipped: () => stats.spells += 1,
-    );
-    final races = _dedupeEntities(
-      parseResult.races,
-      FC5ContentIdentityService.raceKeys,
-      registry,
-      onSkipped: () => stats.races += 1,
-    );
-    final backgrounds = _dedupeEntities(
-      parseResult.backgrounds,
-      FC5ContentIdentityService.backgroundKeys,
-      registry,
-      onSkipped: () => stats.backgrounds += 1,
-    );
-    final feats = _dedupeEntities(
-      parseResult.feats,
-      FC5ContentIdentityService.featKeys,
-      registry,
-      onSkipped: () => stats.feats += 1,
-    );
-
-    final classes = <ClassData>[];
-    for (final classData in parseResult.classes) {
-      final filtered = _dedupeClass(classData, registry, stats);
-      if (filtered == null) continue;
-      classes.add(filtered);
+    final diagnostics = input.diagnostics.copy();
+    List<T> filter<T>(List<T> values, String kind, String Function(T) idFor,
+        Map<String, dynamic> Function(T) jsonFor, void Function() skipped,
+        {T Function(T, String)? variant}) {
+      final groups = <String, Map<String, T>>{};
+      final result = <T>[];
+      for (final value in values) {
+        final id = idFor(value);
+        final signature = CatalogDefinitionSignature.of(jsonFor(value));
+        final group = groups.putIfAbsent(id, () => {});
+        if (group.containsKey(signature)) {
+          skipped();
+        } else {
+          group[signature] = value;
+        }
+      }
+      for (final entry in groups.entries) {
+        if (entry.value.length == 1) {
+          result.add(entry.value.values.single);
+          continue;
+        }
+        // FC5 entities have no standard identity field: our generated ID is
+        // based on their display name. A collision of that name is not proof
+        // that the book contradicts itself. Preserve every distinct variant.
+        if (variant != null && entry.key.startsWith('fc5_')) {
+          diagnostics.warning('named_variants_preserved',
+              'Different same-name definitions were preserved as separate variants.',
+              context: '$kind:${entry.value.length}');
+          for (final version in entry.value.entries) {
+            final digest = sha256.convert(utf8.encode(version.key)).toString();
+            result.add(variant(version.value, '${entry.key}__$digest'));
+          }
+        } else {
+          diagnostics.error('conflicting_entity_id',
+              'Two different definitions share one ID in the same source. No content can be safely installed.',
+              context: '$kind:${entry.key}');
+          result.addAll(entry.value.values);
+        }
+      }
+      return result;
     }
 
-    final diagnostics = parseResult.diagnostics.copy();
+    final items = filter(input.items, 'item', (v) => v.id, (v) => v.toJson(),
+        () => stats.items++,
+        variant: (v, id) => Item.fromJson({...v.toJson(), 'id': id}));
+    final spells = filter(input.spells, 'spell', (v) => v.id, (v) => v.toJson(),
+        () => stats.spells++,
+        variant: (v, id) => Spell.fromJson({...v.toJson(), 'id': id}));
+    final races = filter(input.races, 'race', (v) => v.id,
+        QdndBundleCodec.raceToJson, () => stats.races++,
+        variant: (v, id) => QdndBundleCodec.raceFromJson(
+            {...QdndBundleCodec.raceToJson(v), 'id': id}));
+    final classes = filter(input.classes, 'class', (v) => v.id,
+        QdndBundleCodec.classToJson, () => stats.classes++);
+    final backgrounds = filter(input.backgrounds, 'background', (v) => v.id,
+        QdndBundleCodec.backgroundToJson, () => stats.backgrounds++,
+        variant: (v, id) => QdndBundleCodec.backgroundFromJson(
+            {...QdndBundleCodec.backgroundToJson(v), 'id': id}));
+    final feats = filter(input.feats, 'feat', (v) => v.id, (v) => v.toJson(),
+        () => stats.feats++,
+        variant: (v, id) =>
+            CharacterFeature.fromJson({...v.toJson(), 'id': id}));
     if (stats.total > 0) {
-      diagnostics.info(
-        'duplicates_skipped',
-        'Skipped ${stats.total} duplicate imported entities.',
-        context: '${stats.total}',
-      );
+      diagnostics.info('duplicates_skipped',
+          'Skipped ${stats.total} exact repetitions within this source.',
+          context: '${stats.total}');
     }
-
     return FC5CompendiumDeduplicationResult(
-      parseResult: FC5ParseResult(
-        items: items,
-        spells: spells,
-        races: races,
-        classes: classes,
-        backgrounds: backgrounds,
-        feats: feats,
-        diagnostics: diagnostics,
-      ),
-      stats: stats,
-    );
-  }
-
-  static List<T> _dedupeEntities<T>(
-    Iterable<T> entities,
-    Set<String> Function(T entity) keysFor,
-    _ContentIdentityRegistry registry, {
-    required void Function() onSkipped,
-  }) {
-    final result = <T>[];
-    for (final entity in entities) {
-      final keys = keysFor(entity);
-      if (registry.containsAny(keys)) {
-        onSkipped();
-        continue;
-      }
-      registry.addAll(keys);
-      result.add(entity);
-    }
-    return result;
-  }
-
-  static ClassData? _dedupeClass(
-    ClassData classData,
-    _ContentIdentityRegistry registry,
-    FC5CompendiumDeduplicationStats stats,
-  ) {
-    final classKeys = FC5ContentIdentityService.classKeys(classData);
-    final classExists = registry.containsAny(classKeys);
-    final skippedSubclassIds = <String>{};
-    final subclasses = <SubclassData>[];
-
-    for (final subclass in classData.subclasses) {
-      final keys = FC5ContentIdentityService.subclassKeys(classData, subclass);
-      if (registry.containsAny(keys)) {
-        stats.subclasses += 1;
-        skippedSubclassIds.add(
-          FC5ContentIdentityService.canonicalSubclassName(
-            subclass.name['en'] ?? subclass.id,
-          ),
-        );
-        skippedSubclassIds.add(
-          FC5ContentIdentityService.canonicalSubclassName(
-            subclass.name['ru'] ?? subclass.id,
-          ),
-        );
-        continue;
-      }
-      registry.addAll(keys);
-      subclasses.add(subclass);
-    }
-
-    final features = <int, List<CharacterFeature>>{};
-    for (final entry in classData.features.entries) {
-      final kept = <CharacterFeature>[];
-      for (final feature in entry.value) {
-        final subclass = feature.associatedSubclass;
-        if (subclass != null &&
-            skippedSubclassIds.contains(
-              FC5ContentIdentityService.canonicalSubclassName(subclass),
-            )) {
-          stats.features += 1;
-          continue;
-        }
-
-        final keys = FC5ContentIdentityService.featureKeys(feature);
-        if (registry.containsAny(keys) ||
-            _matchesBuiltInFeature(classData, feature)) {
-          stats.features += 1;
-          continue;
-        }
-        registry.addAll(keys);
-        kept.add(feature);
-      }
-      if (kept.isNotEmpty) {
-        features[entry.key] = kept;
-      }
-    }
-
-    if (!classExists) {
-      registry.addAll(classKeys);
-    }
-
-    if (classExists && subclasses.isEmpty && features.isEmpty) {
-      stats.classes += 1;
-      return null;
-    }
-
-    return ClassData(
-      id: classData.id,
-      name: classData.name,
-      description: classData.description,
-      hitDie: classData.hitDie,
-      primaryAbilities: classData.primaryAbilities,
-      savingThrowProficiencies: classData.savingThrowProficiencies,
-      armorProficiencies: classData.armorProficiencies,
-      weaponProficiencies: classData.weaponProficiencies,
-      skillProficiencies: classData.skillProficiencies,
-      subclasses: subclasses,
-      subclassLevel: classData.subclassLevel,
-      spellcasting: classData.spellcasting,
-      features: features,
-      sourceId: classData.sourceId,
-    );
-  }
-
-  static bool _matchesBuiltInFeature(
-    ClassData classData,
-    CharacterFeature feature,
-  ) {
-    final classId = FC5ContentIdentityService.classIdFromClassData(classData);
-    final candidates = FeatureService.getFeaturesForLevel(
-      classId: classId,
-      level: feature.minLevel,
-      subclassId: feature.associatedSubclass,
-    );
-    return candidates.any(
-      (candidate) =>
-          FeatureHydrationService.featureMatchesBuiltIn(feature, candidate) ||
-          FC5ContentIdentityService.featureKeys(feature)
-              .intersection(FC5ContentIdentityService.featureKeys(candidate))
-              .isNotEmpty,
-    );
-  }
-}
-
-class _ContentIdentityRegistry {
-  final Set<String> _keys = {};
-
-  _ContentIdentityRegistry();
-
-  factory _ContentIdentityRegistry.fromLoadedContent() {
-    final registry = _ContentIdentityRegistry();
-
-    for (final item in [
-      ...ItemService.getAllItems(),
-      ...StorageService.getAllItems(),
-    ]) {
-      registry.addAll(FC5ContentIdentityService.itemKeys(item));
-    }
-    for (final spell in [
-      ...SpellService.getAllSpells(),
-      ...StorageService.getAllSpells(),
-    ]) {
-      registry.addAll(FC5ContentIdentityService.spellKeys(spell));
-    }
-    for (final race in [
-      ...CharacterDataService.getAllRaces(),
-      ...StorageService.getAllRaces(),
-    ]) {
-      registry.addAll(FC5ContentIdentityService.raceKeys(race));
-    }
-    for (final background in [
-      ...CharacterDataService.getAllBackgrounds(),
-      ...StorageService.getAllBackgrounds(),
-    ]) {
-      registry.addAll(FC5ContentIdentityService.backgroundKeys(background));
-    }
-    for (final feat in [
-      ...CharacterDataService.getAllFeats(),
-      ...StorageService.getAllFeats(),
-    ]) {
-      registry.addAll(FC5ContentIdentityService.featKeys(feat));
-    }
-    for (final classData in [
-      ...CharacterDataService.getAllClasses(),
-      ...StorageService.getAllClasses(),
-    ]) {
-      registry.addAll(FC5ContentIdentityService.classKeys(classData));
-      for (final subclass in classData.subclasses) {
-        registry.addAll(
-          FC5ContentIdentityService.subclassKeys(classData, subclass),
-        );
-      }
-      for (final features in classData.features.values) {
-        for (final feature in features) {
-          registry.addAll(FC5ContentIdentityService.featureKeys(feature));
-        }
-      }
-    }
-    for (final feature in FeatureService.allFeatures) {
-      registry.addAll(FC5ContentIdentityService.featureKeys(feature));
-    }
-
-    return registry;
-  }
-
-  bool containsAny(Set<String> keys) => keys.any(_keys.contains);
-
-  void addAll(Iterable<String> keys) {
-    _keys.addAll(keys);
+        parseResult: FC5ParseResult(
+            items: items,
+            spells: spells,
+            races: races,
+            classes: classes,
+            backgrounds: backgrounds,
+            feats: feats,
+            diagnostics: diagnostics),
+        stats: stats);
   }
 }

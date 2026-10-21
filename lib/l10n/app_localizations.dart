@@ -851,13 +851,13 @@ abstract class AppLocalizations {
   /// No description provided
   ///
   /// In en, this message translates to:
-  /// **'Recover short-rest features and spend Hit Dice?'**
+  /// **'Recover short rest resources. Record healing and spent hit dice separately.'**
   String get shortRestDescription;
 
   /// No description provided
   ///
   /// In en, this message translates to:
-  /// **'Recover all HP, spell slots, and features?'**
+  /// **'Replenish missing HP, spell slots, and feature resources up to their normal maximum.'**
   String get longRestDescription;
 
   /// No description provided
@@ -1205,7 +1205,7 @@ abstract class AppLocalizations {
   /// No description provided
   ///
   /// In en, this message translates to:
-  /// **'Passive Traits'**
+  /// **'Passive Features'**
   String get passiveTraits;
 
   /// No description provided
@@ -1217,7 +1217,7 @@ abstract class AppLocalizations {
   /// No description provided for @levelLabel.
   ///
   /// In en, this message translates to:
-  /// **'Circle {level}'**
+  /// **'Level {level}'**
   String levelLabel(int level);
 
   /// No description provided
@@ -1253,7 +1253,7 @@ abstract class AppLocalizations {
   /// No description provided for @levelSlot.
   ///
   /// In en, this message translates to:
-  /// **'Circle {level}'**
+  /// **'Level {level}'**
   String levelSlot(int level);
 
   /// No description provided for @slotsRemaining.
@@ -5451,7 +5451,7 @@ abstract class AppLocalizations {
   /// No description provided
   ///
   /// In en, this message translates to:
-  /// **'+1d6 damage / Advantage'**
+  /// **'+1d6 damage against your target'**
   String get markBonusDesc;
 
   /// No description provided
@@ -5741,6 +5741,834 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Second Wind: restored {amount} HP'**
   String secondWindHeal(int amount);
+
+  /// No description provided for @editGameState.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit game state'**
+  String get editGameState;
+
+  /// No description provided for @gameStateEditorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Game state'**
+  String get gameStateEditorTitle;
+
+  /// No description provided for @gameStateSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Game state saved'**
+  String get gameStateSaved;
+
+  /// No description provided for @gameStateSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save game state: {error}'**
+  String gameStateSaveFailed(String error);
+
+  /// No description provided for @gameStateNumbersOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a non-negative whole number'**
+  String get gameStateNumbersOnly;
+
+  /// No description provided for @gameStateNormalMaximum.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal maximum: {value}. Higher remainders are allowed.'**
+  String gameStateNormalMaximum(int value);
+
+  /// No description provided for @gameStateArmorCalculated.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculated AC: {value}'**
+  String gameStateArmorCalculated(int value);
+
+  /// No description provided for @gameStateManualArmor.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the entered AC'**
+  String get gameStateManualArmor;
+
+  /// No description provided for @gameStateEffectsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'These marks remain after resting. Clear an effect when it ends at your table.'**
+  String get gameStateEffectsHint;
+
+  /// No description provided for @gameStateResourcesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the actual remainder, including uses granted by your GM. Resting preserves any excess.'**
+  String get gameStateResourcesHint;
+
+  /// No description provided for @gameStateCurrentHp.
+  ///
+  /// In en, this message translates to:
+  /// **'Current HP'**
+  String get gameStateCurrentHp;
+
+  /// No description provided for @gameStateMaximumHp.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum HP'**
+  String get gameStateMaximumHp;
+
+  /// No description provided for @gameStateSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed'**
+  String get gameStateSpeed;
+
+  /// No description provided for @gameStateExhaustion.
+  ///
+  /// In en, this message translates to:
+  /// **'Exhaustion (0–6)'**
+  String get gameStateExhaustion;
+
+  /// No description provided for @gameStateDeathSuccesses.
+  ///
+  /// In en, this message translates to:
+  /// **'Death save successes (0–3)'**
+  String get gameStateDeathSuccesses;
+
+  /// No description provided for @gameStateDeathFailures.
+  ///
+  /// In en, this message translates to:
+  /// **'Death save failures (0–3)'**
+  String get gameStateDeathFailures;
+
+  /// No description provided for @gameStateHitDice.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining hit dice'**
+  String get gameStateHitDice;
+
+  /// No description provided for @gameStateRaging.
+  ///
+  /// In en, this message translates to:
+  /// **'Rage active'**
+  String get gameStateRaging;
+
+  /// No description provided for @gameStateFrenzied.
+  ///
+  /// In en, this message translates to:
+  /// **'Frenzy active'**
+  String get gameStateFrenzied;
+
+  /// No description provided for @gameStateReckless.
+  ///
+  /// In en, this message translates to:
+  /// **'Reckless Attack active'**
+  String get gameStateReckless;
+
+  /// No description provided for @gameStateHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get gameStateHidden;
+
+  /// No description provided for @gameStateSacredWeapon.
+  ///
+  /// In en, this message translates to:
+  /// **'Sacred Weapon active'**
+  String get gameStateSacredWeapon;
+
+  /// No description provided for @gameStateWildShape.
+  ///
+  /// In en, this message translates to:
+  /// **'Wild Shape active'**
+  String get gameStateWildShape;
+
+  /// No description provided for @gameStateWildShapeUses.
+  ///
+  /// In en, this message translates to:
+  /// **'Wild Shape uses remaining'**
+  String get gameStateWildShapeUses;
+
+  /// No description provided for @gameStateBeastCurrentHp.
+  ///
+  /// In en, this message translates to:
+  /// **'Form HP'**
+  String get gameStateBeastCurrentHp;
+
+  /// No description provided for @gameStateBeastMaximumHp.
+  ///
+  /// In en, this message translates to:
+  /// **'Form maximum HP'**
+  String get gameStateBeastMaximumHp;
+
+  /// No description provided for @gameStateHuntersMark.
+  ///
+  /// In en, this message translates to:
+  /// **'Hunter’s Mark active'**
+  String get gameStateHuntersMark;
+
+  /// No description provided for @gameStateConcentrationHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Concentration is on this spell. Clear the mark when concentration ends.'**
+  String get gameStateConcentrationHelp;
+
+  /// No description provided for @gameStateNoConcentration.
+  ///
+  /// In en, this message translates to:
+  /// **'No concentration'**
+  String get gameStateNoConcentration;
+
+  /// No description provided for @gameStateRestMarksHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Resources are restored; active effects and conditions remain for you to manage.'**
+  String get gameStateRestMarksHint;
+
+  /// No description provided for @gameStateCurrentValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Current value'**
+  String get gameStateCurrentValue;
+
+  /// No description provided for @gameStateCastWithoutSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'Cast without a slot'**
+  String get gameStateCastWithoutSlot;
+
+  /// No description provided for @gameStateSpellSlots.
+  ///
+  /// In en, this message translates to:
+  /// **'Spell slots'**
+  String get gameStateSpellSlots;
+
+  /// No description provided for @gameStateResourceUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: used'**
+  String gameStateResourceUsed(String name);
+
+  /// No description provided for @gameStateRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery'**
+  String get gameStateRecovery;
+
+  /// No description provided for @gameStateUseBuiltInRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Use built-in resource recovery rules'**
+  String get gameStateUseBuiltInRecovery;
+
+  /// No description provided for @gameStateRelentlessDc.
+  ///
+  /// In en, this message translates to:
+  /// **'Relentless Rage save DC'**
+  String get gameStateRelentlessDc;
+
+  /// No description provided for @gameStateHiddenPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden in plain sight'**
+  String get gameStateHiddenPlain;
+
+  /// No description provided for @sheetVitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Vitals'**
+  String get sheetVitals;
+
+  /// No description provided for @sheetAutomaticCalculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate automatically'**
+  String get sheetAutomaticCalculation;
+
+  /// No description provided for @sheetSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Your previous values were kept. Try again.'**
+  String get sheetSaveFailed;
+
+  /// No description provided for @sheetAdjustValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Set value'**
+  String get sheetAdjustValue;
+
+  /// No description provided for @sheetSpendOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Spend one use'**
+  String get sheetSpendOne;
+
+  /// No description provided for @sheetRestoreOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Add one use'**
+  String get sheetRestoreOne;
+
+  /// No description provided for @sheetRemainder.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get sheetRemainder;
+
+  /// No description provided for @sheetMoreEdits.
+  ///
+  /// In en, this message translates to:
+  /// **'Other adjustments'**
+  String get sheetMoreEdits;
+
+  /// No description provided for @sheetHealthEditHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the actual HP. Use the separate actions to apply damage or healing.'**
+  String get sheetHealthEditHelp;
+
+  /// No description provided for @sheetArmorEditHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the calculation or enter the AC agreed at your table.'**
+  String get sheetArmorEditHelp;
+
+  /// No description provided for @sheetAdditionalSlots.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional slots'**
+  String get sheetAdditionalSlots;
+
+  /// No description provided for @sheetHealthBase.
+  ///
+  /// In en, this message translates to:
+  /// **'Character HP'**
+  String get sheetHealthBase;
+
+  /// No description provided for @sheetHealthForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Form HP'**
+  String get sheetHealthForm;
+
+  /// No description provided for @sheetFormMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Set form HP'**
+  String get sheetFormMissing;
+
+  /// No description provided for @sheetDamageHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary HP absorbs damage first, then your active form. Excess damage carries over to the character.'**
+  String get sheetDamageHelp;
+
+  /// No description provided for @sheetHealingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore missing HP up to the maximum. A manually granted excess is preserved.'**
+  String get sheetHealingHelp;
+
+  /// No description provided for @sheetNumberRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number from {minimum} to {maximum}'**
+  String sheetNumberRange(int minimum, int maximum);
+
+  /// No description provided for @sheetCounterDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining {current}, normal maximum {maximum}'**
+  String sheetCounterDescription(int current, int maximum);
+
+  /// No description provided for @sheetConcentrationDc.
+  ///
+  /// In en, this message translates to:
+  /// **'Concentration: Constitution save DC {dc}'**
+  String sheetConcentrationDc(int dc);
+
+  /// No description provided for @sheetSlotLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Slot level'**
+  String get sheetSlotLevel;
+
+  /// No description provided for @sheetPositiveAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number greater than zero'**
+  String get sheetPositiveAmount;
+
+  /// No description provided for @sheetAdditionalSlotsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Add extra slots to the chosen level. The normal maximum stays the same.'**
+  String get sheetAdditionalSlotsHelp;
+
+  /// No description provided for @sheetAddSlotsAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Slots to add'**
+  String get sheetAddSlotsAmount;
+
+  /// No description provided for @sheetTapHoldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to spend · Hold to edit'**
+  String get sheetTapHoldHint;
+
+  /// No description provided for @sheetHoldToEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold to edit'**
+  String get sheetHoldToEdit;
+
+  /// No description provided for @sheetEditCharacter.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit character'**
+  String get sheetEditCharacter;
+
+  /// No description provided for @sheetEditorCore.
+  ///
+  /// In en, this message translates to:
+  /// **'Basics'**
+  String get sheetEditorCore;
+
+  /// No description provided for @sheetArcanum.
+  ///
+  /// In en, this message translates to:
+  /// **'Mystic Arcanum'**
+  String get sheetArcanum;
+
+  /// No description provided for @spellMasterySelectionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one 1st-level and one 2nd-level spell from your spellbook:'**
+  String get spellMasterySelectionHint;
+
+  /// No description provided for @signatureSpellsSelectionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose two 3rd-level spells ({count} / 2):'**
+  String signatureSpellsSelectionHint(int count);
+
+  /// No description provided for @sheetRestPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What will recover'**
+  String get sheetRestPreviewTitle;
+
+  /// No description provided for @sheetRestReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Available again'**
+  String get sheetRestReady;
+
+  /// No description provided for @sheetRestNothingToRecover.
+  ///
+  /// In en, this message translates to:
+  /// **'This rest will not change your resources.'**
+  String get sheetRestNothingToRecover;
+
+  /// No description provided for @sheetRestPreserves.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses above the normal maximum are preserved. Clear conditions and active effects manually.'**
+  String get sheetRestPreserves;
+
+  /// No description provided for @sheetEditorDefense.
+  ///
+  /// In en, this message translates to:
+  /// **'Defense and movement'**
+  String get sheetEditorDefense;
+
+  /// No description provided for @sheetEditorResourceMarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage marks'**
+  String get sheetEditorResourceMarks;
+
+  /// No description provided for @sheetEditorActiveEffects.
+  ///
+  /// In en, this message translates to:
+  /// **'Active effects'**
+  String get sheetEditorActiveEffects;
+
+  /// No description provided for @sheetDeathSuccesses.
+  ///
+  /// In en, this message translates to:
+  /// **'Successes (0–3)'**
+  String get sheetDeathSuccesses;
+
+  /// No description provided for @sheetDeathFailures.
+  ///
+  /// In en, this message translates to:
+  /// **'Failures (0–3)'**
+  String get sheetDeathFailures;
+
+  /// No description provided for @sheetClearCondition.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear condition'**
+  String get sheetClearCondition;
+
+  /// No description provided for @sheetRemoveCondition.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear: {name}'**
+  String sheetRemoveCondition(String name);
+
+  /// No description provided for @sheetNormalMaximum.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal maximum: {value}'**
+  String sheetNormalMaximum(int value);
+
+  /// No description provided for @sheetEditorOtherMarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Other usage marks'**
+  String get sheetEditorOtherMarks;
+
+  /// No description provided for @advancementHealthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hit Point Increase'**
+  String get advancementHealthTitle;
+
+  /// No description provided for @advancementHealthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how to increase your maximum HP.'**
+  String get advancementHealthHint;
+
+  /// No description provided for @advancementMaximumHp.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum HP'**
+  String get advancementMaximumHp;
+
+  /// No description provided for @advancementConIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes Constitution modifier {modifier}'**
+  String advancementConIncluded(String modifier);
+
+  /// No description provided for @advancementAverageDie.
+  ///
+  /// In en, this message translates to:
+  /// **'Average die result · {result}'**
+  String advancementAverageDie(int result);
+
+  /// No description provided for @advancementRollHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Roll d{die} here'**
+  String advancementRollHere(int die);
+
+  /// No description provided for @advancementRollAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Rolled {result} · tap to roll again'**
+  String advancementRollAgain(int result);
+
+  /// No description provided for @advancementNoHealing.
+  ///
+  /// In en, this message translates to:
+  /// **'Levelling increases your maximum without healing.'**
+  String get advancementNoHealing;
+
+  /// No description provided for @advancementHpPreserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Current HP stays at {current}.'**
+  String advancementHpPreserved(int current);
+
+  /// No description provided for @advancementRolling.
+  ///
+  /// In en, this message translates to:
+  /// **'The die is rolling…'**
+  String get advancementRolling;
+
+  /// No description provided for @advancementOwnDie.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own die'**
+  String get advancementOwnDie;
+
+  /// No description provided for @advancementOwnDieHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a roll made at the table'**
+  String get advancementOwnDieHint;
+
+  /// No description provided for @advancementOwnHitDie.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Hit Die'**
+  String get advancementOwnHitDie;
+
+  /// No description provided for @advancementDieResult.
+  ///
+  /// In en, this message translates to:
+  /// **'d{die} result'**
+  String advancementDieResult(int die);
+
+  /// No description provided for @advancementUseRoll.
+  ///
+  /// In en, this message translates to:
+  /// **'Use result'**
+  String get advancementUseRoll;
+
+  /// No description provided for @advancementAsiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ability Score Improvement'**
+  String get advancementAsiTitle;
+
+  /// No description provided for @advancementAsiHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign two points: +2 to one ability or +1 to two.'**
+  String get advancementAsiHint;
+
+  /// No description provided for @advancementPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point {number}'**
+  String advancementPoint(int number);
+
+  /// No description provided for @advancementAssign.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign'**
+  String get advancementAssign;
+
+  /// No description provided for @advancementPointHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an ability for the highlighted point. You can assign it elsewhere.'**
+  String get advancementPointHint;
+
+  /// No description provided for @advancementAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of 2 assigned'**
+  String advancementAssigned(int count);
+
+  /// No description provided for @advancementModifierChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Modifier {before} → {after}'**
+  String advancementModifierChange(String before, String after);
+
+  /// No description provided for @advancementFeaturesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Class Features'**
+  String get advancementFeaturesTitle;
+
+  /// No description provided for @advancementFeaturesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Features granted by this class level.'**
+  String get advancementFeaturesHint;
+
+  /// No description provided for @advancementSpellsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn spells available to your class.'**
+  String get advancementSpellsHint;
+
+  /// No description provided for @advancementCompleteChoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete the choices on this step'**
+  String get advancementCompleteChoices;
+
+  /// No description provided for @advancementChooseSpells.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Choose {count} spell.} other{Choose {count} spells.}}'**
+  String advancementChooseSpells(int count);
+
+  /// No description provided for @advancementReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Level-up Review'**
+  String get advancementReviewTitle;
+
+  /// No description provided for @advancementReviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the changes before you confirm.'**
+  String get advancementReviewHint;
+
+  /// No description provided for @advancementApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm level-up'**
+  String get advancementApply;
+
+  /// No description provided for @advancementAllSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'All changes are saved together'**
+  String get advancementAllSaved;
+
+  /// No description provided for @advancementRulesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Character rules'**
+  String get advancementRulesTitle;
+
+  /// No description provided for @advancementRouteFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get advancementRouteFeatures;
+
+  /// No description provided for @advancementRouteMagic.
+  ///
+  /// In en, this message translates to:
+  /// **'Spells'**
+  String get advancementRouteMagic;
+
+  /// No description provided for @advancementRouteAbilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Abilities'**
+  String get advancementRouteAbilities;
+
+  /// No description provided for @advancementRouteReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get advancementRouteReview;
+
+  /// No description provided for @advancementDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get advancementDetails;
+
+  /// No description provided for @advancementClearSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get advancementClearSearch;
+
+  /// No description provided for @advancementSlotsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the changes to your spell slots.'**
+  String get advancementSlotsHint;
+
+  /// No description provided for @advancementHpBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'{feature} · +{amount} HP'**
+  String advancementHpBonus(String feature, int amount);
+
+  /// No description provided for @advancementMetamagicCareful.
+  ///
+  /// In en, this message translates to:
+  /// **'Chosen creatures succeed on their saving throw.'**
+  String get advancementMetamagicCareful;
+
+  /// No description provided for @advancementMetamagicDistant.
+  ///
+  /// In en, this message translates to:
+  /// **'Double range; touch becomes 30 feet.'**
+  String get advancementMetamagicDistant;
+
+  /// No description provided for @advancementMetamagicEmpowered.
+  ///
+  /// In en, this message translates to:
+  /// **'Reroll some of the damage dice.'**
+  String get advancementMetamagicEmpowered;
+
+  /// No description provided for @advancementMetamagicExtended.
+  ///
+  /// In en, this message translates to:
+  /// **'Double duration, up to 24 hours.'**
+  String get advancementMetamagicExtended;
+
+  /// No description provided for @advancementMetamagicHeightened.
+  ///
+  /// In en, this message translates to:
+  /// **'One target has disadvantage on its first save.'**
+  String get advancementMetamagicHeightened;
+
+  /// No description provided for @advancementMetamagicQuickened.
+  ///
+  /// In en, this message translates to:
+  /// **'Cast using a bonus action.'**
+  String get advancementMetamagicQuickened;
+
+  /// No description provided for @advancementMetamagicSubtle.
+  ///
+  /// In en, this message translates to:
+  /// **'No words or gestures.'**
+  String get advancementMetamagicSubtle;
+
+  /// No description provided for @advancementMetamagicTwinned.
+  ///
+  /// In en, this message translates to:
+  /// **'A second target for a single-target spell.'**
+  String get advancementMetamagicTwinned;
+
+  /// No description provided for @advancementChooseOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Choose {count} option.} other{Choose {count} options.}}'**
+  String advancementChooseOptions(int count);
+
+  /// No description provided for @advancementSlotsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spell Slots'**
+  String get advancementSlotsTitle;
+
+  /// No description provided for @advancementModifier.
+  ///
+  /// In en, this message translates to:
+  /// **'Modifier {value}'**
+  String advancementModifier(String value);
+
+  /// No description provided for @fighterSecondWindPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Roll and recover HP'**
+  String get fighterSecondWindPrompt;
+
+  /// No description provided for @fighterSurgePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Take another action'**
+  String get fighterSurgePrompt;
+
+  /// No description provided for @fighterIndomitablePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Reroll a saving throw'**
+  String get fighterIndomitablePrompt;
+
+  /// No description provided for @fighterLastRoll.
+  ///
+  /// In en, this message translates to:
+  /// **'Last roll: {roll} + {bonus}'**
+  String fighterLastRoll(int roll, int bonus);
+
+  /// No description provided for @sheetTabOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get sheetTabOverview;
+
+  /// No description provided for @sheetTabJournal.
+  ///
+  /// In en, this message translates to:
+  /// **'Journal'**
+  String get sheetTabJournal;
 }
 
 class _AppLocalizationsDelegate

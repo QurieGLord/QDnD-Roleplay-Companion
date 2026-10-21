@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 
 import '../../../../../core/models/character_feature.dart';
@@ -15,15 +14,13 @@ class AbilitiesResourcesSection extends StatelessWidget {
     required this.features,
     required this.locale,
     required this.onOpenDetails,
-    required this.onIncrement,
-    required this.onDecrement,
+    required this.counterBuilder,
   });
 
   final List<CharacterFeature> features;
   final String locale;
   final ValueChanged<CharacterFeature> onOpenDetails;
-  final ValueChanged<CharacterFeature> onIncrement;
-  final ValueChanged<CharacterFeature> onDecrement;
+  final Widget Function(CharacterFeature) counterBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +56,7 @@ class AbilitiesResourcesSection extends StatelessWidget {
               feature: feature,
               locale: locale,
               onOpenDetails: () => onOpenDetails(feature),
-              onIncrement: () => onIncrement(feature),
-              onDecrement: () => onDecrement(feature),
+              counter: counterBuilder(feature),
             ),
             if (feature != features.last)
               const SizedBox(height: AbilitiesShellTokens.itemSpacing),
@@ -76,15 +72,13 @@ class _ResourceFeatureCard extends StatelessWidget {
     required this.feature,
     required this.locale,
     required this.onOpenDetails,
-    required this.onIncrement,
-    required this.onDecrement,
+    required this.counter,
   });
 
   final CharacterFeature feature;
   final String locale;
   final VoidCallback onOpenDetails;
-  final VoidCallback onIncrement;
-  final VoidCallback onDecrement;
+  final Widget counter;
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +181,10 @@ class _ResourceFeatureCard extends StatelessWidget {
                             begin: 0,
                             end: pool.maxUses == 0
                                 ? 0
-                                : pool.currentUses / pool.maxUses,
+                                : (pool.currentUses / pool.maxUses).clamp(
+                                    0.0,
+                                    1.0,
+                                  ),
                           ),
                           duration: AbilitiesShellTokens.expandDuration,
                           curve: Curves.easeOutCubic,
@@ -213,38 +210,15 @@ class _ResourceFeatureCard extends StatelessWidget {
                     ],
                   ),
             const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    feature.getDescription(locale),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                _StepButton(
-                  icon: Icons.remove,
-                  enabled: !pool.isEmpty,
-                  onPressed: () async {
-                    HapticFeedback.selectionClick();
-                    onDecrement();
-                  },
-                ),
-                const SizedBox(width: 8),
-                _StepButton(
-                  icon: Icons.add,
-                  enabled: !pool.isFull,
-                  onPressed: () async {
-                    HapticFeedback.selectionClick();
-                    onIncrement();
-                  },
-                ),
-              ],
+            Text(
+              feature.getDescription(locale),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
+            const SizedBox(height: 12),
+            counter,
           ],
         ),
       ),
@@ -325,39 +299,6 @@ class _CountChip extends StatelessWidget {
                 fontWeight: FontWeight.w800,
               ),
         ),
-      ),
-    );
-  }
-}
-
-class _StepButton extends StatelessWidget {
-  const _StepButton({
-    required this.icon,
-    required this.enabled,
-    required this.onPressed,
-  });
-
-  final IconData icon;
-  final bool enabled;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final foreground = enabled
-        ? colorScheme.onSurface
-        : colorScheme.onSurfaceVariant.withValues(alpha: 0.5);
-
-    return AbilitiesTapFeedback(
-      onTap: enabled ? onPressed : null,
-      borderRadius: BorderRadius.circular(16),
-      color: enabled
-          ? colorScheme.surfaceContainerHighest
-          : colorScheme.surfaceContainerLow,
-      child: SizedBox(
-        width: 40,
-        height: 40,
-        child: Icon(icon, color: foreground),
       ),
     );
   }

@@ -1,3 +1,7 @@
+import '../../../../shared/widgets/subclass_details_sheet.dart';
+import '../../../../core/ui/companion_surface.dart';
+import 'shared/class_panel_presentation.dart';
+import '../../../../core/progression/character_class_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
@@ -6,8 +10,8 @@ import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/dice_utils.dart';
-import '../../../../core/services/character_data_service.dart';
 import '../../../../core/services/feature_service.dart';
+import '../../../../core/services/class_session_actions_service.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import 'shared/class_tools_layout_builder.dart';
 
@@ -26,7 +30,25 @@ class RogueToolsWidget extends StatefulWidget {
 class _RogueToolsWidgetState extends State<RogueToolsWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _rotationController;
-  bool _isHidden = false;
+  bool get _isHidden => widget.character.isHidden;
+
+  bool _savingHidden = false;
+  Future<bool> _setHidden(bool value) async {
+    if (_savingHidden) return false;
+    setState(() => _savingHidden = true);
+    try {
+      await ClassSessionActionsService.hidden(widget.character, value);
+      return true;
+    } catch (_) {
+      if (mounted) {
+        AppSnackBar.error(
+            context, AppLocalizations.of(context)!.sheetSaveFailed);
+      }
+      return false;
+    } finally {
+      if (mounted) setState(() => _savingHidden = false);
+    }
+  }
 
   @override
   void initState() {
@@ -78,60 +100,66 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
       context: context,
       barrierDismissible: true,
       builder: (BuildContext dialogContext) {
-        return StatefulBuilder(builder: (context, setStateDialog) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24.0),
-            ),
-            title: Text(
-              l10n.stealthDifficulty,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  sliderValue.toInt().toString(),
-                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.w900,
-                      ),
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24.0),
+              ),
+              title: Text(
+                l10n.stealthDifficulty,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
                 ),
-                Slider(
-                  value: sliderValue,
-                  min: 5,
-                  max: 30,
-                  divisions: 25,
-                  activeColor: colorScheme.primary,
-                  inactiveColor: colorScheme.surfaceContainerHighest,
-                  onChanged: (val) {
-                    setStateDialog(() {
-                      sliderValue = val;
-                    });
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    sliderValue.toInt().toString(),
+                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.w900,
+                        ),
+                  ),
+                  Slider(
+                    value: sliderValue,
+                    min: 5,
+                    max: 30,
+                    divisions: 25,
+                    activeColor: colorScheme.primary,
+                    inactiveColor: colorScheme.surfaceContainerHighest,
+                    onChanged: (val) {
+                      setStateDialog(() {
+                        sliderValue = val;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: Text(l10n.cancel),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    _performStealthRoll(sliderValue.toInt(), l10n);
                   },
+                  child: Text(l10n.rollStealthBtn),
                 ),
               ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(),
-                child: Text(l10n.cancel),
-              ),
-              FilledButton(
-                onPressed: () {
-                  Navigator.of(dialogContext).pop();
-                  _performStealthRoll(sliderValue.toInt(), l10n);
-                },
-                child: Text(l10n.rollStealthBtn),
-              ),
-            ],
-          );
-        });
+            );
+          },
+        );
       },
     );
   }
 
-  void _performStealthRoll(int dc, AppLocalizations l10n) {
+  Future<void> _performStealthRoll(int dc, AppLocalizations l10n) async {
+    if (_savingHidden) return;
     const skillId = 'stealth';
     final mod = widget.character.abilityScores.dexterityModifier;
     final isProficient = widget.character.proficientSkills.contains(skillId);
@@ -149,7 +177,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
     final total = roll + totalMod;
 
     if (total >= dc) {
-      setState(() => _isHidden = true);
+      if (!await _setHidden(true) || !mounted) return;
       HapticFeedback.heavyImpact();
       AppSnackBar.success(
         context,
@@ -176,7 +204,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
       ];
       final reason = failPhrases[Random().nextInt(failPhrases.length)];
 
-      setState(() => _isHidden = false);
+      if (!await _setHidden(false) || !mounted) return;
       HapticFeedback.vibrate();
       AppSnackBar.error(
         context,
@@ -212,109 +240,10 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
     );
   }
 
-  void _showSubclassLore(BuildContext context) async {
-    final subclassId = widget.character.subclass ?? '';
-    if (subclassId.isEmpty) return;
-
-    try {
-      final subclassData = await CharacterDataService.getSubclass(
-        widget.character.characterClass,
-        subclassId,
-      );
-
-      if (subclassData == null || !context.mounted) return;
-
-      final locale = Localizations.localeOf(context).languageCode;
-      final name = subclassData.getName(locale);
-      final desc = subclassData.getDescription(locale);
-
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) => DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          minChildSize: 0.4,
-          maxChildSize: 0.9,
-          builder: (context, scrollController) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              child: CustomScrollView(
-                controller: scrollController,
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Center(
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 12, bottom: 24),
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant
-                              .withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    sliver: SliverToBoxAdapter(
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Icon(Icons.key,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 28),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Text(
-                              name,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.all(24),
-                    sliver: SliverToBoxAdapter(
-                      child: Text(
-                        desc,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(height: 1.6),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      );
-    } catch (e) {
-      debugPrint('Error loading subclass lore: $e');
+  Future<void> _showSubclassLore(BuildContext context) async {
+    await showClassSubclassDetails(context, widget.character, 'rogue');
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -331,14 +260,12 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border:
-            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -357,7 +284,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                   child: Text(
                     name,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: theme.colorScheme.onSurface,
                     ),
@@ -372,7 +299,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                       backgroundColor: theme.colorScheme.primary,
                       foregroundColor: theme.colorScheme.onPrimary,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                          borderRadius: BorderRadius.circular(20)),
                     ),
                     onPressed: onActionPress,
                     child: Icon(actionIcon, size: 18),
@@ -396,14 +323,12 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border:
-            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
           onTap: () => _showFeatureDetails(feature, icon),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -422,7 +347,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
                   child: Text(
                     name,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: theme.colorScheme.onSurface,
                     ),
@@ -442,7 +367,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
     final locale = Localizations.localeOf(context).languageCode;
     final isRu = locale == 'ru';
 
-    final diceCount = _getSneakAttackDice(widget.character.level);
+    final diceCount = _getSneakAttackDice(widget.character.classLevel('rogue'));
     final diceText = DiceUtils.formatDice('${diceCount}d6', context);
 
     CharacterFeature? cunningActionFeature;
@@ -454,6 +379,9 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
     final List<CharacterFeature> cunningChildren = [];
 
     for (var f in widget.character.features) {
+      if (!CharacterClassContext(widget.character, 'rogue').canUseFeature(f)) {
+        continue;
+      }
       final fid = f.id.toLowerCase();
       if (fid == 'cunning_action' ||
           fid == 'хитрое_действие' ||
@@ -551,9 +479,10 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
       actionEconomy: 'bonus_action',
     );
 
-    String subclassDisplayName = widget.character.subclass ?? '';
+    String subclassDisplayName =
+        CharacterClassContext(widget.character, 'rogue').subclass ?? '';
     final classData =
-        CharacterDataService.getClassById(widget.character.characterClass);
+        CharacterClassContext(widget.character, 'rogue').definition;
     if (classData != null && subclassDisplayName.isNotEmpty) {
       final nid = subclassDisplayName.toLowerCase().trim();
       for (var sc in classData.subclasses) {
@@ -564,389 +493,200 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget>
       }
     }
 
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 24),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-            width: 1.5),
-      ),
-      color: colorScheme.surfaceContainerLow,
-      clipBehavior: Clip.antiAlias,
-      child: ClassToolsLayoutBuilder(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          // Archetype Block (Каноничный)
-          if (subclassDisplayName.isNotEmpty)
-            Container(
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                color:
-                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: colorScheme.outline.withValues(alpha: 0.2)),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => _showSubclassLore(context),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 12.0),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary.withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(Icons.key,
-                              color: colorScheme.primary, size: 18),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+    return ClassPanelFrame(
+        character: widget.character,
+        classId: 'rogue',
+        child: ClassToolsLayoutBuilder(
+          padding: EdgeInsets.zero,
+          children: [
+            if (subclassDisplayName.isNotEmpty)
+              ListTile(
+                  dense: true,
+                  minTileHeight: 40,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                  title: Text(subclassDisplayName,
+                      style: TextStyle(color: colorScheme.secondary)),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => _showSubclassLore(context)),
+            if (sneakAttackFeature != null)
+              ClassPrimaryControl(
+                  classId: 'rogue',
+                  title: sneakAttackFeature.getName(locale),
+                  tone: colorScheme.secondaryContainer,
+                  child: Row(children: [
+                    Expanded(
+                        child: Text(diceText,
+                            style: Theme.of(context)
+                                .textTheme
+                                .displaySmall
+                                ?.copyWith(fontWeight: FontWeight.w700))),
+                    const SizedBox(width: 12),
+                    CompanionDiceControl(
+                        sides: 6,
+                        label: isRu ? 'Бросить $diceText' : 'Roll $diceText',
+                        onPressed: () => _rollSneakAttack(
+                            context, diceCount, sneakAttackFeature)),
+                    IconButton(
+                        tooltip:
+                            AppLocalizations.of(context)!.advancementDetails,
+                        onPressed: () => _showFeatureDetails(
+                            sneakAttackFeature!, Icons.visibility_off_outlined),
+                        icon: const Icon(Icons.info_outline_rounded)),
+                  ])),
+            CompanionSurface(
+                contour: CompanionContour.fold,
+                color: _isHidden
+                    ? colorScheme.primaryContainer
+                    : colorScheme.surfaceContainerLow,
+                padding: const EdgeInsets.all(16),
+                quiet: !_isHidden,
+                child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 12,
+                    runSpacing: 8,
+                    children: [
+                      Text(isRu ? 'Скрытность' : 'Stealth',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w700)),
+                      FilledButton.tonalIcon(
+                          onPressed: _savingHidden
+                              ? null
+                              : () async {
+                                  if (_isHidden) {
+                                    if (!await _setHidden(false) || !mounted) {
+                                      return;
+                                    }
+                                  } else {
+                                    _showStealthDialog(context);
+                                  }
+                                },
+                          icon: Icon(_isHidden
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined),
+                          label: Text(_isHidden
+                              ? (isRu ? 'Раскрыться' : 'Reveal')
+                              : (isRu ? 'Скрыться' : 'Hide'))),
+                    ])),
+            if (cunningActionFeature != null ||
+                uncannyDodgeFeature != null ||
+                evasionFeature != null)
+              // Tactics and Defense Block
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (cunningActionFeature != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Text(
-                                isRu
-                                    ? 'Плутовской архетип'
-                                    : 'Roguish Archetype',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                              Text(
-                                subclassDisplayName,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: colorScheme.onSurface,
+                              Icon(Icons.keyboard_double_arrow_right,
+                                  color: colorScheme.primary, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  isRu
+                                      ? 'Хитрое действие (Бонус)'
+                                      : 'Cunning Action (Bonus)',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall
+                                      ?.copyWith(
+                                        color: colorScheme.primary,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        Icon(Icons.chevron_right,
-                            color: colorScheme.onSurfaceVariant
-                                .withValues(alpha: 0.5)),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-          // Stealth & Sneak Attack Dashboard (M3 Expressive)
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOutQuart,
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              color: _isHidden
-                  ? colorScheme.primaryContainer.withValues(alpha: 0.3)
-                  : colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _isHidden
-                    ? colorScheme.primary.withValues(alpha: 0.5)
-                    : colorScheme.outline.withValues(alpha: 0.3),
-                width: 1,
-              ),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  if (hideFeature != null) {
-                    _showFeatureDetails(hideFeature, Icons.dark_mode);
-                  }
-                },
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Header part
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Icon(
-                                    _isHidden
-                                        ? Icons.nightlight_round
-                                        : Icons.dark_mode,
-                                    color: _isHidden
-                                        ? colorScheme.primary
-                                        : colorScheme.onSurface),
-                                const SizedBox(width: 12),
-                                Flexible(
-                                  child: Text(
-                                    isRu ? 'Засада' : 'Ambush',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: colorScheme.onSurface,
-                                        ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          FilledButton.tonalIcon(
-                            onPressed: () {
-                              if (_isHidden) {
-                                setState(() => _isHidden = false);
-                                HapticFeedback.lightImpact();
-                              } else {
-                                _showStealthDialog(context);
-                              }
-                            },
-                            icon: Icon(_isHidden
-                                ? Icons.visibility
-                                : Icons.visibility_off),
-                            label: Text(_isHidden
-                                ? (isRu ? 'Раскрыться' : 'Reveal')
-                                : (isRu ? 'Скрыться' : 'Hide')),
-                          ),
+                          const SizedBox(height: 12),
+                          if (cunningChildren.isNotEmpty)
+                            ...cunningChildren
+                                .map((child) {
+                                  IconData actionIcon = Icons.flash_on;
+                                  if (child.id.contains('dash')) {
+                                    actionIcon = Icons.directions_run;
+                                  }
+                                  if (child.id.contains('disengage')) {
+                                    actionIcon = Icons.turn_slight_right;
+                                  }
+                                  if (child.id.contains('hide')) {
+                                    actionIcon = Icons.visibility_off;
+                                  }
+                                  return _buildActionTile(
+                                    feature: child,
+                                    name: child.getName(locale),
+                                    icon: actionIcon,
+                                    actionIcon:
+                                        Icons.keyboard_double_arrow_right,
+                                    theme: Theme.of(context),
+                                    onTap: () =>
+                                        _showFeatureDetails(child, actionIcon),
+                                    onActionPress: () => _executeQuickAction(
+                                        child.nameEn,
+                                        '${child.getName(locale)} (Бонусное действие)'),
+                                  );
+                                })
+                                .expand((w) => [w, const SizedBox(height: 8)])
+                                .toList()
+                              ..removeLast(),
                         ],
                       ),
-                    ),
-                    // Separated Contextual Sneak Attack Card (Like Barbarian Frenzy)
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 400),
-                      curve: Curves.easeOutQuart,
-                      alignment: Alignment.topCenter,
-                      child: _isHidden && sneakAttackFeature != null
-                          ? Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 16, right: 16, bottom: 16),
-                              child: Container(
-                                clipBehavior: Clip.antiAlias,
-                                decoration: BoxDecoration(
-                                  color: colorScheme.surfaceContainer,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                      color: colorScheme.outline
-                                          .withValues(alpha: 0.3)),
+                    if (cunningActionFeature != null &&
+                        (uncannyDodgeFeature != null || evasionFeature != null))
+                      const SizedBox(height: 16),
+                    if (uncannyDodgeFeature != null || evasionFeature != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isRu ? 'Защитные Реакции' : 'Defensive Reactions',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
+                                  color: colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
                                 ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(12),
-                                    onTap: () => _showFeatureDetails(
-                                        sneakAttackFeature!, Icons.colorize),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: Row(
-                                              children: [
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.all(8),
-                                                  decoration: BoxDecoration(
-                                                    color: colorScheme.primary
-                                                        .withValues(alpha: 0.1),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                  ),
-                                                  child: Icon(Icons.colorize,
-                                                      size: 20,
-                                                      color:
-                                                          colorScheme.primary),
-                                                ),
-                                                const SizedBox(width: 12),
-                                                Expanded(
-                                                  child: Text(
-                                                    sneakAttackFeature
-                                                        .getName(locale),
-                                                    style: TextStyle(
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color:
-                                                          colorScheme.onSurface,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          FilledButton.icon(
-                                            style: FilledButton.styleFrom(
-                                              backgroundColor:
-                                                  colorScheme.secondary,
-                                              foregroundColor:
-                                                  colorScheme.onSecondary,
-                                            ),
-                                            onPressed: () => _rollSneakAttack(
-                                                context,
-                                                diceCount,
-                                                sneakAttackFeature),
-                                            icon: RotationTransition(
-                                              turns: CurvedAnimation(
-                                                  parent: _rotationController,
-                                                  curve: Curves.easeOutBack),
-                                              child: const Icon(Icons.casino,
-                                                  size: 18),
-                                            ),
-                                            label: Text(
-                                              diceText,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w900,
-                                                letterSpacing: 0.5,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                          ),
+                          const SizedBox(height: 12),
+                          ...[
+                            if (uncannyDodgeFeature != null)
+                              _buildFeatureReminder(
+                                feature: uncannyDodgeFeature,
+                                name: uncannyDodgeFeature.getName(locale),
+                                icon: Icons.shield,
+                                theme: Theme.of(context),
                               ),
-                            )
-                          : const SizedBox(width: double.infinity, height: 0),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          if (cunningActionFeature != null ||
-              uncannyDodgeFeature != null ||
-              evasionFeature != null)
-            // Tactics and Defense Block
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: colorScheme.outline.withValues(alpha: 0.3)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (cunningActionFeature != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.keyboard_double_arrow_right,
-                                color: colorScheme.primary, size: 20),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                isRu
-                                    ? 'Хитрое действие (Бонус)'
-                                    : 'Cunning Action (Bonus)',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(
-                                      color: colorScheme.primary,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 0.5,
-                                    ),
+                            if (evasionFeature != null)
+                              _buildFeatureReminder(
+                                feature: evasionFeature,
+                                name: evasionFeature.getName(locale),
+                                icon: Icons.shield,
+                                theme: Theme.of(context),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        if (cunningChildren.isNotEmpty)
-                          ...cunningChildren
-                              .map((child) {
-                                IconData actionIcon = Icons.flash_on;
-                                if (child.id.contains('dash')) {
-                                  actionIcon = Icons.directions_run;
-                                }
-                                if (child.id.contains('disengage')) {
-                                  actionIcon = Icons.turn_slight_right;
-                                }
-                                if (child.id.contains('hide')) {
-                                  actionIcon = Icons.visibility_off;
-                                }
-                                return _buildActionTile(
-                                  feature: child,
-                                  name: child.getName(locale),
-                                  icon: actionIcon,
-                                  actionIcon: Icons.keyboard_double_arrow_right,
-                                  theme: Theme.of(context),
-                                  onTap: () =>
-                                      _showFeatureDetails(child, actionIcon),
-                                  onActionPress: () => _executeQuickAction(
-                                      child.nameEn,
-                                      '${child.getName(locale)} (Бонусное действие)'),
-                                );
-                              })
+                          ]
                               .expand((w) => [w, const SizedBox(height: 8)])
                               .toList()
                             ..removeLast(),
-                      ],
-                    ),
-                  if (cunningActionFeature != null &&
-                      (uncannyDodgeFeature != null || evasionFeature != null))
-                    const SizedBox(height: 16),
-                  if (uncannyDodgeFeature != null || evasionFeature != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isRu ? 'Защитные Реакции' : 'Defensive Reactions',
-                          style:
-                              Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    color: colorScheme.primary,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.5,
-                                  ),
-                        ),
-                        const SizedBox(height: 12),
-                        ...[
-                          if (uncannyDodgeFeature != null)
-                            _buildFeatureReminder(
-                              feature: uncannyDodgeFeature,
-                              name: uncannyDodgeFeature.getName(locale),
-                              icon: Icons.shield,
-                              theme: Theme.of(context),
-                            ),
-                          if (evasionFeature != null)
-                            _buildFeatureReminder(
-                              feature: evasionFeature,
-                              name: evasionFeature.getName(locale),
-                              icon: Icons.shield,
-                              theme: Theme.of(context),
-                            ),
-                        ].expand((w) => [w, const SizedBox(height: 8)]).toList()
-                          ..removeLast(),
-                      ],
-                    ),
-                ],
+                        ],
+                      ),
+                  ],
+                ),
               ),
-            ),
-        ],
-      ),
-    );
+          ],
+        ));
   }
 }

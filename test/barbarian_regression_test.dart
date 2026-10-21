@@ -127,15 +127,15 @@ void main() {
       expect(barbarian.constitutionSavingThrowBonus, 7);
     });
 
-    test('rest resets relentless rage state', () {
+    test('rest preserves player-managed rage marks and save difficulty', () {
       final barbarian = _buildBarbarian(level: 11);
       barbarian.relentlessRageSaveDc = 20;
       barbarian.isRaging = true;
 
       barbarian.shortRest();
 
-      expect(barbarian.relentlessRageSaveDc, 10);
-      expect(barbarian.isRaging, isFalse);
+      expect(barbarian.relentlessRageSaveDc, 20);
+      expect(barbarian.isRaging, isTrue);
     });
   });
 }

@@ -1,18 +1,38 @@
+import '../../../core/magic/spellbook_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../../../shared/widgets/spell_details_sheet.dart';
+import '../../../core/ui/sheet_drag_region.dart';
+import '../../../core/utils/spell_utils.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/character_feature.dart';
 import '../../../core/models/class_data.dart';
 import '../../../core/models/spell.dart';
+import '../../../core/models/spell_slots_table.dart';
 import '../../../core/constants/ranger_options.dart';
 import '../../../ui/widgets/expressive_choice_selector.dart';
 import '../../../core/utils/localization_helper.dart';
 import '../../../core/services/feature_service.dart';
 import '../../../core/services/spell_service.dart';
 import '../../../core/services/character_data_service.dart';
+import '../../../core/progression/advancement_choice_catalog.dart';
+import '../../../core/progression/advancement_choice.dart';
+import '../../../core/progression/proficiency_identity.dart';
+import '../../../core/progression/resource_growth.dart';
+import '../../../core/progression/pact_slot_growth.dart';
+import '../widgets/advancement_choice_card.dart';
+import '../widgets/advancement_selection.dart';
+import '../widgets/advancement_layout.dart';
+import '../../../core/progression/character_class_rules.dart';
+
+enum FeaturesStepContent { combined, features, magic }
 
 class FeaturesStep extends StatefulWidget {
+  final FeaturesStepContent content;
   final Character character;
+  final CharacterClassRules? rules;
+  final bool pinningRules;
   final List<CharacterFeature> newFeatures;
   final List<CharacterFeature> landOptions;
   final List<int> newSpellSlots;
@@ -24,13 +44,17 @@ class FeaturesStep extends StatefulWidget {
   final Function(String featureId, String optionId) onOptionSelected;
   final Function(Set<String> expertSkills) onExpertiseChanged;
   final Function(Set<String> featureIds) onOptionalFeaturesChanged;
+  final ValueChanged<Set<String>>? onSkillProficienciesChanged;
   final Function(List<String> spells) onSpellsSelected;
   final Function(List<String> spells) onMasterySpellsSelected;
   final Function(List<String> spells) onSignatureSpellsSelected;
 
   const FeaturesStep({
     super.key,
+    this.content = FeaturesStepContent.combined,
     required this.character,
+    this.rules,
+    this.pinningRules = false,
     required this.newFeatures,
     this.landOptions = const [],
     required this.newSpellSlots,
@@ -42,6 +66,7 @@ class FeaturesStep extends StatefulWidget {
     required this.onOptionSelected,
     required this.onExpertiseChanged,
     required this.onOptionalFeaturesChanged,
+    this.onSkillProficienciesChanged,
     required this.onSpellsSelected,
     required this.onMasterySpellsSelected,
     required this.onSignatureSpellsSelected,
@@ -51,10 +76,24 @@ class FeaturesStep extends StatefulWidget {
   State<FeaturesStep> createState() => _FeaturesStepState();
 }
 
-class _FeaturesStepState extends State<FeaturesStep> {
+class _FeaturesStepState extends State<FeaturesStep>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+  List<CharacterFeature> get _definitions =>
+      widget.rules?.definitions ?? FeatureService.allFeatures;
+  CharacterFeature? _feature(String id) => widget.rules == null
+      ? FeatureService.getFeatureById(id)
+      : widget.rules!.feature(id);
+  List<CharacterFeature> _featuresAt(int level, String? subclass) =>
+      widget.rules?.atLevel(level, subclass) ??
+      CharacterDataService.getFeaturesForLevel(
+          classId: widget.classData.id, level: level, subclassId: subclass);
+
   final Map<String, String> _selections = {}; // featureId -> string ID
   final Set<String> _selectedExpertise = {};
   final Set<String> _selectedOptionalFeatures = {};
+  final Map<String, Set<String>> _genericSelections = {};
   final Set<String> _selectedSpells = {};
   final Set<String> _selectedMasterySpells = {};
   final Set<String> _selectedSignatureSpells = {};
@@ -65,6 +104,13 @@ class _FeaturesStepState extends State<FeaturesStep> {
   List<Spell> _signatureOptions = [];
 
   bool _spellsLoaded = false;
+  final TextEditingController _spellSearch = TextEditingController();
+  String _spellQuery = '';
+  @override
+  void dispose() {
+    _spellSearch.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -75,7 +121,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
   Future<void> _loadAvailableSpells() async {
     // If no spells to learn according to parent, we might still check if we *should* have them?
     // But usually parent logic prevails.
-    if (widget.spellsToLearnCount <= 0) {
+    if (widget.spellsToLearnCount <= 0 && widget.classData.id != 'wizard') {
       if (mounted) {
         setState(() {
           _spellsLoaded = true;
@@ -84,7 +130,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
       return;
     }
 
-    final classId = widget.character.characterClass;
+    final classId = widget.classData.id;
     final allClassSpells = SpellService.getSpellsForClass(classId);
 
     // Determine Max Slot Level logic
@@ -106,11 +152,21 @@ class _FeaturesStepState extends State<FeaturesStep> {
       }
     }
 
-    final knownIds = widget.character.knownSpells.toSet();
+    // Learning belongs to this class, not the combined multiclass slot pool.
+    final casterType = widget.classData.spellcasting?.type;
+    if (casterType != null) {
+      maxSlotLevel =
+          SpellSlotsTable.getMaxSlotLevel(widget.nextLevel, casterType);
+    }
+    final book = SpellbookState.read(widget.character.spellbookData);
+    final knownIds = book.ids('class:${widget.classData.id}', 'known');
+    if (widget.character.classes.length == 1) {
+      knownIds.addAll(book.unassignedKnown(widget.character));
+    }
 
     _availableSpells = allClassSpells.where((s) {
       if (knownIds.contains(s.id)) return false;
-      if (s.level == 0) return true;
+      if (s.level == 0) return false;
       return s.level <= maxSlotLevel;
     }).toList();
 
@@ -143,6 +199,10 @@ class _FeaturesStepState extends State<FeaturesStep> {
     final l10n = AppLocalizations.of(context)!;
     // Normalize: replace hyphens with underscores to match switch cases
     switch (skillId.toLowerCase().replaceAll('-', '_')) {
+      case 'thieves_tools':
+        return l10n.localeName.startsWith('ru')
+            ? 'Воровские инструменты'
+            : 'Thieves’ tools';
       case 'acrobatics':
         return l10n.skillAcrobatics;
       case 'animal_handling':
@@ -256,6 +316,12 @@ class _FeaturesStepState extends State<FeaturesStep> {
 
   void _selectChoice(String key, String value) {
     setState(() {
+      if (key == 'subclass' && _selections[key] != value) {
+        _selections.clear();
+        _genericSelections.clear();
+        _selectedExpertise.clear();
+        _selectedOptionalFeatures.clear();
+      }
       _selections[key] = value;
       widget.onOptionSelected(key, value);
     });
@@ -270,11 +336,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
     final landOptionIds =
         widget.landOptions.map((feature) => feature.id).toSet();
 
-    return CharacterDataService.getFeaturesForLevel(
-      classId: widget.classData.id,
-      level: widget.nextLevel,
-      subclassId: selectedSubclassId,
-    ).where((feature) {
+    return _featuresAt(widget.nextLevel, selectedSubclassId).where((feature) {
       if (feature.associatedSubclass == null) return false;
       if (landOptionIds.contains(feature.id)) return false;
       return true;
@@ -283,6 +345,9 @@ class _FeaturesStepState extends State<FeaturesStep> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    final showFeatures = widget.content != FeaturesStepContent.magic;
+    final showMagic = widget.content != FeaturesStepContent.features;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
@@ -308,7 +373,9 @@ class _FeaturesStepState extends State<FeaturesStep> {
     bool needsFightingStyle = widget.newFeatures.any(
       (f) => f.id.contains('fighting-style'),
     );
-    bool needsSubclass = widget.nextLevel == widget.classData.subclassLevel;
+    bool needsSubclass = widget.nextLevel == widget.classData.subclassLevel &&
+        (widget.classData.declares('subclassLevel') ||
+            widget.classData.subclasses.isNotEmpty);
     if (widget.classData.id.toLowerCase() == 'ranger' ||
         widget.classData.id.toLowerCase() == 'sleDopyt' ||
         widget.classData.id.toLowerCase() == 'следопыт') {
@@ -317,7 +384,10 @@ class _FeaturesStepState extends State<FeaturesStep> {
     final selectedSubclassPreviewFeatures = needsSubclass
         ? _getSelectedSubclassPreviewFeatures()
         : const <CharacterFeature>[];
-    bool needsLandChoice = widget.landOptions.isNotEmpty;
+    bool needsLandChoice = widget.landOptions.isNotEmpty &&
+        ({'land', 'circle of the land', 'circle of land', 'круг земли'}
+                .contains(widget.character.subclass?.toLowerCase()) ||
+            _selections['subclass'] == 'land');
     final optionalImportedFeatures = widget.newFeatures.where((feature) {
       if (!feature.isOptional) return false;
       if (feature.id.contains('fighting-style') ||
@@ -338,18 +408,10 @@ class _FeaturesStepState extends State<FeaturesStep> {
       }
     }
     if (classId == 'rogue' || classId == 'плут') {
-      if (widget.nextLevel == 6) needsExpertise = true;
+      if ([1, 6].contains(widget.nextLevel)) needsExpertise = true;
     }
 
-    int requiredExpertiseCount = expertiseCount;
-    if (needsExpertise) {
-      final allSkills = _getAllProficientSkills();
-      final available = allSkills
-          .where((s) => !widget.character.expertSkills.contains(s))
-          .length;
-      requiredExpertiseCount =
-          available < expertiseCount ? available : expertiseCount;
-    }
+    final requiredExpertiseCount = expertiseCount;
 
     // Warlock Pact Boon (Level 3)
     bool needsPactBoon =
@@ -378,15 +440,38 @@ class _FeaturesStepState extends State<FeaturesStep> {
         isHunter &&
         [3, 7, 11, 15].contains(widget.nextLevel);
 
+    needsFightingStyle = showFeatures && needsFightingStyle;
+    needsSubclass = showFeatures && needsSubclass;
+    needsLandChoice = showFeatures && needsLandChoice;
+    needsExpertise = showFeatures && needsExpertise;
+    needsPactBoon = showFeatures && needsPactBoon;
+    needsFavoredEnemy = showFeatures && needsFavoredEnemy;
+    needsNaturalExplorer = showFeatures && needsNaturalExplorer;
+    needsHunterTactic = showFeatures && needsHunterTactic;
+    needsSpellMastery = showMagic && needsSpellMastery;
+    needsSignatureSpells = showMagic && needsSignatureSpells;
+
     // Spell Selection Validation
     // Valid if we DON'T need spells OR if we have selected enough
-    // IMPORTANT: If we have NO available spells to pick from, we shouldn't block validation.
-    bool effectiveNeedsSpells =
-        widget.spellsToLearnCount > 0 && _availableSpells.isNotEmpty;
+    // Missing spell content remains an incomplete choice and must not grant a level.
+    bool effectiveNeedsSpells = showMagic && widget.spellsToLearnCount > 0;
     bool spellsSatisfied = !effectiveNeedsSpells ||
         _selectedSpells.length == widget.spellsToLearnCount;
 
-    bool allChoicesMade = spellsSatisfied;
+    final genericChoices = !showFeatures
+        ? <AdvancementChoice>[]
+        : AdvancementChoiceCatalog([
+            ..._definitions,
+            ...widget.classData.features.values.expand((features) => features),
+          ]).forLevel(classId: classId, level: widget.nextLevel, features: [
+            ...widget.newFeatures,
+            ...selectedSubclassPreviewFeatures
+          ]);
+    bool allChoicesMade = spellsSatisfied &&
+        genericChoices.every((choice) => choice.isSatisfied(
+            _genericSelections[choice.id] ?? {},
+            widget.character,
+            widget.nextLevel));
     if (needsFightingStyle && !_selections.containsKey('fighting_style')) {
       allChoicesMade = false;
     }
@@ -432,207 +517,209 @@ class _FeaturesStepState extends State<FeaturesStep> {
       }
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Text(
-            l10n.newAbilities,
-            style: theme.textTheme.headlineMedium?.copyWith(
-              color: colorScheme.primary,
-              fontWeight: FontWeight.bold,
+    final pending = <String>[
+      for (final choice in genericChoices)
+        if (!choice.isSatisfied(_genericSelections[choice.id] ?? {},
+            widget.character, widget.nextLevel))
+          '${_feature(choice.id)?.getName(locale) ?? l10n.makeChoices}: ${(_genericSelections[choice.id] ?? {}).length}/${choice.count}',
+      if (needsSubclass && !_selections.containsKey('subclass'))
+        _getSubclassTitle(l10n, widget.classData.id),
+      if (needsFightingStyle && !_selections.containsKey('fighting_style'))
+        l10n.chooseFightingStyle,
+      if (needsExpertise && _selectedExpertise.length != requiredExpertiseCount)
+        '${l10n.expertise}: ${_selectedExpertise.length}/$requiredExpertiseCount',
+      if (!spellsSatisfied)
+        '${locale == 'ru' ? 'Заклинания' : 'Spells'}: ${_selectedSpells.length}/${widget.spellsToLearnCount}',
+    ];
+    return Column(children: [
+      Expanded(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+          children: [
+            AdvancementHeading(
+              title: widget.content == FeaturesStepContent.magic
+                  ? (effectiveNeedsSpells ||
+                          needsSpellMastery ||
+                          needsSignatureSpells
+                      ? l10n.spells
+                      : l10n.advancementSlotsTitle)
+                  : l10n.advancementFeaturesTitle,
+              subtitle: widget.content == FeaturesStepContent.magic
+                  ? (effectiveNeedsSpells
+                      ? l10n.advancementSpellsHint
+                      : l10n.advancementSlotsHint)
+                  : l10n.advancementFeaturesHint,
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.unlocksAtLevel(widget.nextLevel),
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: colorScheme.secondary,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Expanded(
-            child: ListView(
-              children: [
-                if (widget.newFeatures.isEmpty &&
-                    !hasSpellChanges &&
-                    !needsSubclass &&
-                    !needsExpertise &&
-                    !needsPactBoon &&
-                    !needsLandChoice &&
-                    !effectiveNeedsSpells)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Text(l10n.noNewFeaturesAtLevel),
-                    ),
+            if (showFeatures) ...[
+              if (widget.newFeatures.isEmpty &&
+                  !hasSpellChanges &&
+                  !needsSubclass &&
+                  !needsExpertise &&
+                  !needsPactBoon &&
+                  !needsLandChoice &&
+                  !effectiveNeedsSpells)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Text(l10n.noNewFeaturesAtLevel),
                   ),
+                ),
 
-                // 1. Spell Slots Increase (Top, just informational)
-                if (hasSpellChanges) ...[
-                  _buildSectionHeader(context, l10n.magic),
-                  Card(
-                    elevation: 2,
-                    color: colorScheme.surfaceContainerLow,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.auto_fix_high,
-                                color: colorScheme.primary,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                l10n.spellSlotsIncreased,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          _buildSpellSlotGrid(context, l10n),
-                        ],
-                      ),
-                    ),
-                  ),
+              // 2. Subclass Selection (Important Choice)
+              if (needsSubclass) ...[
+                _buildSectionHeader(
+                  context,
+                  _getSubclassTitle(l10n, widget.classData.id),
+                ),
+                _buildSubclassChoice(context),
+                if (selectedSubclassPreviewFeatures.isNotEmpty) ...[
                   const SizedBox(height: 16),
-                ],
-
-                // 2. Subclass Selection (Important Choice)
-                if (needsSubclass) ...[
                   _buildSectionHeader(
                     context,
-                    _getSubclassTitle(l10n, widget.classData.id),
+                    locale == 'ru' ? 'УМЕНИЯ ПОДКЛАССА' : 'SUBCLASS FEATURES',
                   ),
-                  _buildSubclassChoice(context),
-                  if (selectedSubclassPreviewFeatures.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    _buildSectionHeader(
-                      context,
-                      locale == 'ru' ? 'УМЕНИЯ ПОДКЛАССА' : 'SUBCLASS FEATURES',
-                    ),
-                    ...selectedSubclassPreviewFeatures.map(
-                      (feature) => _buildFeatureCard(context, feature),
-                    ),
-                  ],
-                  const SizedBox(height: 16),
-                ],
-
-                // 2.5 Land Choice (Circle of the Land)
-                if (needsLandChoice) ...[
-                  _buildSectionHeader(
-                    context,
-                    locale == 'ru'
-                        ? 'КРУГ ЗЕМЛИ: МЕСТНОСТЬ'
-                        : 'CIRCLE OF THE LAND: TERRAIN',
+                  ...selectedSubclassPreviewFeatures.map(
+                    (feature) => _buildFeatureCard(context, feature),
                   ),
-                  _buildLandChoice(context, locale),
-                  const SizedBox(height: 16),
                 ],
+                const SizedBox(height: 16),
+              ],
 
-                // 3. Fighting Style (Important Choice)
-                if (needsFightingStyle) ...[
-                  _buildSectionHeader(context, l10n.chooseFightingStyle),
-                  // Filter the generic feature out from general list below?
-                  // The general list iterates newFeatures. We handle fighting style specifically.
-                  // We'll skip it in the loop below.
-                  ...widget.newFeatures
-                      .where((f) => f.id.contains('fighting-style'))
-                      .map((feature) {
-                    return _buildFightingStyleChoice(
-                      context,
-                      feature,
-                      l10n,
-                    );
-                  }),
-                  const SizedBox(height: 16),
-                ],
+              // 2.5 Land Choice (Circle of the Land)
+              if (needsLandChoice) ...[
+                _buildSectionHeader(
+                  context,
+                  locale == 'ru'
+                      ? 'КРУГ ЗЕМЛИ: МЕСТНОСТЬ'
+                      : 'CIRCLE OF THE LAND: TERRAIN',
+                ),
+                _buildLandChoice(context, locale),
+                const SizedBox(height: 16),
+              ],
 
-                // 3.5 Pact Boon (Important Choice)
-                if (needsPactBoon) ...[
-                  _buildSectionHeader(
+              // 3. Fighting Style (Important Choice)
+              if (needsFightingStyle) ...[
+                _buildSectionHeader(context, l10n.chooseFightingStyle),
+                // Filter the generic feature out from general list below?
+                // The general list iterates newFeatures. We handle fighting style specifically.
+                // We'll skip it in the loop below.
+                ...widget.newFeatures
+                    .where((f) => f.id.contains('fighting-style'))
+                    .map((feature) {
+                  return _buildFightingStyleChoice(
                     context,
-                    locale == 'ru' ? "ПРЕДМЕТ ДОГОВОРА" : "PACT BOON",
-                  ),
-                  _buildPactBoonChoice(context, locale),
-                  const SizedBox(height: 16),
-                ],
-
-                // 3.6 Wizard Spell Mastery (Level 18)
-                if (needsSpellMastery) ...[
-                  _buildSectionHeader(
-                    context,
-                    locale == 'ru'
-                        ? "ЗАКЛИНАТЕЛЬНОЕ МАСТЕРСТВО"
-                        : "SPELL MASTERY",
-                  ),
-                  _buildSpellMasterySelection(context, locale, l10n),
-                  const SizedBox(height: 16),
-                ],
-
-                // 3.7 Wizard Signature Spells (Level 20)
-                if (needsSignatureSpells) ...[
-                  _buildSectionHeader(
-                    context,
-                    locale == 'ru'
-                        ? "ФИРМЕННЫЕ ЗАКЛИНАНИЯ"
-                        : "SIGNATURE SPELLS",
-                  ),
-                  _buildSignatureSpellsSelection(context, locale, l10n),
-                  const SizedBox(height: 16),
-                ],
-
-                // 3.8 Ranger Favored Enemy
-                if (needsFavoredEnemy) ...[
-                  _buildSectionHeader(
-                    context,
-                    locale == 'ru' ? "ИЗБРАННЫЙ ВРАГ" : "FAVORED ENEMY",
-                  ),
-                  _buildFavoredEnemyChoice(context, locale, l10n),
-                  const SizedBox(height: 16),
-                ],
-
-                // 3.9 Ranger Natural Explorer
-                if (needsNaturalExplorer) ...[
-                  _buildSectionHeader(
-                    context,
-                    locale == 'ru'
-                        ? "ИССЛЕДОВАТЕЛЬ ПРИРОДЫ"
-                        : "NATURAL EXPLORER",
-                  ),
-                  _buildNaturalExplorerChoice(context, locale, l10n),
-                  const SizedBox(height: 16),
-                ],
-
-                // 3.10 Ranger Hunter Tactic
-                if (needsHunterTactic) ...[
-                  _buildSectionHeader(
-                    context,
-                    locale == 'ru' ? "ТАКТИКА ОХОТНИКА" : "HUNTER'S PREY",
-                  ),
-                  _buildHunterTacticChoice(context, locale, l10n),
-                  const SizedBox(height: 16),
-                ],
-
-                // 4. Expertise (Important Choice)
-                if (needsExpertise) ...[
-                  _buildSectionHeader(context, l10n.expertise),
-                  _buildExpertiseSelection(
-                    context,
-                    requiredExpertiseCount,
+                    feature,
                     l10n,
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                  );
+                }),
+                const SizedBox(height: 16),
+              ],
 
-                // 5. Other Class Features
-                if (widget.newFeatures.any((f) {
+              // 3.5 Pact Boon (Important Choice)
+              if (needsPactBoon) ...[
+                _buildSectionHeader(
+                  context,
+                  locale == 'ru' ? "ПРЕДМЕТ ДОГОВОРА" : "PACT BOON",
+                ),
+                _buildPactBoonChoice(context, locale),
+                const SizedBox(height: 16),
+              ],
+
+              // 3.8 Ranger Favored Enemy
+              if (needsFavoredEnemy) ...[
+                _buildSectionHeader(
+                  context,
+                  locale == 'ru' ? "ИЗБРАННЫЙ ВРАГ" : "FAVORED ENEMY",
+                ),
+                _buildFavoredEnemyChoice(context, locale, l10n),
+                const SizedBox(height: 16),
+              ],
+
+              // 3.9 Ranger Natural Explorer
+              if (needsNaturalExplorer) ...[
+                _buildSectionHeader(
+                  context,
+                  locale == 'ru' ? "ИССЛЕДОВАТЕЛЬ ПРИРОДЫ" : "NATURAL EXPLORER",
+                ),
+                _buildNaturalExplorerChoice(context, locale, l10n),
+                const SizedBox(height: 16),
+              ],
+
+              // 3.10 Ranger Hunter Tactic
+              if (needsHunterTactic) ...[
+                _buildSectionHeader(
+                  context,
+                  locale == 'ru' ? "ТАКТИКА ОХОТНИКА" : "HUNTER'S PREY",
+                ),
+                _buildHunterTacticChoice(context, locale, l10n),
+                const SizedBox(height: 16),
+              ],
+
+              for (final choice in genericChoices)
+                AdvancementChoiceCard(
+                    key: ValueKey('progression-choice-${choice.id}'),
+                    choice: choice,
+                    character: widget.character,
+                    classLevel: widget.nextLevel,
+                    title: _feature(choice.id)?.getName(locale) ??
+                        widget.newFeatures
+                            .where((f) => f.id == choice.id)
+                            .firstOrNull
+                            ?.getName(locale) ??
+                        l10n.makeChoices,
+                    selected: _genericSelections[choice.id] ?? {},
+                    labelFor: (option) =>
+                        choice.kind == AdvancementChoiceKind.skillProficiency
+                            ? _getLocalizedSkill(context, option.id)
+                            : option.feature!.getName(locale),
+                    onChanged: (values) {
+                      setState(() => _genericSelections[choice.id] = values);
+                      widget.onOptionalFeaturesChanged({
+                        ..._selectedOptionalFeatures,
+                        for (final group in genericChoices.where(
+                            (c) => c.kind == AdvancementChoiceKind.feature))
+                          ...?_genericSelections[group.id],
+                      });
+                      widget.onSkillProficienciesChanged?.call({
+                        for (final group in genericChoices.where((c) =>
+                            c.kind == AdvancementChoiceKind.skillProficiency))
+                          ...?_genericSelections[group.id],
+                      });
+                    }),
+              // 4. Expertise (Important Choice)
+              if (needsExpertise) ...[
+                _buildSectionHeader(context, l10n.expertise),
+                _buildExpertiseSelection(
+                  context,
+                  requiredExpertiseCount,
+                  l10n,
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // 5. Other Class Features
+              if (widget.newFeatures.any((f) {
+                if (f.id.contains('fighting-style') ||
+                    f.id.contains('pact-boon')) {
+                  return false;
+                }
+
+                if (optionalFeaturesPool.contains(f.id)) {
+                  return false;
+                }
+
+                if (f.isOptional) {
+                  return false;
+                }
+
+                if (f.options != null && f.options!.isNotEmpty) {
+                  return false;
+                }
+
+                return true;
+              })) ...[
+                _buildSectionHeader(context, l10n.classFeatures),
+                ...widget.newFeatures.where((f) {
                   if (f.id.contains('fighting-style') ||
                       f.id.contains('pact-boon')) {
                     return false;
@@ -651,71 +738,85 @@ class _FeaturesStepState extends State<FeaturesStep> {
                   }
 
                   return true;
-                })) ...[
-                  _buildSectionHeader(context, l10n.classFeatures),
-                  ...widget.newFeatures.where((f) {
-                    if (f.id.contains('fighting-style') ||
-                        f.id.contains('pact-boon')) {
-                      return false;
-                    }
-
-                    if (optionalFeaturesPool.contains(f.id)) {
-                      return false;
-                    }
-
-                    if (f.isOptional) {
-                      return false;
-                    }
-
-                    if (f.options != null && f.options!.isNotEmpty) {
-                      return false;
-                    }
-
-                    return true;
-                  }).map((feature) {
-                    return _buildFeatureCard(context, feature);
-                  }),
-                  const SizedBox(height: 16),
-                ],
-
-                if (optionalImportedFeatures.isNotEmpty) ...[
-                  _buildSectionHeader(context, l10n.optionalFeaturesLabel),
-                  ...optionalImportedFeatures.map(
-                    (feature) => _buildOptionalFeatureCard(context, feature),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-
-                // 6. Spell Selection (NOW AT THE BOTTOM)
-                if (effectiveNeedsSpells) ...[
-                  const Divider(),
-                  const SizedBox(height: 16),
-                  _buildSectionHeader(
-                    context,
-                    l10n.spellsStepTitle.toUpperCase(),
-                  ),
-                  _buildSpellSelection(context, l10n, locale),
-                  const SizedBox(height: 16),
-                ],
+                }).map((feature) {
+                  return _buildFeatureCard(context, feature);
+                }),
+                const SizedBox(height: 16),
               ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: allChoicesMade ? widget.onNext : null,
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: Text(
-                allChoicesMade ? l10n.continueLabel : l10n.makeChoices,
-              ),
-            ),
-          ),
-        ],
+
+              if (optionalImportedFeatures.isNotEmpty) ...[
+                _buildSectionHeader(context, l10n.optionalFeaturesLabel),
+                ...optionalImportedFeatures.map(
+                  (feature) => _buildOptionalFeatureCard(context, feature),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ],
+            if (showMagic) ...[
+              // 3.6 Wizard Spell Mastery (Level 18)
+              if (needsSpellMastery) ...[
+                _buildSectionHeader(
+                  context,
+                  locale == 'ru'
+                      ? "ЗАКЛИНАТЕЛЬНОЕ МАСТЕРСТВО"
+                      : "SPELL MASTERY",
+                ),
+                _buildSpellMasterySelection(context, locale, l10n),
+                const SizedBox(height: 16),
+              ],
+
+              // 3.7 Wizard Signature Spells (Level 20)
+              if (needsSignatureSpells) ...[
+                _buildSectionHeader(
+                  context,
+                  locale == 'ru' ? "ФИРМЕННЫЕ ЗАКЛИНАНИЯ" : "SIGNATURE SPELLS",
+                ),
+                _buildSignatureSpellsSelection(context, locale, l10n),
+                const SizedBox(height: 16),
+              ],
+
+              if (hasSpellChanges)
+                Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: Material(
+                        color: colorScheme.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(20),
+                        clipBehavior: Clip.antiAlias,
+                        child: ExpansionTile(
+                            shape: const Border(),
+                            collapsedShape: const Border(),
+                            leading: Icon(Icons.auto_fix_high_rounded,
+                                color: colorScheme.primary),
+                            title: Text(
+                                locale == 'ru'
+                                    ? 'Как изменятся ячейки'
+                                    : 'Spell slot changes',
+                                style: theme.textTheme.titleSmall),
+                            childrenPadding:
+                                const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                            children: [_buildSpellSlotGrid(context, l10n)]))),
+              // Class-specific spell learning.
+              if (effectiveNeedsSpells) ...[
+                const SizedBox(height: 8),
+                if (widget.content == FeaturesStepContent.combined)
+                  _buildSectionHeader(context, l10n.spellsStepTitle),
+                _buildSpellSelection(context, l10n, locale),
+                const SizedBox(height: 16),
+              ],
+            ],
+          ],
+        ),
       ),
-    );
+      AdvancementFooter(
+        label: l10n.continueLabel,
+        hint: pending.isNotEmpty
+            ? pending.first
+            : !allChoicesMade
+                ? (l10n.advancementCompleteChoices)
+                : null,
+        onPressed: allChoicesMade ? widget.onNext : null,
+      ),
+    ]);
   }
 
   Widget _buildSpellSelection(
@@ -727,7 +828,11 @@ class _FeaturesStepState extends State<FeaturesStep> {
 
     // Group spells by level
     final spellsByLevel = <int, List<Spell>>{};
-    for (var s in _availableSpells) {
+    final query = _spellQuery.toLowerCase().replaceAll('ё', 'е').trim();
+    for (var s in _availableSpells.where((s) =>
+        query.isEmpty ||
+        s.nameRu.toLowerCase().replaceAll('ё', 'е').contains(query) ||
+        s.nameEn.toLowerCase().contains(query))) {
       spellsByLevel.putIfAbsent(s.level, () => []).add(s);
     }
     final levels = spellsByLevel.keys.toList()..sort();
@@ -747,10 +852,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
             children: [
               Expanded(
                 child: Text(
-                  l10n.chooseSkills(
-                    count,
-                    '',
-                  ), // Assuming this string works for generic "Choose X"
+                  l10n.advancementChooseSpells(count),
                   style: theme.textTheme.bodyMedium,
                 ),
               ),
@@ -780,6 +882,41 @@ class _FeaturesStepState extends State<FeaturesStep> {
         ),
         const SizedBox(height: 16),
 
+        TextField(
+            key: const ValueKey('advancement-spell-search'),
+            controller: _spellSearch,
+            autofocus: false,
+            decoration: InputDecoration(
+                hintText: l10n.searchSpells,
+                prefixIcon: const Icon(Icons.search_rounded),
+                suffixIcon: _spellQuery.isEmpty
+                    ? null
+                    : IconButton(
+                        tooltip: l10n.advancementClearSearch,
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () {
+                          _spellSearch.clear();
+                          setState(() => _spellQuery = '');
+                        }),
+                filled: true,
+                fillColor: theme.colorScheme.surfaceContainerLow,
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(22),
+                    borderSide: BorderSide.none),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(22),
+                    borderSide: BorderSide(
+                        color:
+                            theme.colorScheme.primary.withValues(alpha: .5))),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(22),
+                    borderSide: BorderSide.none)),
+            onChanged: (value) => setState(() => _spellQuery = value)),
+        const SizedBox(height: 12),
+        if (levels.isEmpty)
+          Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(l10n.noSpellsFound)),
         // Spells List
         ListView.builder(
           shrinkWrap: true,
@@ -791,17 +928,16 @@ class _FeaturesStepState extends State<FeaturesStep> {
             final spells = spellsByLevel[level]!;
 
             return ExpansionTile(
-              key: PageStorageKey('lvl_$level'),
+              key: ValueKey('lvl_$level:$_spellQuery'),
               title: Text(
                 level == 0 ? l10n.cantrips : l10n.levelLabel(level),
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              initiallyExpanded:
-                  index == levels.length - 1, // Open highest level by default
+              initiallyExpanded: query.isNotEmpty || index == levels.length - 1,
               shape: const Border(), // Remove borders
               children: spells.map((spell) {
                 final isSelected = _selectedSpells.contains(spell.id);
-                final canSelect = isSelected || selectedCount < count;
+                final canSelect = isSelected || count > 0;
 
                 return _buildSpellCard(
                   context,
@@ -828,113 +964,89 @@ class _FeaturesStepState extends State<FeaturesStep> {
     AppLocalizations l10n,
   ) {
     final theme = Theme.of(context);
-    final cardColor = isEnabled
-        ? (isSelected
-            ? theme.colorScheme.primaryContainer
-            : theme.colorScheme.surfaceContainerHighest)
-        : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
-    final textColor = isEnabled
-        ? theme.colorScheme.onSurface
-        : theme.colorScheme.onSurface.withValues(alpha: 0.4);
-
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      elevation: isSelected ? 2 : 0,
-      color: isSelected ? null : theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: isSelected
-            ? BorderSide(color: theme.colorScheme.primary, width: 2)
-            : BorderSide(
-                color: theme.colorScheme.outline.withValues(alpha: 0.2),
-              ),
-      ),
-      child: InkWell(
-        onTap: isEnabled
-            ? () {
-                setState(() {
-                  if (isSelected) {
-                    _selectedSpells.remove(spell.id);
-                  } else {
-                    _selectedSpells.add(spell.id);
-                  }
-                  widget.onSpellsSelected(_selectedSpells.toList());
-                });
-              }
-            : null,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Opacity(
-            opacity: isEnabled ? 1.0 : 0.6,
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: cardColor,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.auto_fix_high,
-                    color: isSelected
-                        ? theme.colorScheme.onPrimaryContainer
-                        : theme.colorScheme.onSurfaceVariant,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        spell.getName(locale),
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: isSelected
-                              ? theme.colorScheme.primary
-                              : textColor,
-                        ),
-                      ),
-                      Text(
-                        _getLocalizedSchool(l10n, spell.school),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: textColor.withValues(alpha: 0.7),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (isSelected)
-                  Icon(Icons.check_circle, color: theme.colorScheme.primary)
-                else if (isEnabled)
-                  Icon(
-                    Icons.add_circle_outline,
-                    color: theme.colorScheme.outline,
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    final colors = theme.colorScheme;
+    void details() => showResponsiveSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        builder: (_) => SpellDetailsSheet(spell: spell));
+    return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Semantics(
+            checked: isSelected,
+            enabled: isEnabled,
+            child: Material(
+              color: isSelected
+                  ? colors.secondaryContainer.withValues(alpha: .7)
+                  : colors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(22),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                  key: ValueKey('advancement-spell-${spell.id}'),
+                  onLongPress: details,
+                  onTap: !isEnabled
+                      ? null
+                      : () {
+                          HapticFeedback.selectionClick();
+                          setState(() {
+                            final next = toggleAdvancementSelection(
+                                _selectedSpells,
+                                spell.id,
+                                widget.spellsToLearnCount);
+                            _selectedSpells
+                              ..clear()
+                              ..addAll(next);
+                            widget.onSpellsSelected(_selectedSpells.toList());
+                          });
+                        },
+                  child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 12, 4, 12),
+                      child: Row(children: [
+                        Icon(
+                            isSelected
+                                ? Icons.check_circle_rounded
+                                : Icons.auto_fix_high_outlined,
+                            size: 24,
+                            color: colors.primary),
+                        const SizedBox(width: 12),
+                        Expanded(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                              Text(spell.getName(locale),
+                                  style: theme.textTheme.titleSmall),
+                              const SizedBox(height: 4),
+                              Text(
+                                  '${_getLocalizedSchool(l10n, spell.school)} · ${SpellUtils.getLocalizedValue(l10n, spell.castingTime)}',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                      color: colors.onSurfaceVariant)),
+                            ])),
+                        IconButton(
+                            tooltip: l10n.advancementDetails,
+                            onPressed: details,
+                            icon: Icon(Icons.info_outline_rounded,
+                                size: 20, color: colors.onSurfaceVariant)),
+                      ]))),
+            )));
   }
 
-  // ... (Existing helpers: _buildExpertiseSelection, _buildSubclassChoice, _buildFightingStyleChoice, _getSubclassTitle, _buildSectionHeader, _getFeatureTypeLabel, _buildFeatureCard, _buildSpellSlotGrid)
   Set<String> _getAllProficientSkills() {
-    final skills = Set<String>.from(widget.character.proficientSkills);
+    final skills = widget.character.proficientSkills
+        .map(ProficiencyIdentity.normalize)
+        .toSet();
+    skills.addAll(_genericSelections['bonus-proficiencies'] ?? {});
     if (widget.character.background != null) {
       try {
         final bg = CharacterDataService.getBackgroundById(
           widget.character.background!,
         );
         if (bg != null) {
-          skills.addAll(bg.skillProficiencies);
+          skills
+              .addAll(bg.skillProficiencies.map(ProficiencyIdentity.normalize));
         }
       } catch (_) {}
     }
+    if (widget.classData.id == 'rogue') skills.add('thieves-tools');
     return skills;
   }
 
@@ -960,7 +1072,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
     final selectedCount = _selectedExpertise.length;
 
     return Card(
-      elevation: 4,
+      elevation: 0,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -981,18 +1093,19 @@ class _FeaturesStepState extends State<FeaturesStep> {
               runSpacing: 8,
               children: candidates.map((skillId) {
                 final isSelected = _selectedExpertise.contains(skillId);
-                final canSelect = isSelected || selectedCount < count;
+                final canSelect = isSelected || count > 0;
                 return FilterChip(
+                  key: ValueKey('advancement-expertise-$skillId'),
                   label: Text(_getLocalizedSkill(context, skillId)),
                   selected: isSelected,
                   onSelected: canSelect
                       ? (selected) {
                           setState(() {
-                            if (selected) {
-                              _selectedExpertise.add(skillId);
-                            } else {
-                              _selectedExpertise.remove(skillId);
-                            }
+                            final next = toggleAdvancementSelection(
+                                _selectedExpertise, skillId, count);
+                            _selectedExpertise
+                              ..clear()
+                              ..addAll(next);
                             widget.onExpertiseChanged(_selectedExpertise);
                           });
                         }
@@ -1021,12 +1134,12 @@ class _FeaturesStepState extends State<FeaturesStep> {
               final isSelected = _selections['subclass'] == subclass.id;
               final colorScheme = Theme.of(context).colorScheme;
               return Card(
-                elevation: isSelected ? 4 : 1,
+                elevation: 0,
                 color: isSelected ? colorScheme.primaryContainer : null,
                 margin: const EdgeInsets.only(bottom: 8),
                 child: InkWell(
                   onTap: () => _selectChoice('subclass', subclass.id),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(22),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Row(
@@ -1116,7 +1229,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
             children: _getFightingStyles(context).map((style) {
               final isSelected = _selections['fighting_style'] == style['id'];
               return Card(
-                elevation: isSelected ? 4 : 1,
+                elevation: 0,
                 color: isSelected
                     ? Theme.of(context).colorScheme.primaryContainer
                     : null,
@@ -1216,7 +1329,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
               final colorScheme = Theme.of(context).colorScheme;
 
               return Card(
-                elevation: isSelected ? 4 : 1,
+                elevation: 0,
                 color: isSelected ? colorScheme.primaryContainer : null,
                 margin: const EdgeInsets.only(bottom: 8),
                 child: RadioListTile<String>(
@@ -1255,12 +1368,12 @@ class _FeaturesStepState extends State<FeaturesStep> {
               final colorScheme = Theme.of(context).colorScheme;
 
               return Card(
-                elevation: isSelected ? 4 : 1,
+                elevation: 0,
                 color: isSelected ? colorScheme.primaryContainer : null,
                 margin: const EdgeInsets.only(bottom: 8),
                 child: InkWell(
                   onTap: () => _selectChoice('land_terrain', feature.id),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(22),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: Row(
@@ -1304,7 +1417,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
     String locale,
     AppLocalizations l10n,
   ) {
-    final feature = FeatureService.getFeatureById('favored-enemy') ??
+    final feature = _feature('favored-enemy') ??
         CharacterFeature(
           id: 'favored-enemy',
           nameEn: 'Favored Enemy',
@@ -1353,7 +1466,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
     String locale,
     AppLocalizations l10n,
   ) {
-    final feature = FeatureService.getFeatureById('natural-explorer') ??
+    final feature = _feature('natural-explorer') ??
         CharacterFeature(
           id: 'natural-explorer',
           nameEn: 'Natural Explorer',
@@ -1539,7 +1652,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
               final colorScheme = Theme.of(context).colorScheme;
 
               return Card(
-                elevation: isSelected ? 4 : 1,
+                elevation: 0,
                 color: isSelected ? colorScheme.primaryContainer : null,
                 margin: const EdgeInsets.only(bottom: 8),
                 child: InkWell(
@@ -1592,7 +1705,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
     String locale,
     AppLocalizations l10n,
   ) {
-    final feature = FeatureService.getFeatureById('spell-mastery') ??
+    final feature = _feature('spell-mastery') ??
         CharacterFeature(
           id: 'dummy',
           nameEn: 'Spell Mastery',
@@ -1610,9 +1723,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
         _buildFeatureCard(context, feature),
         const SizedBox(height: 12),
         Text(
-          locale == 'ru'
-              ? "Выберите по одному заклинанию 1-го и 2-го уровней из своей книги:"
-              : "Choose one 1st-level and one 2nd-level spell from your spellbook:",
+          l10n.spellMasterySelectionHint,
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 12),
@@ -1623,17 +1734,12 @@ class _FeaturesStepState extends State<FeaturesStep> {
         ),
         ..._masteryOptionsLvl1.map((spell) {
           final isSelected = _selectedMasterySpells.contains(spell.id);
-          // Can select if none from level 1 are selected yet
-          final currentLvl1Selected = _selectedMasterySpells.any(
-            (id) => _masteryOptionsLvl1.any((s) => s.id == id),
-          );
-          final canSelect = isSelected || !currentLvl1Selected;
 
           return _buildSelectionSpellCard(
             context,
             spell,
             isSelected,
-            canSelect,
+            true,
             locale,
             l10n,
             (selected) {
@@ -1660,16 +1766,12 @@ class _FeaturesStepState extends State<FeaturesStep> {
         ),
         ..._masteryOptionsLvl2.map((spell) {
           final isSelected = _selectedMasterySpells.contains(spell.id);
-          final currentLvl2Selected = _selectedMasterySpells.any(
-            (id) => _masteryOptionsLvl2.any((s) => s.id == id),
-          );
-          final canSelect = isSelected || !currentLvl2Selected;
 
           return _buildSelectionSpellCard(
             context,
             spell,
             isSelected,
-            canSelect,
+            true,
             locale,
             l10n,
             (selected) {
@@ -1696,7 +1798,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
     String locale,
     AppLocalizations l10n,
   ) {
-    final feature = FeatureService.getFeatureById('signature-spell') ??
+    final feature = _feature('signature-spell') ??
         CharacterFeature(
           id: 'dummy',
           nameEn: 'Signature Spells',
@@ -1715,30 +1817,27 @@ class _FeaturesStepState extends State<FeaturesStep> {
         _buildFeatureCard(context, feature),
         const SizedBox(height: 12),
         Text(
-          locale == 'ru'
-              ? "Выберите два заклинания 3-го уровня ($count / 2):"
-              : "Choose two 3rd-level spells ($count / 2):",
+          l10n.signatureSpellsSelectionHint(count),
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 12),
         ..._signatureOptions.map((spell) {
           final isSelected = _selectedSignatureSpells.contains(spell.id);
-          final canSelect = isSelected || count < 2;
 
           return _buildSelectionSpellCard(
             context,
             spell,
             isSelected,
-            canSelect,
+            true,
             locale,
             l10n,
             (selected) {
               setState(() {
-                if (selected) {
-                  _selectedSignatureSpells.add(spell.id);
-                } else {
-                  _selectedSignatureSpells.remove(spell.id);
-                }
+                final next = toggleAdvancementSelection(
+                    _selectedSignatureSpells, spell.id, 2);
+                _selectedSignatureSpells
+                  ..clear()
+                  ..addAll(next);
                 widget.onSignatureSpellsSelected(
                   _selectedSignatureSpells.toList(),
                 );
@@ -1774,7 +1873,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
       elevation: isSelected ? 2 : 0,
       color: isSelected ? null : theme.colorScheme.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(22),
         side: isSelected
             ? BorderSide(color: theme.colorScheme.primary, width: 2)
             : BorderSide(
@@ -1783,7 +1882,7 @@ class _FeaturesStepState extends State<FeaturesStep> {
       ),
       child: InkWell(
         onTap: isEnabled ? () => onToggle(!isSelected) : null,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(22),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Opacity(
@@ -1890,12 +1989,14 @@ class _FeaturesStepState extends State<FeaturesStep> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
       child: Text(
-        title.toUpperCase(),
+        title == title.toUpperCase() && title.isNotEmpty
+            ? title[0] + title.substring(1).toLowerCase()
+            : title,
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
           color: Theme.of(context).colorScheme.secondary,
-          letterSpacing: 1.0,
+          letterSpacing: 0,
         ),
       ),
     );
@@ -1945,56 +2046,30 @@ class _FeaturesStepState extends State<FeaturesStep> {
           break;
       }
     }
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        feature.getName(locale),
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        _getFeatureTypeLabel(l10n, feature.type).toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(feature.getDescription(locale)),
-          ],
-        ),
-      ),
-    );
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Material(
+          color: colors.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(22),
+          clipBehavior: Clip.antiAlias,
+          child: ExpansionTile(
+            shape: const Border(),
+            collapsedShape: const Border(),
+            leading: Icon(icon, size: 24, color: colors.primary),
+            title: Text(feature.getName(locale),
+                style: Theme.of(context).textTheme.titleSmall),
+            subtitle: Text(_getFeatureTypeLabel(l10n, feature.type),
+                style: Theme.of(context).textTheme.bodySmall),
+            childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            children: [
+              Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(feature.getDescription(locale),
+                      style: Theme.of(context).textTheme.bodyMedium))
+            ],
+          ),
+        ));
   }
 
   Widget _buildOptionalFeatureCard(
@@ -2016,7 +2091,11 @@ class _FeaturesStepState extends State<FeaturesStep> {
             } else {
               _selectedOptionalFeatures.remove(feature.id);
             }
-            widget.onOptionalFeaturesChanged(_selectedOptionalFeatures);
+            widget.onOptionalFeaturesChanged({
+              ..._selectedOptionalFeatures,
+              for (final entry in _genericSelections.entries)
+                if (entry.key != 'bonus-proficiencies') ...entry.value,
+            });
           });
         },
         secondary: Icon(
@@ -2038,59 +2117,56 @@ class _FeaturesStepState extends State<FeaturesStep> {
   }
 
   Widget _buildSpellSlotGrid(BuildContext context, AppLocalizations l10n) {
-    List<Widget> levelRows = [];
-    for (int i = 0; i < widget.newSpellSlots.length; i++) {
-      int level = i + 1;
-      int newCount = widget.newSpellSlots[i];
-      int oldCount =
-          i < widget.oldSpellSlots.length ? widget.oldSpellSlots[i] : 0;
-      if (newCount > oldCount) {
-        levelRows.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 50,
-                  child: Text(
-                    l10n.lvlShort(level),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                ...List.generate(
-                  oldCount,
-                  (_) => const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 2.0),
-                    child: Icon(Icons.circle, size: 16, color: Colors.grey),
-                  ),
-                ),
-                if (oldCount > 0)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Icon(
-                      Icons.arrow_forward,
-                      size: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ...List.generate(
-                  newCount - oldCount,
-                  (_) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                    child: Icon(
-                      Icons.circle,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    final colors = Theme.of(context).colorScheme;
+    final before = widget.character;
+    var afterCurrent = <int>[];
+    var afterMaximum = widget.newSpellSlots;
+    if (widget.classData.spellcasting?.type == 'pact') {
+      final oldNorm = SpellSlotsTable.getPactSlots(widget.nextLevel - 1);
+      final nextNorm = SpellSlotsTable.getPactSlots(widget.nextLevel);
+      final changed = PactSlotGrowth.move(
+          current: before.spellSlots,
+          maximum: before.maxSpellSlots,
+          oldCircle: oldNorm.length,
+          newCircle: nextNorm.length,
+          oldNorm: oldNorm.last,
+          newNorm: nextNorm.last);
+      afterCurrent = changed.current;
+      afterMaximum = changed.maximum;
+    } else {
+      afterCurrent = [
+        for (var i = 0; i < afterMaximum.length; i++)
+          ResourceGrowth.remaining(
+              current: i < before.spellSlots.length ? before.spellSlots[i] : 0,
+              oldMaximum:
+                  i < before.maxSpellSlots.length ? before.maxSpellSlots[i] : 0,
+              newMaximum: afterMaximum[i])
+      ];
     }
-    return Column(children: levelRows);
+    return Column(children: [
+      for (var i = 0; i < afterMaximum.length; i++)
+        if (afterMaximum[i] !=
+            (i < before.maxSpellSlots.length ? before.maxSpellSlots[i] : 0))
+          Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(children: [
+                Expanded(
+                    child: Text(ru ? '${i + 1} круг' : 'Spell level ${i + 1}',
+                        style: Theme.of(context).textTheme.bodyMedium)),
+                Text(
+                    '${i < before.spellSlots.length ? before.spellSlots[i] : 0}/${i < before.maxSpellSlots.length ? before.maxSpellSlots[i] : 0}',
+                    style: TextStyle(color: colors.onSurfaceVariant)),
+                Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Icon(Icons.arrow_forward_rounded,
+                        size: 16, color: colors.onSurfaceVariant)),
+                Text('${afterCurrent[i]}/${afterMaximum[i]}',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(color: colors.primary)),
+              ]))
+    ]);
   }
 }

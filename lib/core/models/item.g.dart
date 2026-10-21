@@ -35,13 +35,15 @@ class ItemAdapter extends TypeAdapter<Item> {
       iconName: fields[15] as String?,
       customImagePath: fields[16] as String?,
       sourceId: fields[17] as String?,
+      instanceId: fields[18] as String?,
+      requiresAttunement: fields[19] as bool? ?? false,
     );
   }
 
   @override
   void write(BinaryWriter writer, Item obj) {
     writer
-      ..writeByte(18)
+      ..writeByte(20)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -77,7 +79,11 @@ class ItemAdapter extends TypeAdapter<Item> {
       ..writeByte(16)
       ..write(obj.customImagePath)
       ..writeByte(17)
-      ..write(obj.sourceId);
+      ..write(obj.sourceId)
+      ..writeByte(18)
+      ..write(obj.instanceId)
+      ..writeByte(19)
+      ..write(obj.requiresAttunement);
   }
 
   @override

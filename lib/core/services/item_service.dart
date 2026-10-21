@@ -1,3 +1,4 @@
+import 'package:uuid/uuid.dart';
 // ignore_for_file: avoid_print
 import 'dart:convert';
 import 'package:flutter/services.dart';
@@ -136,6 +137,7 @@ class ItemService {
     // Create a new Item instance from the template
     return Item(
       id: template.id,
+      instanceId: const Uuid().v4(),
       nameEn: template.nameEn,
       nameRu: template.nameRu,
       descriptionEn: template.descriptionEn,
@@ -173,6 +175,9 @@ class ItemService {
           : null,
       isMagical: template.isMagical,
       iconName: template.iconName,
+      customImagePath: template.customImagePath,
+      sourceId: template.sourceId,
+      requiresAttunement: template.requiresAttunement,
     );
   }
 

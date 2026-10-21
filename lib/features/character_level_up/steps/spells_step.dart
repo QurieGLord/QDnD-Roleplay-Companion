@@ -3,6 +3,7 @@ import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/spell.dart';
 import '../../../core/services/spell_service.dart';
 import '../../../core/models/character.dart';
+import '../widgets/advancement_selection.dart';
 
 class SpellsStep extends StatefulWidget {
   final Character character;
@@ -83,13 +84,11 @@ class _SpellsStepState extends State<SpellsStep> {
 
   void _toggleSpell(String spellId) {
     setState(() {
-      if (_selectedSpells.contains(spellId)) {
-        _selectedSpells.remove(spellId);
-      } else {
-        if (_selectedSpells.length < widget.spellsToLearnCount) {
-          _selectedSpells.add(spellId);
-        }
-      }
+      final next = toggleAdvancementSelection(
+          _selectedSpells, spellId, widget.spellsToLearnCount);
+      _selectedSpells
+        ..clear()
+        ..addAll(next);
       widget.onSpellsSelected(_selectedSpells.toList());
     });
   }

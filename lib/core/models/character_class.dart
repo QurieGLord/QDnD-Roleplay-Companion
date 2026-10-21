@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:hive/hive.dart';
 
 part 'character_class.g.dart';
@@ -19,12 +20,24 @@ class CharacterClass extends HiveObject {
   @HiveField(4)
   bool isPrimary; // Is this the starting class? (affects saving throws/skills)
 
+  @HiveField(5)
+  Map<String, dynamic>? rulesSnapshot;
+
+  @HiveField(6, defaultValue: [])
+  List<String> entryProficiencies;
+
+  @HiveField(7, defaultValue: {})
+  Map<String, dynamic> referenceData;
+
   CharacterClass({
     required this.id,
     required this.name,
     required this.level,
     this.subclass,
     this.isPrimary = false,
+    this.rulesSnapshot,
+    this.entryProficiencies = const [],
+    this.referenceData = const {},
   });
 
   factory CharacterClass.fromJson(Map<String, dynamic> json) {
@@ -34,6 +47,16 @@ class CharacterClass extends HiveObject {
       level: json['level'],
       subclass: json['subclass'],
       isPrimary: json['isPrimary'] ?? false,
+      entryProficiencies:
+          List<String>.from(json['entryProficiencies'] as List? ?? []),
+      referenceData: json['referenceData'] is Map
+          ? Map<String, dynamic>.from(
+              jsonDecode(jsonEncode(json['referenceData'])) as Map)
+          : {},
+      rulesSnapshot: json['rulesSnapshot'] == null
+          ? null
+          : Map<String, dynamic>.from(
+              jsonDecode(jsonEncode(json['rulesSnapshot'])) as Map),
     );
   }
 
@@ -44,6 +67,10 @@ class CharacterClass extends HiveObject {
       'level': level,
       'subclass': subclass,
       'isPrimary': isPrimary,
+      'entryProficiencies': List<String>.of(entryProficiencies),
+      'referenceData': jsonDecode(jsonEncode(referenceData)),
+      if (rulesSnapshot != null)
+        'rulesSnapshot': jsonDecode(jsonEncode(rulesSnapshot)),
     };
   }
 }

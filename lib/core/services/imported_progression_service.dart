@@ -2,6 +2,15 @@ import '../models/character_feature.dart';
 import '../models/class_data.dart';
 import 'feature_hydration_service.dart';
 import 'feature_service.dart';
+import 'catalog_definition_signature.dart';
+
+enum ClassLibraryRelation { newClass, partialExtension, competingVariant }
+
+class ClassLibraryAssessment {
+  const ClassLibraryAssessment(this.relation, this.differences);
+  final ClassLibraryRelation relation;
+  final List<String> differences;
+}
 
 class ImportedProgressionService {
   static const Map<String, String> _classAliases = {
@@ -39,6 +48,16 @@ class ImportedProgressionService {
         continue;
       }
 
+      final assessment = assessClass(assetClass, importedClass);
+      if (assessment.relation == ClassLibraryRelation.competingVariant) {
+        // Keep an independently identified imported definition. Its name alone
+        // is never permission to graft changed mechanics onto every hero.
+        unmatchedImported.add(_hydrateStandaloneClass(importedClass,
+            id: importedClass.id == assetClass.id
+                ? '${importedClass.sourceId ?? 'unresolved'}::${importedClass.id}'
+                : null));
+        continue;
+      }
       final current = overlays[assetClass.id] ?? assetClass;
       overlays[assetClass.id] = _mergeClassOverlay(current, importedClass);
     }
@@ -48,6 +67,77 @@ class ImportedProgressionService {
       ...unmatchedImported,
     ];
   }
+
+  /// Structural classification, not a guessed edition or a claim that all
+  /// imported prose has executable semantics. Missing fields remain unknown.
+  static ClassLibraryAssessment assessClass(
+      ClassData? base, ClassData incoming) {
+    if (base == null || _classKey(base) != _classKey(incoming)) {
+      return const ClassLibraryAssessment(ClassLibraryRelation.newClass, []);
+    }
+    final differences = <String>[];
+    if (incoming.rulesMetadata.isEmpty && incoming.sourceId != null) {
+      differences.add('unverifiedDefinition');
+    }
+    if (base.declares('hitDie') &&
+        incoming.declares('hitDie') &&
+        base.hitDie != incoming.hitDie) {
+      differences.add('hitDie');
+    }
+    if (base.rulesEdition != 'unknown' &&
+        incoming.rulesEdition != 'unknown' &&
+        base.rulesEdition != incoming.rulesEdition) {
+      differences.add('edition');
+    }
+    if (base.spellcasting != null &&
+        incoming.spellcasting != null &&
+        (base.spellcasting!.type != incoming.spellcasting!.type ||
+            base.spellcasting!.ability != incoming.spellcasting!.ability)) {
+      differences.add('spellcasting');
+    }
+    final byId = {
+      for (final row in base.features.values)
+        for (final feature in row) feature.id: feature
+    };
+    for (final row in incoming.features.values) {
+      for (final feature in row) {
+        final original = byId[feature.id] ??
+            [
+              ...base.features.values.expand((f) => f),
+              ...FeatureService.getFeaturesForLevel(
+                  classId: base.id,
+                  level: feature.minLevel,
+                  subclassId: feature.associatedSubclass),
+            ]
+                .where((candidate) =>
+                    FeatureHydrationService.featureDedupeKey(candidate) ==
+                    FeatureHydrationService.featureDedupeKey(feature))
+                .firstOrNull;
+        if (original != null &&
+            original.minLevel == feature.minLevel &&
+            CatalogDefinitionSignature.of(original.toJson()) !=
+                CatalogDefinitionSignature.of(feature.toJson())) {
+          differences.add('featureDefinition:${feature.id}');
+        }
+        if (original != null &&
+            original.associatedSubclass == feature.associatedSubclass &&
+            original.minLevel != feature.minLevel) {
+          differences.add('featureLevel:${feature.id}');
+        }
+      }
+    }
+    return ClassLibraryAssessment(
+        differences.isEmpty
+            ? ClassLibraryRelation.partialExtension
+            : ClassLibraryRelation.competingVariant,
+        List.unmodifiable(differences));
+  }
+
+  static ClassData? matchingClass(
+          Iterable<ClassData> candidates, ClassData incoming) =>
+      candidates
+          .where((base) => _classKey(base) == _classKey(incoming))
+          .firstOrNull;
 
   static ClassData _mergeClassOverlay(
     ClassData base,
@@ -105,10 +195,19 @@ class ImportedProgressionService {
       spellcasting: base.spellcasting,
       features: features,
       sourceId: base.sourceId,
+      rulesMetadata: {
+        ...base.rulesMetadata,
+        'contributingSources': [
+          ...?base.rulesMetadata['contributingSources'] as List?,
+          if (importedClass.sourceId != null) importedClass.sourceId,
+        ]
+      },
+      sourceDefinition: base.sourceDefinition,
     );
   }
 
-  static ClassData _hydrateStandaloneClass(ClassData importedClass) {
+  static ClassData _hydrateStandaloneClass(ClassData importedClass,
+      {String? id}) {
     final features = <int, List<CharacterFeature>>{};
     for (final entry in importedClass.features.entries) {
       features[entry.key] = FeatureHydrationService.hydrateClassFeatures(
@@ -118,7 +217,7 @@ class ImportedProgressionService {
     }
 
     return ClassData(
-      id: importedClass.id,
+      id: id ?? importedClass.id,
       name: importedClass.name,
       description: importedClass.description,
       hitDie: importedClass.hitDie,
@@ -132,6 +231,8 @@ class ImportedProgressionService {
       spellcasting: importedClass.spellcasting,
       features: features,
       sourceId: importedClass.sourceId,
+      rulesMetadata: importedClass.rulesMetadata,
+      sourceDefinition: importedClass.sourceDefinition,
     );
   }
 

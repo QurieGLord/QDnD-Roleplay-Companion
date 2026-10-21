@@ -14,7 +14,7 @@
     "nameEn": "Mystic Arcanum",
     "nameRu": "Таинственный арканум",
     "descriptionEn": "At 11th level, your patron bestows upon you a magical secret called an arcanum. Choose one 6th-level spell from the warlock spell list as this arcanum.",
-    "descriptionRu": "На 11-м уровне ваш покровитель дарует вам магический секрет, называемый арканумом. Выберите одно заклинание 6-го уровня из списка заклинаний колдуна в качестве этого арканума.",
+    "descriptionRu": "На 11-м уровне ваш покровитель дарует вам магический секрет, называемый арканумом. Выберите одно заклинание 6-го круга из списка заклинаний колдуна в качестве этого арканума.",
     "type": "resourcePool",
     "resourcePool": {
       "currentUses": 1,

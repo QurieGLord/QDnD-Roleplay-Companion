@@ -4,7 +4,7 @@
     "nameEn": "Rage",
     "nameRu": "Ярость",
     "descriptionEn": "In battle, you fight with primal ferocity. On your turn, you can enter a rage as a bonus action. While raging, you gain the following benefits if you aren't wearing heavy armor:\n- You have advantage on Strength checks and Strength saving throws.\n- When you make a melee weapon Attack using Strength, you gain a +2 bonus to the damage roll. This bonus increases as you level.\n- You have Resistance to bludgeoning, piercing, and slashing damage.\nIf you are able to cast Spells, you can't cast them or concentrate on them while raging.\nYour rage lasts for 1 minute. It ends early if you are knocked Unconscious or if Your Turn ends and you haven't attacked a hostile creature since your last turn or taken damage since then. You can also end your rage on Your Turn as a Bonus Action.\nOnce you have raged the maximum number of times for your barbarian level, you must finish a Long Rest before you can rage again. You may rage 2 times at 1st level, 3 at 3rd, 4 at 6th, 5 at 12th, and 6 at 17th.",
-    "descriptionRu": "В бою вы сражаетесь с первобытной свирепостью. В свой ход вы можете впасть в ярость бонусным действием.\nВ состоянии ярости вы получаете следующие преимущества, если не носите тяжелую броню:\n- Вы совершаете с преимуществом проверки Силы и спасброски Силы.\n- Когда вы совершаете рукопашную атаку оружием, используя Силу, вы получаете бонус к урону, который увеличивается с вашим уровнем варвара.\n- Вы получаете сопротивление дробящему, колющему и рубящему урону.\nЕсли вы способны накладывать заклинания, вы не можете накладывать их или концентрироваться на них, пока находитесь в ярости.\nВаша ярость длится 1 минуту. Она прекращается раньше, если вы теряете сознание, или если ваш ход заканчивается, а вы с прошлого хода не атаковали враждебное существо и не получали урон. Вы также можете прекратить ярость в свой ход бонусным действием.\nВы можете впадать в ярость определенное количество раз (зависит от уровня), после чего должны закончить продолжительный отдых, чтобы восстановить потраченные использования.",
+    "descriptionRu": "В бою вы сражаетесь с первобытной свирепостью. В свой ход вы можете впасть в ярость бонусным действием.\nВ состоянии ярости вы получаете следующие преимущества, если не носите тяжелую броню:\n- Вы совершаете с преимуществом проверки Силы и спасброски Силы.\n- Когда вы совершаете рукопашную атаку оружием, используя Силу, вы получаете бонус к урону, который увеличивается с вашим уровнем варвара.\n- Вы получаете сопротивление дробящему, колющему и рубящему урону.\nЕсли вы способны накладывать заклинания, вы не можете накладывать их или концентрироваться на них, пока находитесь в ярости.\nВаша ярость длится 1 минуту. Она прекращается раньше, если вы теряете сознание, или если ваш ход заканчивается, а вы с прошлого хода не атаковали враждебное существо и не получали урон. Вы также можете прекратить ярость в свой ход бонусным действием.\nВы можете впадать в ярость определенное количество раз (зависит от уровня), после чего должны закончить длительный отдых, чтобы восстановить потраченные использования.",
     "type": "resource_pool",
     "minLevel": 1,
     "associatedClass": "Barbarian",
@@ -297,7 +297,7 @@
     "nameEn": "Relentless Rage",
     "nameRu": "Неумолимая ярость",
     "descriptionEn": "Starting at 11th level, your rage can keep you fighting despite grievous wounds. If you drop to 0 hit points while you're raging and don't die outright, you can make a DC 10 Constitution saving throw. If you succeed, you drop to 1 hit point instead.\nEach time you use this feature after the first, the DC increases by 5. When you finish a short or long rest, the DC resets to 10.",
-    "descriptionRu": "Начиная с 11-го уровня, ваша ярость позволяет вам сражаться, несмотря на тяжелые раны. Если ваши хиты опускаются до 0, когда вы находитесь в ярости, и вы не умираете сразу, вы можете совершить спасбросок Телосложения со Сл 10. В случае успеха ваши хиты опускаются до 1.\nКаждый раз, когда вы используете эту способность повторно, Сл спасброска увеличивается на 5. Когда вы заканчиваете короткий или продолжительный отдых, Сл снова становится равной 10.",
+    "descriptionRu": "Начиная с 11-го уровня, ваша ярость позволяет вам сражаться, несмотря на тяжелые раны. Если ваши хиты опускаются до 0, когда вы находитесь в ярости, и вы не умираете сразу, вы можете совершить спасбросок Телосложения со Сл 10. В случае успеха ваши хиты опускаются до 1.\nКаждый раз, когда вы используете эту способность повторно, Сл спасброска увеличивается на 5. Когда вы заканчиваете короткий или длительный отдых, Сл снова становится равной 10.",
     "type": "passive",
     "minLevel": 11,
     "associatedClass": "Barbarian",
@@ -685,7 +685,7 @@
     "nameEn": "Font of Inspiration",
     "nameRu": "Источник вдохновения",
     "descriptionEn": "Beginning when you reach 5th level, you regain all of your expended uses of Bardic Inspiration when you finish a short or long rest.",
-    "descriptionRu": "Начиная с 5-го уровня, вы восстанавливаете все свои потраченные использования Бардовского вдохновения, когда заканчиваете короткий или продолжительный отдых.",
+    "descriptionRu": "Начиная с 5-го уровня, вы восстанавливаете все свои потраченные использования Бардовского вдохновения, когда заканчиваете короткий или длительный отдых.",
     "type": "passive",
     "minLevel": 5,
     "associatedClass": "Bard",
@@ -1127,7 +1127,7 @@
     "nameEn": "Disciple of Life",
     "nameRu": "Адепт жизни",
     "descriptionEn": "Also starting at 1st level, your healing spells are more effective. Whenever you use a spell of 1st level or higher to restore hit points to a creature, the creature regains additional hit points equal to 2 + the spell's level.",
-    "descriptionRu": "Также начиная с 1-го уровня, ваши лечащие заклинания становятся более эффективными. Каждый раз, когда вы используете заклинание 1-го уровня или выше, чтобы восстановить хиты существу, это существо восстанавливает дополнительные хиты, равные 2 + уровень заклинания.",
+    "descriptionRu": "Также начиная с 1-го уровня, ваши лечащие заклинания становятся более эффективными. Каждый раз, когда вы используете заклинание 1-го круга или выше, чтобы восстановить хиты существу, это существо восстанавливает дополнительные хиты, равные 2 + круг заклинания.",
     "type": "passive",
     "minLevel": 1,
     "associatedClass": "Cleric",
@@ -1145,7 +1145,7 @@
     "nameEn": "Channel Divinity (1/rest)",
     "nameRu": "Божественный канал (1/отдых)",
     "descriptionEn": "At 2nd level, you gain the ability to channel divine energy directly from your deity, using that energy to fuel magical effects. You start with two such effects: Turn Undead and an effect determined by your domain. Some domains grant you additional effects as you advance in levels, as noted in the domain description.\nWhen you use your Channel Divinity, you choose which effect to create. You must then finish a short or long rest to use your Channel Divinity again.\nSome Channel Divinity effects require saving throws. When you use such an effect from this class, the DC equals your cleric spell save DC.\nBeginning at 6th level, you can use your Channel Divinity twice between rests, and beginning at 18th level, you can use it three times between rests. When you finish a short or long rest, you regain your expended uses.",
-    "descriptionRu": "На 2-м уровне вы получаете возможность проводить божественную энергию непосредственно от своего божества, используя эту энергию для подпитки магических эффектов. Вы начинаете с двумя такими эффектами: Изгнание нежити и эффект, определяемый вашим доменом.\nКогда вы используете Божественный канал, вы выбираете, какой эффект создать. Затем вы должны закончить короткий или продолжительный отдых, чтобы использовать Божественный канал снова.\nНекоторые эффекты Божественного канала требуют спасбросков. Когда вы используете такой эффект от этого класса, Сл равна вашей Сл спасброска заклинаний жреца.",
+    "descriptionRu": "На 2-м уровне вы получаете возможность проводить божественную энергию непосредственно от своего божества, используя эту энергию для подпитки магических эффектов. Вы начинаете с двумя такими эффектами: Изгнание нежити и эффект, определяемый вашим доменом.\nКогда вы используете Божественный канал, вы выбираете, какой эффект создать. Затем вы должны закончить короткий или длительный отдых, чтобы использовать Божественный канал снова.\nНекоторые эффекты Божественного канала требуют спасбросков. Когда вы используете такой эффект от этого класса, Сл равна вашей Сл спасброска заклинаний жреца.",
     "type": "resource_pool",
     "minLevel": 2,
     "associatedClass": "Cleric",
@@ -1333,7 +1333,7 @@
     "nameEn": "Blessed Healer",
     "nameRu": "Благословенный целитель",
     "descriptionEn": "Beginning at 6th level, the healing spells you cast on others heal you as well. When you cast a spell of 1st level or higher that restores hit points to a creature other than you, you regain hit points equal to 2 + the spell's level.",
-    "descriptionRu": "Начиная с 6-го уровня, лечащие заклинания, которые вы накладываете на других, лечат и вас. Когда вы накладываете заклинание 1-го уровня или выше, которое восстанавливает хиты существу, отличному от вас, вы восстанавливаете себе хиты, равные 2 + уровень заклинания.",
+    "descriptionRu": "Начиная с 6-го уровня, лечащие заклинания, которые вы накладываете на других, лечат и вас. Когда вы накладываете заклинание 1-го круга или выше, которое восстанавливает хиты существу, отличному от вас, вы восстанавливаете себе хиты, равные 2 + круг заклинания.",
     "type": "passive",
     "minLevel": 6,
     "associatedClass": "Cleric",
@@ -1589,7 +1589,7 @@
     "type": "passive",
     "minLevel": 17,
     "associatedClass": "Cleric",
-    "associatedSubclass": null,
+    "associatedSubclass": "Life",
     "requiresRest": false,
     "actionEconomy": null,
     "iconName": "health_and_safety",
@@ -1753,7 +1753,7 @@
     "descriptionEn": "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites.",
     "descriptionRu": "Круг Земли состоит из мистиков и мудрецов, которые охраняют древние знания.",
     "type": "passive",
-    "minLevel": 2,
+    "minLevel": 3,
     "associatedClass": "Druid",
     "associatedSubclass": "Land",
     "requiresRest": false,
@@ -1762,7 +1762,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "circle-of-the-land-coast",
@@ -1771,7 +1772,7 @@
     "descriptionEn": "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites.",
     "descriptionRu": "Круг Земли состоит из мистиков и мудрецов, которые охраняют древние знания.",
     "type": "passive",
-    "minLevel": 2,
+    "minLevel": 3,
     "associatedClass": "Druid",
     "associatedSubclass": "Land",
     "requiresRest": false,
@@ -1780,7 +1781,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "circle-of-the-land-desert",
@@ -1789,7 +1791,7 @@
     "descriptionEn": "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites.",
     "descriptionRu": "Круг Земли состоит из мистиков и мудрецов, которые охраняют древние знания.",
     "type": "passive",
-    "minLevel": 2,
+    "minLevel": 3,
     "associatedClass": "Druid",
     "associatedSubclass": "Land",
     "requiresRest": false,
@@ -1798,7 +1800,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "circle-of-the-land-forest",
@@ -1807,7 +1810,7 @@
     "descriptionEn": "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites.",
     "descriptionRu": "Круг Земли состоит из мистиков и мудрецов, которые охраняют древние знания.",
     "type": "passive",
-    "minLevel": 2,
+    "minLevel": 3,
     "associatedClass": "Druid",
     "associatedSubclass": "Land",
     "requiresRest": false,
@@ -1816,7 +1819,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "circle-of-the-land-grassland",
@@ -1825,7 +1829,7 @@
     "descriptionEn": "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites.",
     "descriptionRu": "Круг Земли состоит из мистиков и мудрецов, которые охраняют древние знания.",
     "type": "passive",
-    "minLevel": 2,
+    "minLevel": 3,
     "associatedClass": "Druid",
     "associatedSubclass": "Land",
     "requiresRest": false,
@@ -1834,7 +1838,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "circle-of-the-land-mountain",
@@ -1843,7 +1848,7 @@
     "descriptionEn": "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites.",
     "descriptionRu": "Круг Земли состоит из мистиков и мудрецов, которые охраняют древние знания.",
     "type": "passive",
-    "minLevel": 2,
+    "minLevel": 3,
     "associatedClass": "Druid",
     "associatedSubclass": "Land",
     "requiresRest": false,
@@ -1852,7 +1857,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "circle-of-the-land-swamp",
@@ -1861,7 +1867,7 @@
     "descriptionEn": "The Circle of the Land is made up of mystics and sages who safeguard ancient knowledge and rites through a vast oral tradition. These druids meet within sacred circles of trees or standing stones to whisper primal secrets in Druidic. The circle's wisest members preside as the chief priests of communities that hold to the Old Faith and serve as advisors to the rulers of those folk. As a member of this circle, your magic is influenced by the land where you were initiated into the circle's mysterious rites.",
     "descriptionRu": "Круг Земли состоит из мистиков и мудрецов, которые охраняют древние знания.",
     "type": "passive",
-    "minLevel": 2,
+    "minLevel": 3,
     "associatedClass": "Druid",
     "associatedSubclass": "Land",
     "requiresRest": false,
@@ -1870,7 +1876,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "bonus-cantrip",
@@ -2399,7 +2406,7 @@
     "nameEn": "Second Wind",
     "nameRu": "Второе дыхание",
     "descriptionEn": "You have a limited well of stamina that you can draw on to protect yourself from harm. On your turn, you can use a bonus action to regain hit points equal to 1d10 + your fighter level. Once you use this feature, you must finish a short or long rest before you can use it again.",
-    "descriptionRu": "Вы обладаете ограниченным источником выносливости, который вы можете использовать, чтобы уберечь себя от опасности. В свой ход вы можете использовать бонусное действие, чтобы восстановить хиты в количестве, равном 1к10 + ваш уровень воина. Использовав это умение, вы должны завершить короткий или продолжительный отдых, чтобы использовать его снова.",
+    "descriptionRu": "Вы обладаете ограниченным источником выносливости, который вы можете использовать, чтобы уберечь себя от опасности. В свой ход вы можете использовать бонусное действие, чтобы восстановить хиты в количестве, равном 1к10 + ваш уровень воина. Использовав это умение, вы должны завершить короткий или длительный отдых, чтобы использовать его снова.",
     "type": "resource_pool",
     "minLevel": 1,
     "associatedClass": "Fighter",
@@ -2421,7 +2428,7 @@
     "nameEn": "Action Surge (1 use)",
     "nameRu": "Всплеск действий",
     "descriptionEn": "Starting at 2nd level, you can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action on top of your regular action and a possible bonus action.\nOnce you use this feature, you must finish a short or long rest before you can use it again. Starting at 17th level, you can use it twice before a rest, but only once on the same turn.",
-    "descriptionRu": "Начиная со 2-го уровня, вы можете на мгновение превзойти свои обычные возможности. В свой ход вы можете совершить одно дополнительное действие поверх вашего обычного действия и возможного бонусного действия. Использовав это умение, вы должны завершить короткий или продолжительный отдых, чтобы использовать его снова.",
+    "descriptionRu": "Начиная со 2-го уровня, вы можете на мгновение превзойти свои обычные возможности. В свой ход вы можете совершить одно дополнительное действие поверх вашего обычного действия и возможного бонусного действия. Использовав это умение, вы должны завершить короткий или длительный отдых, чтобы использовать его снова.",
     "type": "resource_pool",
     "minLevel": 2,
     "associatedClass": "Fighter",
@@ -2587,7 +2594,7 @@
     "nameEn": "Indomitable (1 use)",
     "nameRu": "Несгибаемый",
     "descriptionEn": "Beginning at 9th level, you can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can't use this feature again until you finish a long rest. You can use this feature twice between long rests starting at 13th level and three times between long rests starting at 17th level.",
-    "descriptionRu": "Начиная с 9-го уровня, вы можете перебросить проваленный спасбросок. Если вы делаете это, вы должны использовать новый результат, и вы не можете использовать это умение снова, пока не закончите продолжительный отдых.",
+    "descriptionRu": "Начиная с 9-го уровня, вы можете перебросить проваленный спасбросок. Если вы делаете это, вы должны использовать новый результат, и вы не можете использовать это умение снова, пока не закончите длительный отдых.",
     "type": "resource_pool",
     "minLevel": 9,
     "associatedClass": "Fighter",
@@ -3511,7 +3518,7 @@
     "nameEn": "Divine Sense",
     "nameRu": "Божественное Чувство",
     "descriptionEn": "The presence of strong evil registers on your senses like a noxious odor, and powerful good rings like heavenly music in your ears. As an action, you can open your awareness to detect such forces. Until the end of your next turn, you know the location of any celestial, fiend, or undead within 60 feet of you that is not behind total cover. You know the type (celestial, fiend, or undead) of any being whose presence you sense, but not its identity. Within the same radius, you also detect the presence of any place or object that has been consecrated or desecrated, as with the hallow spell.\nYou can use this feature a number of times equal to 1 + your Charisma modifier. When you finish a long rest, you regain all expended uses.",
-    "descriptionRu": "Присутствие сильного зла регистрируется вашими чувствами как неприятный запах, а мощное добро звучит как небесная музыка в ваших ушах. В качестве действия вы можете открыть свое сознание для обнаружения таких сил. До конца вашего следующего хода вы знаете местонахождение любого небожителя, исчадия или нежити в пределах 60 футов от вас, которые не находятся за полным укрытием. Вы знаете тип (небожитель, исчадие или нежить) любого существа, чье присутствие вы чувствуете, но не его личность. В том же радиусе вы также обнаруживаете присутствие любого места или предмета, который был освящен или осквернен, как заклинанием святилище.\nВы можете использовать это умение количество раз, равное 1 + ваш модификатор Харизмы. Когда вы заканчиваете продолжительный отдых, вы восстанавливаете все потраченные использования.",
+    "descriptionRu": "Присутствие сильного зла регистрируется вашими чувствами как неприятный запах, а мощное добро звучит как небесная музыка в ваших ушах. В качестве действия вы можете открыть свое сознание для обнаружения таких сил. До конца вашего следующего хода вы знаете местонахождение любого небожителя, исчадия или нежити в пределах 60 футов от вас, которые не находятся за полным укрытием. Вы знаете тип (небожитель, исчадие или нежить) любого существа, чье присутствие вы чувствуете, но не его личность. В том же радиусе вы также обнаруживаете присутствие любого места или предмета, который был освящен или осквернен, как заклинанием святилище.\nВы можете использовать это умение количество раз, равное 1 + ваш модификатор Харизмы. Когда вы заканчиваете длительный отдых, вы восстанавливаете все потраченные использования.",
     "type": "resource_pool",
     "minLevel": 1,
     "associatedClass": "Paladin",
@@ -3534,7 +3541,7 @@
     "nameEn": "Lay on Hands",
     "nameRu": "Наложение Рук",
     "descriptionEn": "Your blessed touch can heal wounds. You have a pool of healing power that replenishes when you take a long rest. With that pool, you can restore a total number of hit points equal to your paladin level x 5.\nAs an action, you can touch a creature and draw power from the pool to restore a number of hit points to that creature, up to the maximum amount remaining in your pool.\nAlternatively, you can expend 5 hit points from your pool of healing to cure the target of one disease or neutralize one poison affecting it. You can cure multiple diseases and neutralize multiple poisons with a single use of Lay on Hands, expending hit points separately for each one.\nThis feature has no effect on undead and constructs.",
-    "descriptionRu": "Ваше благословенное прикосновение может исцелять раны. У вас есть запас целительной силы, который восстанавливается, когда вы совершаете продолжительный отдых. Из этого запаса вы можете восстановить общее количество хитов, равное вашему уровню паладина x 5.\nВ качестве действия вы можете коснуться существа и черпать силу из запаса, чтобы восстановить этому существу количество хитов, вплоть до максимального количества, оставшегося в вашем запасе.\nВ качестве альтернативы, вы можете потратить 5 хитов из вашего запаса исцеления, чтобы вылечить цель от одной болезни или нейтрализовать один яд, действующий на нее. Вы можете вылечить несколько болезней и нейтрализовать несколько ядов одним использованием Наложения Рук, тратя хиты отдельно для каждого из них.\nЭто умение не действует на нежить и конструктов.",
+    "descriptionRu": "Ваше благословенное прикосновение может исцелять раны. У вас есть запас целительной силы, который восстанавливается, когда вы совершаете длительный отдых. Из этого запаса вы можете восстановить общее количество хитов, равное вашему уровню паладина x 5.\nВ качестве действия вы можете коснуться существа и черпать силу из запаса, чтобы восстановить этому существу количество хитов, вплоть до максимального количества, оставшегося в вашем запасе.\nВ качестве альтернативы, вы можете потратить 5 хитов из вашего запаса исцеления, чтобы вылечить цель от одной болезни или нейтрализовать один яд, действующий на нее. Вы можете вылечить несколько болезней и нейтрализовать несколько ядов одним использованием Наложения Рук, тратя хиты отдельно для каждого из них.\nЭто умение не действует на нежить и конструктов.",
     "type": "resource_pool",
     "minLevel": 1,
     "associatedClass": "Paladin",
@@ -3665,7 +3672,7 @@
     "nameEn": "Divine Smite",
     "nameRu": "Божественная Кара",
     "descriptionEn": "Starting at 2nd level, when you hit a creature with a melee weapon attack, you can expend one spell slot to deal radiant damage to the target, in addition to the weapon's damage. The extra damage is 2d8 for a 1st-level spell slot, plus 1d8 for each spell level higher than 1st, to a maximum of 5d8. The damage increases by 1d8 if the target is an undead or a fiend.",
-    "descriptionRu": "Начиная со 2-го уровня, когда вы попадаете по существу атакой рукопашным оружием, вы можете потратить одну ячейку заклинания, чтобы нанести цели урон излучением в дополнение к урону оружия. Дополнительный урон составляет 2к8 за ячейку заклинания 1-го уровня плюс 1к8 за каждый уровень заклинания выше 1-го, максимум до 5к8. Урон увеличивается на 1к8, если цель — нежить или исчадие.",
+    "descriptionRu": "Начиная со 2-го уровня, когда вы попадаете по существу атакой рукопашным оружием, вы можете потратить одну ячейку заклинания, чтобы нанести цели урон излучением в дополнение к урону оружия. Дополнительный урон составляет 2к8 за ячейку заклинания 1-го круга плюс 1к8 за каждый круг заклинания выше 1-го, максимум до 5к8. Урон увеличивается на 1к8, если цель — нежить или исчадие.",
     "type": "free",
     "minLevel": 2,
     "associatedClass": "Paladin",
@@ -3957,7 +3964,7 @@
     "nameEn": "Cleansing Touch",
     "nameRu": "Очищающее Прикосновение",
     "descriptionEn": "Beginning at 14th level, you can use your action to end one spell on yourself or on one willing creature that you touch.\nYou can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain expended uses when you finish a long rest.",
-    "descriptionRu": "Начиная с 14-го уровня, вы можете использовать свое действие, чтобы окончить одно заклинание на себе или на одном согласном существе, которого вы касаетесь.\nВы можете использовать это умение количество раз, равное вашему модификатору Харизмы (минимум один раз). Вы восстанавливаете потраченные использования, когда заканчиваете продолжительный отдых.",
+    "descriptionRu": "Начиная с 14-го уровня, вы можете использовать свое действие, чтобы окончить одно заклинание на себе или на одном согласном существе, которого вы касаетесь.\nВы можете использовать это умение количество раз, равное вашему модификатору Харизмы (минимум один раз). Вы восстанавливаете потраченные использования, когда заканчиваете длительный отдых.",
     "type": "action",
     "minLevel": 14,
     "associatedClass": "Paladin",
@@ -4341,7 +4348,7 @@
   {
     "id": "primeval-awareness",
     "nameEn": "Primeval Awareness",
-    "nameRu": "Первобытная осознанность",
+    "nameRu": "Первозданная осведомлённость",
     "descriptionEn": "Beginning at 3rd level, you can use your action and expend one ranger spell slot to focus your awareness on the region around you. For 1 minute per level of the spell slot you expend, you can sense whether the following types of creatures are present within 1 mile of you (or within up to 6 miles if you are in your favored terrain): aberrations, celestials, dragons, elementals, fey, fiends, and undead. This feature doesn't reveal the creatures' location or number.",
     "descriptionRu": "Начиная с 3-го уровня, вы можете использовать свое действие и потратить одну ячейку заклинания следопыта, чтобы сосредоточить свое восприятие на регионе вокруг вас.",
     "type": "action",
@@ -5365,7 +5372,7 @@
     "nameEn": "Stroke of Luck",
     "nameRu": "Удача",
     "descriptionEn": "At 20th level, you have an uncanny knack for succeeding when you need to. If your attack misses a target within range, you can turn the miss into a hit. Alternatively, if you fail an ability check, you can treat the d20 roll as a 20.\nOnce you use this feature, you can't use it again until you finish a short or long rest.",
-    "descriptionRu": "На 20-м уровне вы обладаете сверхъестественной способностью добиваться успеха, когда вам это нужно. Если ваша атака промахивается по цели в пределах досягаемости, вы можете превратить промах в попадание. В качестве альтернативы, если вы проваливаете проверку характеристики, вы можете считать результат броска к20 равным 20.\nИспользовав это умение, вы не можете использовать его снова, пока не закончите короткий или продолжительный отдых.",
+    "descriptionRu": "На 20-м уровне вы обладаете сверхъестественной способностью добиваться успеха, когда вам это нужно. Если ваша атака промахивается по цели в пределах досягаемости, вы можете превратить промах в попадание. В качестве альтернативы, если вы проваливаете проверку характеристики, вы можете считать результат броска к20 равным 20.\nИспользовав это умение, вы не можете использовать его снова, пока не закончите короткий или длительный отдых.",
     "type": "passive",
     "minLevel": 20,
     "associatedClass": "Rogue",
@@ -5430,7 +5437,19 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "options": [
+      "dragon-ancestor-black---acid-damage",
+      "dragon-ancestor-blue---lightning-damage",
+      "dragon-ancestor-brass---fire-damage",
+      "dragon-ancestor-bronze---lightning-damage",
+      "dragon-ancestor-copper---acid-damage",
+      "dragon-ancestor-gold---fire-damage",
+      "dragon-ancestor-green---poison-damage",
+      "dragon-ancestor-red---fire-damage",
+      "dragon-ancestor-silver---cold-damage",
+      "dragon-ancestor-white---cold-damage"
+    ]
   },
   {
     "id": "dragon-ancestor-black---acid-damage",
@@ -5448,7 +5467,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "dragon-ancestor-blue---lightning-damage",
@@ -5466,7 +5486,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "dragon-ancestor-brass---fire-damage",
@@ -5484,7 +5505,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "dragon-ancestor-bronze---lightning-damage",
@@ -5502,7 +5524,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "dragon-ancestor-copper---acid-damage",
@@ -5520,7 +5543,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "dragon-ancestor-gold---fire-damage",
@@ -5538,7 +5562,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "dragon-ancestor-green---poison-damage",
@@ -5556,7 +5581,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "dragon-ancestor-red---fire-damage",
@@ -5574,7 +5600,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "dragon-ancestor-silver---cold-damage",
@@ -5592,7 +5619,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "dragon-ancestor-white---cold-damage",
@@ -5610,7 +5638,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "draconic-resilience",
@@ -5636,14 +5665,19 @@
     "nameRu": "Источник магии",
     "descriptionEn": "At 2nd level, you tap into a deep wellspring of magic within yourself. This wellspring is represented by sorcery points, which allow you to create a variety of magical effects.\nSorcery Points\nYou have 2 sorcery points, and you gain more as you reach higher levels, as shown in the Sorcery Points column of the Sorcerer table. You can never have more sorcery points than shown on the table for your level. You regain all spent sorcery points when you finish a long rest.",
     "descriptionRu": "На 2-м уровне вы подключаетесь к глубокому источнику магии внутри себя.",
-    "type": "passive",
+    "type": "resource_pool",
     "minLevel": 2,
     "associatedClass": "Sorcerer",
     "associatedSubclass": null,
     "requiresRest": false,
     "actionEconomy": null,
     "iconName": "bolt",
-    "resourcePool": null,
+    "resourcePool": {
+      "currentUses": 2,
+      "maxUses": 2,
+      "recoveryType": "longRest",
+      "calculationFormula": "level"
+    },
     "usageCostId": null,
     "usageInputMode": null,
     "consumption": null
@@ -5671,7 +5705,7 @@
     "nameEn": "Flexible Casting: Converting Spell Slot",
     "nameRu": "Гибкое накладывание: Преобразование",
     "descriptionEn": "As a bonus action on your turn, you can expend one spell slot and gain a number of sorcery points equal to the slot's level..",
-    "descriptionRu": "Бонусным действием в свой ход вы можете потратить одну ячейку заклинания и получить количество единиц чародейства, равное уровню ячейки.",
+    "descriptionRu": "Бонусным действием в свой ход вы можете потратить одну ячейку заклинания и получить количество единиц чародейства, равное кругу ячейки.",
     "type": "bonus_action",
     "minLevel": 2,
     "associatedClass": "Sorcerer",
@@ -5700,7 +5734,17 @@
     "resourcePool": null,
     "usageCostId": "sorcery-points",
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "options": [
+      "metamagic-careful-spell",
+      "metamagic-distant-spell",
+      "metamagic-empowered-spell",
+      "metamagic-extended-spell",
+      "metamagic-heightened-spell",
+      "metamagic-quickened-spell",
+      "metamagic-subtle-spell",
+      "metamagic-twinned-spell"
+    ]
   },
   {
     "id": "metamagic-careful-spell",
@@ -5718,7 +5762,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "metamagic-distant-spell",
@@ -5736,7 +5781,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "metamagic-empowered-spell",
@@ -5754,7 +5800,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "metamagic-extended-spell",
@@ -5772,7 +5819,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "metamagic-heightened-spell",
@@ -5790,7 +5838,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "metamagic-quickened-spell",
@@ -5808,7 +5857,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "metamagic-subtle-spell",
@@ -5826,14 +5876,15 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "metamagic-twinned-spell",
     "nameEn": "Metamagic: Twinned Spell",
     "nameRu": "Метамагия: Удвоенное заклинание",
     "descriptionEn": "When you cast a spell that targets only one creature and doesn't have a range of self, you can spend a number of sorcery points equal to the spell's level to target a second creature in range with the same spell (1 sorcery point if the spell is a cantrip).\nTo be eligible, a spell must be incapable of targeting more than one creature at the spell's current level. For example, magic missile and scorching ray aren't eligible, but ray of frost is.",
-    "descriptionRu": "Когда вы накладываете заклинание, которое нацеливается только на одно существо и не имеет дистанцию На себя, вы можете потратить количество единиц чародейства, равное уровню заклинания, чтобы нацелиться на второе существо.",
+    "descriptionRu": "Когда вы накладываете заклинание, которое нацеливается только на одно существо и не имеет дистанцию На себя, вы можете потратить количество единиц чародейства, равное кругу заклинания, чтобы нацелиться на второе существо.",
     "type": "passive",
     "minLevel": 3,
     "associatedClass": "Sorcerer",
@@ -5844,7 +5895,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "sorcerer-ability-score-improvement-1",
@@ -5934,7 +5986,17 @@
     "resourcePool": null,
     "usageCostId": "sorcery-points",
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "options": [
+      "metamagic-careful-spell",
+      "metamagic-distant-spell",
+      "metamagic-empowered-spell",
+      "metamagic-extended-spell",
+      "metamagic-heightened-spell",
+      "metamagic-quickened-spell",
+      "metamagic-subtle-spell",
+      "metamagic-twinned-spell"
+    ]
   },
   {
     "id": "sorcerer-ability-score-improvement-3",
@@ -6024,7 +6086,17 @@
     "resourcePool": null,
     "usageCostId": "sorcery-points",
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "options": [
+      "metamagic-careful-spell",
+      "metamagic-distant-spell",
+      "metamagic-empowered-spell",
+      "metamagic-extended-spell",
+      "metamagic-heightened-spell",
+      "metamagic-quickened-spell",
+      "metamagic-subtle-spell",
+      "metamagic-twinned-spell"
+    ]
   },
   {
     "id": "sorcerous-origin-improvement-3",
@@ -6168,7 +6240,41 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "options": [
+      "eldritch-invocation-agonizing-blast",
+      "eldritch-invocation-armor-of-shadows",
+      "eldritch-invocation-beast-speech",
+      "eldritch-invocation-beguiling-influence",
+      "eldritch-invocation-book-of-ancient-secrets",
+      "eldritch-invocation-devils-sight",
+      "eldritch-invocation-eldritch-sight",
+      "eldritch-invocation-eldritch-spear",
+      "eldritch-invocation-eyes-of-the-rune-keeper",
+      "eldritch-invocation-fiendish-vigor",
+      "eldritch-invocation-gaze-of-two-minds",
+      "eldritch-invocation-mask-of-many-faces",
+      "eldritch-invocation-misty-visions",
+      "eldritch-invocation-repelling-blast",
+      "eldritch-invocation-thief-of-five-fates",
+      "eldritch-invocation-voice-of-the-chain-master",
+      "eldritch-invocation-mire-the-mind",
+      "eldritch-invocation-one-with-shadows",
+      "eldritch-invocation-sign-of-ill-omen",
+      "eldritch-invocation-thirsting-blade",
+      "eldritch-invocation-bewitching-whispers",
+      "eldritch-invocation-dreadful-word",
+      "eldritch-invocation-sculptor-of-flesh",
+      "eldritch-invocation-ascendant-step",
+      "eldritch-invocation-minions-of-chaos",
+      "eldritch-invocation-otherworldly-leap",
+      "eldritch-invocation-whispers-of-the-grave",
+      "eldritch-invocation-lifedrinker",
+      "eldritch-invocation-chains-of-carceri",
+      "eldritch-invocation-master-of-myriad-forms",
+      "eldritch-invocation-visions-of-distant-realms",
+      "eldritch-invocation-witch-sight"
+    ]
   },
   {
     "id": "eldritch-invocation-agonizing-blast",
@@ -6186,7 +6292,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-armor-of-shadows",
@@ -6204,7 +6311,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-beast-speech",
@@ -6222,7 +6330,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-beguiling-influence",
@@ -6240,7 +6349,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-book-of-ancient-secrets",
@@ -6258,7 +6368,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-devils-sight",
@@ -6276,7 +6387,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-eldritch-sight",
@@ -6294,7 +6406,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-eldritch-spear",
@@ -6312,7 +6425,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-eyes-of-the-rune-keeper",
@@ -6330,7 +6444,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-fiendish-vigor",
@@ -6348,7 +6463,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-gaze-of-two-minds",
@@ -6366,7 +6482,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-mask-of-many-faces",
@@ -6384,7 +6501,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-misty-visions",
@@ -6402,7 +6520,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-repelling-blast",
@@ -6420,7 +6539,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-thief-of-five-fates",
@@ -6438,7 +6558,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-voice-of-the-chain-master",
@@ -6456,7 +6577,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-mire-the-mind",
@@ -6474,7 +6596,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-one-with-shadows",
@@ -6492,7 +6615,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-sign-of-ill-omen",
@@ -6510,7 +6634,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-thirsting-blade",
@@ -6528,7 +6653,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "otherworldly-patron-improvement-1",
@@ -6564,7 +6690,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-dreadful-word",
@@ -6582,7 +6709,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-sculptor-of-flesh",
@@ -6600,7 +6728,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-ascendant-step",
@@ -6618,7 +6747,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-minions-of-chaos",
@@ -6636,7 +6766,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-otherworldly-leap",
@@ -6654,7 +6785,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-whispers-of-the-grave",
@@ -6672,7 +6804,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "otherworldly-patron-improvement-2",
@@ -6708,7 +6841,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "otherworldly-patron-improvement-3",
@@ -6744,7 +6878,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-master-of-myriad-forms",
@@ -6762,7 +6897,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-visions-of-distant-realms",
@@ -6780,7 +6916,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "eldritch-invocation-witch-sight",
@@ -6798,7 +6935,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "pact-boon",
@@ -6816,7 +6954,12 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "options": [
+      "pact-of-the-chain",
+      "pact-of-the-blade",
+      "pact-of-the-tome"
+    ]
   },
   {
     "id": "pact-of-the-chain",
@@ -6834,7 +6977,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "pact-of-the-blade",
@@ -6852,7 +6996,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "pact-of-the-tome",
@@ -6870,7 +7015,8 @@
     "resourcePool": null,
     "usageCostId": null,
     "usageInputMode": null,
-    "consumption": null
+    "consumption": null,
+    "isOptional": true
   },
   {
     "id": "warlock-ability-score-improvement-1",
@@ -6931,7 +7077,7 @@
     "nameEn": "Fiendish Resilience",
     "nameRu": "Стойкость исчадия",
     "descriptionEn": "Starting at 10th level, you can choose one damage type when you finish a short or long rest. You gain resistance to that damage type until you choose a different one with this feature. Damage from magical weapons or silver weapons ignores this resistance.",
-    "descriptionRu": "Начиная с 10-го уровня, вы можете выбрать один тип урона, когда заканчиваете короткий или продолжительный отдых. Вы получаете сопротивление этому типу урона.",
+    "descriptionRu": "Начиная с 10-го уровня, вы можете выбрать один тип урона, когда заканчиваете короткий или длительный отдых. Вы получаете сопротивление этому типу урона.",
     "type": "passive",
     "minLevel": 10,
     "associatedClass": "Warlock",
@@ -6947,17 +7093,21 @@
   {
     "id": "mystic-arcanum-6th-level",
     "nameEn": "Mystic Arcanum (6th level)",
-    "nameRu": "Таинственный арканум (6-й уровень)",
+    "nameRu": "Таинственный арканум (6-й круг)",
     "descriptionEn": "At 11th level, your patron bestows upon you a magical secret called an arcanum. Choose one 6th- level spell from the warlock spell list as this arcanum.\nYou can cast your arcanum spell once without expending a spell slot. You must finish a long rest before you can do so again.\nAt higher levels, you gain more warlock spells of your choice that can be cast in this way: one 7th- level spell at 13th level, one 8th-level spell at 15th level, and one 9th-level spell at 17th level. You regain all uses of your Mystic Arcanum when you finish a long rest.",
-    "descriptionRu": "На 11-м уровне ваш покровитель дарует вам магический секрет, называемый арканумом. Выберите одно заклинание 6-го уровня из списка заклинаний колдуна как этот арканум.",
-    "type": "passive",
+    "descriptionRu": "На 11-м уровне ваш покровитель дарует вам магический секрет, называемый арканумом. Выберите одно заклинание 6-го круга из списка заклинаний колдуна как этот арканум.",
+    "type": "resource_pool",
     "minLevel": 11,
     "associatedClass": "Warlock",
     "associatedSubclass": null,
     "requiresRest": false,
     "actionEconomy": null,
     "iconName": "psychology",
-    "resourcePool": null,
+    "resourcePool": {
+      "currentUses": 1,
+      "maxUses": 1,
+      "recoveryType": "longRest"
+    },
     "usageCostId": null,
     "usageInputMode": null,
     "consumption": null
@@ -6983,17 +7133,21 @@
   {
     "id": "mystic-arcanum-7th-level",
     "nameEn": "Mystic Arcanum (7th level)",
-    "nameRu": "Таинственный арканум (7-й уровень)",
+    "nameRu": "Таинственный арканум (7-й круг)",
     "descriptionEn": "At 11th level, your patron bestows upon you a magical secret called an arcanum. Choose one 6th- level spell from the warlock spell list as this arcanum.\nYou can cast your arcanum spell once without expending a spell slot. You must finish a long rest before you can do so again.\nAt higher levels, you gain more warlock spells of your choice that can be cast in this way: one 7th- level spell at 13th level, one 8th-level spell at 15th level, and one 9th-level spell at 17th level. You regain all uses of your Mystic Arcanum when you finish a long rest.",
-    "descriptionRu": "На 13-м уровне выберите одно заклинание 7-го уровня из списка заклинаний колдуна как этот арканум.",
-    "type": "passive",
+    "descriptionRu": "На 13-м уровне выберите одно заклинание 7-го круга из списка заклинаний колдуна как этот арканум.",
+    "type": "resource_pool",
     "minLevel": 13,
     "associatedClass": "Warlock",
     "associatedSubclass": null,
     "requiresRest": false,
     "actionEconomy": null,
     "iconName": "psychology",
-    "resourcePool": null,
+    "resourcePool": {
+      "currentUses": 1,
+      "maxUses": 1,
+      "recoveryType": "longRest"
+    },
     "usageCostId": null,
     "usageInputMode": null,
     "consumption": null
@@ -7019,17 +7173,21 @@
   {
     "id": "mystic-arcanum-8th-level",
     "nameEn": "Mystic Arcanum (8th level)",
-    "nameRu": "Таинственный арканум (8-й уровень)",
+    "nameRu": "Таинственный арканум (8-й круг)",
     "descriptionEn": "At 11th level, your patron bestows upon you a magical secret called an arcanum. Choose one 6th- level spell from the warlock spell list as this arcanum.\nYou can cast your arcanum spell once without expending a spell slot. You must finish a long rest before you can do so again.\nAt higher levels, you gain more warlock spells of your choice that can be cast in this way: one 7th- level spell at 13th level, one 8th-level spell at 15th level, and one 9th-level spell at 17th level. You regain all uses of your Mystic Arcanum when you finish a long rest.",
-    "descriptionRu": "На 15-м уровне выберите одно заклинание 8-го уровня из списка заклинаний колдуна как этот арканум.",
-    "type": "passive",
+    "descriptionRu": "На 15-м уровне выберите одно заклинание 8-го круга из списка заклинаний колдуна как этот арканум.",
+    "type": "resource_pool",
     "minLevel": 15,
     "associatedClass": "Warlock",
     "associatedSubclass": null,
     "requiresRest": false,
     "actionEconomy": null,
     "iconName": "psychology",
-    "resourcePool": null,
+    "resourcePool": {
+      "currentUses": 1,
+      "maxUses": 1,
+      "recoveryType": "longRest"
+    },
     "usageCostId": null,
     "usageInputMode": null,
     "consumption": null
@@ -7055,17 +7213,21 @@
   {
     "id": "mystic-arcanum-9th-level",
     "nameEn": "Mystic Arcanum (9th level)",
-    "nameRu": "Таинственный арканум (9-й уровень)",
+    "nameRu": "Таинственный арканум (9-й круг)",
     "descriptionEn": "At 11th level, your patron bestows upon you a magical secret called an arcanum. Choose one 6th- level spell from the warlock spell list as this arcanum.\nYou can cast your arcanum spell once without expending a spell slot. You must finish a long rest before you can do so again.\nAt higher levels, you gain more warlock spells of your choice that can be cast in this way: one 7th- level spell at 13th level, one 8th-level spell at 15th level, and one 9th-level spell at 17th level. You regain all uses of your Mystic Arcanum when you finish a long rest.",
-    "descriptionRu": "На 17-м уровне выберите одно заклинание 9-го уровня из списка заклинаний колдуна как этот арканум.",
-    "type": "passive",
+    "descriptionRu": "На 17-м уровне выберите одно заклинание 9-го круга из списка заклинаний колдуна как этот арканум.",
+    "type": "resource_pool",
     "minLevel": 17,
     "associatedClass": "Warlock",
     "associatedSubclass": null,
     "requiresRest": false,
     "actionEconomy": null,
     "iconName": "psychology",
-    "resourcePool": null,
+    "resourcePool": {
+      "currentUses": 1,
+      "maxUses": 1,
+      "recoveryType": "longRest"
+    },
     "usageCostId": null,
     "usageInputMode": null,
     "consumption": null
@@ -7129,7 +7291,7 @@
     "nameEn": "Arcane Recovery",
     "nameRu": "Магическое Восстановление",
     "descriptionEn": "You have learned to regain some of your magical energy by studying your spellbook. Once per day when you finish a short rest, you can choose expended spell slots to recover. The spell slots can have a combined level that is equal to or less than half your wizard level (rounded up), and none of the slots can be 6th level or higher.\nFor example, if you're a 4th-level wizard, you can recover up to two levels worth of spell slots. You can recover either a 2nd-level spell slot or two 1st-level spell slots.",
-    "descriptionRu": "Вы научились восстанавливать часть своей магической энергии, изучая свою книгу заклинаний. Один раз в день, когда вы заканчиваете короткий отдых, вы можете выбрать израсходованные ячейки заклинаний для восстановления. Ячейки заклинаний могут иметь суммарный уровень, который равен или меньше половины вашего уровня волшебника (округленного в большую сторону), и ни одна из ячеек не может быть 6-го уровня или выше.\nНапример, если вы волшебник 4-го уровня, вы можете восстановить ячейки заклинаний на сумму уровней до двух. Вы можете восстановить либо одну ячейку заклинания 2-го уровня, либо две ячейки заклинаний 1-го уровня.",
+    "descriptionRu": "Вы научились восстанавливать часть своей магической энергии, изучая свою книгу заклинаний. Один раз в день, когда вы заканчиваете короткий отдых, вы можете выбрать израсходованные ячейки заклинаний для восстановления. Сумма кругов восстанавливаемых ячеек не должна превышать половину вашего уровня волшебника (округленного в большую сторону), и ни одна из ячеек не может быть 6-го круга или выше.\nНапример, если вы волшебник 4-го уровня, вы можете восстановить ячейки заклинаний на сумму кругов до двух. Вы можете восстановить либо одну ячейку заклинания 2-го круга, либо две ячейки заклинаний 1-го круга.",
     "type": "passive",
     "minLevel": 1,
     "associatedClass": "Wizard",
@@ -7165,7 +7327,7 @@
     "nameEn": "Evocation Savant",
     "nameRu": "Ученый-эвокатор",
     "descriptionEn": "Beginning when you select this school at 2nd level, the gold and time you must spend to copy an evocation spell into your spellbook is halved.",
-    "descriptionRu": "Золото и время, необходимые для копирования заклинания эвокации в вашу книгу заклинаний, уменьшаются вдвое.",
+    "descriptionRu": "Золото и время, необходимые для копирования заклинания воплощения в вашу книгу заклинаний, уменьшаются вдвое.",
     "type": "passive",
     "minLevel": 2,
     "associatedClass": "Wizard",
@@ -7183,7 +7345,7 @@
     "nameEn": "Sculpt Spells",
     "nameRu": "Ваяние заклинаний",
     "descriptionEn": "Beginning at 2nd level, you can create pockets of relative safety within the effects of your evocation spells. When you cast an evocation spell that affects other creatures that you can see, you can choose a number of them equal to 1 + the spell's level. The chosen creatures automatically succeed on their saving throws against the spell, and they take no damage if they would normally take half damage on a successful save.",
-    "descriptionRu": "Вы можете создавать безопасные зоны внутри эффектов ваших заклинаний эвокации.",
+    "descriptionRu": "Вы можете создавать безопасные зоны внутри эффектов ваших заклинаний воплощения.",
     "type": "passive",
     "minLevel": 2,
     "associatedClass": "Wizard",
@@ -7291,7 +7453,7 @@
     "nameEn": "Empowered Evocation",
     "nameRu": "Усиленная эвокация",
     "descriptionEn": "Beginning at 10th level, you can add your Intelligence modifier to one damage roll of any wizard evocation spell you cast.",
-    "descriptionRu": "Начиная с 10-го уровня, вы можете добавлять свой модификатор Интеллекта к одному броску урона любого заклинания эвокации волшебника.",
+    "descriptionRu": "Начиная с 10-го уровня, вы можете добавлять свой модификатор Интеллекта к одному броску урона любого заклинания воплощения волшебника.",
     "type": "passive",
     "minLevel": 10,
     "associatedClass": "Wizard",
@@ -7345,7 +7507,7 @@
     "nameEn": "Overchannel",
     "nameRu": "Перегрузка",
     "descriptionEn": "Starting at 14th level, you can increase the power of your simpler spells. When you cast a wizard spell of 1st through 5th level that deals damage, you can deal maximum damage with that spell.\nThe first time you do so, you suffer no adverse effect. If you use this feature again before you finish a long rest, you take 2d12 necrotic damage for each level of the spell, immediately after you cast it. Each time you use this feature again before finishing a long rest, the necrotic damage per spell level increases by 1d12. This damage ignores resistance and immunity.",
-    "descriptionRu": "Начиная с 14-го уровня, вы можете максимизировать урон своих заклинаний 1-5 уровня.",
+    "descriptionRu": "Начиная с 14-го уровня, вы можете максимизировать урон своих заклинаний от 1-го до 5-го круга.",
     "type": "passive",
     "minLevel": 14,
     "associatedClass": "Wizard",
@@ -7467,7 +7629,7 @@
     "descriptionEn": "Magically assume the shape of a beast that you have seen before.",
     "descriptionRu": "Магическим образом принять облик зверя, которого вы видели ранее.",
     "type": "action",
-    "minLevel": 1,
+    "minLevel": 2,
     "associatedClass": "Druid",
     "requiresRest": false,
     "actionEconomy": "action",

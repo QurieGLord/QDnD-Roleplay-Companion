@@ -65,7 +65,18 @@
         "description": {
           "en": "Beginning at 1st level, you have significant experience studying, tracking, hunting, and even talking to a certain type of enemy.\nChoose a type of favored enemy: aberrations, beasts, celestials, constructs, dragons, elementals, fey, fiends, giants, monstrosities, oozes, plants, or undead. Alternatively, you can select two races of humanoid (such as gnolls and orcs) as favored enemies.\nYou have advantage on Wisdom (Survival) checks to track your favored enemies, as well as on Intelligence checks to recall information about them.\nWhen you gain this feature, you also learn one language of your choice that is spoken by your favored enemies, if they speak one at all.\nYou choose one additional favored enemy, as well as an associated language, at 6th and 14th level. As you gain levels, your choices should reflect the types of monsters you have encountered on your adventures.",
           "ru": "Вы получаете опыт в выслеживании и охоте на определенный тип врагов."
-        }
+        },
+        "minLevel": 1,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "natural-explorer-1-terrain-type",
@@ -76,7 +87,18 @@
         "description": {
           "en": "You are particularly familiar with one type of natural environment and are adept at traveling and surviving in such regions. Choose one type of favored terrain: arctic, coast, desert, forest, grassland, mountain, or swamp. When you make an Intelligence or Wisdom check related to your favored terrain, your proficiency bonus is doubled if you are using a skill that you're proficient in.\nWhile traveling for an hour or more in your favored terrain, you gain the following benefits:\n- Difficult terrain doesn't slow your group's travel.\n- Your group can't become lost except by magical means.\n- Even when you are engaged in another activity while traveling (such as foraging, navigating, or tracking), you remain alert to danger.\n- If you are traveling alone, you can move stealthily at a normal pace.\n- When you forage, you find twice as much food as you normally would.\n- While tracking other creatures, you also learn their exact number, their sizes, and how long ago they passed through the area.\nYou choose additional favored terrain types at 6th and 10th level.",
           "ru": "Вы знакомы с определенным типом природной среды."
-        }
+        },
+        "minLevel": 1,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "2": [
@@ -89,7 +111,18 @@
         "description": {
           "en": "At 2nd level, you adopt a particular style of fighting as your specialty. Choose one of the following options. You can't take a Fighting Style option more than once, even if you later get to choose again.",
           "ru": "На 2-м уровне вы принимаете стиль боя в качестве своей специальности."
-        }
+        },
+        "minLevel": 2,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "spellcasting-ranger",
@@ -100,7 +133,18 @@
         "description": {
           "en": "By the time you reach 2nd level, you have learned to use the magical essence of nature to cast spells, much as a druid does.",
           "ru": "К 2-му уровню вы научились использовать магическую сущность природы."
-        }
+        },
+        "minLevel": 2,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "auto_fix_high",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "3": [
@@ -113,7 +157,23 @@
         "description": {
           "en": "At 3rd level, you gain one of the following features of your choice.\nColossus Slayer\nGiant Killer\nHorde Breaker",
           "ru": "На 3-м уровне вы получаете одно из следующих умений по вашему выбору."
-        }
+        },
+        "minLevel": 3,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": "Hunter",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null,
+        "options": [
+          "hunters-prey-colossus-slayer",
+          "hunters-prey-giant-killer",
+          "hunters-prey-horde-breaker"
+        ]
       }
     ],
     "4": [
@@ -126,7 +186,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 4,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "5": [
@@ -139,7 +210,18 @@
         "description": {
           "en": "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn.",
           "ru": "Начиная с 5-го уровня, вы можете атаковать дважды, вместо одного раза, когда вы совершаете действие Атака в свой ход."
-        }
+        },
+        "minLevel": 5,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "filter_2",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "6": [
@@ -152,7 +234,18 @@
         "description": {
           "en": "Beginning at 1st level, you have significant experience studying, tracking, hunting, and even talking to a certain type of enemy.\nChoose a type of favored enemy: aberrations, beasts, celestials, constructs, dragons, elementals, fey, fiends, giants, monstrosities, oozes, plants, or undead. Alternatively, you can select two races of humanoid (such as gnolls and orcs) as favored enemies.\nYou have advantage on Wisdom (Survival) checks to track your favored enemies, as well as on Intelligence checks to recall information about them.\nWhen you gain this feature, you also learn one language of your choice that is spoken by your favored enemies, if they speak one at all.\nYou choose one additional favored enemy, as well as an associated language, at 6th and 14th level. As you gain levels, your choices should reflect the types of monsters you have encountered on your adventures.",
           "ru": "Вы выбираете одного дополнительного избранного врага."
-        }
+        },
+        "minLevel": 6,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "natural-explorer-2-terrain-types",
@@ -163,7 +256,18 @@
         "description": {
           "en": "You are particularly familiar with one type of natural environment and are adept at traveling and surviving in such regions. Choose one type of favored terrain: arctic, coast, desert, forest, grassland, mountain, or swamp. When you make an Intelligence or Wisdom check related to your favored terrain, your proficiency bonus is doubled if you are using a skill that you're proficient in.\nWhile traveling for an hour or more in your favored terrain, you gain the following benefits:\n- Difficult terrain doesn't slow your group's travel.\n- Your group can't become lost except by magical means.\n- Even when you are engaged in another activity while traveling (such as foraging, navigating, or tracking), you remain alert to danger.\n- If you are traveling alone, you can move stealthily at a normal pace.\n- When you forage, you find twice as much food as you normally would.\n- While tracking other creatures, you also learn their exact number, their sizes, and how long ago they passed through the area.\nYou choose additional favored terrain types at 6th and 10th level.",
           "ru": "Вы выбираете дополнительные типы избранной местности."
-        }
+        },
+        "minLevel": 6,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "7": [
@@ -176,7 +280,23 @@
         "description": {
           "en": "At 7th level, you gain one of the following features of your choice.\nEscape the Horde\nMultiattack Defense\nSteel Will",
           "ru": "На 7-м уровне вы получаете одно из следующих умений по вашему выбору."
-        }
+        },
+        "minLevel": 7,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": "Hunter",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null,
+        "options": [
+          "defensive-tactics-escape-the-horde",
+          "defensive-tactics-multiattack-defense",
+          "defensive-tactics-steel-will"
+        ]
       }
     ],
     "8": [
@@ -189,7 +309,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 8,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "ranger-lands-stride",
@@ -200,7 +331,18 @@
         "description": {
           "en": "Starting at 8th level, moving through nonmagical difficult terrain costs you no extra movement. You can also pass through nonmagical plants without being slowed by them and without taking damage from them if they have thorns, spines, or a similar hazard.\nIn addition, you have advantage on saving throws against plants that are magically created or manipulated to impede movement, such those created by the entangle spell.",
           "ru": "Начиная с 8-го уровня, перемещение по немагической труднопроходимой местности не стоит вам дополнительного движения."
-        }
+        },
+        "minLevel": 8,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "10": [
@@ -213,7 +355,18 @@
         "description": {
           "en": "You are particularly familiar with one type of natural environment and are adept at traveling and surviving in such regions. Choose one type of favored terrain: arctic, coast, desert, forest, grassland, mountain, or swamp. When you make an Intelligence or Wisdom check related to your favored terrain, your proficiency bonus is doubled if you are using a skill that you're proficient in.\nWhile traveling for an hour or more in your favored terrain, you gain the following benefits:\n- Difficult terrain doesn't slow your group's travel.\n- Your group can't become lost except by magical means.\n- Even when you are engaged in another activity while traveling (such as foraging, navigating, or tracking), you remain alert to danger.\n- If you are traveling alone, you can move stealthily at a normal pace.\n- When you forage, you find twice as much food as you normally would.\n- While tracking other creatures, you also learn their exact number, their sizes, and how long ago they passed through the area.\nYou choose additional favored terrain types at 6th and 10th level.",
           "ru": "Вы выбираете дополнительные типы избранной местности."
-        }
+        },
+        "minLevel": 10,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "hide-in-plain-sight",
@@ -224,7 +377,18 @@
         "description": {
           "en": "Starting at 10th level, you can spend 1 minute creating camouflage for yourself. You must have access to fresh mud, dirt, plants, soot, and other naturally occurring materials with which to create your camouflage.\nOnce you are camouflaged in this way, you can try to hide by pressing yourself up against a solid surface, such as a tree or wall, that is at least as tall and wide as you are. You gain a +10 bonus to Dexterity (Stealth) checks as long as you remain there without moving or taking actions. Once you move or take an action or a reaction, you must camouflage yourself again to gain this benefit.",
           "ru": "Начиная с 10-го уровня, вы можете потратить 1 минуту на создание камуфляжа для себя."
-        }
+        },
+        "minLevel": 10,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "11": [
@@ -237,7 +401,22 @@
         "description": {
           "en": "At 11th level, you gain one of the following features of your choice.\nVolley\nWhirlwind Attack",
           "ru": "На 11-м уровне вы получаете одно из следующих умений по вашему выбору."
-        }
+        },
+        "minLevel": 11,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": "Hunter",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null,
+        "options": [
+          "multiattack-volley",
+          "multiattack-whirlwind-attack"
+        ]
       }
     ],
     "12": [
@@ -250,7 +429,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 12,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "14": [
@@ -263,7 +453,18 @@
         "description": {
           "en": "Beginning at 1st level, you have significant experience studying, tracking, hunting, and even talking to a certain type of enemy.\nChoose a type of favored enemy: aberrations, beasts, celestials, constructs, dragons, elementals, fey, fiends, giants, monstrosities, oozes, plants, or undead. Alternatively, you can select two races of humanoid (such as gnolls and orcs) as favored enemies.\nYou have advantage on Wisdom (Survival) checks to track your favored enemies, as well as on Intelligence checks to recall information about them.\nWhen you gain this feature, you also learn one language of your choice that is spoken by your favored enemies, if they speak one at all.\nYou choose one additional favored enemy, as well as an associated language, at 6th and 14th level. As you gain levels, your choices should reflect the types of monsters you have encountered on your adventures.",
           "ru": "Вы выбираете одного дополнительного избранного врага."
-        }
+        },
+        "minLevel": 14,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "vanish",
@@ -274,7 +475,18 @@
         "description": {
           "en": "Starting at 14th level, you can use the Hide action as a bonus action on your turn. Also, you can't be tracked by nonmagical means, unless you choose to leave a trail.",
           "ru": "Начиная с 14-го уровня, вы можете использовать действие Засада бонусным действием в свой ход."
-        }
+        },
+        "minLevel": 14,
+        "associatedClass": "ranger",
+        "type": "bonus_action",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": "bonus_action",
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "15": [
@@ -287,7 +499,23 @@
         "description": {
           "en": "At 15th level, you gain one of the following features of your choice.\nEvasion\nStand Against the Tide\nUncanny Dodge",
           "ru": "На 15-м уровне вы получаете одно из следующих умений по вашему выбору."
-        }
+        },
+        "minLevel": 15,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": "Hunter",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null,
+        "options": [
+          "superior-hunters-defense-evasion",
+          "superior-hunters-defense-stand-against-the-tide",
+          "superior-hunters-defense-uncanny-dodge"
+        ]
       }
     ],
     "16": [
@@ -300,7 +528,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 16,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "18": [
@@ -313,7 +552,18 @@
         "description": {
           "en": "At 18th level, you gain preternatural senses that help you fight creatures you can't see. When you attack a creature you can't see, your inability to see it doesn't impose disadvantage on your attack rolls against it.\nYou are also aware of the location of any invisible creature within 30 feet of you, provided that the creature isn't hidden from you and you aren't blinded or deafened.",
           "ru": "На 18-м уровне вы получаете сверхъестественные чувства, которые помогают вам сражаться с существами, которых вы не видите."
-        }
+        },
+        "minLevel": 18,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "19": [
@@ -326,7 +576,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 19,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "20": [
@@ -339,7 +600,18 @@
         "description": {
           "en": "At 20th level, you become an unparalleled hunter of your enemies. Once on each of your turns, you can add your Wisdom modifier to the attack roll or the damage roll of an attack you make against one of your favored enemies. You can choose to use this feature before or after the roll, but before any effects of the roll are applied.",
           "ru": "На 20-м уровне вы становитесь непревзойденным охотником на своих врагов."
-        }
+        },
+        "minLevel": 20,
+        "associatedClass": "ranger",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "gps_fixed",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ]
   },

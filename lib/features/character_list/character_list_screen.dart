@@ -9,14 +9,12 @@ import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:uuid/uuid.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 
-import '../../../core/models/ability_scores.dart';
 import '../../../core/models/character.dart';
-import '../../../core/models/character_feature.dart';
-import '../../../core/models/item.dart';
 import '../../../core/services/fc5_export_service.dart';
 import '../../../core/services/fc5_parser.dart';
 import '../../../core/services/import_service.dart';
 import '../../../core/services/qdnd_bundle_export_service.dart';
+import '../../../core/services/qdnd_bundle_codec.dart';
 import '../../../core/services/qdnd_bundle_file_service.dart';
 import '../../../core/services/qdnd_bundle_import_service.dart';
 import '../../../core/services/qdnd_bundle_schema.dart';
@@ -156,48 +154,46 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                       SliverPadding(
                         padding: const EdgeInsets.fromLTRB(16, 14, 16, 112),
                         sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              final character = characters[index];
-                              final staggerMs = 80 + (index * 48).clamp(0, 240);
+                          delegate:
+                              SliverChildBuilderDelegate((context, index) {
+                            final character = characters[index];
+                            final staggerMs = 80 + (index * 48).clamp(0, 240);
 
-                              return Padding(
-                                padding: EdgeInsets.only(
-                                  bottom:
-                                      index == characters.length - 1 ? 0 : 10,
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                bottom: index == characters.length - 1 ? 0 : 10,
+                              ),
+                              child: RosterReveal(
+                                key: ValueKey(
+                                  'character-card-reveal-${character.id}',
                                 ),
-                                child: RosterReveal(
+                                delay: Duration(milliseconds: staggerMs),
+                                child: CharacterCard(
                                   key: ValueKey(
-                                    'character-card-reveal-${character.id}',
+                                    'character-card-${character.id}',
                                   ),
-                                  delay: Duration(milliseconds: staggerMs),
-                                  child: CharacterCard(
-                                    key: ValueKey(
-                                        'character-card-${character.id}'),
-                                    character: character,
-                                    onTap: () async {
-                                      await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              CharacterSheetScreen(
-                                            character: character,
-                                          ),
+                                  character: character,
+                                  onTap: () async {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            CharacterSheetScreen(
+                                          character: character,
                                         ),
-                                      );
-                                      if (mounted) {
-                                        setState(() {});
-                                      }
-                                    },
-                                    onLongPress: () {
-                                      _showCharacterOptions(context, character);
-                                    },
-                                  ),
+                                      ),
+                                    );
+                                    if (mounted) {
+                                      setState(() {});
+                                    }
+                                  },
+                                  onLongPress: () {
+                                    _showCharacterOptions(context, character);
+                                  },
                                 ),
-                              );
-                            },
-                            childCount: characters.length,
-                          ),
+                              ),
+                            );
+                          }, childCount: characters.length),
                         ),
                       ),
                   ],
@@ -407,8 +403,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
     final localizedRaceName = getLocalizedRaceName(context, character.race);
-    final localizedClassName =
-        getLocalizedClassName(context, character.characterClass);
+    final localizedClassName = getCharacterClassSummary(context, character);
     final localizedSubclass = character.subclass != null
         ? getLocalizedSubclassName(
             context,
@@ -624,8 +619,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final accent = resolveClassAccent(colorScheme, character.characterClass);
     final localizedRaceName = getLocalizedRaceName(context, character.race);
-    final localizedClassName =
-        getLocalizedClassName(context, character.characterClass);
+    final localizedClassName = getCharacterClassSummary(context, character);
     final localizedSubclass = character.subclass != null
         ? getLocalizedSubclassName(
             context,
@@ -846,113 +840,11 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   ) async {
     final l10n = AppLocalizations.of(context)!;
     try {
-      final duplicate = Character(
-        id: const Uuid().v4(),
-        name: '${original.name} (Copy)',
-        avatarPath: original.avatarPath,
-        race: original.race,
-        characterClass: original.characterClass,
-        subclass: original.subclass,
-        background: original.background,
-        level: original.level,
-        maxHp: original.maxHp,
-        currentHp: original.currentHp,
-        temporaryHp: original.temporaryHp,
-        abilityScores: AbilityScores(
-          strength: original.abilityScores.strength,
-          dexterity: original.abilityScores.dexterity,
-          constitution: original.abilityScores.constitution,
-          intelligence: original.abilityScores.intelligence,
-          wisdom: original.abilityScores.wisdom,
-          charisma: original.abilityScores.charisma,
-        ),
-        proficientSkills: List<String>.from(original.proficientSkills),
-        savingThrowProficiencies:
-            List<String>.from(original.savingThrowProficiencies),
-        armorClass: original.armorClass,
-        speed: original.speed,
-        initiative: original.initiative,
-        spellSlots: List<int>.from(original.spellSlots),
-        maxSpellSlots: List<int>.from(original.maxSpellSlots),
-        knownSpells: List<String>.from(original.knownSpells),
-        preparedSpells: List<String>.from(original.preparedSpells),
-        maxPreparedSpells: original.maxPreparedSpells,
-        features: List<CharacterFeature>.from(original.features.map((feature) {
-          return CharacterFeature(
-            id: feature.id,
-            nameEn: feature.nameEn,
-            nameRu: feature.nameRu,
-            descriptionEn: feature.descriptionEn,
-            descriptionRu: feature.descriptionRu,
-            type: feature.type,
-            minLevel: feature.minLevel,
-            associatedClass: feature.associatedClass,
-            associatedSubclass: feature.associatedSubclass,
-            requiresRest: feature.requiresRest,
-            actionEconomy: feature.actionEconomy,
-            iconName: feature.iconName,
-            resourcePool: feature.resourcePool != null
-                ? ResourcePool(
-                    currentUses: feature.resourcePool!.currentUses,
-                    maxUses: feature.resourcePool!.maxUses,
-                    recoveryType: feature.resourcePool!.recoveryType,
-                    calculationFormula:
-                        feature.resourcePool!.calculationFormula,
-                  )
-                : null,
-          );
-        })),
-        inventory: List<Item>.from(original.inventory.map((item) {
-          return Item(
-            id: item.id,
-            nameEn: item.nameEn,
-            nameRu: item.nameRu,
-            descriptionEn: item.descriptionEn,
-            descriptionRu: item.descriptionRu,
-            type: item.type,
-            rarity: item.rarity,
-            quantity: item.quantity,
-            weight: item.weight,
-            valueInCopper: item.valueInCopper,
-            isEquipped: item.isEquipped,
-            isAttuned: item.isAttuned,
-            weaponProperties: item.weaponProperties != null
-                ? WeaponProperties(
-                    damageDice: item.weaponProperties!.damageDice,
-                    damageType: item.weaponProperties!.damageType,
-                    weaponTags:
-                        List<String>.from(item.weaponProperties!.weaponTags),
-                    range: item.weaponProperties!.range,
-                    longRange: item.weaponProperties!.longRange,
-                    versatileDamageDice:
-                        item.weaponProperties!.versatileDamageDice,
-                  )
-                : null,
-            armorProperties: item.armorProperties != null
-                ? ArmorProperties(
-                    baseAC: item.armorProperties!.baseAC,
-                    armorType: item.armorProperties!.armorType,
-                    addDexModifier: item.armorProperties!.addDexModifier,
-                    maxDexBonus: item.armorProperties!.maxDexBonus,
-                    strengthRequirement:
-                        item.armorProperties!.strengthRequirement,
-                    stealthDisadvantage:
-                        item.armorProperties!.stealthDisadvantage,
-                  )
-                : null,
-            isMagical: item.isMagical,
-            iconName: item.iconName,
-          );
-        })),
-        personalityTraits: original.personalityTraits,
-        ideals: original.ideals,
-        bonds: original.bonds,
-        flaws: original.flaws,
-        backstory: original.backstory,
-        appearance: original.appearance,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+      final duplicate = QdndBundleCodec.cloneCharacter(original)
+        ..id = const Uuid().v4()
+        ..name = '${original.name} (Copy)'
+        ..createdAt = DateTime.now()
+        ..updatedAt = DateTime.now();
 
       await StorageService.saveCharacter(duplicate);
 
@@ -1897,8 +1789,7 @@ class _CharacterActionSheetHeader extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final localizedRaceName = getLocalizedRaceName(context, character.race);
     final accent = resolveClassAccent(colorScheme, character.characterClass);
-    final localizedClassName =
-        getLocalizedClassName(context, character.characterClass);
+    final localizedClassName = getCharacterClassSummary(context, character);
     final localizedSubclass = character.subclass != null
         ? getLocalizedSubclassName(
             context,

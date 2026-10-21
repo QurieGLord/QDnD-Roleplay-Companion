@@ -1,3 +1,4 @@
+import '../../../core/ui/app_menu_style.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -1302,6 +1303,10 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
                                   maxLines: 3),
                               const SizedBox(height: 16),
                               DropdownButtonFormField<ItemType>(
+                                  borderRadius: AppMenuStyle.radius,
+                                  dropdownColor:
+                                      AppMenuStyle.background(context),
+                                  elevation: 4,
                                   initialValue: _selectedType,
                                   decoration: InputDecoration(
                                       labelText: widget.l10n.itemType,
@@ -1318,6 +1323,10 @@ class _CreateCustomItemDialogState extends State<_CreateCustomItemDialog> {
                                   }),
                               const SizedBox(height: 16),
                               DropdownButtonFormField<ItemRarity>(
+                                  borderRadius: AppMenuStyle.radius,
+                                  dropdownColor:
+                                      AppMenuStyle.background(context),
+                                  elevation: 4,
                                   initialValue: _selectedRarity,
                                   decoration: InputDecoration(
                                       labelText: widget.l10n.itemRarity,

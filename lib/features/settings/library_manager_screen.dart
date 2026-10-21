@@ -1,3 +1,4 @@
+import '../../core/content/content_reference_repair.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -981,6 +982,7 @@ class LibraryManagerScreen extends StatelessWidget {
         // Reload in-memory caches to reflect changes immediately
         await ItemService.reload();
         await SpellService.reload();
+        await ContentReferenceRepair.repairStoredCharacters();
         await CharacterDataService.reload();
 
         if (!context.mounted) return;
@@ -1033,6 +1035,7 @@ class LibraryManagerScreen extends StatelessWidget {
 
         await ItemService.reload();
         await SpellService.reload();
+        await ContentReferenceRepair.repairStoredCharacters();
         await CharacterDataService.reload();
 
         if (!context.mounted) return;

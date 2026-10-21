@@ -48,6 +48,18 @@ class ClassData {
   @HiveField(13)
   final String? sourceId;
 
+  /// Presence and provenance are separate from compatibility defaults.
+  @HiveField(14, defaultValue: {})
+  final Map<String, dynamic> rulesMetadata;
+
+  @HiveField(15)
+  final String? sourceDefinition;
+
+  bool declares(String field) => rulesMetadata['declaredFields'] is List
+      ? (rulesMetadata['declaredFields'] as List).contains(field)
+      : sourceId == null;
+  String get rulesEdition => rulesMetadata['edition'] as String? ?? 'unknown';
+
   ClassData({
     required this.id,
     required this.name,
@@ -63,6 +75,8 @@ class ClassData {
     this.spellcasting,
     this.features = const {},
     this.sourceId,
+    this.rulesMetadata = const {},
+    this.sourceDefinition,
   });
 
   String getName(String locale) {
@@ -95,8 +109,57 @@ class ClassData {
       spellcasting: json['spellcasting'] != null
           ? SpellcastingInfo.fromJson(json['spellcasting'])
           : null,
-      features: {}, // JSON import usually doesn't have features in this map structure yet
+      features: _featuresFromJson(json['features'], json['id']),
+      sourceId: json['sourceId'],
+      rulesMetadata:
+          Map<String, dynamic>.from(json['rulesMetadata'] as Map? ?? const {}),
+      sourceDefinition: json['sourceDefinition'] as String?,
     );
+  }
+
+  static Map<int, List<CharacterFeature>> _featuresFromJson(
+      dynamic value, String classId) {
+    if (value == null) return {};
+    if (value is! Map) {
+      throw const FormatException('Class features must be a level map.');
+    }
+    final result = <int, List<CharacterFeature>>{};
+    for (final entry in value.entries) {
+      final level = int.tryParse(entry.key.toString());
+      if (level == null ||
+          level < 1 ||
+          level > 20 ||
+          result.containsKey(level) ||
+          entry.value is! List) {
+        throw FormatException('Invalid class feature level: ${entry.key}');
+      }
+      final ids = <String>{};
+      result[level] = (entry.value as List).map((raw) {
+        if (raw is! Map) {
+          throw const FormatException('Class feature must be an object.');
+        }
+        final data = Map<String, dynamic>.from(raw);
+        final name = data['name'] as Map?;
+        final description = data['description'] as Map?;
+        data['nameEn'] ??= name?['en'] ?? name?['ru'] ?? data['id'];
+        data['nameRu'] ??= name?['ru'] ?? name?['en'] ?? data['id'];
+        data['descriptionEn'] ??=
+            description?['en'] ?? description?['ru'] ?? '';
+        data['descriptionRu'] ??=
+            description?['ru'] ?? description?['en'] ?? '';
+        data['minLevel'] ??= level;
+        data['associatedClass'] ??= classId;
+        if (data['minLevel'] != level ||
+            data['id'] is! String ||
+            (data['id'] as String).isEmpty ||
+            !ids.add(data['id'])) {
+          throw FormatException(
+              'Invalid or repeated class feature: ${data['id']}');
+        }
+        return CharacterFeature.fromJson(data);
+      }).toList();
+    }
+    return result;
   }
 
   factory ClassData.fromFC5(XmlElement element, String sourceId) {
@@ -158,6 +221,13 @@ class ClassData {
       subclassLevel: 3,
       features: features,
       sourceId: sourceId,
+      rulesMetadata: {
+        'edition': 'unknown',
+        'declaredFields': [
+          if (element.findElements('hd').isNotEmpty) 'hitDie',
+        ]
+      },
+      sourceDefinition: element.toXmlString(),
     );
   }
 }

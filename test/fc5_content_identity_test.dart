@@ -55,31 +55,21 @@ void main() {
     );
   });
 
-  test('dedupes built-in and same-batch FC5 content semantically', () async {
-    final parsed = await FC5Parser.parseCompendium(
-      _duplicateCompendiumXml,
-      sourceId: 'identity_test',
-    );
+  test('preserves independent same-name FC5 variants with separate IDs',
+      () async {
+    final parsed = await FC5Parser.parseCompendium(_duplicateCompendiumXml,
+        sourceId: 'identity_test');
     final deduped = FC5CompendiumDeduplicationService.dedupe(parsed);
-
-    expect(deduped.parseResult.items, isEmpty);
-    expect(deduped.parseResult.spells, isEmpty);
-    expect(deduped.parseResult.races, isEmpty);
-    expect(deduped.parseResult.backgrounds, isEmpty);
-    expect(deduped.parseResult.classes, isEmpty);
-    expect(deduped.parseResult.feats, hasLength(1));
-
-    expect(deduped.stats.items, 1);
-    expect(deduped.stats.spells, 1);
-    expect(deduped.stats.races, 1);
-    expect(deduped.stats.backgrounds, 1);
-    expect(deduped.stats.feats, 1);
-    expect(deduped.stats.subclasses, 1);
-    expect(deduped.stats.classes, 1);
-    expect(
-      deduped.parseResult.diagnostics.entries.map((entry) => entry.code),
-      contains('duplicates_skipped'),
-    );
+    expect(deduped.parseResult.items, hasLength(1));
+    expect(deduped.parseResult.spells, hasLength(1));
+    expect(deduped.parseResult.races, hasLength(1));
+    expect(deduped.parseResult.backgrounds, hasLength(1));
+    expect(deduped.parseResult.classes, hasLength(1));
+    expect(deduped.parseResult.feats, hasLength(2));
+    expect(deduped.parseResult.diagnostics.entries.map((e) => e.code),
+        contains('named_variants_preserved'));
+    expect(deduped.parseResult.feats.map((f) => f.id).toSet(), hasLength(2));
+    expect(deduped.stats.total, 0);
   });
 
   test('aggregates subclass-complete class nodes into base class overlays',
@@ -103,7 +93,35 @@ void main() {
     );
   });
 
-  final fixtureZip = File('/home/alexgrig/Downloads/Компендиум.zip');
+  test(
+      'Generated variant IDs are stable under reordering while explicit ID conflicts reject',
+      () async {
+    const first =
+        '<feat><name>Shared title</name><text>First rule.</text></feat>';
+    const second =
+        '<feat><name>Shared title</name><text>Second rule.</text></feat>';
+    Future<FC5ParseResult> parse(String body) =>
+        FC5Parser.parseCompendium('<compendium>$body</compendium>',
+            sourceId: 'stable');
+    final a = FC5CompendiumDeduplicationService.dedupe(
+            await parse('$first$second$first'))
+        .parseResult;
+    final b =
+        FC5CompendiumDeduplicationService.dedupe(await parse('$second$first'))
+            .parseResult;
+    expect(a.feats.map((f) => f.id).toSet(), b.feats.map((f) => f.id).toSet());
+    expect(a.feats, hasLength(2));
+    final explicit = [
+      for (final f in a.feats)
+        CharacterFeature.fromJson({...f.toJson(), 'id': 'explicit-owned-id'})
+    ];
+    final conflicting = FC5CompendiumDeduplicationService.dedupe(
+        FC5ParseResult(feats: explicit));
+    expect(conflicting.parseResult.diagnostics.hasErrors, isTrue);
+    expect(conflicting.parseResult.diagnostics.entries.map((d) => d.code),
+        contains('conflicting_entity_id'));
+  });
+  final fixtureZip = File(Platform.environment['QDND_PRIVATE_FC5_ZIP'] ?? '/home/alexgrig/Downloads/Компендиум.zip');
   test(
     'aggregates real Classes.xml from supplied compendium ZIP',
     () async {

@@ -17,7 +17,7 @@
     "descriptionRu": "Вы благословляете до трёх существ на ваш выбор в пределах дистанции. Когда цель совершает бросок атаки или спасбросок до окончания действия заклинания, она может бросить к4 и добавить выпавшее число к броску атаки или спасброску.",
     "availableToClasses": ["Cleric", "Paladin"],
     "atHigherLevels": "When you cast this spell using a spell slot of 2nd level or higher, you can target one additional creature for each slot level above 1st.",
-    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 2-го уровня или выше, вы можете выбрать целью одно дополнительное существо за каждый уровень ячейки выше 1-го."
+    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, вы можете выбрать целью одно дополнительное существо за каждый круг ячейки выше 1-го."
   },
   {
     "id": "cure_wounds",
@@ -35,7 +35,7 @@
     "descriptionRu": "Существо, которого вы касаетесь, восстанавливает количество хитов, равное 1к8 + ваш модификатор базовой характеристики. Это заклинание не оказывает эффекта на нежить и конструктов.",
     "availableToClasses": ["Bard", "Cleric", "Druid", "Paladin", "Ranger"],
     "atHigherLevels": "When you cast this spell using a spell slot of 2nd level or higher, the healing increases by 1d8 for each slot level above 1st.",
-    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 2-го уровня или выше, исцеление увеличивается на 1к8 за каждый уровень ячейки выше 1-го."
+    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, исцеление увеличивается на 1к8 за каждый круг ячейки выше 1-го."
   },
   {
     "id": "divine_favor",
@@ -91,7 +91,7 @@
     "descriptionRu": "Вы произносите приказ из одного слова существу, которое видите в пределах дистанции. Цель должна преуспеть в спасброске Мудрости, иначе она выполнит приказ в свой следующий ход.",
     "availableToClasses": ["Cleric", "Paladin"],
     "atHigherLevels": "When you cast this spell using a spell slot of 2nd level or higher, you can affect one additional creature for each slot level above 1st.",
-    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 2-го уровня или выше, вы можете воздействовать на одно дополнительное существо за каждый уровень ячейки выше 1-го."
+    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, вы можете воздействовать на одно дополнительное существо за каждый круг ячейки выше 1-го."
   },
   {
     "id": "detect_magic",
@@ -147,7 +147,7 @@
     "descriptionRu": "Согласное существо, которого вы касаетесь, наполняется храбростью. Пока заклинание активно, существо получает иммунитет к испугу и получает временные хиты, равные вашему модификатору базовой характеристики в начале каждого своего хода.",
     "availableToClasses": ["Bard", "Paladin"],
     "atHigherLevels": "When you cast this spell using a spell slot of 2nd level or higher, you can target one additional creature for each slot level above 1st.",
-    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 2-го уровня или выше, вы можете выбрать целью одно дополнительное существо за каждый уровень ячейки выше 1-го."
+    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, вы можете выбрать целью одно дополнительное существо за каждый круг ячейки выше 1-го."
   },
   {
     "id": "aid",
@@ -167,7 +167,7 @@
     "descriptionRu": "Ваше заклинание укрепляет ваших союзников стойкостью и решимостью. Выберите до трёх существ в пределах дистанции. Максимум хитов каждой цели и текущие хиты увеличиваются на 5 на время действия заклинания.",
     "availableToClasses": ["Cleric", "Paladin"],
     "atHigherLevels": "When you cast this spell using a spell slot of 3rd level or higher, a target's hit points increase by an additional 5 for each slot level above 2nd.",
-    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 3-го уровня или выше, хиты цели увеличиваются дополнительно на 5 за каждый уровень ячейки выше 2-го."
+    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 3-го круга или выше, хиты цели увеличиваются дополнительно на 5 за каждый круг ячейки выше 2-го."
   },
   {
     "id": "lesser_restoration",
@@ -239,7 +239,7 @@
     "descriptionRu": "Вы касаетесь немагического оружия. Пока заклинание активно, это оружие становится магическим оружием с бонусом +1 к броскам атаки и урона.",
     "availableToClasses": ["Paladin", "Wizard"],
     "atHigherLevels": "When you cast this spell using a spell slot of 4th level or higher, the bonus increases to +2. When you use a spell slot of 6th level or higher, the bonus increases to +3.",
-    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 4-го уровня или выше, бонус увеличивается до +2. Если вы используете ячейку 6-го уровня или выше, бонус увеличивается до +3."
+    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 4-го круга или выше, бонус увеличивается до +2. Если вы используете ячейку 6-го круга или выше, бонус увеличивается до +3."
   },
   {
     "id": "revivify",
@@ -274,10 +274,10 @@
     "ritual": false,
     "components": ["V", "S"],
     "descriptionEn": "Choose one creature, object, or magical effect within range. Any spell of 3rd level or lower on the target ends. For each spell of 4th level or higher on the target, make an ability check using your spellcasting ability.",
-    "descriptionRu": "Выберите одно существо, предмет или магический эффект в пределах дистанции. Все заклинания 3 уровня и ниже, действующие на цель, оканчиваются.",
+    "descriptionRu": "Выберите одно существо, предмет или магический эффект в пределах дистанции. Все заклинания 3 круга и ниже, действующие на цель, оканчиваются.",
     "availableToClasses": ["Bard", "Cleric", "Druid", "Paladin", "Sorcerer", "Warlock", "Wizard"],
     "atHigherLevels": "When you cast this spell using a spell slot of 4th level or higher, you automatically end the effects of a spell on the target if the spell's level is equal to or less than the level of the spell slot you used.",
-    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 4-го уровня или выше, вы автоматически оканчиваете эффекты заклинания на цели, если уровень заклинания равен или ниже уровня использованной ячейки."
+    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 4-го круга или выше, вы автоматически оканчиваете эффекты заклинания на цели, если круг заклинания равен или ниже круга использованной ячейки."
   },
   {
     "id": "remove_curse",
@@ -333,7 +333,7 @@
     "descriptionRu": "Вы пытаетесь отправить одно существо, которое видите в пределах дистанции, на другой план существования. Цель должна преуспеть в спасброске Харизмы, иначе она будет изгнана.",
     "availableToClasses": ["Cleric", "Paladin", "Sorcerer", "Warlock", "Wizard"],
     "atHigherLevels": "When you cast this spell using a spell slot of 5th level or higher, you can target one additional creature for each slot level above 4th.",
-    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 5-го уровня или выше, вы можете выбрать целью одно дополнительное существо за каждый уровень ячейки выше 4-го."
+    "atHigherLevelsRu": "Если вы накладываете это заклинание, используя ячейку 5-го круга или выше, вы можете выбрать целью одно дополнительное существо за каждый круг ячейки выше 4-го."
   },
   {
     "id": "death_ward",

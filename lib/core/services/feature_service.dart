@@ -8,6 +8,8 @@ import '../models/character_feature.dart';
 /// Service for managing character class features
 /// Loads features from JSON and assigns them to characters based on class/level
 class FeatureService {
+  static int _catalogRevision = 0;
+  static int get catalogRevision => _catalogRevision;
   static final Map<String, CharacterFeature> _features = {};
   static bool _initialized = false;
 
@@ -53,6 +55,43 @@ class FeatureService {
         normalized;
   }
 
+  static String _normalizeSubclassName(String input) {
+    const aliases = {
+      'берсерк': 'berserker',
+      'путь берсерка': 'berserker',
+      'life domain': 'life',
+      'draconic bloodline': 'draconic',
+      'the fiend': 'fiend',
+      'коллегия знаний': 'lore',
+      'домен жизни': 'life',
+      'круг земли': 'land',
+      'чемпион': 'champion',
+      'путь открытой ладони': 'open hand',
+      'охотник': 'hunter',
+      'вор': 'thief',
+      'драконья кровь': 'draconic',
+      'наследие драконьей крови': 'draconic',
+      'бестия': 'fiend',
+      'школа воплощения': 'evocation',
+    };
+    final text = _normalizeClassName(input)
+        .replaceAll(RegExp(r'[_-]+'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+    return (aliases[text] ?? text).replaceFirst(
+        RegExp(
+            r'^(school of |circle of (the )?|college of |way of (the )?|path of (the )?|oath of )'),
+        '');
+  }
+
+  static String classKey(String value) => _normalizeClassName(value);
+  static bool matchesSubclass(String? featureSubclass, String? selected) {
+    if (featureSubclass == null || featureSubclass.isEmpty) return true;
+    if (selected == null || selected.isEmpty) return false;
+    return _normalizeSubclassName(featureSubclass) ==
+        _normalizeSubclassName(selected);
+  }
+
   static bool _isPlaceholderFeature(CharacterFeature feature) {
     final id = feature.id.toLowerCase();
     return id.startsWith('primal-path-improvement-');
@@ -85,6 +124,7 @@ class FeatureService {
       '🔧 FeatureService.init() completed. Loaded ${_features.length} features',
     );
     _initialized = true;
+    _catalogRevision++;
   }
 
   static Future<void> _loadFeaturesFromAsset(String path) async {
@@ -116,7 +156,7 @@ class FeatureService {
   }) {
     final normalizedClass = _normalizeClassName(classId);
     final normalizedSubclass =
-        subclassId != null ? _normalizeClassName(subclassId) : null;
+        subclassId != null ? _normalizeSubclassName(subclassId) : null;
 
     return _features.values.where((f) {
       if (_isPlaceholderFeature(f)) return false;
@@ -137,12 +177,33 @@ class FeatureService {
       // - If feature has NO subclass -> it is a base class feature (keep it)
       // - If feature HAS subclass -> it MUST match the character's subclass
       if (f.associatedSubclass != null) {
-        final featureSubclass = _normalizeClassName(f.associatedSubclass!);
+        final featureSubclass = _normalizeSubclassName(f.associatedSubclass!);
         if (featureSubclass != normalizedSubclass) return false;
       }
 
       return true;
     }).toList();
+  }
+
+  /// Repair the old bare-enum decoding error only for identifiable built-ins.
+  /// Imported/homebrew definitions keep their declared recovery policy.
+  static void repairBuiltInResourceRecovery(Character character) {
+    for (final feature in character.features) {
+      final definition = _features[feature.id];
+      final pool = feature.resourcePool;
+      final reference = definition?.resourcePool;
+      if (feature.sourceId == null &&
+          definition != null &&
+          pool != null &&
+          reference != null &&
+          feature.nameEn == definition.nameEn &&
+          feature.associatedClass == definition.associatedClass &&
+          pool.calculationFormula == reference.calculationFormula &&
+          reference.recoveryType == RecoveryType.shortRest &&
+          pool.recoveryType == RecoveryType.longRest) {
+        pool.recoveryType = RecoveryType.shortRest;
+      }
+    }
   }
 
   /// Get all features available for a character at their current level
@@ -165,51 +226,67 @@ class FeatureService {
       if (_isPlaceholderFeature(feature)) return false;
       if (feature.isOptional) return false;
 
-      // Check if feature belongs to this class
+      var availableLevel = character.level;
       if (feature.associatedClass != null) {
-        final featureClassName = _normalizeClassName(feature.associatedClass!);
-        if (featureClassName != characterClassName) {
-          return false;
+        final owner = _normalizeClassName(feature.associatedClass!);
+        availableLevel = character.classLevel(owner);
+        if (availableLevel == 0) return false;
+        if (feature.associatedSubclass != null) {
+          final expected = _normalizeSubclassName(feature.associatedSubclass!);
+          final matches = character.classes.where((c) =>
+              _normalizeClassName(c.id) == owner ||
+              _normalizeClassName(c.name) == owner);
+          if (!matches.any((c) {
+            final subclass =
+                c.subclass ?? (c.isPrimary ? character.subclass : null);
+            return subclass != null &&
+                _normalizeSubclassName(subclass) == expected;
+          })) {
+            return false;
+          }
         }
       }
-
-      // Check if feature belongs to this subclass
-      if (feature.associatedSubclass != null) {
-        final featureSubclassName = _normalizeClassName(
-          feature.associatedSubclass!,
-        );
-        if (featureSubclassName != characterSubclassName) {
-          return false;
-        }
-      }
-
-      // Check if character level is sufficient
-      if (character.level < feature.minLevel) {
-        return false;
-      }
+      if (feature.minLevel > availableLevel) return false;
 
       return true;
     }).toList();
   }
 
   /// Calculate max uses for a resource pool based on character stats
-  static int calculateMaxUses(Character character, String? formula) {
-    if (formula == null || formula.isEmpty) return 0;
+  static int calculateMaxUses(Character character, String? formula,
+          {String? classId}) =>
+      tryCalculateMaxUses(character, formula, classId: classId) ?? 0;
+
+  static int? tryCalculateMaxUses(Character character, String? formula,
+      {String? classId}) {
+    if (formula == null || formula.isEmpty) return null;
 
     try {
-      final resolved = _replaceFormulaVariables(
-        formula.toLowerCase().trim(),
-        character,
+      final classLevel = classId == null
+          ? character.level
+          : character.classLevel(_normalizeClassName(classId));
+      if (classId != null && classLevel < 1) return null;
+      return _evaluateFormulaExpression(
+        _replaceFormulaVariables(
+            formula.toLowerCase().trim(), character, classLevel),
       );
-      return _evaluateFormulaExpression(resolved);
-    } catch (e) {
-      return 0;
+    } catch (_) {
+      return null;
     }
   }
 
-  static String _replaceFormulaVariables(String formula, Character character) {
+  static String _replaceFormulaVariables(
+      String formula, Character character, int classLevel) {
     return formula
-        .replaceAll('level', character.level.toString())
+        .replaceAll(RegExp(r'\bcharacter_level\b'), character.level.toString())
+        .replaceAll(RegExp(r'\bclass_level\b'), classLevel.toString())
+        .replaceAll(RegExp(r'\blevel\b'), classLevel.toString())
+        .replaceAll(
+            'str_mod', character.abilityScores.strengthModifier.toString())
+        .replaceAll(
+            'dex_mod', character.abilityScores.dexterityModifier.toString())
+        .replaceAll(
+            'con_mod', character.abilityScores.constitutionModifier.toString())
         .replaceAll(
           'cha_mod',
           character.abilityScores.charismaModifier.toString(),
@@ -397,6 +474,8 @@ class FeatureService {
           divMatch.group(0)!,
           result.toString(),
         );
+      } else {
+        throw FormatException('Unsupported formula: $expression');
       }
     }
 
@@ -441,7 +520,11 @@ class FeatureService {
   }
 
   /// Add features to a character (called during character creation or level up)
-  static void addFeaturesToCharacter(Character character) {
+  static void addFeaturesToCharacter(Character character,
+      {bool initializeNewResources = true}) {
+    final oldCdIds =
+        character.channelDivinityResources.map((f) => f.id).toSet();
+    final previousCd = character.editableChannelDivinityCharges;
     print(
       '🔧 addFeaturesToCharacter() called for ${character.name} (${character.characterClass} level ${character.level})',
     );
@@ -459,10 +542,21 @@ class FeatureService {
 
       final hasFeature = character.features.any((f) => f.id == feature.id);
       if (!hasFeature) {
+        ResourcePool? previousInspiration;
         // --- PRUNING OLD VERSIONS (Deduplication) ---
-        if (feature.id.startsWith('bardic-inspiration') ||
-            feature.id == 'bardic_inspiration') {
-          // Remove any existing bardic inspiration features to prevent duplicate resource pools
+        if (feature.resourcePool != null &&
+            (feature.id.startsWith('bardic-inspiration') ||
+                feature.id == 'bardic_inspiration')) {
+          previousInspiration = character.features
+              .where(
+                (f) =>
+                    f.id.startsWith('bardic-inspiration') ||
+                    f.id == 'bardic_inspiration',
+              )
+              .map((f) => f.resourcePool)
+              .whereType<ResourcePool>()
+              .firstOrNull;
+          // Replace its definition while preserving spent/table-granted uses.
           character.features.removeWhere(
             (f) =>
                 f.id.startsWith('bardic-inspiration') ||
@@ -476,6 +570,7 @@ class FeatureService {
             ? calculateMaxUses(
                 character,
                 feature.resourcePool!.calculationFormula,
+                classId: feature.associatedClass,
               )
             : (feature.resourcePool?.maxUses ?? 0);
 
@@ -499,14 +594,19 @@ class FeatureService {
           requiresRest: feature.requiresRest,
           actionEconomy: feature.actionEconomy,
           iconName: feature.iconName,
-          consumption: feature.consumption,
+          consumption: feature.consumption == null
+              ? null
+              : FeatureConsumption(
+                  resourceId: feature.consumption!.resourceId,
+                  amount: feature.consumption!.amount,
+                ),
           usageCostId: feature.usageCostId,
           usageInputMode: feature.usageInputMode,
           options: feature.options != null ? List.from(feature.options!) : null,
           isOptional: feature.isOptional,
           resourcePool: feature.resourcePool != null
               ? ResourcePool(
-                  currentUses: maxUses,
+                  currentUses: previousInspiration?.currentUses ?? maxUses,
                   maxUses: maxUses,
                   recoveryType: feature.resourcePool!.recoveryType,
                   calculationFormula: feature.resourcePool!.calculationFormula,
@@ -519,9 +619,48 @@ class FeatureService {
       }
     }
 
+    if (initializeNewResources &&
+        character.channelDivinityResources
+            .any((f) => !oldCdIds.contains(f.id))) {
+      character.acquireChannelDivinity(
+          previouslyAvailable: oldCdIds.isNotEmpty,
+          previousCurrent: previousCd);
+    }
+
     print(
       '🔧 Added $addedCount new features. Character now has ${character.features.length} total features',
     );
+  }
+
+  /// Explicit rest can restore a declared owned ability from older saves that
+  /// lacked its pool. Rendering must never call this repair.
+  static void prepareKnownResourcePools(Character character) {
+    for (final feature in character.features) {
+      if (feature.resourcePool != null) continue;
+      final reference = _features[feature.id];
+      if (reference?.resourcePool == null ||
+          feature.nameEn != reference!.nameEn ||
+          feature.associatedClass == null ||
+          reference.associatedClass == null ||
+          _normalizeClassName(feature.associatedClass!) !=
+              _normalizeClassName(reference.associatedClass!)) {
+        continue;
+      }
+      final classLevel =
+          character.classLevel(_normalizeClassName(feature.associatedClass!));
+      if (classLevel < reference.minLevel) continue;
+      final template = reference.resourcePool!;
+      final norm = template.calculationFormula == null
+          ? template.maxUses
+          : tryCalculateMaxUses(character, template.calculationFormula,
+              classId: feature.associatedClass);
+      if (norm == null || norm < 0) continue;
+      feature.resourcePool = ResourcePool(
+          currentUses: 0,
+          maxUses: norm,
+          recoveryType: template.recoveryType,
+          calculationFormula: template.calculationFormula);
+    }
   }
 
   /// Update feature max uses when character levels up or stats change
@@ -529,18 +668,14 @@ class FeatureService {
     for (var feature in character.features) {
       if (feature.resourcePool != null &&
           feature.resourcePool!.calculationFormula != null) {
-        final newMax = calculateMaxUses(
+        final newMax = tryCalculateMaxUses(
           character,
           feature.resourcePool!.calculationFormula,
+          classId: feature.associatedClass,
         );
-        feature.resourcePool!.maxUses = newMax;
-
-        // Unlimited pools should stay full, otherwise only cap downwards.
-        if (newMax >= 99) {
-          feature.resourcePool!.currentUses = newMax;
-        } else if (feature.resourcePool!.currentUses > newMax) {
-          feature.resourcePool!.currentUses = newMax;
-        }
+        if (newMax != null) feature.resourcePool!.maxUses = math.max(0, newMax);
+        // Recalculating the normal limit is not a rest or a manual edit.
+        // Preserve spent uses and table-granted extras.
       }
     }
   }

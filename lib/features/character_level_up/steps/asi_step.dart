@@ -2,303 +2,199 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../../core/models/ability_scores.dart';
+import '../widgets/advancement_layout.dart';
 
 class AsiStep extends StatefulWidget {
+  const AsiStep(
+      {super.key,
+      required this.currentScores,
+      required this.onAllocationChanged,
+      required this.onNext});
   final AbilityScores currentScores;
-  final Function(Map<String, int>) onAllocationChanged;
+  final ValueChanged<Map<String, int>> onAllocationChanged;
   final VoidCallback onNext;
-
-  const AsiStep({
-    super.key,
-    required this.currentScores,
-    required this.onAllocationChanged,
-    required this.onNext,
-  });
-
   @override
   State<AsiStep> createState() => _AsiStepState();
 }
 
-class _AsiStepState extends State<AsiStep> {
-  final Map<String, int> _allocations = {
-    'strength': 0,
-    'dexterity': 0,
-    'constitution': 0,
-    'intelligence': 0,
-    'wisdom': 0,
-    'charisma': 0,
-  };
-
-  int get _totalAllocated =>
-      _allocations.values.fold(0, (sum, val) => sum + val);
-
-  int _getBaseScore(String stat) {
-    switch (stat) {
-      case 'strength':
-        return widget.currentScores.strength;
-      case 'dexterity':
-        return widget.currentScores.dexterity;
-      case 'constitution':
-        return widget.currentScores.constitution;
-      case 'intelligence':
-        return widget.currentScores.intelligence;
-      case 'wisdom':
-        return widget.currentScores.wisdom;
-      case 'charisma':
-        return widget.currentScores.charisma;
-      default:
-        return 10;
-    }
+class _AsiStepState extends State<AsiStep> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+  final List<String?> _points = [null, null];
+  int _active = 0;
+  Map<String, int> get _allocations => {
+        for (final key in widget.currentScores.toJson().keys)
+          key: _points.where((v) => v == key).length
+      };
+  void _assign(String stat) {
+    final base = widget.currentScores.toJson()[stat] as int;
+    final other = _points[1 - _active] == stat ? 1 : 0;
+    if (base + other + 1 > 20) return;
+    HapticFeedback.selectionClick();
+    setState(() {
+      _points[_active] = stat;
+      if (_points[1 - _active] == null) _active = 1 - _active;
+    });
+    widget.onAllocationChanged(Map.of(_allocations));
   }
 
-  void _increment(String stat) {
-    final base = _getBaseScore(stat);
-    final allocated = _allocations[stat] ?? 0;
-    if (base + allocated < 20 && _totalAllocated < 2) {
-      HapticFeedback.lightImpact();
-      setState(() {
-        _allocations[stat] = allocated + 1;
-      });
-      widget.onAllocationChanged(_allocations);
-    } else {
-      HapticFeedback.heavyImpact();
-    }
-  }
-
-  void _decrement(String stat) {
-    final allocated = _allocations[stat] ?? 0;
-    if (allocated > 0) {
-      HapticFeedback.lightImpact();
-      setState(() {
-        _allocations[stat] = allocated - 1;
-      });
-      widget.onAllocationChanged(_allocations);
-    }
-  }
-
-  String _getStatName(String stat, AppLocalizations l10n) {
-    switch (stat) {
-      case 'strength':
-        return l10n.abilityStr;
-      case 'dexterity':
-        return l10n.abilityDex;
-      case 'constitution':
-        return l10n.abilityCon;
-      case 'intelligence':
-        return l10n.abilityInt;
-      case 'wisdom':
-        return l10n.abilityWis;
-      case 'charisma':
-        return l10n.abilityCha;
-      default:
-        return stat;
-    }
-  }
-
-  IconData _getStatIcon(String stat) {
-    switch (stat) {
-      case 'strength':
-        return Icons.fitness_center;
-      case 'dexterity':
-        return Icons.directions_run;
-      case 'constitution':
-        return Icons.favorite;
-      case 'intelligence':
-        return Icons.psychology;
-      case 'wisdom':
-        return Icons.visibility;
-      case 'charisma':
-        return Icons.auto_awesome;
-      default:
-        return Icons.star;
-    }
-  }
-
+  String _name(String key, AppLocalizations l) => switch (key) {
+        'strength' => l.abilityStr,
+        'dexterity' => l.abilityDex,
+        'constitution' => l.abilityCon,
+        'intelligence' => l.abilityInt,
+        'wisdom' => l.abilityWis,
+        'charisma' => l.abilityCha,
+        _ => key
+      };
+  IconData _icon(String key) => switch (key) {
+        'strength' => Icons.fitness_center_rounded,
+        'dexterity' => Icons.directions_run_rounded,
+        'constitution' => Icons.favorite_outline,
+        'intelligence' => Icons.psychology_outlined,
+        'wisdom' => Icons.visibility_outlined,
+        _ => Icons.auto_awesome_outlined
+      };
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
-    final isComplete = _totalAllocated == 2;
-
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            l10n.abilityScoreImprovementDesc,
-            style: theme.textTheme.headlineMedium?.copyWith(
-              color: colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.allocateAsiPoints,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-
-          // Points Tracker
-          Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: isComplete
-                    ? colorScheme.primaryContainer
-                    : colorScheme.surfaceContainerHigh,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: isComplete ? colorScheme.primary : colorScheme.outline,
-                  width: 2,
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.stars,
-                    color: isComplete
-                        ? colorScheme.primary
-                        : colorScheme.secondary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '$_totalAllocated / 2',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: isComplete
-                          ? colorScheme.onPrimaryContainer
-                          : colorScheme.onSurface,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Stats List
-          Expanded(
-            child: ListView(
+    final colors = theme.colorScheme;
+    final assigned = _points.whereType<String>().length;
+    return Column(children: [
+      Expanded(
+          child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
               children: [
-                _buildStatRow('strength', colorScheme, l10n),
-                _buildStatRow('dexterity', colorScheme, l10n),
-                _buildStatRow('constitution', colorScheme, l10n),
-                _buildStatRow('intelligence', colorScheme, l10n),
-                _buildStatRow('wisdom', colorScheme, l10n),
-                _buildStatRow('charisma', colorScheme, l10n),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: isComplete ? widget.onNext : null,
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-            child: Text(l10n.next),
-          ),
-        ],
-      ),
-    );
+            AdvancementHeading(
+                title: l.advancementAsiTitle, subtitle: l.advancementAsiHint),
+            IntrinsicHeight(
+                child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                  for (var i = 0; i < 2; i++) ...[
+                    if (i > 0) const SizedBox(width: 10),
+                    Expanded(
+                        child: Semantics(
+                            selected: _active == i,
+                            child: Material(
+                                color: _active == i
+                                    ? colors.secondaryContainer
+                                    : colors.surfaceContainerLow,
+                                borderRadius: BorderRadius.circular(22),
+                                clipBehavior: Clip.antiAlias,
+                                child: InkWell(
+                                  key: ValueKey('asi-point-$i'),
+                                  onTap: () {
+                                    HapticFeedback.selectionClick();
+                                    setState(() => _active = i);
+                                  },
+                                  child: Padding(
+                                      padding: const EdgeInsets.all(14),
+                                      child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(l.advancementPoint(i + 1),
+                                                style: theme
+                                                    .textTheme.labelMedium
+                                                    ?.copyWith(
+                                                        color: colors
+                                                            .onSurfaceVariant)),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                                _points[i] == null
+                                                    ? (l.advancementAssign)
+                                                    : _name(_points[i]!, l),
+                                                style:
+                                                    theme.textTheme.titleSmall),
+                                          ])),
+                                )))),
+                  ]
+                ])),
+            const SizedBox(height: 12),
+            Text(l.advancementPointHint,
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: colors.onSurfaceVariant)),
+            const SizedBox(height: 20),
+            for (final entry in widget.currentScores.toJson().entries)
+              Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _ability(entry.key, entry.value as int, l)),
+          ])),
+      AdvancementFooter(
+          label: l.continueLabel,
+          onPressed: assigned == 2 ? widget.onNext : null,
+          hint: l.advancementAssigned(assigned)),
+    ]);
   }
 
-  Widget _buildStatRow(
-      String stat, ColorScheme colorScheme, AppLocalizations l10n) {
-    final base = _getBaseScore(stat);
-    final allocated = _allocations[stat] ?? 0;
-    final total = base + allocated;
-    final isMaxed = total >= 20;
-    final canAdd = !isMaxed && _totalAllocated < 2;
+  Widget _ability(String key, int base, AppLocalizations l) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final extra = _allocations[key]!;
+    final total = base + extra;
+    final canAssign = base + (_points[1 - _active] == key ? 1 : 0) + 1 <= 20;
+    String bonus(int n) {
+      final value = (n - 10) / 2;
+      final mod = value.floor();
+      return mod >= 0 ? '+$mod' : '$mod';
+    }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: allocated > 0
-            ? colorScheme.primaryContainer.withValues(alpha: 0.3)
-            : colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: allocated > 0
-              ? colorScheme.primary.withValues(alpha: 0.5)
-              : Colors.transparent,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              shape: BoxShape.circle,
-            ),
-            child:
-                Icon(_getStatIcon(stat), color: colorScheme.primary, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _getStatName(stat, l10n),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                Text(
-                  isMaxed ? l10n.maxScoreReached : '$base -> $total',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isMaxed
-                        ? colorScheme.error
-                        : colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            children: [
-              IconButton.filledTonal(
-                onPressed: allocated > 0 ? () => _decrement(stat) : null,
-                icon: const Icon(Icons.remove),
-                style: IconButton.styleFrom(
-                  minimumSize: const Size(40, 40),
-                ),
-              ),
-              Container(
-                width: 40,
-                alignment: Alignment.center,
-                child: Text(
-                  '+$allocated',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: allocated > 0
-                        ? colorScheme.primary
-                        : colorScheme.onSurface,
-                  ),
-                ),
-              ),
-              IconButton.filled(
-                onPressed: canAdd ? () => _increment(stat) : null,
-                icon: const Icon(Icons.add),
-                style: IconButton.styleFrom(
-                  minimumSize: const Size(40, 40),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+    return Semantics(
+        selected: extra > 0,
+        child: Material(
+            color: extra > 0
+                ? colors.secondaryContainer.withValues(alpha: .55)
+                : colors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(22),
+            clipBehavior: Clip.antiAlias,
+            animationDuration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 220),
+            child: InkWell(
+              key: ValueKey('asi-ability-$key'),
+              onTap: canAssign ? () => _assign(key) : null,
+              child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(children: [
+                    Icon(_icon(key),
+                        size: 24,
+                        color: canAssign
+                            ? colors.primary
+                            : colors.onSurfaceVariant),
+                    const SizedBox(width: 14),
+                    Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          Text(_name(key, l),
+                              style: theme.textTheme.titleSmall),
+                          const SizedBox(height: 4),
+                          Text(
+                              canAssign
+                                  ? (bonus(base) == bonus(total)
+                                      ? l.advancementModifier(bonus(total))
+                                      : l.advancementModifierChange(
+                                          bonus(base), bonus(total)))
+                                  : l.maxScoreReached,
+                              style: theme.textTheme.bodySmall
+                                  ?.copyWith(color: colors.onSurfaceVariant))
+                        ])),
+                    const SizedBox(width: 12),
+                    AnimatedSwitcher(
+                        duration: MediaQuery.disableAnimationsOf(context)
+                            ? Duration.zero
+                            : const Duration(milliseconds: 160),
+                        child: Text(extra == 0 ? '$base' : '$base → $total',
+                            key: ValueKey(total),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                                color: extra > 0
+                                    ? colors.primary
+                                    : colors.onSurfaceVariant,
+                                fontWeight: FontWeight.w600))),
+                  ])),
+            )));
   }
 }

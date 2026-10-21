@@ -1,12 +1,16 @@
+import '../../../../shared/widgets/subclass_details_sheet.dart';
+import '../../../../core/ui/companion_surface.dart';
+import '../../../../core/services/gameplay_actions_service.dart';
+import '../session/value_editors.dart';
+import 'shared/class_panel_presentation.dart';
+import '../session/expressive_hold_surface.dart';
+import '../../../../core/progression/character_class_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:math';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../core/services/feature_service.dart';
-import '../../../../core/services/character_data_service.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import 'shared/class_tools_layout_builder.dart';
 
@@ -26,24 +30,8 @@ class BardInspirationWidget extends StatefulWidget {
   State<BardInspirationWidget> createState() => _BardInspirationWidgetState();
 }
 
-class _BardInspirationWidgetState extends State<BardInspirationWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _rotationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _rotationController = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
-  }
-
-  @override
-  void dispose() {
-    _rotationController.dispose();
-    super.dispose();
-  }
+class _BardInspirationWidgetState extends State<BardInspirationWidget> {
+  bool _busy = false;
 
   String _getInspirationDie(int level, String locale) {
     String die;
@@ -63,106 +51,44 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
     return die;
   }
 
-  void _useCharge(int amount) {
-    final pool = widget.inspirationFeature.resourcePool;
-    if (pool == null) return;
-
-    if (pool.currentUses >= amount) {
-      setState(() {
-        pool.use(amount);
-        widget.character.save();
-        widget.onChanged?.call();
-      });
-    } else {
-      final isRu = Localizations.localeOf(context).languageCode == 'ru';
-      AppSnackBar.warning(
-        context,
-        isRu ? 'Нет зарядов Вдохновения!' : 'No charges left!',
-        duration: const Duration(seconds: 2),
-      );
-    }
-  }
-
-  void _restoreCharge(int amount) {
-    final pool = widget.inspirationFeature.resourcePool;
-    if (pool == null) return;
-
-    if (!pool.isFull) {
-      setState(() {
-        pool.restore(amount);
-        widget.character.save();
-        widget.onChanged?.call();
-      });
-      _showFeedback(false, 0);
-    }
-  }
-
-  void _toggleUsage() {
-    final pool = widget.inspirationFeature.resourcePool;
-    if (pool == null || pool.isEmpty) {
-      final isRu = Localizations.localeOf(context).languageCode == 'ru';
-      AppSnackBar.warning(
-        context,
-        isRu ? 'Нет зарядов Вдохновения!' : 'No charges left!',
-        duration: const Duration(seconds: 2),
-      );
+  Future<void> _giveInspiration([CharacterFeature? action]) async {
+    if (_busy ||
+        !CharacterClassContext(widget.character, 'bard')
+            .canUseFeature(action ?? widget.inspirationFeature)) {
       return;
     }
-
-    // Visual Juice
-    HapticFeedback.mediumImpact();
-    _rotationController.forward(from: 0.0);
-
-    // 1. Determine die sides
-    int sides = 6;
-    if (widget.character.level >= 15) {
-      sides = 12;
-    } else if (widget.character.level >= 10) {
-      sides = 10;
-    } else if (widget.character.level >= 5) {
-      sides = 8;
+    setState(() => _busy = true);
+    final l = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
+    try {
+      final spent = await GameplayActionsService.spendResource(
+          widget.character, widget.inspirationFeature);
+      if (!mounted) return;
+      if (spent) {
+        HapticFeedback.mediumImpact();
+        widget.onChanged?.call();
+        AppSnackBar.success(
+            context,
+            l.gameStateResourceUsed(
+                action?.getName(locale) ?? l.bardicInspiration));
+      }
+    } catch (_) {
+      if (mounted) AppSnackBar.error(context, l.sheetSaveFailed);
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
-
-    // 2. Roll
-    final result = Random().nextInt(sides) + 1;
-
-    // 3. Use charge
-    _useCharge(1);
-
-    // 4. Show Result
-    _showFeedback(true, result);
   }
 
-  void _showFeedback(bool used, int rollResult) {
-    final isRu = Localizations.localeOf(context).languageCode == 'ru';
-
-    String msg;
-    if (used) {
-      msg = isRu
-          ? 'Вдохновение: $rollResult!'
-          : 'Inspiration Result: $rollResult!';
-    } else {
-      msg = isRu ? 'Вдохновение восстановлено!' : 'Inspiration recovered!';
+  Future<void> _editInspiration() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      final changed = await showResourceValueEditor(
+          context, widget.character, widget.inspirationFeature);
+      if (mounted && changed) widget.onChanged?.call();
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
-
-    AppSnackBar.success(
-      context,
-      msg,
-      duration: const Duration(seconds: 2),
-      clearQueue: true,
-    );
-  }
-
-  String _getSongOfRestDie(int level, String locale) {
-    int sides = 6;
-    if (level >= 17) {
-      sides = 12;
-    } else if (level >= 13) {
-      sides = 10;
-    } else if (level >= 9) {
-      sides = 8;
-    }
-    return locale == 'ru' ? '1к$sides' : '1d$sides';
   }
 
   void _showFeatureDetails(CharacterFeature feature, IconData icon) {
@@ -176,630 +102,315 @@ class _BardInspirationWidgetState extends State<BardInspirationWidget>
     );
   }
 
-  void _showSubclassLore(BuildContext context) async {
-    final subclassId = widget.character.subclass ?? '';
-    if (subclassId.isEmpty) return;
-
-    try {
-      final subclassData = await CharacterDataService.getSubclass(
-        widget.character.characterClass,
-        subclassId,
-      );
-
-      if (subclassData == null || !context.mounted) return;
-
-      final locale = Localizations.localeOf(context).languageCode;
-      final name = subclassData.getName(locale);
-      final desc = subclassData.getDescription(locale);
-
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) => DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          minChildSize: 0.4,
-          maxChildSize: 0.9,
-          builder: (context, scrollController) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              child: CustomScrollView(
-                controller: scrollController,
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Center(
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 12, bottom: 24),
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant
-                              .withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    sliver: SliverToBoxAdapter(
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Icon(Icons.music_note,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 28),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Text(
-                              name,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.all(24),
-                    sliver: SliverToBoxAdapter(
-                      child: Text(
-                        desc,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(height: 1.6),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      );
-    } catch (e) {
-      debugPrint('Error loading subclass lore: $e');
+  Future<void> _showSubclassLore(BuildContext context) async {
+    await showClassSubclassDetails(context, widget.character, 'bard');
+    if (mounted) {
+      setState(() {});
     }
   }
 
   void _executeQuickAction(CharacterFeature feature, String locale,
       {bool usesInspiration = false}) {
-    HapticFeedback.heavyImpact();
-
-    final usedText = locale == 'ru' ? 'использовано!' : 'used!';
-
     if (usesInspiration) {
-      final pool = widget.inspirationFeature.resourcePool;
-      if (pool != null && pool.currentUses > 0) {
-        setState(() {
-          pool.use(1);
-          widget.character.save();
-          widget.onChanged?.call();
-        });
-      } else {
-        AppSnackBar.warning(
-          context,
-          locale == 'ru'
-              ? 'Нет зарядов Вдохновения!'
-              : 'No Inspiration charges left!',
-          duration: const Duration(seconds: 2),
-        );
-        return; // Early return, action not performed
-      }
+      _giveInspiration(feature);
+    } else {
+      _showFeatureDetails(feature, Icons.auto_awesome_rounded);
     }
-
-    AppSnackBar.info(
-      context,
-      '${feature.getName(locale)} $usedText',
-      duration: const Duration(seconds: 2),
-    );
   }
 
-  Widget _buildActionTile(CharacterFeature? feature, IconData fallBackIcon,
-      String locale, ThemeData theme,
+  Widget _buildActionTile(
+      CharacterFeature? feature, IconData icon, String locale, ThemeData theme,
       {bool usesInspiration = false}) {
     if (feature == null) return const SizedBox.shrink();
-    final cleanName =
-        feature.getName(locale).replaceAll(RegExp(r'\s*\(.*?\)'), '');
-
-    IconData icon = fallBackIcon;
-
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border:
-            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            // Fetch fresh from service to avoid stale Hive cache issues with old descriptions
-            CharacterFeature? baseFeature =
-                FeatureService.getFeatureById(feature.id) ?? feature;
-            CharacterFeature featureToPass =
-                CharacterFeature.fromJson(baseFeature.toJson());
-
-            final idTarget = feature.id.toLowerCase();
-            if (idTarget.contains('song_of_rest') ||
-                idTarget.contains('song-of-rest')) {
-              final die = _getSongOfRestDie(widget.character.level, locale);
-              final cleanNameEn = featureToPass.nameEn
-                  .replaceAll(RegExp(r'\s*\(.*?\)'), '')
-                  .trim();
-              final cleanNameRu = featureToPass.nameRu
-                  .replaceAll(RegExp(r'\s*\(.*?\)'), '')
-                  .trim();
-              featureToPass.nameEn = '$cleanNameEn ($die)';
-              featureToPass.nameRu = '$cleanNameRu ($die)';
-
-              // Hard-cleanse any remaining stale descriptions from cache
-              featureToPass.descriptionEn = featureToPass.descriptionEn
-                  .replaceAll(RegExp(r'1d[0-9]+'), 'extra hit points');
-              featureToPass.descriptionRu = featureToPass.descriptionRu
-                  .replaceAll(RegExp(r'1к[0-9]+'), 'дополнительные хиты');
-            }
-            _showFeatureDetails(featureToPass, icon);
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(icon, color: theme.colorScheme.primary, size: 20),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    cleanName,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-                if (usesInspiration)
-                  SizedBox(
-                    width: 48,
-                    height: 36,
-                    child: FilledButton(
-                      style: FilledButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        backgroundColor: theme.colorScheme.tertiary,
-                        foregroundColor: theme.colorScheme.onTertiary,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                      onPressed: () => _executeQuickAction(feature, locale,
-                          usesInspiration: true),
-                      child: const Icon(Icons.music_note, size: 18),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    final die = RegExp(r'^song-of-rest-d(\d+)$').firstMatch(feature.id);
+    final name = feature.getName(locale).replaceAll(RegExp(r'\s*\(.*?\)'), '');
+    return CompanionSurface(
+        contour: die != null ? CompanionContour.cadence : CompanionContour.soft,
+        color: die != null
+            ? theme.colorScheme.secondaryContainer
+            : theme.colorScheme.surfaceContainerLow,
+        padding: const EdgeInsets.all(16),
+        onTap: () => _showFeatureDetails(feature, icon),
+        child: Row(children: [
+          Icon(icon, color: theme.colorScheme.secondary, size: 24),
+          const SizedBox(width: 12),
+          Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Text(name,
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700)),
+                if (die != null) ...[
+                  const SizedBox(height: 8),
+                  Text('${locale == 'ru' ? '1к' : '1d'}${die[1]}',
+                      style: theme.textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w700)),
+                  Text(AppLocalizations.of(context)!.shortRest,
+                      style: theme.textTheme.bodySmall),
+                ],
+              ])),
+          const SizedBox(width: 8),
+          if (usesInspiration)
+            IconButton.filledTonal(
+                tooltip: feature.getName(locale),
+                onPressed: !_busy &&
+                        (widget.inspirationFeature.resourcePool?.currentUses ??
+                                0) >
+                            0
+                    ? () => _executeQuickAction(feature, locale,
+                        usesInspiration: true)
+                    : null,
+                icon: const Icon(Icons.chat_bubble_outline_rounded))
+          else
+            const Icon(Icons.chevron_right_rounded, size: 20),
+        ]));
   }
 
   @override
   Widget build(BuildContext context) {
-    var pool = widget.inspirationFeature.resourcePool;
-    // Auto-create a fallback ResourcePool if missing (lightweight stubs from class JSON)
+    final pool = widget.inspirationFeature.resourcePool;
     if (pool == null) {
-      final fallbackMax =
-          max(1, widget.character.abilityScores.charismaModifier);
-      pool = ResourcePool(
-        currentUses: fallbackMax,
-        maxUses: fallbackMax,
-        recoveryType: RecoveryType.longRest,
-        calculationFormula: 'max(1, cha_mod)',
-      );
-      widget.inspirationFeature.resourcePool = pool;
-      widget.character.save();
-    }
-
-    // Physically sync maxUses from Charisma modifier (min 1) on every build
-    // to ensure backend stays correct after ASI or stat changes.
-    final dynamicMax = max(1, widget.character.abilityScores.charismaModifier);
-    if (pool.maxUses != dynamicMax) {
-      pool.maxUses = dynamicMax;
-      // Cap current uses if they exceed the new maximum
-      if (pool.currentUses > dynamicMax) {
-        pool.currentUses = dynamicMax;
-      }
+      return ClassPanelFrame(
+          character: widget.character,
+          classId: 'bard',
+          child: ListTile(
+              title: Text(widget.inspirationFeature
+                  .getName(Localizations.localeOf(context).languageCode)),
+              subtitle: Text(
+                  Localizations.localeOf(context).languageCode == 'ru'
+                      ? 'В источнике не указан запас вдохновения'
+                      : 'The source does not define an inspiration reserve'),
+              trailing: const Icon(Icons.info_outline_rounded),
+              onTap: () => _showFeatureDetails(
+                  widget.inspirationFeature, Icons.auto_awesome_rounded)));
     }
 
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final locale = Localizations.localeOf(context).languageCode;
-    final dieType = _getInspirationDie(widget.character.level, locale);
+    final declaredDie =
+        RegExp(r'bardic[-_]inspiration[-_][dк](\d+)', caseSensitive: false)
+            .firstMatch(widget.inspirationFeature.id);
+    final dieType = declaredDie == null
+        ? _getInspirationDie(widget.character.classLevel('bard'), locale)
+        : '1${locale == 'ru' ? 'к' : 'd'}${declaredDie[1]}';
 
-    final maxCharges = pool.maxUses > 0 ? pool.maxUses : 1;
+    final maxCharges = pool.maxUses;
     final currentCharges = pool.currentUses;
 
     // Subclass Info
-    String subclassDisplayName = widget.character.subclass ?? '';
-    final classData =
-        CharacterDataService.getClassById(widget.character.characterClass);
-    if (classData != null && subclassDisplayName.isNotEmpty) {
-      final nid = subclassDisplayName.toLowerCase().trim();
-      final targetSubclass = classData.subclasses
-          .where((s) =>
-              s.id == nid || s.name.values.any((v) => v.toLowerCase() == nid))
-          .firstOrNull;
-      if (targetSubclass != null) {
-        subclassDisplayName = targetSubclass.getName(locale);
-      }
-    }
+    final subclassDisplayName =
+        CharacterClassContext(widget.character, 'bard').subclassName(locale) ??
+            '';
 
     // Quick Actions
     final cuttingWords = widget.character.features
+        .where(CharacterClassContext(widget.character, 'bard').canUseFeature)
         .where((f) =>
             f.id.toLowerCase().contains('cutting_word') ||
             f.id.toLowerCase().contains('cutting-word'))
         .firstOrNull;
     final combatInspiration = widget.character.features
+        .where(CharacterClassContext(widget.character, 'bard').canUseFeature)
         .where((f) =>
             f.id.toLowerCase().contains('combat_inspiration') ||
             f.id.toLowerCase().contains('combat-inspiration'))
         .firstOrNull;
     final countercharm = widget.character.features
+        .where(CharacterClassContext(widget.character, 'bard').canUseFeature)
         .where((f) => f.id.toLowerCase().contains('countercharm'))
         .firstOrNull;
     final songOfRest = widget.character.features
+        .where(CharacterClassContext(widget.character, 'bard').canUseFeature)
         .where((f) =>
             f.id.toLowerCase().contains('song_of_rest') ||
             f.id.toLowerCase().contains('song-of-rest'))
         .firstOrNull;
 
-    return Card(
-      elevation: 0,
-      margin: const EdgeInsets.only(bottom: 24),
-      color: colorScheme.surfaceContainerLow,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: colorScheme.outline,
-          width: 1.5,
-        ),
-      ),
-      child: ClassToolsLayoutBuilder(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          // Subclass Block
-          if ((widget.character.subclass ?? '').isNotEmpty)
-            Container(
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                color:
-                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: colorScheme.outline.withValues(alpha: 0.2)),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => _showSubclassLore(context),
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+    return ClassPanelFrame(
+        character: widget.character,
+        classId: 'bard',
+        child: ClassToolsLayoutBuilder(
+          padding: EdgeInsets.zero,
+          children: [
+            if (subclassDisplayName.isNotEmpty)
+              ListTile(
+                  dense: true,
+                  minTileHeight: 40,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                  title: Text(subclassDisplayName,
+                      style: TextStyle(color: colorScheme.secondary)),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => _showSubclassLore(context)),
+
+            ExpressiveHoldSurface(
+                enabled: !_busy,
+                onHold: _editInspiration,
+                semanticLabel: l10n.bardicInspiration,
+                hint: l10n.sheetHoldToEdit,
+                child: CompanionSurface(
+                    contour: CompanionContour.cadence,
+                    color: colorScheme.primaryContainer,
+                    raised: true,
+                    padding: const EdgeInsets.all(18),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                CompanionDieFace(
+                                    sides: int.parse(dieType.substring(2)),
+                                    accent: colorScheme.primary,
+                                    size: 86),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                    child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                      Text(l10n.bardicInspiration,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleLarge
+                                              ?.copyWith(
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.w800,
+                                                  letterSpacing: -.65,
+                                                  height: 1.08)),
+                                      const SizedBox(height: 12),
+                                      CompanionReserve(
+                                          current: currentCharges,
+                                          maximum: maxCharges),
+                                      if (maxCharges > 0 &&
+                                          maxCharges <= 10) ...[
+                                        const SizedBox(height: 8),
+                                        ExcludeSemantics(
+                                            child: Wrap(
+                                                spacing: 6,
+                                                runSpacing: 6,
+                                                children: [
+                                              for (var n = 0;
+                                                  n < maxCharges;
+                                                  n++)
+                                                Icon(
+                                                    n < currentCharges
+                                                        ? Icons
+                                                            .auto_awesome_rounded
+                                                        : Icons
+                                                            .auto_awesome_outlined,
+                                                    size: 23,
+                                                    color: n < currentCharges
+                                                        ? colorScheme.secondary
+                                                        : colorScheme
+                                                            .onSurfaceVariant
+                                                            .withValues(
+                                                                alpha: .45)),
+                                            ])),
+                                      ],
+                                    ])),
+                              ]),
+                          const SizedBox(height: 18),
+                          FilledButton.tonalIcon(
+                              style: FilledButton.styleFrom(
+                                  backgroundColor:
+                                      colorScheme.surface.withValues(alpha: .8),
+                                  foregroundColor: colorScheme.onSurface,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 18, vertical: 13),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(25))),
+                              onPressed: !_busy && currentCharges > 0
+                                  ? _giveInspiration
+                                  : null,
+                              icon: Icon(Icons.person_add_alt_1_rounded,
+                                  color: currentCharges > 0
+                                      ? colorScheme.secondary
+                                      : null),
+                              label: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        locale == 'ru'
+                                            ? 'Вдохновить'
+                                            : 'Inspire',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.w800)),
+                                    Text(
+                                        locale == 'ru'
+                                            ? 'Передать кость союзнику'
+                                            : 'Give an ally an inspiration die',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall),
+                                  ])),
+                          Row(children: [
+                            Expanded(
+                                child: Text(
+                                    classRecoveryLabel(l10n, pool.recoveryType),
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall)),
+                            IconButton(
+                                tooltip: l10n.advancementDetails,
+                                onPressed: () => _showFeatureDetails(
+                                    widget.inspirationFeature,
+                                    Icons.auto_awesome_rounded),
+                                icon: const Icon(Icons.info_outline_rounded,
+                                    size: 20)),
+                          ]),
+                        ]))),
+
+            // Quick Actions Block
+            if (cuttingWords != null ||
+                combatInspiration != null ||
+                countercharm != null ||
+                songOfRest != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(left: 4.0, bottom: 8.0, top: 8.0),
                     child: Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary.withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(Icons.music_note,
-                              size: 18, color: colorScheme.primary),
-                        ),
-                        const SizedBox(width: 12),
+                        Icon(Icons.auto_awesome,
+                            size: 18, color: colorScheme.secondary),
+                        const SizedBox(width: 8),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                locale == 'ru'
-                                    ? 'Коллегия бардов'
-                                    : 'Bard College',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                              Text(
-                                subclassDisplayName,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
+                            child: Text(
+                          locale == 'ru' ? 'Другие умения' : 'More features',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.secondary,
                           ),
-                        ),
-                        Icon(Icons.chevron_right,
-                            color: colorScheme.onSurfaceVariant
-                                .withValues(alpha: 0.5)),
+                        )),
                       ],
                     ),
                   ),
-                ),
+                  ...[
+                    if (cuttingWords != null)
+                      _buildActionTile(cuttingWords, Icons.record_voice_over,
+                          locale, Theme.of(context),
+                          usesInspiration: true),
+                    if (combatInspiration != null)
+                      _buildActionTile(combatInspiration, Icons.shield, locale,
+                          Theme.of(context)),
+                    if (countercharm != null)
+                      _buildActionTile(countercharm, Icons.queue_music, locale,
+                          Theme.of(context)),
+                    if (songOfRest != null)
+                      _buildActionTile(
+                          songOfRest, Icons.bedtime, locale, Theme.of(context)),
+                  ].expand((w) => [w, const SizedBox(height: 8)]).toList()
+                    ..removeLast(),
+                ],
               ),
-            ),
-
-          // Inspiration Dashboard
-          Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(16),
-              border:
-                  Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
-            ),
-            child: Column(
-              children: [
-                // Header: Icon, Title, and Badge
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      CharacterFeature? baseInspiration =
-                          FeatureService.getFeatureById('bardic_inspiration') ??
-                              FeatureService.getFeatureById(
-                                  'bardic-inspiration');
-
-                      baseInspiration ??= CharacterFeature(
-                        id: 'bardic_inspiration_base',
-                        nameEn: 'Bardic Inspiration',
-                        nameRu: 'Бардовское вдохновение',
-                        descriptionEn:
-                            'You can inspire others through stirring words or music. To do so, you use a bonus action on your turn to choose one creature other than yourself within 60 feet of you who can hear you. That creature gains one Bardic Inspiration die...',
-                        descriptionRu:
-                            'Бонусным действием вы можете выбрать одно существо, отличное от вас, в пределах 60 футов, которое вас слышит. Оно получает кость бардовского вдохновения. В течение следующих 10 минут это существо может бросить эту кость и добавить результат к одной проверке характеристики, броску атаки или спасброску...',
-                        type: widget.inspirationFeature.type,
-                        minLevel: 1,
-                      );
-
-                      _showFeatureDetails(baseInspiration, Icons.queue_music);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: colorScheme.tertiary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.queue_music,
-                              color: colorScheme.onTertiary,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l10n.bardicInspiration,
-                                  softWrap: true,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.fade,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        color: colorScheme.onSurface,
-                                        fontSize: 16,
-                                        height: 1.15,
-                                      ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '$currentCharges / $maxCharges',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall!
-                                      .copyWith(
-                                        color: colorScheme.onSurfaceVariant,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          // Inspiration Die Badge
-                          GestureDetector(
-                            onTap: pool.isEmpty ? null : _toggleUsage,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: colorScheme.secondaryContainer,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  RotationTransition(
-                                    turns: CurvedAnimation(
-                                        parent: _rotationController,
-                                        curve: Curves.easeOutBack),
-                                    child: Icon(Icons.casino_outlined,
-                                        size: 16,
-                                        color:
-                                            colorScheme.onSecondaryContainer),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    dieType,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w900,
-                                      color: colorScheme.onSecondaryContainer,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Divider(
-                      height: 1,
-                      color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
-                ),
-                const SizedBox(height: 16),
-
-                // The Notes (Resource Tracker)
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: 16.0, right: 16.0, bottom: 16.0),
-                  child: Wrap(
-                    spacing: 16,
-                    runSpacing: 12,
-                    alignment: WrapAlignment.center,
-                    children: List.generate(maxCharges, (index) {
-                      final isActive = index < currentCharges;
-                      return GestureDetector(
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          if (isActive) {
-                            _useCharge(1);
-                            _showFeedback(true, 0);
-                          } else {
-                            _restoreCharge(1);
-                          }
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.elasticOut,
-                          transform: Matrix4.identity()
-                            ..scaleByDouble(isActive ? 1.0 : 0.8,
-                                isActive ? 1.0 : 0.8, 1.0, 1.0), // Pulse effect
-                          child: Icon(
-                            Icons.music_note,
-                            size: 32,
-                            color: isActive
-                                ? colorScheme.tertiary
-                                : colorScheme.onSurfaceVariant
-                                    .withValues(alpha: 0.3),
-                            shadows: isActive
-                                ? [
-                                    Shadow(
-                                        color: colorScheme.tertiary
-                                            .withValues(alpha: 0.4),
-                                        blurRadius: 8)
-                                  ]
-                                : [],
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Quick Actions Block
-          if (cuttingWords != null ||
-              combatInspiration != null ||
-              countercharm != null ||
-              songOfRest != null)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.only(left: 4.0, bottom: 8.0, top: 8.0),
-                  child: Row(
-                    children: [
-                      Icon(Icons.auto_awesome,
-                          size: 18, color: colorScheme.secondary),
-                      const SizedBox(width: 8),
-                      Text(
-                        locale == 'ru'
-                            ? 'Виртуозное исполнение'
-                            : 'Virtuoso Performance',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.secondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                ...[
-                  if (cuttingWords != null)
-                    _buildActionTile(cuttingWords, Icons.record_voice_over,
-                        locale, Theme.of(context),
-                        usesInspiration: true),
-                  if (combatInspiration != null)
-                    _buildActionTile(combatInspiration, Icons.shield, locale,
-                        Theme.of(context),
-                        usesInspiration: true),
-                  if (countercharm != null)
-                    _buildActionTile(countercharm, Icons.queue_music, locale,
-                        Theme.of(context)),
-                  if (songOfRest != null)
-                    _buildActionTile(
-                        songOfRest, Icons.bedtime, locale, Theme.of(context)),
-                ].expand((w) => [w, const SizedBox(height: 8)]).toList()
-                  ..removeLast(),
-              ],
-            ),
-        ],
-      ),
-    );
+          ],
+        ));
   }
 }

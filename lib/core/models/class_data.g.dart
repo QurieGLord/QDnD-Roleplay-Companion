@@ -32,13 +32,16 @@ class ClassDataAdapter extends TypeAdapter<ClassData> {
       features: (fields[12] as Map).map((dynamic k, dynamic v) =>
           MapEntry(k as int, (v as List).cast<CharacterFeature>())),
       sourceId: fields[13] as String?,
+      rulesMetadata:
+          fields[14] == null ? {} : (fields[14] as Map).cast<String, dynamic>(),
+      sourceDefinition: fields[15] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ClassData obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -66,7 +69,11 @@ class ClassDataAdapter extends TypeAdapter<ClassData> {
       ..writeByte(12)
       ..write(obj.features)
       ..writeByte(13)
-      ..write(obj.sourceId);
+      ..write(obj.sourceId)
+      ..writeByte(14)
+      ..write(obj.rulesMetadata)
+      ..writeByte(15)
+      ..write(obj.sourceDefinition);
   }
 
   @override

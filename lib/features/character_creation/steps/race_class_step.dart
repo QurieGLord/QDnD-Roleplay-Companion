@@ -1,3 +1,4 @@
+import '../../character_level_up/widgets/class_rules_review.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
@@ -436,7 +437,29 @@ class _RaceClassStepState extends State<RaceClassStep> {
               child: Column(
                 children: [
                   InkWell(
-                    onTap: () => state.updateClass(classData),
+                    onTap: () async {
+                      if (!{'unknown', '2014'}
+                          .contains(classData.rulesEdition)) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(locale == 'ru'
+                                ? 'Создание по этой редакции правил пока недоступно. Книга сохранена.'
+                                : 'This rules edition is not yet supported for character creation. The book is preserved.')));
+                        return;
+                      }
+                      if (!classNeedsRuleReview(classData)) {
+                        state.updateClass(classData);
+                        return;
+                      }
+                      final resolved = await Navigator.of(context)
+                          .push<ClassData>(MaterialPageRoute(
+                              builder: (context) => Scaffold(
+                                  appBar: AppBar(),
+                                  body: ClassRulesReview(
+                                      data: classData,
+                                      onResolved: (data) =>
+                                          Navigator.pop(context, data)))));
+                      if (resolved != null) state.updateClass(resolved);
+                    },
                     borderRadius: BorderRadius.circular(12),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -494,7 +517,12 @@ class _RaceClassStepState extends State<RaceClassStep> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  l10n.hitDieType(classData.hitDie.toString()),
+                                  classData.declares('hitDie')
+                                      ? l10n.hitDieType(
+                                          classData.hitDie.toString())
+                                      : (locale == 'ru'
+                                          ? 'Кость хитов: уточнить'
+                                          : 'Hit die: needs clarification'),
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall
@@ -716,7 +744,11 @@ class _RaceClassStepState extends State<RaceClassStep> {
             ),
             const SizedBox(width: 8),
             Text(
-              l10n.hitDieType(classData.hitDie.toString()),
+              classData.declares('hitDie')
+                  ? l10n.hitDieType(classData.hitDie.toString())
+                  : (locale == 'ru'
+                      ? 'Кость хитов: уточнить'
+                      : 'Hit die: needs clarification'),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: textColor,
                     fontWeight: FontWeight.w500,

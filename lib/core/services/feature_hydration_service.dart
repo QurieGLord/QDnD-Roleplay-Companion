@@ -232,7 +232,11 @@ class FeatureHydrationService {
 
     if (ownResourceId != null) {
       if (builtIn?.resourcePool != null) {
-        final copied = _copyFeatureForCharacter(builtIn!, character!);
+        final copied = _copyFeatureForCharacter(
+          builtIn!,
+          character!,
+          state: feature,
+        );
         _addDiagnostic(
           diagnostics,
           FeatureHydrationDiagnosticSeverity.info,
@@ -287,7 +291,11 @@ class FeatureHydrationService {
     }
 
     if (builtIn != null) {
-      final copied = _copyFeatureForCharacter(builtIn, character!);
+      final copied = _copyFeatureForCharacter(
+        builtIn,
+        character!,
+        state: feature,
+      );
       _addDiagnostic(
         diagnostics,
         FeatureHydrationDiagnosticSeverity.info,
@@ -689,8 +697,9 @@ class FeatureHydrationService {
 
   static CharacterFeature _copyFeatureForCharacter(
     CharacterFeature feature,
-    Character character,
-  ) {
+    Character character, {
+    CharacterFeature? state,
+  }) {
     var maxUses = feature.resourcePool?.calculationFormula != null
         ? FeatureService.calculateMaxUses(
             character,
@@ -704,14 +713,15 @@ class FeatureHydrationService {
 
     return _copyFeature(
       feature,
-      resourcePool: feature.resourcePool == null
-          ? null
-          : ResourcePool(
-              currentUses: maxUses!,
-              maxUses: maxUses,
-              recoveryType: feature.resourcePool!.recoveryType,
-              calculationFormula: feature.resourcePool!.calculationFormula,
-            ),
+      resourcePool: state?.resourcePool?.copy() ??
+          (feature.resourcePool == null
+              ? null
+              : ResourcePool(
+                  currentUses: maxUses!,
+                  maxUses: maxUses,
+                  recoveryType: feature.resourcePool!.recoveryType,
+                  calculationFormula: feature.resourcePool!.calculationFormula,
+                )),
     );
   }
 
@@ -759,7 +769,13 @@ class FeatureHydrationService {
       requiresRest: requiresRest ?? feature.requiresRest,
       actionEconomy: actionEconomy ?? feature.actionEconomy,
       iconName: iconName ?? feature.iconName,
-      consumption: consumption ?? feature.consumption,
+      consumption: consumption ??
+          (feature.consumption == null
+              ? null
+              : FeatureConsumption(
+                  resourceId: feature.consumption!.resourceId,
+                  amount: feature.consumption!.amount,
+                )),
       sourceId: sourceId ?? feature.sourceId,
       usageCostId: usageCostId ?? feature.usageCostId,
       usageInputMode: usageInputMode ?? feature.usageInputMode,
@@ -956,7 +972,12 @@ class FeatureHydrationService {
     var result = _normalizeLoose(
       FC5ImportedNameNormalizer.normalizedDisplayName(value),
     );
-    result = result.replaceFirst(RegExp(r'\s*\([^)]*\)$'), '');
+    // Parentheses often identify a real choice (Sea/Tundra, Eagle/Wolf).
+    // Only an explicit use counter is presentation metadata.
+    result = result.replaceFirst(
+        RegExp(
+            r'\s*\(\d+(?:\s*/\s*(?:\d+|(?:short|long)\s+rest|rest|отдых))?\s*(?:uses?|раз|заряд(?:а|ов)?)?\)$'),
+        '');
     return result.trim();
   }
 

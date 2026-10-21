@@ -184,7 +184,7 @@ void main() {
       expect(result.spells.single.components, containsAll(['V', 'S', 'M']));
       expect(result.spells.single.materialComponents, 'silver dust');
       expect(result.spells.single.availableToClasses,
-          containsAll(['wizard', 'paladin']));
+          containsAll(['wizard', 'paladin (Клятва преданности)']));
     });
 
     test('reports unsupported collection and monster-only compendium',

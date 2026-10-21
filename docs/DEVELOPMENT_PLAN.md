@@ -1,3 +1,12 @@
+> Актуальный реестр задач и совместных решений: [WORKING_VERSION_TODO.md](WORKING_VERSION_TODO.md). Ниже сохранён исторический план; его старые галочки и проценты не доказывают готовность текущей версии.
+
+## Terminology and interface consistency
+
+New and revised UI text follows the [QDnD glossary](DND_GLOSSARY.md).
+Russian spell levels are «круги»; character and class levels remain «уровни».
+Compact health labels remain HP / ОЗ by the author's preference. Review nearby
+labels, filters, editors and built-in descriptions when changing a section.
+
 # QD&D - Development Plan
 
 ## 📅 8-Session Development Roadmap

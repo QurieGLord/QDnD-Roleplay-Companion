@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:hive/hive.dart';
 
 part 'character_feature.g.dart';
@@ -104,6 +106,9 @@ class CharacterFeature extends HiveObject {
 
   bool get isResource => resourcePool != null;
 
+  /// Mutable feature state belongs to a character, never to its template.
+  CharacterFeature copyForCharacter() => CharacterFeature.fromJson(toJson());
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -149,6 +154,7 @@ class CharacterFeature extends HiveObject {
           ? FeatureConsumption.fromJson(json['consumption'])
           : null,
       usageCostId: json['usageCostId'],
+      sourceId: json['sourceId'],
       usageInputMode: json['usageInputMode'],
       options:
           json['options'] != null ? List<String>.from(json['options']) : null,
@@ -237,22 +243,33 @@ class ResourcePool extends HiveObject {
   });
 
   void use(int amount) {
-    currentUses = (currentUses - amount).clamp(0, maxUses);
+    if (amount <= 0) return;
+    currentUses = math.max(0, currentUses - amount);
     // Note: Save manually after calling this method
   }
 
   void restore(int amount) {
-    currentUses = (currentUses + amount).clamp(0, maxUses);
+    if (amount <= 0) return;
+    currentUses = math.max(0, currentUses) + amount;
     // Note: Save manually after calling this method
   }
 
   void restoreFull() {
-    currentUses = maxUses;
+    currentUses = math.max(currentUses, math.max(0, maxUses));
     // Note: Save manually after calling this method
   }
 
-  bool get isEmpty => currentUses == 0;
-  bool get isFull => currentUses == maxUses;
+  void setCurrentUses(int value) => currentUses = math.max(0, value);
+
+  ResourcePool copy() => ResourcePool(
+        currentUses: currentUses,
+        maxUses: maxUses,
+        recoveryType: recoveryType,
+        calculationFormula: calculationFormula,
+      );
+
+  bool get isEmpty => currentUses <= 0;
+  bool get isFull => currentUses >= maxUses;
 
   Map<String, dynamic> toJson() {
     return {
@@ -268,7 +285,9 @@ class ResourcePool extends HiveObject {
       currentUses: json['currentUses'],
       maxUses: json['maxUses'],
       recoveryType: RecoveryType.values.firstWhere(
-        (e) => e.toString() == json['recoveryType'],
+        (e) =>
+            e.name == json['recoveryType'] ||
+            e.toString() == json['recoveryType'],
         orElse: () => RecoveryType.longRest,
       ),
       calculationFormula: json['calculationFormula'],

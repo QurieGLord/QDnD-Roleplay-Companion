@@ -1,3 +1,5 @@
+import '../../../core/models/character.dart';
+import '../../../core/progression/character_class_context.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/services/character_data_service.dart';
@@ -10,6 +12,17 @@ String getLocalizedRaceName(BuildContext context, String raceName) {
   } catch (_) {
     return raceName;
   }
+}
+
+String getCharacterClassSummary(BuildContext context, Character hero) {
+  final locale = Localizations.localeOf(context).languageCode;
+  if (hero.classes.isEmpty) {
+    return getLocalizedClassName(context, hero.characterClass);
+  }
+  return hero.classes.map((entry) {
+    final name = CharacterClassContext(hero, entry.id).name(locale);
+    return hero.classes.length > 1 ? '$name ${entry.level}' : name;
+  }).join(' / ');
 }
 
 String getLocalizedClassName(BuildContext context, String className) {

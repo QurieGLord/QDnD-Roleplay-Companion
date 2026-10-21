@@ -1,3 +1,4 @@
+import 'core/content/content_reference_repair.dart';
 // ignore_for_file: avoid_print
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,6 +17,9 @@ import 'core/ui/app_system_ui.dart';
 import 'features/splash/splash_screen.dart';
 import 'features/character_list/character_list_screen.dart';
 import 'features/settings/settings_screen.dart';
+import 'features/journal/cycle_fixture.dart';
+import 'features/character_level_up/cycle_fixture.dart';
+import 'features/expressive_cycle/cycle_fixture.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +42,16 @@ void main() async {
 
     // Load items database
     await ItemService.loadItems();
+    await ContentReferenceRepair.repairStoredCharacters();
+    if (const bool.fromEnvironment('QDND_EXPRESSIVE_CYCLE')) {
+      await seedExpressiveCycle();
+    }
+    if (const bool.fromEnvironment('QDND_LEVEL_UP_CYCLE')) {
+      await seedLevelUpCycle();
+    }
+    if (const bool.fromEnvironment('QDND_WORKING_JOURNAL_CYCLE')) {
+      await seedJournalCycle();
+    }
   } catch (e, stackTrace) {
     print('❌ CRITICAL ERROR during initialization: $e');
     print(stackTrace);

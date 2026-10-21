@@ -118,7 +118,7 @@ extension NoteCategoryExtension on NoteCategory {
       case NoteCategory.location:
         return 'Локация';
       case NoteCategory.npc:
-        return 'NPC';
+        return 'Персонаж';
       case NoteCategory.artifact:
         return 'Артефакт';
       case NoteCategory.story:

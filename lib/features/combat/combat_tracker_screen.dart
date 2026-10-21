@@ -1,3 +1,5 @@
+import '../../core/progression/character_class_context.dart';
+import '../../core/magic/spell_use.dart';
 import 'dart:async';
 import 'dart:math';
 
@@ -14,6 +16,8 @@ import '../../core/services/storage_service.dart';
 import '../../core/services/spellcasting_service.dart';
 import 'widgets/combat_log_view.dart';
 import 'widgets/combat_spellcaster_sheet.dart';
+
+import '../character_sheet/widgets/gameplay_state_editor.dart';
 
 class CombatTrackerScreen extends StatefulWidget {
   final Character character;
@@ -137,9 +141,13 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
     }
 
     final locale = Localizations.localeOf(context).languageCode;
-    final feature = character.features.firstWhere(
-      (candidate) => candidate.id.toLowerCase() == 'relentless-rage',
-    );
+    final feature = character.features
+        .where((candidate) =>
+            candidate.id.toLowerCase() == 'relentless-rage' &&
+            CharacterClassContext(character, 'barbarian')
+                .canUseFeature(candidate))
+        .firstOrNull;
+    if (feature == null) return;
     final dc = character.relentlessRageSaveDc;
     final conSaveBonus = character.constitutionSavingThrowBonus;
 
@@ -228,7 +236,10 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
     final locale = Localizations.localeOf(context).languageCode;
     final feralInstinct = character.hasFeralInstinct
         ? character.features
-            .where((feature) => feature.id.toLowerCase() == 'feral-instinct')
+            .where((feature) =>
+                feature.id.toLowerCase() == 'feral-instinct' &&
+                CharacterClassContext(character, 'barbarian')
+                    .canUseFeature(feature))
             .firstOrNull
         : null;
 
@@ -339,14 +350,11 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
                         final amount = int.tryParse(controller.text) ?? 0;
                         if (amount > 0) {
                           Navigator.pop(context);
-                          await character
-                              .takeDamage(amount); // Handle temp HP internally
-                          await _maybeHandleRelentlessRage(character, l10n);
-                          _triggerShake();
+                          character.addTemporaryHp(amount);
                           await _save(character);
                         }
                       },
-                      child: Text(l10n.tempHp),
+                      child: Text('+ ${l10n.tempHp}'),
                     ),
                   ),
                 if (!heal) const SizedBox(width: 12),
@@ -540,12 +548,15 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
     final isInCombat = character.combatState.isInCombat;
-    final hpPercent = (character.currentHp / character.maxHp).clamp(0.0, 1.0);
+    final hpPercent = character.maxHp > 0
+        ? (character.currentHp / character.maxHp).clamp(0.0, 1.0)
+        : 0.0;
     final isDying = character.currentHp <= 0;
     final showActiveDeathSaves = isDying && character.deathSaves.isActive;
     final showDeathSaveStatus = isDying && !character.deathSaves.isActive;
-    final isSpellcaster =
-        SpellcastingService.isSpellcaster(character.characterClass);
+    final isSpellcaster = SpellUse.visible(character).isNotEmpty ||
+        character.classes
+            .any((entry) => SpellcastingService.isSpellcaster(entry.id));
 
     return Scaffold(
       backgroundColor: isInCombat
@@ -555,6 +566,16 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
         title: Text(character.name),
         centerTitle: true,
         actions: [
+          IconButton(
+            tooltip: l10n.editGameState,
+            icon: const Icon(Icons.edit_outlined),
+            onPressed: () async {
+              if (await showGameplayStateEditor(context, character) &&
+                  mounted) {
+                setState(() {});
+              }
+            },
+          ),
           if (isInCombat)
             IconButton(
               icon: const Icon(Icons.stop_circle_outlined),
@@ -1142,7 +1163,9 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
             backgroundColor: Colors.transparent,
             builder: (context) => CombatSpellcasterSheet(
               character: character,
-              onStateChange: () => _save(character),
+              onStateChange: () {
+                if (mounted) setState(() {});
+              },
             ),
           );
         },

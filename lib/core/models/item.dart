@@ -60,6 +60,13 @@ class Item extends HiveObject {
   @HiveField(17)
   String? sourceId; // ID of the compendium source (if imported)
 
+  /// Personal stack identity. Null on catalog definitions and legacy records.
+  @HiveField(18)
+  String? instanceId;
+
+  @HiveField(19, defaultValue: false)
+  bool requiresAttunement;
+
   Item({
     required this.id,
     required this.nameEn,
@@ -79,10 +86,15 @@ class Item extends HiveObject {
     this.iconName,
     this.customImagePath,
     this.sourceId,
+    this.instanceId,
+    this.requiresAttunement = false,
   });
 
   String getName(String locale) {
-    return locale == 'ru' ? nameRu : nameEn;
+    final preferred = locale == 'ru' ? nameRu : nameEn;
+    return preferred.trim().isNotEmpty
+        ? preferred
+        : (locale == 'ru' ? nameEn : nameRu);
   }
 
   String getDescription(String locale) {
@@ -115,6 +127,8 @@ class Item extends HiveObject {
       'iconName': iconName,
       'customImagePath': customImagePath,
       'sourceId': sourceId,
+      'instanceId': instanceId,
+      'requiresAttunement': requiresAttunement,
     };
   }
 
@@ -148,6 +162,8 @@ class Item extends HiveObject {
       iconName: json['iconName'],
       customImagePath: json['customImagePath'],
       sourceId: json['sourceId'],
+      instanceId: json['instanceId'] as String?,
+      requiresAttunement: json['requiresAttunement'] == true,
     );
   }
 }

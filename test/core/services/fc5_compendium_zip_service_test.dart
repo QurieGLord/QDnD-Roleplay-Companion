@@ -98,7 +98,7 @@ void main() {
     }
   });
 
-  final fixtureZip = File('/home/alexgrig/Downloads/Компендиум.zip');
+  final fixtureZip = File(Platform.environment['QDND_PRIVATE_FC5_ZIP'] ?? '/home/alexgrig/Downloads/Компендиум.zip');
   test(
     'FC5CompendiumZipService previews supplied Russian ZIP with decoded names',
     () async {

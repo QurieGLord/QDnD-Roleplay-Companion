@@ -22,13 +22,16 @@ class CharacterClassAdapter extends TypeAdapter<CharacterClass> {
       level: fields[2] as int,
       subclass: fields[3] as String?,
       isPrimary: fields[4] as bool,
+      rulesSnapshot: (fields[5] as Map?)?.cast<String, dynamic>(),
+      referenceData: (fields[7] as Map?)?.cast<String, dynamic>() ?? {},
+      entryProficiencies: (fields[6] as List?)?.cast<String>() ?? [],
     );
   }
 
   @override
   void write(BinaryWriter writer, CharacterClass obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,7 +41,13 @@ class CharacterClassAdapter extends TypeAdapter<CharacterClass> {
       ..writeByte(3)
       ..write(obj.subclass)
       ..writeByte(4)
-      ..write(obj.isPrimary);
+      ..write(obj.isPrimary)
+      ..writeByte(5)
+      ..write(obj.rulesSnapshot)
+      ..writeByte(6)
+      ..write(obj.entryProficiencies)
+      ..writeByte(7)
+      ..write(obj.referenceData);
   }
 
   @override

@@ -1,11 +1,17 @@
-import 'dart:math';
+import '../../../../core/ui/companion_surface.dart';
+import '../../../../core/models/character_feature.dart';
+import '../../../../core/services/gameplay_actions_service.dart';
+import '../../../../core/ui/sheet_drag_region.dart';
+import '../../../../shared/widgets/feature_details_sheet.dart';
+import 'shared/class_panel_presentation.dart';
+import '../../../../core/progression/character_class_context.dart';
+import '../../../../core/magic/class_action_state.dart';
+import '../../../../core/services/class_session_actions_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../../core/models/character.dart';
-import '../../../../core/services/character_data_service.dart';
-import '../../../../core/models/class_data.dart';
 import 'shared/class_tools_layout_builder.dart';
 
 class ClericMagicWidget extends StatefulWidget {
@@ -23,18 +29,26 @@ class ClericMagicWidget extends StatefulWidget {
 }
 
 class _ClericMagicWidgetState extends State<ClericMagicWidget> {
-  String _getLocalizedSubclass(AppLocalizations l10n, String? subclass) {
-    if (subclass == null) return l10n.divineDomain;
-    final lower = subclass.toLowerCase();
-    if (lower.contains('life')) return l10n.domainLife;
-    if (lower.contains('light')) return l10n.domainLight;
-    if (lower.contains('knowledge')) return l10n.domainKnowledge;
-    if (lower.contains('nature')) return l10n.domainNature;
-    if (lower.contains('tempest')) return l10n.domainTempest;
-    if (lower.contains('trickery')) return l10n.domainTrickery;
-    if (lower.contains('war')) return l10n.domainWar;
-    if (lower.contains('death')) return l10n.domainDeath;
-    return subclass;
+  bool _usingChannel = false;
+  bool _usingIntervention = false;
+  Future<void> _useChannel({int amount = 1}) async {
+    if (_usingChannel) return;
+    setState(() => _usingChannel = true);
+    final l = AppLocalizations.of(context)!;
+    try {
+      final changed = await GameplayActionsService.spendChannelDivinity(
+          widget.character,
+          amount: amount);
+      if (mounted && changed) {
+        HapticFeedback.mediumImpact();
+        widget.onStateChanged();
+        AppSnackBar.success(context, l.usedChannelDivinity);
+      }
+    } catch (_) {
+      if (mounted) AppSnackBar.error(context, l.sheetSaveFailed);
+    } finally {
+      if (mounted) setState(() => _usingChannel = false);
+    }
   }
 
   void _showCDRules() {
@@ -105,7 +119,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final level = widget.character.level;
+    final level = widget.character.classLevel('cleric');
 
     showModalBottomSheet(
       context: context,
@@ -245,297 +259,74 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
     final clericColor = theme.colorScheme.primary;
-    final maxCharges = widget.character.getMaxChannelDivinityCharges();
+    final maxCharges =
+        widget.character.channelDivinityResource?.resourcePool?.maxUses ??
+            widget.character.getMaxChannelDivinityCharges();
 
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: colorScheme.outline, width: 1.5),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      margin: const EdgeInsets.only(bottom: 16),
-      clipBehavior: Clip.antiAlias,
-      child: ClassToolsLayoutBuilder(
-        padding: const EdgeInsets.all(12),
-        children: [
-          // 1. Divine Domain Block
-          if (widget.character.subclass != null)
-            _buildDomainBlock(context, theme, l10n, clericColor),
-
-          // 2. Channel Divinity Block (Includes Turn Undead)
-          if (maxCharges > 0)
-            _buildChannelDivinityBlock(
-                context, theme, l10n, clericColor, maxCharges),
-
-          // 3. Divine Intervention Block
-          if (widget.character.level >= 10)
-            _buildDivineInterventionBlock(context, theme, l10n, clericColor),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDomainBlock(
-    BuildContext context,
-    ThemeData theme,
-    AppLocalizations l10n,
-    Color accentColor,
-  ) {
-    final colorScheme = theme.colorScheme;
-    final locale = Localizations.localeOf(context).languageCode;
-
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accentColor.withValues(alpha: 0.3)),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            HapticFeedback.lightImpact();
-
-            // Fetch lore
-            final classData = CharacterDataService.getClassById(
-                widget.character.characterClass);
-            SubclassData? subclassData;
-
-            if (classData != null && widget.character.subclass != null) {
-              try {
-                subclassData = classData.subclasses.firstWhere((s) {
-                  return s.name.values
-                          .any((val) => val == widget.character.subclass) ||
-                      s.id ==
-                          widget.character.subclass!
-                              .toLowerCase()
-                              .replaceAll(' ', '_');
-                });
-              } catch (_) {}
-            }
-
-            final description =
-                subclassData?.getDescription(locale) ?? l10n.noFeaturesAtLevel1;
-
-            showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                ),
-                builder: (context) => DraggableScrollableSheet(
-                      initialChildSize: 0.6,
-                      minChildSize: 0.4,
-                      maxChildSize: 0.9,
-                      expand: false,
-                      builder: (context, scrollController) => Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: colorScheme.surface,
-                          borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(24)),
-                        ),
-                        child: ListView(
-                          controller: scrollController,
-                          children: [
-                            Center(
-                              child: Container(
-                                width: 40,
-                                height: 4,
-                                margin: const EdgeInsets.only(bottom: 24),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.outlineVariant,
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                            ),
-                            Row(children: [
-                              Icon(Icons.brightness_7,
-                                  color: accentColor, size: 28),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  _getLocalizedSubclass(
-                                      l10n, widget.character.subclass),
-                                  style: theme.textTheme.headlineSmall
-                                      ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: colorScheme.onSurface),
-                                ),
-                              ),
-                            ]),
-                            const SizedBox(height: 16),
-                            const Divider(),
-                            const SizedBox(height: 16),
-                            Text(
-                              description,
-                              style: theme.textTheme.bodyMedium
-                                  ?.copyWith(height: 1.5),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ));
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(Icons.brightness_7, color: accentColor),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.divineDomain,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      Text(
-                        _getLocalizedSubclass(l10n, widget.character.subclass),
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildChannelDivinityBlock(
-    BuildContext context,
-    ThemeData theme,
-    AppLocalizations l10n,
-    Color accentColor,
-    int maxCharges,
-  ) {
-    final colorScheme = theme.colorScheme;
-    final currentCharges = widget.character.channelDivinityCharges;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Material(
-        color: Colors.transparent,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+    return ClassPanelFrame(
+        character: widget.character,
+        classId: 'cleric',
+        child: ClassToolsLayoutBuilder(
+          padding: EdgeInsets.zero,
           children: [
-            // Header Row
-            InkWell(
-              onTap: _showCDRules,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Icon(Icons.auto_awesome, color: accentColor, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        l10n.channelDivinity,
-                        style: theme.textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Text(
-                      '$currentCharges / $maxCharges',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: currentCharges == 0
-                            ? colorScheme.error
-                            : accentColor,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Icon(Icons.info_outline,
-                        size: 16, color: colorScheme.outline),
-                  ],
-                ),
-              ),
-            ),
+            // 1. Divine Domain Block
+            if (CharacterClassContext(widget.character, 'cleric').subclass !=
+                null)
+              _buildDomainBlock(context, theme, l10n, clericColor),
 
-            const Divider(height: 1, indent: 16, endIndent: 16),
+            // 2. Channel Divinity Block (Includes Turn Undead)
+            if (widget.character.classLevel('cleric') >= 2 &&
+                (maxCharges > 0 || widget.character.channelDivinityCharges > 0))
+              _buildChannelDivinityBlock(
+                  context, theme, l10n, clericColor, maxCharges),
 
-            // Star Resource Pool
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(maxCharges, (index) {
-                  final isActive = index < currentCharges;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: GestureDetector(
-                      onTap: () {
-                        HapticFeedback.mediumImpact();
-                        setState(() {
-                          if (isActive) {
-                            widget.character.channelDivinityCharges--;
-                          } else {
-                            widget.character.channelDivinityCharges++;
-                          }
-                          widget.character.save();
-                          widget.onStateChanged();
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: isActive
-                              ? accentColor.withValues(alpha: 0.15)
-                              : colorScheme.surface,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isActive
-                                ? accentColor
-                                : colorScheme.outline.withValues(alpha: 0.3),
-                            width: 2,
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.star,
-                          color: isActive
-                              ? accentColor
-                              : colorScheme.outline.withValues(alpha: 0.3),
-                          size: 24,
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ),
-
-            // Nested Ability Tiles
-            if (widget.character.level >= 2)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                child: _buildTurnUndeadTile(context, theme, l10n, accentColor),
-              ),
+            // 3. Divine Intervention Block
+            if (widget.character.classLevel('cleric') >= 10 &&
+                widget.character.features.any((f) =>
+                    f.id.replaceAll('_', '-') == 'divine-intervention' &&
+                    CharacterClassContext(widget.character, 'cleric')
+                        .acceptsFeature(f)))
+              _buildDivineInterventionBlock(context, theme, l10n, clericColor),
           ],
-        ),
-      ),
-    );
+        ));
+  }
+
+  Widget _buildDomainBlock(BuildContext context, ThemeData theme,
+          AppLocalizations l10n, Color accentColor) =>
+      ClassSubclassLink(character: widget.character, classId: 'cleric');
+
+  Widget _buildChannelDivinityBlock(BuildContext context, ThemeData theme,
+      AppLocalizations l10n, Color accentColor, int maxCharges) {
+    return ClassPrimaryControl(
+        classId: 'cleric',
+        title: l10n.channelDivinity,
+        onDetails: _showCDRules,
+        current: widget.character.channelDivinityCharges,
+        maximum: maxCharges,
+        marks: true,
+        tone: theme.colorScheme.tertiaryContainer,
+        footer: classRecoveryLabel(
+            l10n,
+            widget.character.channelDivinityResource?.resourcePool
+                    ?.recoveryType ??
+                RecoveryType.shortRest),
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          if (widget.character.classLevel('cleric') >= 2)
+            _buildTurnUndeadTile(context, theme, l10n, accentColor),
+          for (final feature in widget.character.features.where((f) =>
+              CharacterClassContext(widget.character, 'cleric')
+                  .acceptsFeature(f) &&
+              f.usageCostId == 'channel-divinity' &&
+              f.isAction &&
+              !f.id.toLowerCase().replaceAll('_', '-').contains('turn-undead')))
+            Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: _channelOption(feature, theme, l10n)),
+        ]));
   }
 
   Widget _buildTurnUndeadTile(
@@ -545,7 +336,7 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
     Color accentColor,
   ) {
     final colorScheme = theme.colorScheme;
-    final level = widget.character.level;
+    final level = widget.character.classLevel('cleric');
     final currentCharges = widget.character.channelDivinityCharges;
 
     String name = l10n.turnUndead;
@@ -566,277 +357,236 @@ class _ClericMagicWidgetState extends State<ClericMagicWidget> {
       crText = "${l10n.maxCR}: $cr";
     }
 
-    return Card(
-      margin: EdgeInsets.zero,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      color: colorScheme.surface,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
+    return CompanionSurface(
+        color: colorScheme.surface.withValues(alpha: .8),
+        quiet: true,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         onTap: _showTurnUndeadRules,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(Icons.security, size: 20, color: accentColor),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
+        child: Row(children: [
+          Icon(Icons.shield_outlined, size: 25, color: accentColor),
+          const SizedBox(width: 12),
+          Expanded(
+              child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      name,
-                      style: theme.textTheme.titleSmall
-                          ?.copyWith(fontWeight: FontWeight.bold, fontSize: 13),
-                    ),
-                    if (crText != null)
-                      Text(
-                        crText,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                            fontSize: 11, color: colorScheme.onSurfaceVariant),
-                      ),
-                  ],
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.auto_fix_high),
-                onPressed: currentCharges > 0
-                    ? () {
-                        HapticFeedback.heavyImpact();
-                        setState(() {
-                          widget.character.channelDivinityCharges--;
-                          widget.character.save();
-                          widget.onStateChanged();
-                        });
-                        AppSnackBar.success(context, l10n.usedChannelDivinity);
-                      }
-                    : null,
-                color: accentColor,
-                tooltip: l10n.useAction,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+                Text(name,
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700)),
+                if (crText != null)
+                  Text(crText, style: theme.textTheme.bodySmall),
+              ])),
+          const SizedBox(width: 8),
+          IconButton.filledTonal(
+              tooltip: l10n.useAction,
+              icon: const Icon(Icons.play_arrow_rounded),
+              onPressed: !_usingChannel && currentCharges > 0
+                  ? () => _useChannel()
+                  : null),
+        ]));
   }
 
-  Widget _buildDivineInterventionBlock(
-    BuildContext context,
-    ThemeData theme,
-    AppLocalizations l10n,
-    Color accentColor,
-  ) {
-    final colorScheme = theme.colorScheme;
-    final isUsed = widget.character.divineInterventionUsed;
-    final level = widget.character.level;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Material(
-        color: Colors.transparent,
-        child: Column(
-          children: [
-            InkWell(
-              onTap: _showDIRules,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
+  Widget _channelOption(
+      CharacterFeature feature, ThemeData theme, AppLocalizations l) {
+    final locale = Localizations.localeOf(context).languageCode;
+    final cost = feature.consumption?.amount ?? 1;
+    return CompanionSurface(
+        color: theme.colorScheme.surface.withValues(alpha: .8),
+        quiet: true,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        onTap: () => showResponsiveSheet<void>(
+            context: context,
+            isScrollControlled: true,
+            useSafeArea: true,
+            builder: (_) => FeatureDetailsSheet(feature: feature)),
+        child: Row(children: [
+          Icon(Icons.auto_awesome_rounded,
+              size: 25, color: theme.colorScheme.primary),
+          const SizedBox(width: 12),
+          Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.brightness_high, color: accentColor, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        l10n.divineIntervention,
-                        style: theme.textTheme.titleSmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Icon(Icons.info_outline,
-                        size: 16, color: colorScheme.outline),
-                  ],
-                ),
-              ),
-            ),
-            const Divider(height: 1, indent: 16, endIndent: 16),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: isUsed
-                  ? SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          HapticFeedback.mediumImpact();
-                          setState(() {
-                            widget.character.divineInterventionUsed = false;
-                            widget.character.save();
-                            widget.onStateChanged();
-                          });
-                        },
-                        icon: const Icon(Icons.refresh),
-                        label: Text(l10n.resetCooldown),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: colorScheme.secondary,
-                          side: BorderSide(color: colorScheme.secondary),
-                        ),
-                      ),
-                    )
-                  : SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: () => _handleInterventionRoll(
-                            context, level, l10n, colorScheme),
-                        icon: const Icon(Icons.casino),
-                        label: Text(l10n.callUponDeity.toUpperCase()),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: accentColor,
-                          foregroundColor: colorScheme.onPrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                      ),
-                    ),
-            ),
-          ],
-        ),
-      ),
-    );
+                Text(
+                    feature
+                        .getName(locale)
+                        .replaceFirst(RegExp(r'^Божественный канал:\s*'), '')
+                        .replaceFirst(RegExp(r'^Channel Divinity:\s*'), ''),
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 2),
+                Text(
+                    locale == 'ru'
+                        ? 'Из общего запаса: $cost'
+                        : 'Shared reserve: $cost',
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+              ])),
+          const SizedBox(width: 8),
+          IconButton.filledTonal(
+              tooltip: '${l.useAction}: ${feature.getName(locale)}',
+              icon: const Icon(Icons.play_arrow_rounded),
+              onPressed: !_usingChannel &&
+                      cost > 0 &&
+                      widget.character.channelDivinityCharges >= cost
+                  ? () => _useChannel(amount: cost)
+                  : null),
+        ]));
   }
 
-  void _handleInterventionRoll(BuildContext context, int level,
-      AppLocalizations l10n, ColorScheme colorScheme) {
-    HapticFeedback.heavyImpact();
-    final roll = Random().nextInt(100) + 1;
-    final isSuccess = level >= 20 || roll <= level;
-
-    if (isSuccess) {
-      setState(() {
-        widget.character.divineInterventionUsed = true;
-        widget.character.save();
-        widget.onStateChanged();
-      });
+  Widget _buildDivineInterventionBlock(BuildContext context, ThemeData theme,
+      AppLocalizations l10n, Color accentColor) {
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    final used = widget.character.divineInterventionUsed;
+    bool attempted = false, supported = true;
+    try {
+      attempted = ClassActionState.interventionAttempted(widget.character);
+    } catch (_) {
+      supported = false;
     }
+    final level = widget.character.classLevel('cleric');
+    final ready = supported && !used && !attempted;
+    final status = !supported
+        ? (ru ? 'Нужна более новая версия' : 'A newer version is needed')
+        : used
+            ? (ru ? 'Ожидание · 7 дней' : 'Waiting · 7 days')
+            : attempted
+                ? (ru ? 'После продолжительного отдыха' : 'After a long rest')
+                : (ru ? 'Можно воззвать' : 'Ready to call');
+    return ClassPrimaryControl(
+        classId: 'cleric',
+        title: l10n.divineIntervention,
+        active: ready,
+        busy: _usingIntervention,
+        onDetails: _showDIRules,
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          ClassFacts(facts: [
+            (
+              label: ru ? 'Ответ божества' : 'Divine response',
+              value: level >= 20 ? (ru ? 'Без броска' : 'No roll') : '$level%'
+            ),
+            (label: ru ? 'Состояние' : 'Availability', value: status),
+          ]),
+          const SizedBox(height: 16),
+          Text(
+              ru
+                  ? 'Опиши мастеру, о какой помощи просишь. Он определит, каким будет вмешательство.'
+                  : 'Describe the aid you seek to your GM. They decide how the intervention takes effect.',
+              style: theme.textTheme.bodyMedium),
+          const SizedBox(height: 18),
+          if (ready)
+            FilledButton.tonalIcon(
+                onPressed:
+                    _usingIntervention ? null : () => _handleInterventionRoll(),
+                icon: const Icon(Icons.auto_awesome_rounded),
+                label: Text(l10n.callUponDeity))
+          else if (supported)
+            TextButton.icon(
+                onPressed:
+                    _usingIntervention ? null : () => _resetIntervention(),
+                icon: const Icon(Icons.check_circle_outline_rounded),
+                label: Text(ru ? 'Отметить готовность' : 'Mark as ready')),
+        ]));
+  }
 
-    showDialog(
-      context: context,
-      builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 1. Icon Header
-              Icon(
-                isSuccess ? Icons.wb_sunny : Icons.nights_stay,
-                size: 64,
-                color: isSuccess ? colorScheme.secondary : colorScheme.outline,
-              ),
-              const SizedBox(height: 16),
+  Future<void> _resetIntervention() async {
+    if (_usingIntervention) return;
+    setState(() => _usingIntervention = true);
+    try {
+      await ClassSessionActionsService.resetDivineIntervention(
+          widget.character);
+      if (mounted) {
+        HapticFeedback.selectionClick();
+        widget.onStateChanged();
+      }
+    } catch (_) {
+      if (mounted) {
+        AppSnackBar.error(
+            context, AppLocalizations.of(context)!.sheetSaveFailed);
+      }
+    } finally {
+      if (mounted) setState(() => _usingIntervention = false);
+    }
+  }
 
-              // 2. Status Title
-              Text(
-                (isSuccess
-                        ? l10n.interventionSuccess
-                        : l10n.interventionFailure)
-                    .toUpperCase(),
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.5,
-                      color: isSuccess
-                          ? colorScheme.secondary
-                          : colorScheme.outline,
-                    ),
-              ),
-              const SizedBox(height: 24),
-
-              // 3. GIANT ROLL NUMBER
-              Text(
-                '$roll',
-                style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 80,
-                      color: isSuccess
-                          ? colorScheme.secondary
-                          : colorScheme.onSurfaceVariant,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n
-                    .interventionRollResult(roll.toString())
-                    .split(':')
-                    .first
-                    .toUpperCase(),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      letterSpacing: 2,
-                      color: colorScheme.outline,
-                    ),
-              ),
-              const SizedBox(height: 32),
-
-              // 4. Thematic Message
-              Text(
-                isSuccess
-                    ? (Localizations.localeOf(context).languageCode == 'ru'
-                        ? "Ваша мольба услышана!"
-                        : "Your prayer was heard!")
-                    : (Localizations.localeOf(context).languageCode == 'ru'
-                        ? "Тишина в ответ..."
-                        : "Only silence follows..."),
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontStyle: FontStyle.italic,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-              ),
-              const SizedBox(height: 32),
-
-              // 5. Action Button
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: isSuccess
-                        ? colorScheme.secondary
-                        : colorScheme.secondaryContainer,
-                    foregroundColor: isSuccess
-                        ? colorScheme.onSecondary
-                        : colorScheme.onSecondaryContainer,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
-                  ),
-                  child: Text(
-                    (Localizations.localeOf(context).languageCode == 'ru'
-                            ? "ПРИНЯТЬ ВОЛЮ БОГОВ"
-                            : "ACCEPT DIVINE WILL")
-                        .toUpperCase(),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, letterSpacing: 1.1),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  Future<void> _handleInterventionRoll() async {
+    if (_usingIntervention) return;
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    setState(() => _usingIntervention = true);
+    try {
+      final result = await ClassSessionActionsService.divineIntervention(
+          widget.character,
+          locale: ru ? 'ru' : 'en');
+      if (!mounted) return;
+      HapticFeedback.mediumImpact();
+      widget.onStateChanged();
+      await showResponsiveSheet<void>(
+          context: context,
+          isScrollControlled: true,
+          useSafeArea: true,
+          builder: (context) {
+            final t = Theme.of(context), c = t.colorScheme;
+            return SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                          ru
+                              ? 'Божественное вмешательство'
+                              : 'Divine Intervention',
+                          style: t.textTheme.headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.w800)),
+                      const SizedBox(height: 20),
+                      CompanionSurface(
+                          contour: CompanionContour.focus,
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    result.success
+                                        ? (ru
+                                            ? 'Мольба услышана'
+                                            : 'Your prayer is heard')
+                                        : (ru
+                                            ? 'Пока без ответа'
+                                            : 'No answer this time'),
+                                    style: t.textTheme.titleLarge),
+                                const SizedBox(height: 12),
+                                Text(
+                                    result.roll == null
+                                        ? (ru ? 'Без броска' : 'No roll')
+                                        : '${result.roll}',
+                                    style: t.textTheme.displayMedium?.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                        color: c.secondary)),
+                                if (result.roll != null)
+                                  Text('d100', style: t.textTheme.labelLarge),
+                                const SizedBox(height: 16),
+                                Text(
+                                    result.success
+                                        ? (ru
+                                            ? 'Мастер определяет помощь. Повторное обращение — через 7 дней.'
+                                            : 'Your GM determines the aid. You can call again in 7 days.')
+                                        : (ru
+                                            ? 'Повтори попытку после продолжительного отдыха.'
+                                            : 'Try again after a long rest.'),
+                                    style: t.textTheme.bodyLarge),
+                              ])),
+                      const SizedBox(height: 20),
+                      FilledButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(ru ? 'Продолжить' : 'Continue')),
+                    ]));
+          });
+    } catch (_) {
+      if (mounted) {
+        AppSnackBar.error(
+            context, AppLocalizations.of(context)!.sheetSaveFailed);
+      }
+    } finally {
+      if (mounted) setState(() => _usingIntervention = false);
+    }
   }
 }

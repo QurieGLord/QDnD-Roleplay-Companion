@@ -42,7 +42,7 @@
       "id": "evocation",
       "name": {
         "en": "Evocation",
-        "ru": "Школа Эвокации"
+        "ru": "Школа Воплощения"
       },
       "description": {
         "en": "You focus your study on magic that creates powerful elemental effects such as bitter cold, searing flame, rolling thunder, crackling lightning, and burning acid. Some evokers find employment in military forces, serving as artillery to blast enemy armies from afar. Others use their spectacular power to protect the weak, while some seek their own gain as bandits, adventurers, or aspiring tyrants.",
@@ -62,7 +62,18 @@
         "description": {
           "en": "As a student of arcane magic, you have a spellbook containing spells that show the first glimmerings of your true power.",
           "ru": "Как студент тайной магии, вы обладаете книгой заклинаний, содержащей заклинания, которые показывают первые проблески вашей истинной силы."
-        }
+        },
+        "minLevel": 1,
+        "associatedClass": "wizard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "auto_fix_high",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "arcane-recovery",
@@ -72,8 +83,19 @@
         },
         "description": {
           "en": "You have learned to regain some of your magical energy by studying your spellbook. Once per day when you finish a short rest, you can choose expended spell slots to recover. The spell slots can have a combined level that is equal to or less than half your wizard level (rounded up), and none of the slots can be 6th level or higher.\nFor example, if you're a 4th-level wizard, you can recover up to two levels worth of spell slots. You can recover either a 2nd-level spell slot or two 1st-level spell slots.",
-          "ru": "Вы научились восстанавливать часть своей магической энергии, изучая свою книгу заклинаний. Один раз в день, когда вы заканчиваете короткий отдых, вы можете выбрать израсходованные ячейки заклинаний для восстановления. Ячейки заклинаний могут иметь суммарный уровень, который равен или меньше половины вашего уровня волшебника (округленного в большую сторону), и ни одна из ячеек не может быть 6-го уровня или выше.\nНапример, если вы волшебник 4-го уровня, вы можете восстановить ячейки заклинаний на сумму уровней до двух. Вы можете восстановить либо одну ячейку заклинания 2-го уровня, либо две ячейки заклинаний 1-го уровня."
-        }
+          "ru": "Вы научились восстанавливать часть своей магической энергии, изучая свою книгу заклинаний. Один раз в день, когда вы заканчиваете короткий отдых, вы можете выбрать израсходованные ячейки заклинаний для восстановления. Сумма кругов восстанавливаемых ячеек не должна превышать половину вашего уровня волшебника (округленного в большую сторону), и ни одна из ячеек не может быть 6-го круга или выше.\nНапример, если вы волшебник 4-го уровня, вы можете восстановить ячейки заклинаний на сумму кругов до двух. Вы можете восстановить либо одну ячейку заклинания 2-го круга, либо две ячейки заклинаний 1-го круга."
+        },
+        "minLevel": 1,
+        "associatedClass": "wizard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "menu_book",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "2": [
@@ -85,8 +107,19 @@
         },
         "description": {
           "en": "Beginning when you select this school at 2nd level, the gold and time you must spend to copy an evocation spell into your spellbook is halved.",
-          "ru": "Золото и время, необходимые для копирования заклинания эвокации в вашу книгу заклинаний, уменьшаются вдвое."
-        }
+          "ru": "Золото и время, необходимые для копирования заклинания воплощения в вашу книгу заклинаний, уменьшаются вдвое."
+        },
+        "minLevel": 2,
+        "associatedClass": "wizard",
+        "type": "passive",
+        "associatedSubclass": "Evocation",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "menu_book",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "sculpt-spells",
@@ -96,8 +129,19 @@
         },
         "description": {
           "en": "Beginning at 2nd level, you can create pockets of relative safety within the effects of your evocation spells. When you cast an evocation spell that affects other creatures that you can see, you can choose a number of them equal to 1 + the spell's level. The chosen creatures automatically succeed on their saving throws against the spell, and they take no damage if they would normally take half damage on a successful save.",
-          "ru": "Вы можете создавать безопасные зоны внутри эффектов ваших заклинаний эвокации."
-        }
+          "ru": "Вы можете создавать безопасные зоны внутри эффектов ваших заклинаний воплощения."
+        },
+        "minLevel": 2,
+        "associatedClass": "wizard",
+        "type": "passive",
+        "associatedSubclass": "Evocation",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "menu_book",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "4": [
@@ -110,7 +154,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Повышение характеристик."
-        }
+        },
+        "minLevel": 4,
+        "associatedClass": "wizard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "menu_book",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "6": [
@@ -123,7 +178,18 @@
         "description": {
           "en": "Starting at 6th level, your damaging cantrips affect even creatures that avoid the brunt of the effect. When a creature succeeds on a saving throw against your cantrip, the creature takes half the cantrip's damage (if any) but suffers no additional effect from the cantrip.",
           "ru": "Начиная с 6-го уровня, ваши наносящие урон заговоры воздействуют даже на существ, которые избегают основного эффекта."
-        }
+        },
+        "minLevel": 6,
+        "associatedClass": "wizard",
+        "type": "passive",
+        "associatedSubclass": "Evocation",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "menu_book",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "8": [
@@ -136,7 +202,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Повышение характеристик."
-        }
+        },
+        "minLevel": 8,
+        "associatedClass": "wizard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "menu_book",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "10": [
@@ -148,8 +225,19 @@
         },
         "description": {
           "en": "Beginning at 10th level, you can add your Intelligence modifier to one damage roll of any wizard evocation spell you cast.",
-          "ru": "Начиная с 10-го уровня, вы можете добавлять свой модификатор Интеллекта к одному броску урона любого заклинания эвокации волшебника."
-        }
+          "ru": "Начиная с 10-го уровня, вы можете добавлять свой модификатор Интеллекта к одному броску урона любого заклинания воплощения волшебника."
+        },
+        "minLevel": 10,
+        "associatedClass": "wizard",
+        "type": "passive",
+        "associatedSubclass": "Evocation",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "menu_book",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "12": [
@@ -162,7 +250,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Повышение характеристик."
-        }
+        },
+        "minLevel": 12,
+        "associatedClass": "wizard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "menu_book",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "14": [
@@ -174,8 +273,19 @@
         },
         "description": {
           "en": "Starting at 14th level, you can increase the power of your simpler spells. When you cast a wizard spell of 1st through 5th level that deals damage, you can deal maximum damage with that spell.\nThe first time you do so, you suffer no adverse effect. If you use this feature again before you finish a long rest, you take 2d12 necrotic damage for each level of the spell, immediately after you cast it. Each time you use this feature again before finishing a long rest, the necrotic damage per spell level increases by 1d12. This damage ignores resistance and immunity.",
-          "ru": "Начиная с 14-го уровня, вы можете максимизировать урон своих заклинаний 1-5 уровня."
-        }
+          "ru": "Начиная с 14-го уровня, вы можете максимизировать урон своих заклинаний от 1-го до 5-го круга."
+        },
+        "minLevel": 14,
+        "associatedClass": "wizard",
+        "type": "passive",
+        "associatedSubclass": "Evocation",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "menu_book",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "16": [
@@ -188,7 +298,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Повышение характеристик."
-        }
+        },
+        "minLevel": 16,
+        "associatedClass": "wizard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "menu_book",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "18": [
@@ -201,7 +322,18 @@
         "description": {
           "en": "At 18th level, you have achieved such mastery over certain spells that you can cast them at will. Choose a 1st-level wizard spell and a 2nd-level wizard spell that are in your spellbook. You can cast those spells at their lowest level without expending a spell slot when you have them prepared. If you want to cast either spell at a higher level, you must expend a spell slot as normal.\nBy spending 8 hours in study, you can exchange one or both of the spells you chose for different spells of the same levels.",
           "ru": "На 18-м уровне вы достигли такого мастерства, что можете накладывать определенные заклинания по воле."
-        }
+        },
+        "minLevel": 18,
+        "associatedClass": "wizard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "menu_book",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "19": [
@@ -214,7 +346,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Повышение характеристик."
-        }
+        },
+        "minLevel": 19,
+        "associatedClass": "wizard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "menu_book",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "20": [
@@ -227,7 +370,18 @@
         "description": {
           "en": "When you reach 20th level, you gain mastery over two powerful spells and can cast them with little effort. Choose two 3rd-level wizard spells in your spellbook as your signature spells. You always have these spells prepared, they don't count against the number of spells you have prepared, and you can cast each of them once at 3rd level without expending a spell slot. When you do so, you can't do so again until you finish a short or long rest.\nIf you want to cast either spell at a higher level, you must expend a spell slot as normal.",
           "ru": "На 20-м уровне вы получаете мастерство над двумя мощными заклинаниями."
-        }
+        },
+        "minLevel": 20,
+        "associatedClass": "wizard",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "menu_book",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ]
   },

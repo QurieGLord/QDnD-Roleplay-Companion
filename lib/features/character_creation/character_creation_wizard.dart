@@ -8,6 +8,9 @@ import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:uuid/uuid.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/models/character.dart';
+import '../../core/magic/spellbook_state.dart';
+import '../../core/magic/class_spell_grants.dart';
+import '../../core/progression/character_class_rules.dart';
 import '../../core/models/ability_scores.dart';
 import '../../core/models/character_feature.dart';
 import '../../core/models/item.dart';
@@ -257,6 +260,9 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
 
   Future<void> _createCharacter() async {
     try {
+      if (!{'unknown', '2014'}.contains(_state.selectedClass?.rulesEdition)) {
+        throw StateError('Unsupported class rules profile.');
+      }
       // 1. Calculate final ability scores WITH racial bonuses
       final finalScores = <String, int>{};
       _state.abilityScores.forEach((ability, baseScore) {
@@ -409,22 +415,21 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
         appearanceDescription: _state.appearanceDescription,
       );
 
-      // 5.5 Add class features (Standard + Custom Class features)
-      FeatureService.addFeaturesToCharacter(character);
-
-      // Add features from selected class (Level 1)
-      final classFeatures = _state.selectedClass!.features[1];
-      if (classFeatures != null) {
-        // Avoid duplicates if FeatureService already added them (by ID)
-        final existingIds = character.features.map((f) => f.id).toSet();
-        final selectedOptions = _state.selectedFeatureOptions.values.toSet();
-        for (var feature in classFeatures) {
-          if (feature.isOptional && !selectedOptions.contains(feature.id)) {
-            continue;
-          }
-          if (!existingIds.contains(feature.id)) {
-            character.features.add(feature);
-          }
+      final rules = CharacterClassRules.capture(_state.selectedClass!);
+      final chosen = _state.selectedFeatureOptions.values.toSet();
+      for (final feature in rules.atLevel(1, _state.selectedSubclass?.id)) {
+        character.features.add(feature.copyForCharacter());
+      }
+      for (final feature
+          in rules.definitions.where((f) => chosen.contains(f.id))) {
+        if (!character.features.any((existing) => existing.id == feature.id)) {
+          character.features.add(feature.copyForCharacter());
+        }
+      }
+      FeatureService.updateFeatureMaxUses(character);
+      for (final feature in character.features) {
+        if (feature.resourcePool != null) {
+          feature.resourcePool!.currentUses = feature.resourcePool!.maxUses;
         }
       }
 
@@ -509,6 +514,13 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       }
 
       // 7. Save to database
+      rules.attachTo(character.classes.single);
+      final book = SpellbookState.read(character.spellbookData);
+      for (final spell in _state.selectedSpells) {
+        book.setKnown('class:${_state.selectedClass!.id}', spell, true);
+      }
+      character.spellbookData = book.toJson();
+      ClassSpellGrants.apply(character, _state.selectedClass!.id);
       await StorageService.saveCharacter(character);
 
       // Navigation is now handled by _nextStep
@@ -574,10 +586,24 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
 
     // Equip first armor
     for (var item in character.inventory) {
-      if (item.type == ItemType.armor && !item.isEquipped) {
+      if (item.type == ItemType.armor &&
+          item.armorProperties?.armorType != ArmorType.shield &&
+          !item.isEquipped) {
         item.isEquipped = true;
         break;
       }
+    }
+
+    final usesTwoHands = character.inventory.any(
+      (item) =>
+          item.isEquipped &&
+          (item.weaponProperties?.weaponTags.contains('two-handed') ?? false),
+    );
+    if (!usesTwoHands) {
+      final shield = character.inventory
+          .where((item) => item.armorProperties?.armorType == ArmorType.shield)
+          .firstOrNull;
+      if (shield != null) shield.isEquipped = true;
     }
 
     // Recalculate AC after equipment changes, including barbarian unarmored defense.
@@ -732,7 +758,7 @@ class _WizardHeader extends StatelessWidget {
                           opacity: animation,
                           child: SizeTransition(
                             sizeFactor: animation,
-                            axisAlignment: -1,
+                            alignment: Alignment.topCenter,
                             child: child,
                           ),
                         );

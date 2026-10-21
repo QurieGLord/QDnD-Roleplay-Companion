@@ -1,8 +1,59 @@
+import '../progression/class_spellcasting_profile.dart';
+import '../magic/spell_preparation_rules.dart';
+import 'dart:math' as math;
 import '../models/character.dart';
+import '../models/spell.dart';
+import '../models/character_feature.dart';
 import 'character_data_service.dart';
+import 'gameplay_actions_service.dart';
 
 /// Universal spellcasting mechanics calculator for ALL D&D 5e classes
 class SpellcastingService {
+  static List<int> availableSlotLevels(Character character, int spellLevel) => [
+        for (int i = 0; i < character.spellSlots.length && i < 9; i++)
+          if (i + 1 >= spellLevel && character.spellSlots[i] > 0) i + 1,
+      ];
+
+  static ResourcePool? _arcanumPool(Character character, int level) {
+    if (character.classLevel('warlock') == 0 || level < 6) return null;
+    return GameplayActionsService.arcanumFeature(character, level)
+        ?.resourcePool;
+  }
+
+  static bool canCastWithoutSlot(Character character, Spell spell) =>
+      spell.level == 0 ||
+      character.spellMasterySpells.contains(spell.id) ||
+      (character.signatureSpells.contains(spell.id) &&
+          !(character.signatureSpellsUsed[spell.id] ?? false)) ||
+      (_arcanumPool(character, spell.level)?.currentUses ?? 0) > 0;
+
+  /// Apply the cost in memory; the caller persists cost and feedback together.
+  static bool applyCast(Character character, Spell spell, {int slotLevel = 0}) {
+    if (slotLevel < 0) return false;
+    if (slotLevel > 0) {
+      if (slotLevel < spell.level ||
+          slotLevel > character.spellSlots.length ||
+          slotLevel > 9 ||
+          character.spellSlots[slotLevel - 1] <= 0) {
+        return false;
+      }
+      character.spellSlots[slotLevel - 1]--;
+      return true;
+    }
+    if (spell.level == 0 || character.spellMasterySpells.contains(spell.id)) {
+      return true;
+    }
+    if (character.signatureSpells.contains(spell.id) &&
+        !(character.signatureSpellsUsed[spell.id] ?? false)) {
+      character.signatureSpellsUsed[spell.id] = true;
+      return true;
+    }
+    final pool = _arcanumPool(character, spell.level);
+    if (pool == null || pool.currentUses <= 0) return false;
+    pool.use(1);
+    return true;
+  }
+
   /// Get the spellcasting ability for a class
   static String getSpellcastingAbility(String className) {
     // 1. Try to find class data from loaded compendium/assets
@@ -107,32 +158,21 @@ class SpellcastingService {
 
   /// Get maximum prepared spells for prepared casters
   static int getMaxPreparedSpells(Character character) {
-    final className = character.characterClass.toLowerCase();
-
-    switch (className) {
-      // Prepared casters: modifier + level (or half level for half casters)
-      case 'wizard':
-      case 'cleric':
-      case 'druid':
-        return getSpellcastingModifier(character) + character.level;
-
-      case 'paladin':
-      case 'паладин':
-        final calc =
-            getSpellcastingModifier(character) + (character.level ~/ 2);
-        return calc < 1 ? 1 : calc; // Minimum 1
-
-      // Known casters don't prepare
-      case 'bard':
-      case 'sorcerer':
-      case 'ranger':
-      case 'warlock':
-      case 'eldritch knight':
-      case 'arcane trickster':
-        return 0; // They don't prepare spells
-
-      default:
+    final entry = character.classes.where((c) => c.isPrimary).firstOrNull ??
+        character.classes.firstOrNull;
+    if (entry == null) return 0;
+    try {
+      final p = ClassSpellcastingProfile.resolve(character, entry.id),
+          rules = p?.preparation;
+      if (p == null ||
+          rules == null ||
+          rules.mode == SpellPreparationMode.known ||
+          p.learningCircle == 0) {
         return 0;
+      }
+      return math.max(1, p.modifier + p.classLevel ~/ rules.divisor);
+    } catch (_) {
+      return 0;
     }
   }
 

@@ -1,13 +1,24 @@
+import '../../../core/progression/character_training.dart';
+import '../../../core/ui/companion_surface.dart';
+import '../../../core/utils/dice_utils.dart';
+import '../../../shared/widgets/formula_roll_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/item.dart';
-import '../../../core/services/storage_service.dart';
 import '../../../shared/widgets/dice_roller_modal.dart';
 import '../../combat/combat_tracker_screen.dart';
+import 'gameplay_state_editor.dart';
+import 'session/health_panel.dart';
+import 'session/condition_chips.dart';
+import 'session/rest_sheet.dart';
+import 'session/value_editors.dart';
+import 'session/expressive_hold_surface.dart';
+import 'abilities/abilities_section_header.dart';
+import 'abilities/abilities_section_surface.dart';
 
-class OverviewTab extends StatelessWidget {
+class OverviewTab extends StatefulWidget {
   final Character character;
   final VoidCallback? onCharacterUpdated;
 
@@ -16,6 +27,19 @@ class OverviewTab extends StatelessWidget {
     required this.character,
     this.onCharacterUpdated,
   });
+
+  @override
+  State<OverviewTab> createState() => _OverviewTabState();
+}
+
+class _OverviewTabState extends State<OverviewTab> {
+  bool _resting = false;
+  Character get character => widget.character;
+  void _updated() {
+    if (!mounted) return;
+    setState(() {});
+    widget.onCharacterUpdated?.call();
+  }
 
   String _getDamageTypeLabel(AppLocalizations l10n, String type) {
     switch (type.toLowerCase()) {
@@ -60,145 +84,98 @@ class OverviewTab extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         // COMBAT DASHBOARD
-        Card(
-          elevation: 2,
-          margin: EdgeInsets.zero,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header
-                Row(
-                  children: [
-                    Icon(Icons.security, color: colorScheme.primary),
-                    const SizedBox(width: 12),
-                    Text(l10n.combatStats.toUpperCase(),
-                        style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                            color: colorScheme.primary)),
-                  ],
+        AbilitiesSectionSurface(
+          quiet: true,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AbilitiesSectionHeader(
+                title: l10n.sheetVitals,
+                icon: Icons.shield_outlined,
+                trailing: IconButton(
+                  tooltip: l10n.sheetEditCharacter,
+                  icon: const Icon(Icons.tune_rounded),
+                  onPressed: () async {
+                    if (await showGameplayStateEditor(context, character)) {
+                      _updated();
+                    }
+                  },
                 ),
-                const SizedBox(height: 20),
-
-                // 1. HP Bar
-                _buildHpBar(context, l10n),
-                const SizedBox(height: 20),
-
-                // 2. Vital Stats Grid
-                Row(
-                  children: [
-                    Expanded(
-                        child: _buildStatCard(
-                            context,
-                            l10n.armorClassAC,
-                            '${character.armorClass}',
-                            Icons.shield,
-                            colorScheme.secondary)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                        child: _buildStatCard(
-                            context,
-                            l10n.initiativeINIT,
-                            character.formatModifier(character.initiativeBonus),
-                            Icons.flash_on,
-                            colorScheme.tertiary,
-                            onTap: () => showDiceRoller(context,
-                                title: l10n.rollInitiative,
-                                modifier: character.initiativeBonus))),
-                    const SizedBox(width: 12),
-                    Expanded(
-                        child: _buildStatCard(
-                            context,
-                            l10n.speedSPEED,
-                            '${character.speed}',
-                            Icons.directions_run,
-                            colorScheme.surfaceTint)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                        child: _buildStatCard(
-                            context,
-                            l10n.proficiencyPROF,
-                            '+${character.proficiencyBonus}',
-                            Icons.school,
-                            colorScheme.outline)),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // GLOBAL CONDITIONS BLOCK
-                if (character.exhaustionLevel > 0) ...[
-                  Wrap(
-                    spacing: 8.0,
-                    runSpacing: 8.0,
-                    children: [
-                      if (character.exhaustionLevel > 0)
-                        FilterChip(
-                          showCheckmark: false,
-                          selected: true,
-                          selectedColor: colorScheme.errorContainer,
-                          side: BorderSide(
-                            color: colorScheme.error.withValues(alpha: 0.5),
-                          ),
-                          labelStyle: TextStyle(
-                            color: colorScheme.onErrorContainer,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          avatar: Icon(
-                            Icons.warning_amber_rounded,
-                            color: colorScheme.onErrorContainer,
-                            size: 18,
-                          ),
-                          label: Text(
-                            l10n.conditionExhaustion(character.exhaustionLevel),
-                          ),
-                          onSelected: (_) {},
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                ],
-
-                // 3. Attacks
-                Text(l10n.weaponsAttacks,
-                    style: theme.textTheme.labelLarge
-                        ?.copyWith(color: colorScheme.onSurfaceVariant)),
-                const SizedBox(height: 12),
-                _buildAttacksList(context, l10n),
+              ),
+              const SizedBox(height: 16),
+              if (character.activeConditions.isNotEmpty ||
+                  character.exhaustionLevel > 0) ...[
+                SheetConditionChips(character: character, onChanged: _updated),
+                const SizedBox(height: 16),
               ],
-            ),
+              SheetHealthPanel(character: character, onChanged: _updated),
+              const SizedBox(height: 16),
+
+              LayoutBuilder(builder: (context, constraints) {
+                final large = MediaQuery.textScalerOf(context).scale(1) > 1.2;
+                final columns = constraints.maxWidth >= 320 && !large
+                    ? 4
+                    : constraints.maxWidth >= 240
+                        ? 2
+                        : 1;
+                final width =
+                    (constraints.maxWidth - (columns - 1) * 8) / columns;
+                Widget cell(Widget child) =>
+                    SizedBox(width: width, child: child);
+                return Wrap(spacing: 8, runSpacing: 8, children: [
+                  cell(_buildStatCard(
+                      context,
+                      l10n.armorClassAC,
+                      '${character.armorClass}',
+                      Icons.shield_outlined,
+                      colorScheme.secondary, onHold: () async {
+                    if (await showArmorValueEditor(context, character)) {
+                      _updated();
+                    }
+                  })),
+                  cell(_buildStatCard(
+                      context,
+                      l10n.initiativeINIT,
+                      character.formatModifier(character.initiativeBonus),
+                      Icons.bolt_rounded,
+                      colorScheme.tertiary,
+                      onTap: () => showDiceRoller(context,
+                          title: l10n.rollInitiative,
+                          modifier: character.initiativeBonus))),
+                  cell(_buildStatCard(
+                      context,
+                      l10n.speedSPEED,
+                      '${character.speed}',
+                      Icons.directions_run_rounded,
+                      colorScheme.primary)),
+                  cell(_buildStatCard(
+                      context,
+                      l10n.proficiencyPROF,
+                      '+${character.proficiencyBonus}',
+                      Icons.school_outlined,
+                      colorScheme.onSurfaceVariant)),
+                ]);
+              }),
+
+              const SizedBox(height: 24),
+
+              // 3. Attacks
+              Text(
+                  '${l10n.weaponsAttacks}${CharacterTraining.attacks(character) > 1 ? ' · ${CharacterTraining.attacks(character)}' : ''}',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800, letterSpacing: -.4)),
+              const SizedBox(height: 12),
+              _buildAttacksList(context, l10n),
+            ],
           ),
         ),
 
         const SizedBox(height: 24),
 
-        // REST & ACTIONS
-        Row(
-          children: [
-            Expanded(
-              child: FilledButton.tonalIcon(
-                onPressed: () => _showRestDialog(context, short: true),
-                icon: const Icon(Icons.coffee, size: 18),
-                label: Text(l10n.shortRest),
-                style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16)),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FilledButton.tonalIcon(
-                onPressed: () => _showRestDialog(context, short: false),
-                icon: const Icon(Icons.hotel, size: 18),
-                label: Text(l10n.longRest),
-                style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16)),
-              ),
-            ),
-          ],
+        SheetRestActions(
+          busy: _resting,
+          onShortRest: () => _showRestDialog(context, short: true),
+          onLongRest: () => _showRestDialog(context, short: false),
         ),
 
         const SizedBox(height: 16),
@@ -211,7 +188,7 @@ class OverviewTab extends StatelessWidget {
                 builder: (context) => CombatTrackerScreen(character: character),
               ),
             );
-            onCharacterUpdated?.call();
+            _updated();
           },
           icon: const Icon(Icons.sports_martial_arts),
           label: Text(l10n.startCombat),
@@ -227,92 +204,38 @@ class OverviewTab extends StatelessWidget {
     );
   }
 
-  Widget _buildHpBar(BuildContext context, AppLocalizations l10n) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final hpPercent = (character.currentHp / character.maxHp).clamp(0.0, 1.0);
-
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(l10n.hitPoints,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurfaceVariant)),
-            RichText(
-              text: TextSpan(
-                style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16),
-                children: [
-                  TextSpan(
-                      text: '${character.currentHp}',
-                      style: TextStyle(
-                          fontSize: 24,
-                          color: hpPercent < 0.3
-                              ? colorScheme.error
-                              : colorScheme.primary)),
-                  TextSpan(
-                      text: '/${character.maxHp}',
-                      style: TextStyle(
-                          color: colorScheme.onSurfaceVariant, fontSize: 16)),
-                  if (character.temporaryHp > 0)
-                    TextSpan(
-                        text: ' +${character.temporaryHp}',
-                        style: TextStyle(color: colorScheme.tertiary)),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: LinearProgressIndicator(
-            value: hpPercent,
-            minHeight: 12,
-            backgroundColor: colorScheme.surfaceContainerHighest,
-            color: hpPercent < 0.3
-                ? colorScheme.error
-                : (hpPercent > 0.5 ? colorScheme.primary : Colors.amber),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildStatCard(BuildContext context, String label, String value,
       IconData icon, Color color,
-      {VoidCallback? onTap}) {
+      {VoidCallback? onTap, VoidCallback? onHold}) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isHC = Theme.of(context).dividerTheme.thickness == 2;
-    return InkWell(
+    return ExpressiveHoldSurface(
+      semanticLabel: '$label $value',
+      hint:
+          onHold == null ? null : AppLocalizations.of(context)!.sheetHoldToEdit,
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      onHold: onHold,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-              color: isHC ? color : color.withValues(alpha: 0.3),
-              width: isHC ? 2 : 1),
-        ),
+        decoration: companionDecoration(context,
+            quiet: true,
+            color: colorScheme.surfaceContainer,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22))),
         child: Column(
           children: [
-            Icon(icon, size: 20, color: color),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(icon, size: 20, color: color),
+            ]),
             const SizedBox(height: 4),
             Text(value,
                 style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 24,
                     color: colorScheme.onSurface)),
             Text(label,
                 style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                     color: colorScheme.onSurfaceVariant)),
           ],
         ),
@@ -345,7 +268,9 @@ class OverviewTab extends StatelessWidget {
         final mod =
             (isRanged || (isFinesse && dexMod > strMod)) ? dexMod : strMod;
 
-        final hitBonus = mod + character.proficiencyBonus;
+        final trained = CharacterTraining.weapon(character, weapon);
+        final hitBonus =
+            mod + (trained == false ? 0 : character.proficiencyBonus);
         final damageDice = weapon.weaponProperties?.damageDice ?? '1d4';
 
         final rawDamageType =
@@ -364,184 +289,64 @@ class OverviewTab extends StatelessWidget {
   Widget _buildAttackCard(BuildContext context, String name, int hitBonus,
       String damage, String type,
       {IconData icon = Icons.sports_martial_arts}) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context)!;
-    final isHC = Theme.of(context).dividerTheme.thickness == 2;
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
-      surfaceTintColor: colorScheme.surfaceTint,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: isHC
-            ? BorderSide(color: colorScheme.primary, width: 2)
-            : BorderSide.none,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header: Name and Type
-            Row(
-              children: [
-                Icon(icon,
-                    size: 18,
-                    color: colorScheme.primary.withValues(alpha: 0.7)),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    name,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w800, fontSize: 16),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    type.toUpperCase(),
-                    style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurfaceVariant),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Action Buttons
-            Row(
-              children: [
-                // Attack Roll Button
-                Expanded(
-                  child: Material(
-                    color: colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(12),
-                    child: InkWell(
-                      onTap: () => showDiceRoller(context,
-                          title: '${l10n.spellAttack} ($name)',
-                          modifier: hitBonus),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Column(
-                          children: [
-                            Text(
-                              l10n.hit.toUpperCase(),
-                              style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1,
-                                  color: colorScheme.onPrimaryContainer
-                                      .withValues(alpha: 0.6)),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              character.formatModifier(hitBonus),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 20,
-                                  color: colorScheme.onPrimaryContainer),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-
-                // Damage Roll Button
-                Expanded(
-                  child: Material(
-                    color: colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(12),
-                    child: InkWell(
-                      onTap: () => showDiceRoller(context,
-                          title: '${l10n.damage} ($name)',
-                          modifier:
-                              0), // Modifier 0 because dice formula handles it
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Column(
-                          children: [
-                            Text(
-                              l10n.dmg.toUpperCase(),
-                              style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1,
-                                  color: colorScheme.onSecondaryContainer
-                                      .withValues(alpha: 0.6)),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              damage,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 20,
-                                  color: colorScheme.onSecondaryContainer),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+    final t = Theme.of(context), c = t.colorScheme;
+    final l = AppLocalizations.of(context)!;
+    return Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: CompanionSurface(
+            contour: CompanionContour.facet,
+            color: c.surface,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(children: [
+                    Icon(icon, size: 22, color: c.secondary),
+                    const SizedBox(width: 10),
+                    Expanded(
+                        child: Text(name,
+                            style: t.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: -.35))),
+                    const SizedBox(width: 12),
+                    FilledButton.tonal(
+                        onPressed: () => showDiceRoller(context,
+                            title: '${l.hit} ($name)', modifier: hitBonus),
+                        child: Text(character.formatModifier(hitBonus),
+                            style: t.textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w700))),
+                  ]),
+                  const SizedBox(height: 12),
+                  FilledButton.tonalIcon(
+                      onPressed: () => showFormulaRoller(context,
+                          title: '${l.damage} · $name', formula: damage),
+                      icon: const Icon(Icons.casino_outlined, size: 20),
+                      label: Text(
+                          '${DiceUtils.formatDice(damage, context)} · $type',
+                          textAlign: TextAlign.center)),
+                ])));
   }
 
   Future<void> _showRestDialog(BuildContext context,
       {required bool short}) async {
-    final l10n = AppLocalizations.of(context)!;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(children: [
-          Icon(short ? Icons.coffee : Icons.hotel),
-          const SizedBox(width: 12),
-          Text(short ? l10n.shortRest : l10n.longRest)
-        ]),
-        content:
-            Text(short ? l10n.shortRestDescription : l10n.longRestDescription),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l10n.cancel)),
-          FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l10n.rest)),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      if (short) {
-        character.shortRest();
-      } else {
-        character.longRest();
+    if (_resting) return;
+    setState(() => _resting = true);
+    try {
+      final l10n = AppLocalizations.of(context)!;
+      final changed = await showRestSheet(context, character, short: short);
+      if (changed) {
+        _updated();
+        if (context.mounted) {
+          AppSnackBar.success(context, l10n.restedSuccess);
+        }
       }
-      await StorageService.saveCharacter(character);
-      onCharacterUpdated?.call();
+    } catch (_) {
       if (context.mounted) {
-        AppSnackBar.success(context, l10n.restedSuccess);
+        AppSnackBar.error(
+            context, AppLocalizations.of(context)!.sheetSaveFailed);
       }
+    } finally {
+      if (mounted) setState(() => _resting = false);
     }
   }
 }

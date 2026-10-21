@@ -1,5 +1,10 @@
+import '../magic/magic_slots.dart';
+import '../magic/class_action_state.dart';
+import 'dart:math' as math;
+
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
+
 import 'ability_scores.dart';
 import 'character_feature.dart';
 import 'character_class.dart';
@@ -9,8 +14,6 @@ import 'death_saves.dart';
 import 'condition.dart';
 import 'journal_note.dart';
 import 'quest.dart';
-import 'spell_slots_table.dart';
-import '../services/spellcasting_service.dart';
 
 part 'character.g.dart';
 
@@ -61,8 +64,17 @@ class Character extends HiveObject {
   @HiveField(13)
   List<int> maxSpellSlots; // Max slots by level
 
+  int _armorClass;
+
   @HiveField(14)
-  int armorClass;
+  int get armorClass => _armorClass;
+
+  /// A direct edit pins the effective value until explicitly cleared.
+  set armorClass(int value) {
+    armorClassOverride = value;
+    usesAutomaticArmorClass = false;
+    _armorClass = value;
+  }
 
   @HiveField(15)
   int speed;
@@ -186,7 +198,7 @@ class Character extends HiveObject {
   @HiveField(53)
   List<String> expertSkills;
 
-  @HiveField(54, defaultValue: 2)
+  @HiveField(54)
   int wildShapeCharges;
 
   @HiveField(55, defaultValue: false)
@@ -246,6 +258,26 @@ class Character extends HiveObject {
   @HiveField(74, defaultValue: false)
   bool isRaging;
 
+  @HiveField(75)
+  int? armorClassOverride;
+
+  @HiveField(76, defaultValue: false)
+  bool isFrenzied;
+
+  // Legacy files only have effective AC. Preserve it until the player chooses
+  // calculation; new characters explicitly store automatic mode.
+  @HiveField(77, defaultValue: false)
+  bool usesAutomaticArmorClass;
+
+  @HiveField(78, defaultValue: false)
+  bool isReckless;
+
+  @HiveField(79, defaultValue: false)
+  bool isHidden;
+
+  @HiveField(80, defaultValue: false)
+  bool isSacredWeaponActive;
+
   /// PHB p.291 – Exhaustion (0-6; 6 = dead)
   @HiveField(72, defaultValue: 0)
   int _exhaustionLevel = 0;
@@ -253,6 +285,32 @@ class Character extends HiveObject {
   int get exhaustionLevel => _exhaustionLevel;
   set exhaustionLevel(int value) {
     _exhaustionLevel = value.clamp(0, 6);
+  }
+
+  /// Additive map payload: older Hive readers can skip it safely.
+  @HiveField(81, defaultValue: {})
+  Map<String, dynamic> journalData;
+
+  /// Source-owned spell lists; an empty payload is a legacy, unassigned sheet.
+  @HiveField(82, defaultValue: {})
+  Map<String, dynamic> spellbookData;
+
+  @HiveField(83, defaultValue: {})
+  Map<String, dynamic> magicData;
+
+  @HiveField(84, defaultValue: {})
+  Map<String, dynamic> advancementData;
+
+  static int _initialWildShapeCharges(
+      String primary, int level, List<CharacterClass>? classes) {
+    bool druid(String value) =>
+        {'druid', 'друид'}.contains(value.trim().toLowerCase());
+    final own = classes == null || classes.isEmpty
+        ? (druid(primary) ? level : 0)
+        : classes
+            .where((c) => druid(c.id) || druid(c.name))
+            .fold<int>(0, (n, c) => n + c.level);
+    return own >= 2 ? 2 : 0;
   }
 
   Character({
@@ -268,9 +326,9 @@ class Character extends HiveObject {
     this.temporaryHp = 0,
     required this.abilityScores,
     this.background,
-    required this.spellSlots,
-    required this.maxSpellSlots,
-    this.armorClass = 10,
+    required List<int> spellSlots,
+    required List<int> maxSpellSlots,
+    int armorClass = 10,
     this.speed = 30,
     this.initiative = 0,
     this.proficientSkills = const [],
@@ -308,9 +366,13 @@ class Character extends HiveObject {
     this.platinumPieces = 0,
     List<JournalNote>? journalNotes,
     List<Quest>? quests,
+    Map<String, dynamic>? journalData,
+    Map<String, dynamic>? spellbookData,
+    Map<String, dynamic>? magicData,
+    Map<String, dynamic>? advancementData,
     List<CharacterClass>? classes,
     List<String>? expertSkills,
-    this.wildShapeCharges = 2,
+    int? wildShapeCharges,
     this.naturalRecoveryUsed = false,
     this.isWildShaped = false,
     this.arcaneRecoveryUsed = false,
@@ -330,11 +392,22 @@ class Character extends HiveObject {
     this.isHiddenInPlainSight = false,
     this.relentlessRageSaveDc = 10,
     this.isRaging = false,
+    this.armorClassOverride,
+    this.isFrenzied = false,
+    this.usesAutomaticArmorClass = true,
+    this.isReckless = false,
+    this.isHidden = false,
+    this.isSacredWeaponActive = false,
     int exhaustionLevel = 0,
-  })  : _exhaustionLevel = exhaustionLevel,
-        knownSpells = knownSpells ?? [],
-        preparedSpells = preparedSpells ?? [],
-        features = features ?? [],
+  })  : _armorClass = armorClass,
+        _exhaustionLevel = exhaustionLevel,
+        spellSlots = List<int>.from(spellSlots),
+        maxSpellSlots = List<int>.from(maxSpellSlots),
+        knownSpells = List<String>.from(knownSpells ?? []),
+        preparedSpells = List<String>.from(preparedSpells ?? []),
+        features = (features ?? [])
+            .map((feature) => feature.copyForCharacter())
+            .toList(),
         inventory = inventory ?? [],
         combatState = combatState ?? CombatState(),
         deathSaves = deathSaves ?? DeathSaves(),
@@ -343,6 +416,12 @@ class Character extends HiveObject {
         maxHitDice = maxHitDice ?? level,
         journalNotes = journalNotes ?? [],
         quests = quests ?? [],
+        journalData = journalData ?? {},
+        spellbookData = spellbookData ?? {},
+        magicData = magicData ?? {},
+        wildShapeCharges = wildShapeCharges ??
+            _initialWildShapeCharges(characterClass, level, classes),
+        advancementData = advancementData ?? {},
         classes = classes ?? [],
         expertSkills = expertSkills ?? [],
         spellMasterySpells = spellMasterySpells ?? [],
@@ -353,15 +432,21 @@ class Character extends HiveObject {
         createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now() {
     // Migration/Sync Logic:
+    if (!usesAutomaticArmorClass && armorClassOverride == null) {
+      armorClassOverride = _armorClass;
+    }
+    if (armorClassOverride != null) usesAutomaticArmorClass = false;
     // If classes list is empty but we have legacy single class data, populate it.
     if (this.classes.isEmpty && characterClass.isNotEmpty) {
-      this.classes.add(CharacterClass(
-            id: characterClass.toLowerCase(),
-            name: characterClass,
-            level: level,
-            subclass: subclass,
-            isPrimary: true,
-          ));
+      this.classes.add(
+            CharacterClass(
+              id: characterClass.toLowerCase(),
+              name: characterClass,
+              level: level,
+              subclass: subclass,
+              isPrimary: true,
+            ),
+          );
     }
 
     // Fix stale class levels: for single-class characters, the primary
@@ -400,9 +485,11 @@ class Character extends HiveObject {
       characterClass.toLowerCase() == 'варвар' ||
       hasFeatureId('barbarian-unarmored-defense');
 
-  bool get hasRelentlessRage => hasFeatureId('relentless-rage');
+  bool get hasRelentlessRage =>
+      classLevel('barbarian') >= 11 && hasFeatureId('relentless-rage');
 
-  bool get hasFeralInstinct => hasFeatureId('feral-instinct');
+  bool get hasFeralInstinct =>
+      classLevel('barbarian') >= 7 && hasFeatureId('feral-instinct');
 
   int get constitutionSavingThrowBonus {
     final proficiency =
@@ -421,17 +508,16 @@ class Character extends HiveObject {
   }
 
   int getMaxChannelDivinityCharges() {
-    final classId = characterClass.toLowerCase();
-    if (classId == 'cleric' || classId == 'жрец') {
-      if (level < 2) return 0;
-      if (level < 6) return 1;
-      if (level < 18) return 2;
-      return 3;
-    }
-    if (classId == 'paladin' || classId == 'паладин') {
-      return level >= 3 ? 1 : 0;
-    }
-    return 0;
+    final clericLevel = classLevel('cleric');
+    final clericUses = clericLevel < 2
+        ? 0
+        : clericLevel < 6
+            ? 1
+            : clericLevel < 18
+                ? 2
+                : 3;
+    final paladinUses = classLevel('paladin') >= 3 ? 1 : 0;
+    return math.max(clericUses, paladinUses);
   }
 
   void resetRelentlessRageSaveDc() {
@@ -442,34 +528,9 @@ class Character extends HiveObject {
     relentlessRageSaveDc += amount;
   }
 
-  void _applyPrimalChampionBonus() {
-    if (level < 20 || !hasFeatureId('primal-champion')) {
-      return;
-    }
-
-    if (abilityScores.strength <= 20) {
-      final boostedStrength = abilityScores.strength + 4;
-      abilityScores = abilityScores.copyWith(
-        strength: boostedStrength > 24 ? 24 : boostedStrength,
-      );
-    }
-
-    if (abilityScores.constitution <= 20) {
-      final boostedConstitution = abilityScores.constitution + 4;
-      abilityScores = abilityScores.copyWith(
-        constitution: boostedConstitution > 24 ? 24 : boostedConstitution,
-      );
-    }
-  }
-
-  void _syncDerivedState() {
-    _applyPrimalChampionBonus();
-    recalculateAC();
-  }
-
   @override
   Future<void> save() async {
-    _syncDerivedState();
+    // Persistence is not a gameplay action: do not grant stats or replace AC.
     updatedAt = DateTime.now();
     return super.save();
   }
@@ -491,6 +552,8 @@ class Character extends HiveObject {
       'spellSlots': spellSlots,
       'maxSpellSlots': maxSpellSlots,
       'armorClass': armorClass,
+      'armorClassOverride': armorClassOverride,
+      'usesAutomaticArmorClass': usesAutomaticArmorClass,
       'speed': speed,
       'initiative': initiative,
       'proficientSkills': proficientSkills,
@@ -528,6 +591,10 @@ class Character extends HiveObject {
       'platinumPieces': platinumPieces,
       'journalNotes': journalNotes.map((n) => n.toJson()).toList(),
       'quests': quests.map((q) => q.toJson()).toList(),
+      'journalData': journalData,
+      'spellbookData': spellbookData,
+      'magicData': magicData,
+      'advancementData': advancementData,
       'expertSkills': expertSkills,
       'wildShapeCharges': wildShapeCharges,
       'naturalRecoveryUsed': naturalRecoveryUsed,
@@ -548,6 +615,10 @@ class Character extends HiveObject {
       'isHiddenInPlainSight': isHiddenInPlainSight,
       'relentlessRageSaveDc': relentlessRageSaveDc,
       'isRaging': isRaging,
+      'isFrenzied': isFrenzied,
+      'isReckless': isReckless,
+      'isHidden': isHidden,
+      'isSacredWeaponActive': isSacredWeaponActive,
     };
   }
 
@@ -612,157 +683,217 @@ class Character extends HiveObject {
     save();
   }
 
-  // Spell slot management methods
-  void restoreSpellSlot(int level) {
-    if (level > 0 && level <= maxSpellSlots.length) {
-      if (spellSlots[level - 1] < maxSpellSlots[level - 1]) {
-        spellSlots[level - 1]++;
-        updatedAt = DateTime.now();
-        save(); // Hive save
-      }
+  // Spell slot edits use the actual remainder, including table-granted extras.
+  void setSpellSlotCount(int level, int count) {
+    if (level < 1 || level > 9) return;
+    while (spellSlots.length < level) {
+      spellSlots.add(0);
     }
+    while (maxSpellSlots.length < level) {
+      maxSpellSlots.add(0);
+    }
+    spellSlots[level - 1] = math.max(0, count);
+  }
+
+  void restoreSpellSlot(int level) {
+    if (level < 1 || level > 9) return;
+    final current = level <= spellSlots.length ? spellSlots[level - 1] : 0;
+    setSpellSlotCount(level, current + 1);
+    save();
   }
 
   void useSpellSlot(int level) {
-    if (level > 0 && level <= spellSlots.length) {
-      if (spellSlots[level - 1] > 0) {
-        spellSlots[level - 1]--;
-        updatedAt = DateTime.now();
-        save(); // Hive save
+    if (level < 1 || level > spellSlots.length) return;
+    if (spellSlots[level - 1] <= 0) return;
+    spellSlots[level - 1]--;
+    save();
+  }
+
+  /// An automatic recovery is one event, not one save per restored slot.
+  void recoverSpellSlots(Map<int, int> amounts) {
+    for (final entry in amounts.entries) {
+      final level = entry.key;
+      if (level < 1 || level > maxSpellSlots.length || entry.value <= 0) {
+        continue;
+      }
+      final current = level <= spellSlots.length ? spellSlots[level - 1] : 0;
+      final normalMax = maxSpellSlots[level - 1];
+      if (current < normalMax) {
+        setSpellSlotCount(level, math.min(normalMax, current + entry.value));
       }
     }
+  }
+
+  void _restoreSpellSlots() {
+    while (spellSlots.length < maxSpellSlots.length) {
+      spellSlots.add(0);
+    }
+
+    for (int i = 0; i < maxSpellSlots.length; i++) {
+      spellSlots[i] = math.max(spellSlots[i], math.max(0, maxSpellSlots[i]));
+    }
+  }
+
+  int classLevel(String id) {
+    const aliases = {
+      'варвар': 'barbarian',
+      'бард': 'bard',
+      'жрец': 'cleric',
+      'друид': 'druid',
+      'воин': 'fighter',
+      'монах': 'monk',
+      'паладин': 'paladin',
+      'следопыт': 'ranger',
+      'плут': 'rogue',
+      'чародей': 'sorcerer',
+      'колдун': 'warlock',
+      'волшебник': 'wizard',
+    };
+    String canonical(String value) =>
+        aliases[value.toLowerCase().trim()] ?? value.toLowerCase().trim();
+    return classes
+        .where((c) => canonical(c.id) == id || canonical(c.name) == id)
+        .fold(0, (sum, c) => sum + c.level);
+  }
+
+  void _restoreWildShapeCharges() {
+    if (classLevel('druid') >= 2) {
+      wildShapeCharges = math.max(wildShapeCharges, 2);
+    }
+  }
+
+  static bool isChannelDivinityResource(CharacterFeature feature) =>
+      feature.resourcePool != null &&
+      const {
+        'channel-divinity',
+        'channel_divinity',
+        'channel-divinity-1-rest',
+        'channel-divinity-2-rest',
+        'channel-divinity-3-rest',
+      }.contains(feature.id);
+
+  List<CharacterFeature> get channelDivinityResources =>
+      features.where(isChannelDivinityResource).toList();
+
+  CharacterFeature? get channelDivinityResource {
+    final candidates = channelDivinityResources;
+    candidates.sort((a, b) => b.minLevel.compareTo(a.minLevel));
+    return candidates.firstOrNull;
+  }
+
+  // Keep the formerly visible value until an explicit resource action.
+  int get editableChannelDivinityCharges => classLevel('cleric') >= 2
+      ? channelDivinityCharges
+      : channelDivinityResource?.resourcePool?.currentUses ??
+          channelDivinityCharges;
+
+  void setChannelDivinityCharges(int value) {
+    channelDivinityCharges = math.max(0, value);
+    for (final feature in channelDivinityResources) {
+      feature.resourcePool!.setCurrentUses(channelDivinityCharges);
+    }
+  }
+
+  bool consumeChannelDivinity({int amount = 1, ResourcePool? source}) {
+    final current = source?.currentUses ?? channelDivinityCharges;
+    if (amount <= 0 || current < amount) return false;
+    setChannelDivinityCharges(current - amount);
+    return true;
+  }
+
+  void acquireChannelDivinity({
+    required bool previouslyAvailable,
+    required int previousCurrent,
+  }) {
+    if (channelDivinityResources.isEmpty) return;
+    setChannelDivinityCharges(
+      previouslyAvailable
+          ? previousCurrent
+          : math.max(previousCurrent, getMaxChannelDivinityCharges()),
+    );
+  }
+
+  void _restoreChannelDivinity({required bool longRest}) {
+    final pool = channelDivinityResource?.resourcePool;
+    final recovery = pool?.recoveryType ?? RecoveryType.shortRest;
+    if (recovery != RecoveryType.shortRest &&
+        !(longRest && recovery == RecoveryType.longRest)) {
+      return;
+    }
+    var current = math.max(
+      channelDivinityCharges,
+      pool?.maxUses ?? getMaxChannelDivinityCharges(),
+    );
+    for (final feature in channelDivinityResources) {
+      current = math.max(current, feature.resourcePool!.currentUses);
+    }
+    setChannelDivinityCharges(current);
   }
 
   void longRest() {
-    // Restore all HP
-    currentHp = maxHp;
-    temporaryHp = 0;
-
-    // Restore all spell slots
-    // STRICT WARLOCK FIX: Override logic for Warlocks
-    if (SpellcastingService.getSpellcastingType(characterClass) ==
-        'pact_magic') {
-      final pactSlots = SpellSlotsTable.getPactSlots(level);
-      // Grow array if needed
-      while (spellSlots.length < pactSlots.length) {
-        spellSlots.add(0);
-      }
-
-      for (int i = 0; i < pactSlots.length; i++) {
-        if (pactSlots[i] > 0) {
-          spellSlots[i] = pactSlots[i];
-        } else {
-          // Optional: clear non-pact slots to avoid confusion
-          if (i < spellSlots.length) spellSlots[i] = 0;
-        }
-      }
+    currentHp = math.max(currentHp, math.max(0, maxHp));
+    if (magicData.isNotEmpty) {
+      MagicSlots.expireCreated(this);
+      MagicSlots.read(this).recover(short: false).applyTo(this);
     } else {
-      for (int i = 0; i < maxSpellSlots.length; i++) {
-        spellSlots[i] = maxSpellSlots[i];
+      _restoreSpellSlots();
+    }
+    for (final feature in features) {
+      final pool = feature.resourcePool;
+      if (!isChannelDivinityResource(feature) &&
+          pool != null &&
+          (pool.recoveryType == RecoveryType.longRest ||
+              pool.recoveryType == RecoveryType.shortRest)) {
+        pool.restoreFull();
       }
     }
-
-    // Restore all features that recover on long rest
-    for (var feature in features) {
-      if (feature.resourcePool != null) {
-        if (feature.resourcePool!.recoveryType == RecoveryType.longRest ||
-            feature.resourcePool!.recoveryType == RecoveryType.shortRest) {
-          feature.resourcePool!.restoreFull();
-        }
-      }
-    }
-
-    // Druid: Restore Wild Shape and Natural Recovery
-    wildShapeCharges = 2; // Fixed for SRD Druid
+    _restoreWildShapeCharges();
+    _restoreChannelDivinity(longRest: true);
+    ClassActionState.longRest(this);
     naturalRecoveryUsed = false;
-    isWildShaped = false; // Revert if sleeping
-
-    // Wizard: Restore Arcane Recovery
     arcaneRecoveryUsed = false;
-
-    // Reduce exhaustion
-    if (exhaustionLevel > 0) {
-      exhaustionLevel--;
-    }
-
-    // Wizard: Restore Signature Spells
-    signatureSpellsUsed.forEach((key, value) {
-      signatureSpellsUsed[key] = false;
-    });
-
-    resetRelentlessRageSaveDc();
-    isRaging = false;
-
-    // Reset Channel Divinity Charges
-    channelDivinityCharges = getMaxChannelDivinityCharges();
-
-    // Restore hit dice (half of max, minimum 1)
-    final toRestore = (maxHitDice / 2).ceil();
-    restoreHitDice(toRestore);
-
-    // Clear death saves
-    deathSaves.reset();
-    combatState.resetDeathSaveTracking();
-
-    // Clear conditions (some may persist - for now clear all)
-    activeConditions = [];
-
-    // Break concentration
-    concentratingOn = null;
-
+    signatureSpellsUsed.updateAll((_, __) => false);
+    restoreHitDice(math.max(1, maxHitDice ~/ 2), persist: false);
+    // Conditions, exhaustion, temporary HP, form, concentration and active
+    // effects are player-managed. Rest does not silently clear their marks.
     updatedAt = DateTime.now();
-    // Note: Save manually after calling this method
   }
 
   void shortRest() {
-    // Restore features that recover on short rest
-    for (var feature in features) {
-      if (feature.resourcePool != null) {
-        if (feature.resourcePool!.recoveryType == RecoveryType.shortRest) {
-          feature.resourcePool!.restoreFull();
-        }
+    for (final feature in features) {
+      final pool = feature.resourcePool;
+      if (!isChannelDivinityResource(feature) &&
+          pool?.recoveryType == RecoveryType.shortRest) {
+        pool!.restoreFull();
       }
     }
-
-    // Warlocks restore spell slots on short rest
-    if (SpellcastingService.getSpellcastingType(characterClass) ==
-        'pact_magic') {
-      final pactSlots = SpellSlotsTable.getPactSlots(level);
-      // Grow array if needed
-      while (spellSlots.length < pactSlots.length) {
-        spellSlots.add(0);
-      }
-
-      for (int i = 0; i < pactSlots.length; i++) {
-        if (pactSlots[i] > 0) {
-          spellSlots[i] = pactSlots[i];
-        } else {
-          if (i < spellSlots.length) spellSlots[i] = 0;
-        }
-      }
+    // Mixed Pact/Spellcasting slots need separate pools. Do not reset the
+    // normal shared slots of a multiclass character as though all were Pact.
+    if (magicData.isNotEmpty) {
+      MagicSlots.read(this).recover(short: true).applyTo(this);
+    } else if (classes.length == 1 && classLevel('warlock') > 0) {
+      _restoreSpellSlots();
     }
-
-    // Druid: Restore Wild Shape on Short Rest
-    // "You regain expended uses when you finish a short or long rest."
-    wildShapeCharges = 2;
-
-    // Wizard: Restore Signature Spells
-    signatureSpellsUsed.forEach((key, value) {
-      signatureSpellsUsed[key] = false;
-    });
-
-    resetRelentlessRageSaveDc();
-    isRaging = false;
-
-    // Reset Channel Divinity Charges
-    channelDivinityCharges = getMaxChannelDivinityCharges();
+    _restoreWildShapeCharges();
+    _restoreChannelDivinity(longRest: false);
+    signatureSpellsUsed.updateAll((_, __) => false);
 
     updatedAt = DateTime.now();
-    // Note: Save manually after calling this method
+  }
+
+  void endRage() {
+    if (isFrenzied) exhaustionLevel++;
+    isRaging = false;
+    isFrenzied = false;
   }
 
   // HP Management Methods
-  Future<void> takeDamage(int damage, {String? source}) async {
+  Future<void> takeDamage(
+    int damage, {
+    String? source,
+    bool persist = true,
+  }) async {
+    if (damage <= 0) return;
     int remainingDamage = damage;
 
     // 1. Temporary HP absorbs damage first, regardless of form
@@ -779,7 +910,7 @@ class Character extends HiveObject {
     if (remainingDamage > 0) {
       // 2. If Wild Shaped, damage goes to beast HP
       if (isWildShaped && beastCurrentHp != null) {
-        if (remainingDamage <= beastCurrentHp!) {
+        if (remainingDamage < beastCurrentHp!) {
           beastCurrentHp = beastCurrentHp! - remainingDamage;
           remainingDamage = 0;
         } else {
@@ -797,53 +928,59 @@ class Character extends HiveObject {
 
     if (currentHp < 0) currentHp = 0;
     if (currentHp == 0 && !(hasRelentlessRage && isRaging)) {
-      isRaging = false;
+      endRage();
     }
 
     // Add to combat log
     if (combatState.isInCombat) {
       combatState.totalDamageTaken += damage;
-      combatState.addLogEntry(CombatLogEntry(
-        id: const Uuid().v4(),
-        timestamp: DateTime.now(),
-        type: CombatLogType.damage,
-        amount: damage,
-        description: source != null ? 'Damage from $source' : 'Damage taken',
-        round: combatState.currentRound,
-      ));
+      combatState.addLogEntry(
+        CombatLogEntry(
+          id: const Uuid().v4(),
+          timestamp: DateTime.now(),
+          type: CombatLogType.damage,
+          amount: damage,
+          description: source != null ? 'Damage from $source' : 'Damage taken',
+          round: combatState.currentRound,
+        ),
+      );
     }
 
     // Check concentration
     if (concentratingOn != null) {
-      final dc = (damage / 2).floor().clamp(10, 99);
+      final dc = math.max(10, damage ~/ 2);
       if (combatState.isInCombat) {
-        combatState.addLogEntry(CombatLogEntry(
-          id: const Uuid().v4(),
-          timestamp: DateTime.now(),
-          type: CombatLogType.concentrationCheck,
-          amount: dc,
-          description: 'Concentration check required (DC $dc)',
-          round: combatState.currentRound,
-        ));
+        combatState.addLogEntry(
+          CombatLogEntry(
+            id: const Uuid().v4(),
+            timestamp: DateTime.now(),
+            type: CombatLogType.concentrationCheck,
+            amount: dc,
+            description: 'Concentration check required (DC $dc)',
+            round: combatState.currentRound,
+          ),
+        );
       }
     }
 
     updatedAt = DateTime.now();
-    await save();
+    if (persist) await save();
   }
 
-  Future<void> heal(int healing, {String? source}) async {
+  Future<void> heal(int healing, {String? source, bool persist = true}) async {
+    if (healing <= 0) return;
+    final previousHp = currentHp;
     // Apply healing to current form
     if (isWildShaped && beastCurrentHp != null && beastMaxHp != null) {
       final newHp = beastCurrentHp! + healing;
-      beastCurrentHp = newHp > beastMaxHp! ? beastMaxHp! : newHp;
+      beastCurrentHp = math.max(beastCurrentHp!, math.min(newHp, beastMaxHp!));
     } else {
       final newHp = currentHp + healing;
-      currentHp = newHp > maxHp ? maxHp : newHp;
+      currentHp = math.max(currentHp, math.min(newHp, maxHp));
     }
 
     // Reset death saves if healing from 0 HP
-    if (currentHp > 0 && deathSaves.isActive) {
+    if (previousHp == 0 && currentHp > 0) {
       deathSaves.reset();
       combatState.resetDeathSaveTracking();
     }
@@ -851,18 +988,21 @@ class Character extends HiveObject {
     // Add to combat log (same as takeDamage)
     if (combatState.isInCombat) {
       combatState.totalHealing += healing;
-      combatState.addLogEntry(CombatLogEntry(
-        id: const Uuid().v4(),
-        timestamp: DateTime.now(),
-        type: CombatLogType.healing,
-        amount: healing,
-        description: source != null ? 'Healed by $source' : 'Healing received',
-        round: combatState.currentRound,
-      ));
+      combatState.addLogEntry(
+        CombatLogEntry(
+          id: const Uuid().v4(),
+          timestamp: DateTime.now(),
+          type: CombatLogType.healing,
+          amount: healing,
+          description:
+              source != null ? 'Healed by $source' : 'Healing received',
+          round: combatState.currentRound,
+        ),
+      );
     }
 
     updatedAt = DateTime.now();
-    await save();
+    if (persist) await save();
   }
 
   void addTemporaryHp(int amount) {
@@ -875,41 +1015,46 @@ class Character extends HiveObject {
   }
 
   // Condition Management
-  void addCondition(ConditionType condition) {
+  void addCondition(ConditionType condition, {bool persist = true}) {
     if (!activeConditions.contains(condition)) {
       activeConditions = List.from(activeConditions)..add(condition);
 
       if (combatState.isInCombat) {
-        combatState.addLogEntry(CombatLogEntry(
-          id: const Uuid().v4(),
-          timestamp: DateTime.now(),
-          type: CombatLogType.conditionAdded,
-          description: 'Gained ${condition.displayName}',
-          round: combatState.currentRound,
-        ));
+        combatState.addLogEntry(
+          CombatLogEntry(
+            id: const Uuid().v4(),
+            timestamp: DateTime.now(),
+            type: CombatLogType.conditionAdded,
+            description: 'Gained ${condition.displayName}',
+            round: combatState.currentRound,
+          ),
+        );
       }
 
       updatedAt = DateTime.now();
-      save();
+      if (persist) save();
     }
   }
 
-  void removeCondition(ConditionType condition) {
+  void removeCondition(ConditionType condition, {bool persist = true}) {
     if (activeConditions.contains(condition)) {
-      activeConditions = List.from(activeConditions)..remove(condition);
+      activeConditions = List.from(activeConditions)
+        ..removeWhere((c) => c == condition);
 
       if (combatState.isInCombat) {
-        combatState.addLogEntry(CombatLogEntry(
-          id: const Uuid().v4(),
-          timestamp: DateTime.now(),
-          type: CombatLogType.conditionRemoved,
-          description: 'Removed ${condition.displayName}',
-          round: combatState.currentRound,
-        ));
+        combatState.addLogEntry(
+          CombatLogEntry(
+            id: const Uuid().v4(),
+            timestamp: DateTime.now(),
+            type: CombatLogType.conditionRemoved,
+            description: 'Removed ${condition.displayName}',
+            round: combatState.currentRound,
+          ),
+        );
       }
 
       updatedAt = DateTime.now();
-      save();
+      if (persist) save();
     }
   }
 
@@ -923,20 +1068,34 @@ class Character extends HiveObject {
     }
   }
 
-  void restoreHitDice(int amount) {
-    final currentTotal = hitDice.fold(0, (sum, dice) => sum + dice);
-    final toRestore = amount.clamp(0, maxHitDice - currentTotal);
-
-    if (toRestore > 0 && hitDice.isNotEmpty) {
-      hitDice = List.from(hitDice);
-      hitDice[0] += toRestore;
+  void restoreHitDice(int amount, {bool persist = true}) {
+    if (amount > 0 && hitDice.length == classes.length) {
+      var remaining = math.max(0, amount);
+      hitDice = List<int>.of(hitDice);
+      for (var i = 0; i < hitDice.length && remaining > 0; i++) {
+        final gain =
+            math.min(remaining, math.max(0, classes[i].level - hitDice[i]));
+        hitDice[i] += gain;
+        remaining -= gain;
+      }
       updatedAt = DateTime.now();
-      save();
+      if (persist) save();
     }
   }
 
   // Armor Class Calculation
+  void clearArmorClassOverride() {
+    armorClassOverride = null;
+    usesAutomaticArmorClass = true;
+    recalculateAC();
+  }
+
   void recalculateAC() {
+    _armorClass = armorClassOverride ?? calculatedArmorClass;
+    updatedAt = DateTime.now();
+  }
+
+  int get calculatedArmorClass {
     int baseAC = 10;
     int dexMod = abilityScores.dexterityModifier;
     int totalAC = baseAC;
@@ -977,6 +1136,15 @@ class Character extends HiveObject {
       if (hasBarbarianUnarmoredDefense) {
         totalAC += conMod;
       }
+      final hasMonkDefense =
+          (classLevel('monk') > 0 && !hasBarbarianUnarmoredDefense) ||
+              hasFeatureId('monk-unarmored-defense');
+      if (hasMonkDefense && equippedShield == null) {
+        totalAC = math.max(totalAC, 10 + dexMod + abilityScores.wisdomModifier);
+      }
+      if (hasFeatureId('draconic-resilience')) {
+        totalAC = math.max(totalAC, 13 + dexMod);
+      }
     }
 
     // Add shield bonus
@@ -984,7 +1152,13 @@ class Character extends HiveObject {
       totalAC += equippedShield.armorProperties!.baseAC;
     }
 
-    armorClass = totalAC;
-    updatedAt = DateTime.now();
+    if (equippedArmor != null &&
+        (hasFeatureId('fighter-fighting-style-defense') ||
+            hasFeatureId('fighting-style-defense') ||
+            hasFeatureId('ranger-fighting-style-defense'))) {
+      totalAC++;
+    }
+
+    return totalAC;
   }
 }

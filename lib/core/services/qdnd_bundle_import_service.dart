@@ -1,3 +1,7 @@
+import '../progression/advancement_history.dart';
+import '../magic/spellbook_state.dart';
+import '../progression/character_class_rules.dart';
+
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -90,16 +94,17 @@ class QdndBundleImportService {
 
     final characterJson = _jsonMap(bundle.files['character.json']);
     final character = QdndBundleCodec.characterFromJson(characterJson);
+    final boundRules = [
+      for (final cls in character.classes)
+        if (cls.rulesSnapshot != null)
+          CharacterClassRules.fromSnapshot(cls.rulesSnapshot!),
+    ];
     final oldCharacterId = character.id;
     character.id = mapper.mapCharacterId(oldCharacterId);
     character.createdAt = DateTime.now();
     character.updatedAt = DateTime.now();
 
-    _remapCharacterReferences(
-      character,
-      mapper,
-      resolution.resolved,
-    );
+    _remapCharacterReferences(character, mapper, resolution.resolved);
     await _restoreMediaFiles(
       character: character,
       oldCharacterId: oldCharacterId,
@@ -109,13 +114,18 @@ class QdndBundleImportService {
     );
 
     final resourceStates = _captureResourceStates(character);
-    FeatureService.addFeaturesToCharacter(character);
-    final hydration = FeatureHydrationService.hydrateCharacter(character);
-    character.features
-      ..clear()
-      ..addAll(hydration.features);
+    if (boundRules.isEmpty) {
+      FeatureService.addFeaturesToCharacter(
+        character,
+        initializeNewResources: false,
+      );
+      final hydration = FeatureHydrationService.hydrateCharacter(character);
+      character.features
+        ..clear()
+        ..addAll(hydration.features);
+      _mergeHydrationDiagnostics(diagnostics, hydration);
+    }
     _restoreResourceStates(character, resourceStates);
-    _mergeHydrationDiagnostics(diagnostics, hydration);
     character.recalculateAC();
 
     if (embedded.items.isNotEmpty) {
@@ -208,7 +218,11 @@ class QdndBundleImportService {
     }
 
     final schemaVersion = manifest['schemaVersion'];
-    if (schemaVersion != qdndBundleSchemaVersion) {
+    if (schemaVersion != 1 &&
+        schemaVersion != 2 &&
+        schemaVersion != 3 &&
+        schemaVersion != 4 &&
+        schemaVersion != qdndBundleSchemaVersion) {
       throw const QdndBundleException(
         'unsupported_schema',
         'This QDND bundle schema version is not supported.',
@@ -226,9 +240,11 @@ class QdndBundleImportService {
 
     final dependencies = (manifest['dependencies'] as List? ?? const [])
         .whereType<Map>()
-        .map((entry) => BundleDependencyReference.fromJson(
-              Map<String, dynamic>.from(entry),
-            ))
+        .map(
+          (entry) => BundleDependencyReference.fromJson(
+            Map<String, dynamic>.from(entry),
+          ),
+        )
         .toList();
 
     final contentCounts = manifest['contentCounts'] is Map
@@ -328,8 +344,10 @@ class QdndBundleImportService {
       spells.add(spell);
     }
 
-    for (final wrapper
-        in _jsonList(files['content/features.json'], 'features')) {
+    for (final wrapper in _jsonList(
+      files['content/features.json'],
+      'features',
+    )) {
       final feature = CharacterFeature.fromJson(_wrappedData(wrapper));
       final oldId = feature.id;
       feature.id = mapper.createContentId('feature', oldId);
@@ -377,12 +395,16 @@ class QdndBundleImportService {
           spellcasting: classData.spellcasting,
           features: classData.features,
           sourceId: classData.sourceId,
+          rulesMetadata: classData.rulesMetadata,
+          sourceDefinition: classData.sourceDefinition,
         ),
       );
     }
 
-    for (final wrapper
-        in _jsonList(files['content/backgrounds.json'], 'backgrounds')) {
+    for (final wrapper in _jsonList(
+      files['content/backgrounds.json'],
+      'backgrounds',
+    )) {
       final background = QdndBundleCodec.backgroundFromJson(
         _wrappedData(wrapper),
       );
@@ -456,16 +478,35 @@ class QdndBundleImportService {
     BundleIdMapper mapper,
     List<BundleResolvedDependency> resolved,
   ) {
+    character.advancementData = AdvancementHistory.remap(
+        character, (view) => _remapCharacterReferences(view, mapper, resolved));
     final resolvedByKey = {
       for (final dependency in resolved) dependency.reference.key: dependency,
     };
 
+    String mapClass(String id)=>character.classes.any((c)=>c.id==id&&c.rulesSnapshot!=null)?id:mapper.mapContentId('class',id);
+    if (character.magicData['pact'] is Map) {
+      final pact =
+          Map<String, dynamic>.from(character.magicData['pact'] as Map);
+      if (pact['owner'] is String) {
+        pact['owner'] = mapClass(pact['owner'] as String);
+      }
+      character.magicData = {...character.magicData, 'pact': pact};
+    }
+    character.spellbookData =
+        SpellbookState.read(character.spellbookData).remap(
+      spell: (id) => mapper.mapContentId('spell', id),
+      classId: mapClass,
+    );
     character.knownSpells = character.knownSpells
         .map((id) => mapper.mapContentId('spell', id))
         .toList();
     character.preparedSpells = character.preparedSpells
         .map((id) => mapper.mapContentId('spell', id))
         .toList();
+    character.spellMasterySpells=character.spellMasterySpells.map((id)=>mapper.mapContentId('spell',id)).toList();
+    character.signatureSpells=character.signatureSpells.map((id)=>mapper.mapContentId('spell',id)).toList();
+    character.signatureSpellsUsed={for(final entry in character.signatureSpellsUsed.entries)mapper.mapContentId('spell',entry.key):entry.value};
     if (character.concentratingOn != null) {
       character.concentratingOn = mapper.mapContentId(
         'spell',
@@ -482,7 +523,22 @@ class QdndBundleImportService {
       return item;
     }).toList();
 
+    final frozenFeatures = {
+      for (final cls in character.classes)
+        if (cls.rulesSnapshot != null)
+          for (final feature in CharacterClassRules.fromSnapshot(
+            cls.rulesSnapshot!,
+          ).definitions)
+            feature.id: feature,
+    };
     character.features = character.features.map((feature) {
+      final frozen = frozenFeatures[feature.id];
+      if (frozen != null) {
+        final copy = feature.copyForCharacter();
+        copy.descriptionEn = frozen.descriptionEn;
+        copy.descriptionRu = frozen.descriptionRu;
+        return copy;
+      }
       final resolvedFeature = resolvedByKey['feature:${feature.id}']?.entity;
       if (resolvedFeature is CharacterFeature) {
         return _mergeFeatureState(resolvedFeature, feature);
@@ -517,7 +573,10 @@ class QdndBundleImportService {
       );
     }
     for (final cls in character.classes) {
-      cls.id = mapper.mapContentId('class', cls.id);
+      // A frozen class definition is owned by this hero, not the installed catalog.
+      if (cls.rulesSnapshot == null) {
+        cls.id = mapper.mapContentId('class', cls.id);
+      }
     }
   }
 
@@ -541,6 +600,8 @@ class QdndBundleImportService {
       iconName: template.iconName,
       customImagePath: state.customImagePath ?? template.customImagePath,
       sourceId: template.sourceId,
+      instanceId: state.instanceId,
+      requiresAttunement: state.requiresAttunement || template.requiresAttunement,
     );
   }
 
@@ -572,27 +633,33 @@ class QdndBundleImportService {
     );
   }
 
-  static Map<String, int> _captureResourceStates(Character character) {
-    final states = <String, int>{};
+  static Map<String, ResourcePool> _captureResourceStates(Character character) {
+    final states = <String, ResourcePool>{};
+    final groups = <String, List<ResourcePool>>{};
     for (final feature in character.features) {
-      if (feature.resourcePool == null) continue;
-      states[_resourceKey(feature)] = feature.resourcePool!.currentUses;
+      final pool = feature.resourcePool;
+      if (pool == null) continue;
+      states['id:${feature.id}'] = pool.copy();
+      groups.putIfAbsent(_resourceKey(feature), () => []).add(pool);
+    }
+    // Alias fallback is safe only when the source has a single such resource.
+    for (final entry in groups.entries) {
+      if (entry.value.length == 1) {
+        states['alias:${entry.key}'] = entry.value.single.copy();
+      }
     }
     return states;
   }
 
   static void _restoreResourceStates(
     Character character,
-    Map<String, int> states,
+    Map<String, ResourcePool> states,
   ) {
     for (final feature in character.features) {
       if (feature.resourcePool == null) continue;
-      final current = states[_resourceKey(feature)];
-      if (current == null) continue;
-      feature.resourcePool!.currentUses = current.clamp(
-        0,
-        feature.resourcePool!.maxUses,
-      );
+      final state = states['id:${feature.id}'] ??
+          states['alias:${_resourceKey(feature)}'];
+      if (state != null) feature.resourcePool = state.copy();
     }
   }
 
@@ -670,9 +737,10 @@ class QdndBundleImportService {
 
     final entries = rawEntries
         .whereType<Map>()
-        .map((entry) => QdndBundleMediaEntry.fromJson(
-              Map<String, dynamic>.from(entry),
-            ))
+        .map(
+          (entry) =>
+              QdndBundleMediaEntry.fromJson(Map<String, dynamic>.from(entry)),
+        )
         .toList();
     final embeddedEntries =
         entries.where((entry) => entry.embedded).toList(growable: false);
@@ -728,10 +796,13 @@ class QdndBundleImportService {
         );
       }
 
-      final fileName =
-          _safeMediaFileName(entry.fileName ?? _baseName(bundlePath));
-      final outputFile = File('${importDir.path}${Platform.pathSeparator}'
-          '$fileName');
+      final fileName = _safeMediaFileName(
+        entry.fileName ?? _baseName(bundlePath),
+      );
+      final outputFile = File(
+        '${importDir.path}${Platform.pathSeparator}'
+        '$fileName',
+      );
       await outputFile.writeAsBytes(bytes, flush: true);
       _applyMediaPath(
         character: character,

@@ -5,6 +5,8 @@ import '../models/spell.dart';
 import 'storage_service.dart';
 
 class SpellService {
+  static int _catalogRevision = 0;
+  static int get catalogRevision => _catalogRevision;
   static List<Spell>? _allSpells;
 
   static Future<void> loadSpells() async {
@@ -39,6 +41,7 @@ class SpellService {
   }
 
   static Future<void> reload() async {
+    _catalogRevision++;
     print('🔄 SpellService: Reloading spells...');
     _allSpells = null;
     await loadSpells();

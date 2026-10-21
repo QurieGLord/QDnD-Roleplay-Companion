@@ -1,14 +1,22 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../../core/ui/companion_surface.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-class AdventurerQuoteCard extends StatelessWidget {
+class AdventurerQuoteCard extends StatefulWidget {
   final String characterName;
 
   const AdventurerQuoteCard({
     super.key,
     required this.characterName,
   });
+
+  @override
+  State<AdventurerQuoteCard> createState() => _AdventurerQuoteCardState();
+}
+
+class _AdventurerQuoteCardState extends State<AdventurerQuoteCard> {
+  late final int _quoteIndex = Random().nextInt(_quotes.length);
 
   static final List<String> _quotes = [
     "Adventure awaits those who dare to dream.",
@@ -30,7 +38,7 @@ class AdventurerQuoteCard extends StatelessWidget {
     "Не все, кто блуждают — потеряны.",
     "Опасно идти одному!",
     "Кидай инициативу!",
-    "Пусть хиты будут критами, а лут — легендарным.",
+    "Пусть броски будут удачными, а добыча — легендарной.",
     "Героев создают пути, которые они выбирают.",
     "Огонь дракона жжёт, но отвага сияет ярче.",
     "Проверь ловушки. Всегда проверяй ловушки.",
@@ -42,21 +50,15 @@ class AdventurerQuoteCard extends StatelessWidget {
     final locale = Localizations.localeOf(context).languageCode;
     final quotes = locale == 'ru' ? _quotesRu : _quotes;
 
-    final quote = quotes[Random().nextInt(quotes.length)];
+    final quote = quotes[_quoteIndex];
 
-    return Card(
-      elevation: 0,
+    final card = CompanionSurface(
+      padding: EdgeInsets.zero,
+      raised: true,
       color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.4),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
-          width: 1,
-        ),
-      ),
-      margin: EdgeInsets.zero,
+      contour: CompanionContour.cadence,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(22),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -80,15 +82,19 @@ class AdventurerQuoteCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '"$quote"',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontStyle: FontStyle.italic,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w500,
                 color: theme.colorScheme.onSecondaryContainer,
-                height: 1.4,
+                height: 1.35,
+                letterSpacing: -.25,
               ),
             ),
           ],
         ),
       ),
-    ).animate().fadeIn(duration: 600.ms);
+    );
+    return MediaQuery.disableAnimationsOf(context)
+        ? card
+        : card.animate().fadeIn(duration: 600.ms);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_palettes.dart';
+import '../ui/app_menu_style.dart';
 import 'storage_service.dart';
 
 class ThemeProvider extends ChangeNotifier {
@@ -84,8 +85,8 @@ class ThemeProvider extends ChangeNotifier {
       fontFamily: 'Roboto',
     );
 
-    final rounded12 = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
+    final rounded24 = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(24),
     );
     final rounded16 = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
@@ -100,26 +101,28 @@ class ThemeProvider extends ChangeNotifier {
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         centerTitle: true,
       ),
       cardTheme: CardThemeData(
         color: colorScheme.surfaceContainerLow,
         elevation: _isBasicMode ? 1 : 2,
-        shape: rounded16,
+        shape: rounded28,
         margin: const EdgeInsets.symmetric(vertical: 4),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          shape: rounded12,
+          shape: rounded24,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           elevation: _isBasicMode ? 1 : null,
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          shape: rounded12,
+          shape: rounded24,
           elevation: _isBasicMode ? 1 : null,
         ),
       ),
@@ -133,17 +136,21 @@ class ThemeProvider extends ChangeNotifier {
         filled: true,
         fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.outline),
+          borderRadius: BorderRadius.circular(22),
+          borderSide: _isBasicMode
+              ? BorderSide(color: colorScheme.outline)
+              : BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide:
-              BorderSide(color: colorScheme.outline.withValues(alpha: 0.5)),
+          borderRadius: BorderRadius.circular(22),
+          borderSide: _isBasicMode
+              ? BorderSide(color: colorScheme.outline.withValues(alpha: .5))
+              : BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
+          borderRadius: BorderRadius.circular(22),
+          borderSide: BorderSide(
+              color: colorScheme.secondary, width: _isBasicMode ? 2 : 1.2),
         ),
       ),
       dividerTheme: DividerThemeData(
@@ -151,7 +158,7 @@ class ThemeProvider extends ChangeNotifier {
         thickness: 1,
       ),
       listTileTheme: ListTileThemeData(
-        shape: rounded12,
+        shape: rounded24,
         iconColor: colorScheme.secondary,
         textColor: colorScheme.onSurface,
       ),
@@ -161,7 +168,26 @@ class ThemeProvider extends ChangeNotifier {
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
       ),
-      popupMenuTheme: PopupMenuThemeData(shape: rounded12),
+      chipTheme: const ChipThemeData(shape: StadiumBorder()),
+      popupMenuTheme: PopupMenuThemeData(
+          shape: AppMenuStyle.shape,
+          color: colorScheme.surfaceContainerHigh,
+          surfaceTintColor: Colors.transparent,
+          elevation: 4),
+      dropdownMenuTheme: DropdownMenuThemeData(
+          menuStyle: MenuStyle(
+              shape: const WidgetStatePropertyAll(AppMenuStyle.shape),
+              backgroundColor:
+                  WidgetStatePropertyAll(colorScheme.surfaceContainerHigh),
+              surfaceTintColor:
+                  const WidgetStatePropertyAll(Colors.transparent),
+              elevation: const WidgetStatePropertyAll(4))),
+      menuTheme: MenuThemeData(
+          style: MenuStyle(
+              shape: const WidgetStatePropertyAll(AppMenuStyle.shape),
+              backgroundColor:
+                  WidgetStatePropertyAll(colorScheme.surfaceContainerHigh),
+              elevation: const WidgetStatePropertyAll(4))),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         dismissDirection: DismissDirection.horizontal,

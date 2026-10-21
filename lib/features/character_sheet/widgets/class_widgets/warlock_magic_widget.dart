@@ -1,8 +1,13 @@
+import '../../../../shared/widgets/subclass_details_sheet.dart';
+import '../../../../core/services/gameplay_actions_service.dart';
+import '../../../../core/ui/companion_surface.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../spell_slots_widget.dart';
+import 'shared/class_panel_presentation.dart';
+import '../../../../core/progression/character_class_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
-import '../../../../core/services/character_data_service.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
@@ -30,6 +35,26 @@ class WarlockMagicWidget extends StatefulWidget {
 
 class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
   bool _isInvocationsExpanded = false;
+  bool _usingInvocation = false;
+  bool _changingBoon = false;
+  Future<void> _changeBoon(CharacterFeature feature, int delta) async {
+    if (_changingBoon) return;
+    setState(() => _changingBoon = true);
+    try {
+      await GameplayActionsService.changeResource(
+          widget.character, feature, delta);
+      if (!mounted) return;
+      HapticFeedback.selectionClick();
+      widget.onChanged?.call();
+    } catch (_) {
+      if (mounted) {
+        AppSnackBar.error(
+            context, AppLocalizations.of(context)!.sheetSaveFailed);
+      }
+    } finally {
+      if (mounted) setState(() => _changingBoon = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +62,9 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
     final locale = Localizations.localeOf(context).languageCode;
 
     // --- PALETTE MAPPING ---
-    const warlockColor = Colors.deepPurple; // Deep purple/indigo for Warlock
-    final blockBg = colorScheme.surfaceContainerHighest;
+    final warlockColor =
+        colorScheme.secondary; // Deep purple/indigo for Warlock
+    final blockBg = colorScheme.surfaceContainerLow;
 
     // 1. Determine Patron
     final patronName = _getPatronName(locale);
@@ -46,67 +72,95 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
     // 2. Determine Pact Boon
     final boonFeature = _findPactBoon();
 
+    final ownedInvocations = widget.invocations
+        .where(CharacterClassContext(widget.character, 'warlock').canUseFeature)
+        .toList();
     // 3. Filter Invocations
     // Remove passive/text types AND the base "Eldritch Invocations" feature itself
     final activeInvocations =
-        widget.invocations.where((i) => i.type != FeatureType.passive).toList();
-    final passiveInvocations = widget.invocations.where((i) {
+        ownedInvocations.where((i) => i.type != FeatureType.passive).toList();
+    final passiveInvocations = ownedInvocations.where((i) {
       return i.type == FeatureType.passive &&
           !i.nameEn.toLowerCase().contains('eldritch invocations') &&
           !i.nameRu.toLowerCase().contains('таинственные воззвания');
     }).toList();
 
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: colorScheme.outline, width: 1.5),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      margin: const EdgeInsets.only(bottom: 16),
-      clipBehavior: Clip.antiAlias,
-      child: ClassToolsLayoutBuilder(
-        padding: const EdgeInsets.all(12),
-        children: [
-          // --- BLOCK 1: OTHERWORLDLY PATRON ---
-          if (patronName.isNotEmpty)
-            _buildPatronBlock(
-                context, colorScheme, warlockColor, patronName, locale),
+    return ClassPanelFrame(
+        character: widget.character,
+        classId: 'warlock',
+        child: ClassToolsLayoutBuilder(
+          padding: EdgeInsets.zero,
+          children: [
+            if (patronName.isNotEmpty)
+              ListTile(
+                  dense: true,
+                  minTileHeight: 40,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                  title: Text(patronName,
+                      style: TextStyle(color: colorScheme.secondary)),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: _showPatronDetails),
+            if (widget.character.classes
+                        .where((entry) => entry.level > 0)
+                        .length ==
+                    1 &&
+                (widget.character.maxSpellSlots.any((n) => n > 0) ||
+                    widget.character.spellSlots.any((n) => n > 0) ||
+                    widget.character.magicData.isNotEmpty))
+              ClassPrimaryControl(
+                  key: const ValueKey('warlock-pact-panel'),
+                  classId: 'warlock',
+                  title: locale == 'ru' ? 'Магия договора' : 'Pact Magic',
+                  tone: colorScheme.tertiaryContainer,
+                  footer: AppLocalizations.of(context)!.shortRest,
+                  child: SpellSlotsWidget(
+                      character: widget.character,
+                      showArcanum: false,
+                      prominent: true,
+                      onChanged: () {
+                        setState(() {});
+                        widget.onChanged?.call();
+                      })),
 
-          // --- BLOCK 2: PACT BOON ---
-          if (boonFeature != null)
-            _buildBlockContainer(
-              color: blockBg,
-              onTap: () => _showDetails(boonFeature),
-              padding: const EdgeInsets.all(12),
-              child: _buildPactBoonContent(
-                  context, colorScheme, warlockColor, boonFeature),
-            ),
+            if (widget.character.classLevel('warlock') >= 11)
+              ClassPrimaryControl(
+                  key: const ValueKey('warlock-arcanum-panel'),
+                  classId: 'warlock',
+                  title: AppLocalizations.of(context)!.sheetArcanum,
+                  tone: colorScheme.primaryContainer,
+                  footer: AppLocalizations.of(context)!.longRest,
+                  child: SpellSlotsWidget(
+                      character: widget.character,
+                      showSlots: false,
+                      prominent: true,
+                      onChanged: () {
+                        setState(() {});
+                        widget.onChanged?.call();
+                      })),
 
-          // --- BLOCK 3: ELDRITCH INVOCATIONS ---
-          if (widget.invocations.isNotEmpty || widget.character.level >= 2)
-            Container(
-              decoration: BoxDecoration(
+            // --- BLOCK 2: PACT BOON ---
+            if (boonFeature != null &&
+                widget.character.classLevel('warlock') >= 3)
+              _buildBlockContainer(
                 color: blockBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: colorScheme.outline.withValues(alpha: 0.3)),
+                onTap: () => _showDetails(boonFeature),
+                padding: const EdgeInsets.all(12),
+                child: _buildPactBoonContent(
+                    context, colorScheme, warlockColor, boonFeature),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: _buildInvocationsBlock(colorScheme, warlockColor,
+
+            // --- BLOCK 3: ELDRITCH INVOCATIONS ---
+            if (widget.invocations.isNotEmpty ||
+                widget.character.classLevel('warlock') >= 2)
+              _buildInvocationsBlock(colorScheme, warlockColor,
                   activeInvocations, passiveInvocations, locale),
-            ),
-        ],
-      ),
-    )
-        .animate()
-        .fadeIn(duration: 300.ms)
-        .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad);
+          ],
+        ));
   }
 
   String _getPatronName(String locale) {
     // STRICTLY use subclass field. No feature parsing.
-    final sub = widget.character.subclass;
+    final sub = CharacterClassContext(widget.character, 'warlock').subclass;
 
     if (sub == null || sub.isEmpty) {
       return locale == 'ru'
@@ -145,6 +199,10 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
     // 1. Try to find a SPECIFIC pact boon in features (e.g. "Pact of the Blade")
     try {
       final specific = widget.character.features.firstWhere((f) {
+        if (!CharacterClassContext(widget.character, 'warlock')
+            .canUseFeature(f)) {
+          return false;
+        }
         final name = (f.nameEn).toLowerCase();
         return name.contains('pact of the') &&
             !name.contains('feature') &&
@@ -154,11 +212,19 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
     } catch (_) {}
 
     // 2. Fallback to passed widget.pactBoon (likely generic)
-    if (widget.pactBoon != null) return widget.pactBoon;
+    if (widget.pactBoon != null &&
+        CharacterClassContext(widget.character, 'warlock')
+            .canUseFeature(widget.pactBoon!)) {
+      return widget.pactBoon;
+    }
 
     // 3. Last ditch: any feature with "Pact"
     try {
       return widget.character.features.firstWhere((f) {
+        if (!CharacterClassContext(widget.character, 'warlock')
+            .canUseFeature(f)) {
+          return false;
+        }
         final name = (f.nameEn).toLowerCase();
         return name.contains('pact boon') || name.contains('предмет договора');
       });
@@ -173,200 +239,21 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
     required EdgeInsetsGeometry padding,
     VoidCallback? onTap,
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
+    return CompanionSurface(
+        quiet: true,
         color: color,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: padding,
-            child: child,
-          ),
-        ),
-      ),
-    );
+        padding: padding,
+        onTap: onTap,
+        child: child);
   }
 
-  // ===========================================================================
-  // 1. OTHERWORLDLY PATRON BLOCK
-  // ===========================================================================
-  Widget _buildPatronBlock(BuildContext context, ColorScheme colorScheme,
-      Color warlockColor, String patronName, String locale) {
-    final title = locale == 'ru' ? "ПОКРОВИТЕЛЬ" : "OTHERWORLDLY PATRON";
-
-    // Dynamic Icon based on Patron Name
-    IconData icon = Icons.auto_fix_high;
-    final lowerName = patronName.toLowerCase();
-    if (lowerName.contains('fiend') || lowerName.contains('бестия')) {
-      icon = Icons.local_fire_department;
-    } else if (lowerName.contains('archfey') || lowerName.contains('архифея')) {
-      icon = Icons.forest;
-    } else if (lowerName.contains('great old') ||
-        lowerName.contains('великий древний')) {
-      icon = Icons.psychology;
-    } else if (lowerName.contains('celestial') ||
-        lowerName.contains('небожитель')) {
-      icon = Icons.wb_sunny;
-    } else if (lowerName.contains('hexblade') ||
-        lowerName.contains('ведьмовской')) {
-      icon = Icons.gavel;
-    } else if (lowerName.contains('fathomless') ||
-        lowerName.contains('глубинный')) {
-      icon = Icons.water_drop;
-    } else if (lowerName.contains('genie') || lowerName.contains('джинн')) {
-      icon = Icons.oil_barrel;
-    } else if (lowerName.contains('undead') || lowerName.contains('нежить')) {
-      icon = Icons.sentiment_very_dissatisfied;
+  Future<void> _showPatronDetails() async {
+    await showClassSubclassDetails(context, widget.character, 'warlock');
+    if (mounted) {
+      setState(() {});
     }
-
-    return Container(
-      decoration: BoxDecoration(
-        color: warlockColor.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: warlockColor.withValues(alpha: 0.3)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            // 1. Try to find Subclass Data using CharacterDataService
-            try {
-              final classData = CharacterDataService.getClassById(
-                  widget.character.characterClass);
-              if (classData != null) {
-                final subId = widget.character.subclass?.toLowerCase() ?? '';
-                final subName = patronName.toLowerCase();
-
-                final subclass = classData.subclasses.firstWhere(
-                  (s) =>
-                      s.id == subId ||
-                      s.getName(locale).toLowerCase() == subName,
-                );
-
-                // Show detailed bottom sheet with lore
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Theme.of(context).colorScheme.surface,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(24)),
-                  ),
-                  builder: (ctx) => DraggableScrollableSheet(
-                    initialChildSize: 0.6,
-                    minChildSize: 0.4,
-                    maxChildSize: 0.9,
-                    expand: false,
-                    builder: (context, scrollController) {
-                      return Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: ListView(
-                          controller: scrollController,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.secondaryContainer,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(Icons.shield,
-                                      color: colorScheme.onSecondaryContainer),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Text(
-                                    subclass.getName(locale),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineSmall
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            const Divider(),
-                            const SizedBox(height: 16),
-                            Text(
-                              subclass.getDescription(locale),
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  height: 1.5,
-                                  color: colorScheme.onSurface),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                );
-                return;
-              }
-            } catch (e) {
-              debugPrint('Subclass description not found: $e');
-            }
-
-            // 2. Fallback: Generic Patron Feature
-            if (widget.patron != null) {
-              _showDetails(widget.patron!);
-            }
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Stack(
-              children: [
-                Positioned(
-                  right: -10,
-                  top: -15,
-                  bottom: -15,
-                  child: Icon(icon,
-                      size: 80, color: warlockColor.withValues(alpha: 0.2)),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                          color: warlockColor),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      patronName,
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          color: colorScheme.onSurface),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
-  // ===========================================================================
-  // 2. PACT BOON BLOCK
-  // ===========================================================================
   Widget _buildPactBoonContent(BuildContext context, ColorScheme colorScheme,
       Color warlockColor, CharacterFeature boon) {
     final locale = Localizations.localeOf(context).languageCode;
@@ -401,7 +288,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
                   Text(
                     locale == 'ru' ? "ПРЕДМЕТ ДОГОВОРА" : "PACT BOON",
                     style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
                         color: colorScheme.onSurfaceVariant),
@@ -435,29 +322,15 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
               Row(
                 children: [
                   IconButton.filledTonal(
-                    onPressed: pool.currentUses > 0
-                        ? () {
-                            HapticFeedback.lightImpact();
-                            setState(() {
-                              pool.use(1);
-                              widget.character.save();
-                              widget.onChanged?.call();
-                            });
-                          }
+                    onPressed: !_changingBoon && pool.currentUses > 0
+                        ? () => _changeBoon(boon, -1)
                         : null,
                     icon: const Icon(Icons.remove, size: 16),
                   ),
                   const SizedBox(width: 8),
                   IconButton.filledTonal(
-                    onPressed: pool.currentUses < pool.maxUses
-                        ? () {
-                            HapticFeedback.lightImpact();
-                            setState(() {
-                              pool.restore(1);
-                              widget.character.save();
-                              widget.onChanged?.call();
-                            });
-                          }
+                    onPressed: !_changingBoon && pool.currentUses < pool.maxUses
+                        ? () => _changeBoon(boon, 1)
                         : null,
                     icon: const Icon(Icons.add, size: 16),
                   ),
@@ -479,121 +352,40 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
       List<CharacterFeature> active,
       List<CharacterFeature> passive,
       String locale) {
-    final title =
-        locale == 'ru' ? "ТАИНСТВЕННЫЕ ВОЗЗВАНИЯ" : "ELDRITCH INVOCATIONS";
-    final pillColor =
-        _isInvocationsExpanded ? warlockColor : colorScheme.surfaceDim;
-    final pillContentColor =
-        _isInvocationsExpanded ? Colors.white : colorScheme.onSurfaceVariant;
-    final iconColor = _isInvocationsExpanded ? Colors.white : warlockColor;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Header with Switch
-        Material(
-          color: pillColor,
-          borderRadius: BorderRadius.circular(12), // Static radius
-          child: InkWell(
-            onTap: () {
-              // Show info about Invocations if collapsed, or just toggle?
-              // Requirement: "Make header clickable for info"
-              // But we also have the switch.
-              // Let's make the whole header toggle, but add an info button.
-              // Actually, user said "Tap on header opens dialog".
-              _showInvocationsInfo(context, locale);
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  Icon(Icons.auto_fix_high, color: iconColor, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                        color: pillContentColor,
-                      ),
-                    ),
-                  ),
-                  // Toggle Switch
-                  Transform.scale(
-                    scale: 0.8,
-                    child: Switch(
-                      value: _isInvocationsExpanded,
-                      onChanged: (val) {
-                        HapticFeedback.lightImpact();
-                        setState(() => _isInvocationsExpanded = val);
-                      },
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: Colors.white.withValues(alpha: 0.3),
-                      inactiveThumbColor: colorScheme.onSurfaceVariant,
-                      inactiveTrackColor: Colors.transparent,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-
-        // Expanded List
-        AnimatedSize(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          child: _isInvocationsExpanded
-              ? Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    children: [
-                      // Active Invocations
-                      if (active.isNotEmpty) ...[
-                        _buildSectionLabel(
-                            locale == 'ru' ? "АКТИВНЫЕ" : "ACTIVE",
-                            colorScheme),
-                        ...active.map((inv) => _buildActiveInvocationTile(
-                            inv, colorScheme, warlockColor, locale)),
-                        const SizedBox(height: 12),
-                      ],
-
-                      // Passive Invocations
-                      if (passive.isNotEmpty) ...[
-                        _buildSectionLabel(
-                            locale == 'ru' ? "ПАССИВНЫЕ" : "PASSIVE",
-                            colorScheme),
-                        ...passive.map((inv) => _buildPassiveInvocationTile(
-                            inv, colorScheme, warlockColor, locale)),
-                      ],
-                    ],
-                  ),
-                )
-              : const SizedBox(width: double.infinity),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSectionLabel(String label, ColorScheme colorScheme) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8, left: 4),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w900,
-            color: colorScheme.secondary,
-            letterSpacing: 1.0,
-          ),
-        ),
-      ),
-    );
+    return CompanionSurface(
+        contour: CompanionContour.seal,
+        padding: EdgeInsets.zero,
+        child: ExpansionTile(
+            initiallyExpanded: _isInvocationsExpanded,
+            onExpansionChanged: (value) =>
+                setState(() => _isInvocationsExpanded = value),
+            shape: const RoundedRectangleBorder(),
+            collapsedShape: const RoundedRectangleBorder(),
+            title: Text(locale == 'ru' ? 'Воззвания' : 'Invocations',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+            leading: IconButton(
+                tooltip: AppLocalizations.of(context)!.advancementDetails,
+                onPressed: () => _showInvocationsInfo(context, locale),
+                icon: const Icon(Icons.info_outline_rounded)),
+            trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+              Text('${active.length + passive.length}'),
+              const SizedBox(width: 8),
+              Icon(_isInvocationsExpanded
+                  ? Icons.expand_less_rounded
+                  : Icons.expand_more_rounded)
+            ]),
+            childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            children: [
+              for (final inv in active)
+                _buildActiveInvocationTile(
+                    inv, colorScheme, warlockColor, locale),
+              for (final inv in passive)
+                _buildPassiveInvocationTile(
+                    inv, colorScheme, warlockColor, locale),
+            ]));
   }
 
   Widget _buildActiveInvocationTile(CharacterFeature inv,
@@ -606,14 +398,13 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: warlockColor.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _showDetails(inv),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
@@ -634,7 +425,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
                       Text(
                         inv.getName(locale),
                         style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: colorScheme.onSurface),
                       ),
@@ -642,27 +433,20 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
                         Text(
                           "${pool.currentUses}/${pool.maxUses}",
                           style: TextStyle(
-                              fontSize: 10, color: colorScheme.secondary),
+                              fontSize: 14, color: colorScheme.secondary),
                         ),
                     ],
                   ),
                 ),
-                SizedBox(
-                  width: 40,
-                  height: 32,
-                  child: FilledButton(
-                    onPressed: canUse ? () => _useInvocation(inv) : null,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: warlockColor,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      elevation: 0,
-                    ),
-                    child: const Icon(Icons.auto_fix_high, size: 18),
-                  ),
-                ),
+                if (pool != null)
+                  IconButton.filledTonal(
+                      tooltip: AppLocalizations.of(context)!.useAction,
+                      onPressed: canUse && !_usingInvocation
+                          ? () => _useInvocation(inv)
+                          : null,
+                      icon: const Icon(Icons.play_arrow_rounded))
+                else
+                  const Icon(Icons.chevron_right_rounded),
               ],
             ),
           ),
@@ -677,8 +461,7 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: colorScheme.surfaceDim,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: ListTile(
         dense: true,
@@ -687,28 +470,39 @@ class _WarlockMagicWidgetState extends State<WarlockMagicWidget> {
         leading: Icon(Icons.psychology, size: 18, color: colorScheme.secondary),
         title: Text(
           inv.getName(locale),
-          style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
+          style: TextStyle(fontSize: 16, color: colorScheme.onSurfaceVariant),
         ),
         onTap: () => _showDetails(inv),
       ),
     );
   }
 
-  void _useInvocation(CharacterFeature inv) {
-    HapticFeedback.mediumImpact();
-    // If it has a resource pool, spend it
-    if (inv.resourcePool != null) {
-      setState(() {
-        inv.resourcePool!.use(1);
-        widget.character.save();
-        widget.onChanged?.call();
-      });
+  Future<void> _useInvocation(CharacterFeature inv) async {
+    if (_usingInvocation ||
+        !CharacterClassContext(widget.character, 'warlock').canUseFeature(inv)) {
+      return;
     }
-    AppSnackBar.success(
-      context,
-      '${inv.getName(Localizations.localeOf(context).languageCode)} ${Localizations.localeOf(context).languageCode == 'ru' ? "активировано!" : "activated!"}',
-      duration: const Duration(seconds: 2),
-    );
+    if (inv.resourcePool == null) {
+      _showDetails(inv);
+      return;
+    }
+    setState(() => _usingInvocation = true);
+    final l = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).languageCode;
+    try {
+      final spent =
+          await GameplayActionsService.spendResource(widget.character, inv);
+      if (mounted && spent) {
+        HapticFeedback.mediumImpact();
+        widget.onChanged?.call();
+        AppSnackBar.success(
+            context, l.gameStateResourceUsed(inv.getName(locale)));
+      }
+    } catch (_) {
+      if (mounted) AppSnackBar.error(context, l.sheetSaveFailed);
+    } finally {
+      if (mounted) setState(() => _usingInvocation = false);
+    }
   }
 
   void _showInvocationsInfo(BuildContext context, String locale) {

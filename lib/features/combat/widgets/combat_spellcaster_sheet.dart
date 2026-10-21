@@ -1,366 +1,166 @@
 import 'package:flutter/material.dart';
-import 'package:qd_and_d/core/ui/app_snack_bar.dart';
-import 'package:qd_and_d/l10n/app_localizations.dart';
-import 'package:uuid/uuid.dart';
 import '../../../core/models/character.dart';
-import '../../../core/models/spell.dart';
-import '../../../core/models/combat_state.dart';
-import '../../../core/services/spell_service.dart';
-import '../../../core/services/spellcasting_service.dart';
+import '../../../core/magic/spell_use.dart';
+import '../../../core/search/journal_search.dart';
+import '../../../core/ui/companion_surface.dart';
+import '../../../core/ui/sheet_drag_region.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/spell_cast_sheet.dart';
+import '../../../shared/widgets/spell_details_sheet.dart';
+import '../../character_sheet/widgets/spell_slots_widget.dart';
 
 class CombatSpellcasterSheet extends StatefulWidget {
+  const CombatSpellcasterSheet(
+      {super.key, required this.character, required this.onStateChange});
   final Character character;
   final VoidCallback onStateChange;
-
-  const CombatSpellcasterSheet({
-    super.key,
-    required this.character,
-    required this.onStateChange,
-  });
-
   @override
   State<CombatSpellcasterSheet> createState() => _CombatSpellcasterSheetState();
 }
 
 class _CombatSpellcasterSheetState extends State<CombatSpellcasterSheet> {
-  final _uuid = const Uuid();
-
-  List<Spell> _getDisplaySpells(String locale) {
-    final type = SpellcastingService.getSpellcastingType(
-        widget.character.characterClass);
-    final allKnown = widget.character.knownSpells
-        .map((id) => SpellService.getSpellById(id))
-        .whereType<Spell>()
-        .toList();
-
-    List<Spell> displaySpells = [];
-
-    // 1. Always add Cantrips (Level 0)
-    displaySpells.addAll(allKnown.where((s) => s.level == 0));
-
-    // 2. Add Leveled Spells based on caster type
-    if (type == 'prepared') {
-      // Prepared casters (Wizard, Cleric, etc) -> Show Prepared Spells
-      final prepared = widget.character.preparedSpells
-          .map((id) => SpellService.getSpellById(id))
-          .whereType<Spell>()
-          .toList();
-      displaySpells.addAll(prepared);
-    } else {
-      // Known casters (Bard, Sorcerer, etc) -> Show All Known Leveled Spells
-      displaySpells.addAll(allKnown.where((s) => s.level > 0));
-    }
-
-    // Deduplicate just in case
-    final uniqueIds = <String>{};
-    final uniqueSpells = <Spell>[];
-    for (var s in displaySpells) {
-      if (uniqueIds.add(s.id)) {
-        uniqueSpells.add(s);
-      }
-    }
-
-    // Sort: Level (asc), then Name (asc)
-    uniqueSpells.sort((a, b) {
-      if (a.level != b.level) return a.level.compareTo(b.level);
-      return a.getName(locale).compareTo(b.getName(locale));
-    });
-
-    return uniqueSpells;
-  }
-
-  Future<void> _castSpell(
-      Spell spell, AppLocalizations l10n, String locale) async {
-    // 1. Cantrip -> Just Log
-    if (spell.level == 0) {
-      _addLog(l10n, 'Cast ${spell.getName(locale)} (Cantrip)');
-      return;
-    }
-
-    // 2. Leveled Spell -> Choose Slot
-    final availableSlots = <int>[];
-    for (int i = spell.level; i <= widget.character.maxSpellSlots.length; i++) {
-      if (i <= widget.character.spellSlots.length &&
-          widget.character.spellSlots[i - 1] > 0) {
-        availableSlots.add(i);
-      }
-    }
-
-    if (availableSlots.isEmpty) {
-      AppSnackBar.warning(context, l10n.noSlotsAvailable);
-      return;
-    }
-
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.castAction(spell.getName(locale))),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: availableSlots.map((level) {
-            return ListTile(
-              title: Text(l10n.levelSlot(level)),
-              trailing: level > spell.level
-                  ? Chip(
-                      label: Text(l10n.upcast),
-                      backgroundColor:
-                          Theme.of(context).colorScheme.tertiaryContainer)
-                  : null,
-              onTap: () async {
-                Navigator.pop(context);
-                await _consumeSlotAndLog(spell, level, l10n, locale);
-              },
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _consumeSlotAndLog(
-      Spell spell, int level, AppLocalizations l10n, String locale) async {
-    // Consume slot
-    setState(() {
-      widget.character.useSpellSlot(level);
-    });
-
-    // Log
-    final msg = level > spell.level
-        ? 'Cast ${spell.getName(locale)} (Lvl $level)'
-        : 'Cast ${spell.getName(locale)} (Lvl ${spell.level})';
-
-    _addLog(l10n, msg);
-  }
-
-  void _addLog(AppLocalizations l10n, String message) {
-    final entry = CombatLogEntry(
-      id: _uuid.v4(),
-      timestamp: DateTime.now(),
-      type: CombatLogType.other,
-      description: message,
-      round: widget.character.combatState.currentRound,
-    );
-
-    widget.character.combatState.addLogEntry(entry);
-    widget.onStateChange(); // Save and update parent
-
-    AppSnackBar.info(
-      context,
-      message,
-      duration: const Duration(milliseconds: 1500),
-    );
-
-    // Close sheet after cast?
-    // User didn't specify, but often convenient.
-    // Let's keep it open so user can see slots updated or cast another (e.g. Bonus Action).
-  }
-
+  String _query = '';
+  bool _casting = false;
   @override
   Widget build(BuildContext context) {
-    final locale = Localizations.localeOf(context).languageCode;
-    final l10n = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    final spells = _getDisplaySpells(locale);
-    final isPactMagic = SpellcastingService.getSpellcastingType(
-            widget.character.characterClass) ==
-        'pact_magic';
-
+    final l = AppLocalizations.of(context)!,
+        ru = Localizations.localeOf(context).languageCode == 'ru',
+        t = Theme.of(context).textTheme;
+    final search = JournalSearch(_query),
+        spells = SpellUse.visible(widget.character)
+            .where((s) => search
+                .matches([s.getName(ru ? 'ru' : 'en'), s.nameEn, s.nameRu]))
+            .toList()
+          ..sort((a, b) => a.level != b.level
+              ? a.level.compareTo(b.level)
+              : a
+                  .getName(ru ? 'ru' : 'en')
+                  .compareTo(b.getName(ru ? 'ru' : 'en')));
     return DraggableScrollableSheet(
-      initialChildSize: 0.6,
-      minChildSize: 0.4,
-      maxChildSize: 0.9,
-      expand: false,
-      builder: (context, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            children: [
-              // --- HANDLE ---
-              Center(
-                child: Container(
-                  margin: const EdgeInsets.only(top: 12, bottom: 8),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-
-              // --- TITLE ---
-              Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(l10n.castSpell, style: theme.textTheme.titleLarge),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-              ),
-
-              // --- SLOTS HEADER ---
-              Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                color: colorScheme.surfaceContainerHighest,
-                child: Row(
-                  children: [
-                    Icon(Icons.auto_awesome,
-                        size: 16, color: colorScheme.primary),
-                    const SizedBox(width: 8),
-                    Text(l10n.magic.toUpperCase(),
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: colorScheme.primary)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: widget.character.maxSpellSlots
-                              .asMap()
-                              .entries
-                              .map((entry) {
-                            final index = entry.key;
-                            final max = entry.value;
-                            final level = index + 1;
-                            if (max <= 0) return const SizedBox.shrink();
-
-                            final current =
-                                index < widget.character.spellSlots.length
-                                    ? widget.character.spellSlots[index]
-                                    : 0;
-                            final isEmpty = current == 0;
-
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: isEmpty
-                                      ? colorScheme.errorContainer
-                                          .withValues(alpha: 0.5)
-                                      : colorScheme.surface,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: isEmpty
-                                        ? colorScheme.error
-                                        : (isPactMagic
-                                            ? Colors.purple
-                                            : colorScheme.primary),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Text(
-                                  'Lvl $level: $current/$max',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: isEmpty
-                                        ? colorScheme.error
-                                        : colorScheme.onSurface,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const Divider(height: 1),
-
-              // --- SPELLS LIST ---
-              Expanded(
-                child: spells.isEmpty
-                    ? Center(
-                        child: Text(l10n.noSpellsLearned,
-                            style: TextStyle(
-                                color: colorScheme.onSurfaceVariant,
-                                fontStyle: FontStyle.italic)),
-                      )
-                    : ListView.builder(
-                        controller: scrollController,
-                        itemCount: spells.length,
-                        itemBuilder: (context, index) {
-                          final spell = spells[index];
-                          final isCantrip = spell.level == 0;
-                          // Check if can cast (has slots)
-                          bool canCast = isCantrip;
-                          if (!canCast) {
-                            // Check if any slot >= spell level is available
-                            for (int i = spell.level;
-                                i <= widget.character.spellSlots.length;
-                                i++) {
-                              if (widget.character.spellSlots[i - 1] > 0) {
-                                canCast = true;
-                                break;
-                              }
-                            }
-                          }
-
-                          return ListTile(
-                            leading: CircleAvatar(
-                              radius: 16, // Slightly larger for sheet
-                              backgroundColor: isCantrip
-                                  ? Colors.grey
-                                  : (isPactMagic
-                                      ? Colors.purple
-                                      : colorScheme.primary),
-                              child: Text(isCantrip ? '0' : '${spell.level}',
-                                  style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                            title: Text(spell.getName(locale),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600, fontSize: 14)),
-                            subtitle: Text(
-                              isCantrip
-                                  ? l10n.cantrips
-                                  : '${l10n.levelShort} ${spell.level}',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: colorScheme.onSurfaceVariant),
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.flash_on),
-                              color: canCast
-                                  ? colorScheme.primary
-                                  : colorScheme.onSurface
-                                      .withValues(alpha: 0.1),
-                              onPressed: canCast
-                                  ? () => _castSpell(spell, l10n, locale)
-                                  : null,
-                            ),
-                            onTap: canCast
-                                ? () => _castSpell(spell, l10n, locale)
-                                : null,
-                          );
-                        },
-                      ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+        initialChildSize: .85,
+        minChildSize: .45,
+        maxChildSize: .96,
+        expand: false,
+        builder: (context, scroll) =>
+            CustomScrollView(controller: scroll, slivers: [
+              SliverToBoxAdapter(
+                  child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 14),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SheetDragRegion(
+                                enabled: !_casting,
+                                child: Row(children: [
+                                  Expanded(
+                                      child: Text(l.castSpell,
+                                          style: t.headlineSmall?.copyWith(
+                                              fontWeight: FontWeight.w800))),
+                                  IconButton(
+                                      tooltip: l.cancel,
+                                      onPressed: _casting
+                                          ? null
+                                          : () => Navigator.pop(context),
+                                      icon: const Icon(Icons.close_rounded))
+                                ])),
+                            const SizedBox(height: 12),
+                            SpellSlotsWidget(
+                                character: widget.character,
+                                showArcanum: false,
+                                onChanged: () {
+                                  setState(() {});
+                                  widget.onStateChange();
+                                }),
+                            const SizedBox(height: 12),
+                            TextField(
+                                autofocus: false,
+                                decoration: InputDecoration(
+                                    hintText: l.searchSpells,
+                                    prefixIcon:
+                                        const Icon(Icons.search_rounded)),
+                                onChanged: (v) => setState(() => _query = v)),
+                          ]))),
+              if (spells.isEmpty)
+                SliverToBoxAdapter(
+                    child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Text(l.noSpellsFound))),
+              SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                  sliver: SliverList.builder(
+                      itemCount: spells.length,
+                      itemBuilder: (context, index) {
+                        final spell = spells[index];
+                        List<SpellUseSource> sources = [];
+                        try {
+                          sources = SpellUse.sources(widget.character, spell);
+                        } catch (_) {}
+                        final ready = sources.any((s) => s.ready || s.ritual);
+                        return Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: CompanionSurface(
+                                contour: CompanionContour.focus,
+                                quiet: !ready,
+                                padding: const EdgeInsets.all(15),
+                                onTap: _casting
+                                    ? null
+                                    : () async {
+                                        setState(() => _casting = true);
+                                        try {
+                                          final applied =
+                                              await showSpellCastSheet(context,
+                                                  widget.character, spell);
+                                          if (mounted && applied) {
+                                            widget.onStateChange();
+                                          }
+                                        } finally {
+                                          if (mounted) {
+                                            setState(() => _casting = false);
+                                          }
+                                        }
+                                      },
+                                child: Row(children: [
+                                  Expanded(
+                                      child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                        Text(spell.getName(ru ? 'ru' : 'en'),
+                                            style: t.titleMedium?.copyWith(
+                                                fontWeight: FontWeight.w700)),
+                                        const SizedBox(height: 5),
+                                        Text(
+                                            '${spell.level == 0 ? l.cantrips : l.levelLabel(spell.level)} · ${sources.map((s) => s.label(ru ? 'ru' : 'en')).join(' / ')}',
+                                            style: t.bodySmall),
+                                        if (!ready)
+                                          Padding(
+                                              padding:
+                                                  const EdgeInsets.only(top: 5),
+                                              child: Text(
+                                                  ru
+                                                      ? 'Проверь источник и подготовку'
+                                                      : 'Check source and preparation',
+                                                  style: t.labelSmall)),
+                                      ])),
+                                  IconButton(
+                                      tooltip: ru ? 'Описание' : 'Details',
+                                      onPressed: () =>
+                                          showResponsiveSheet<void>(
+                                              context: context,
+                                              isScrollControlled: true,
+                                              useSafeArea: true,
+                                              builder: (_) => SpellDetailsSheet(
+                                                  spell: spell,
+                                                  character: widget.character,
+                                                  editable: true,
+                                                  onChanged: () {
+                                                    setState(() {});
+                                                    widget.onStateChange();
+                                                  })),
+                                      icon: const Icon(
+                                          Icons.info_outline_rounded))
+                                ])));
+                      })),
+            ]));
   }
 }

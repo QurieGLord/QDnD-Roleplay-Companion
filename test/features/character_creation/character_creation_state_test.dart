@@ -36,6 +36,17 @@ void main() {
     await SpellService.loadSpells();
   });
 
+  test(
+    'visible standard equipment is the real default, including after reset',
+    () {
+      final state = CharacterCreationState();
+      expect(state.selectedEquipmentPackage, 'standard');
+      state.updateEquipmentPackage('custom');
+      state.reset();
+      expect(state.selectedEquipmentPackage, 'standard');
+    },
+  );
+
   group('CharacterCreationState spell validation', () {
     test('does not block paladin at level 1 when there are no spell choices',
         () {

@@ -65,7 +65,18 @@
         "description": {
           "en": "You adopt a particular style of fighting as your specialty. Choose one of the following options. You can't take a Fighting Style option more than once, even if you later get to choose again.",
           "ru": "На 1-м уровне вы принимаете стиль боя в качестве своей специальности."
-        }
+        },
+        "minLevel": 1,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "second-wind",
@@ -75,8 +86,23 @@
         },
         "description": {
           "en": "You have a limited well of stamina that you can draw on to protect yourself from harm. On your turn, you can use a bonus action to regain hit points equal to 1d10 + your fighter level. Once you use this feature, you must finish a short or long rest before you can use it again.",
-          "ru": "Вы обладаете ограниченным источником выносливости, который вы можете использовать, чтобы уберечь себя от опасности. В свой ход вы можете использовать бонусное действие, чтобы восстановить хиты в количестве, равном 1к10 + ваш уровень воина. Использовав это умение, вы должны завершить короткий или продолжительный отдых, чтобы использовать его снова."
-        }
+          "ru": "Вы обладаете ограниченным источником выносливости, который вы можете использовать, чтобы уберечь себя от опасности. В свой ход вы можете использовать бонусное действие, чтобы восстановить хиты в количестве, равном 1к10 + ваш уровень воина. Использовав это умение, вы должны завершить короткий или длительный отдых, чтобы использовать его снова."
+        },
+        "minLevel": 1,
+        "associatedClass": "fighter",
+        "type": "resource_pool",
+        "associatedSubclass": null,
+        "resourcePool": {
+          "currentUses": 1,
+          "maxUses": 1,
+          "recoveryType": "shortRest"
+        },
+        "requiresRest": true,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "2": [
@@ -88,8 +114,23 @@
         },
         "description": {
           "en": "Starting at 2nd level, you can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action on top of your regular action and a possible bonus action.\nOnce you use this feature, you must finish a short or long rest before you can use it again. Starting at 17th level, you can use it twice before a rest, but only once on the same turn.",
-          "ru": "Начиная со 2-го уровня, вы можете на мгновение превзойти свои обычные возможности. В свой ход вы можете совершить одно дополнительное действие поверх вашего обычного действия и возможного бонусного действия. Использовав это умение, вы должны завершить короткий или продолжительный отдых, чтобы использовать его снова."
-        }
+          "ru": "Начиная со 2-го уровня, вы можете на мгновение превзойти свои обычные возможности. В свой ход вы можете совершить одно дополнительное действие поверх вашего обычного действия и возможного бонусного действия. Использовав это умение, вы должны завершить короткий или длительный отдых, чтобы использовать его снова."
+        },
+        "minLevel": 2,
+        "associatedClass": "fighter",
+        "type": "resource_pool",
+        "associatedSubclass": null,
+        "resourcePool": {
+          "currentUses": 1,
+          "maxUses": 1,
+          "recoveryType": "shortRest"
+        },
+        "requiresRest": true,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "3": [
@@ -102,7 +143,18 @@
         "description": {
           "en": "Beginning when you choose this archetype at 3rd level, your weapon attacks score a critical hit on a roll of 19 or 20.",
           "ru": "Ваши атаки оружием наносят критический удар при выпадении «19» или «20» на кости атаки."
-        }
+        },
+        "minLevel": 3,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": "Champion",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "4": [
@@ -115,7 +167,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 6-м, 8-м, 12-м, 14-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 4,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "5": [
@@ -128,7 +191,18 @@
         "description": {
           "en": "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn. The number of attacks increases to three when you reach 11th level in this class and to four when you reach 20th level in this class.",
           "ru": "Начиная с 5-го уровня, вы можете атаковать дважды, вместо одного раза, когда вы совершаете действие Атака в свой ход."
-        }
+        },
+        "minLevel": 5,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "filter_2",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "6": [
@@ -141,7 +215,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 6-м, 8-м, 12-м, 14-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 6,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "7": [
@@ -154,7 +239,18 @@
         "description": {
           "en": "Starting at 7th level, you can add half your proficiency bonus (round up) to any Strength, Dexterity, or Constitution check you make that doesn't already use your proficiency bonus. In addition, when you make a running long jump, the distance you can cover increases by a number of feet equal to your Strength modifier.",
           "ru": "Начиная с 7-го уровня, вы можете добавлять половину бонуса мастерства (округляя в большую сторону) к любой проверке Силы, Ловкости или Телосложения, которую вы совершаете, если она еще не использует ваш бонус мастерства.\nКроме того, когда вы совершаете прыжок в длину с разбега, дальность прыжка увеличивается на количество футов, равное вашему модификатору Силы."
-        }
+        },
+        "minLevel": 7,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": "Champion",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "8": [
@@ -167,7 +263,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 6-м, 8-м, 12-м, 14-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 8,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "9": [
@@ -179,8 +286,23 @@
         },
         "description": {
           "en": "Beginning at 9th level, you can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can't use this feature again until you finish a long rest. You can use this feature twice between long rests starting at 13th level and three times between long rests starting at 17th level.",
-          "ru": "Начиная с 9-го уровня, вы можете перебросить проваленный спасбросок. Если вы делаете это, вы должны использовать новый результат, и вы не можете использовать это умение снова, пока не закончите продолжительный отдых."
-        }
+          "ru": "Начиная с 9-го уровня, вы можете перебросить проваленный спасбросок. Если вы делаете это, вы должны использовать новый результат, и вы не можете использовать это умение снова, пока не закончите длительный отдых."
+        },
+        "minLevel": 9,
+        "associatedClass": "fighter",
+        "type": "resource_pool",
+        "associatedSubclass": null,
+        "resourcePool": {
+          "currentUses": 1,
+          "maxUses": 1,
+          "recoveryType": "longRest"
+        },
+        "requiresRest": true,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "10": [
@@ -193,7 +315,18 @@
         "description": {
           "en": "At 10th level, you can choose a second option from the Fighting Style class feature.",
           "ru": "На 10-м уровне вы можете выбрать второй Боевой стиль из доступных вашему классу."
-        }
+        },
+        "minLevel": 10,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": "Champion",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "11": [
@@ -206,7 +339,18 @@
         "description": {
           "en": "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn. The number of attacks increases to three when you reach 11th level in this class and to four when you reach 20th level in this class.",
           "ru": "Начиная с 11-го уровня, вы можете атаковать трижды, вместо одного раза, когда вы совершаете действие Атака в свой ход."
-        }
+        },
+        "minLevel": 11,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "filter_2",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "12": [
@@ -219,7 +363,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 6-м, 8-м, 12-м, 14-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 12,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "13": [
@@ -232,7 +387,22 @@
         "description": {
           "en": "Beginning at 9th level, you can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can't use this feature again until you finish a long rest. You can use this feature twice between long rests starting at 13th level and three times between long rests starting at 17th level.",
           "ru": "Начиная с 13-го уровня, вы можете использовать умение Несгибаемый дважды между продолжительными отдыхами."
-        }
+        },
+        "minLevel": 13,
+        "associatedClass": "fighter",
+        "type": "resource_pool",
+        "associatedSubclass": null,
+        "resourcePool": {
+          "currentUses": 2,
+          "maxUses": 2,
+          "recoveryType": "longRest"
+        },
+        "requiresRest": true,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "14": [
@@ -245,7 +415,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 6-м, 8-м, 12-м, 14-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 14,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "15": [
@@ -258,7 +439,18 @@
         "description": {
           "en": "Starting at 15th level, your weapon attacks score a critical hit on a roll of 18-20.",
           "ru": "Начиная с 15-го уровня, ваши атаки оружием наносят критический удар при выпадении «18–20» на кости атаки."
-        }
+        },
+        "minLevel": 15,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": "Champion",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "16": [
@@ -271,7 +463,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 6-м, 8-м, 12-м, 14-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 16,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "17": [
@@ -284,7 +487,22 @@
         "description": {
           "en": "Starting at 2nd level, you can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action on top of your regular action and a possible bonus action.\nOnce you use this feature, you must finish a short or long rest before you can use it again. Starting at 17th level, you can use it twice before a rest, but only once on the same turn.",
           "ru": "Начиная с 17-го уровня, вы можете использовать Всплеск действий дважды между отдыхами, но не более одного раза за ход."
-        }
+        },
+        "minLevel": 17,
+        "associatedClass": "fighter",
+        "type": "resource_pool",
+        "associatedSubclass": null,
+        "resourcePool": {
+          "currentUses": 2,
+          "maxUses": 2,
+          "recoveryType": "shortRest"
+        },
+        "requiresRest": true,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "indomitable-3-uses",
@@ -295,7 +513,22 @@
         "description": {
           "en": "Beginning at 9th level, you can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can't use this feature again until you finish a long rest. You can use this feature twice between long rests starting at 13th level and three times between long rests starting at 17th level.",
           "ru": "Начиная с 17-го уровня, вы можете использовать умение Несгибаемый трижды между продолжительными отдыхами."
-        }
+        },
+        "minLevel": 17,
+        "associatedClass": "fighter",
+        "type": "resource_pool",
+        "associatedSubclass": null,
+        "resourcePool": {
+          "currentUses": 3,
+          "maxUses": 3,
+          "recoveryType": "longRest"
+        },
+        "requiresRest": true,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "18": [
@@ -308,7 +541,18 @@
         "description": {
           "en": "At 18th level, you attain the pinnacle of resilience in battle. At the start of each of your turns, you regain hit points equal to 5 + your Constitution modifier if you have no more than half of your hit points left. You don't gain this benefit if you have 0 hit points.",
           "ru": "На 18-м уровне вы достигаете вершины стойкости в бою. В начале каждого вашего хода вы восстанавливаете хиты, равные 5 + ваш модификатор Телосложения, если у вас осталось не более половины хитов. Вы не получаете этого преимущества, если у вас 0 хитов."
-        }
+        },
+        "minLevel": 18,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": "Champion",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "19": [
@@ -321,7 +565,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 6th, 8th, 12th, 14th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 6-м, 8-м, 12-м, 14-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 19,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "swords",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "20": [
@@ -334,7 +589,18 @@
         "description": {
           "en": "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn. The number of attacks increases to three when you reach 11th level in this class and to four when you reach 20th level in this class.",
           "ru": "Начиная с 20-го уровня, вы можете атаковать четырежды, вместо одного раза, когда вы совершаете действие Атака в свой ход."
-        }
+        },
+        "minLevel": 20,
+        "associatedClass": "fighter",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "filter_2",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ]
   }

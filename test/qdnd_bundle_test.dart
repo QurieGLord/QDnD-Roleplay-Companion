@@ -1,3 +1,5 @@
+import 'package:qd_and_d/core/magic/spellbook_state.dart';
+import 'package:qd_and_d/core/progression/character_class_rules.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -16,6 +18,7 @@ import 'package:qd_and_d/core/models/condition.dart';
 import 'package:qd_and_d/core/models/death_saves.dart';
 import 'package:qd_and_d/core/models/item.dart';
 import 'package:qd_and_d/core/models/journal_note.dart';
+import 'package:qd_and_d/core/journal/journal_graph.dart';
 import 'package:qd_and_d/core/models/quest.dart';
 import 'package:qd_and_d/core/models/race_data.dart';
 import 'package:qd_and_d/core/models/spell.dart';
@@ -69,6 +72,22 @@ void main() {
     test('roundtrips a rich character without losing supported state',
         () async {
       final character = _richCharacter();
+      final graph = JournalGraph(entities: [
+        JournalEntity(id: 'elian', name: 'Элиан', aliases: ['Elian'])
+      ]);
+      graph.records['n:${character.journalNotes.single.id}'] =
+          JournalRecordLinks(
+              manual: {'elian'},
+              excluded: {'wrong-person'},
+              records: {'q:${character.quests.single.id}'},
+              session: 6);
+      character.journalData = graph.toJson();
+      final book = SpellbookState.read({});
+      book.setKnown('class:${character.classes.first.id}',
+          character.knownSpells.single, true);
+      book.setPrepared('class:${character.classes.first.id}',
+          character.knownSpells.single, true);
+      character.spellbookData = book.toJson();
       await StorageService.saveSpells([_astralSpark()]);
       await SpellService.reload();
 
@@ -81,7 +100,7 @@ void main() {
         ),
       );
 
-      expect(exportResult.manifest['schemaVersion'], 1);
+      expect(exportResult.manifest['schemaVersion'], 5);
       expect(exportResult.manifest['files'], contains('journal/notes.json'));
       expect(exportResult.manifest['files'], contains('journal/quests.json'));
 
@@ -94,6 +113,13 @@ void main() {
       final imported = importResult.character;
 
       expect(imported.id, isNot(character.id));
+      expect(imported.journalData, character.journalData);
+      expect(SpellbookState.read(imported.spellbookData).sources.single,
+          'class:${imported.classes.first.id}');
+      expect(SpellbookState.read(imported.spellbookData).allKnown,
+          imported.knownSpells.toSet());
+      expect(SpellbookState.read(imported.spellbookData).allPrepared,
+          imported.preparedSpells.toSet());
       expect(imported.name, character.name);
       expect(imported.level, 4);
       expect(imported.classes.map((c) => c.toJson()),
@@ -150,6 +176,30 @@ void main() {
       expect(imported.concentratingOn, remappedSpellId);
       expect(StorageService.getAllSpells().map((s) => s.id),
           contains(remappedSpellId));
+    });
+
+    test(
+        'a saved class rule snapshot survives the full bundle path without inheriting later catalog changes',
+        () async {
+      final character = _richCharacter();
+      final data =
+          CharacterDataService.getClassById(character.classes.first.id)!;
+      final rules = CharacterClassRules.capture(data);
+      rules.attachTo(character.classes.first);
+      final expected = rules.data.hitDie;
+      final featureCount = character.features.length;
+      final exportResult =
+          await QdndBundleExportService.exportCharacter(character);
+      final imported =
+          (await QdndBundleImportService.importBytes(exportResult.bytes))
+              .character;
+      expect(CharacterClassRules.resolve(imported.classes.first).data.hitDie,
+          expected);
+      expect(imported.classes.first.rulesSnapshot!['originDigest'],
+          rules.snapshot['digest']);
+      expect(imported.features.length, featureCount);
+      expect(imported.currentHp, character.currentHp);
+      expect(imported.classes.first.id, character.classes.first.id);
     });
 
     test('does not embed reference-only protected library content by default',
@@ -267,6 +317,45 @@ void main() {
       );
 
       expect(jsonEncode(_stableCharacterProbe(character)), before);
+    });
+
+    test('reads legacy schema 1 and refuses future schema before writing',
+        () async {
+      final file = File('${tempDir.path}/compatibility.qdnd');
+      await QdndBundleExportService.exportCharacterToFile(
+          _richCharacter(), file);
+      final archive = ZipDecoder().decodeBytes(await file.readAsBytes());
+      Uint8List withVersion(int version) {
+        final modified = Archive();
+        for (final entry in archive.files) {
+          if (entry.name == 'manifest.json') {
+            final manifest = jsonDecode(utf8.decode(entry.readBytes()!))
+                as Map<String, dynamic>;
+            manifest['schemaVersion'] = version;
+            modified
+                .addFile(ArchiveFile.string(entry.name, jsonEncode(manifest)));
+          } else {
+            modified.addFile(entry);
+          }
+        }
+        return Uint8List.fromList(ZipEncoder().encode(modified));
+      }
+
+      final before = Hive.box<Character>('characters').length;
+      await expectLater(
+          QdndBundleImportService.importBytes(withVersion(6)),
+          throwsA(isA<QdndBundleException>()
+              .having((e) => e.code, 'code', 'unsupported_schema')));
+      expect(Hive.box<Character>('characters').length, before);
+      final imported =
+          await QdndBundleImportService.importBytes(withVersion(1));
+      expect(imported.character.name, _richCharacter().name);
+      final schema2 = await QdndBundleImportService.importBytes(withVersion(2));
+      final schema3 = await QdndBundleImportService.importBytes(withVersion(3));
+      final schema4 = await QdndBundleImportService.importBytes(withVersion(4));
+      expect(schema4.character.name, _richCharacter().name);
+      expect(schema3.character.name, _richCharacter().name);
+      expect(schema2.character.name, _richCharacter().name);
     });
 
     test('rejects malformed bundles safely', () async {

@@ -1,6 +1,10 @@
+import '../../../core/progression/character_training.dart';
+import '../../../core/ui/companion_surface.dart';
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
+import '../../../core/progression/skill_check.dart';
+import '../../../core/progression/proficiency_identity.dart';
 import '../../../shared/widgets/dice_roller_modal.dart';
 
 class StatsTab extends StatelessWidget {
@@ -118,6 +122,30 @@ class StatsTab extends StatelessWidget {
         const SizedBox(height: 12),
         _buildSkillsList(context, l10n),
 
+        if (CharacterTraining.tokens(character).isNotEmpty) ...[
+          const SizedBox(height: 24),
+          CompanionSurface(
+              quiet: true,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                        Localizations.localeOf(context).languageCode == 'ru'
+                            ? 'Владения'
+                            : 'Proficiencies',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 12),
+                    Wrap(spacing: 8, runSpacing: 6, children: [
+                      for (final token in CharacterTraining.tokens(character))
+                        Chip(
+                            label: Text(CharacterTraining.label(token,
+                                Localizations.localeOf(context).languageCode)))
+                    ])
+                  ])),
+        ],
         const SizedBox(height: 80),
       ],
     );
@@ -329,20 +357,11 @@ class StatsTab extends StatelessWidget {
         // We need to match skillKey (e.g. "Animal Handling") to ID (e.g. "animal_handling")
         final skillId = skillKey.toLowerCase().replaceAll(' ', '_');
 
-        final isProficient = character.proficientSkills.contains(skillId);
-        final isExpert = character.expertSkills.contains(skillId);
-
-        // Bonus calculation:
-        // Proficiency = +ProfBonus
-        // Expertise = +2 * ProfBonus (if proficient, which is implied by rules but we check isExpert)
-        // Jack of All Trades (Bard) = + floor(ProfBonus/2) (Not implemented yet generic logic)
-
-        int bonus = 0;
-        if (isExpert) {
-          bonus = character.proficiencyBonus * 2;
-        } else if (isProficient) {
-          bonus = character.proficiencyBonus;
-        }
+        final isExpert =
+            ProficiencyIdentity.contains(character.expertSkills, skillId);
+        final isProficient = isExpert ||
+            ProficiencyIdentity.contains(character.proficientSkills, skillId);
+        final bonus = SkillCheck.trainingBonus(character, skillId);
 
         final totalMod = mod + bonus;
 

@@ -1,14 +1,25 @@
+import '../../../../core/ui/companion_surface.dart';
+import 'shared/class_panel_presentation.dart';
+import '../../../../core/progression/character_class_context.dart';
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../core/models/class_data.dart';
 import '../../../../core/constants/ranger_options.dart';
 import '../../../../core/services/feature_service.dart';
-import '../../../../core/services/character_data_service.dart';
 import '../../../../core/services/spell_service.dart';
+import '../../../../core/magic/class_spell_grants.dart';
+import '../../../../core/magic/companion_state.dart';
+import '../../../../shared/widgets/companion_editor.dart';
+import '../session/value_editor_dialog.dart';
+import '../../../../core/magic/spell_use.dart';
+import '../../../../core/services/class_session_actions_service.dart';
+import '../../../../core/services/feature_slot_actions_service.dart';
+import '../../../../shared/widgets/spell_cast_sheet.dart';
+import '../../../../shared/widgets/feature_slot_sheet.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import '../../../../shared/widgets/spell_details_sheet.dart';
@@ -32,6 +43,57 @@ class RangerSurvivalWidget extends StatefulWidget {
 
 class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
   late TextEditingController _targetController;
+  bool _sessionBusy = false;
+  Timer? _targetSaveTimer;
+  String? _pendingTarget;
+  void _queueTarget(String value) {
+    _pendingTarget = value;
+    _targetSaveTimer?.cancel();
+    _targetSaveTimer = Timer(const Duration(milliseconds: 400), _flushTarget);
+  }
+
+  void _flushTarget() {
+    final value = _pendingTarget;
+    _pendingTarget = null;
+    _targetSaveTimer?.cancel();
+    if (value == null) return;
+    ClassSessionActionsService.huntersMark(widget.character, target: value)
+        .catchError((Object _) {
+      if (mounted) {
+        AppSnackBar.error(
+            context, AppLocalizations.of(context)!.sheetSaveFailed);
+      }
+      return false;
+    });
+  }
+
+  Future<void> _sessionChange(Future<void> Function() action) async {
+    if (_sessionBusy) return;
+    setState(() => _sessionBusy = true);
+    try {
+      await action();
+      if (mounted) {
+        HapticFeedback.selectionClick();
+        widget.onChanged?.call();
+      }
+    } catch (_) {
+      if (mounted) {
+        AppSnackBar.error(
+            context, AppLocalizations.of(context)!.sheetSaveFailed);
+      }
+    } finally {
+      if (mounted) setState(() => _sessionBusy = false);
+    }
+  }
+
+  Future<void> _markTarget({bool drop = false, bool move = false}) =>
+      _sessionChange(() async {
+        _targetSaveTimer?.cancel();
+        _pendingTarget = null;
+        await ClassSessionActionsService.huntersMark(widget.character,
+            target: move ? '' : _targetController.text, drop: drop);
+        if (mounted && (drop || move)) _targetController.clear();
+      });
 
   @override
   void initState() {
@@ -42,6 +104,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
 
   @override
   void dispose() {
+    _flushTarget();
     _targetController.dispose();
     super.dispose();
   }
@@ -73,6 +136,9 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
     ];
 
     return widget.character.features.where((f) {
+      if (!CharacterClassContext(widget.character, 'ranger').canUseFeature(f)) {
+        return false;
+      }
       final id = f.id.toLowerCase();
 
       // Exclude main container feature
@@ -99,29 +165,47 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
     final colorScheme = Theme.of(context).colorScheme;
     final locale = Localizations.localeOf(context).languageCode;
     final l10n = AppLocalizations.of(context)!;
-    final blockBg = colorScheme.surfaceContainerHighest;
+    final blockBg = colorScheme.surfaceContainerLow;
     final greenAccent = colorScheme.primary;
 
     final List<Widget> blocks = [];
 
     // --- БЛОК А: АРХЕТИП ОХОТНИКА (Hunter's Identity) ---
-    final isHunter = widget.character.subclass?.toLowerCase() == 'hunter' ||
-        widget.character.subclass?.toLowerCase() == 'охотник';
+    final isHunter = CharacterClassContext(widget.character, 'ranger')
+                .subclass
+                ?.toLowerCase() ==
+            'hunter' ||
+        CharacterClassContext(widget.character, 'ranger')
+                .subclass
+                ?.toLowerCase() ==
+            'охотник';
     if (isHunter) {
       blocks
           .add(_buildHunterArchetypeBlock(context, colorScheme, locale, l10n));
     }
 
+    if (!isHunter &&
+        CharacterClassContext(widget.character, 'ranger').subclass != null) {
+      blocks.add(
+          ClassSubclassLink(character: widget.character, classId: 'ranger'));
+    }
+
     // --- БЛОК Б: ТРЕКЕР "МЕТКИ ОХОТНИКА" ---
-    final knowsHuntersMark =
-        widget.character.knownSpells.contains('hunters_mark') ||
-            widget.character.knownSpells.contains('hunters-mark');
+    final mark = ClassSpellGrants.spell('hunters-mark');
+    var knowsHuntersMark = widget.character.isHuntersMarkActive;
+    try {
+      knowsHuntersMark = knowsHuntersMark ||
+          mark != null &&
+              SpellUse.visible(widget.character).any((s) => s.id == mark.id);
+    } on FormatException {
+      // A future personal spellbook must not break unrelated class controls.
+    }
     if (knowsHuntersMark) {
       blocks.add(_buildHuntersMarkBlock(context, colorScheme, locale, l10n));
     }
 
     // --- БЛОК В: ТУМБЛЕР "МАСКИРОВКА" (Hide in Plain Sight) ---
-    final hasHideInPlainSight = widget.character.level >= 10 &&
+    final hasHideInPlainSight = widget.character.classLevel('ranger') >= 10 &&
         widget.character.features.any((f) =>
             f.id == 'hide-in-plain-sight' ||
             f.id == 'hide_in_plain_sight' ||
@@ -149,8 +233,16 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
       ));
     }
 
-    if (widget.character.beastName != null &&
-        widget.character.beastName!.isNotEmpty) {
+    final owner = CharacterClassContext(widget.character, 'ranger');
+    final beastMaster =
+        FeatureService.matchesSubclass('beast master', owner.subclass);
+    bool hasCompanion = false;
+    try {
+      hasCompanion = CompanionState.read(widget.character) != null;
+    } catch (_) {
+      hasCompanion = true;
+    }
+    if (hasCompanion || beastMaster) {
       blocks.add(AnimatedSize(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOutCubic,
@@ -161,23 +253,13 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
 
     if (blocks.isEmpty) return const SizedBox.shrink();
 
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: colorScheme.outline, width: 1.5),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      margin: const EdgeInsets.only(bottom: 16),
-      clipBehavior: Clip.antiAlias,
-      child: ClassToolsLayoutBuilder(
-        padding: const EdgeInsets.all(16),
-        children: blocks,
-      ),
-    )
-        .animate()
-        .fadeIn(duration: 300.ms)
-        .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad);
+    return ClassPanelFrame(
+        character: widget.character,
+        classId: 'ranger',
+        child: ClassToolsLayoutBuilder(
+          padding: EdgeInsets.zero,
+          children: blocks,
+        ));
   }
 
   // ===========================================================================
@@ -185,100 +267,31 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
   // ===========================================================================
   Widget _buildHunterArchetypeBlock(BuildContext context,
       ColorScheme colorScheme, String locale, AppLocalizations l10n) {
-    final selectedTactics = _getHunterTactics();
-
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () => _showSubclassLore(context, colorScheme, locale, l10n),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Icon(Icons.forest, color: colorScheme.primary, size: 28),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.hunterArchetype,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall
-                                ?.copyWith(
-                                  color: colorScheme.onSurfaceVariant,
-                                  letterSpacing: 1.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                          Text(
-                            locale == 'ru' ? 'Охотник' : 'Hunter',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  color: colorScheme.onSurface,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(Icons.chevron_right,
-                        color: colorScheme.onSurfaceVariant),
-                  ],
-                ),
-              ),
-              if (selectedTactics.isNotEmpty) ...[
-                const Divider(height: 1),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: selectedTactics.map((tactic) {
-                      return ActionChip(
-                        avatar: Icon(Icons.military_tech,
-                            size: 16, color: colorScheme.onPrimaryContainer),
-                        label: Text(
-                          tactic.getName(locale).isNotEmpty
-                              ? tactic.getName(locale)
-                              : tactic.id,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: colorScheme.onPrimaryContainer,
-                          ),
-                        ),
-                        backgroundColor: colorScheme.primaryContainer,
-                        side: BorderSide(
-                            color: colorScheme.primary.withValues(alpha: 0.3)),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        padding: EdgeInsets.zero,
-                        onPressed: () => _showDetails(tactic),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
+    final tactics = _getHunterTactics();
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+          title: Text(
+              CharacterClassContext(widget.character, 'ranger')
+                      .subclassName(locale) ??
+                  '',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(color: colorScheme.secondary)),
+          trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: () => _showSubclassLore(context, colorScheme, locale, l10n)),
+      if (tactics.isNotEmpty)
+        Wrap(spacing: 8, runSpacing: 8, children: [
+          for (final tactic in tactics)
+            ActionChip(
+                side: BorderSide.none,
+                backgroundColor: colorScheme.surfaceContainerLow,
+                shape: const StadiumBorder(),
+                label: Text(tactic.getName(locale)),
+                onPressed: () => _showDetails(tactic)),
+        ]),
+    ]);
   }
 
   void _showSubclassLore(BuildContext context, ColorScheme colorScheme,
@@ -286,15 +299,21 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
     HapticFeedback.lightImpact();
 
     final classData =
-        CharacterDataService.getClassById(widget.character.characterClass);
+        CharacterClassContext(widget.character, 'ranger').definition;
     SubclassData? subclassData;
 
-    if (classData != null && widget.character.subclass != null) {
+    if (classData != null &&
+        CharacterClassContext(widget.character, 'ranger').subclass != null) {
       try {
         subclassData = classData.subclasses.firstWhere((s) {
-          return s.name.values.any((val) => val == widget.character.subclass) ||
+          return s.name.values.any((val) =>
+                  val ==
+                  CharacterClassContext(widget.character, 'ranger').subclass) ||
               s.id ==
-                  widget.character.subclass!.toLowerCase().replaceAll(' ', '_');
+                  CharacterClassContext(widget.character, 'ranger')
+                      .subclass!
+                      .toLowerCase()
+                      .replaceAll(' ', '_');
         });
       } catch (_) {}
     }
@@ -334,19 +353,22 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                   ),
                 ),
               ),
-              Row(children: [
-                Icon(Icons.forest, color: colorScheme.primary, size: 28),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    subclassDisplay,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSurface,
-                        ),
+              Row(
+                children: [
+                  Icon(Icons.forest, color: colorScheme.primary, size: 28),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      subclassDisplay,
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onSurface,
+                              ),
+                    ),
                   ),
-                ),
-              ]),
+                ],
+              ),
               const SizedBox(height: 16),
               const Divider(),
               const SizedBox(height: 16),
@@ -369,133 +391,51 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
   // ===========================================================================
   Widget _buildHuntersMarkBlock(BuildContext context, ColorScheme colorScheme,
       String locale, AppLocalizations l10n) {
-    final isActive = widget.character.isHuntersMarkActive;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeOutQuart,
-      decoration: BoxDecoration(
-        color: isActive
-            ? colorScheme.primary.withValues(alpha: 0.1)
-            : colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isActive
-              ? colorScheme.primary
-              : colorScheme.outline.withValues(alpha: 0.3),
-          width: isActive ? 2 : 1,
-        ),
-        boxShadow: isActive
-            ? [
-                BoxShadow(
-                  color: colorScheme.primary.withValues(alpha: 0.2),
-                  blurRadius: 12,
-                  spreadRadius: 2,
-                )
-              ]
-            : [],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            final spell = SpellService.getSpellById('hunters_mark') ??
-                SpellService.getSpellById('hunters-mark');
-            if (spell != null) {
-              showModalBottomSheet(
+    final active = widget.character.isHuntersMarkActive;
+    return ClassPrimaryControl(
+        classId: 'ranger',
+        title: l10n.huntersMarkTracker,
+        onDetails: () {
+          final spell = SpellService.getSpellById('hunters_mark') ??
+              SpellService.getSpellById('hunters-mark');
+          if (spell != null) {
+            showModalBottomSheet(
                 context: context,
                 isScrollControlled: true,
-                backgroundColor: Theme.of(context).colorScheme.surface,
-                builder: (context) => SpellDetailsSheet(
-                    spell: spell, character: widget.character),
-              );
-            } else {
-              AppSnackBar.warning(context, l10n.spellNotFound);
-            }
-          },
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.gps_fixed,
-                      color: isActive
-                          ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant,
-                      size: 28,
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.huntersMarkTracker,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: isActive
-                                  ? colorScheme.primary
-                                  : colorScheme.onSurface,
-                              fontSize: 16,
-                            ),
-                          ),
-                          Text(
-                            l10n.markBonusDesc,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isActive
-                                  ? colorScheme.primary.withValues(alpha: 0.8)
-                                  : colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(Icons.info_outline,
-                        size: 20,
-                        color: isActive
-                            ? colorScheme.primary.withValues(alpha: 0.5)
-                            : colorScheme.outline.withValues(alpha: 0.5)),
-                  ],
-                ),
-              ),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOutCubic,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                  child: isActive
-                      ? _buildHuntersMarkActiveState(
-                          context, colorScheme, locale, l10n)
-                      : _buildHuntersMarkInactiveState(
-                          context, colorScheme, locale, l10n),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+                builder: (_) => SpellDetailsSheet(
+                    spell: spell, character: widget.character));
+          }
+        },
+        active: active,
+        tone: active
+            ? colorScheme.primaryContainer
+            : colorScheme.secondaryContainer,
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(l10n.markBonusDesc,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w700)),
+          const SizedBox(height: 16),
+          if (active)
+            _buildHuntersMarkActiveState(context, colorScheme, locale, l10n)
+          else
+            _buildHuntersMarkInactiveState(context, colorScheme, locale, l10n),
+        ]));
   }
 
   Widget _buildHuntersMarkInactiveState(BuildContext context,
       ColorScheme colorScheme, String locale, AppLocalizations l10n) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: FilledButton.tonalIcon(
-        onPressed: () =>
-            _showActivateMarkDialog(context, colorScheme, locale, l10n),
-        icon: const Icon(Icons.play_arrow),
-        label: Text(l10n.markActivate),
-        style: FilledButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          backgroundColor: colorScheme.surface,
-          foregroundColor: colorScheme.primary,
-        ),
+    return FilledButton.tonalIcon(
+      onPressed: () =>
+          _showActivateMarkDialog(context, colorScheme, locale, l10n),
+      icon: const Icon(Icons.play_arrow),
+      label: Text(l10n.markActivate),
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.primary,
       ),
     );
   }
@@ -507,7 +447,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
         Container(
           decoration: BoxDecoration(
             color: colorScheme.surface.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(20),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: TextField(
@@ -522,9 +462,13 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
               icon:
                   Icon(Icons.person_pin, color: colorScheme.primary, size: 20),
             ),
-            onChanged: (val) {
-              widget.character.huntersMarkTarget = val;
-              widget.character.save();
+            enabled: !_sessionBusy,
+            textInputAction: TextInputAction.done,
+            onChanged: _queueTarget,
+            onSubmitted: (_) => _flushTarget(),
+            onTapOutside: (_) {
+              FocusScope.of(context).unfocus();
+              _flushTarget();
             },
           ),
         ),
@@ -533,13 +477,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
           children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  _targetController.clear();
-                  widget.character.huntersMarkTarget = '';
-                  widget.character.save();
-                  setState(() {});
-                },
+                onPressed: _sessionBusy ? null : () => _markTarget(move: true),
                 icon: const Icon(Icons.arrow_forward),
                 label: Text(l10n.moveMark),
                 style: OutlinedButton.styleFrom(
@@ -553,16 +491,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
             const SizedBox(width: 8),
             Expanded(
               child: FilledButton.tonalIcon(
-                onPressed: () {
-                  HapticFeedback.mediumImpact();
-                  setState(() {
-                    widget.character.isHuntersMarkActive = false;
-                    widget.character.huntersMarkTarget = '';
-                    _targetController.clear();
-                    widget.character.save();
-                    widget.onChanged?.call();
-                  });
-                },
+                onPressed: _sessionBusy ? null : () => _markTarget(drop: true),
                 icon: const Icon(Icons.close),
                 label: Text(l10n.markDrop),
                 style: FilledButton.styleFrom(
@@ -576,103 +505,16 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
     );
   }
 
-  void _showActivateMarkDialog(BuildContext context, ColorScheme colorScheme,
-      String locale, AppLocalizations l10n) {
-    HapticFeedback.lightImpact();
-
-    final availableLevels = <int>[];
-    for (int i = 0; i < widget.character.spellSlots.length; i++) {
-      if (widget.character.spellSlots[i] > 0) {
-        availableLevels.add(i + 1);
-      }
+  Future<void> _showActivateMarkDialog(BuildContext context,
+      ColorScheme colorScheme, String locale, AppLocalizations l10n) async {
+    final spell = ClassSpellGrants.spell('hunters-mark');
+    if (spell == null) return;
+    final cast = await showSpellCastSheet(context, widget.character, spell);
+    if (mounted && cast) {
+      _targetController.text = widget.character.huntersMarkTarget ?? '';
+      setState(() {});
+      widget.onChanged?.call();
     }
-
-    if (availableLevels.isEmpty) {
-      AppSnackBar.warning(
-        context,
-        locale == 'ru'
-            ? 'Нет доступных ячеек заклинаний!'
-            : 'No spell slots available!',
-      );
-      return;
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        contentPadding: const EdgeInsets.all(24),
-        title: Row(
-          children: [
-            Icon(Icons.gps_fixed, color: colorScheme.tertiary),
-            const SizedBox(width: 8),
-            Expanded(child: Text(l10n.huntersMarkTracker)),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l10n.markSlotChoose,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text(l10n.markDurationHint,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: colorScheme.onSurfaceVariant)),
-            const SizedBox(height: 24),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: availableLevels.map((level) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(
-                          color: colorScheme.tertiary.withValues(alpha: 0.5)),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      setState(() {
-                        widget.character.spellSlots[level - 1]--;
-                        widget.character.isHuntersMarkActive = true;
-                        widget.character.save();
-                        widget.onChanged?.call();
-                      });
-                      AppSnackBar.success(
-                        context,
-                        locale == 'ru'
-                            ? 'Метка наложена (уровень $level)'
-                            : 'Mark cast (Level $level)',
-                        duration: const Duration(seconds: 2),
-                      );
-                    },
-                    child: Text(
-                      locale == 'ru' ? 'Уровень $level' : 'Level $level',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.tertiary),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-        ],
-      ),
-    );
   }
 
   // ===========================================================================
@@ -697,24 +539,20 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
             minLevel: 10);
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      decoration: BoxDecoration(
-        color: isActive
-            ? colorScheme.primaryContainer
-            : colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 240),
+      decoration: companionDecoration(context,
+          quiet: true,
           color: isActive
-              ? colorScheme.primary
-              : colorScheme.outline.withValues(alpha: 0.3),
-          width: isActive ? 2 : 1,
-        ),
-      ),
+              ? colorScheme.primaryContainer
+              : colorScheme.surfaceContainerLow,
+          shape: const CompanionShape(contour: CompanionContour.focus)),
       clipBehavior: Clip.antiAlias,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
           onTap: () => _showDetails(feature),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -746,7 +584,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                         Text(
                           l10n.hideInPlainSightDesc,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 13,
                             color: colorScheme.onPrimaryContainer
                                 .withValues(alpha: 0.8),
                           ),
@@ -756,21 +594,16 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
                 ),
                 Switch(
                   value: isActive,
-                  onChanged: (val) {
-                    HapticFeedback.selectionClick();
-                    setState(() {
-                      widget.character.isHiddenInPlainSight = val;
-                      widget.character.save();
-                      widget.onChanged?.call();
-                    });
-                    if (val) {
-                      AppSnackBar.info(
-                        context,
-                        l10n.hideSpentMinute,
-                        duration: const Duration(seconds: 2),
-                      );
-                    }
-                  },
+                  onChanged: _sessionBusy
+                      ? null
+                      : (val) => _sessionChange(() async {
+                            await ClassSessionActionsService.hidden(
+                                widget.character, val,
+                                rangerCamouflage: true);
+                            if (context.mounted && val) {
+                              AppSnackBar.info(context, l10n.hideSpentMinute);
+                            }
+                          }),
                   activeThumbColor: colorScheme.onPrimary,
                   activeTrackColor: colorScheme.primary,
                 ),
@@ -792,69 +625,50 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
     required EdgeInsetsGeometry padding,
     VoidCallback? onTap,
   }) {
-    return Container(
-      decoration: BoxDecoration(
+    return CompanionSurface(
+        quiet: true,
         color: color,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color:
-                Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: padding,
-            child: child,
-          ),
-        ),
-      ),
-    );
+        padding: padding,
+        onTap: onTap,
+        child: child);
   }
 
   Widget _buildCoreFeaturesBlock(BuildContext context, ColorScheme colorScheme,
       Color blockBg, String locale) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (widget.character.favoredEnemies.isNotEmpty)
-          Expanded(
-            child: _buildIdentityCard(
-              context,
-              colorScheme,
-              blockBg,
-              locale,
-              title: locale == 'ru' ? "Избранный враг" : "Favored Enemy",
-              icon: Icons.gps_fixed,
-              items: widget.character.favoredEnemies
-                  .map((e) => RangerOptions.favoredEnemies[e]?[locale] ?? e)
-                  .toList(),
-              featureId: 'favored-enemy',
-            ),
-          ),
-        if (widget.character.favoredEnemies.isNotEmpty &&
-            widget.character.naturalExplorers.isNotEmpty)
+    final controls = <Widget>[
+      if (widget.character.favoredEnemies.isNotEmpty)
+        _buildIdentityCard(context, colorScheme, blockBg, locale,
+            title: locale == 'ru' ? 'Избранный враг' : 'Favored Enemy',
+            icon: Icons.gps_fixed,
+            items: widget.character.favoredEnemies
+                .map((e) => RangerOptions.favoredEnemies[e]?[locale] ?? e)
+                .toList(),
+            featureId: 'favored-enemy'),
+      if (widget.character.naturalExplorers.isNotEmpty)
+        _buildIdentityCard(context, colorScheme, blockBg, locale,
+            title: locale == 'ru' ? 'Исследователь' : 'Explorer',
+            icon: Icons.terrain,
+            items: widget.character.naturalExplorers
+                .map((e) => RangerOptions.naturalExplorers[e]?[locale] ?? e)
+                .toList(),
+            featureId: 'natural-explorer'),
+    ];
+    return LayoutBuilder(builder: (context, bounds) {
+      if (controls.length == 2 &&
+          bounds.maxWidth >= 330 &&
+          MediaQuery.textScalerOf(context).scale(1) <= 1.25) {
+        return IntrinsicHeight(
+            child:
+                Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Expanded(child: controls[0]),
           const SizedBox(width: 12),
-        if (widget.character.naturalExplorers.isNotEmpty)
-          Expanded(
-            child: _buildIdentityCard(
-              context,
-              colorScheme,
-              blockBg,
-              locale,
-              title: locale == 'ru' ? "Исследователь" : "Explorer",
-              icon: Icons.terrain,
-              items: widget.character.naturalExplorers
-                  .map((e) => RangerOptions.naturalExplorers[e]?[locale] ?? e)
-                  .toList(),
-              featureId: 'natural-explorer',
-            ),
-          ),
-      ],
-    );
+          Expanded(child: controls[1])
+        ]));
+      }
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        for (final control in controls) ...[control, const SizedBox(height: 8)]
+      ]);
+    });
   }
 
   Widget _buildIdentityCard(BuildContext context, ColorScheme colorScheme,
@@ -863,84 +677,59 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
       required IconData icon,
       required List<String> items,
       required String featureId}) {
-    return Column(
-      children: [
-        Text(
-          title.toUpperCase(),
-          style: TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-            color: colorScheme.onSurfaceVariant,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              CharacterFeature feature;
-              final found = widget.character.features
-                  .where((f) => f.id.contains(featureId.split('-').first))
-                  .firstOrNull;
-              if (found != null) {
-                feature = found;
-              } else {
-                feature = FeatureService.getFeatureById(featureId) ??
-                    CharacterFeature(
-                        id: featureId,
-                        nameEn: title,
-                        nameRu: title,
-                        descriptionEn: '',
-                        descriptionRu: '',
-                        type: FeatureType.passive,
-                        minLevel: 1);
-              }
-              _showDetails(feature);
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              height: 100,
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-              decoration: BoxDecoration(
-                color: colorScheme.secondaryContainer,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: colorScheme.outline.withValues(alpha: 0.3)),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(icon, color: colorScheme.onSecondaryContainer, size: 32),
-                  const SizedBox(height: 8),
-                  Text(
-                    items.join(', '),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: colorScheme.onSecondaryContainer
-                          .withValues(alpha: 0.9),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
+    return CompanionSurface(
+        quiet: true,
+        color: colorScheme.secondaryContainer,
+        padding: const EdgeInsets.all(14),
+        onTap: () {
+          final found = widget.character.features
+              .where((f) => f.id.contains(featureId.split('-').first))
+              .firstOrNull;
+          final feature = found ??
+              FeatureService.getFeatureById(featureId) ??
+              CharacterFeature(
+                  id: featureId,
+                  nameEn: title,
+                  nameRu: title,
+                  descriptionEn: '',
+                  descriptionRu: '',
+                  type: FeatureType.passive,
+                  minLevel: 1);
+          _showDetails(feature);
+        },
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(title,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: colorScheme.onSurfaceVariant)),
+          const SizedBox(height: 8),
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Icon(icon, size: 23, color: colorScheme.secondary),
+            const SizedBox(width: 8),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  for (final item in items)
+                    Text(item,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(
+                                fontWeight: FontWeight.w700, height: 1.4))
+                ])),
+          ]),
+        ]));
   }
 
   Widget _buildPrimevalAwarenessContent(BuildContext context,
       ColorScheme colorScheme, Color accentColor, String locale) {
     final featureName =
-        widget.primevalAwareness?.getName(locale).toUpperCase() ??
-            'PRIMEVAL AWARENESS';
+        widget.primevalAwareness?.getName(locale) ?? 'Primeval Awareness';
+    final supported = widget.primevalAwareness != null &&
+        FeatureSlotActionsService.supportsPrimeval(
+            widget.character, widget.primevalAwareness!);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -952,7 +741,7 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
               child: Text(
                 featureName,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.5,
                   color: colorScheme.onSurfaceVariant,
@@ -967,9 +756,13 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
         SizedBox(
           width: double.infinity,
           child: FilledButton.tonalIcon(
-            onPressed: () => _launchRadar(context, locale, colorScheme),
+            onPressed: supported
+                ? () => _launchRadar(context, locale, colorScheme)
+                : () => _showDetails(widget.primevalAwareness!),
             icon: const Icon(Icons.radar, size: 18),
-            label: Text(locale == 'ru' ? 'Запустить радар' : 'Launch Radar'),
+            label: Text(supported
+                ? (locale == 'ru' ? 'Ощутить присутствие' : 'Sense presence')
+                : (locale == 'ru' ? 'Подробнее об умении' : 'Read ability')),
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 12),
               backgroundColor: colorScheme.secondaryContainer,
@@ -981,238 +774,104 @@ class _RangerSurvivalWidgetState extends State<RangerSurvivalWidget> {
     );
   }
 
-  void _launchRadar(
-      BuildContext context, String locale, ColorScheme colorScheme) {
-    final availableLevels = <int>[];
-    for (int i = 0; i < widget.character.spellSlots.length; i++) {
-      if (widget.character.spellSlots[i] > 0) {
-        availableLevels.add(i + 1);
-      }
+  Future<void> _launchRadar(
+      BuildContext context, String locale, ColorScheme colorScheme) async {
+    final feature = widget.primevalAwareness;
+    if (feature == null) return;
+    final changed =
+        await showPrimevalAwarenessSheet(context, widget.character, feature);
+    if (mounted && changed == true) {
+      setState(() {});
+      widget.onChanged?.call();
     }
+  }
 
-    if (availableLevels.isEmpty) {
-      AppSnackBar.warning(
-        context,
-        locale == 'ru'
-            ? 'Нет доступных ячеек заклинаний!'
-            : 'No spell slots available!',
-      );
-      return;
+  Future<void> _editCompanion() async {
+    final changed = await showCompanionEditor(context, widget.character);
+    if (mounted && changed == true) {
+      setState(() {});
+      widget.onChanged?.call();
     }
+  }
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        contentPadding: const EdgeInsets.all(24),
-        title: Row(
-          children: [
-            Icon(Icons.radar, color: colorScheme.primary),
-            const SizedBox(width: 8),
-            Expanded(child: Text(locale == 'ru' ? 'Радар' : 'Radar')),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              locale == 'ru'
-                  ? 'Выберите уровень ячейки для списания (1 минута за уровень):'
-                  : 'Choose a spell slot to expend (1 minute per level):',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: colorScheme.onSurfaceVariant),
-            ),
-            const SizedBox(height: 24),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: availableLevels.map((level) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(
-                          color: colorScheme.primary.withValues(alpha: 0.5)),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      setState(() {
-                        widget.character.spellSlots[level - 1]--;
-                        widget.character.save();
-                        widget.onChanged?.call();
-                      });
-                      AppSnackBar.success(
-                        context,
-                        locale == 'ru'
-                            ? 'Радар запущен на $level минут(ы)'
-                            : 'Radar active for $level minute(s)',
-                        duration: const Duration(seconds: 3),
-                      );
-                    },
-                    child: Text(
-                      locale == 'ru' ? 'Уровень $level' : 'Level $level',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.primary),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(locale == 'ru' ? 'Отмена' : 'Cancel'),
-          ),
+  Future<void> _companionHealth(bool healing) async {
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    final changed = await showSheetValueEditor(context,
+        title: healing
+            ? (ru ? 'Лечение спутника' : 'Heal companion')
+            : (ru ? 'Урон спутнику' : 'Damage companion'),
+        icon: healing ? Icons.favorite_rounded : Icons.flash_on_rounded,
+        fields: [
+          SheetNumberField('amount', ru ? 'Количество ОЗ' : 'HP amount', 1,
+              minimum: 1)
         ],
-      ),
-    );
+        onSave: (values, _) => ClassSessionActionsService.changeCompanionHealth(
+            widget.character, values['amount']!,
+            healing: healing));
+    if (mounted && changed) {
+      setState(() {});
+      widget.onChanged?.call();
+    }
   }
 
   Widget _buildBeastCompanionBlock(BuildContext context,
       ColorScheme colorScheme, Color blockBg, Color accentColor) {
-    final maxHp = widget.character.beastMaxHp ?? 1;
-    final currentHp = widget.character.beastCurrentHp ?? 0;
-    final progress = maxHp > 0 ? (currentHp / maxHp).clamp(0.0, 1.0) : 0.0;
-
-    final barColor =
-        Color.lerp(colorScheme.error, colorScheme.primary, progress) ??
-            colorScheme.primary;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: blockBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
-      ),
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: colorScheme.surface,
-                child: Text(
-                  widget.character.beastIcon ?? '🐺',
-                  style: const TextStyle(fontSize: 20),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.character.beastName ?? 'Beast',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onSurface,
-                          ),
-                    ),
-                    Text(
-                      'Companion HP',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                '$currentHp / $maxHp',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: TweenAnimationBuilder<double>(
-              tween: Tween<double>(begin: 0, end: progress),
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeOutQuart,
-              builder: (context, value, _) {
-                return LinearProgressIndicator(
-                  value: value,
-                  minHeight: 16,
-                  backgroundColor: colorScheme.surfaceDim,
-                  valueColor: AlwaysStoppedAnimation(barColor),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              _buildHpButton(
-                context,
-                icon: Icons.remove,
-                onTap: () => _modifyBeastHp(-1, maxHp),
-                enabled: currentHp > 0,
-                colorScheme: colorScheme,
-              ),
-              const SizedBox(width: 8),
-              _buildHpButton(
-                context,
-                icon: Icons.add,
-                onTap: () => _modifyBeastHp(1, maxHp),
-                enabled: currentHp < maxHp,
-                colorScheme: colorScheme,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHpButton(BuildContext context,
-      {required IconData icon,
-      required VoidCallback onTap,
-      required bool enabled,
-      required ColorScheme colorScheme}) {
-    return SizedBox(
-      width: 48,
-      height: 36,
-      child: FilledButton.tonal(
-        onPressed: enabled
-            ? () {
-                HapticFeedback.lightImpact();
-                onTap();
-              }
-            : null,
-        style: FilledButton.styleFrom(
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          backgroundColor: colorScheme.surface,
-          disabledBackgroundColor: colorScheme.surface.withValues(alpha: 0.5),
-        ),
-        child: Icon(icon, size: 20),
-      ),
-    );
-  }
-
-  void _modifyBeastHp(int amount, int maxHp) {
-    setState(() {
-      int current = widget.character.beastCurrentHp ?? 0;
-      current = (current + amount).clamp(0, maxHp);
-      widget.character.beastCurrentHp = current;
-      widget.character.save();
-      widget.onChanged?.call();
-    });
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    CompanionState? companion;
+    try {
+      companion = CompanionState.read(widget.character);
+    } catch (_) {
+      return CompanionSurface(
+          quiet: true,
+          child: Text(ru
+              ? 'Данные спутника требуют более новой версии приложения.'
+              : 'This companion needs a newer app version.'));
+    }
+    return ClassPrimaryControl(
+        classId: 'ranger',
+        title: companion?.name ?? (ru ? 'Зверь-спутник' : 'Beast companion'),
+        onEdit: _editCompanion,
+        trailing: IconButton(
+            onPressed: _editCompanion,
+            tooltip: ru ? 'Данные спутника' : 'Companion details',
+            icon: const Icon(Icons.tune_rounded)),
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          if (companion == null) ...[
+            Text(
+                ru
+                    ? 'Запиши имя и ОЗ спутника. Его запас будет учитываться отдельно от Дикого облика.'
+                    : 'Record your companion’s name and HP. Its reserve is tracked separately from Wild Shape.',
+                style: Theme.of(context).textTheme.bodyLarge),
+            const SizedBox(height: 16),
+            FilledButton.tonalIcon(
+                onPressed: _editCompanion,
+                icon: const Icon(Icons.add_rounded),
+                label: Text(ru ? 'Записать спутника' : 'Record companion')),
+          ] else ...[
+            ClassFacts(facts: [
+              (
+                label: ru ? 'ОЗ спутника' : 'Companion HP',
+                value: '${companion.current} / ${companion.maximum}'
+              )
+            ]),
+            const SizedBox(height: 16),
+            Wrap(spacing: 10, runSpacing: 10, children: [
+              FilledButton.tonalIcon(
+                  onPressed: companion.current > 0
+                      ? () => _companionHealth(false)
+                      : null,
+                  icon: const Icon(Icons.flash_on_rounded),
+                  label: Text(ru ? 'Урон' : 'Damage')),
+              FilledButton.tonalIcon(
+                  onPressed: companion.current < companion.maximum
+                      ? () => _companionHealth(true)
+                      : null,
+                  icon: const Icon(Icons.favorite_rounded),
+                  label: Text(ru ? 'Лечение' : 'Heal')),
+            ]),
+          ],
+        ]));
   }
 
   void _showDetails(CharacterFeature feature) {

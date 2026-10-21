@@ -1,641 +1,536 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
-import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../core/models/item.dart';
+import '../../core/services/inventory_actions_service.dart';
+import '../../core/ui/app_menu_style.dart';
+import '../../core/ui/companion_surface.dart';
 import '../../core/utils/item_utils.dart';
-import '../../shared/widgets/item_details_sheet.dart';
+import '../../l10n/app_localizations.dart';
+import 'inventory_presentation.dart';
+import 'widgets/inventory_item_tile.dart';
 
 class CreateItemScreen extends StatefulWidget {
+  const CreateItemScreen({super.key, this.initialName, this.initialItem});
   final String? initialName;
-
-  const CreateItemScreen({
-    super.key,
-    this.initialName,
-  });
-
+  final Item? initialItem;
   @override
   State<CreateItemScreen> createState() => _CreateItemScreenState();
 }
 
 class _CreateItemScreenState extends State<CreateItemScreen> {
-  final _formKey = GlobalKey<FormState>();
-
-  // Controllers
-  final _nameController = TextEditingController();
-  final _descController = TextEditingController();
-  final _weightController = TextEditingController(text: '0');
-  final _valueController = TextEditingController(text: '0');
-  final _quantityController = TextEditingController(text: '1');
-
-  // Weapon/Armor specific
-  final _damageDiceController = TextEditingController(text: '1d6');
-  final _acController = TextEditingController(text: '10');
-
-  // State
-  String _selectedIcon = 'gear'; // Default icon key
-  ItemType _selectedType = ItemType.gear;
-  ItemRarity _selectedRarity = ItemRarity.common;
-  String _selectedCurrency = 'GP';
-  bool _isMagical = false;
-  bool _requiresAttunement = false;
-  DamageType _selectedDamageType = DamageType.slashing;
-  ArmorType _selectedArmorType = ArmorType.light;
-  bool _stealthDisadvantage = false;
-  bool _addDexModifier = true; // For armor
-
-  // Available Icons matching ItemUtils + Extras
-  final Map<String, IconData> _availableIcons = {
-    'weapon': Icons.gavel,
-    'armor': Icons.shield,
-    'gear': Icons.backpack,
-    'consumable': Icons.local_drink,
-    'tool': Icons.build,
-    'treasure': Icons.diamond,
-    'sword': Icons.pages,
-    'scroll': Icons.menu_book,
-    'food': Icons.restaurant,
-    'gold': Icons.monetization_on,
-  };
-
+  final form = GlobalKey<FormState>();
+  late final Item draft;
+  late final TextEditingController name,
+      description,
+      weight,
+      value,
+      quantity,
+      damage,
+      versatile,
+      range,
+      longRange,
+      ac,
+      maxDex,
+      strength;
+  ItemType type = ItemType.gear;
+  ItemRarity rarity = ItemRarity.common;
+  DamageType damageType = DamageType.slashing;
+  ArmorType armorType = ArmorType.light;
+  bool magical = false, attunement = false, dex = true, stealth = false;
+  String currency = 'GP';
+  final tags = <String>{};
   @override
   void initState() {
     super.initState();
-    if (widget.initialName != null) {
-      _nameController.text = widget.initialName!;
-    }
-    _nameController.addListener(_updateState);
-    _descController.addListener(_updateState);
-    _weightController.addListener(_updateState);
-    _valueController.addListener(_updateState);
-    _quantityController.addListener(_updateState);
-    _damageDiceController.addListener(_updateState);
-    _acController.addListener(_updateState);
+    draft = widget.initialItem == null
+        ? Item(
+            id: const Uuid().v4(),
+            nameEn: '',
+            nameRu: '',
+            descriptionEn: '',
+            descriptionRu: '',
+            type: ItemType.gear,
+            rarity: ItemRarity.common)
+        : InventoryActionsService.clone(widget.initialItem!);
+    type = draft.type;
+    rarity = draft.rarity;
+    magical = draft.isMagical;
+    attunement = draft.requiresAttunement;
+    final w = draft.weaponProperties, a = draft.armorProperties;
+    damageType = w?.damageType ?? DamageType.slashing;
+    armorType = a?.armorType ?? ArmorType.light;
+    dex = a?.addDexModifier ?? true;
+    stealth = a?.stealthDisadvantage ?? false;
+    tags.addAll(w?.weaponTags ?? []);
+    name = TextEditingController(
+        text: widget.initialName ??
+            (draft.nameRu.isNotEmpty ? draft.nameRu : draft.nameEn));
+    description = TextEditingController(
+        text: draft.descriptionRu.isNotEmpty
+            ? draft.descriptionRu
+            : draft.descriptionEn);
+    weight = TextEditingController(text: compactNumber(draft.weight));
+    value = TextEditingController(text: goldValue(draft.valueInCopper));
+    quantity = TextEditingController(text: '${draft.quantity}');
+    damage = TextEditingController(text: w?.damageDice ?? '1d6');
+    versatile = TextEditingController(text: w?.versatileDamageDice ?? '');
+    range = TextEditingController(text: w?.range?.toString() ?? '');
+    longRange = TextEditingController(text: w?.longRange?.toString() ?? '');
+    ac = TextEditingController(text: '${a?.baseAC ?? 10}');
+    maxDex = TextEditingController(text: a?.maxDexBonus?.toString() ?? '');
+    strength =
+        TextEditingController(text: a?.strengthRequirement?.toString() ?? '');
+    name.addListener(refresh);
+    damage.addListener(refresh);
+    ac.addListener(refresh);
   }
 
-  void _updateState() {
-    setState(() {});
+  void refresh() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _descController.dispose();
-    _weightController.dispose();
-    _valueController.dispose();
-    _quantityController.dispose();
-    _damageDiceController.dispose();
-    _acController.dispose();
+    for (final v in [
+      name,
+      description,
+      weight,
+      value,
+      quantity,
+      damage,
+      versatile,
+      range,
+      longRange,
+      ac,
+      maxDex,
+      strength
+    ]) {
+      v.dispose();
+    }
     super.dispose();
+  }
+
+  String? number(String? v, {bool decimal = false, bool optional = false}) {
+    if (optional && (v?.trim().isEmpty ?? true)) return null;
+    final n = decimal
+        ? double.tryParse((v ?? '').replaceAll(',', '.'))
+        : int.tryParse(v ?? '');
+    return n == null || !n.isFinite || n < 0
+        ? inventoryText(
+            context, 'Введи число от нуля', 'Enter a number of zero or more')
+        : null;
+  }
+
+  Item preview() => Item(
+      id: draft.id,
+      nameEn: name.text.trim().isEmpty
+          ? AppLocalizations.of(context)!.itemName
+          : name.text.trim(),
+      nameRu: name.text.trim().isEmpty
+          ? AppLocalizations.of(context)!.itemName
+          : name.text.trim(),
+      descriptionEn: description.text,
+      descriptionRu: description.text,
+      type: type,
+      rarity: rarity,
+      isMagical: magical,
+      requiresAttunement: magical && attunement,
+      weaponProperties: type == ItemType.weapon
+          ? WeaponProperties(damageDice: damage.text, damageType: damageType)
+          : null,
+      armorProperties: type == ItemType.armor
+          ? ArmorProperties(
+              baseAC: int.tryParse(ac.text) ?? 10, armorType: armorType)
+          : null);
+  void save() {
+    if (!form.currentState!.validate()) return;
+    final result = InventoryActionsService.clone(draft);
+    // Editing a book item creates a personal definition, never changes the book.
+    if (widget.initialItem != null && draft.sourceId != null) {
+      result.id = const Uuid().v4();
+      result.sourceId = null;
+    }
+    result.nameEn = name.text.trim();
+    result.nameRu = name.text.trim();
+    result.descriptionEn = description.text.trim();
+    result.descriptionRu = description.text.trim();
+    result.type = type;
+    result.rarity = rarity;
+    result.isMagical = magical;
+    result.requiresAttunement = magical && attunement;
+    result.quantity = int.parse(quantity.text.trim());
+    result.weight = double.parse(weight.text.replaceAll(',', '.'));
+    result.valueInCopper = itemValueInCopper(value.text, currency);
+    result.weaponProperties = type == ItemType.weapon
+        ? WeaponProperties(
+            damageDice: damage.text.trim(),
+            damageType: damageType,
+            weaponTags: tags.toList(),
+            versatileDamageDice:
+                versatile.text.trim().isEmpty ? null : versatile.text.trim(),
+            range: int.tryParse(range.text),
+            longRange: int.tryParse(longRange.text))
+        : null;
+    result.armorProperties = type == ItemType.armor
+        ? ArmorProperties(
+            baseAC: int.parse(ac.text),
+            armorType: armorType,
+            addDexModifier: armorType == ArmorType.shield ? false : dex,
+            maxDexBonus: dex ? int.tryParse(maxDex.text) : null,
+            strengthRequirement: int.tryParse(strength.text),
+            stealthDisadvantage: stealth)
+        : null;
+    HapticFeedback.selectionClick();
+    Navigator.pop(context, result);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
+    final t = Theme.of(context),
+        c = t.colorScheme,
+        l = AppLocalizations.of(context)!;
+    Widget section(String title, String subtitle, Widget child) => Padding(
+        padding: const EdgeInsets.only(bottom: 20),
+        child: CompanionSurface(
+            quiet: true,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(title,
+                      style: t.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800, letterSpacing: -.4)),
+                  const SizedBox(height: 6),
+                  Text(subtitle,
+                      style: t.textTheme.bodySmall
+                          ?.copyWith(color: c.onSurfaceVariant)),
+                  const SizedBox(height: 20),
+                  child
+                ])));
+    Widget field(TextEditingController controller, String label,
+            {bool decimal = false, bool optional = false}) =>
+        TextFormField(
+            controller: controller,
+            autofocus: false,
+            keyboardType: TextInputType.numberWithOptions(decimal: decimal),
+            decoration: InputDecoration(labelText: label),
+            validator: (v) => number(v, decimal: decimal, optional: optional));
+    Widget pair(Widget a, Widget b) => LayoutBuilder(
+        builder: (context, bounds) => bounds.maxWidth < 260 ||
+                MediaQuery.textScalerOf(context).scale(1) > 1.3
+            ? Column(children: [a, const SizedBox(height: 16), b])
+            : Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Expanded(child: a),
+                const SizedBox(width: 14),
+                Expanded(child: b)
+              ]));
+    String? dice(String? v, {bool optional = false}) {
+      if (optional && (v?.trim().isEmpty ?? true)) return null;
+      return RegExp(r'^\d+[dDкК]\d+(\s*[+-]\s*\d+)?$').hasMatch(v?.trim() ?? '')
+          ? null
+          : inventoryText(context, 'Например, 1к8 или 1d8', 'For example, 1d8');
+    }
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar.large(
-            title: Text(l10n.forgeTitle),
-            centerTitle: true,
-            pinned: true,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.check),
-                onPressed:
-                    _nameController.text.trim().isNotEmpty ? _saveItem : null,
-              ),
-            ],
-          ),
-
-          // Live Preview Section
-          SliverToBoxAdapter(
-            child: _buildLivePreview(theme, l10n),
-          ),
-
-          // Form Content
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Identity Section
-                    _buildSectionHeader(theme, l10n.identitySection),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: InputDecoration(
-                        labelText: l10n.itemName,
-                        hintText: l10n.itemExample,
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        prefixIcon: const Icon(Icons.edit),
-                      ),
-                      textCapitalization: TextCapitalization.sentences,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _descController,
-                      decoration: InputDecoration(
-                        labelText: l10n.itemDescription,
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        alignLabelWithHint: true,
-                      ),
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      height: 70,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: _availableIcons.entries.map((entry) {
-                          final isSelected = _selectedIcon == entry.key;
-                          return GestureDetector(
-                            onTap: () =>
-                                setState(() => _selectedIcon = entry.key),
-                            child: Container(
-                              width: 60,
-                              margin: const EdgeInsets.only(right: 12),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? theme.colorScheme.primaryContainer
-                                    : theme.colorScheme.surfaceContainerHighest,
-                                shape: BoxShape.circle,
-                                border: isSelected
-                                    ? Border.all(
-                                        color: theme.colorScheme.primary,
-                                        width: 2)
-                                    : null,
-                              ),
-                              child: Icon(
-                                entry.value,
-                                color: isSelected
-                                    ? theme.colorScheme.onPrimaryContainer
-                                    : theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Characteristics Section
-                    _buildSectionHeader(theme, l10n.characteristicsSection),
-                    const SizedBox(height: 16),
-                    Text(l10n.itemType, style: theme.textTheme.labelLarge),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: ItemType.values.map((type) {
-                        return ChoiceChip(
-                          label:
-                              Text(ItemUtils.getLocalizedTypeName(l10n, type)),
-                          selected: _selectedType == type,
-                          onSelected: (selected) {
-                            if (selected) setState(() => _selectedType = type);
-                          },
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(l10n.itemRarity, style: theme.textTheme.labelLarge),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: ItemRarity.values.map((rarity) {
-                        return ChoiceChip(
-                          label: Text(
-                            ItemUtils.getLocalizedRarityName(l10n, rarity),
-                            style: TextStyle(
-                              color: _selectedRarity == rarity
-                                  ? Colors.white
-                                  : null,
-                            ),
-                          ),
-                          selected: _selectedRarity == rarity,
-                          selectedColor: _getRarityColor(rarity),
-                          onSelected: (selected) {
-                            if (selected) {
-                              setState(() => _selectedRarity = rarity);
-                            }
-                          },
-                        );
-                      }).toList(),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Stats Section
-                    _buildSectionHeader(theme, l10n.statsSection),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _weightController,
-                            keyboardType: const TextInputType.numberWithOptions(
-                                decimal: true),
-                            decoration: InputDecoration(
-                              labelText: l10n.itemWeight,
-                              suffixText: l10n.weightUnit,
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                            ),
-                          ),
-                        ),
+        appBar: AppBar(title: Text(l.forgeTitle), actions: [
+          Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: TextButton(onPressed: save, child: Text(l.save)))
+        ]),
+        body: Form(
+            key: form,
+            child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                children: [
+                  CompanionSurface(
+                      raised: true,
+                      contour: CompanionContour.focus,
+                      color: c.tertiaryContainer,
+                      child: Row(children: [
+                        InventoryItemGlyph(item: preview(), size: 62),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: TextFormField(
-                            controller: _quantityController,
-                            keyboardType: TextInputType.number,
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                              Text(
+                                  inventoryText(context, 'Твоя находка',
+                                      'Your discovery'),
+                                  style: t.textTheme.labelMedium),
+                              const SizedBox(height: 6),
+                              Text(
+                                  preview().getName(
+                                      Localizations.localeOf(context)
+                                          .languageCode),
+                                  style: t.textTheme.headlineSmall?.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -.6)),
+                              const SizedBox(height: 7),
+                              Text(itemSummary(context, preview()),
+                                  style: t.textTheme.bodySmall)
+                            ]))
+                      ])),
+                  const SizedBox(height: 24),
+                  section(
+                      inventoryText(context, 'Замысел', 'The idea'),
+                      inventoryText(context, 'Дай вещи имя и историю.',
+                          'Give this item a name and a story.'),
+                      Column(children: [
+                        TextFormField(
+                            controller: name,
+                            textCapitalization: TextCapitalization.sentences,
+                            decoration: InputDecoration(labelText: l.itemName),
+                            validator: (v) => (v?.trim().isEmpty ?? true)
+                                ? inventoryText(
+                                    context, 'Укажи название', 'Enter a name')
+                                : null),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                            controller: description,
+                            textCapitalization: TextCapitalization.sentences,
+                            minLines: 3,
+                            maxLines: 8,
                             decoration: InputDecoration(
-                              labelText: l10n.quantity,
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                              prefixIcon: IconButton(
-                                icon: const Icon(Icons.remove),
-                                onPressed: () {
-                                  int current =
-                                      int.tryParse(_quantityController.text) ??
-                                          1;
-                                  if (current > 1) {
-                                    _quantityController.text =
-                                        (current - 1).toString();
+                                labelText: l.itemDescription,
+                                alignLabelWithHint: true)),
+                      ])),
+                  section(
+                      inventoryText(
+                          context, 'Характер предмета', 'The item’s character'),
+                      inventoryText(
+                          context,
+                          'Тип определяет доступные свойства.',
+                          'The type determines the available properties.'),
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Wrap(spacing: 7, runSpacing: 6, children: [
+                              for (final v in ItemType.values)
+                                ChoiceChip(
+                                    label: Text(itemTypeName(context, v)),
+                                    selected: type == v,
+                                    onSelected: (_) => setState(() => type = v))
+                            ]),
+                            const SizedBox(height: 20),
+                            DropdownButtonFormField<ItemRarity>(
+                                initialValue: rarity,
+                                isExpanded: true,
+                                borderRadius: AppMenuStyle.radius,
+                                decoration: InputDecoration(
+                                    labelText: inventoryText(
+                                        context, 'Редкость', 'Rarity')),
+                                items: [
+                                  for (final v in ItemRarity.values)
+                                    DropdownMenuItem(
+                                        value: v,
+                                        child: Text(
+                                            ItemUtils.getLocalizedRarityName(
+                                                l, v)))
+                                ],
+                                onChanged: (v) => setState(() => rarity = v!)),
+                            const SizedBox(height: 12),
+                            SwitchListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: Text(inventoryText(context,
+                                    'Магический предмет', 'Magical item')),
+                                value: magical,
+                                onChanged: (v) => setState(() => magical = v)),
+                            if (magical)
+                              SwitchListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  title: Text(l.requiresAttunement),
+                                  value: attunement,
+                                  onChanged: (v) =>
+                                      setState(() => attunement = v)),
+                          ])),
+                  if (type == ItemType.weapon)
+                    section(
+                        l.weaponProperties,
+                        inventoryText(
+                            context,
+                            'Урон, дистанция и способы применения.',
+                            'Damage, range and ways to wield it.'),
+                        Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              pair(
+                                  TextFormField(
+                                      controller: damage,
+                                      decoration:
+                                          InputDecoration(labelText: l.damage),
+                                      validator: dice),
+                                  DropdownButtonFormField<DamageType>(
+                                      initialValue: damageType,
+                                      isExpanded: true,
+                                      borderRadius: AppMenuStyle.radius,
+                                      decoration: InputDecoration(
+                                          labelText: l.damageType),
+                                      items: [
+                                        for (final v in DamageType.values)
+                                          DropdownMenuItem(
+                                              value: v,
+                                              child: Text(ItemUtils
+                                                  .getLocalizedDamageType(
+                                                      l, v.toString())))
+                                      ],
+                                      onChanged: (v) =>
+                                          setState(() => damageType = v!))),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                  controller: versatile,
+                                  decoration: InputDecoration(
+                                      labelText: l.versatileDamage),
+                                  validator: (v) => dice(v, optional: true)),
+                              const SizedBox(height: 16),
+                              pair(
+                                  field(
+                                      range,
+                                      inventoryText(context, 'Дистанция, фт',
+                                          'Range, ft'),
+                                      optional: true),
+                                  field(
+                                      longRange,
+                                      inventoryText(context, 'Дальняя, фт',
+                                          'Long range, ft'),
+                                      optional: true)),
+                              const SizedBox(height: 18),
+                              Wrap(spacing: 6, runSpacing: 6, children: [
+                                for (final v in {
+                                  'ammunition',
+                                  'finesse',
+                                  'heavy',
+                                  'light',
+                                  'loading',
+                                  'reach',
+                                  'thrown',
+                                  'two-handed',
+                                  'versatile',
+                                  ...tags
+                                })
+                                  FilterChip(
+                                      label:
+                                          Text(ItemUtils.getLocalizedTag(l, v)),
+                                      selected: tags.contains(v),
+                                      onSelected: (on) => setState(() {
+                                            if (on) {
+                                              tags.add(v);
+                                            } else {
+                                              tags.remove(v);
+                                            }
+                                          }))
+                              ]),
+                            ])),
+                  if (type == ItemType.armor)
+                    section(
+                        l.armorProperties,
+                        inventoryText(
+                            context,
+                            'Защита с учётом Ловкости и ограничений.',
+                            'Protection, Dexterity and restrictions.'),
+                        Column(children: [
+                          pair(
+                              field(ac, l.armorClassAC),
+                              DropdownButtonFormField<ArmorType>(
+                                  initialValue: armorType,
+                                  isExpanded: true,
+                                  borderRadius: AppMenuStyle.radius,
+                                  decoration:
+                                      InputDecoration(labelText: l.type),
+                                  items: [
+                                    for (final v in ArmorType.values)
+                                      DropdownMenuItem(
+                                          value: v,
+                                          child: Text(
+                                              ItemUtils.getLocalizedArmorType(
+                                                  l, v.toString())))
+                                  ],
+                                  onChanged: (v) =>
+                                      setState(() => armorType = v!))),
+                          const SizedBox(height: 16),
+                          if (armorType != ArmorType.shield) ...[
+                            SwitchListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: Text(inventoryText(
+                                    context,
+                                    'Добавлять Ловкость',
+                                    'Add Dexterity modifier')),
+                                value: dex,
+                                onChanged: (v) => setState(() => dex = v)),
+                            if (dex)
+                              field(
+                                  maxDex,
+                                  inventoryText(
+                                      context,
+                                      'Максимальный бонус Ловкости',
+                                      'Maximum Dexterity bonus'),
+                                  optional: true),
+                            const SizedBox(height: 16),
+                            field(strength, l.strRequirement, optional: true),
+                            SwitchListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: Text(inventoryText(
+                                    context,
+                                    'Помеха Скрытности',
+                                    'Disadvantage on Stealth')),
+                                value: stealth,
+                                onChanged: (v) => setState(() => stealth = v))
+                          ],
+                        ])),
+                  section(
+                      inventoryText(context, 'В рюкзак', 'In the pack'),
+                      inventoryText(
+                          context,
+                          'Количество, вес и цена одной вещи.',
+                          'Quantity, weight and the value of one item.'),
+                      Column(children: [
+                        pair(
+                            field(quantity, l.quantity),
+                            field(weight, '${l.weight}, ${l.weightUnit}',
+                                decimal: true)),
+                        const SizedBox(height: 16),
+                        pair(
+                            TextFormField(
+                                controller: value,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                        decimal: true),
+                                decoration: InputDecoration(labelText: l.value),
+                                validator: (v) {
+                                  try {
+                                    itemValueInCopper(v ?? '', currency);
+                                    return null;
+                                  } on FormatException {
+                                    return inventoryText(
+                                        context,
+                                        'Цена от нуля, кратная медной монете',
+                                        'A nonnegative price in whole copper pieces');
                                   }
-                                },
-                              ),
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.add),
-                                onPressed: () {
-                                  int current =
-                                      int.tryParse(_quantityController.text) ??
-                                          1;
-                                  _quantityController.text =
-                                      (current + 1).toString();
-                                },
-                              ),
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: TextFormField(
-                            controller: _valueController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              labelText: l10n.itemValue,
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          flex: 1,
-                          child: DropdownButtonFormField<String>(
-                            initialValue: _selectedCurrency,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                              contentPadding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
-                            ),
-                            items: [
-                              l10n.currencyGP_short.toUpperCase(),
-                              l10n.currencySP_short.toUpperCase(),
-                              l10n.currencyCP_short.toUpperCase(),
-                              l10n.currencyPP_short.toUpperCase()
-                            ]
-                                .map((c) =>
-                                    DropdownMenuItem(value: c, child: Text(c)))
-                                .toList(),
-                            onChanged: (v) =>
-                                setState(() => _selectedCurrency = v!),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Magic & Properties
-                    _buildSectionHeader(theme, l10n.magicPropertiesSection),
-                    const SizedBox(height: 8),
-                    SwitchListTile(
-                      title: Text(l10n.isMagical),
-                      value: _isMagical,
-                      onChanged: (v) => setState(() => _isMagical = v),
-                      secondary: Icon(Icons.auto_fix_high,
-                          color: _isMagical ? theme.colorScheme.primary : null),
-                      activeThumbColor: theme.colorScheme.primary,
-                    ),
-                    SwitchListTile(
-                      title: Text(l10n.requiresAttunement),
-                      value: _requiresAttunement,
-                      onChanged: (v) => setState(() => _requiresAttunement = v),
-                      secondary: Icon(Icons.link,
-                          color: _requiresAttunement
-                              ? theme.colorScheme.primary
-                              : null),
-                      activeThumbColor: theme.colorScheme.primary,
-                    ),
-
-                    // Dynamic Fields: Weapon
-                    if (_selectedType == ItemType.weapon) ...[
-                      const Divider(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(l10n.weaponStats,
-                            style: theme.textTheme.titleMedium),
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _damageDiceController,
-                              decoration: InputDecoration(
-                                labelText: l10n.damageDice,
-                                hintText: l10n.damageDiceHint,
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12)),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: DropdownButtonFormField<DamageType>(
-                              initialValue: _selectedDamageType,
-                              decoration: InputDecoration(
-                                labelText: l10n.damageType,
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12)),
-                              ),
-                              isExpanded: true,
-                              items: DamageType.values
-                                  .map((t) => DropdownMenuItem(
-                                      value: t,
-                                      child: Text(
-                                          ItemUtils.getLocalizedDamageType(
-                                              l10n, t.toString()))))
-                                  .toList(),
-                              onChanged: (v) =>
-                                  setState(() => _selectedDamageType = v!),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-
-                    // Dynamic Fields: Armor
-                    if (_selectedType == ItemType.armor) ...[
-                      const Divider(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(l10n.armorStats,
-                            style: theme.textTheme.titleMedium),
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _acController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: '${l10n.armorClass} (AC)',
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12)),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: DropdownButtonFormField<ArmorType>(
-                              initialValue: _selectedArmorType,
-                              decoration: InputDecoration(
-                                labelText: l10n.type,
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12)),
-                              ),
-                              items: ArmorType.values
-                                  .map((t) => DropdownMenuItem(
-                                      value: t,
-                                      child: Text(
-                                          ItemUtils.getLocalizedArmorType(
-                                              l10n, t.toString()))))
-                                  .toList(),
-                              onChanged: (v) =>
-                                  setState(() => _selectedArmorType = v!),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      SwitchListTile(
-                        title: Text(l10n.addDexModifier),
-                        value: _addDexModifier,
-                        onChanged: (v) => setState(() => _addDexModifier = v),
-                        activeThumbColor: theme.colorScheme.primary,
-                      ),
-                      SwitchListTile(
-                        title: Text(l10n.stealthDisadvantage),
-                        value: _stealthDisadvantage,
-                        onChanged: (v) =>
-                            setState(() => _stealthDisadvantage = v),
-                        activeThumbColor: theme.colorScheme.primary,
-                      ),
-                    ],
-
-                    const SizedBox(height: 80), // Bottom padding
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLivePreview(ThemeData theme, AppLocalizations l10n) {
-    // Calculate value in copper for preview
-    int val = int.tryParse(_valueController.text) ?? 0;
-    int multiplier = 1; // CP
-    if (_selectedCurrency == l10n.currencySP_short.toUpperCase()) {
-      multiplier = 10;
-    }
-    if (_selectedCurrency == l10n.currencyGP_short.toUpperCase()) {
-      multiplier = 100;
-    }
-    if (_selectedCurrency == l10n.currencyPP_short.toUpperCase()) {
-      multiplier = 1000;
-    }
-    int valueInCopper = val * multiplier;
-
-    // Construct a temporary item for preview
-    final previewItem = Item(
-      id: 'preview',
-      nameEn:
-          _nameController.text.isEmpty ? l10n.itemName : _nameController.text,
-      nameRu:
-          _nameController.text.isEmpty ? l10n.itemName : _nameController.text,
-      descriptionEn: _descController.text,
-      descriptionRu: _descController.text,
-      type: _selectedType,
-      rarity: _selectedRarity,
-      weight: double.tryParse(_weightController.text) ?? 0,
-      quantity: int.tryParse(_quantityController.text) ?? 1,
-      valueInCopper: valueInCopper,
-      isMagical: _isMagical,
-      isAttuned: false,
-      // Create properties if needed
-      weaponProperties: _selectedType == ItemType.weapon
-          ? WeaponProperties(
-              damageDice: _damageDiceController.text,
-              damageType: _selectedDamageType)
-          : null,
-      armorProperties: _selectedType == ItemType.armor
-          ? ArmorProperties(
-              baseAC: int.tryParse(_acController.text) ?? 10,
-              armorType: _selectedArmorType)
-          : null,
-    );
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: const [0.0, 0.3, 1.0],
-          colors: [
-            theme.scaffoldBackgroundColor,
-            theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-            theme.scaffoldBackgroundColor,
-          ],
-        ),
-      ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: ItemDetailsContent(item: previewItem),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(ThemeData theme, String title) {
-    return Row(
-      children: [
-        Container(
-            width: 4,
-            height: 16,
-            color: theme.colorScheme.primary,
-            margin: const EdgeInsets.only(right: 8)),
-        Text(
-          title.toUpperCase(),
-          style: theme.textTheme.labelLarge?.copyWith(
-            color: theme.colorScheme.primary,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Color _getRarityColor(ItemRarity rarity) {
-    switch (rarity) {
-      case ItemRarity.common:
-        return Colors.grey;
-      case ItemRarity.uncommon:
-        return Colors.green;
-      case ItemRarity.rare:
-        return Colors.blue;
-      case ItemRarity.veryRare:
-        return Colors.purple;
-      case ItemRarity.legendary:
-        return Colors.orange;
-      case ItemRarity.artifact:
-        return Colors.red;
-    }
-  }
-
-  void _saveItem() {
-    if (!_formKey.currentState!.validate()) return;
-
-    final l10n = AppLocalizations.of(context)!;
-
-    // Calculate value in copper
-    int val = int.tryParse(_valueController.text) ?? 0;
-    int multiplier = 1; // CP
-    if (_selectedCurrency == l10n.currencySP_short.toUpperCase()) {
-      multiplier = 10;
-    }
-    if (_selectedCurrency == l10n.currencyGP_short.toUpperCase()) {
-      multiplier = 100;
-    }
-    if (_selectedCurrency == l10n.currencyPP_short.toUpperCase()) {
-      multiplier = 1000;
-    }
-    int valueInCopper = val * multiplier;
-
-    final item = Item(
-      id: const Uuid().v4(),
-      nameEn: _nameController.text.trim(),
-      nameRu: _nameController.text.trim(),
-      descriptionEn: _descController.text.trim(),
-      descriptionRu: _descController.text.trim(),
-      type: _selectedType,
-      rarity: _selectedRarity,
-      weight: double.tryParse(_weightController.text) ?? 0.0,
-      quantity: int.tryParse(_quantityController.text) ?? 1,
-      valueInCopper: valueInCopper,
-      isMagical: _isMagical,
-      isAttuned: false,
-      iconName: _selectedIcon,
-
-      // Weapon Props
-      weaponProperties: _selectedType == ItemType.weapon
-          ? WeaponProperties(
-              damageDice: _damageDiceController.text,
-              damageType: _selectedDamageType,
-              weaponTags: [],
-            )
-          : null,
-
-      // Armor Props
-      armorProperties: _selectedType == ItemType.armor
-          ? ArmorProperties(
-              baseAC: int.tryParse(_acController.text) ?? 10,
-              armorType: _selectedArmorType,
-              addDexModifier: _addDexModifier,
-              stealthDisadvantage: _stealthDisadvantage,
-            )
-          : null,
-    );
-
-    Navigator.pop(context, item);
+                                }),
+                            DropdownButtonFormField<String>(
+                                initialValue: currency,
+                                borderRadius: AppMenuStyle.radius,
+                                decoration:
+                                    InputDecoration(labelText: l.currency),
+                                items: [
+                                  for (final e in {
+                                    'GP': l.currencyGP_short,
+                                    'SP': l.currencySP_short,
+                                    'CP': l.currencyCP_short,
+                                    'PP': l.currencyPP_short
+                                  }.entries)
+                                    DropdownMenuItem(
+                                        value: e.key, child: Text(e.value))
+                                ],
+                                onChanged: (v) =>
+                                    setState(() => currency = v!))),
+                      ])),
+                  FilledButton.icon(
+                      onPressed: save,
+                      icon: const Icon(Icons.auto_awesome_rounded),
+                      label: Text(widget.initialItem == null
+                          ? inventoryText(
+                              context, 'Создать предмет', 'Create item')
+                          : l.save)),
+                ])));
   }
 }

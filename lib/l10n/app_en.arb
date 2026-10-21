@@ -611,11 +611,11 @@
   "@rest": {
     "description": "No description provided"
   },
-  "shortRestDescription": "Recover short-rest features and spend Hit Dice?",
+  "shortRestDescription": "Recover short rest resources. Record healing and spent hit dice separately.",
   "@shortRestDescription": {
     "description": "No description provided"
   },
-  "longRestDescription": "Recover all HP, spell slots, and features?",
+  "longRestDescription": "Replenish missing HP, spell slots, and feature resources up to their normal maximum.",
   "@longRestDescription": {
     "description": "No description provided"
   },
@@ -847,7 +847,7 @@
   "@spellsList": {
     "description": "No description provided"
   },
-  "passiveTraits": "Passive Traits",
+  "passiveTraits": "Passive Features",
   "@passiveTraits": {
     "description": "No description provided"
   },
@@ -855,7 +855,7 @@
   "@cantrips": {
     "description": "No description provided"
   },
-  "levelLabel": "Circle {level}",
+  "levelLabel": "Level {level}",
   "@levelLabel": {
     "placeholders": {
       "level": {
@@ -887,7 +887,7 @@
   "@chooseSpellSlot": {
     "description": "No description provided"
   },
-  "levelSlot": "Circle {level}",
+  "levelSlot": "Level {level}",
   "@levelSlot": {
     "placeholders": {
       "level": {
@@ -4152,7 +4152,7 @@
   "@markTargetName": {
     "description": "No description provided"
   },
-  "markBonusDesc": "+1d6 damage / Advantage",
+  "markBonusDesc": "+1d6 damage against your target",
   "@markBonusDesc": {
     "description": "No description provided"
   },
@@ -4360,5 +4360,317 @@
         "type": "int"
       }
     }
-  }
+  },
+  "editGameState": "Edit game state",
+  "gameStateEditorTitle": "Game state",
+  "gameStateSaved": "Game state saved",
+  "gameStateSaveFailed": "Could not save game state: {error}",
+  "@gameStateSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "gameStateNumbersOnly": "Enter a non-negative whole number",
+  "gameStateNormalMaximum": "Normal maximum: {value}. Higher remainders are allowed.",
+  "@gameStateNormalMaximum": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "gameStateArmorCalculated": "Calculated AC: {value}",
+  "@gameStateArmorCalculated": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "gameStateManualArmor": "Use the entered AC",
+  "gameStateEffectsHint": "These marks remain after resting. Clear an effect when it ends at your table.",
+  "gameStateResourcesHint": "Enter the actual remainder, including uses granted by your GM. Resting preserves any excess.",
+  "gameStateCurrentHp": "Current HP",
+  "gameStateMaximumHp": "Maximum HP",
+  "gameStateSpeed": "Speed",
+  "gameStateExhaustion": "Exhaustion (0–6)",
+  "gameStateDeathSuccesses": "Death save successes (0–3)",
+  "gameStateDeathFailures": "Death save failures (0–3)",
+  "gameStateHitDice": "Remaining hit dice",
+  "gameStateRaging": "Rage active",
+  "gameStateFrenzied": "Frenzy active",
+  "gameStateReckless": "Reckless Attack active",
+  "gameStateHidden": "Hidden",
+  "gameStateSacredWeapon": "Sacred Weapon active",
+  "gameStateWildShape": "Wild Shape active",
+  "gameStateWildShapeUses": "Wild Shape uses remaining",
+  "gameStateBeastCurrentHp": "Form HP",
+  "gameStateBeastMaximumHp": "Form maximum HP",
+  "gameStateHuntersMark": "Hunter’s Mark active",
+  "gameStateConcentrationHelp": "Concentration is on this spell. Clear the mark when concentration ends.",
+  "gameStateNoConcentration": "No concentration",
+  "gameStateRestMarksHint": "Resources are restored; active effects and conditions remain for you to manage.",
+  "gameStateCurrentValue": "Current value",
+  "gameStateCastWithoutSlot": "Cast without a slot",
+  "gameStateSpellSlots": "Spell slots",
+  "gameStateResourceUsed": "{name}: used",
+  "@gameStateResourceUsed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "gameStateRecovery": "Recovery",
+  "gameStateUseBuiltInRecovery": "Use built-in resource recovery rules",
+  "gameStateRelentlessDc": "Relentless Rage save DC",
+  "gameStateHiddenPlain": "Hidden in plain sight",
+  "sheetVitals": "Vitals",
+  "sheetAutomaticCalculation": "Calculate automatically",
+  "sheetSaveFailed": "Could not save. Your previous values were kept. Try again.",
+  "sheetAdjustValue": "Set value",
+  "sheetSpendOne": "Spend one use",
+  "sheetRestoreOne": "Add one use",
+  "sheetRemainder": "Remaining",
+  "sheetMoreEdits": "Other adjustments",
+  "sheetHealthEditHelp": "Enter the actual HP. Use the separate actions to apply damage or healing.",
+  "sheetArmorEditHelp": "Use the calculation or enter the AC agreed at your table.",
+  "sheetAdditionalSlots": "Additional slots",
+  "sheetHealthBase": "Character HP",
+  "sheetHealthForm": "Form HP",
+  "sheetFormMissing": "Set form HP",
+  "sheetDamageHelp": "Temporary HP absorbs damage first, then your active form. Excess damage carries over to the character.",
+  "sheetHealingHelp": "Restore missing HP up to the maximum. A manually granted excess is preserved.",
+  "sheetNumberRange": "Enter a whole number from {minimum} to {maximum}",
+  "@sheetNumberRange": {
+    "placeholders": {
+      "minimum": {
+        "type": "int"
+      },
+      "maximum": {
+        "type": "int"
+      }
+    }
+  },
+  "sheetCounterDescription": "Remaining {current}, normal maximum {maximum}",
+  "@sheetCounterDescription": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "maximum": {
+        "type": "int"
+      }
+    }
+  },
+  "sheetConcentrationDc": "Concentration: Constitution save DC {dc}",
+  "@sheetConcentrationDc": {
+    "placeholders": {
+      "dc": {
+        "type": "int"
+      }
+    }
+  },
+  "sheetSlotLevel": "Slot level",
+  "sheetPositiveAmount": "Enter a whole number greater than zero",
+  "sheetAdditionalSlotsHelp": "Add extra slots to the chosen level. The normal maximum stays the same.",
+  "sheetAddSlotsAmount": "Slots to add",
+  "sheetTapHoldHint": "Tap to spend · Hold to edit",
+  "sheetHoldToEdit": "Hold to edit",
+  "sheetEditCharacter": "Edit character",
+  "sheetEditorCore": "Basics",
+  "sheetArcanum": "Mystic Arcanum",
+  "spellMasterySelectionHint": "Choose one 1st-level and one 2nd-level spell from your spellbook:",
+  "signatureSpellsSelectionHint": "Choose two 3rd-level spells ({count} / 2):",
+  "@signatureSpellsSelectionHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sheetRestPreviewTitle": "What will recover",
+  "sheetRestReady": "Available again",
+  "sheetRestNothingToRecover": "This rest will not change your resources.",
+  "sheetRestPreserves": "Uses above the normal maximum are preserved. Clear conditions and active effects manually.",
+  "sheetEditorDefense": "Defense and movement",
+  "sheetEditorResourceMarks": "Usage marks",
+  "sheetEditorActiveEffects": "Active effects",
+  "sheetDeathSuccesses": "Successes (0–3)",
+  "sheetDeathFailures": "Failures (0–3)",
+  "sheetClearCondition": "Clear condition",
+  "sheetRemoveCondition": "Clear: {name}",
+  "@sheetRemoveCondition": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sheetNormalMaximum": "Normal maximum: {value}",
+  "@sheetNormalMaximum": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "sheetEditorOtherMarks": "Other usage marks",
+  "advancementHealthTitle": "Hit Point Increase",
+  "advancementHealthHint": "Choose how to increase your maximum HP.",
+  "advancementMaximumHp": "Maximum HP",
+  "advancementConIncluded": "Includes Constitution modifier {modifier}",
+  "@advancementConIncluded": {
+    "placeholders": {
+      "modifier": {
+        "type": "String"
+      }
+    }
+  },
+  "advancementAverageDie": "Average die result · {result}",
+  "@advancementAverageDie": {
+    "placeholders": {
+      "result": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementRollHere": "Roll d{die} here",
+  "@advancementRollHere": {
+    "placeholders": {
+      "die": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementRollAgain": "Rolled {result} · tap to roll again",
+  "@advancementRollAgain": {
+    "placeholders": {
+      "result": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementNoHealing": "Levelling increases your maximum without healing.",
+  "advancementHpPreserved": "Current HP stays at {current}.",
+  "@advancementHpPreserved": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementRolling": "The die is rolling…",
+  "advancementOwnDie": "Your own die",
+  "advancementOwnDieHint": "Enter a roll made at the table",
+  "advancementOwnHitDie": "Your Hit Die",
+  "advancementDieResult": "d{die} result",
+  "@advancementDieResult": {
+    "placeholders": {
+      "die": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementUseRoll": "Use result",
+  "advancementAsiTitle": "Ability Score Improvement",
+  "advancementAsiHint": "Assign two points: +2 to one ability or +1 to two.",
+  "advancementPoint": "Point {number}",
+  "@advancementPoint": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementAssign": "Assign",
+  "advancementPointHint": "Choose an ability for the highlighted point. You can assign it elsewhere.",
+  "advancementAssigned": "{count} of 2 assigned",
+  "@advancementAssigned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementModifierChange": "Modifier {before} → {after}",
+  "@advancementModifierChange": {
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "advancementFeaturesTitle": "Class Features",
+  "advancementFeaturesHint": "Features granted by this class level.",
+  "advancementSpellsHint": "Learn spells available to your class.",
+  "advancementCompleteChoices": "Complete the choices on this step",
+  "advancementChooseSpells": "{count, plural, one{Choose {count} spell.} other{Choose {count} spells.}}",
+  "@advancementChooseSpells": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementReviewTitle": "Level-up Review",
+  "advancementReviewHint": "Review the changes before you confirm.",
+  "advancementApply": "Confirm level-up",
+  "advancementAllSaved": "All changes are saved together",
+  "advancementRulesTitle": "Character rules",
+  "advancementRouteFeatures": "Features",
+  "advancementRouteMagic": "Spells",
+  "advancementRouteAbilities": "Abilities",
+  "advancementRouteReview": "Review",
+  "advancementDetails": "Details",
+  "advancementClearSearch": "Clear search",
+  "advancementSlotsHint": "Review the changes to your spell slots.",
+  "advancementHpBonus": "{feature} · +{amount} HP",
+  "@advancementHpBonus": {
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementMetamagicCareful": "Chosen creatures succeed on their saving throw.",
+  "advancementMetamagicDistant": "Double range; touch becomes 30 feet.",
+  "advancementMetamagicEmpowered": "Reroll some of the damage dice.",
+  "advancementMetamagicExtended": "Double duration, up to 24 hours.",
+  "advancementMetamagicHeightened": "One target has disadvantage on its first save.",
+  "advancementMetamagicQuickened": "Cast using a bonus action.",
+  "advancementMetamagicSubtle": "No words or gestures.",
+  "advancementMetamagicTwinned": "A second target for a single-target spell.",
+  "advancementChooseOptions": "{count, plural, one{Choose {count} option.} other{Choose {count} options.}}",
+  "@advancementChooseOptions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "advancementSlotsTitle": "Spell Slots",
+  "advancementModifier": "Modifier {value}",
+  "@advancementModifier": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "fighterSecondWindPrompt": "Roll and recover HP",
+  "fighterSurgePrompt": "Take another action",
+  "fighterIndomitablePrompt": "Reroll a saving throw",
+  "fighterLastRoll": "Last roll: {roll} + {bonus}",
+  "@fighterLastRoll": {"placeholders": {"roll": {"type": "int"}, "bonus": {"type": "int"}}},
+  "sheetTabOverview": "Overview",
+  "sheetTabJournal": "Journal"
 }

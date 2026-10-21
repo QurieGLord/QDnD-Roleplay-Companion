@@ -9,10 +9,15 @@ import 'storage_service.dart';
 import 'feature_service.dart';
 import 'feature_hydration_service.dart';
 import 'imported_progression_service.dart';
+import 'fc5_parser.dart';
+import 'class_reference_recovery.dart';
 
 class CharacterDataService {
+  static int _catalogRevision = 0;
+  static int get catalogRevision => _catalogRevision;
   static List<RaceData>? _races;
   static List<ClassData>? _classes;
+  static List<ClassData>? _classReferences;
   static List<BackgroundData>? _backgrounds;
   static List<CharacterFeature>? _feats;
 
@@ -26,8 +31,10 @@ class CharacterDataService {
   }
 
   static Future<void> reload() async {
+    _catalogRevision++;
     _races = null;
     _classes = null;
+    _classReferences = null;
     _backgrounds = null;
     _feats = null;
     await loadAllData();
@@ -86,7 +93,9 @@ class CharacterDataService {
         try {
           final jsonStr =
               await rootBundle.loadString('assets/data/classes/$id.json');
-          return ClassData.fromJson(json.decode(jsonStr));
+          final data = Map<String, dynamic>.from(json.decode(jsonStr) as Map);
+          data['rulesMetadata'] ??= {'edition': '2014', 'origin': 'bundled'};
+          return ClassData.fromJson(data);
         } catch (e) {
           print('⚠️ Failed to load asset class $id: $e');
           return null;
@@ -104,6 +113,30 @@ class CharacterDataService {
         assetClasses: assetClasses,
         importedClasses: storageClasses,
       );
+      // Repair presentation from retained XML for books installed by older
+      // readers. This catalog is never used for advancement or mechanics.
+      final references = <ClassData>[...assetClasses];
+      for (final stored in storageClasses) {
+        final raw = stored.sourceDefinition;
+        if (stored.rulesMetadata['referenceAdapterVersion'] == 1 ||
+            raw == null ||
+            raw.trim().isEmpty) {
+          references.add(ClassReferenceRecovery.fromStoredFeatures(stored));
+          continue;
+        }
+        final parsed =
+            await FC5Parser.parseCompendium(raw, sourceId: stored.sourceId);
+        if (parsed.classes.length == 1) {
+          if (stored.rulesEdition != 'unknown') {
+            parsed.classes.single.rulesMetadata['edition'] =
+                stored.rulesEdition;
+          }
+          references.add(parsed.classes.single);
+        } else {
+          references.add(ClassReferenceRecovery.fromStoredFeatures(stored));
+        }
+      }
+      _classReferences = references;
       print(
           '✅ Loaded ${_classes!.length} classes (${assetClasses.length} assets + ${storageClasses.length} custom)');
     } catch (e) {
@@ -155,6 +188,8 @@ class CharacterDataService {
 
   static List<RaceData> getAllRaces() => _races ?? [];
   static List<ClassData> getAllClasses() => _classes ?? [];
+  static List<ClassData> getAllClassReferences() =>
+      _classReferences ?? _classes ?? [];
   static List<BackgroundData> getAllBackgrounds() => _backgrounds ?? [];
   static List<CharacterFeature> getAllFeats() => _feats ?? [];
 
@@ -293,11 +328,11 @@ class CharacterDataService {
   static ClassData? getClassById(String idOrName) {
     if (_classes == null) return null;
     final targetId = _normalizeId(idOrName);
-    return _classes!.firstWhere(
-        (c) =>
+    return _classes!
+        .where((c) =>
             c.id == targetId ||
-            c.name.values.any((val) => val.toLowerCase() == targetId),
-        orElse: () => throw Exception('Class not found: $idOrName'));
+            c.name.values.any((val) => val.toLowerCase() == targetId))
+        .firstOrNull;
   }
 
   static BackgroundData? getBackgroundById(String idOrName) {

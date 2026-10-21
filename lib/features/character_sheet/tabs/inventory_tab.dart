@@ -1,870 +1,482 @@
 import 'package:flutter/material.dart';
-import 'package:qd_and_d/core/ui/app_snack_bar.dart';
-import 'package:qd_and_d/l10n/app_localizations.dart';
+import 'package:flutter/services.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/item.dart';
-import '../../../core/utils/item_utils.dart';
-import '../../../shared/widgets/item_details_sheet.dart';
-import '../widgets/inventory_status_bar.dart';
-import '../../inventory/create_item_screen.dart';
+import '../../../core/services/inventory_actions_service.dart';
+import '../../../core/ui/app_menu_style.dart';
+import '../../../core/ui/app_snack_bar.dart';
+import '../../../core/ui/companion_surface.dart';
+import '../../../core/ui/sheet_drag_region.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../inventory/inventory_add_sheet.dart';
+import '../../inventory/inventory_presentation.dart';
+import '../../inventory/inventory_sheets.dart';
+import '../../inventory/widgets/equipment_deck.dart';
+import '../../inventory/widgets/inventory_item_tile.dart';
 
 class InventoryTab extends StatefulWidget {
+  const InventoryTab(
+      {super.key,
+      required this.character,
+      this.showAddButton = true,
+      this.onCharacterUpdated});
   final Character character;
-
-  const InventoryTab({
-    super.key,
-    required this.character,
-  });
-
+  final bool showAddButton;
+  final VoidCallback? onCharacterUpdated;
   @override
   State<InventoryTab> createState() => _InventoryTabState();
 }
 
 class _InventoryTabState extends State<InventoryTab> {
-  String _filterType =
-      'all'; // all, weapon, armor, gear, consumable, tool, treasure
-  String _equipFilter = 'all'; // all, equipped, unequipped
-  String _sortBy = 'name'; // name, weight, value, type
-  String _searchQuery = '';
-  final TextEditingController _searchController = TextEditingController();
-
+  final search = TextEditingController();
+  String query = '', sort = 'name', equipped = 'all';
+  ItemType? type;
+  bool busy = false;
   @override
   void dispose() {
-    _searchController.dispose();
+    search.dispose();
     super.dispose();
   }
 
-  String _getCurrencyLabel(AppLocalizations l10n, String currency) {
-    switch (currency.toLowerCase()) {
-      case 'pp':
-        return l10n.currencyPP_short;
-      case 'gp':
-        return l10n.currencyGP_short;
-      case 'sp':
-        return l10n.currencySP_short;
-      case 'cp':
-        return l10n.currencyCP_short;
-      default:
-        return currency;
+  void updated() {
+    if (!mounted) return;
+    setState(() {});
+    widget.onCharacterUpdated?.call();
+  }
+
+  Future<void> open(Item item) async {
+    await showOwnedInventoryItem(context, widget.character, item,
+        onChanged: updated);
+  }
+
+  Future<void> quick(Item item) async {
+    if (busy) return;
+    final target = InventoryTarget(item),
+        action = await showInventoryQuickActions(context, item);
+    if (!mounted || action == null) return;
+    if (action == 'open') {
+      await open(item);
+      return;
     }
+    setState(() => busy = true);
+    try {
+      switch (action) {
+        case 'equip':
+          await InventoryActionsService.equip(
+              widget.character, target, !item.isEquipped);
+        case 'attune':
+          await setInventoryAttunement(context, widget.character, item);
+        case 'quantity':
+          await showInventoryQuantity(context, widget.character, item);
+        case 'split':
+          await showInventoryQuantity(context, widget.character, item,
+              split: true);
+        case 'use':
+          await InventoryActionsService.consume(widget.character, target);
+        case 'remove':
+          if (await confirmInventoryRemoval(context, item)) {
+            await InventoryActionsService.remove(widget.character, target);
+          }
+      }
+      if (mounted) {
+        HapticFeedback.selectionClick();
+        updated();
+      }
+    } catch (_) {
+      if (mounted) {
+        AppSnackBar.error(
+            context,
+            inventoryText(
+                context,
+                'Изменение не сохранено. Открой предмет заново.',
+                'Change not saved. Reopen the item and try again.'));
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  Future<void> filters() async {
+    await showResponsiveSheet(
+        context: context,
+        useSafeArea: true,
+        isScrollControlled: true,
+        builder: (context) => StatefulBuilder(builder: (context, refresh) {
+              final t = Theme.of(context), l = AppLocalizations.of(context)!;
+              void change(VoidCallback action) {
+                setState(action);
+                refresh(() {});
+                HapticFeedback.selectionClick();
+              }
+
+              return SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                            inventoryText(
+                                context, 'Найти нужное', 'Find what you need'),
+                            style: t.textTheme.headlineMedium
+                                ?.copyWith(fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 20),
+                        Text(l.type, style: t.textTheme.titleMedium),
+                        const SizedBox(height: 10),
+                        Wrap(spacing: 8, runSpacing: 6, children: [
+                          ChoiceChip(
+                              label: Text(l.filterAll),
+                              selected: type == null,
+                              onSelected: (_) => change(() => type = null)),
+                          for (final value in ItemType.values)
+                            ChoiceChip(
+                                label: Text(itemTypeName(context, value)),
+                                selected: type == value,
+                                onSelected: (_) => change(() => type = value)),
+                        ]),
+                        const SizedBox(height: 20),
+                        Text(
+                            inventoryText(
+                                context, 'Где искать', 'Where to look'),
+                            style: t.textTheme.titleMedium),
+                        const SizedBox(height: 10),
+                        Wrap(spacing: 8, runSpacing: 6, children: [
+                          for (final entry in {
+                            'all': l.filterAll,
+                            'equipped': l.filterEquipped,
+                            'packed': l.filterUnequipped
+                          }.entries)
+                            ChoiceChip(
+                                label: Text(entry.value),
+                                selected: equipped == entry.key,
+                                onSelected: (_) =>
+                                    change(() => equipped = entry.key)),
+                        ]),
+                        const SizedBox(height: 24),
+                        FilledButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text(l.done)),
+                      ]));
+            }));
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final locale = Localizations.localeOf(context).languageCode;
-    final l10n = AppLocalizations.of(context)!;
-
-    List<Item> filteredItems = List.from(widget.character.inventory);
-
-    if (_filterType != 'all') {
-      final itemType = ItemType.values.firstWhere(
-        (type) => type.toString().split('.').last == _filterType,
-        orElse: () => ItemType.gear,
-      );
-      filteredItems =
-          filteredItems.where((item) => item.type == itemType).toList();
-    }
-
-    if (_equipFilter == 'equipped') {
-      filteredItems = filteredItems.where((item) => item.isEquipped).toList();
-    } else if (_equipFilter == 'unequipped') {
-      filteredItems = filteredItems.where((item) => !item.isEquipped).toList();
-    }
-
-    if (_searchQuery.isNotEmpty) {
-      filteredItems = filteredItems.where((item) {
-        final name = item.getName(locale).toLowerCase();
-        final query = _searchQuery.toLowerCase();
-        return name.contains(query);
-      }).toList();
-    }
-
-    filteredItems.sort((a, b) {
-      switch (_sortBy) {
-        case 'name':
-          return a.getName(locale).compareTo(b.getName(locale));
-        case 'weight':
-          return b.totalWeight.compareTo(a.totalWeight);
-        case 'value':
-          return b.valueInGold.compareTo(a.valueInGold);
-        case 'type':
-          return a.type.toString().compareTo(b.type.toString());
-        default:
-          return 0;
-      }
+    final t = Theme.of(context),
+        c = t.colorScheme,
+        l = AppLocalizations.of(context)!,
+        locale = Localizations.localeOf(context).languageCode,
+        hero = widget.character;
+    final normalized = query.toLowerCase().replaceAll('ё', 'е').trim();
+    final items = hero.inventory
+        .where((i) =>
+            (type == null || i.type == type) &&
+            (equipped == 'all' || (equipped == 'equipped') == i.isEquipped) &&
+            (normalized.isEmpty ||
+                '${i.nameRu} ${i.nameEn}'
+                    .toLowerCase()
+                    .replaceAll('ё', 'е')
+                    .contains(normalized)))
+        .toList();
+    items.sort((a, b) {
+      final result = switch (sort) {
+        'weight' => b.totalWeight.compareTo(a.totalWeight),
+        'value' => (b.valueInCopper * b.quantity)
+            .compareTo(a.valueInCopper * a.quantity),
+        'type' => a.type.index.compareTo(b.type.index),
+        _ => a
+            .getName(locale)
+            .toLowerCase()
+            .compareTo(b.getName(locale).toLowerCase())
+      };
+      return result != 0
+          ? result
+          : hero.inventory.indexOf(a).compareTo(hero.inventory.indexOf(b));
     });
-
-    final totalWeight = widget.character.inventory.fold<double>(
-      0.0,
-      (sum, item) => sum + item.totalWeight,
-    );
-
-    final maxWeight = (widget.character.abilityScores.strength * 15).toDouble();
-    final attunedCount = widget.character.inventory
-        .where((i) => i.isAttuned && i.isEquipped) // User logic
-        .length;
-
+    final weight = hero.inventory.fold<double>(0, (n, i) => n + i.totalWeight),
+        capacity = hero.abilityScores.strength * 15,
+        wallet = Wallet.read(hero),
+        filtered = type != null || equipped != 'all' || query.isNotEmpty;
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _navigateToCreateItem(context),
-        tooltip: l10n.addItem,
-        child: const Icon(Icons.add),
-      ),
-      body: Column(
-        children: [
-          InventoryStatusBar(
-            currentWeight: totalWeight,
-            maxWeight: maxWeight,
-            attunedCount: attunedCount,
-          ),
-          Container(
-            color: theme.scaffoldBackgroundColor,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: l10n.searchItems,
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() => _searchQuery = '');
+        backgroundColor: Colors.transparent,
+        floatingActionButton: widget.showAddButton
+            ? FloatingActionButton(
+                onPressed: busy
+                    ? null
+                    : () async {
+                        if (await showInventoryAddSheet(context, hero) == true) {
+                          updated();
+                        }
+                      },
+                tooltip: l.addItem,
+                child: const Icon(Icons.add_rounded))
+            : null,
+        body: CustomScrollView(
+            key: const PageStorageKey('inventory-scroll'),
+            slivers: [
+              SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  sliver: SliverToBoxAdapter(
+                      child: AnimatedSize(
+                          duration: MediaQuery.disableAnimationsOf(context)
+                              ? Duration.zero
+                              : const Duration(milliseconds: 260),
+                          curve: Curves.easeInOutCubic,
+                          alignment: Alignment.topCenter,
+                          child: EquipmentDeck(
+                              hero: hero, onOpen: open, onHold: quick)))),
+              SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  sliver: SliverToBoxAdapter(
+                      child: LayoutBuilder(builder: (context, bounds) {
+                    final narrow = bounds.maxWidth < 300 ||
+                        MediaQuery.textScalerOf(context).scale(1) > 1.3;
+                    Widget purse() => CompanionSurface(
+                        onTap: busy
+                            ? null
+                            : () async {
+                                if (await showInventoryWallet(context, hero) ==
+                                    true) {
+                                  updated();
+                                }
                               },
-                            )
-                          : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 0, horizontal: 12),
-                    ),
-                    onChanged: (value) => setState(() => _searchQuery = value),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: InputDecorator(
-                          decoration: InputDecoration(
-                            labelText: l10n.sortBy,
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 4),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: _sortBy,
-                              isDense: true,
-                              items: [
-                                DropdownMenuItem(
-                                    value: 'name', child: Text(l10n.sortName)),
-                                DropdownMenuItem(
-                                    value: 'weight',
-                                    child: Text(l10n.sortWeight)),
-                                DropdownMenuItem(
-                                    value: 'value',
-                                    child: Text(l10n.sortValue)),
-                                DropdownMenuItem(
-                                    value: 'type', child: Text(l10n.sortType)),
-                              ],
-                              onChanged: (value) =>
-                                  setState(() => _sortBy = value!),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: InputDecorator(
-                          decoration: InputDecoration(
-                            labelText: l10n.filterEquipped,
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 4),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: _equipFilter,
-                              isDense: true,
-                              items: [
-                                DropdownMenuItem(
-                                    value: 'all', child: Text(l10n.filterAll)),
-                                DropdownMenuItem(
-                                    value: 'equipped',
-                                    child: Text(l10n.filterEquipped)),
-                                DropdownMenuItem(
-                                    value: 'unequipped',
-                                    child: Text(l10n.filterUnequipped)),
-                              ],
-                              onChanged: (value) =>
-                                  setState(() => _equipFilter = value!),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      FilterChip(
-                        label: Text(l10n.filterAll),
-                        selected: _filterType == 'all',
-                        onSelected: (selected) {
-                          if (selected) setState(() => _filterType = 'all');
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      FilterChip(
-                        label: Text(l10n.typeWeapon),
-                        selected: _filterType == 'weapon',
-                        onSelected: (selected) {
-                          if (selected) setState(() => _filterType = 'weapon');
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      FilterChip(
-                        label: Text(l10n.typeArmor),
-                        selected: _filterType == 'armor',
-                        onSelected: (selected) {
-                          if (selected) setState(() => _filterType = 'armor');
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      FilterChip(
-                        label: Text(l10n.typeGear),
-                        selected: _filterType == 'gear',
-                        onSelected: (selected) {
-                          if (selected) setState(() => _filterType = 'gear');
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      FilterChip(
-                        label: Text(l10n.typeConsumable),
-                        selected: _filterType == 'consumable',
-                        onSelected: (selected) {
-                          if (selected) {
-                            setState(() => _filterType = 'consumable');
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                  child: Row(
-                    children: [
-                      Icon(Icons.fitness_center,
-                          size: 16, color: theme.colorScheme.primary),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${l10n.totalWeight}: ${totalWeight.toStringAsFixed(1)} ${l10n.weightUnit}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.only(top: 8, bottom: 80),
-              itemCount: filteredItems.length + 1,
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Card(
-                      elevation: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
+                        quiet: true,
+                        contour: CompanionContour.focus,
+                        padding: const EdgeInsets.all(18),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(children: [
+                                Icon(Icons.toll_rounded,
+                                    size: 19, color: c.tertiary),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                    child: Text(
+                                        inventoryText(
+                                            context, 'Кошель', 'Coin purse'),
+                                        style: t.textTheme.labelLarge)),
+                                const Icon(Icons.chevron_right_rounded,
+                                    size: 18)
+                              ]),
+                              const SizedBox(height: 14),
+                              Text(goldValue(wallet.totalCopper),
+                                  style: t.textTheme.headlineMedium?.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -.7)),
+                              const SizedBox(height: 4),
+                              Text(
+                                  inventoryText(context, 'в золотых монетах',
+                                      'in gold pieces'),
+                                  style: t.textTheme.labelSmall
+                                      ?.copyWith(color: c.onSurfaceVariant)),
+                            ]));
+                    Widget load() => CompanionSurface(
+                        quiet: true,
+                        padding: const EdgeInsets.all(18),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(children: [
+                                Icon(Icons.backpack_outlined,
+                                    size: 19, color: c.secondary),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                    child: Text(l.totalWeight,
+                                        style: t.textTheme.labelLarge))
+                              ]),
+                              const SizedBox(height: 14),
+                              Text('${compactNumber(weight)} ${l.weightUnit}',
+                                  style: t.textTheme.headlineMedium?.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -.7)),
+                              const SizedBox(height: 4),
+                              Text(
+                                  inventoryText(
+                                      context,
+                                      'из $capacity ${l.weightUnit}',
+                                      'of $capacity ${l.weightUnit}'),
+                                  style: t.textTheme.labelSmall?.copyWith(
+                                      color: weight > capacity
+                                          ? c.error
+                                          : c.onSurfaceVariant)),
+                              const SizedBox(height: 10),
+                              ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: LinearProgressIndicator(
+                                      minHeight: 4,
+                                      value: capacity > 0
+                                          ? (weight / capacity).clamp(0, 1)
+                                          : weight > 0
+                                              ? 1
+                                              : 0,
+                                      color: weight > capacity
+                                          ? c.error
+                                          : c.secondary,
+                                      backgroundColor: c.surfaceContainerHigh)),
+                            ]));
+                    if (narrow) {
+                      return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Row(
+                            purse(),
+                            const SizedBox(height: 10),
+                            load()
+                          ]);
+                    }
+                    return IntrinsicHeight(
+                        child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                          Expanded(child: purse()),
+                          const SizedBox(width: 10),
+                          Expanded(child: load())
+                        ]));
+                  }))),
+              SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 30, 20, 16),
+                  sliver: SliverToBoxAdapter(
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                        Row(children: [
+                          Expanded(
+                              child: Text(
+                                  inventoryText(
+                                      context, 'Снаряжение', 'Your belongings'),
+                                  style: t.textTheme.headlineSmall?.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -.5))),
+                          PopupMenuButton<String>(
+                              tooltip: l.sortBy,
+                              borderRadius: AppMenuStyle.radius,
+                              color: AppMenuStyle.background(context),
+                              icon: const Icon(Icons.sort_rounded),
+                              initialValue: sort,
+                              onSelected: (v) => setState(() => sort = v),
+                              itemBuilder: (_) => [
+                                    for (final entry in {
+                                      'name': l.sortName,
+                                      'weight': l.sortWeight,
+                                      'value': l.sortValue,
+                                      'type': l.sortType
+                                    }.entries)
+                                      CheckedPopupMenuItem(
+                                          value: entry.key,
+                                          checked: sort == entry.key,
+                                          child: Text(entry.value))
+                                  ]),
+                        ]),
+                        const SizedBox(height: 12),
+                        Row(children: [
+                          Expanded(
+                              child: TextField(
+                                  controller: search,
+                                  autofocus: false,
+                                  onChanged: (v) => setState(() => query = v),
+                                  decoration: InputDecoration(
+                                      hintText: l.searchItems,
+                                      prefixIcon:
+                                          const Icon(Icons.search_rounded),
+                                      suffixIcon: query.isEmpty
+                                          ? null
+                                          : IconButton(
+                                              tooltip: inventoryText(
+                                                  context,
+                                                  'Очистить поиск',
+                                                  'Clear search'),
+                                              onPressed: () {
+                                                search.clear();
+                                                setState(() => query = '');
+                                              },
+                                              icon: const Icon(
+                                                  Icons.close_rounded)),
+                                      filled: true,
+                                      fillColor: c.surfaceContainerHigh,
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(26),
+                                          borderSide: BorderSide.none)))),
+                          const SizedBox(width: 10),
+                          IconButton.filledTonal(
+                              tooltip:
+                                  inventoryText(context, 'Фильтры', 'Filters'),
+                              onPressed: filters,
+                              icon: Badge(
+                                  isLabelVisible:
+                                      type != null || equipped != 'all',
+                                  child: const Icon(Icons.tune_rounded)))
+                        ]),
+                        if (filtered) ...[
+                          const SizedBox(height: 10),
+                          Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 8,
                               children: [
-                                Icon(Icons.monetization_on,
-                                    size: 20, color: theme.colorScheme.primary),
-                                const SizedBox(width: 8),
                                 Text(
-                                  l10n.currency,
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const Spacer(),
-                                IconButton(
-                                  icon: const Icon(Icons.edit, size: 20),
-                                  onPressed: () =>
-                                      _showEditCurrencyDialog(context, l10n),
-                                  tooltip: l10n.edit,
-                                  visualDensity: VisualDensity.compact,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                    child: _buildCurrencyChip(
-                                        theme,
-                                        _getCurrencyLabel(l10n, 'PP'),
-                                        widget.character.platinumPieces,
-                                        Colors.grey.shade300,
-                                        Colors.black87)),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                    child: _buildCurrencyChip(
-                                        theme,
-                                        _getCurrencyLabel(l10n, 'GP'),
-                                        widget.character.goldPieces,
-                                        Colors.amber.shade600,
-                                        Colors.black87)),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                    child: _buildCurrencyChip(
-                                        theme,
-                                        _getCurrencyLabel(l10n, 'SP'),
-                                        widget.character.silverPieces,
-                                        Colors.grey.shade400,
-                                        Colors.black87)),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                    child: _buildCurrencyChip(
-                                        theme,
-                                        _getCurrencyLabel(l10n, 'CP'),
-                                        widget.character.copperPieces,
-                                        Colors.brown.shade400,
-                                        Colors.white)),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }
-
-                final itemIndex = index - 1;
-                final item = filteredItems[itemIndex];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Dismissible(
-                    key: Key(item.id),
-                    direction: DismissDirection.endToStart,
-                    background: Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.error,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.only(right: 20),
-                      child:
-                          Icon(Icons.delete, color: theme.colorScheme.onError),
-                    ),
-                    confirmDismiss: (direction) async {
-                      return await showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text(l10n.delete),
-                          content: Text(l10n
-                              .deleteItemConfirmation(item.getName(locale))),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(false),
-                              child: Text(l10n.cancel),
-                            ),
-                            FilledButton(
-                              onPressed: () => Navigator.of(context).pop(true),
-                              style: FilledButton.styleFrom(
-                                  backgroundColor: theme.colorScheme.error),
-                              child: Text(l10n.delete),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    onDismissed: (direction) => _removeItem(item),
-                    child: _buildItemCard(context, item, locale, l10n),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _navigateToCreateItem(BuildContext context) async {
-    final newItem = await Navigator.push<Item>(
-      context,
-      MaterialPageRoute(builder: (context) => const CreateItemScreen()),
-    );
-
-    if (newItem != null) {
-      widget.character.inventory.add(newItem);
-      widget.character.updatedAt = DateTime.now();
-      await widget.character.save();
-
-      if (!context.mounted) return;
-      setState(() {});
-
-      final l10n = AppLocalizations.of(context)!;
-      final locale = Localizations.localeOf(context).languageCode;
-      AppSnackBar.success(
-        context,
-        l10n.itemAdded(newItem.getName(locale), newItem.quantity),
-      );
-    }
-  }
-
-  Widget _buildItemCard(
-      BuildContext context, Item item, String locale, AppLocalizations l10n) {
-    final theme = Theme.of(context);
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: () => _showItemDetails(context, item),
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: item.isEquipped
-                      ? theme.colorScheme.primaryContainer
-                      : theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  ItemUtils.getIcon(item.type),
-                  color: item.isEquipped
-                      ? theme.colorScheme.onPrimaryContainer
-                      : theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.getName(locale),
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        if (item.quantity > 1)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.secondaryContainer,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              'x${item.quantity}',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: theme.colorScheme.onSecondaryContainer,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        if (item.weaponProperties != null) ...[
-                          Icon(Icons.whatshot,
-                              size: 14, color: theme.colorScheme.error),
-                          const SizedBox(width: 4),
-                          Text(
-                            item.weaponProperties!.damageDice,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
+                                    '${items.length} / ${hero.inventory.length}',
+                                    style: t.textTheme.labelMedium),
+                                TextButton(
+                                    onPressed: () {
+                                      search.clear();
+                                      setState(() {
+                                        type = null;
+                                        equipped = 'all';
+                                        query = '';
+                                      });
+                                    },
+                                    child: Text(inventoryText(context,
+                                        'Сбросить фильтры', 'Reset filters')))
+                              ])
                         ],
-                        if (item.armorProperties != null) ...[
-                          Icon(Icons.shield,
-                              size: 14, color: theme.colorScheme.primary),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${l10n.armorClassAC} ${item.armorProperties!.baseAC}',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                        ],
-                        Icon(Icons.fitness_center,
-                            size: 14,
-                            color: theme.colorScheme.onSurfaceVariant),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${item.totalWeight.toStringAsFixed(1)} ${l10n.weightUnit}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (item.weaponProperties != null &&
-                        item.weaponProperties!.weaponTags.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Wrap(
-                        spacing: 4,
-                        runSpacing: 4,
-                        children: item.weaponProperties!.weaponTags
-                            .take(3)
-                            .map((tag) {
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.secondaryContainer
-                                  .withValues(alpha: 0.5),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              ItemUtils.getLocalizedTag(l10n, tag),
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: theme.colorScheme.onSecondaryContainer,
-                                fontSize: 10,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              if (item.isEquipped)
-                Icon(
-                  Icons.check_circle,
-                  color: theme.colorScheme.primary,
-                  size: 20,
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showItemDetails(BuildContext context, Item item) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => ItemDetailsSheet(
-        item: item,
-        onEquip: () {
-          Navigator.pop(context);
-          _toggleEquip(item);
-        },
-        onRemove: () {
-          Navigator.pop(context);
-          _removeItem(item);
-        },
-        onQuantityChanged: (delta) {
-          _changeQuantity(item, delta);
-          Navigator.pop(context);
-          _showItemDetails(context, item);
-        },
-        onAttuneToggle: (value) {
-          Navigator.pop(context);
-          _toggleAttunement(item, value);
-        },
-      ),
-    );
-  }
-
-  void _toggleAttunement(Item item, bool value) async {
-    final l10n = AppLocalizations.of(context)!;
-
-    // Validation: Check limit if turning ON
-    if (value) {
-      final currentAttuned = widget.character.inventory
-          .where((i) => i.isAttuned && i.isEquipped)
-          .length;
-
-      if (currentAttuned >= 3) {
-        if (mounted) {
-          AppSnackBar.warning(context, l10n.attunementLimitReached);
-        }
-        return;
-      }
-    }
-
-    // Find item
-    final index = widget.character.inventory.indexWhere((i) => i.id == item.id);
-    if (index == -1) return;
-
-    // Update
-    widget.character.inventory[index].isAttuned = value;
-    widget.character.updatedAt = DateTime.now();
-    await widget.character.save();
-
-    if (!mounted) return;
-    setState(() {});
-  }
-
-  void _toggleEquip(Item item) async {
-    // Find the item in character's inventory
-    final index = widget.character.inventory.indexWhere((i) => i.id == item.id);
-    if (index == -1) return;
-
-    // Toggle equipped state
-    widget.character.inventory[index].isEquipped =
-        !widget.character.inventory[index].isEquipped;
-
-    // Recalculate AC if armor/shield
-    if (item.type == ItemType.armor) {
-      widget.character.recalculateAC();
-    }
-
-    // Save to database
-    widget.character.updatedAt = DateTime.now();
-    await widget.character.save();
-
-    if (!mounted) return;
-
-    // Update UI
-    setState(() {});
-
-    // Show feedback
-    final l10n = AppLocalizations.of(context)!;
-    AppSnackBar.info(
-      context,
-      widget.character.inventory[index].isEquipped
-          ? l10n.itemEquipped
-          : l10n.itemUnequipped,
-      duration: const Duration(seconds: 2),
-    );
-  }
-
-  void _removeItem(Item item) async {
-    // Remove from inventory
-    widget.character.inventory.removeWhere((i) => i.id == item.id);
-
-    // Save to database
-    widget.character.updatedAt = DateTime.now();
-    await widget.character.save();
-
-    if (!mounted) return;
-
-    // Update UI
-    setState(() {});
-
-    // Show feedback
-    final l10n = AppLocalizations.of(context)!;
-    AppSnackBar.info(context, l10n.itemRemoved);
-  }
-
-  void _changeQuantity(Item item, int delta) async {
-    // Find the item in character's inventory
-    final index = widget.character.inventory.indexWhere((i) => i.id == item.id);
-    if (index == -1) return;
-
-    // Update quantity
-    final newQuantity = widget.character.inventory[index].quantity + delta;
-
-    // If quantity reaches 0, remove the item
-    if (newQuantity <= 0) {
-      widget.character.inventory.removeAt(index);
-    } else {
-      widget.character.inventory[index].quantity = newQuantity;
-    }
-
-    // Save to database
-    widget.character.updatedAt = DateTime.now();
-    await widget.character.save();
-
-    if (!mounted) return;
-
-    // Update UI
-    setState(() {});
-  }
-
-  Widget _buildCurrencyChip(ThemeData theme, String label, int amount,
-      Color bgColor, Color textColor) {
-    final isHC = theme.dividerTheme.thickness == 2;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isHC
-              ? theme.colorScheme.primary
-              : theme.colorScheme.outlineVariant,
-          width: 1,
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: textColor,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            '$amount',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: textColor,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showEditCurrencyDialog(BuildContext context, AppLocalizations l10n) {
-    final ppController =
-        TextEditingController(text: '${widget.character.platinumPieces}');
-    final gpController =
-        TextEditingController(text: '${widget.character.goldPieces}');
-    final spController =
-        TextEditingController(text: '${widget.character.silverPieces}');
-    final cpController =
-        TextEditingController(text: '${widget.character.copperPieces}');
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.editCurrency),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: ppController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: l10n.currencyPP,
-                  border: const OutlineInputBorder(),
-                  prefixIcon:
-                      Icon(Icons.monetization_on, color: Colors.grey.shade300),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: gpController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: l10n.currencyGP,
-                  border: const OutlineInputBorder(),
-                  prefixIcon:
-                      Icon(Icons.monetization_on, color: Colors.amber.shade600),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: spController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: l10n.currencySP,
-                  border: const OutlineInputBorder(),
-                  prefixIcon:
-                      Icon(Icons.monetization_on, color: Colors.grey.shade400),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: cpController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: l10n.currencyCP,
-                  border: const OutlineInputBorder(),
-                  prefixIcon:
-                      Icon(Icons.monetization_on, color: Colors.brown.shade400),
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () async {
-              // Update currency values
-              widget.character.platinumPieces =
-                  int.tryParse(ppController.text) ?? 0;
-              widget.character.goldPieces =
-                  int.tryParse(gpController.text) ?? 0;
-              widget.character.silverPieces =
-                  int.tryParse(spController.text) ?? 0;
-              widget.character.copperPieces =
-                  int.tryParse(cpController.text) ?? 0;
-
-              // Save to database
-              widget.character.updatedAt = DateTime.now();
-              await widget.character.save();
-
-              if (!context.mounted) return;
-
-              // Close dialog
-              Navigator.pop(context);
-
-              // Update UI
-              setState(() {});
-
-              // Show feedback
-              AppSnackBar.success(context, l10n.currencyUpdated);
-            },
-            child: Text(l10n.save),
-          ),
-        ],
-      ),
-    );
+                      ]))),
+              if (items.isEmpty)
+                SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    sliver: SliverToBoxAdapter(
+                        child: CompanionSurface(
+                            quiet: true,
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(Icons.travel_explore_rounded,
+                                      color: c.secondary, size: 32),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                      filtered
+                                          ? l.noItemsFound
+                                          : inventoryText(
+                                              context,
+                                              'Начало коллекции',
+                                              'The start of a collection'),
+                                      style: t.textTheme.titleLarge),
+                                  const SizedBox(height: 8),
+                                  Text(filtered
+                                      ? inventoryText(
+                                          context,
+                                          'Попробуй другое название или категорию.',
+                                          'Try another name or category.')
+                                      : inventoryText(
+                                          context,
+                                          'Добавь снаряжение из библиотеки или создай своё в Кузнице.',
+                                          'Add equipment from your library or create your own in the Forge.'))
+                                ])))),
+              SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  sliver: SliverList.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        return Padding(
+                            key: item.instanceId == null
+                                ? ObjectKey(item)
+                                : ValueKey('inventory-${item.instanceId}'),
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: InventoryItemTile(
+                                item: item,
+                                onTap: () => open(item),
+                                onHold: () => quick(item)));
+                      })),
+              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            ]));
   }
 }

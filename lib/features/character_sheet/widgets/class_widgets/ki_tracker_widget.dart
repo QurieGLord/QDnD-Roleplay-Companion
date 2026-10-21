@@ -1,11 +1,13 @@
+import '../../../../core/ui/companion_surface.dart';
+import '../../../../core/services/gameplay_actions_service.dart';
+import '../session/value_editors.dart';
+import 'shared/class_panel_presentation.dart';
+import '../../../../core/progression/character_class_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
-import '../../../../core/models/class_data.dart';
-import '../../../../core/services/character_data_service.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/dice_utils.dart';
@@ -28,31 +30,9 @@ class KiTrackerWidget extends StatefulWidget {
 }
 
 class _KiTrackerWidgetState extends State<KiTrackerWidget> {
-  int _calculateMaxKi() {
-    int monkLevel = 0;
-    if (widget.character.classes.isNotEmpty) {
-      for (var cls in widget.character.classes) {
-        if (cls.id.toLowerCase().contains('monk') ||
-            cls.name.toLowerCase().contains('monk')) {
-          monkLevel = cls.level;
-          break;
-        }
-      }
-    }
-    if (monkLevel == 0) {
-      if (widget.character.characterClass.toLowerCase().contains('monk')) {
-        monkLevel = widget.character.level;
-      } else if (widget.character.classes.length == 1) {
-        monkLevel = widget.character.level;
-      }
-    }
-    if (monkLevel <= 1 && widget.character.level > 1) {
-      monkLevel = widget.character.level;
-    }
-    if (monkLevel == 0) monkLevel = 1;
-    return monkLevel;
-  }
-
+  int _calculateMaxKi() =>
+      widget.kiFeature.resourcePool?.maxUses ??
+      widget.character.classLevel('monk');
   int _getMartialArtsDie(int level) {
     if (level >= 17) return 10;
     if (level >= 11) return 8;
@@ -63,6 +43,9 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
   CharacterFeature? _findFeature(List<String> keywords) {
     for (final k in keywords) {
       final match = widget.character.features.where((f) {
+        if (!CharacterClassContext(widget.character, 'monk').canUseFeature(f)) {
+          return false;
+        }
         final id = f.id.toLowerCase();
         final name = f.nameEn.toLowerCase();
         return id.contains(k) || name.contains(k);
@@ -85,111 +68,37 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
     );
   }
 
-  void _restoreKi(int maxKi, [int amount = 1]) {
-    final pool = widget.kiFeature.resourcePool;
-    if (pool == null) return;
-    if (pool.maxUses != maxKi) pool.maxUses = maxKi;
-    if (!pool.isFull) {
-      HapticFeedback.selectionClick();
-      setState(() {
-        pool.restore(amount);
-        widget.character.save();
-        widget.onChanged?.call();
-      });
-    }
+  Future<void> _showKiInputDialog(int maxKi, int currentKi) async {
+    final changed = await showResourceValueEditor(
+        context, widget.character, widget.kiFeature);
+    if (mounted && changed) setState(() => widget.onChanged?.call());
   }
 
-  void _spendKi(int maxKi, [int amount = 1]) {
-    final pool = widget.kiFeature.resourcePool;
-    if (pool == null) return;
-    if (pool.maxUses != maxKi) pool.maxUses = maxKi;
-    if (pool.currentUses >= amount) {
-      HapticFeedback.lightImpact();
-      setState(() {
-        pool.use(amount);
-        widget.character.save();
-        widget.onChanged?.call();
-      });
-    }
-  }
-
-  void _showKiInputDialog(int maxKi, int currentKi) {
-    HapticFeedback.selectionClick();
-    final controller = TextEditingController(text: currentKi.toString());
-    final locale = Localizations.localeOf(context).languageCode;
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(locale == 'ru' ? 'Изменить Ци' : 'Edit Ki'),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          autofocus: true,
-          decoration: InputDecoration(
-            labelText: 'Current Ki (Max: $maxKi)',
-            border: const OutlineInputBorder(),
-          ),
-          onSubmitted: (val) {
-            final newVal = int.tryParse(val);
-            if (newVal != null) {
-              setState(() {
-                widget.kiFeature.resourcePool?.currentUses =
-                    newVal.clamp(0, maxKi);
-                widget.character.save();
-                widget.onChanged?.call();
-              });
-            }
-            Navigator.pop(context);
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(locale == 'ru' ? 'Отмена' : 'Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final newVal = int.tryParse(controller.text);
-              if (newVal != null) {
-                setState(() {
-                  widget.kiFeature.resourcePool?.currentUses =
-                      newVal.clamp(0, maxKi);
-                  widget.character.save();
-                  widget.onChanged?.call();
-                });
-              }
-              Navigator.pop(context);
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _executeQuickAction(
-      CharacterFeature actionFeature, int maxKi, String locale) {
-    final pool = widget.kiFeature.resourcePool;
-    if (pool == null || pool.currentUses < 1) {
-      HapticFeedback.heavyImpact();
-      AppSnackBar.warning(
-        context,
-        locale == 'ru' ? 'Недостаточно Ци!' : 'Not enough Ki!',
-        duration: const Duration(seconds: 2),
-      );
+  bool _spending = false;
+  Future<void> _executeQuickAction(
+      CharacterFeature feature, int maxKi, String locale) async {
+    if (_spending ||
+        !CharacterClassContext(widget.character, 'monk').canUseFeature(feature)) {
       return;
     }
-
-    HapticFeedback.heavyImpact();
-    _spendKi(maxKi, 1);
-
-    final cleanName =
-        actionFeature.getName(locale).replaceAll(RegExp(r'\s*\(.*?\)'), '');
-    AppSnackBar.success(
-      context,
-      '$cleanName ${locale == 'ru' ? 'использовано! (-1 Ци)' : 'used! (-1 Ki)'}',
-      duration: const Duration(seconds: 2),
-    );
+    setState(() => _spending = true);
+    final l = AppLocalizations.of(context)!;
+    try {
+      final spent = await GameplayActionsService.spendResource(
+          widget.character, widget.kiFeature,
+          amount: feature.consumption?.amount ?? 1);
+      if (!mounted) return;
+      if (spent) {
+        HapticFeedback.mediumImpact();
+        widget.onChanged?.call();
+        AppSnackBar.success(
+            context, l.gameStateResourceUsed(feature.getName(locale)));
+      }
+    } catch (_) {
+      if (mounted) AppSnackBar.error(context, l.sheetSaveFailed);
+    } finally {
+      if (mounted) setState(() => _spending = false);
+    }
   }
 
   @override
@@ -202,605 +111,197 @@ class _KiTrackerWidgetState extends State<KiTrackerWidget> {
     if (pool == null) return const SizedBox.shrink();
 
     final maxKi = _calculateMaxKi();
-    final dieSize = _getMartialArtsDie(maxKi);
+    final dieSize = _getMartialArtsDie(widget.character.classLevel('monk'));
 
-    final isHC = Theme.of(context).dividerTheme.thickness == 2;
-
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(
-            color: isHC ? colorScheme.primary : colorScheme.outline,
-            width: isHC ? 2 : 1.5),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      margin: const EdgeInsets.only(bottom: 16),
-      clipBehavior: Clip.antiAlias,
-      child: ClassToolsLayoutBuilder(
-        padding: const EdgeInsets.all(16),
-        children: [
-          if (widget.character.subclass != null &&
-              widget.character.subclass!.isNotEmpty)
-            _buildArchetypeBlock(context, colorScheme, locale, l10n),
-          _buildBasicStatsPanel(context, colorScheme, locale, l10n, dieSize),
-          if (widget.kiFeature.id != 'ki_fallback') ...[
-            _buildKiDashboard(
-                context, colorScheme, locale, pool.currentUses, maxKi),
-            _buildQuickActions(context, colorScheme, locale, maxKi),
+    return ClassPanelFrame(
+        character: widget.character,
+        classId: 'monk',
+        child: ClassToolsLayoutBuilder(
+          padding: EdgeInsets.zero,
+          children: [
+            if (CharacterClassContext(widget.character, 'monk').subclass !=
+                    null &&
+                CharacterClassContext(widget.character, 'monk')
+                    .subclass!
+                    .isNotEmpty)
+              _buildArchetypeBlock(context, colorScheme, locale, l10n),
+            if (widget.kiFeature.id != 'ki_fallback' &&
+                widget.character.classLevel('monk') >= 2)
+              _buildKiDashboard(
+                  context, colorScheme, locale, pool.currentUses, maxKi),
+            _buildBasicStatsPanel(context, colorScheme, locale, l10n, dieSize),
+            if (widget.kiFeature.id != 'ki_fallback' &&
+                widget.character.classLevel('monk') >= 2)
+              _buildQuickActions(context, colorScheme, locale, maxKi),
           ],
-        ],
-      ),
-    )
-        .animate()
-        .fadeIn(duration: 300.ms)
-        .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuart);
+        ));
   }
 
   Widget _buildArchetypeBlock(BuildContext context, ColorScheme colorScheme,
-      String locale, AppLocalizations l10n) {
-    final classData =
-        CharacterDataService.getClassById(widget.character.characterClass);
-    SubclassData? subclassData;
-
-    if (classData != null && widget.character.subclass != null) {
-      try {
-        subclassData = classData.subclasses.firstWhere((s) {
-          return s.name.values.any((val) => val == widget.character.subclass) ||
-              s.id ==
-                  widget.character.subclass!.toLowerCase().replaceAll(' ', '_');
-        });
-      } catch (_) {}
-    }
-
-    final fallbackName = widget.character.subclass ?? '';
-    final subclassName = subclassData?.getName(locale) ?? fallbackName;
-
-    final isHC = Theme.of(context).dividerTheme.thickness == 2;
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isHC
-              ? colorScheme.primary
-              : colorScheme.outline.withValues(alpha: 0.3),
-          width: isHC ? 2 : 1,
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            HapticFeedback.lightImpact();
-            final description =
-                subclassData?.getDescription(locale) ?? l10n.noFeaturesAtLevel1;
-            showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: colorScheme.surface,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                ),
-                builder: (context) => DraggableScrollableSheet(
-                      initialChildSize: 0.6,
-                      minChildSize: 0.4,
-                      maxChildSize: 0.9,
-                      expand: false,
-                      builder: (context, scrollController) => Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: colorScheme.surface,
-                          borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(24)),
-                        ),
-                        child: ListView(
-                          controller: scrollController,
-                          children: [
-                            Center(
-                              child: Container(
-                                width: 40,
-                                height: 4,
-                                margin: const EdgeInsets.only(bottom: 24),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.outlineVariant,
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                            ),
-                            Row(children: [
-                              Icon(Icons.temple_buddhist,
-                                  color: colorScheme.primary, size: 28),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  subclassName,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: colorScheme.onSurface,
-                                      ),
-                                ),
-                              ),
-                            ]),
-                            const SizedBox(height: 16),
-                            const Divider(),
-                            const SizedBox(height: 16),
-                            Text(
-                              description,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(height: 1.5),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ));
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(Icons.temple_buddhist,
-                    color: colorScheme.primary, size: 28),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        locale == 'ru'
-                            ? 'МОНАСТЫРСКАЯ ТРАДИЦИЯ'
-                            : 'MONASTIC TRADITION',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                              letterSpacing: 1.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      Text(
-                        subclassName,
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  color: colorScheme.onSurface,
-                                ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+          String locale, AppLocalizations l10n) =>
+      ClassSubclassLink(character: widget.character, classId: 'monk');
 
   Widget _buildBasicStatsPanel(BuildContext context, ColorScheme colorScheme,
       String locale, AppLocalizations l10n, int dieSize) {
-    final isHC = Theme.of(context).dividerTheme.thickness == 2;
-    final martialArtsFeature =
+    final martial =
         _findFeature(['martial_arts', 'martial-arts', 'боевые искусства']);
-    final unarmoredFeature = _findFeature(
+    final movement = _findFeature(
         ['unarmored_movement', 'unarmored-movement', 'движение без доспехов']);
-
-    return Row(
-      children: [
-        // Martial Arts
-        Expanded(
-          child: Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isHC
-                    ? colorScheme.primary
-                    : colorScheme.outline.withValues(alpha: 0.3),
-                width: isHC ? 1.5 : 1,
-              ),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  if (martialArtsFeature != null) {
-                    _showFeatureDetails(
-                        martialArtsFeature, Icons.sports_martial_arts);
-                  }
-                },
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    return LayoutBuilder(builder: (context, constraints) {
+      final paired = constraints.maxWidth >= 330 &&
+          MediaQuery.textScalerOf(context).scale(1) <= 1.2;
+      final width =
+          paired ? (constraints.maxWidth - 8) / 2 : constraints.maxWidth;
+      Widget stat(String title, String value, CharacterFeature? feature) =>
+          SizedBox(
+              width: width,
+              child: CompanionSurface(
+                  padding: const EdgeInsets.all(16),
+                  onTap: feature == null
+                      ? null
+                      : () => _showFeatureDetails(feature),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.casino_outlined,
-                              size: 18, color: colorScheme.secondary),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              locale == 'ru'
-                                  ? 'Боевые искусства'
-                                  : 'Martial Arts',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        DiceUtils.formatDice('1d$dieSize', context),
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        // Unarmored Movement
-        Expanded(
-          child: Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isHC
-                    ? colorScheme.primary
-                    : colorScheme.outline.withValues(alpha: 0.3),
-                width: isHC ? 1.5 : 1,
-              ),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  if (unarmoredFeature != null) {
-                    _showFeatureDetails(unarmoredFeature, Icons.directions_run);
-                  }
-                },
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.directions_run,
-                              size: 18, color: colorScheme.tertiary),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              unarmoredFeature?.getName(locale) ??
-                                  (locale == 'ru' ? 'Движение' : 'Movement'),
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '+10 ft.', // Ideally we'd calculate this based on monk level, but placeholder is fine or we can extract from feature if possible.
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title,
+                            style: Theme.of(context).textTheme.bodyMedium),
+                        const SizedBox(height: 8),
+                        Text(value,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(fontWeight: FontWeight.w700)),
+                      ])));
+      return Wrap(spacing: 8, runSpacing: 8, children: [
+        stat(locale == 'ru' ? 'Боевые искусства' : 'Martial Arts',
+            DiceUtils.formatDice('1d$dieSize', context), martial),
+        stat(
+            locale == 'ru' ? 'Скорость' : 'Speed',
+            '${widget.character.speed} ${locale == 'ru' ? 'фт.' : 'ft.'}',
+            movement),
+      ]);
+    });
   }
 
   Widget _buildKiDashboard(BuildContext context, ColorScheme colorScheme,
       String locale, int currentKi, int maxKi) {
-    final isHC = Theme.of(context).dividerTheme.thickness == 2;
-    final progress = maxKi > 0 ? currentKi / maxKi : 0.0;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isHC
-              ? colorScheme.primary
-              : colorScheme.outline.withValues(alpha: 0.3),
-          width: isHC ? 2 : 1,
-        ),
-      ),
-      child: Column(
-        children: [
-          Text(
-            locale == 'ru' ? 'ЭНЕРГИЯ ЦИ' : 'KI POINTS',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.0,
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton.filledTonal(
-                onPressed: currentKi <= 0 ? null : () => _spendKi(maxKi, 1),
-                icon: const Icon(Icons.remove),
-                style: IconButton.styleFrom(
-                  backgroundColor: colorScheme.surface,
-                  foregroundColor: colorScheme.primary,
-                  minimumSize: const Size(48, 48),
-                ),
-              ),
-              const SizedBox(width: 24),
-              GestureDetector(
-                onTap: () => _showKiInputDialog(maxKi, currentKi),
-                child: SizedBox(
-                  width: 120,
-                  height: 120,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SizedBox(
-                        width: 120,
-                        height: 120,
+    final t = Theme.of(context);
+    return ClassPrimaryControl(
+        classId: 'monk',
+        title: locale == 'ru' ? 'Ци' : 'Ki',
+        current: currentKi,
+        maximum: maxKi,
+        marks: true,
+        onEdit: () => _showKiInputDialog(maxKi, currentKi),
+        footer: classRecoveryLabel(AppLocalizations.of(context)!,
+            widget.kiFeature.resourcePool!.recoveryType),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          Padding(
+              padding: const EdgeInsets.only(right: 18),
+              child: SizedBox(
+                  width: 94,
+                  height: 94,
+                  child: Stack(alignment: Alignment.center, children: [
+                    Positioned.fill(
                         child: TweenAnimationBuilder<double>(
-                          tween: Tween<double>(begin: 0, end: progress),
-                          duration: const Duration(milliseconds: 800),
-                          curve: Curves.easeOutQuart,
-                          builder: (context, value, _) {
-                            return CircularProgressIndicator(
-                              value: value,
-                              strokeWidth: 12,
-                              backgroundColor: colorScheme.surfaceContainerHigh,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  colorScheme.primary),
-                              strokeCap: StrokeCap.round,
-                            );
-                          },
-                        ),
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '$currentKi',
-                            style: Theme.of(context)
-                                .textTheme
-                                .displayMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  color: colorScheme.onSurface,
-                                  height: 1.0,
-                                ),
-                          ),
-                          Text(
-                            '/ $maxKi',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: colorScheme.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 24),
-              IconButton.filledTonal(
-                onPressed:
-                    currentKi >= maxKi ? null : () => _restoreKi(maxKi, 1),
-                icon: const Icon(Icons.add),
-                style: IconButton.styleFrom(
-                  backgroundColor: colorScheme.surface,
-                  foregroundColor: colorScheme.primary,
-                  minimumSize: const Size(48, 48),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+                            tween: Tween(
+                                end: maxKi > 0
+                                    ? (currentKi / maxKi).clamp(0.0, 1.0)
+                                    : currentKi > 0
+                                        ? 1
+                                        : 0),
+                            duration: MediaQuery.disableAnimationsOf(context)
+                                ? Duration.zero
+                                : const Duration(milliseconds: 240),
+                            builder: (context, value, _) =>
+                                CircularProgressIndicator(
+                                    value: value,
+                                    strokeWidth: 7,
+                                    strokeCap: StrokeCap.round,
+                                    backgroundColor: colorScheme.surface,
+                                    color: colorScheme.secondary))),
+                    Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: FittedBox(
+                            child: Text('$currentKi',
+                                style: t.textTheme.displaySmall?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: -1.2)))),
+                  ]))),
+          Expanded(
+              child: Text(
+                  locale == 'ru'
+                      ? 'Один запас для твоих приёмов'
+                      : 'One reserve for your techniques',
+                  style: t.textTheme.bodyMedium
+                      ?.copyWith(color: colorScheme.onSurfaceVariant))),
+        ]));
   }
 
   Widget _buildQuickActions(
       BuildContext context, ColorScheme colorScheme, String locale, int maxKi) {
-    final isHC = Theme.of(context).dividerTheme.thickness == 2;
-    final flurry =
-        _findFeature(['flurry_of_blows', 'flurry-of-blows', 'шквал ударов']);
-    final patientDefense = _findFeature(
-        ['patient_defense', 'patient-defense', 'терпеливая оборона']);
-    final stepWind =
-        _findFeature(['step_of_the_wind', 'step-of-the-wind', 'поступь ветра']);
-    final stunningStrike =
-        _findFeature(['stunning_strike', 'stunning-strike', 'оглушающий удар']);
-
-    final List<Widget> actionChips = [];
-
-    IconData getFeatureIcon(String? id, String? name) {
-      final nid = (id ?? '').toLowerCase();
-      final nname = (name ?? '').toLowerCase();
-      if (nid.contains('flurry') || nname.contains('шквал')) {
-        return Icons.sports_martial_arts;
-      }
-      if (nid.contains('defense') || nname.contains('оборона')) {
-        return Icons.shield;
-      }
-      if (nid.contains('step') ||
-          nname.contains('поступь') ||
-          nid.contains('wind') ||
-          nname.contains('ветер')) {
-        return Icons.air;
-      }
-      if (nid.contains('stunning') || nname.contains('оглушающий')) {
-        return Icons.flash_on;
-      }
-      if (nid.contains('patient') || nname.contains('терпеливая')) {
-        return Icons.health_and_safety;
-      }
-      return Icons.bolt;
-    }
-
-    Widget buildActionTile(CharacterFeature? feature) {
-      if (feature == null) return const SizedBox.shrink();
-      final cleanName =
-          feature.getName(locale).replaceAll(RegExp(r'\s*\(.*?\)'), '');
-      final icon = getFeatureIcon(feature.id, feature.nameEn);
-
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
-        child: Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isHC
-                  ? colorScheme.primary
-                  : colorScheme.outline.withValues(alpha: 0.3),
-              width: isHC ? 1.5 : 1,
-            ),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () => _showFeatureDetails(feature, icon),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(icon, color: colorScheme.primary, size: 20),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        cleanName,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 48,
-                      height: 36,
-                      child: FilledButton(
-                        style: FilledButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          backgroundColor: colorScheme.primary,
-                          foregroundColor: colorScheme.onPrimary,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                        ),
-                        onPressed: () =>
-                            _executeQuickAction(feature, maxKi, locale),
-                        child: const Icon(Icons.back_hand, size: 18),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (flurry != null) actionChips.add(buildActionTile(flurry));
-    if (patientDefense != null) {
-      actionChips.add(buildActionTile(patientDefense));
-    }
-    if (stepWind != null) actionChips.add(buildActionTile(stepWind));
-    if (stunningStrike != null) {
-      actionChips.add(buildActionTile(stunningStrike));
-    }
-
-    if (actionChips.isEmpty) return const SizedBox.shrink();
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isHC
-              ? colorScheme.primary
-              : colorScheme.outline.withValues(alpha: 0.3),
-          width: isHC ? 2 : 1,
-        ),
+    final actions = <(CharacterFeature?, IconData)>[
+      (
+        _findFeature(['flurry_of_blows', 'flurry-of-blows', 'шквал ударов']),
+        Icons.sports_martial_arts_rounded
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.bolt, color: colorScheme.primary, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                locale == 'ru'
-                    ? 'Быстрые действия (1 Ци)'
-                    : 'Quick Actions (1 Ki)',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.primary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Column(
-            children: actionChips,
-          ),
-        ],
+      (
+        _findFeature(
+            ['patient_defense', 'patient-defense', 'терпеливая оборона']),
+        Icons.shield_outlined
       ),
-    );
+      (
+        _findFeature(['step_of_the_wind', 'step-of-the-wind', 'поступь ветра']),
+        Icons.air_rounded
+      ),
+      (
+        _findFeature(['stunning_strike', 'stunning-strike', 'оглушающий удар']),
+        Icons.bolt_rounded
+      ),
+    ].where((entry) => entry.$1 != null).toList();
+    if (actions.isEmpty) return const SizedBox.shrink();
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Padding(
+          padding: const EdgeInsets.fromLTRB(4, 4, 4, 12),
+          child: Text(locale == 'ru' ? 'Приёмы' : 'Techniques',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w700))),
+      for (final entry in actions) ...[
+        Builder(builder: (context) {
+          final f = entry.$1!;
+          final cost = f.consumption?.amount ?? 1;
+          final available = !_spending &&
+              (widget.kiFeature.resourcePool?.currentUses ?? 0) >= cost;
+          return CompanionSurface(
+              contour: CompanionContour.cadence,
+              padding: const EdgeInsets.all(16),
+              onTap: available
+                  ? () => _executeQuickAction(f, maxKi, locale)
+                  : null,
+              onLongPress: () => _showFeatureDetails(f, entry.$2),
+              child: Row(children: [
+                Icon(entry.$2,
+                    size: 24,
+                    color: available
+                        ? colorScheme.secondary
+                        : colorScheme.onSurfaceVariant),
+                const SizedBox(width: 12),
+                Expanded(
+                    child: Text(
+                        f.getName(locale).replaceAll(RegExp(r'\s*\(.*?\)'), ''),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600))),
+                const SizedBox(width: 12),
+                Text('$cost ${locale == 'ru' ? 'Ци' : 'Ki'}',
+                    style: Theme.of(context).textTheme.labelLarge),
+              ]));
+        }),
+        const SizedBox(height: 8),
+      ],
+    ]);
   }
 }

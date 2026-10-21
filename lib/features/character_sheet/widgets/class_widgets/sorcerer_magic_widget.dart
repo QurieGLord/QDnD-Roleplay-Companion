@@ -1,9 +1,13 @@
+import '../../../../core/magic/magic_slots.dart';
+import '../../../../core/ui/companion_surface.dart';
+import 'shared/class_panel_presentation.dart';
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
+import '../../../../core/services/sorcery_actions_service.dart';
 import '../../../../shared/widgets/feature_details_sheet.dart';
 import 'shared/class_tools_layout_builder.dart';
 
@@ -30,7 +34,8 @@ class SorcererMagicWidget extends StatefulWidget {
 class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
   // Локальные состояния
   bool _isCreateSlotMode = true; // Режим: true = Создать, false = Поглотить
-  bool _isMetamagicExpanded = false; // Раскрыт ли список метамагии
+  bool _isMetamagicExpanded = false;
+  bool _resourceBusy = false; // Раскрыт ли список метамагии
 
   // Стоимость создания ячеек (1-5 уровень)
   final Map<int, int> _creationCosts = {1: 2, 2: 3, 3: 5, 4: 6, 5: 7};
@@ -44,7 +49,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
     final orangeAccent = colorScheme.primary;
     final beigeAccent = colorScheme.secondary;
     final onBeige = colorScheme.onSecondary;
-    final blockBg = colorScheme.surfaceContainerHighest;
+    final blockBg = colorScheme.surfaceContainerLow;
 
     // 1. Извлекаем данные Дракона
     final dragonInfo = _getDragonInfo(locale);
@@ -67,202 +72,89 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
     final metamagicOptions =
         widget.metamagic.where((f) => f.id != baseMetamagic.id).toList();
 
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: colorScheme.outline, width: 1.5),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      margin: const EdgeInsets.only(bottom: 16),
-      clipBehavior: Clip.antiAlias,
-      child: ClassToolsLayoutBuilder(
-        children: [
-          // --- BLOCK 1: DRACONIC ANCESTRY ---
-          if (widget.ancestryFeatures.isNotEmpty)
-            _buildAncestryBlock(dragonInfo, blockBg),
+    return ClassPanelFrame(
+        character: widget.character,
+        classId: 'sorcerer',
+        child: ClassToolsLayoutBuilder(
+          padding: EdgeInsets.zero,
+          children: [
+            ClassSubclassLink(character: widget.character, classId: 'sorcerer'),
+            // --- BLOCK 1: DRACONIC ANCESTRY ---
+            if (widget.ancestryFeatures.isNotEmpty)
+              _buildAncestryBlock(dragonInfo, blockBg),
 
-          // --- BLOCK 2: FONT OF MAGIC (ОБМЕННИК) ---
-          if (widget.character.level >= 2)
-            _buildBlockContainer(
-              color: blockBg,
-              child: _buildFontOfMagicBlock(
+            if (widget.character.classLevel('sorcerer') >= 2)
+              _buildFontOfMagicBlock(
                   colorScheme, orangeAccent, beigeAccent, onBeige, locale),
-            ),
 
-          // --- BLOCK 3: METAMAGIC ---
-          if (metamagicOptions.isNotEmpty || widget.character.level >= 3)
-            Container(
-              decoration: BoxDecoration(
-                color: blockBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: colorScheme.outline.withValues(alpha: 0.3)),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: _buildMetamagicBlock(baseMetamagic, metamagicOptions,
-                  colorScheme, beigeAccent, onBeige, orangeAccent, locale),
-            ),
-        ],
-      ),
-    )
-        .animate()
-        .fadeIn(duration: 300.ms)
-        .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad);
+            // --- BLOCK 3: METAMAGIC ---
+            if (widget.character.classLevel('sorcerer') >= 3)
+              CompanionSurface(
+                  color: blockBg,
+                  quiet: true,
+                  padding: EdgeInsets.zero,
+                  child: _buildMetamagicBlock(baseMetamagic, metamagicOptions,
+                      colorScheme, beigeAccent, onBeige, orangeAccent, locale)),
+          ],
+        ));
   }
 
-  /// Стандартный контейнер-плитка
-  Widget _buildBlockContainer({required Color color, required Widget child}) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color:
-                Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: child,
-      ),
-    );
-  }
-
-  // ===========================================================================
-  // 1. DRACONIC ANCESTRY LOGIC
-  // ===========================================================================
   Widget _buildAncestryBlock(_DragonData info, Color blockBg) {
-    return Container(
-      decoration: BoxDecoration(
-        color: info.color.withValues(alpha: 0.15), // Легкий стихийный оттенок
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: info.color.withValues(alpha: 0.3)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () => _showDetails(
-              info.matchedFeature ?? widget.ancestryFeatures.first),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Stack(
-              children: [
-                // Фоновая огромная иконка стихии
-                Positioned(
-                  right: -10,
-                  top: -15,
-                  bottom: -15,
-                  child: Icon(info.icon,
-                      size: 80, color: info.color.withValues(alpha: 0.2)),
-                ),
-                Column(
+    final c = Theme.of(context).colorScheme;
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    return CompanionSurface(
+        contour: CompanionContour.focus,
+        color: c.tertiaryContainer,
+        padding: const EdgeInsets.all(16),
+        onTap: () =>
+            _showDetails(info.matchedFeature ?? widget.ancestryFeatures.first),
+        child: Row(children: [
+          Icon(info.icon, color: c.tertiary, size: 24),
+          const SizedBox(width: 12),
+          Expanded(
+              child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "ДРАКОНЬЕ НАСЛЕДИЕ",
-                      style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                          color: info.color),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      info.name,
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          color: Theme.of(context).colorScheme.onSurface),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+                Text(ru ? 'Драконье наследие' : 'Draconic Ancestry',
+                    style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(height: 4),
+                Text(info.name,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700)),
+              ])),
+          const Icon(Icons.chevron_right_rounded),
+        ]));
   }
-
-  // ===========================================================================
-  // 2. FONT OF MAGIC (EXCHANGE) LOGIC
-  // ===========================================================================
 
   /// Вспомогательный метод для получения актуального пула из состояния персонажа.
   /// Это критично для реактивности UI. ГАРАНТИРУЕТ возврат объекта и его персистентность.
-  ResourcePool _getActualPool() {
-    final poolId = widget.sorceryPoints?.id ?? 'sorcerer_points';
+  ResourcePool _getActualPool() => SorceryActionsService.view(widget.character,
+      definition: widget.sorceryPoints);
 
-    // 1. Ищем фичу в списке персонажа
-    int featureIndex =
-        widget.character.features.indexWhere((f) => f.id == poolId);
-    CharacterFeature feature;
-
-    if (featureIndex != -1) {
-      feature = widget.character.features[featureIndex];
-    } else {
-      // Если фичи нет в списке, добавляем её (или используем переданную)
-      feature = widget.sorceryPoints ??
-          CharacterFeature(
-            id: poolId,
-            nameEn: 'Sorcery Points',
-            nameRu: 'Единицы чародейства',
-            descriptionEn: 'Points used to fuel magic.',
-            descriptionRu: 'Очки для усиления магии.',
-            type: FeatureType.resourcePool,
-            minLevel: 2,
-          );
-      widget.character.features.add(feature);
-      widget.character.save();
-    }
-
-    // Dynamic max pool calculation based on exact class level
-    int sorcererLvl = widget.character.level;
-    if (widget.character.classes.isNotEmpty) {
-      try {
-        final sc = widget.character.classes.firstWhere(
-          (c) {
-            final id = c.id.toLowerCase();
-            final name = c.name.toLowerCase();
-            return id.contains('sorcerer') ||
-                id.contains('чародей') ||
-                name.contains('sorcerer') ||
-                name.contains('чародей');
-          },
-        );
-        sorcererLvl = sc.level;
-      } catch (e) {
-        debugPrint(
-            'Sorcerer level fallback. Classes: ${widget.character.classes.map((c) => "${c.id}(${c.name}) lvl:${c.level}").toList()}');
-        sorcererLvl = widget.character.level;
+  Future<bool> _applyResource(Future<bool> Function() action) async {
+    if (_resourceBusy) return false;
+    _resourceBusy = true;
+    try {
+      final applied = await action();
+      if (mounted) {
+        setState(() {});
+        widget.onChanged?.call();
       }
-    }
-
-    // Safety fallback
-    if (sorcererLvl <= 0) {
-      sorcererLvl = widget.character.level;
-    }
-
-    // 2. Гарантируем наличие пула внутри фичи
-    if (feature.resourcePool == null) {
-      feature.resourcePool = ResourcePool(
-          currentUses: sorcererLvl,
-          maxUses: sorcererLvl,
-          recoveryType: RecoveryType.longRest);
-      widget.character.save();
-    } else if (feature.resourcePool!.maxUses != sorcererLvl) {
-      // Update max pool when level goes up, but retain proper clamps
-      feature.resourcePool!.maxUses = sorcererLvl;
-      if (feature.resourcePool!.currentUses > sorcererLvl) {
-        feature.resourcePool!.currentUses = sorcererLvl;
+      return applied;
+    } catch (_) {
+      if (mounted) {
+        AppSnackBar.error(
+            context,
+            Localizations.localeOf(context).languageCode == 'ru'
+                ? 'Не удалось сохранить действие. Значения не изменены.'
+                : 'Could not save the action. Values are unchanged.');
       }
-      widget.character.save();
+      return false;
+    } finally {
+      _resourceBusy = false;
     }
-
-    return feature.resourcePool!;
   }
 
   Widget _buildFontOfMagicBlock(ColorScheme colorScheme, Color barColor,
@@ -270,137 +162,113 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
     // Реактивное получение пула. Метод теперь гарантирует связь с базой.
     final pool = _getActualPool();
 
-    final max = pool.maxUses > 0 ? pool.maxUses : 2; // minimum 2
+    final max = pool.maxUses;
     final current = pool.currentUses;
-    final progress = max > 0 ? (current / max).clamp(0.0, 1.0) : 0.0;
-
-    return Column(
-      children: [
-        // Заголовок и прогресс-бар в InkWell для ручного ввода
-        InkWell(
-          onTap: () => _showCustomSPDialog(pool, locale),
-          borderRadius: BorderRadius.circular(8),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.auto_awesome, color: barColor, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      locale == 'ru' ? "ЕДИНИЦЫ ЧАРОДЕЙСТВА" : "SORCERY POINTS",
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                          color: colorScheme.onSurfaceVariant),
-                    ),
-                  ),
-                  Icon(Icons.edit_note,
-                      size: 18,
-                      color: colorScheme.outline.withValues(alpha: 0.5)),
-                ],
+    return ClassPrimaryControl(
+        classId: 'sorcerer',
+        title: locale == 'ru' ? 'Очки чародейства' : 'Sorcery points',
+        current: current,
+        maximum: max,
+        marks: true,
+        onEdit: () => _showCustomSPDialog(pool, locale),
+        tone: colorScheme.primaryContainer,
+        footer: locale == 'ru'
+            ? 'Стоимость указана под кругом'
+            : 'The cost is shown below each spell level',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Переключатель режимов (Создать / Сжечь)
+            SegmentedButton<bool>(
+              segments: [
+                ButtonSegment(
+                    value: true,
+                    label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child:
+                            Text(locale == 'ru' ? "В ячейку" : "Create Slot")),
+                    icon: const Icon(Icons.add_circle_outline)),
+                ButtonSegment(
+                    value: false,
+                    label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(locale == 'ru' ? "В очки" : "To Points")),
+                    icon: const Icon(Icons.local_fire_department_outlined)),
+              ],
+              selected: {_isCreateSlotMode},
+              onSelectionChanged: (val) {
+                HapticFeedback.selectionClick();
+                setState(() => _isCreateSlotMode = val.first);
+              },
+              style: SegmentedButton.styleFrom(
+                backgroundColor: colorScheme.surface,
+                selectedForegroundColor: onBtnColor,
+                selectedBackgroundColor: btnColor,
+                visualDensity: VisualDensity.compact,
               ),
+            ),
 
-              // Счетчик
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  '$current / $max',
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w900,
-                      color: colorScheme.onSurface),
-                ),
-              ),
+            const SizedBox(height: 12),
 
-              const SizedBox(height: 6),
+            // Сетка кнопок (Ячейки)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: List.generate(5, (i) {
+                final lvl = i + 1;
+                final cost = _creationCosts[lvl]!;
 
-              // Полоска прогресса
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0, end: progress),
-                  duration: const Duration(milliseconds: 800),
-                  curve: Curves.easeOutQuart,
-                  builder: (context, value, _) {
-                    return LinearProgressIndicator(
-                      value: value,
-                      minHeight: 14,
-                      backgroundColor: colorScheme.surfaceDim,
-                      valueColor: AlwaysStoppedAnimation(barColor),
-                    );
-                  },
-                ),
-              ),
+                // Логика доступности
+                final canCreate = current >= cost && lvl <= _getMaxSlotLevel();
+                final canBurn =
+                    _getAvailableSlots(lvl) > 0; // Есть ли ячейки для сжигания
+                final isEnabled =
+                    !_resourceBusy && (_isCreateSlotMode ? canCreate : canBurn);
+
+                return _ExchangeButton(
+                  level: lvl,
+                  value: _isCreateSlotMode ? "-$cost" : "+$lvl",
+                  isEnabled: isEnabled,
+                  isCreateMode: _isCreateSlotMode,
+                  activeColor: _isCreateSlotMode
+                      ? barColor
+                      : btnColor, // Оранжевый для траты, Бежевый для получения
+                  onTap: () => _isCreateSlotMode
+                      ? _createSlot(lvl, cost, pool)
+                      : _burnSlot(lvl, pool),
+                );
+              }),
+            ),
+            if (!_isCreateSlotMode &&
+                (MagicSlots.read(widget.character).pact?.current ?? 0) > 0) ...[
+              const SizedBox(height: 12),
+              FilledButton.tonalIcon(
+                  onPressed: _resourceBusy
+                      ? null
+                      : () async {
+                          final pact = MagicSlots.read(widget.character).pact!;
+                          final applied = await _applyResource(() =>
+                              SorceryActionsService.convert(
+                                  widget.character, pact.circle,
+                                  creating: false,
+                                  definition: widget.sorceryPoints,
+                                  payment: MagicPool.pact));
+                          if (mounted && applied) {
+                            AppSnackBar.success(
+                                context,
+                                locale == 'ru'
+                                    ? 'Ячейка Магии договора обменена на ${pact.circle} ОЧ.'
+                                    : 'Pact slot converted to ${pact.circle} SP.');
+                          }
+                        },
+                  icon: const Icon(Icons.auto_awesome_outlined),
+                  label: Text(locale == 'ru'
+                      ? 'Магия договора → ОЧ'
+                      : 'Pact Magic → SP')),
             ],
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // Переключатель режимов (Создать / Сжечь)
-        SegmentedButton<bool>(
-          segments: [
-            ButtonSegment(
-                value: true,
-                label: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(locale == 'ru' ? "В ячейку" : "Create Slot")),
-                icon: const Icon(Icons.add_circle_outline)),
-            ButtonSegment(
-                value: false,
-                label: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(locale == 'ru' ? "В очки" : "To Points")),
-                icon: const Icon(Icons.local_fire_department_outlined)),
           ],
-          selected: {_isCreateSlotMode},
-          onSelectionChanged: (val) {
-            HapticFeedback.selectionClick();
-            setState(() => _isCreateSlotMode = val.first);
-          },
-          style: SegmentedButton.styleFrom(
-            backgroundColor: colorScheme.surface,
-            selectedForegroundColor: onBtnColor,
-            selectedBackgroundColor: btnColor,
-            visualDensity: VisualDensity.compact,
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        // Сетка кнопок (Ячейки)
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          alignment: WrapAlignment.center,
-          children: List.generate(5, (i) {
-            final lvl = i + 1;
-            final cost = _creationCosts[lvl]!;
-
-            // Логика доступности
-            final canCreate = current >= cost && lvl <= _getMaxSlotLevel();
-            final canBurn =
-                _getAvailableSlots(lvl) > 0; // Есть ли ячейки для сжигания
-            final isEnabled = _isCreateSlotMode ? canCreate : canBurn;
-
-            return _ExchangeButton(
-              level: lvl,
-              value: _isCreateSlotMode ? "-$cost" : "+$lvl",
-              isEnabled: isEnabled,
-              isCreateMode: _isCreateSlotMode,
-              activeColor: _isCreateSlotMode
-                  ? barColor
-                  : btnColor, // Оранжевый для траты, Бежевый для получения
-              onTap: () => _isCreateSlotMode
-                  ? _createSlot(lvl, cost, pool)
-                  : _burnSlot(lvl, pool),
-            );
-          }),
-        ),
-      ],
-    );
+        ));
   }
 
   // ===========================================================================
@@ -414,88 +282,38 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
       Color activeContent,
       Color iconColor,
       String locale) {
-    final pillColor = _isMetamagicExpanded ? activeBg : colorScheme.surfaceDim;
-    final pillContentColor =
-        _isMetamagicExpanded ? activeContent : colorScheme.onSurfaceVariant;
-    final leadingIconColor = _isMetamagicExpanded ? activeContent : iconColor;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // HEADER: Шапка, растянутая на всю ширину (как у Паладина)
-        Material(
-          color: pillColor,
-          borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            onTap: () => _showDetails(
-                base), // Клик по шапке показывает описание самой Метамагии
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  Icon(Icons.auto_fix_high, color: leadingIconColor, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      locale == 'ru' ? "МЕТАМАГИЯ" : "METAMAGIC",
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                        color: pillContentColor,
-                      ),
-                    ),
-                  ),
-                  Icon(Icons.info_outline,
-                      size: 16, color: pillContentColor.withValues(alpha: 0.5)),
-                  const SizedBox(width: 8),
-                  // Switch раскрытия
-                  Transform.scale(
-                    scale: 0.9,
-                    child: Switch(
-                      value: _isMetamagicExpanded,
-                      onChanged: (val) {
-                        HapticFeedback.lightImpact();
-                        setState(() => _isMetamagicExpanded = val);
-                      },
-                      activeThumbColor: colorScheme.primary,
-                      activeTrackColor: colorScheme.primaryContainer,
-                      inactiveThumbColor: colorScheme.onSurfaceVariant,
-                      inactiveTrackColor: Colors.transparent,
-                      // Чтобы свитч было видно на темном фоне
-                      trackOutlineColor:
-                          WidgetStateProperty.resolveWith((states) {
-                        if (states.contains(WidgetState.selected)) {
-                          return Colors.transparent;
-                        }
-                        return colorScheme.outline;
-                      }),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-
-        // THE LIST: Список заклинаний
-        AnimatedSize(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          child: _isMetamagicExpanded
-              ? Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    children: options
-                        .map((opt) => _buildMetamagicTile(
-                            opt, colorScheme, activeBg, activeContent, locale))
-                        .toList(),
-                  ),
-                )
-              : const SizedBox(width: double.infinity),
-        ),
-      ],
-    );
+    return ExpansionTile(
+        initiallyExpanded: _isMetamagicExpanded,
+        onExpansionChanged: (value) =>
+            setState(() => _isMetamagicExpanded = value),
+        shape: const RoundedRectangleBorder(),
+        collapsedShape: const RoundedRectangleBorder(),
+        leading: IconButton(
+            tooltip: AppLocalizations.of(context)!.advancementDetails,
+            onPressed: () => _showDetails(base),
+            icon: const Icon(Icons.info_outline_rounded)),
+        title: Text(locale == 'ru' ? 'Метамагия' : 'Metamagic',
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(fontWeight: FontWeight.w700)),
+        trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+          Text('${options.length}'),
+          const SizedBox(width: 8),
+          Icon(_isMetamagicExpanded
+              ? Icons.expand_less_rounded
+              : Icons.expand_more_rounded)
+        ]),
+        childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        children: [
+          if (options.isEmpty)
+            Text(locale == 'ru'
+                ? 'Приёмы пока не выбраны'
+                : 'No techniques selected yet'),
+          for (final option in options)
+            _buildMetamagicTile(
+                option, colorScheme, activeBg, activeContent, locale),
+        ]);
   }
 
   Widget _buildMetamagicTile(CharacterFeature opt, ColorScheme colorScheme,
@@ -504,14 +322,13 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _showDetails(opt),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
@@ -537,7 +354,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
                             .replaceAll(
                                 "Metamagic: ", ""), // Убираем дубляж слова
                         style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: colorScheme.onSurface),
                       ),
@@ -555,7 +372,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
                       foregroundColor: btnContent,
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(20)),
                       elevation: 0,
                     ),
                     child: const Icon(Icons.auto_fix_high, size: 20),
@@ -630,15 +447,7 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
         Colors.deepPurple, Icons.shield);
   }
 
-  int _getMaxSlotLevel() {
-    final lvl = widget.character.level;
-    if (lvl >= 17) return 5;
-    if (lvl >= 9) return 5;
-    if (lvl >= 7) return 4;
-    if (lvl >= 5) return 3;
-    if (lvl >= 3) return 2;
-    return 1;
-  }
+  int _getMaxSlotLevel() => 5;
 
   // Безопасное получение количества ячеек определенного уровня
   int _getAvailableSlots(int level) {
@@ -652,193 +461,168 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
     return 0;
   }
 
-  // Безопасное изменение ячеек
-  void _changeSpellSlot(int level, int amount) {
-    try {
-      // Ensure the list is long enough
-      while (widget.character.spellSlots.length < level) {
-        widget.character.spellSlots.add(0);
-      }
-      widget.character.spellSlots[level - 1] += amount;
-      if (widget.character.spellSlots[level - 1] < 0) {
-        widget.character.spellSlots[level - 1] = 0;
-      }
-    } catch (e) {
-      debugPrint("Sorcerer: Error modifying spell slots: $e");
-    }
-  }
-
-  void _createSlot(int lvl, int cost, ResourcePool pool) {
-    HapticFeedback.heavyImpact();
-    setState(() {
-      pool.use(cost);
-      _changeSpellSlot(lvl, 1);
-      widget.character.save();
-      widget.onChanged?.call();
-    });
-    AppSnackBar.success(
-      context,
-      Localizations.localeOf(context).languageCode == 'ru'
-          ? "Ячейка $lvl-го уровня создана! (-$cost ОЧ)"
-          : "Level $lvl slot created! (-$cost SP)",
-      duration: const Duration(seconds: 2),
-    );
-  }
-
-  void _burnSlot(int lvl, ResourcePool pool) {
-    if (_getAvailableSlots(lvl) <= 0) return;
+  Future<void> _createSlot(int lvl, int cost, ResourcePool pool) async {
+    final applied = await _applyResource(() => SorceryActionsService.convert(
+        widget.character, lvl,
+        creating: true, definition: widget.sorceryPoints));
+    if (!mounted || !applied) return;
     HapticFeedback.mediumImpact();
-    setState(() {
-      _changeSpellSlot(lvl, -1);
-      pool.restore(lvl); // Восстанавливает SP равное уровню ячейки
-      widget.character.save();
-      widget.onChanged?.call();
-    });
+    AppSnackBar.success(
+        context,
+        Localizations.localeOf(context).languageCode == 'ru'
+            ? 'Создана ячейка $lvl-го круга (−$cost ОЧ).'
+            : 'Level $lvl slot created (−$cost SP).');
+  }
+
+  Future<void> _burnSlot(int lvl, ResourcePool pool) async {
+    final applied = await _applyResource(() => SorceryActionsService.convert(
+        widget.character, lvl,
+        creating: false, definition: widget.sorceryPoints));
+    if (!mounted || !applied) return;
+    HapticFeedback.mediumImpact();
     AppSnackBar.info(
-      context,
-      Localizations.localeOf(context).languageCode == 'ru'
-          ? "Ячейка $lvl-го уровня поглощена! (+$lvl ОЧ)"
-          : "Level $lvl slot burned! (+$lvl SP)",
-      duration: const Duration(seconds: 2),
-    );
+        context,
+        Localizations.localeOf(context).languageCode == 'ru'
+            ? 'Ячейка $lvl-го круга поглощена (+$lvl ОЧ).'
+            : 'Level $lvl slot converted (+$lvl SP).');
   }
 
   void _useMetamagic(CharacterFeature opt) {
     final pool = _getActualPool();
     final locale = Localizations.localeOf(context).languageCode;
-    int cost = 1;
-
-    // Smart cost detection
-    final desc = opt.getDescription(locale).toLowerCase();
-    if (desc.contains('2 points') || desc.contains('2 единицы')) {
-      cost = 2;
-    } else if (desc.contains('3 points') || desc.contains('3 единицы')) {
-      cost = 3;
-    }
-
-    // Ограничиваем стоимость текущим балансом, если он меньше дефолтной стоимости
-    if (cost > pool.currentUses) cost = pool.currentUses;
-    if (cost < 1) cost = 1;
+    final cost = opt.consumption?.amount ??
+        switch (opt.id) {
+          'metamagic-quickened-spell' => 2,
+          'metamagic-heightened-spell' => 3,
+          _ => 1,
+        };
 
     showDialog(
       context: context,
       builder: (context) {
         int tempCost = cost;
-        return StatefulBuilder(builder: (context, setDialogState) {
-          final hasEnough =
-              pool.currentUses >= tempCost && pool.currentUses > 0;
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final hasEnough = pool.currentUses >= tempCost;
 
-          return AlertDialog(
-            title: Text(locale == 'ru'
-                ? "Применить: ${opt.nameRu}"
-                : "Apply: ${opt.nameEn}"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  locale == 'ru'
-                      ? "Выберите стоимость Очков Чародейства:"
-                      : "Select Sorcery Points Cost:",
-                  style: TextStyle(
+            return AlertDialog(
+              title: Text(locale == 'ru'
+                  ? "Применить: ${opt.nameRu}"
+                  : "Apply: ${opt.nameEn}"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    locale == 'ru'
+                        ? "Выберите стоимость Очков Чародейства:"
+                        : "Select Sorcery Points Cost:",
+                    style: TextStyle(
                       fontSize: 14,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton.filledTonal(
-                      onPressed: tempCost > 1
-                          ? () => setDialogState(() => tempCost--)
-                          : null,
-                      icon: const Icon(Icons.remove),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
-                    const SizedBox(width: 16),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondaryContainer,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                            color: Theme.of(context).colorScheme.secondary,
-                            width: 2),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton.filledTonal(
+                        onPressed: tempCost > 1
+                            ? () => setDialogState(() => tempCost--)
+                            : null,
+                        icon: const Icon(Icons.remove),
                       ),
-                      child: Text(
-                        "$tempCost",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer, // Гарантированный контраст
+                      const SizedBox(width: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              Theme.of(context).colorScheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.secondary,
+                            width: 2,
+                          ),
+                        ),
+                        child: Text(
+                          "$tempCost",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSecondaryContainer, // Гарантированный контраст
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    IconButton.filledTonal(
-                      onPressed: tempCost < pool.currentUses
-                          ? () => setDialogState(() => tempCost++)
-                          : null,
-                      icon: const Icon(Icons.add),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  locale == 'ru'
-                      ? "Доступно: ${pool.currentUses}"
-                      : "Available: ${pool.currentUses}",
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: hasEnough
-                        ? Theme.of(context).colorScheme.outline
-                        : Theme.of(context).colorScheme.error,
+                      const SizedBox(width: 16),
+                      IconButton.filledTonal(
+                        onPressed: tempCost < pool.currentUses
+                            ? () => setDialogState(() => tempCost++)
+                            : null,
+                        icon: const Icon(Icons.add),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 12),
+                  Text(
+                    locale == 'ru'
+                        ? "Доступно: ${pool.currentUses}"
+                        : "Available: ${pool.currentUses}",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: hasEnough
+                          ? Theme.of(context).colorScheme.outline
+                          : Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(locale == 'ru' ? "Отмена" : "Cancel"),
+                ),
+                FilledButton(
+                  onPressed: hasEnough
+                      ? () async {
+                          final applied = await _applyResource(() =>
+                              SorceryActionsService.spend(
+                                  widget.character, tempCost,
+                                  definition: widget.sorceryPoints));
+                          if (!context.mounted || !applied) return;
+                          HapticFeedback.mediumImpact();
+                          Navigator.pop(context);
+                          AppSnackBar.success(
+                            context,
+                            locale == 'ru'
+                                ? "Применено! (-$tempCost ОЧ)"
+                                : "Applied! (-$tempCost SP)",
+                            duration: const Duration(seconds: 2),
+                          );
+                        }
+                      : null,
+                  child: Text(locale == 'ru' ? "Применить" : "Apply"),
                 ),
               ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(locale == 'ru' ? "Отмена" : "Cancel"),
-              ),
-              FilledButton(
-                onPressed: hasEnough
-                    ? () {
-                        HapticFeedback.heavyImpact();
-                        setState(() {
-                          pool.use(tempCost);
-                          widget.character.save();
-                          widget.onChanged?.call();
-                        });
-                        Navigator.pop(context);
-                        AppSnackBar.success(
-                          context,
-                          locale == 'ru'
-                              ? "Применено! (-$tempCost ОЧ)"
-                              : "Applied! (-$tempCost SP)",
-                          duration: const Duration(seconds: 2),
-                        );
-                      }
-                    : null,
-                child: Text(locale == 'ru' ? "Применить" : "Apply"),
-              ),
-            ],
-          );
-        });
+            );
+          },
+        );
       },
     );
   }
 
-  void _showCustomSPDialog(ResourcePool pool, String locale) {
+  Future<void> _showCustomSPDialog(ResourcePool pool, String locale) async {
     final TextEditingController controller =
         TextEditingController(text: "${pool.currentUses}");
-    final maxSp = pool.maxUses > 0 ? pool.maxUses : widget.character.level;
+    final maxSp = pool.maxUses;
 
-    showDialog(
+    await showDialog<void>(
       context: context,
+      requestFocus: false,
       builder: (context) => AlertDialog(
         title: Text(locale == 'ru' ? "Единицы чародейства" : "Sorcery Points"),
         content: Column(
@@ -846,21 +630,21 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
           children: [
             Text(
               locale == 'ru'
-                  ? "Укажите текущее количество очков (0 - $maxSp):"
-                  : "Set current points amount (0 - $maxSp):",
+                  ? "Укажите текущий остаток (обычный максимум: $maxSp):"
+                  : "Set the current remainder (normal maximum: $maxSp):",
               style: const TextStyle(fontSize: 14),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: controller,
               keyboardType: TextInputType.number,
-              autofocus: true,
+              autofocus: false,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
                 hintText: "0",
                 suffixText: "/ $maxSp",
                 border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
               ),
             ),
           ],
@@ -871,23 +655,23 @@ class _SorcererMagicWidgetState extends State<SorcererMagicWidget> {
             child: Text(locale == 'ru' ? "Отмена" : "Cancel"),
           ),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
               final val = int.tryParse(controller.text);
               if (val != null) {
                 HapticFeedback.mediumImpact();
-                setState(() {
-                  pool.currentUses = val.clamp(0, maxSp);
-                  widget.character.save();
-                  widget.onChanged?.call();
-                });
+                final applied = await _applyResource(() =>
+                    SorceryActionsService.setCurrent(widget.character, val,
+                        definition: widget.sorceryPoints));
+                if (!context.mounted || !applied) return;
               }
-              Navigator.pop(context);
+              if (context.mounted) Navigator.pop(context);
             },
             child: Text(locale == 'ru' ? "ОК" : "OK"),
           ),
         ],
       ),
     );
+    controller.dispose();
   }
 }
 
@@ -922,33 +706,32 @@ class _ExchangeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context).colorScheme;
     final color = isEnabled ? activeColor : theme.outlineVariant;
-    final textColor = isEnabled
-        ? (isCreateMode ? theme.onSurface : theme.onSecondary)
-        : theme.onSurfaceVariant;
+    final textColor = isEnabled ? theme.onSurface : theme.onSurfaceVariant;
 
     return InkWell(
       onTap: isEnabled ? onTap : null,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(20),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 64,
-        height: 64,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-              color: isEnabled ? color : color.withValues(alpha: 0.5),
-              width: isEnabled ? 2 : 1),
-          // Если режим поглощения (бежевый), заливаем полностью. Если трата (оранжевый) - прозрачный с бордером.
-          color: isEnabled
-              ? (isCreateMode ? color.withValues(alpha: 0.1) : color)
-              : Colors.transparent,
-        ),
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 200),
+        width: MediaQuery.textScalerOf(context).scale(1) > 1.2 ? 76 : 56,
+        constraints: const BoxConstraints(minHeight: 58),
+        padding: const EdgeInsets.all(8),
+        decoration: companionDecoration(context,
+            quiet: true,
+            color: isEnabled ? theme.surface : theme.surfaceContainerLow,
+            accent: color,
+            shape: const StadiumBorder()),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("Lvl $level",
+            Text(
+                '$level ${Localizations.localeOf(context).languageCode == 'ru' ? 'круг' : 'level'}',
+                textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: textColor.withValues(alpha: 0.8))),
             const SizedBox(height: 2),

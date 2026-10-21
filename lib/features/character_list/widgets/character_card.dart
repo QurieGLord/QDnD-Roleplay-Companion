@@ -42,7 +42,7 @@ class _CharacterCardState extends State<CharacterCard> {
     final localizedRaceName =
         getLocalizedRaceName(context, widget.character.race);
     final localizedClassName =
-        getLocalizedClassName(context, widget.character.characterClass);
+        getCharacterClassSummary(context, widget.character);
     final localizedSubclass = widget.character.subclass != null
         ? getLocalizedSubclassName(
             context,
@@ -166,7 +166,8 @@ class _CharacterCardState extends State<CharacterCard> {
                                       .withValues(alpha: 0.82),
                                   fontWeight: FontWeight.w700,
                                 ),
-                                maxLines: 1,
+                                maxLines:
+                                    widget.character.classes.length > 1 ? 3 : 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               if (localizedSubclass != null) ...[

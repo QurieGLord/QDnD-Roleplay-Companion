@@ -1,3 +1,4 @@
+import '../magic/spell_class_membership.dart';
 import 'dart:math' as math;
 
 import 'package:uuid/uuid.dart';
@@ -14,6 +15,7 @@ import '../models/journal_note.dart';
 import '../models/race_data.dart';
 import '../models/spell.dart';
 import 'feature_hydration_service.dart';
+import 'catalog_definition_signature.dart';
 import 'fc5_imported_name_normalizer.dart';
 import 'spell_service.dart';
 
@@ -426,7 +428,9 @@ class FC5Parser {
       final document = XmlDocument.parse(xmlContent);
       final root = document.rootElement;
 
-      if (root.name.local == 'collection') {
+      if (root.name.local == 'collection' ||
+          root.name.local == 'source' &&
+              root.findElements('collection').isNotEmpty) {
         final docs = root.findAllElements('doc').length;
         diagnostics.error(
           'collection_unsupported',
@@ -466,6 +470,12 @@ class FC5Parser {
               items.add(_parseItem(node, sid));
               break;
             case 'spell':
+              if(node.findElements('level').isEmpty) {
+                diagnostics.warning('spell_extension_requires_base',
+                    'A spell without a declared level is incomplete reference/extension data, not a cantrip. Use a compiled compendium containing its base definition.',
+                    context:_getTag(node,'name'));
+                break;
+              }
               spells.add(_parseSpell(node, sid));
               break;
             case 'race':
@@ -1736,6 +1746,10 @@ class FC5Parser {
       armorProperties: armorProps,
       isMagical: _parseBool(_getTag(node, 'magic')) == true ||
           _parseBool(_getTag(node, 'magical')) == true,
+      requiresAttunement: _parseBool(_getTag(node, 'requiresAttunement')) == true ||
+          _parseBool(_getTag(node, 'attunement')) == true ||
+          RegExp(r'requires? attunement|требует настройки|требуется настройка', caseSensitive: false)
+              .hasMatch(_getAnyTag(node, ['attunement', 'detail'])),
       sourceId: sourceId,
     );
   }
@@ -1760,11 +1774,12 @@ class FC5Parser {
 
     final classNames = <String>[];
     final classesRaw = _splitBilingual(_getTag(node, 'classes'))['en'] ?? '';
-    _addAllUnique(classNames, _parseIds(classesRaw));
-    for (final sclass in node.findElements('sclass')) {
-      final className = _classNameWithoutSubclass(sclass.innerText);
-      final canonical = _canonicalClassName(className);
-      _addUnique(classNames, _stableId(canonical).replaceAll('_', ' '));
+    for(final token in [...SpellClassMembership.split(classesRaw),...node.findElements('sclass').map((n)=>n.innerText)]) {
+      final match=RegExp(r'^\s*([^(:]+?)\s*(?:\((.*)\)|:(.*))?\s*$').firstMatch(token);
+      if(match==null)continue;
+      final base=_canonicalClassName(match.group(1)!).toLowerCase();
+      final scope=(match.group(2)??match.group(3)??'').trim();
+      _addUnique(classNames,scope.isEmpty?base:'$base ($scope)');
     }
 
     return Spell(
@@ -1872,7 +1887,18 @@ class FC5Parser {
         ? null
         : _canonicalSubclassName(nameParts.subclass!);
     final classSubclassRu = nameRuParts.subclass ?? nameParts.subclass;
-    final hitDie = _parseInt(_getTag(node, 'hd')) ?? 8;
+    final hdText = _getTag(node, 'hd').trim();
+    final explicitDie = _parseInt(hdText);
+    if (hdText.isNotEmpty && !{4, 6, 8, 10, 12, 20}.contains(explicitDie)) {
+      diagnostics.error('invalid_hit_die', 'The class hit die is invalid.',
+          context: rawName);
+    }
+    final hitDie = explicitDie ?? 8;
+    if (hdText.isEmpty) {
+      diagnostics.warning('missing_class_hit_die',
+          'Hit die was not declared; the compatibility default must not be used to advance a standalone class.',
+          context: rawName);
+    }
     final features = <int, List<CharacterFeature>>{};
     final subclassMap = <String, Map<String, String>>{};
     int? detectedSubclassLevel;
@@ -1882,6 +1908,22 @@ class FC5Parser {
         'en': classSubclassName,
         'ru': classSubclassRu ?? classSubclassName,
       };
+    }
+
+    // Some community packages declare the choice as "Sacred Oath: ..." and
+    // attach its later features with "(...)", rather than repeating a class.
+    for (final level in classSubclassName == null
+        ? node.findElements('autolevel')
+        : <XmlElement>[]) {
+      for (final feature in level.findElements('feature')) {
+        final scope = _classFeatureSubclass(baseNameEn, feature);
+        if (scope != null) {
+          subclassMap.putIfAbsent(
+              _stableId(_canonicalSubclassName(scope.name)),
+              () =>
+                  {'en': _canonicalSubclassName(scope.name), 'ru': scope.name});
+        }
+      }
     }
 
     for (final autolevel in node.findElements('autolevel')) {
@@ -1907,10 +1949,6 @@ class FC5Parser {
         detectedSubclassLevel = detectedSubclassLevel == null
             ? level
             : math.min(detectedSubclassLevel, level);
-      } else if (classSubclassName != null) {
-        detectedSubclassLevel = detectedSubclassLevel == null
-            ? level
-            : math.min(detectedSubclassLevel, level);
       }
 
       final featureNodes = [
@@ -1918,18 +1956,46 @@ class FC5Parser {
         ...autolevel.findElements('feat'),
       ];
       for (final featureNode in featureNodes) {
+        if (classSubclassName != null &&
+            [_getTag(featureNode, 'name'), _getTag(featureNode, 'name_ru')].any(
+                (title) =>
+                    _normalizeLoose(
+                        _canonicalSubclassName(title.split(':').last.trim())) ==
+                    _normalizeLoose(classSubclassName))) {
+          detectedSubclassLevel = detectedSubclassLevel == null
+              ? level
+              : math.min(detectedSubclassLevel, level);
+        }
+        final inferred = normalizedSubclass == null
+            ? _classFeatureSubclass(baseNameEn, featureNode,
+                knownNames: subclassMap.values.expand((v) => v.values))
+            : null;
+        final scopedName = normalizedSubclass ?? inferred?.name;
+        if (scopedName != null && normalizedSubclass == null) {
+          final id = _stableId(_canonicalSubclassName(scopedName));
+          subclassMap.putIfAbsent(
+              id,
+              () => {
+                    'en': _canonicalSubclassName(scopedName),
+                    'ru': scopedName,
+                  });
+          detectedSubclassLevel = detectedSubclassLevel == null
+              ? level
+              : math.min(detectedSubclassLevel, level);
+        }
         final feature = _parseClassFeature(
           featureNode,
           sourceId,
           className: baseNameEn,
-          subclassName: normalizedSubclass,
+          subclassName: scopedName,
           level: level,
+          subclassOption: inferred?.mandatory ?? false,
         );
         if (feature != null) {
           final hydration = FeatureHydrationService.hydrateClassFeatures(
             [feature],
             className: baseNameEn,
-            subclassName: normalizedSubclass,
+            subclassName: scopedName,
           );
           _mergeHydrationDiagnostics(diagnostics, hydration.diagnostics);
           features[level]!.addAll(hydration.features);
@@ -1949,13 +2015,49 @@ class FC5Parser {
     final classProficiencies = _parseClassProficiencies(node);
     final spellAbility = _normalizeAbility(_getTag(node, 'spellAbility'));
 
+    String subclassDescription(Map<String, String> names, String locale) {
+      final keys = {
+        for (final name in names.values)
+          _normalizeLoose(_canonicalSubclassName(name))
+      };
+      final candidates = <({int level, String text})>[];
+      for (final autolevel in node.findElements('autolevel')) {
+        final level = _autolevelNumber(autolevel) ?? 0;
+        for (final feature in [
+          ...autolevel.findElements('feature'),
+          ...autolevel.findElements('feat')
+        ]) {
+          final titles = [
+            _getTag(feature, 'name'),
+            _getTag(feature, 'name_ru')
+          ];
+          final matches = titles.where((v) => v.trim().isNotEmpty).any((title) {
+            final tail = title.split(RegExp(r'[:：]')).last.trim();
+            return keys
+                    .contains(_normalizeLoose(_canonicalSubclassName(title))) ||
+                keys.contains(_normalizeLoose(_canonicalSubclassName(tail)));
+          });
+          if (!matches) continue;
+          final local = _getText(feature, suffix: locale == 'ru' ? '_ru' : '');
+          final text = local.trim().isNotEmpty ? local : _getText(feature);
+          if (text.trim().isNotEmpty) {
+            candidates.add((level: level, text: text));
+          }
+        }
+      }
+      candidates.sort((a, b) => a.level != b.level
+          ? a.level.compareTo(b.level)
+          : b.text.length.compareTo(a.text.length));
+      return candidates.firstOrNull?.text ?? '';
+    }
+
     final subclasses = subclassMap.entries.map((entry) {
       return SubclassData(
         id: entry.key,
         name: entry.value,
         description: {
-          'en': 'Subclass of $baseNameEn',
-          'ru': baseNameRu.isNotEmpty ? 'Подкласс $baseNameRu' : '',
+          'en': subclassDescription(entry.value, 'en'),
+          'ru': subclassDescription(entry.value, 'ru'),
         },
       );
     }).toList();
@@ -1986,6 +2088,16 @@ class FC5Parser {
               type: _spellcastingTypeForClass(baseNameEn),
             ),
       sourceId: sourceId,
+      rulesMetadata: {
+        'referenceAdapterVersion': 1,
+        'edition': 'unknown',
+        'declaredFields': [
+          if (hdText.isNotEmpty) 'hitDie',
+          if (spellAbility != null) 'spellcasting',
+          if (detectedSubclassLevel != null) 'subclassLevel',
+        ]
+      },
+      sourceDefinition: node.toXmlString(),
     );
   }
 
@@ -1993,8 +2105,6 @@ class FC5Parser {
     List<ClassData> parsedClasses,
     FC5ParseDiagnostics diagnostics,
   ) {
-    if (parsedClasses.length < 2) return parsedClasses;
-
     final grouped = <String, List<ClassData>>{};
     for (final classData in parsedClasses) {
       grouped.putIfAbsent(_classDataKey(classData), () => []).add(classData);
@@ -2013,6 +2123,28 @@ class FC5Parser {
       (classData) => classData.subclasses.isEmpty,
       orElse: () => group.first,
     );
+    final declaredDice =
+        group.where((c) => c.declares('hitDie')).map((c) => c.hitDie).toSet();
+    final declaredCasters = group
+        .where((c) => c.declares('spellcasting') && c.spellcasting != null)
+        .toList();
+    final casterKeys = declaredCasters
+        .map((c) => '${c.spellcasting!.type}:${c.spellcasting!.ability}')
+        .toSet();
+    if (declaredDice.length > 1 ||
+        casterKeys.length > 1 ||
+        group.any((c) =>
+            c.declares('hitDie') &&
+                seed.declares('hitDie') &&
+                c.hitDie != seed.hitDie ||
+            c.spellcasting != null &&
+                seed.spellcasting != null &&
+                (c.spellcasting!.type != seed.spellcasting!.type ||
+                    c.spellcasting!.ability != seed.spellcasting!.ability))) {
+      diagnostics.error('conflicting_class_definition',
+          'Same-name class nodes disagree about their mechanics. They cannot be silently combined.',
+          context: seed.name['en'] ?? seed.id);
+    }
     final subclasses = <SubclassData>[];
     final subclassKeys = <String>{};
 
@@ -2037,15 +2169,30 @@ class FC5Parser {
       final level = entry.key;
       final commonKeys = _commonClassFeatureKeys(entry.value);
       final target = <CharacterFeature>[];
-      final seenFeatureKeys = <String>{};
+      final seenFeatureKeys = <String, String>{};
 
       for (final feature in entry.value) {
-        final normalizedFeature =
-            commonKeys.contains(_classFeatureCommonKey(feature))
-                ? _copyFeature(feature, associatedSubclass: '')
-                : feature;
+        final normalizedFeature = commonKeys
+                .contains(_classFeatureCommonKey(feature))
+            ? _copyFeature(feature,
+                associatedSubclass: '',
+                id: feature.id.startsWith('fc5_')
+                    ? _entityId(
+                        '${feature.associatedClass} ${feature.nameEn} ${feature.minLevel}',
+                        'class_feature',
+                        seed.sourceId ?? '')
+                    : feature.id)
+            : feature;
         final key = _classFeatureAggregateKey(level, normalizedFeature);
-        if (seenFeatureKeys.add(key)) {
+        final signature =
+            CatalogDefinitionSignature.of(normalizedFeature.toJson());
+        if (!seenFeatureKeys.containsKey(key)) {
+          seenFeatureKeys[key] = signature;
+          target.add(normalizedFeature);
+        } else if (seenFeatureKeys[key] != signature) {
+          diagnostics.error('conflicting_class_feature',
+              'Same-name class features disagree. No definition was silently discarded.',
+              context: normalizedFeature.nameEn);
           target.add(normalizedFeature);
         }
       }
@@ -2067,7 +2214,7 @@ class FC5Parser {
       id: seed.id,
       name: seed.name,
       description: seed.description,
-      hitDie: seed.hitDie,
+      hitDie: declaredDice.firstOrNull ?? seed.hitDie,
       primaryAbilities: seed.primaryAbilities,
       savingThrowProficiencies: seed.savingThrowProficiencies,
       armorProficiencies: seed.armorProficiencies,
@@ -2075,9 +2222,21 @@ class FC5Parser {
       skillProficiencies: seed.skillProficiencies,
       subclasses: subclasses,
       subclassLevel: seed.subclassLevel,
-      spellcasting: seed.spellcasting,
+      spellcasting:
+          declaredCasters.firstOrNull?.spellcasting ?? seed.spellcasting,
       features: features,
       sourceId: seed.sourceId,
+      rulesMetadata: {
+        ...seed.rulesMetadata,
+        'declaredFields': group
+            .expand((c) =>
+                (c.rulesMetadata['declaredFields'] as List? ?? const [])
+                    .cast<String>())
+            .toSet()
+            .toList()
+      },
+      sourceDefinition:
+          '<compendium>${group.map((c) => c.sourceDefinition ?? '').join()}</compendium>',
     );
   }
 
@@ -2098,17 +2257,23 @@ class FC5Parser {
     List<CharacterFeature> features,
   ) {
     final subclassesByFeature = <String, Set<String>>{};
-
+    final definitionsByFeature = <String, Set<String>>{};
     for (final feature in features) {
       final subclass = feature.associatedSubclass;
       if (subclass == null || subclass.trim().isEmpty) continue;
+      final key = _classFeatureCommonKey(feature);
       subclassesByFeature
-          .putIfAbsent(_classFeatureCommonKey(feature), () => <String>{})
+          .putIfAbsent(key, () => <String>{})
           .add(_normalizeLoose(subclass));
+      definitionsByFeature.putIfAbsent(key, () => <String>{}).add(
+          CatalogDefinitionSignature.of(
+              _copyFeature(feature, associatedSubclass: '').toJson()));
     }
-
+    // Equal names in different subclasses need not describe a common ability.
     return subclassesByFeature.entries
-        .where((entry) => entry.value.length > 1)
+        .where((entry) =>
+            entry.value.length > 1 &&
+            definitionsByFeature[entry.key]!.length == 1)
         .map((entry) => entry.key)
         .toSet();
   }
@@ -2155,9 +2320,10 @@ class FC5Parser {
   static CharacterFeature _copyFeature(
     CharacterFeature feature, {
     String? associatedSubclass,
+    String? id,
   }) {
     return CharacterFeature(
-      id: feature.id,
+      id: id ?? feature.id,
       nameEn: feature.nameEn,
       nameRu: feature.nameRu,
       descriptionEn: feature.descriptionEn,
@@ -2199,6 +2365,7 @@ class FC5Parser {
     required String className,
     String? subclassName,
     required int level,
+    bool subclassOption = false,
   }) {
     final rawNameEn = _getTag(featureNode, 'name');
     if (rawNameEn.isEmpty) return null;
@@ -2220,14 +2387,16 @@ class FC5Parser {
           );
     final fNameEn = normalizedNameEn.displayName.ifEmpty(rawNameEn);
     final fNameRu = normalizedNameRu?.displayName.ifEmpty(rawNameRu) ?? fNameEn;
-    final isOptional =
-        normalizedNameEn.isOptional || (normalizedNameRu?.isOptional ?? false);
+    final isOptional = !subclassOption &&
+        (normalizedNameEn.isOptional ||
+            (normalizedNameRu?.isOptional ?? false));
 
     final fDescEn = _getText(featureNode);
     final fDescRu = _getText(featureNode, suffix: '_ru');
 
     return CharacterFeature(
-      id: _entityId('$className $fNameEn $level', 'class_feature', sourceId),
+      id: _entityId('$className ${subclassName ?? ''} $fNameEn $level',
+          'class_feature', sourceId),
       nameEn: fNameEn,
       nameRu: fNameRu.isNotEmpty ? fNameRu : fNameEn,
       descriptionEn: fDescEn,
@@ -2239,6 +2408,74 @@ class FC5Parser {
       sourceId: sourceId,
       isOptional: isOptional,
     );
+  }
+
+  /// A documented FC5 convention places the subclass before a colon in an
+  /// optional feature title. Only recognized subclass families are interpreted;
+  /// Fighting Style, Metamagic and other choice groups are not subclasses.
+  static ({String name, bool mandatory})? _classFeatureSubclass(
+      String className, XmlElement feature,
+      {Iterable<String> knownNames = const []}) {
+    final title = FC5ImportedNameNormalizer.normalizedDisplayName(
+        _getTag(feature, 'name'));
+    final label = switch (_stableId(className)) {
+      'barbarian' => 'primal path',
+      'bard' => 'bard college',
+      'cleric' => 'divine domain',
+      'druid' => 'druid circle',
+      'fighter' => 'martial archetype',
+      'monk' => 'monastic tradition',
+      'paladin' => 'sacred oath',
+      'ranger' => 'ranger archetype',
+      'rogue' => 'roguish archetype',
+      'sorcerer' => 'sorcerous origin',
+      'warlock' => 'otherworldly patron',
+      'wizard' => 'arcane tradition',
+      _ => '',
+    };
+    if (title.contains(':') &&
+        label.isNotEmpty &&
+        _normalizeLoose(title.split(':').first) == label) {
+      final name = title.substring(title.indexOf(':') + 1).trim();
+      if (name.isNotEmpty) return (name: name, mandatory: true);
+    }
+    final suffix = RegExp(r'\(([^()]*)\)$').firstMatch(title)?.group(1);
+    if (suffix != null &&
+        knownNames.any((n) => _normalizeLoose(n) == _normalizeLoose(suffix))) {
+      // A nested choice group remains optional, e.g. Fighting Style (Champion).
+      return (name: suffix, mandatory: !title.contains(':'));
+    }
+    if (_parseBool(feature.getAttribute('optional')) != true ||
+        !title.contains(':')) {
+      return null;
+    }
+    final prefix = title.split(':').first.trim().replaceFirst(
+        RegExp(r'\s+(?:Channel Divinity|Божественный канал)$',
+            caseSensitive: false),
+        '');
+    final text = _normalizeLoose(prefix);
+    final pattern = switch (_stableId(className)) {
+      'barbarian' => r'^(path of |путь )',
+      'bard' => r'^(college of |коллегия )',
+      'cleric' => r'( domain$|^домен )',
+      'druid' => r'^(circle of |круг )',
+      'fighter' =>
+        r'^(champion|battle master|eldritch knight|чемпион|мастер боевых искусств|мистический рыцарь)$',
+      'monk' => r'^(way of |путь )',
+      'paladin' => r'^(oath of |клятва )',
+      'ranger' => r'^(hunter|beast master|охотник|повелитель зверей)$',
+      'rogue' =>
+        r'^(thief|assassin|arcane trickster|вор|убийца|мистический ловкач)$',
+      'sorcerer' =>
+        r'( bloodline$| sorcery$| soul$|^драконья кровь$|^дикая магия$)',
+      'warlock' =>
+        r'^(the (archfey|fiend|great old one|celestial|hexblade|undying|undead|fathomless|genie)|бестия|архифея|великий древний)$',
+      'wizard' => r'^(school of |школа )',
+      _ => r'^$',
+    };
+    return RegExp(pattern).hasMatch(text)
+        ? (name: prefix, mandatory: true)
+        : null;
   }
 
   static BackgroundData _parseBackground(XmlElement node, String sourceId) {
@@ -2701,11 +2938,6 @@ class FC5Parser {
     );
   }
 
-  static String _classNameWithoutSubclass(String text) {
-    final index = text.indexOf('(');
-    final cleaned = index == -1 ? text : text.substring(0, index);
-    return cleaned.trim();
-  }
 
   static String _spellcastingTypeForClass(String className) {
     switch (_stableId(_canonicalClassName(className))) {

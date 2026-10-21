@@ -84,19 +84,39 @@ class Spell extends HiveObject {
   });
 
   String getName(String locale) {
-    return locale == 'ru' ? nameRu : nameEn;
+    final local = locale == 'ru' ? nameRu : nameEn;
+    return local.trim().isNotEmpty
+        ? local
+        : locale == 'ru'
+            ? nameEn
+            : nameRu;
   }
 
   String getDescription(String locale) {
-    return locale == 'ru' ? descriptionRu : descriptionEn;
+    final local = locale == 'ru' ? descriptionRu : descriptionEn;
+    return local.trim().isNotEmpty
+        ? local
+        : locale == 'ru'
+            ? descriptionEn
+            : descriptionRu;
   }
 
   String? getAtHigherLevels(String locale) {
-    return locale == 'ru' ? atHigherLevelsRu : atHigherLevelsEn;
+    final local = locale == 'ru' ? atHigherLevelsRu : atHigherLevelsEn;
+    return local != null && local.trim().isNotEmpty
+        ? local
+        : locale == 'ru'
+            ? atHigherLevelsEn
+            : atHigherLevelsRu;
   }
 
   String? getMaterialComponents(String locale) {
-    return locale == 'ru' ? materialComponentsRu : materialComponents;
+    final local = locale == 'ru' ? materialComponentsRu : materialComponents;
+    return local != null && local.trim().isNotEmpty
+        ? local
+        : locale == 'ru'
+            ? materialComponents
+            : materialComponentsRu;
   }
 
   String get levelText {

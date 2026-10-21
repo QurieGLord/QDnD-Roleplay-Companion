@@ -17,6 +17,8 @@ import '../models/compendium_source.dart';
 import '../models/race_data.dart';
 import '../models/class_data.dart';
 import '../models/background_data.dart';
+import 'catalog_install_journal.dart';
+import 'catalog_mutation_queue.dart';
 
 class StorageService {
   static const String _characterBoxName = 'characters';
@@ -40,56 +42,98 @@ class StorageService {
   static late Box<BackgroundData> _backgroundsBox;
   static late Box<CharacterFeature> _featsBox;
 
+  static void _registerAdapter<T>(TypeAdapter<T> adapter) {
+    if (!Hive.isAdapterRegistered(adapter.typeId)) {
+      Hive.registerAdapter<T>(adapter);
+    }
+  }
+
+  static CatalogInstallJournal get _installJournal => CatalogInstallJournal(
+      _settingsBox,
+      {
+        'items': _itemsBox,
+        'spells': _spellsBox,
+        'races': _racesBox,
+        'classes': _classesBox,
+        'backgrounds': _backgroundsBox,
+        'feats': _featsBox,
+        'settings': _settingsBox,
+        'sources': _sourcesBox,
+      },
+      writeBatch: _writeCatalogBatch);
+  static Future<void> _writeCatalogBatch(
+          String name, Map<String, dynamic> values) =>
+      switch (name) {
+        'items' => _itemsBox.putAll(values.cast<String, Item>()),
+        'spells' => _spellsBox.putAll(values.cast<String, Spell>()),
+        'races' => _racesBox.putAll(values.cast<String, RaceData>()),
+        'classes' => _classesBox.putAll(values.cast<String, ClassData>()),
+        'backgrounds' =>
+          _backgroundsBox.putAll(values.cast<String, BackgroundData>()),
+        'feats' => _featsBox.putAll(values.cast<String, CharacterFeature>()),
+        'sources' =>
+          _sourcesBox.putAll(values.cast<String, CompendiumSource>()),
+        'settings' => _settingsBox.putAll(values),
+        _ => throw StateError('Unknown catalog box.'),
+      };
+  static bool _visibleSource(String? sourceId) {
+    if (sourceId == null) return true;
+    final pending = _settingsBox.get(CatalogInstallJournal.key);
+    return pending is! Map ||
+        pending['state'] == 'committed' ||
+        pending['sourceId'] != sourceId;
+  }
+
   static Future<void> init() async {
     await Hive.initFlutter();
 
     // Register adapters
-    Hive.registerAdapter(CharacterAdapter());
-    Hive.registerAdapter(CharacterClassAdapter());
-    Hive.registerAdapter(AbilityScoresAdapter());
-    Hive.registerAdapter(SpellAdapter());
-    Hive.registerAdapter(CharacterSpellAdapter());
-    Hive.registerAdapter(CharacterFeatureAdapter());
-    Hive.registerAdapter(ResourcePoolAdapter());
-    Hive.registerAdapter(FeatureTypeAdapter());
-    Hive.registerAdapter(RecoveryTypeAdapter());
-    Hive.registerAdapter(FeatureConsumptionAdapter());
+    _registerAdapter(CharacterAdapter());
+    _registerAdapter(CharacterClassAdapter());
+    _registerAdapter(AbilityScoresAdapter());
+    _registerAdapter(SpellAdapter());
+    _registerAdapter(CharacterSpellAdapter());
+    _registerAdapter(CharacterFeatureAdapter());
+    _registerAdapter(ResourcePoolAdapter());
+    _registerAdapter(FeatureTypeAdapter());
+    _registerAdapter(RecoveryTypeAdapter());
+    _registerAdapter(FeatureConsumptionAdapter());
 
     // Register Item adapters
-    Hive.registerAdapter(ItemAdapter());
-    Hive.registerAdapter(ItemTypeAdapter());
-    Hive.registerAdapter(ItemRarityAdapter());
-    Hive.registerAdapter(WeaponPropertiesAdapter());
-    Hive.registerAdapter(DamageTypeAdapter());
-    Hive.registerAdapter(ArmorPropertiesAdapter());
-    Hive.registerAdapter(ArmorTypeAdapter());
+    _registerAdapter(ItemAdapter());
+    _registerAdapter(ItemTypeAdapter());
+    _registerAdapter(ItemRarityAdapter());
+    _registerAdapter(WeaponPropertiesAdapter());
+    _registerAdapter(DamageTypeAdapter());
+    _registerAdapter(ArmorPropertiesAdapter());
+    _registerAdapter(ArmorTypeAdapter());
 
     // Register Compendium adapters
-    Hive.registerAdapter(CompendiumSourceAdapter());
-    Hive.registerAdapter(RaceDataAdapter());
-    Hive.registerAdapter(SubraceDataAdapter());
-    Hive.registerAdapter(ClassDataAdapter());
-    Hive.registerAdapter(SubclassDataAdapter());
-    Hive.registerAdapter(ArmorProficienciesAdapter());
-    Hive.registerAdapter(WeaponProficienciesAdapter());
-    Hive.registerAdapter(SkillProficienciesAdapter());
-    Hive.registerAdapter(SpellcastingInfoAdapter());
-    Hive.registerAdapter(BackgroundDataAdapter());
-    Hive.registerAdapter(BackgroundFeatureAdapter());
+    _registerAdapter(CompendiumSourceAdapter());
+    _registerAdapter(RaceDataAdapter());
+    _registerAdapter(SubraceDataAdapter());
+    _registerAdapter(ClassDataAdapter());
+    _registerAdapter(SubclassDataAdapter());
+    _registerAdapter(ArmorProficienciesAdapter());
+    _registerAdapter(WeaponProficienciesAdapter());
+    _registerAdapter(SkillProficienciesAdapter());
+    _registerAdapter(SpellcastingInfoAdapter());
+    _registerAdapter(BackgroundDataAdapter());
+    _registerAdapter(BackgroundFeatureAdapter());
 
     // Register Combat adapters
-    Hive.registerAdapter(CombatStateAdapter());
-    Hive.registerAdapter(CombatLogEntryAdapter());
-    Hive.registerAdapter(CombatLogTypeAdapter());
-    Hive.registerAdapter(DeathSavesAdapter());
-    Hive.registerAdapter(ConditionTypeAdapter());
+    _registerAdapter(CombatStateAdapter());
+    _registerAdapter(CombatLogEntryAdapter());
+    _registerAdapter(CombatLogTypeAdapter());
+    _registerAdapter(DeathSavesAdapter());
+    _registerAdapter(ConditionTypeAdapter());
 
     // Register Journal adapters
-    Hive.registerAdapter(JournalNoteAdapter());
-    Hive.registerAdapter(NoteCategoryAdapter());
-    Hive.registerAdapter(QuestAdapter());
-    Hive.registerAdapter(QuestObjectiveAdapter());
-    Hive.registerAdapter(QuestStatusAdapter());
+    _registerAdapter(JournalNoteAdapter());
+    _registerAdapter(NoteCategoryAdapter());
+    _registerAdapter(QuestAdapter());
+    _registerAdapter(QuestObjectiveAdapter());
+    _registerAdapter(QuestStatusAdapter());
 
     // Open boxes
     _characterBox = await Hive.openBox<Character>(_characterBoxName);
@@ -101,6 +145,7 @@ class StorageService {
     _classesBox = await Hive.openBox<ClassData>(_classesBoxName);
     _backgroundsBox = await Hive.openBox<BackgroundData>(_backgroundsBoxName);
     _featsBox = await Hive.openBox<CharacterFeature>(_featsBoxName);
+    await _installJournal.recover();
   }
 
   // Character CRUD operations
@@ -132,7 +177,9 @@ class StorageService {
   }
 
   static List<Item> getAllItems() {
-    return _itemsBox.values.toList();
+    return _itemsBox.values
+        .where((item) => _visibleSource(item.sourceId))
+        .toList();
   }
 
   static Future<void> saveSpells(List<Spell> spells) async {
@@ -143,7 +190,9 @@ class StorageService {
   }
 
   static List<Spell> getAllSpells() {
-    return _spellsBox.values.toList();
+    return _spellsBox.values
+        .where((spell) => _visibleSource(spell.sourceId))
+        .toList();
   }
 
   static Future<void> saveRaces(List<RaceData> races) async {
@@ -154,7 +203,9 @@ class StorageService {
   }
 
   static List<RaceData> getAllRaces() {
-    return _racesBox.values.toList();
+    return _racesBox.values
+        .where((race) => _visibleSource(race.sourceId))
+        .toList();
   }
 
   static Future<void> saveClasses(List<ClassData> classes) async {
@@ -165,7 +216,7 @@ class StorageService {
   }
 
   static List<ClassData> getAllClasses() {
-    return _classesBox.values.toList();
+    return _classesBox.values.where((c) => _visibleSource(c.sourceId)).toList();
   }
 
   static Future<void> saveBackgrounds(List<BackgroundData> backgrounds) async {
@@ -176,7 +227,9 @@ class StorageService {
   }
 
   static List<BackgroundData> getAllBackgrounds() {
-    return _backgroundsBox.values.toList();
+    return _backgroundsBox.values
+        .where((b) => _visibleSource(b.sourceId))
+        .toList();
   }
 
   static Future<void> saveFeats(List<CharacterFeature> feats) async {
@@ -187,7 +240,7 @@ class StorageService {
   }
 
   static List<CharacterFeature> getAllFeats() {
-    return _featsBox.values.toList();
+    return _featsBox.values.where((f) => _visibleSource(f.sourceId)).toList();
   }
 
   // Compendium Source Management
@@ -196,7 +249,9 @@ class StorageService {
   }
 
   static List<CompendiumSource> getAllSources() {
-    return _sourcesBox.values.toList();
+    return _sourcesBox.values
+        .where((source) => _visibleSource(source.id))
+        .toList();
   }
 
   static Stream<BoxEvent> watchSources() {
@@ -207,7 +262,76 @@ class StorageService {
     return _sourcesBox.listenable();
   }
 
-  static Future<void> deleteSource(String sourceId) async {
+  static Future<void> installSource(
+          {required CompendiumSource source,
+          required String fingerprint,
+          List<Item> items = const [],
+          List<Spell> spells = const [],
+          List<RaceData> races = const [],
+          List<ClassData> classes = const [],
+          List<BackgroundData> backgrounds = const [],
+          List<CharacterFeature> feats = const [],
+          Future<void> Function(String)? afterWrite}) =>
+      CatalogMutationQueue.run(() async {
+        await _installJournal.recover();
+        final previousSource = getSourceIdForFingerprint(fingerprint);
+        if (previousSource != null && _sourcesBox.containsKey(previousSource)) {
+          throw StateError('This source content is already installed.');
+        }
+        void validate<T>(
+            List<T> values, String Function(T) id, String? Function(T) owner) {
+          final ids = <String>{};
+          for (final value in values) {
+            if (owner(value) != source.id ||
+                id(value).trim().isEmpty ||
+                !ids.add(id(value))) {
+              throw ArgumentError(
+                  'Every source definition needs a unique ID and matching source ownership.');
+            }
+          }
+        }
+
+        validate(items, (v) => v.id, (v) => v.sourceId);
+        validate(spells, (v) => v.id, (v) => v.sourceId);
+        validate(races, (v) => v.id, (v) => v.sourceId);
+        validate(classes, (v) => v.id, (v) => v.sourceId);
+        validate(backgrounds, (v) => v.id, (v) => v.sourceId);
+        validate(feats, (v) => v.id, (v) => v.sourceId);
+        if (_sourcesBox.containsKey(source.id)) {
+          throw StateError('An existing source needs an explicit update.');
+        }
+        final writes = <String, Map<String, dynamic>>{
+          if (items.isNotEmpty)
+            'items': {for (final item in items) item.id: item},
+          if (spells.isNotEmpty)
+            'spells': {for (final spell in spells) spell.id: spell},
+          if (races.isNotEmpty)
+            'races': {for (final race in races) race.id: race},
+          if (classes.isNotEmpty) 'classes': {for (final c in classes) c.id: c},
+          if (backgrounds.isNotEmpty)
+            'backgrounds': {for (final b in backgrounds) b.id: b},
+          if (feats.isNotEmpty) 'feats': {for (final f in feats) f.id: f},
+          'settings': {'$_fc5SourceFingerprintPrefix$fingerprint': source.id},
+          'sources': {source.id: source},
+        };
+        final boxes = _installJournal.boxes;
+        for (final write in writes.entries
+            .where((e) => e.key != 'settings' && e.key != 'sources')) {
+          if (write.value.keys.any(boxes[write.key]!.containsKey)) {
+            throw StateError(
+                'Source entity ID collides with installed content. An explicit update is required.');
+          }
+        }
+        await _installJournal.install(source.id, writes,
+            afterWrite: afterWrite);
+      });
+
+  static Future<void> deleteSource(String sourceId) =>
+      CatalogMutationQueue.run(() async {
+        await _installJournal.recover();
+        await _deleteSource(sourceId);
+      });
+  static Future<void> _deleteSource(String sourceId) async {
     await deleteSourceFingerprintsForSource(sourceId);
 
     // 1. Delete source record

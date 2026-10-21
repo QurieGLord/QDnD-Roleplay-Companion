@@ -1,3 +1,8 @@
+import '../progression/advancement_history.dart';
+import '../magic/magic_slots.dart';
+import 'dart:convert';
+import '../progression/character_class_rules.dart';
+import '../magic/spellbook_state.dart';
 import '../models/ability_scores.dart';
 import '../models/background_data.dart';
 import '../models/character.dart';
@@ -15,7 +20,26 @@ import '../models/spell.dart';
 import 'qdnd_bundle_schema.dart';
 
 class QdndBundleCodec {
-  static Map<String, dynamic> characterToJson(Character character) {
+  /// Local copies retain installed content; export policies only govern bundles.
+  static Character cloneCharacter(Character character) {
+    final json = characterToJson(character);
+    json['features'] = character.features.map((f) => f.toJson()).toList();
+    json['inventory'] = character.inventory.map((i) => i.toJson()).toList();
+    final clone = characterFromJson(json);
+    // Bundle decoding pads old slot arrays and migrates class levels. A local
+    // draft/copy must preserve their exact shape and existing values instead.
+    clone.spellSlots = List<int>.from(character.spellSlots);
+    clone.maxSpellSlots = List<int>.from(character.maxSpellSlots);
+    clone.classes = character.classes
+        .map((c) => CharacterClass.fromJson(c.toJson()))
+        .toList();
+    return clone;
+  }
+
+  static Map<String, dynamic> characterToJson(
+    Character character, {
+    bool exportRules = false,
+  }) {
     return {
       'id': character.id,
       'name': character.name,
@@ -32,11 +56,14 @@ class QdndBundleCodec {
       'spellSlots': List<int>.from(character.spellSlots),
       'maxSpellSlots': List<int>.from(character.maxSpellSlots),
       'armorClass': character.armorClass,
+      'armorClassOverride': character.armorClassOverride,
+      'usesAutomaticArmorClass': character.usesAutomaticArmorClass,
       'speed': character.speed,
       'initiative': character.initiative,
       'proficientSkills': List<String>.from(character.proficientSkills),
-      'savingThrowProficiencies':
-          List<String>.from(character.savingThrowProficiencies),
+      'savingThrowProficiencies': List<String>.from(
+        character.savingThrowProficiencies,
+      ),
       'personalityTraits': character.personalityTraits,
       'ideals': character.ideals,
       'bonds': character.bonds,
@@ -45,24 +72,35 @@ class QdndBundleCodec {
       'createdAt': character.createdAt.toIso8601String(),
       'updatedAt': character.updatedAt.toIso8601String(),
       'appearance': character.appearance,
+      'spellbookData': character.spellbookData.isEmpty
+          ? <String, dynamic>{}
+          : SpellbookState.read(character.spellbookData).toJson(),
+      'magicData': jsonDecode(jsonEncode(character.magicData)),
+      'advancementData': exportRules
+          ? AdvancementHistory.forExport(character)
+          : jsonDecode(jsonEncode(character.advancementData)),
       'knownSpells': List<String>.from(character.knownSpells),
       'preparedSpells': List<String>.from(character.preparedSpells),
       'maxPreparedSpells': character.maxPreparedSpells,
       'features': character.features
-          .map((feature) => featureToJson(
-                feature,
-                policy: feature.sourceId == null
-                    ? QdndBundleExportPolicy.snapshotOnly
-                    : QdndBundleExportPolicy.referenceOnly,
-              ))
+          .map(
+            (feature) => featureToJson(
+              feature,
+              policy: feature.sourceId == null
+                  ? QdndBundleExportPolicy.snapshotOnly
+                  : QdndBundleExportPolicy.referenceOnly,
+            ),
+          )
           .toList(),
       'inventory': character.inventory
-          .map((item) => itemToJson(
-                item,
-                policy: item.sourceId == null
-                    ? QdndBundleExportPolicy.snapshotOnly
-                    : QdndBundleExportPolicy.referenceOnly,
-              ))
+          .map(
+            (item) => itemToJson(
+              item,
+              policy: item.sourceId == null
+                  ? QdndBundleExportPolicy.snapshotOnly
+                  : QdndBundleExportPolicy.referenceOnly,
+            ),
+          )
           .toList(),
       'combatState': character.combatState.toJson(),
       'deathSaves': character.deathSaves.toJson(),
@@ -87,7 +125,16 @@ class QdndBundleCodec {
       'journalNotes':
           character.journalNotes.map((note) => note.toJson()).toList(),
       'quests': character.quests.map((quest) => quest.toJson()).toList(),
-      'classes': character.classes.map((cls) => cls.toJson()).toList(),
+      'journalData': character.journalData,
+      'classes': character.classes.map((cls) {
+        final value = cls.toJson();
+        if (exportRules && cls.rulesSnapshot != null) {
+          value['rulesSnapshot'] = CharacterClassRules.fromSnapshot(
+            cls.rulesSnapshot!,
+          ).forExport();
+        }
+        return value;
+      }).toList(),
       'expertSkills': List<String>.from(character.expertSkills),
       'wildShapeCharges': character.wildShapeCharges,
       'naturalRecoveryUsed': character.naturalRecoveryUsed,
@@ -111,6 +158,10 @@ class QdndBundleCodec {
       'isHiddenInPlainSight': character.isHiddenInPlainSight,
       'relentlessRageSaveDc': character.relentlessRageSaveDc,
       'isRaging': character.isRaging,
+      'isFrenzied': character.isFrenzied,
+      'isReckless': character.isReckless,
+      'isHidden': character.isHidden,
+      'isSacredWeaponActive': character.isSacredWeaponActive,
       'exhaustionLevel': character.exhaustionLevel,
     };
   }
@@ -119,7 +170,7 @@ class QdndBundleCodec {
     final characterJson = _map(json['character']) ?? json;
     final level = _int(characterJson['level'], fallback: 1);
 
-    return Character(
+    final character = Character(
       id: characterJson['id'] as String? ?? '',
       name: characterJson['name'] as String? ?? 'Imported Character',
       avatarPath: characterJson['avatarPath'] as String?,
@@ -134,14 +185,29 @@ class QdndBundleCodec {
         _map(characterJson['abilityScores']) ?? const {},
       ),
       background: characterJson['background'] as String?,
-      spellSlots: _intList(characterJson['spellSlots'], minLength: 9),
-      maxSpellSlots: _intList(characterJson['maxSpellSlots'], minLength: 9),
+      spellSlots: _intList(characterJson['spellSlots'],
+          minLength: (_map(characterJson['magicData']) ?? {}).isEmpty ? 9 : 0),
+      maxSpellSlots: _intList(characterJson['maxSpellSlots'],
+          minLength: (_map(characterJson['magicData']) ?? {}).isEmpty ? 9 : 0),
       armorClass: _int(characterJson['armorClass'], fallback: 10),
+      armorClassOverride: characterJson.containsKey('armorClassOverride')
+          ? characterJson['armorClassOverride'] as int?
+          : _int(characterJson['armorClass'], fallback: 10),
+      usesAutomaticArmorClass:
+          characterJson.containsKey('usesAutomaticArmorClass')
+              ? characterJson['usesAutomaticArmorClass'] == true
+              : characterJson.containsKey('armorClassOverride') &&
+                  characterJson['armorClassOverride'] == null,
+      isFrenzied: characterJson['isFrenzied'] == true,
+      isReckless: characterJson['isReckless'] == true,
+      isHidden: characterJson['isHidden'] == true,
+      isSacredWeaponActive: characterJson['isSacredWeaponActive'] == true,
       speed: _int(characterJson['speed'], fallback: 30),
       initiative: _int(characterJson['initiative']),
       proficientSkills: _stringList(characterJson['proficientSkills']),
-      savingThrowProficiencies:
-          _stringList(characterJson['savingThrowProficiencies']),
+      savingThrowProficiencies: _stringList(
+        characterJson['savingThrowProficiencies'],
+      ),
       personalityTraits: characterJson['personalityTraits'] as String?,
       ideals: characterJson['ideals'] as String?,
       bonds: characterJson['bonds'] as String?,
@@ -150,6 +216,11 @@ class QdndBundleCodec {
       createdAt: _date(characterJson['createdAt']),
       updatedAt: _date(characterJson['updatedAt']),
       appearance: characterJson['appearance'] as String?,
+      spellbookData: (_map(characterJson['spellbookData']) ?? {}).isEmpty
+          ? {}
+          : SpellbookState.read(_map(characterJson['spellbookData'])!).toJson(),
+      magicData: _map(characterJson['magicData']) ?? {},
+      advancementData: _map(characterJson['advancementData']) ?? {},
       knownSpells: _stringList(characterJson['knownSpells']),
       preparedSpells: _stringList(characterJson['preparedSpells']),
       maxPreparedSpells: _int(characterJson['maxPreparedSpells']),
@@ -187,11 +258,14 @@ class QdndBundleCodec {
           .map(JournalNote.fromJson)
           .toList(),
       quests: _mapList(characterJson['quests']).map(Quest.fromJson).toList(),
+      journalData: _map(characterJson['journalData']) ?? {},
       classes: _mapList(characterJson['classes'])
           .map(CharacterClass.fromJson)
           .toList(),
       expertSkills: _stringList(characterJson['expertSkills']),
-      wildShapeCharges: _int(characterJson['wildShapeCharges'], fallback: 2),
+      wildShapeCharges: characterJson.containsKey('wildShapeCharges')
+          ? _int(characterJson['wildShapeCharges'])
+          : null,
       naturalRecoveryUsed: characterJson['naturalRecoveryUsed'] == true,
       isWildShaped: characterJson['isWildShaped'] == true,
       arcaneRecoveryUsed: characterJson['arcaneRecoveryUsed'] == true,
@@ -218,6 +292,8 @@ class QdndBundleCodec {
       isRaging: characterJson['isRaging'] == true,
       exhaustionLevel: _int(characterJson['exhaustionLevel']),
     );
+    if (character.magicData.isNotEmpty) MagicSlots.read(character);
+    return character;
   }
 
   static Map<String, dynamic> itemToJson(
@@ -291,11 +367,13 @@ class QdndBundleCodec {
     return RaceData(
       id: json['id'] as String? ?? '',
       name: Map<String, String>.from(_map(json['name']) ?? const {}),
-      description:
-          Map<String, String>.from(_map(json['description']) ?? const {}),
+      description: Map<String, String>.from(
+        _map(json['description']) ?? const {},
+      ),
       speed: _int(json['speed'], fallback: 30),
       abilityScoreIncreases: Map<String, int>.from(
-          _map(json['abilityScoreIncreases']) ?? const {}),
+        _map(json['abilityScoreIncreases']) ?? const {},
+      ),
       languages: _stringList(json['languages']),
       proficiencies: _stringList(json['proficiencies']),
       traits: _mapList(json['traits']).map(CharacterFeature.fromJson).toList(),
@@ -319,7 +397,8 @@ class QdndBundleCodec {
       id: json['id'] as String? ?? '',
       name: Map<String, String>.from(_map(json['name']) ?? const {}),
       additionalAbilityScores: Map<String, int>.from(
-          _map(json['additionalAbilityScores']) ?? const {}),
+        _map(json['additionalAbilityScores']) ?? const {},
+      ),
       additionalTraits: _mapList(json['additionalTraits'])
           .map(CharacterFeature.fromJson)
           .toList(),
@@ -332,6 +411,9 @@ class QdndBundleCodec {
   }) {
     return {
       'exportPolicy': policy.name,
+      'rulesMetadata': classData.rulesMetadata,
+      if (policy != QdndBundleExportPolicy.referenceOnly)
+        'sourceDefinition': classData.sourceDefinition,
       'id': classData.id,
       'name': classData.name,
       'description': policy == QdndBundleExportPolicy.referenceOnly
@@ -355,10 +437,8 @@ class QdndBundleCodec {
           ? null
           : spellcastingToJson(classData.spellcasting!),
       'features': classData.features.map(
-        (level, features) => MapEntry(
-          '$level',
-          features.map(featureToJson).toList(),
-        ),
+        (level, features) =>
+            MapEntry('$level', features.map(featureToJson).toList()),
       ),
       'sourceId': classData.sourceId,
     };
@@ -368,8 +448,9 @@ class QdndBundleCodec {
     return ClassData(
       id: json['id'] as String? ?? '',
       name: Map<String, String>.from(_map(json['name']) ?? const {}),
-      description:
-          Map<String, String>.from(_map(json['description']) ?? const {}),
+      description: Map<String, String>.from(
+        _map(json['description']) ?? const {},
+      ),
       hitDie: _int(json['hitDie'], fallback: 8),
       primaryAbilities: _stringList(json['primaryAbilities']),
       savingThrowProficiencies: _stringList(json['savingThrowProficiencies']),
@@ -390,6 +471,10 @@ class QdndBundleCodec {
           : SpellcastingInfo.fromJson(_map(json['spellcasting'])!),
       features: _classFeaturesFromJson(_map(json['features']) ?? const {}),
       sourceId: json['sourceId'] as String?,
+      rulesMetadata: Map<String, dynamic>.from(
+        _map(json['rulesMetadata']) ?? const {},
+      ),
+      sourceDefinition: json['sourceDefinition'] as String?,
     );
   }
 
@@ -417,8 +502,9 @@ class QdndBundleCodec {
     return BackgroundData(
       id: json['id'] as String? ?? '',
       name: Map<String, String>.from(_map(json['name']) ?? const {}),
-      description:
-          Map<String, String>.from(_map(json['description']) ?? const {}),
+      description: Map<String, String>.from(
+        _map(json['description']) ?? const {},
+      ),
       skillProficiencies: _stringList(json['skillProficiencies']),
       toolProficiencies: _stringListMap(json['toolProficiencies']),
       languages: _int(json['languages']),
@@ -470,10 +556,7 @@ class QdndBundleCodec {
   static Map<String, dynamic> skillProficienciesToJson(
     SkillProficiencies proficiencies,
   ) {
-    return {
-      'choose': proficiencies.choose,
-      'from': proficiencies.from,
-    };
+    return {'choose': proficiencies.choose, 'from': proficiencies.from};
   }
 
   static Map<String, dynamic> subclassToJson(SubclassData subclass) {
@@ -487,10 +570,7 @@ class QdndBundleCodec {
   static Map<String, dynamic> spellcastingToJson(
     SpellcastingInfo spellcasting,
   ) {
-    return {
-      'ability': spellcasting.ability,
-      'type': spellcasting.type,
-    };
+    return {'ability': spellcasting.ability, 'type': spellcasting.type};
   }
 
   static Map<int, List<CharacterFeature>> _classFeaturesFromJson(

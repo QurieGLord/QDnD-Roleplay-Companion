@@ -1,3 +1,4 @@
+import '../../../core/ui/app_menu_style.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
@@ -153,6 +154,9 @@ class _NoteEditorDialogState extends State<NoteEditorDialog> {
 
               // Category Dropdown
               DropdownButtonFormField<NoteCategory>(
+                borderRadius: AppMenuStyle.radius,
+                dropdownColor: AppMenuStyle.background(context),
+                elevation: 4,
                 initialValue: _selectedCategory,
                 decoration: InputDecoration(
                   labelText: locale == 'ru' ? 'Категория' : 'Category',

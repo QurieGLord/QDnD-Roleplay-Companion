@@ -68,10 +68,22 @@ class CharacterAdapter extends TypeAdapter<Character> {
       goldPieces: fields[48] as int,
       platinumPieces: fields[49] as int,
       journalNotes: (fields[50] as List?)?.cast<JournalNote>(),
+      advancementData: fields[84] == null
+          ? {}
+          : Map<String, dynamic>.from(fields[84] as Map),
+      magicData: fields[83] == null
+          ? {}
+          : Map<String, dynamic>.from(fields[83] as Map),
+      spellbookData: fields[82] == null
+          ? {}
+          : Map<String, dynamic>.from(fields[82] as Map),
+      journalData: fields[81] == null
+          ? {}
+          : Map<String, dynamic>.from(fields[81] as Map),
       quests: (fields[51] as List?)?.cast<Quest>(),
       classes: (fields[52] as List?)?.cast<CharacterClass>(),
       expertSkills: (fields[53] as List?)?.cast<String>(),
-      wildShapeCharges: fields[54] == null ? 2 : fields[54] as int,
+      wildShapeCharges: fields[54] as int?,
       naturalRecoveryUsed: fields[55] == null ? false : fields[55] as bool,
       isWildShaped: fields[56] == null ? false : fields[56] as bool,
       arcaneRecoveryUsed: fields[57] == null ? false : fields[57] as bool,
@@ -96,13 +108,19 @@ class CharacterAdapter extends TypeAdapter<Character> {
       isHiddenInPlainSight: fields[71] == null ? false : fields[71] as bool,
       relentlessRageSaveDc: fields[73] == null ? 10 : fields[73] as int,
       isRaging: fields[74] == null ? false : fields[74] as bool,
+      armorClassOverride: fields[75] as int?,
+      isFrenzied: fields[76] == null ? false : fields[76] as bool,
+      usesAutomaticArmorClass: fields[77] == null ? false : fields[77] as bool,
+      isReckless: fields[78] == null ? false : fields[78] as bool,
+      isHidden: fields[79] == null ? false : fields[79] as bool,
+      isSacredWeaponActive: fields[80] == null ? false : fields[80] as bool,
     ).._exhaustionLevel = fields[72] == null ? 0 : fields[72] as int;
   }
 
   @override
   void write(BinaryWriter writer, Character obj) {
     writer
-      ..writeByte(75)
+      ..writeByte(85)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -131,8 +149,6 @@ class CharacterAdapter extends TypeAdapter<Character> {
       ..write(obj.spellSlots)
       ..writeByte(13)
       ..write(obj.maxSpellSlots)
-      ..writeByte(14)
-      ..write(obj.armorClass)
       ..writeByte(15)
       ..write(obj.speed)
       ..writeByte(16)
@@ -251,8 +267,30 @@ class CharacterAdapter extends TypeAdapter<Character> {
       ..write(obj.relentlessRageSaveDc)
       ..writeByte(74)
       ..write(obj.isRaging)
+      ..writeByte(75)
+      ..write(obj.armorClassOverride)
+      ..writeByte(76)
+      ..write(obj.isFrenzied)
+      ..writeByte(77)
+      ..write(obj.usesAutomaticArmorClass)
+      ..writeByte(78)
+      ..write(obj.isReckless)
+      ..writeByte(79)
+      ..write(obj.isHidden)
+      ..writeByte(80)
+      ..write(obj.isSacredWeaponActive)
       ..writeByte(72)
-      ..write(obj._exhaustionLevel);
+      ..write(obj._exhaustionLevel)
+      ..writeByte(14)
+      ..write(obj.armorClass)
+      ..writeByte(81)
+      ..write(obj.journalData)
+      ..writeByte(82)
+      ..write(obj.spellbookData)
+      ..writeByte(83)
+      ..write(obj.magicData)
+      ..writeByte(84)
+      ..write(obj.advancementData);
   }
 
   @override

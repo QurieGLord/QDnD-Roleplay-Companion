@@ -63,7 +63,18 @@
         "description": {
           "en": "Beginning at 1st level, while you are wearing no armor and not wielding a shield, your AC equals 10 + your Dexterity modifier + your Wisdom modifier.",
           "ru": "Начиная с 1-го уровня, если вы не носите ни доспехов, ни щита, ваш КД равен 10 + ваш модификатор Ловкости + ваш модификатор Мудрости."
-        }
+        },
+        "minLevel": 1,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "shield",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "martial-arts",
@@ -74,7 +85,18 @@
         "description": {
           "en": "At 1st level, your practice of martial arts gives you mastery of combat styles that use unarmed strikes and monk weapons, which are shortswords and any simple melee weapons that don't have the two- handed or heavy property.\nYou gain the following benefits while you are unarmed or wielding only monk weapons and you aren't wearing armor or wielding a shield:\n- You can use Dexterity instead of Strength for the attack and damage rolls of your unarmed strikes and monk weapons.\n- You can roll a d4 in place of the normal damage of your unarmed strike or monk weapon. This die changes as you gain monk levels, as shown in the Martial Arts column of Table: The Monk.\n- When you use the Attack action with an unarmed strike or a monk weapon on your turn, you can make one unarmed strike as a bonus action. For example, if you take the Attack action and attack with a quarterstaff, you can also make an unarmed strike as a bonus action, assuming you haven't already taken a bonus action this turn.\nCertain monasteries use specialized forms of the monk weapons. For example, you might use a club that is two lengths of wood connected by a short chain (called a nunchaku) or a sickle with a shorter, straighter blade (called a kama). Whatever name you use for a monk weapon, you can use the game statistics provided for the weapon.",
           "ru": "На 1-м уровне ваше знание боевых искусств дает вам мастерство боевых стилей, использующих безоружные удары и монашеское оружие."
-        }
+        },
+        "minLevel": 1,
+        "associatedClass": "monk",
+        "type": "bonus_action",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": "bonus_action",
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "2": [
@@ -87,7 +109,23 @@
         "description": {
           "en": "Starting at 2nd level, your training allows you to harness the mystic energy of ki. Your access to this energy is represented by a number of ki points. Your monk level determines the number of points you have, as shown in the Ki Points column of Table: The Monk.\nYou can spend these points to fuel various ki features. You start knowing three such features: Flurry of Blows, Patient Defense, and Step of the Wind. You learn more ki features as you gain levels in this class.\nWhen you spend a ki point, it is unavailable until you finish a short or long rest, at the end of which you draw all of your expended ki back into yourself. You must spend at least 30 minutes of the rest meditating to regain your ki points.\nSome of your ki features require your target to make a saving throw to resist the feature's effects. The saving throw DC is calculated as follows:\nKi save DC = 8 + your proficiency bonus + your Wisdom modifier",
           "ru": "Начиная со 2-го уровня, ваше обучение позволяет вам использовать мистическую энергию ци."
-        }
+        },
+        "minLevel": 2,
+        "associatedClass": "monk",
+        "type": "resource_pool",
+        "associatedSubclass": null,
+        "resourcePool": {
+          "currentUses": 1,
+          "maxUses": 1,
+          "recoveryType": "shortRest",
+          "calculationFormula": "level"
+        },
+        "requiresRest": true,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "flurry-of-blows",
@@ -98,7 +136,18 @@
         "description": {
           "en": "Immediately after you take the Attack action on your turn, you can spend 1 ki point to make two unarmed strikes as a bonus action.",
           "ru": "Сразу после того как вы совершаете действие Атака, вы можете потратить 1 очко ци, чтобы совершить два безоружных удара бонусным действием."
-        }
+        },
+        "minLevel": 2,
+        "associatedClass": "monk",
+        "type": "bonus_action",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": "bonus_action",
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": "ki",
+        "usageInputMode": null
       },
       {
         "id": "patient-defense",
@@ -109,7 +158,18 @@
         "description": {
           "en": "You can spend 1 ki point to take the Dodge action as a bonus action on your turn.",
           "ru": "Вы можете потратить 1 очко ци, чтобы совершить действие Уклонение бонусным действием."
-        }
+        },
+        "minLevel": 2,
+        "associatedClass": "monk",
+        "type": "bonus_action",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": "bonus_action",
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": "ki",
+        "usageInputMode": null
       },
       {
         "id": "step-of-the-wind",
@@ -120,7 +180,18 @@
         "description": {
           "en": "You can spend 1 ki point to take the Disengage or Dash action as a bonus action on your turn, and your jump distance is doubled for the turn.",
           "ru": "Вы можете потратить 1 очко ци, чтобы совершить действие Отход или Рывок бонусным действием, и дальность ваших прыжков удваивается."
-        }
+        },
+        "minLevel": 2,
+        "associatedClass": "monk",
+        "type": "bonus_action",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": "bonus_action",
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": "ki",
+        "usageInputMode": null
       },
       {
         "id": "unarmored-movement-1",
@@ -131,7 +202,18 @@
         "description": {
           "en": "Starting at 2nd level, your speed increases by 10 feet while you are not wearing armor or wielding a shield. This bonus increases when you reach certain monk levels, as shown in Table: The Monk.\nAt 9th level, you gain the ability to move along vertical surfaces and across liquids on your turn without falling during the move.",
           "ru": "Ваша скорость увеличивается, пока вы не носите доспехов."
-        }
+        },
+        "minLevel": 2,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "3": [
@@ -144,7 +226,18 @@
         "description": {
           "en": "Starting when you choose this tradition at 3rd level, you can manipulate your enemy's ki when you harness your own. Whenever you hit a creature with one of the attacks granted by your Flurry of Blows, you can impose one of the following effects on that target:\n- It must succeed on a Dexterity saving throw or be knocked prone.\n- It must make a Strength saving throw. If it fails, you can push it up to 15 feet away from you.\n- It can't take reactions until the end of your next turn.",
           "ru": "Вы можете манипулировать ки противника."
-        }
+        },
+        "minLevel": 3,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": "Open Hand",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "4": [
@@ -157,7 +250,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 4,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "slow-fall",
@@ -168,7 +272,18 @@
         "description": {
           "en": "Beginning at 4th level, you can use your reaction when you fall to reduce any falling damage you take by an amount equal to five times your monk level.",
           "ru": "Вы можете уменьшить урон от падения."
-        }
+        },
+        "minLevel": 4,
+        "associatedClass": "monk",
+        "type": "reaction",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": "reaction",
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "5": [
@@ -181,7 +296,18 @@
         "description": {
           "en": "Beginning at 5th level, you can attack twice, instead of once, whenever you take the Attack action on your turn.",
           "ru": "Начиная с 5-го уровня, вы можете атаковать дважды вместо одного раза."
-        }
+        },
+        "minLevel": 5,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "filter_2",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "stunning-strike",
@@ -192,7 +318,18 @@
         "description": {
           "en": "Starting at 5th level, you can interfere with the flow of ki in an opponent's body. When you hit another creature with a melee weapon attack, you can spend 1 ki point to attempt a stunning strike. The target must succeed on a Constitution saving throw or be stunned until the end of your next turn.",
           "ru": "Вы можете потратить 1 очко ци, чтобы оглушить цель."
-        }
+        },
+        "minLevel": 5,
+        "associatedClass": "monk",
+        "type": "free",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": "free",
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": "ki",
+        "usageInputMode": null
       }
     ],
     "6": [
@@ -205,7 +342,18 @@
         "description": {
           "en": "At 6th level, you gain the ability to heal yourself. As an action, you can regain hit points equal to three times your monk level. You must finish a long rest before you can use this feature again.",
           "ru": "На 6-м уровне вы получаете способность исцелять себя."
-        }
+        },
+        "minLevel": 6,
+        "associatedClass": "monk",
+        "type": "action",
+        "associatedSubclass": "Open Hand",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": "action",
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "7": [
@@ -218,7 +366,18 @@
         "description": {
           "en": "At 7th level, your instinctive agility lets you dodge out of the way of certain area effects, such as a blue dragon's lightning breath or a fireball spell. When you are subjected to an effect that allows you to make a Dexterity saving throw to take only half damage, you instead take no damage if you succeed on the saving throw, and only half damage if you fail.",
           "ru": "На 7-м уровне ваша инстинктивная ловкость позволяет вам уклоняться от определенных зональных эффектов."
-        }
+        },
+        "minLevel": 7,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       },
       {
         "id": "stillness-of-mind",
@@ -229,7 +388,18 @@
         "description": {
           "en": "Starting at 7th level, you can use your action to end one effect on yourself that is causing you to be charmed or frightened.",
           "ru": "Начиная с 7-го уровня, вы можете использовать свое действие, чтобы прекратить один эффект на себе, который вызывает у вас очарование или испуг."
-        }
+        },
+        "minLevel": 7,
+        "associatedClass": "monk",
+        "type": "action",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": "action",
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "8": [
@@ -242,7 +412,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 8,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "9": [
@@ -255,7 +436,18 @@
         "description": {
           "en": "Starting at 2nd level, your speed increases by 10 feet while you are not wearing armor or wielding a shield. This bonus increases when you reach certain monk levels, as shown in Table: The Monk.\nAt 9th level, you gain the ability to move along vertical surfaces and across liquids on your turn without falling during the move.",
           "ru": "На 9-м уровне вы получаете способность перемещаться по вертикальным поверхностям и по жидкостям в свой ход, не падая во время движения."
-        }
+        },
+        "minLevel": 9,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "10": [
@@ -268,7 +460,18 @@
         "description": {
           "en": "At 10th level, your mastery of the ki flowing through you makes you immune to disease and poison.",
           "ru": "На 10-м уровне ваше мастерство владения ци, текущей через вас, делает вас невосприимчивым к болезням и ядам."
-        }
+        },
+        "minLevel": 10,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "11": [
@@ -281,7 +484,18 @@
         "description": {
           "en": "Beginning at 11th level, you can enter a special meditation that surrounds you with an aura of peace. At the end of a long rest, you gain the effect of a sanctuary spell that lasts until the start of your next long rest (the spell can end early as normal). The saving throw DC for the spell equals 8 + your Wisdom modifier + your proficiency bonus.",
           "ru": "Начиная с 11-го уровня, вы можете войти в особую медитацию, которая окружает вас аурой мира."
-        }
+        },
+        "minLevel": 11,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": "Open Hand",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "12": [
@@ -294,7 +508,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 12,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "13": [
@@ -307,7 +532,18 @@
         "description": {
           "en": "Starting at 13th level, you learn to touch the ki of other minds so that you understand all spoken languages. Moreover, any creature that can understand a language can understand what you say.",
           "ru": "Начиная с 13-го уровня, вы учитесь касаться ци других разумов, так что вы понимаете все разговорные языки."
-        }
+        },
+        "minLevel": 13,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "14": [
@@ -320,7 +556,18 @@
         "description": {
           "en": "Beginning at 14th level, your mastery of ki grants you proficiency in all saving throws.\nAdditionally, whenever you make a saving throw and fail, you can spend 1 ki point to reroll it and take the second result.",
           "ru": "Начиная с 14-го уровня, ваше мастерство ци дает вам владение всеми спасбросками."
-        }
+        },
+        "minLevel": 14,
+        "associatedClass": "monk",
+        "type": "free",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": "free",
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": "ki",
+        "usageInputMode": null
       }
     ],
     "15": [
@@ -333,7 +580,18 @@
         "description": {
           "en": "At 15th level, your ki sustains you so that you suffer none of the frailty of old age, and you can't be aged magically. You can still die of old age, however. In addition, you no longer need food or water.",
           "ru": "На 15-м уровне ваша ци поддерживает вас так, что вы не страдаете от дряхлости старости, и вас нельзя состарить магически."
-        }
+        },
+        "minLevel": 15,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "16": [
@@ -346,7 +604,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 16,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "17": [
@@ -359,7 +628,18 @@
         "description": {
           "en": "At 17th level, you gain the ability to set up lethal vibrations in someone's body. When you hit a creature with an unarmed strike, you can spend 3 ki points to start these imperceptible vibrations, which last for a number of days equal to your monk level. The vibrations are harmless unless you use your action to end them. To do so, you and the target must be on the same plane of existence. When you use this action, the creature must make a Constitution saving throw. If it fails, it is reduced to 0 hit points. If it succeeds, it takes 10d10 necrotic damage.\nYou can have only one creature under the effect of this feature at a time. You can choose to end the vibrations harmlessly without using an action.",
           "ru": "На 17-м уровне вы получаете способность устанавливать смертельные вибрации в чьем-то теле."
-        }
+        },
+        "minLevel": 17,
+        "associatedClass": "monk",
+        "type": "action",
+        "associatedSubclass": "Open Hand",
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": "action",
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "18": [
@@ -372,7 +652,21 @@
         "description": {
           "en": "Beginning at 18th level, you can use your action to spend 4 ki points to become invisible for 1 minute. During that time, you also have resistance to all damage but force damage.\nAdditionally, you can spend 8 ki points to cast the astral projection spell, without needing material components. When you do so, you can't take any other creatures with you.",
           "ru": "Начиная с 18-го уровня, вы можете использовать свое действие, чтобы потратить 4 очка ци и стать невидимым на 1 минуту."
-        }
+        },
+        "minLevel": 18,
+        "associatedClass": "monk",
+        "type": "action",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": "action",
+        "iconName": "self_improvement",
+        "consumption": {
+          "resourceId": "ki",
+          "amount": 4
+        },
+        "usageCostId": "ki",
+        "usageInputMode": null
       }
     ],
     "19": [
@@ -385,7 +679,18 @@
         "description": {
           "en": "When you reach 4th level, and again at 8th, 12th, 16th, and 19th level, you can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can't increase an ability score above 20 using this feature.",
           "ru": "Когда вы достигаете 4-го уровня, а также на 8-м, 12-м, 16-м и 19-м уровне, вы можете повысить одну характеристику по вашему выбору на 2 или две характеристики по вашему выбору на 1."
-        }
+        },
+        "minLevel": 19,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ],
     "20": [
@@ -398,7 +703,18 @@
         "description": {
           "en": "At 20th level, when you roll for initiative and have no ki points remaining, you regain 4 ki points.",
           "ru": "На 20-м уровне, когда вы бросаете инициативу и у вас не осталось очков ци, вы восстанавливаете 4 очка ци."
-        }
+        },
+        "minLevel": 20,
+        "associatedClass": "monk",
+        "type": "passive",
+        "associatedSubclass": null,
+        "resourcePool": null,
+        "requiresRest": false,
+        "actionEconomy": null,
+        "iconName": "self_improvement",
+        "consumption": null,
+        "usageCostId": null,
+        "usageInputMode": null
       }
     ]
   }
