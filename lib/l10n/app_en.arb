@@ -1221,6 +1221,8 @@
     }
   },
   "tapToRoll": "Tap to Roll",
+  "diceNaturalTwenty": "Natural 20",
+  "diceNaturalOne": "Natural 1",
   "@tapToRoll": {
     "description": "No description provided"
   },

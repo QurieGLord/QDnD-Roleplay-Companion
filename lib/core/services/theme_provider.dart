@@ -88,11 +88,9 @@ class ThemeProvider extends ChangeNotifier {
 
     RoundedRectangleBorder rounded(double radius) =>
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius));
-    // Shape carries state: a capsule at rest firms up while pressed.
-    final buttonShape = WidgetStateProperty.resolveWith<OutlinedBorder>(
-        (states) => rounded(states.contains(WidgetState.pressed)
-            ? AppRadii.md
-            : AppRadii.pill));
+    // A plain button has no state to show: it stays a capsule and answers a
+    // press with its tone (the Material state layer), not with its shape.
+    const buttonShape = WidgetStatePropertyAll<OutlinedBorder>(StadiumBorder());
     const buttonMotion = Duration(milliseconds: 220);
 
     return baseTheme.copyWith(

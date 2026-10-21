@@ -1694,6 +1694,18 @@ abstract class AppLocalizations {
   /// **'Tap to Roll'**
   String get tapToRoll;
 
+  /// No description provided for @diceNaturalTwenty.
+  ///
+  /// In en, this message translates to:
+  /// **'Natural 20'**
+  String get diceNaturalTwenty;
+
+  /// No description provided for @diceNaturalOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Natural 1'**
+  String get diceNaturalOne;
+
   /// No description provided
   ///
   /// In en, this message translates to:

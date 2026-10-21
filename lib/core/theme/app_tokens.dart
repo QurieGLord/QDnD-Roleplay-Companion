@@ -49,15 +49,21 @@ abstract final class AppSpace {
 
 /// Motion: springs for direct manipulation, curves and durations for
 /// transitions. Names are the contract; the numbers may be tuned.
+///
+/// Overshoot belongs only to what the finger moves (drag, throw, swipe).
+/// Shape, size and state changes settle without a visible wobble.
 abstract final class AppMotion {
-  /// Toggles, tabs and presses: quick with a small overshoot.
-  static const snappy = SpringDescription(mass: 1, stiffness: 520, damping: 30);
+  /// Shape, size and state changes: quick, damping ratio 0.9.
+  static const snappy =
+      SpringDescription(mass: 1, stiffness: 700, damping: 47.6);
 
-  /// Drags, swipes and released presses: a visible, playful overshoot.
-  static const bouncy = SpringDescription(mass: 1, stiffness: 380, damping: 19);
+  /// Thrown or dragged objects: a small give, damping ratio 0.75.
+  static const bouncy =
+      SpringDescription(mass: 1, stiffness: 380, damping: 29.2);
 
-  /// Large surfaces such as sheets and panels: settles without wobble.
-  static const gentle = SpringDescription(mass: 1, stiffness: 220, damping: 27);
+  /// Large surfaces and landings: critically damped, ratio 1.0.
+  static const gentle =
+      SpringDescription(mass: 1, stiffness: 260, damping: 32.2);
 
   /// Default curve for state changes, expansion and swaps.
   static const Curve standard = Cubic(0.2, 0.0, 0.0, 1.0);
@@ -73,6 +79,14 @@ abstract final class AppMotion {
   static const Duration long = Duration(milliseconds: 420);
   static const Duration exitDuration = Duration(milliseconds: 180);
   static const Duration stagger = Duration(milliseconds: 45);
+
+  /// Settling time of [snappy] and [gentle] when used as curves.
+  static const Duration snappySettle = Duration(milliseconds: 450);
+  static const Duration gentleSettle = Duration(milliseconds: 620);
+
+  /// [snappy] and [gentle] as curves for implicit animations.
+  static final Curve snappyCurve = SpringCurve(snappy, settle: .45);
+  static final Curve gentleCurve = SpringCurve(gentle, settle: .62);
 
   /// Collapses a duration when the system asks for reduced motion.
   static Duration of(BuildContext context, Duration duration) =>

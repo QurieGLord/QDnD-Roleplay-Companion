@@ -1,3 +1,4 @@
+import '../utils/frame_memo.dart';
 import 'spell_preparation_rules.dart';
 import 'class_spell_grants.dart';
 import '../models/character.dart';
@@ -54,7 +55,14 @@ class SpellUseOption {
 /// Builds actual choices from personal ownership and the current payment pools.
 /// A slot's circle never chooses the casting ability or teaches a spell.
 class SpellUse {
+  // A magic tab asks the same questions for every spell row, several times
+  // per row; within one frame's build the answers are shared (FrameMemo).
   static List<SpellUseSource> sources(Character hero, Spell spell,
+          {String? manualAbility}) =>
+      List.of(FrameMemo.shared(hero, ('sources', spell.id, manualAbility),
+          () => _sources(hero, spell, manualAbility: manualAbility)));
+
+  static List<SpellUseSource> _sources(Character hero, Spell spell,
       {String? manualAbility}) {
     final book = SpellbookState.read(hero.spellbookData);
     final owners = book.ownersOf(spell.id).toSet();
@@ -159,6 +167,14 @@ class SpellUse {
   }
 
   static List<SpellUseOption> options(Character hero, Spell spell,
+          {String? manualAbility, bool tableException = false}) =>
+      List.of(FrameMemo.shared(
+          hero,
+          ('options', spell.id, manualAbility, tableException),
+          () => _options(hero, spell,
+              manualAbility: manualAbility, tableException: tableException)));
+
+  static List<SpellUseOption> _options(Character hero, Spell spell,
       {String? manualAbility, bool tableException = false}) {
     final slots = MagicSlots.read(hero);
     final result = <SpellUseOption>[];

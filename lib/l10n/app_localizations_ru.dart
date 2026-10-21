@@ -929,6 +929,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tapToRoll => 'Нажмите для броска';
 
   @override
+  String get diceNaturalTwenty => 'Естественная 20';
+
+  @override
+  String get diceNaturalOne => 'Естественная 1';
+
+  @override
   String get levelUp => 'Повысить уровень';
 
   @override

@@ -277,6 +277,8 @@
   "rolling": "Бросок...",
   "total": "Итог: {value}",
   "tapToRoll": "Нажмите для броска",
+  "diceNaturalTwenty": "Естественная 20",
+  "diceNaturalOne": "Естественная 1",
   "levelUp": "Повысить уровень",
   "levelUpTitle": "Повышение уровня",
   "currentLevel": "Текущий уровень",

@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
+import 'package:qd_and_d/core/ui/expressive_kit.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
 
@@ -71,11 +73,15 @@ class DiceRollerModal extends StatefulWidget {
   final int initialModifier;
   final DiceType initialDice;
 
+  /// Source of rolls; tests inject a fixed one.
+  final Random? random;
+
   const DiceRollerModal({
     super.key,
     this.title,
     this.initialModifier = 0,
     this.initialDice = DiceType.d20,
+    this.random,
   });
 
   @override
@@ -89,15 +95,26 @@ class _DiceRollerModalState extends State<DiceRollerModal>
   AdvantageType _advantage = AdvantageType.none;
   final List<DiceRoll> _history = [];
 
-  // Animation
-  late AnimationController _rollController;
-  late AnimationController _colorController;
-  late Animation<double> _rotationAnimation;
-  late Animation<double> _scaleAnimation;
+  // Motion: a low toss with a spin, a soft landing and a locked-in result.
+  // Springs come from AppMotion; nothing here overshoots visibly.
+  late final AnimationController _lift =
+      AnimationController.unbounded(vsync: this)..addListener(_onLift);
+  late final AnimationController _spin =
+      AnimationController.unbounded(vsync: this);
+  late final AnimationController _squash =
+      AnimationController.unbounded(vsync: this);
+  late final AnimationController _lock = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 420), value: 1);
+  late final AnimationController _glow = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 2400));
+  late final AnimationController _colorController = AnimationController(
+      duration: const Duration(milliseconds: 500), vsync: this);
+  bool _falling = false;
 
   bool _isRolling = false;
   int _displayedNumber = 1;
   Timer? _rollTimer;
+  final List<Timer> _steps = [];
 
   @override
   void initState() {
@@ -105,90 +122,96 @@ class _DiceRollerModalState extends State<DiceRollerModal>
     _selectedDice = widget.initialDice;
     _modifier = widget.initialModifier;
     _displayedNumber = widget.initialDice.sides;
-
-    _rollController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
-
-    _colorController = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
-
-    _rotationAnimation = CurvedAnimation(
-      parent: _rollController,
-      curve: Curves.elasticOut,
-    );
-
-    _scaleAnimation = TweenSequence<double>([
-      TweenSequenceItem(
-          tween: Tween(begin: 1.0, end: 0.7)
-              .chain(CurveTween(curve: AppMotion.standard)),
-          weight: 20),
-      TweenSequenceItem(
-          tween: Tween(begin: 0.7, end: 1.1)
-              .chain(CurveTween(curve: Curves.easeInOut)),
-          weight: 60),
-      TweenSequenceItem(
-          tween: Tween(begin: 1.1, end: 1.0)
-              .chain(CurveTween(curve: Curves.elasticOut)),
-          weight: 20),
-    ]).animate(_rollController);
   }
 
   @override
   void dispose() {
-    _rollController.dispose();
-    _colorController.dispose();
+    for (final t in _steps) {
+      t.cancel();
+    }
     _rollTimer?.cancel();
+    _lift.dispose();
+    _spin.dispose();
+    _squash.dispose();
+    _lock.dispose();
+    _glow.dispose();
+    _colorController.dispose();
     super.dispose();
   }
 
-  void _rollDice() async {
-    if (_isRolling) return;
+  void _after(Duration d, VoidCallback f) => _steps.add(Timer(d, () {
+        if (mounted) f();
+      }));
 
-    setState(() {
-      _isRolling = true;
-    });
-
-    HapticFeedback.selectionClick();
-    _rollController.reset();
-    _colorController.reset();
-    _rollController.forward();
-
-    int cycles = 0;
-    final random = Random();
-
-    _rollTimer = Timer.periodic(const Duration(milliseconds: 40), (timer) {
-      if (mounted) {
-        setState(() {
-          _displayedNumber = random.nextInt(_selectedDice.sides) + 1;
-        });
-      }
-      cycles++;
-      if (cycles > 15) {
-        timer.cancel();
-        _slowDownTicks(random);
-      }
-    });
+  void _onLift() {
+    // Touchdown: a short squash, then the die settles.
+    if (_falling && _lift.value >= -1) {
+      _falling = false;
+      _squash.value = 1;
+      _squash.animateWith(SpringSimulation(AppMotion.snappy, 1, 0, 0));
+      HapticFeedback.lightImpact();
+    }
   }
 
-  void _slowDownTicks(Random random) async {
-    await Future.delayed(const Duration(milliseconds: 80));
-    if (mounted) {
+  bool get _isCrit =>
+      !_isRolling &&
+      _selectedDice == DiceType.d20 &&
+      _history.isNotEmpty &&
+      _history.first.result == 20;
+  bool get _isFumble =>
+      !_isRolling &&
+      _selectedDice == DiceType.d20 &&
+      _history.isNotEmpty &&
+      _history.first.result == 1;
+
+  void _rollDice() {
+    if (_isRolling) return;
+    for (final t in _steps) {
+      t.cancel();
+    }
+    _steps.clear();
+    _rollTimer?.cancel();
+    final random = widget.random ?? Random();
+    final reduced = MediaQuery.disableAnimationsOf(context);
+    setState(() => _isRolling = true);
+    HapticFeedback.selectionClick();
+    _colorController.reset();
+    _glow.reset();
+    if (reduced) {
+      _finalizeRoll(random);
+      return;
+    }
+    // Toss: a low lift with a spin; the shadow tightens on the table.
+    _lift.animateWith(
+        SpringSimulation(AppMotion.snappy, _lift.value, -20, -320));
+    final turn = 2 * pi + random.nextDouble() * pi * .6;
+    _spin.animateWith(SpringSimulation(
+        AppMotion.gentle, _spin.value, _spin.value + turn, 19));
+    // The faces flicker, each one a little slower than the last.
+    var wait = 38.0;
+    void flick() {
       setState(
           () => _displayedNumber = random.nextInt(_selectedDice.sides) + 1);
+      wait *= 1.24;
+      if (wait < 200) {
+        _rollTimer = Timer(Duration(milliseconds: wait.round()), () {
+          if (mounted) flick();
+        });
+      }
     }
 
-    await Future.delayed(const Duration(milliseconds: 120));
-    if (mounted) {
-      setState(
-          () => _displayedNumber = random.nextInt(_selectedDice.sides) + 1);
-    }
-
-    await Future.delayed(const Duration(milliseconds: 200));
-    if (mounted) _finalizeRoll(random);
+    flick();
+    _after(const Duration(milliseconds: 200), () {
+      _falling = true;
+      _lift.animateWith(
+          SpringSimulation(AppMotion.snappy, _lift.value, 0, _lift.velocity));
+    });
+    _after(const Duration(milliseconds: 560), () {
+      _rollTimer?.cancel();
+      _spin.animateWith(SpringSimulation(AppMotion.gentle, _spin.value,
+          (_spin.value / (2 * pi)).roundToDouble() * 2 * pi, _spin.velocity));
+      _finalizeRoll(random);
+    });
   }
 
   void _finalizeRoll(Random random) {
@@ -223,8 +246,24 @@ class _DiceRollerModalState extends State<DiceRollerModal>
           ));
     });
 
+    final reduced = MediaQuery.disableAnimationsOf(context);
+    if (reduced) {
+      _colorController.value = 1;
+      return;
+    }
+    // Lock-in: the final face settles into place and the tone warms up.
+    _lock.forward(from: 0);
     _colorController.forward();
-    HapticFeedback.heavyImpact();
+    if (_isCrit) {
+      _glow.forward(from: 0);
+      HapticFeedback.mediumImpact();
+    } else if (_isFumble) {
+      // The die sinks a little and tilts.
+      _lift.animateWith(SpringSimulation(AppMotion.gentle, _lift.value, 3, 0));
+      _spin.animateWith(
+          SpringSimulation(AppMotion.gentle, _spin.value, _spin.value - .1, 0));
+      _glow.forward(from: 0);
+    }
   }
 
   @override
@@ -243,7 +282,8 @@ class _DiceRollerModalState extends State<DiceRollerModal>
           BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8),
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.xlPlus)),
+        borderRadius:
+            const BorderRadius.vertical(top: Radius.circular(AppRadii.xlPlus)),
         boxShadow: [
           BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 20)
         ],
@@ -279,76 +319,237 @@ class _DiceRollerModalState extends State<DiceRollerModal>
                 children: [
                   const Spacer(),
 
-                  // THE DIE
-                  GestureDetector(
-                    onTap: _rollDice,
-                    child: AnimatedBuilder(
-                      animation:
-                          Listenable.merge([_rollController, _colorController]),
-                      builder: (context, child) {
-                        final currentColor = Color.lerp(
-                            baseColor, activeColor, _colorController.value)!;
-                        final currentTextColor = Color.lerp(textColor,
-                            activeTextColor, _colorController.value)!;
-                        final rotation = _rotationAnimation.value * pi * 4;
-
-                        return Transform(
-                          alignment: Alignment.center,
-                          transform: Matrix4.identity()
-                            ..rotateZ(rotation)
-                            ..scaleByDouble(_scaleAnimation.value,
-                                _scaleAnimation.value, 1.0, 1.0),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              CustomPaint(
-                                size: const Size(180, 180),
-                                painter: DiceShapePainter(
-                                  type: _selectedDice,
-                                  color: currentColor,
-                                  outlineColor: currentTextColor,
-                                  strokeWidth: 3.0,
-                                ),
-                              ),
-                              Center(
-                                child: Text(
-                                  '$_displayedNumber',
-                                  style: TextStyle(
-                                    fontSize:
-                                        _getFontSizeForDice(_selectedDice) *
-                                            0.85,
-                                    fontWeight: FontWeight.w900,
-                                    color: currentTextColor,
-                                    height: 1.0,
+                  // THE DIE: scales down on short screens instead of overflowing.
+                  Flexible(
+                      child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: GestureDetector(
+                            onTap: _rollDice,
+                            child: AnimatedBuilder(
+                              animation: Listenable.merge([
+                                _lift,
+                                _spin,
+                                _squash,
+                                _lock,
+                                _glow,
+                                _colorController
+                              ]),
+                              builder: (context, child) {
+                                final crit = _isCrit, fumble = _isFumble;
+                                final warm =
+                                    crit ? colorScheme.tertiary : activeColor;
+                                final currentColor = fumble
+                                    ? colorScheme.surfaceContainerHigh
+                                    : Color.lerp(
+                                        baseColor,
+                                        crit
+                                            ? colorScheme.tertiaryContainer
+                                            : activeColor,
+                                        _colorController.value)!;
+                                final currentTextColor = fumble
+                                    ? colorScheme.onSurfaceVariant
+                                    : Color.lerp(
+                                        textColor,
+                                        crit
+                                            ? colorScheme.tertiary
+                                            : activeTextColor,
+                                        _colorController.value)!;
+                                final outline = fumble
+                                    ? colorScheme.outline
+                                    : Color.lerp(
+                                        textColor, warm, crit ? 1 : 0)!;
+                                final lift =
+                                    (-_lift.value / 24).clamp(0.0, 1.0);
+                                final sq = _squash.value;
+                                final lock = AppMotion.snappyCurve
+                                    .transform(_lock.value);
+                                // The glow blooms, breathes once and fades.
+                                final g = _glow.value;
+                                final glow = g < .3
+                                    ? AppMotion.enter.transform(g / .3)
+                                    : g < .6
+                                        ? 1 - .2 * ((g - .3) / .3)
+                                        : .8 *
+                                            (1 -
+                                                AppMotion.standard
+                                                    .transform((g - .6) / .4));
+                                return SizedBox(
+                                  width: 240,
+                                  height: 200,
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      if (_glow.isAnimating)
+                                        IgnorePointer(
+                                          child: Opacity(
+                                            opacity: (fumble ? .55 : 1) *
+                                                glow.clamp(0.0, 1.0),
+                                            child: Container(
+                                              width: 240,
+                                              height: 240,
+                                              decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  gradient:
+                                                      RadialGradient(colors: [
+                                                    (fumble
+                                                            ? colorScheme
+                                                                .primary
+                                                            : colorScheme
+                                                                .tertiary)
+                                                        .withValues(
+                                                            alpha: fumble
+                                                                ? .22
+                                                                : .4),
+                                                    Colors.transparent
+                                                  ])),
+                                            ),
+                                          ),
+                                        ),
+                                      // Shadow on the table, tighter while the die is up.
+                                      Positioned(
+                                        bottom: -4,
+                                        child: Opacity(
+                                          opacity: 1 - .45 * lift,
+                                          child: Transform.scale(
+                                            scale: 1 - .3 * lift,
+                                            child: Container(
+                                              width: 120,
+                                              height: 14,
+                                              decoration: BoxDecoration(
+                                                  shape: BoxShape.rectangle,
+                                                  borderRadius:
+                                                      const BorderRadius.all(
+                                                          Radius.elliptical(
+                                                              60, 7)),
+                                                  gradient:
+                                                      RadialGradient(colors: [
+                                                    Colors.black
+                                                        .withValues(alpha: .38),
+                                                    Colors.transparent
+                                                  ])),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Transform(
+                                        alignment: Alignment.bottomCenter,
+                                        transform: Matrix4.identity()
+                                          ..translateByDouble(
+                                              0, _lift.value, 0, 1)
+                                          ..scaleByDouble(1 + .025 * sq,
+                                              1 - .035 * sq, 1, 1),
+                                        child: Transform.rotate(
+                                          angle: _spin.value,
+                                          child: Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              CustomPaint(
+                                                size: const Size(180, 180),
+                                                painter: DiceShapePainter(
+                                                  type: _selectedDice,
+                                                  color: currentColor,
+                                                  outlineColor: outline,
+                                                  strokeWidth: crit ? 3.6 : 3.0,
+                                                ),
+                                              ),
+                                              Transform.rotate(
+                                                angle: -_spin.value,
+                                                child: Opacity(
+                                                  opacity: .4 +
+                                                      .6 * lock.clamp(0.0, 1.0),
+                                                  child: Transform.scale(
+                                                    scale: .86 + .14 * lock,
+                                                    child: Text(
+                                                      '$_displayedNumber',
+                                                      style: TextStyle(
+                                                        fontFamily:
+                                                            AppType.display,
+                                                        fontFeatures:
+                                                            AppType.tabular,
+                                                        fontSize:
+                                                            _getFontSizeForDice(
+                                                                    _selectedDice) *
+                                                                0.85,
+                                                        fontWeight:
+                                                            FontWeight.w900,
+                                                        color: currentTextColor,
+                                                        height: 1.0,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                                );
+                              },
+                            ),
+                          ))),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 8),
 
-                  // Result Text
+                  // Result: the total locks in with a rolling number.
                   AnimatedBuilder(
                       animation: _colorController,
                       builder: (context, _) {
-                        return Text(
-                          _isRolling
-                              ? l10n.rolling
-                              : (_history.isNotEmpty
-                                  ? l10n.total(_history.first.total.toString())
-                                  : l10n.tapToRoll),
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Color.lerp(colorScheme.onSurfaceVariant,
-                                activeColor, _colorController.value),
-                          ),
+                        final style = TextStyle(
+                          fontFamily: AppType.display,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          color: Color.lerp(
+                              colorScheme.onSurfaceVariant,
+                              _isCrit
+                                  ? colorScheme.tertiary
+                                  : colorScheme.onSurface,
+                              _colorController.value),
                         );
+                        final parts = l10n.total('\u0000').split('\u0000');
+                        final note = _isCrit
+                            ? l10n.diceNaturalTwenty
+                            : _isFumble
+                                ? l10n.diceNaturalOne
+                                : null;
+                        return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AnimatedSwitcher(
+                                duration:
+                                    AppMotion.of(context, AppMotion.medium),
+                                switchInCurve: AppMotion.enter,
+                                switchOutCurve: AppMotion.exit,
+                                child: _isRolling || _history.isEmpty
+                                    ? Text(
+                                        _isRolling
+                                            ? l10n.rolling
+                                            : l10n.tapToRoll,
+                                        key: ValueKey(_isRolling),
+                                        style: style)
+                                    : Row(
+                                        key: const ValueKey('total'),
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                            Text(parts.first, style: style),
+                                            RollingNumber(_history.first.total,
+                                                style: style),
+                                            if (parts.length > 1)
+                                              Text(parts.last, style: style),
+                                          ]),
+                              ),
+                              const SizedBox(height: 4),
+                              Reveal(
+                                open: note != null,
+                                child: Text(note ?? '',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                        color: _isCrit
+                                            ? colorScheme.tertiary
+                                            : colorScheme.onSurfaceVariant)),
+                              ),
+                            ]);
                       }),
 
                   const Spacer(),
@@ -362,8 +563,8 @@ class _DiceRollerModalState extends State<DiceRollerModal>
               decoration: BoxDecoration(
                 color:
                     colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(AppRadii.xlPlus)),
+                borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(AppRadii.xlPlus)),
               ),
               child: Column(
                 children: [
@@ -386,7 +587,8 @@ class _DiceRollerModalState extends State<DiceRollerModal>
                           children: [
                             InkWell(
                                 onTap: () => setState(() => _modifier--),
-                                borderRadius: BorderRadius.circular(AppRadii.lgPlus),
+                                borderRadius:
+                                    BorderRadius.circular(AppRadii.lgPlus),
                                 child: const Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Icon(Icons.remove_circle_outline,
@@ -402,7 +604,8 @@ class _DiceRollerModalState extends State<DiceRollerModal>
                             ),
                             InkWell(
                                 onTap: () => setState(() => _modifier++),
-                                borderRadius: BorderRadius.circular(AppRadii.lgPlus),
+                                borderRadius:
+                                    BorderRadius.circular(AppRadii.lgPlus),
                                 child: const Padding(
                                     padding: EdgeInsets.all(8.0),
                                     child: Icon(Icons.add_circle_outline,
@@ -574,7 +777,8 @@ class DiceShapePainter extends CustomPainter {
 
       case DiceType.d6:
         final rect = Rect.fromCircle(center: center, radius: radius * 0.75);
-        path.addRRect(RRect.fromRectAndRadius(rect, const Radius.circular(AppRadii.lg)));
+        path.addRRect(
+            RRect.fromRectAndRadius(rect, const Radius.circular(AppRadii.lg)));
         break;
 
       case DiceType.d8:

@@ -15,6 +15,7 @@ import '../../../core/services/storage_service.dart';
 import '../../../core/ui/app_snack_bar.dart';
 import '../../../core/ui/condition_presentation.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
+import '../../../core/ui/expressive_kit.dart';
 
 Future<bool> showGameplayStateEditor(
   BuildContext context,
@@ -664,37 +665,25 @@ class _GameplayStateEditorState extends State<GameplayStateEditor> {
             [
               Wrap(spacing: 8, runSpacing: 8, children: [
                 for (final condition in ConditionType.values)
-                  FilterChip(
+                  ExpressiveStateChip(
                     key: ValueKey('game-state-condition-${condition.name}'),
-                    label: Text(ConditionPresentation.label(l10n, condition)),
-                    showCheckmark: false,
-                    backgroundColor:
-                        Theme.of(context).colorScheme.surfaceContainerHigh,
+                    label: ConditionPresentation.label(l10n, condition),
+                    selected: _draft.activeConditions.contains(condition),
                     selectedColor:
                         Theme.of(context).colorScheme.secondaryContainer,
-                    side: BorderSide.none,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppRadii.md)),
-                    avatar: Icon(
-                        _draft.activeConditions.contains(condition)
-                            ? Icons.check_rounded
-                            : ConditionPresentation.icon(condition),
-                        size: 18,
-                        color: _draft.activeConditions.contains(condition)
-                            ? Theme.of(context).colorScheme.onSecondaryContainer
-                            : Theme.of(context).colorScheme.onSurfaceVariant),
-                    selected: _draft.activeConditions.contains(condition),
-                    onSelected: _saving
+                    leading: Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 6),
+                        child: Icon(ConditionPresentation.icon(condition),
+                            size: 16,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant)),
+                    onTap: _saving
                         ? null
-                        : (selected) => setState(() {
-                              if (selected) {
-                                if (!_draft.activeConditions
-                                    .contains(condition)) {
-                                  _draft.activeConditions.add(condition);
-                                }
-                              } else {
-                                _draft.activeConditions
-                                    .removeWhere((c) => c == condition);
+                        : () => setState(() {
+                              if (!_draft.activeConditions
+                                  .remove(condition)) {
+                                _draft.activeConditions.add(condition);
                               }
                             }),
                   ),

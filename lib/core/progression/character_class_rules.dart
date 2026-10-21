@@ -7,6 +7,7 @@ import '../services/feature_service.dart';
 import '../services/qdnd_bundle_codec.dart';
 import '../services/qdnd_bundle_schema.dart';
 import 'progression_catalog_stamp.dart';
+import '../utils/frame_memo.dart';
 
 /// A character-owned rule definition. Reading never installs, migrates, or saves.
 class CharacterClassRules {
@@ -86,7 +87,12 @@ class CharacterClassRules {
     );
   }
 
-  factory CharacterClassRules.resolve(CharacterClass entry) {
+  /// Verifying a snapshot means re-encoding and hashing it, and a sheet build
+  /// resolves the same class for many rows; one frame's build shares it.
+  factory CharacterClassRules.resolve(CharacterClass entry) =>
+      FrameMemo.shared(entry, CharacterClassRules, () => _resolve(entry));
+
+  static CharacterClassRules _resolve(CharacterClass entry) {
     if (entry.rulesSnapshot != null) {
       return CharacterClassRules.fromSnapshot(entry.rulesSnapshot!);
     }

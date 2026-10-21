@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
 
@@ -72,23 +71,57 @@ class _CompanionEntranceState extends State<CompanionEntrance>
 
   @override
   Widget build(BuildContext context) {
+    // The arrival moves the page as one layer. It does not feed the shared
+    // motion scope: that would rebuild and reshape every surface on the page
+    // on each frame of the entrance.
     final reduced = MediaQuery.disableAnimationsOf(context);
-    final inherited = CompanionMotionScope.of(context);
     return AnimatedBuilder(
         animation: _arrival,
-        child: widget.child,
+        child: RepaintBoundary(child: widget.child),
         builder: (context, child) {
           final remaining = reduced || !widget.active
               ? 0.0
               : 1 - AppMotion.standard.transform(_arrival.value);
-          return CompanionMotionScope(
-              amount: reduced ? 0 : math.max(inherited, remaining * .8),
-              child: Transform.translate(
-                  offset: Offset(0, remaining * 6),
-                  child: Transform.scale(
-                      scale: 1 - remaining * .008,
-                      alignment: Alignment.topCenter,
-                      child: child)));
+          // Same wrappers at rest: changing the tree shape would remount
+          // the page and lose its state.
+          return Transform.translate(
+              offset: Offset(0, remaining * 6),
+              child: Transform.scale(
+                  scale: 1 - remaining * .008,
+                  alignment: Alignment.topCenter,
+                  child: child));
+        });
+  }
+}
+
+/// A page in a horizontal strip whose content rises into place as the page
+/// slides in. It is driven by the strip's position, never by a timer, so it
+/// stays in step with a drag, reverses with it and is settled on landing.
+class PageArrival extends StatelessWidget {
+  const PageArrival(
+      {super.key,
+      required this.controller,
+      required this.index,
+      required this.child});
+  final PageController controller;
+  final int index;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) return child;
+    return AnimatedBuilder(
+        animation: controller,
+        child: RepaintBoundary(child: child),
+        builder: (context, child) {
+          final page =
+              controller.hasClients && controller.position.hasContentDimensions
+                  ? controller.page ?? index.toDouble()
+                  : index.toDouble();
+          final d = AppMotion.standard
+              .transform((page - index).abs().clamp(0.0, 1.0));
+          // A pure offset moves the cached layer; scaling would make the GPU
+          // re-rasterize all text on every frame of the slide.
+          return Transform.translate(offset: Offset(0, 16 * d), child: child);
         });
   }
 }

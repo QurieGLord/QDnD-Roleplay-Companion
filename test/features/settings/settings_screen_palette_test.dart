@@ -48,11 +48,11 @@ void main() {
       AppColorPreset.monokai,
       Brightness.dark,
     );
-    expect(monokaiDark.surface, const Color(0xFF272822));
+    expect(monokaiDark.surface, const Color(0xFF2A2720));
     expect(monokaiDark.primary, const Color(0xFFFE5685));
     expect(monokaiDark.secondary, const Color(0xFF66D9EF));
     expect(monokaiDark.tertiary, const Color(0xFFFD971F));
-    expect(monokaiDark.onSurface, const Color(0xFFF8F8F2));
+    expect(monokaiDark.onSurface, const Color(0xFFFAF7F0));
 
     final monokaiLight = AppPalettes.getScheme(
       AppColorPreset.monokai,
@@ -134,7 +134,7 @@ void main() {
     expect(monokaiDark.secondary, isNot(monokaiGreen));
     expect(monokaiDark.secondaryContainer, isNot(monokaiGreen));
     expect(monokaiDark.surfaceContainerHigh, isNot(monokaiGreen));
-    expect(monokaiDark.surfaceContainerHigh, const Color(0xFF49483E));
+    expect(monokaiDark.surfaceContainerHigh, const Color(0xFF4C473C));
     expect(_isCyanish(monokaiDark.secondary), isTrue);
 
     final monokaiLight = AppPalettes.getScheme(

@@ -5,6 +5,7 @@ import 'value_editors.dart';
 import '../../../../core/ui/companion_surface.dart';
 import 'expressive_hold_surface.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
+import '../../../../core/ui/expressive_kit.dart';
 
 class SheetHealthPanel extends StatefulWidget {
   const SheetHealthPanel({super.key, required this.character, this.onChanged});
@@ -53,102 +54,127 @@ class _SheetHealthPanelState extends State<SheetHealthPanel> {
       semanticLabel: _hasForm ? l10n.sheetHealthForm : l10n.hitPoints,
       hint: l10n.sheetHoldToEdit,
       onHold: () => _edit(),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: companionDecoration(context,
-            raised: true,
-            color: color.secondaryContainer,
-            accent: color.secondary,
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(AppRadii.xlPlus),
-                    topRight: Radius.circular(AppRadii.xlPlus),
-                    bottomLeft: Radius.circular(AppRadii.xlPlus),
-                    bottomRight: Radius.circular(AppRadii.lgPlus)))),
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          LayoutBuilder(
-              builder: (context, constraints) => Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    runSpacing: 8,
-                    children: [
-                      Text(
-                          _hasForm
-                              ? c.beastName ?? l10n.sheetHealthForm
-                              : l10n.hpShort,
-                          style: theme.textTheme.titleSmall
-                              ?.copyWith(fontWeight: FontWeight.w700)),
-                      ConstrainedBox(
-                        constraints:
-                            BoxConstraints(maxWidth: constraints.maxWidth),
-                        child: Padding(
-                          key: const ValueKey('sheet-health-edit'),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 10),
-                          child: Text.rich(
-                              TextSpan(children: [
-                                TextSpan(text: '$current'),
-                                TextSpan(
-                                    text: ' / $maximum',
-                                    style: theme.textTheme.titleLarge?.copyWith(
-                                        color: color.onSurfaceVariant,
-                                        fontWeight: FontWeight.w500)),
-                              ]),
-                              style: theme.textTheme.displaySmall?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: -1.2,
-                                  color: current > maximum
-                                      ? color.tertiary
-                                      : (ratio < .3
-                                          ? color.error
-                                          : color.primary))),
+      child: ImpactPulse(
+        value: current + (_hasForm ? 0 : c.temporaryHp),
+        glowColor: color.secondary,
+        borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(AppRadii.xlPlus),
+            topRight: Radius.circular(AppRadii.xlPlus),
+            bottomLeft: Radius.circular(AppRadii.xlPlus),
+            bottomRight: Radius.circular(AppRadii.lgPlus)),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: companionDecoration(context,
+              raised: true,
+              color: color.secondaryContainer,
+              accent: color.secondary,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(AppRadii.xlPlus),
+                      topRight: Radius.circular(AppRadii.xlPlus),
+                      bottomLeft: Radius.circular(AppRadii.xlPlus),
+                      bottomRight: Radius.circular(AppRadii.lgPlus)))),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            LayoutBuilder(
+                builder: (context, constraints) => Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      runSpacing: 8,
+                      children: [
+                        Text(
+                            _hasForm
+                                ? c.beastName ?? l10n.sheetHealthForm
+                                : l10n.hpShort,
+                            style: theme.textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w700)),
+                        ConstrainedBox(
+                          constraints:
+                              BoxConstraints(maxWidth: constraints.maxWidth),
+                          child: Padding(
+                            key: const ValueKey('sheet-health-edit'),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 10),
+                            child: Semantics(
+                              label: '$current / $maximum',
+                              excludeSemantics: true,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: AlignmentDirectional.centerEnd,
+                                child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      RollingNumber(current,
+                                          style: theme.textTheme.displaySmall
+                                              ?.copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                  letterSpacing: -1.2,
+                                                  color: current > maximum
+                                                      ? color.tertiary
+                                                      : (ratio < .3
+                                                          ? color.error
+                                                          : color.primary))),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 5),
+                                        child: Text(' / $maximum',
+                                            style: theme.textTheme.titleLarge
+                                                ?.copyWith(
+                                                    color:
+                                                        color.onSurfaceVariant,
+                                                    fontWeight:
+                                                        FontWeight.w500)),
+                                      ),
+                                    ]),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
-                  )),
-          const SizedBox(height: 8),
-          ClipRRect(
-              borderRadius: BorderRadius.circular(AppRadii.pill),
-              child: LinearProgressIndicator(
-                  value: maximum > 0 ? ratio : (current > 0 ? 1 : 0),
-                  minHeight: 8,
-                  backgroundColor: color.surfaceContainerHighest,
-                  color: ratio < .3 ? color.error : color.primary)),
-          const SizedBox(height: 12),
-          Wrap(spacing: 12, runSpacing: 8, children: [
-            Text('${l10n.tempHp}: ${c.temporaryHp}',
-                style: theme.textTheme.bodyMedium),
-            if (_hasForm)
-              ExpressiveHoldSurface(
-                  onHold: () => _edit(form: false),
-                  enabled: !_busy,
-                  child: Text(
-                      '${l10n.sheetHealthBase}: ${c.currentHp} / ${c.maxHp}',
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: color.primary))),
-            if (c.isWildShaped && !_hasForm)
-              TextButton(
-                  onPressed: _busy ? null : () => _edit(form: true),
-                  child: Text(l10n.sheetFormMissing)),
+                      ],
+                    )),
+            const SizedBox(height: 8),
+            TrailBar(
+                value: maximum > 0 ? current / maximum : (current > 0 ? 1 : 0),
+                extra: !_hasForm && maximum > 0 ? c.temporaryHp / maximum : 0,
+                extraColor: color.secondary,
+                background: color.surfaceContainerHighest,
+                color: ratio < .3 ? color.error : color.primary),
+            const SizedBox(height: 12),
+            Wrap(spacing: 12, runSpacing: 8, children: [
+              Text('${l10n.tempHp}: ${c.temporaryHp}',
+                  style: theme.textTheme.bodyMedium),
+              if (_hasForm)
+                ExpressiveHoldSurface(
+                    onHold: () => _edit(form: false),
+                    enabled: !_busy,
+                    child: Text(
+                        '${l10n.sheetHealthBase}: ${c.currentHp} / ${c.maxHp}',
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(color: color.primary))),
+              if (c.isWildShaped && !_hasForm)
+                TextButton(
+                    onPressed: _busy ? null : () => _edit(form: true),
+                    child: Text(l10n.sheetFormMissing)),
+            ]),
+            const SizedBox(height: 12),
+            Row(children: [
+              Expanded(
+                  child: FilledButton.tonalIcon(
+                      key: const ValueKey('sheet-health-damage'),
+                      onPressed: _busy ? null : () => _action(false),
+                      icon: const Icon(Icons.remove),
+                      label: Text(l10n.damage))),
+              const SizedBox(width: 8),
+              Expanded(
+                  child: FilledButton.tonalIcon(
+                      key: const ValueKey('sheet-health-heal'),
+                      onPressed: _busy ? null : () => _action(true),
+                      icon: const Icon(Icons.add),
+                      label: Text(l10n.heal))),
+            ]),
           ]),
-          const SizedBox(height: 12),
-          Row(children: [
-            Expanded(
-                child: FilledButton.tonalIcon(
-                    key: const ValueKey('sheet-health-damage'),
-                    onPressed: _busy ? null : () => _action(false),
-                    icon: const Icon(Icons.remove),
-                    label: Text(l10n.damage))),
-            const SizedBox(width: 8),
-            Expanded(
-                child: FilledButton.tonalIcon(
-                    key: const ValueKey('sheet-health-heal'),
-                    onPressed: _busy ? null : () => _action(true),
-                    icon: const Icon(Icons.add),
-                    label: Text(l10n.heal))),
-          ]),
-        ]),
+        ),
       ),
     );
   }

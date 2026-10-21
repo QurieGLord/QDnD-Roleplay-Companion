@@ -54,17 +54,17 @@ class _ExpressiveHoldSurfaceState extends State<ExpressiveHoldSurface>
       _settle.value = 0;
       return;
     }
-    // The surface springs back from wherever the finger left it.
+    // The surface settles back from wherever the finger left it, no hop.
     _settle.value = from;
-    _settle.animateWith(SpringSimulation(AppMotion.bouncy, from, 0, 0));
+    _settle.animateWith(SpringSimulation(AppMotion.snappy, from, 0, 0));
   }
 
   void _tap() {
     if (!widget.enabled || widget.onTap == null) return;
     if (!_reduced) {
       _press
-          .animateTo(.85,
-              duration: const Duration(milliseconds: 100),
+          .animateTo(.6,
+              duration: const Duration(milliseconds: 140),
               curve: AppMotion.standard)
           .then((_) {
         if (mounted) _release();

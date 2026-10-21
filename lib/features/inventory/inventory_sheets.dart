@@ -102,6 +102,11 @@ Future<bool?> showOwnedInventoryItem(
         useSafeArea: true,
         builder: (_) => _OwnedItemSheet(hero, item, onChanged));
 
+/// The owned item's sheet content, for hosts that open it themselves.
+Widget ownedInventoryItemSheet(Character hero, Item item,
+        {required VoidCallback onChanged}) =>
+    _OwnedItemSheet(hero, item, onChanged);
+
 class _OwnedItemSheet extends StatefulWidget {
   const _OwnedItemSheet(this.hero, this.item, this.onChanged);
   final Character hero;

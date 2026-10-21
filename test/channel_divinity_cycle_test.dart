@@ -146,7 +146,10 @@ void main() {
     await tester.pumpWidget(app(SingleChildScrollView(
         child: ClericMagicWidget(character: c, onStateChanged: () {}))));
     await tester.pumpAndSettle();
-    expect(find.text('6 / 0'), findsOneWidget);
+    expect(
+        find.byWidgetPredicate(
+            (w) => w is Semantics && w.properties.label == '6 / 0'),
+        findsOneWidget);
     final use = find.byTooltip('Use');
     await tester.ensureVisible(use);
     await tester.runAsync(() async {

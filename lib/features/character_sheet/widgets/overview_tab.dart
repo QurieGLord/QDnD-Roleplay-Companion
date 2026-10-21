@@ -18,6 +18,8 @@ import 'session/expressive_hold_surface.dart';
 import 'abilities/abilities_section_header.dart';
 import 'abilities/abilities_section_surface.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
+import '../../../core/ui/card_sheet_route.dart';
+import '../../inventory/inventory_sheets.dart';
 
 class OverviewTab extends StatefulWidget {
   final Character character;
@@ -35,6 +37,8 @@ class OverviewTab extends StatefulWidget {
 
 class _OverviewTabState extends State<OverviewTab> {
   bool _resting = false;
+  // One origin per equipped weapon, stable across rebuilds.
+  final _attackOrigins = <String, GlobalKey<CardSheetOriginState>>{};
   Character get character => widget.character;
   void _updated() {
     if (!mounted) return;
@@ -282,50 +286,78 @@ class _OverviewTabState extends State<OverviewTab> {
             mod != 0 ? (mod > 0 ? ' + $mod' : ' - ${mod.abs()}') : '';
 
         return _buildAttackCard(context, weapon.getName(locale), hitBonus,
-            '$damageDice$damageModStr', damageType);
+            '$damageDice$damageModStr', damageType,
+            item: weapon);
       }).toList(),
     );
   }
 
   Widget _buildAttackCard(BuildContext context, String name, int hitBonus,
       String damage, String type,
-      {IconData icon = Icons.sports_martial_arts}) {
-    final t = Theme.of(context), c = t.colorScheme;
-    final l = AppLocalizations.of(context)!;
+      {IconData icon = Icons.sports_martial_arts, Item? item}) {
+    final c = Theme.of(context).colorScheme;
+    Widget content() =>
+        _attackContent(context, name, hitBonus, damage, type, icon: icon);
+    if (item == null) {
+      return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: CompanionSurface(
+              contour: CompanionContour.facet,
+              color: c.surface,
+              padding: const EdgeInsets.all(16),
+              child: content()));
+    }
+    final origin = _attackOrigins.putIfAbsent(
+        item.instanceId ?? '${item.id}#${character.inventory.indexOf(item)}',
+        () => GlobalKey<CardSheetOriginState>());
+    // The card grows into the item's sheet; the attack buttons keep working.
     return Padding(
         padding: const EdgeInsets.only(bottom: 10),
-        child: CompanionSurface(
-            contour: CompanionContour.facet,
-            color: c.surface,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(children: [
-                    Icon(icon, size: 22, color: c.secondary),
-                    const SizedBox(width: 10),
-                    Expanded(
-                        child: Text(name,
-                            style: t.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: -.35))),
-                    const SizedBox(width: 12),
-                    FilledButton.tonal(
-                        onPressed: () => showDiceRoller(context,
-                            title: '${l.hit} ($name)', modifier: hitBonus),
-                        child: Text(character.formatModifier(hitBonus),
-                            style: t.textTheme.titleLarge
-                                ?.copyWith(fontWeight: FontWeight.w700))),
-                  ]),
-                  const SizedBox(height: 12),
-                  FilledButton.tonalIcon(
-                      onPressed: () => showFormulaRoller(context,
-                          title: '${l.damage} · $name', formula: damage),
-                      icon: const Icon(Icons.casino_outlined, size: 20),
-                      label: Text(
-                          '${DiceUtils.formatDice(damage, context)} · $type',
-                          textAlign: TextAlign.center)),
-                ])));
+        child: CardSheetOrigin(
+            key: origin,
+            child: CompanionSurface(
+                contour: CompanionContour.facet,
+                color: c.surface,
+                padding: const EdgeInsets.all(16),
+                onTap: () => showCardSheet<bool>(context,
+                    origin: origin,
+                    originColor: c.surface,
+                    faceBuilder: (_) => Padding(
+                        padding: const EdgeInsets.all(16), child: content()),
+                    builder: (_) => ownedInventoryItemSheet(character, item,
+                        onChanged: _updated)).then((_) => _updated()),
+                child: content())));
+  }
+
+  Widget _attackContent(BuildContext context, String name, int hitBonus,
+      String damage, String type,
+      {required IconData icon}) {
+    final t = Theme.of(context), c = t.colorScheme;
+    final l = AppLocalizations.of(context)!;
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Row(children: [
+        Icon(icon, size: 22, color: c.secondary),
+        const SizedBox(width: 10),
+        Expanded(
+            child: Text(name,
+                style: t.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700, letterSpacing: -.35))),
+        const SizedBox(width: 12),
+        FilledButton.tonal(
+            onPressed: () => showDiceRoller(context,
+                title: '${l.hit} ($name)', modifier: hitBonus),
+            child: Text(character.formatModifier(hitBonus),
+                style: t.textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.w700))),
+      ]),
+      const SizedBox(height: 12),
+      FilledButton.tonalIcon(
+          onPressed: () => showFormulaRoller(context,
+              title: '${l.damage} · $name', formula: damage),
+          icon: const Icon(Icons.casino_outlined, size: 20),
+          label: Text('${DiceUtils.formatDice(damage, context)} · $type',
+              textAlign: TextAlign.center)),
+    ]);
   }
 
   Future<void> _showRestDialog(BuildContext context,

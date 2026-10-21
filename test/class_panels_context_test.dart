@@ -434,7 +434,10 @@ void main() {
           dark: locale == 'ru',
           scale: 1.5));
       await tester.pumpAndSettle();
-      expect(find.text('6 / 0'), findsOneWidget);
+      expect(
+          find.byWidgetPredicate(
+              (w) => w is Semantics && w.properties.label == '6 / 0'),
+          findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }

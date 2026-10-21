@@ -1,0 +1,988 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>QDnD · Живой набор</title>
+<style>
+/* Offline prototype of the wave 0 component kit. Fonts come from the app's
+   own assets; colors mirror AppPalettes after U10; springs mirror AppMotion. */
+@font-face{font-family:Rubik;font-weight:400;src:url(../../../assets/fonts/Rubik-Regular.ttf)}
+@font-face{font-family:Rubik;font-weight:500;src:url(../../../assets/fonts/Rubik-Medium.ttf)}
+@font-face{font-family:Rubik;font-weight:600;src:url(../../../assets/fonts/Rubik-SemiBold.ttf)}
+@font-face{font-family:Rubik;font-weight:700;src:url(../../../assets/fonts/Rubik-SemiBold-w700.ttf)}
+@font-face{font-family:Rubik;font-weight:900;src:url(../../../assets/fonts/Rubik-Bold-w900.ttf)}
+@font-face{font-family:Inter;font-weight:400;src:url(../../../assets/fonts/Inter-Regular.ttf)}
+@font-face{font-family:Inter;font-weight:500;src:url(../../../assets/fonts/Inter-Medium.ttf)}
+@font-face{font-family:Inter;font-weight:600;src:url(../../../assets/fonts/Inter-SemiBold.ttf)}
+@font-face{font-family:Inter;font-weight:700;src:url(../../../assets/fonts/Inter-Bold.ttf)}
+
+/* Layout: a column of specimens, each a phone-width surface beside its notes. */
+:root{
+  --page:#221f19; --surface:#2A2720; --fg:#FAF7F0; --muted:#bebdb6; --low:#302D26; --cont:#3C382E;
+  --high:#4C473C; --highest:#5E594B; --primary:#FE5685; --on-primary:#191512; --secondary:#66D9EF;
+  --tertiary:#FD971F; --pc:#49313C; --sc:#314146; --tc:#473B2C; --outline:#79705B; --line:#3b3c35;
+  --heal:#A6E22E; --on-heal:#191512;
+  --display:Rubik, "Segoe UI", Roboto, system-ui, sans-serif;
+  --body:Inter, "Segoe UI", Roboto, system-ui, sans-serif;
+  --r-xs:4px; --r-sm:8px; --r-md:12px; --r-lg:16px; --r-lgp:20px; --r-xl:28px; --r-xlp:32px; --r-pill:999px;
+  --e-snappy:cubic-bezier(.2,0,0,1); --e-bouncy:cubic-bezier(.34,1.4,.64,1); --e-gentle:cubic-bezier(.2,0,0,1);
+  --d-snappy:450ms; --d-bouncy:750ms; --d-gentle:620ms;
+  --e-standard:cubic-bezier(.2,0,0,1);
+  --e-enter:cubic-bezier(.05,.7,.1,1); --e-exit:cubic-bezier(.3,0,.8,.15);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--page);color:var(--fg);font:400 15px/1.5 var(--body);-webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:20px 64px;transition:background-color 500ms var(--e-gentle),color 500ms var(--e-gentle)}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--secondary);outline-offset:3px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+
+/* Header */
+.head{display:flex;flex-direction:column;gap:14px;max-width:760px}
+.eyebrow{font:600 12px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--tertiary)}
+h1{font:600 clamp(34px,6vw,52px)/1.05 var(--display);letter-spacing:-.03em;margin:0;text-wrap:balance}
+.lead{color:var(--muted);margin:0;max-width:62ch}
+.controls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.controls .label{font:600 12px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* Shared chip/segment look: shape carries state */
+.seg{position:relative;display:inline-flex;background:var(--low);border-radius:var(--r-pill);padding:4px;gap:0;isolation:isolate}
+.seg .ind{position:absolute;top:4px;bottom:4px;left:0;width:0;border-radius:var(--r-pill);background:var(--sc);z-index:-1;will-change:left,width}
+.seg button{position:relative;padding:9px 14px;border-radius:var(--r-pill);font:600 13px/1.1 var(--body);color:var(--muted);
+  transition:color 240ms var(--e-snappy),font-weight 0s}
+.seg button[aria-pressed="true"]{color:var(--fg)}
+.toggle{display:inline-flex;align-items:center;gap:10px;font:600 13px/1 var(--body);color:var(--muted)}
+.switch{width:46px;height:28px;border-radius:var(--r-pill);background:var(--high);position:relative;transition:background-color 240ms var(--e-snappy)}
+.switch::after{content:"";position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:var(--r-pill);background:var(--muted);
+  transition:left var(--d-snappy) var(--e-snappy),width var(--d-snappy) var(--e-snappy),background-color 240ms}
+.toggle[aria-checked="true"] .switch{background:var(--secondary)}
+.toggle[aria-checked="true"] .switch::after{left:22px;background:var(--surface)}
+.toggle:active .switch::after{width:26px}
+.toggle[aria-checked="true"]:active .switch::after{left:16px}
+
+/* Specimens */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,540px),1fr));gap:28px}
+.spec{display:flex;flex-direction:column;gap:14px;min-width:0}
+.spec h2{font:600 22px/1.2 var(--display);letter-spacing:-.015em;margin:0;text-wrap:balance}
+.spec p{margin:0;color:var(--muted);max-width:62ch}
+.spec .meta{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.where{font:500 12.5px/1.4 var(--body);color:var(--muted)}
+.where b{color:var(--fg);font-weight:600}
+.checks{margin:0;padding-left:18px;color:var(--muted);font-size:13.5px}
+.checks li+li{margin-top:2px}
+
+/* Phone surface */
+.phone{position:relative;width:100%;max-width:400px;background:var(--surface);border-radius:var(--r-xlp);overflow:hidden;
+  box-shadow:0 1px 0 color-mix(in srgb,var(--fg) 6%,transparent) inset,0 18px 40px -18px rgba(0,0,0,.55);
+  padding:18px;display:flex;flex-direction:column;gap:14px;touch-action:pan-y;user-select:none;-webkit-user-select:none;
+  transition:background-color 500ms var(--e-gentle)}
+.title-s{font:600 18px/1.2 var(--display);letter-spacing:-.01em}
+.cap{font:600 11.5px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.num{font-family:var(--display);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.surface{background:var(--low);border-radius:var(--r-xl);padding:16px}
+.icon{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* Buttons: capsule at rest, firmer while pressed */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;
+  /* A real half-height radius: a 999 radius is clamped and only snaps at the very end. */
+  border-radius:22px;font:600 14px/1 var(--body);background:var(--high);color:var(--fg);
+  transition:transform var(--d-snappy) var(--e-snappy),box-shadow 260ms var(--e-standard),background-color 200ms}
+/* A plain button has no state to show: a press only sinks it a little and darkens the tone. */
+.btn{box-shadow:inset 0 0 0 100px transparent}
+.btn:active{transform:scale(.975);box-shadow:inset 0 0 0 100px color-mix(in srgb,var(--fg) 9%,transparent);
+  transition:transform 160ms var(--e-standard),box-shadow 120ms var(--e-standard),background-color 200ms}
+.btn.primary{background:var(--primary);color:var(--on-primary)}
+.btn.tonal{background:var(--sc);color:var(--fg)}
+.btn.heal{background:color-mix(in srgb,var(--heal) 22%,var(--low));color:var(--fg)}
+.btn.small{height:36px;padding:0 14px;font-size:13px;border-radius:18px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+
+/* 1. Navigation island */
+.island{position:relative;display:flex;justify-content:space-between;padding:6px;border-radius:var(--r-xlp);isolation:isolate;
+  background:color-mix(in srgb,var(--sc) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:0 0 0 .7px color-mix(in srgb,var(--fg) 10%,transparent) inset,0 8px 22px -12px rgba(0,0,0,.6)}
+.island .ind{position:absolute;top:6px;bottom:6px;left:0;width:0;border-radius:var(--r-pill);background:color-mix(in srgb,var(--secondary) 26%,var(--sc));z-index:-1}
+.island button{height:48px;flex:1 1 0;display:grid;place-items:center;border-radius:var(--r-pill);color:var(--muted);transition:color 220ms var(--e-snappy)}
+.island button[aria-selected="true"]{color:var(--fg)}
+.island button .icon{transition:transform var(--d-snappy) var(--e-snappy)}
+.island button[aria-selected="true"] .icon{transform:translateY(-1px) scale(1.08)}
+.island.b{gap:4px}
+.island.b button{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:0;padding:0 13px;
+  transition:background-color 260ms var(--e-snappy),color 220ms,flex-grow var(--d-snappy) var(--e-snappy)}
+.island.b button[aria-selected="true"]{background:color-mix(in srgb,var(--secondary) 26%,var(--sc));flex-grow:1}
+.island.b .lbl{display:inline-block;max-width:0;overflow:hidden;white-space:nowrap;opacity:0;font:600 13px/1 var(--body);
+  transition:max-width var(--d-snappy) var(--e-snappy),opacity 200ms,margin var(--d-snappy) var(--e-snappy)}
+.island.b button[aria-selected="true"] .lbl{max-width:120px;opacity:1;margin-left:8px}
+.stage{position:relative;height:230px;overflow:hidden;touch-action:pan-y;margin-inline:-18px;padding-inline:18px}
+.track{display:flex;gap:36px;height:100%;will-change:transform}
+.page{flex:0 0 100%;display:flex;flex-direction:column;gap:10px}
+.page .row{display:flex;justify-content:space-between;align-items:center;background:var(--low);border-radius:var(--r-lgp);padding:12px 14px}
+.page .row span:first-child{color:var(--muted);font-size:13.5px}
+.page .big{font:600 26px/1.1 var(--display);letter-spacing:-.02em}
+
+/* 2. HP */
+.hp{display:flex;flex-direction:column;gap:12px;background:var(--cont);border-radius:var(--r-xl);padding:18px;position:relative;overflow:hidden}
+.hp-top{display:flex;justify-content:space-between;align-items:flex-end}
+.hp-val{display:flex;align-items:baseline;gap:6px;font-family:var(--display)}
+.hp-cur{font-size:46px;line-height:1;font-weight:600;color:var(--primary);letter-spacing:-.03em;display:inline-flex;transition:color 300ms}
+.hp-max{font-size:22px;color:var(--muted)}
+.odo{display:inline-flex;overflow:hidden;height:1em;line-height:1}
+.odo .col{display:inline-block;height:1em;overflow:hidden;width:.62em;transition:width var(--d-snappy) var(--e-snappy),opacity 200ms}
+.odo .col.blank{width:0;opacity:0}
+.odo .strip{display:flex;flex-direction:column;transition:transform var(--d-snappy) var(--e-snappy)}
+.odo .strip span{height:1em;display:block;text-align:center}
+.bar{position:relative;height:10px;border-radius:var(--r-pill);background:color-mix(in srgb,var(--fg) 9%,transparent);overflow:hidden}
+.bar > i{position:absolute;top:0;bottom:0;left:0;border-radius:var(--r-pill)}
+.bar .ghost{background:color-mix(in srgb,var(--primary) 45%,var(--fg));opacity:.55;transition:width 520ms var(--e-gentle) 380ms}
+.bar .fill{background:var(--primary);transition:width var(--d-snappy) var(--e-snappy),background-color 300ms}
+.bar .temp{background:var(--secondary);left:auto;right:0;transition:width var(--d-snappy) var(--e-snappy)}
+.hp.hit{animation:hit 300ms var(--e-exit)}
+@keyframes hit{20%{transform:translateX(-5px)}45%{transform:translateX(4px)}70%{transform:translateX(-2px)}100%{transform:none}}
+.hp.healed::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 2px var(--heal) inset;animation:glow 700ms var(--e-exit) forwards}
+@keyframes glow{from{opacity:1}to{opacity:0}}
+.hp-sub{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}
+.quick{display:flex;flex-wrap:wrap;gap:8px}
+/* Reveal: height follows content through grid rows, so siblings glide instead of jumping. */
+.reveal{display:grid;grid-template-rows:0fr;opacity:0;margin-top:calc(var(--gap,12px) * -1);
+  transition:grid-template-rows var(--d-gentle) var(--e-gentle),opacity 200ms var(--e-exit),margin-top var(--d-gentle) var(--e-gentle)}
+.reveal > .reveal-in{overflow:hidden;min-height:0}
+.reveal.open{grid-template-rows:1fr;opacity:1;margin-top:0;transition:grid-template-rows var(--d-gentle) var(--e-gentle),opacity 320ms var(--e-enter) 80ms,margin-top var(--d-gentle) var(--e-gentle)}
+.down{display:flex;flex-direction:column;gap:12px;background:color-mix(in srgb,var(--primary) 12%,var(--low));border-radius:var(--r-lgp);padding:14px}
+.saves{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;font-size:13px;color:var(--muted)}
+.marks{display:flex;gap:8px}
+.mark{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--outline);transition:background-color 200ms,box-shadow 200ms,border-radius var(--d-snappy) var(--e-snappy),transform var(--d-snappy) var(--e-snappy)}
+.mark.ok{background:var(--heal);box-shadow:none;transform:scale(1.05)}
+.mark.bad{background:var(--primary);box-shadow:none;border-radius:5px;transform:rotate(45deg) scale(.86)}
+.down .msg{font:600 15px/1.3 var(--display)}
+
+/* 3. Slots */
+.slots{display:flex;flex-direction:column;gap:8px}
+.slot{display:flex;align-items:center;gap:12px;background:var(--low);border-radius:var(--r-lgp);padding:10px 14px;min-height:52px;width:100%;text-align:left;
+  transition:transform var(--d-snappy) var(--e-snappy),background-color 200ms}
+.slot:active{transform:scale(.985)}
+.circle{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--pc);font:600 13px/1 var(--display);flex:none}
+.pips{display:flex;gap:8px;flex:1;flex-wrap:wrap}
+.pip{width:15px;height:15px;border-radius:50%;background:var(--primary);
+  transition:border-radius var(--d-snappy) var(--e-snappy),transform var(--d-snappy) var(--e-snappy),background-color 160ms,box-shadow 160ms,opacity 200ms}
+.pip.extra{background:var(--tertiary)}
+/* A pip that joins or leaves grows from / shrinks to nothing instead of popping. */
+.pip.enter,.pip.leaving{transform:scale(0)!important;opacity:0}
+.slots.a .pip.spent{border-radius:3px;transform:rotate(45deg) scale(.72);background:transparent;box-shadow:inset 0 0 0 2px var(--outline)}
+.slots.b .pip.spent{transform:scale(.5);background:transparent;box-shadow:inset 0 0 0 3px var(--outline)}
+.count{font:600 15px/1 var(--display);font-variant-numeric:tabular-nums;color:var(--fg);min-width:38px;text-align:right}
+.count.over{color:var(--tertiary)}
+.hint{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--tc);border-radius:var(--r-lgp);padding:10px 12px 10px 14px;font-size:13.5px;
+  transition:opacity 240ms,transform var(--d-gentle) var(--e-gentle)}
+
+.row-actions{display:flex;flex-wrap:wrap;gap:8px}
+
+/* 4. Segments and chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:18px;font:600 13px/1 var(--body);
+  color:var(--muted);box-shadow:inset 0 0 0 1.4px var(--outline);
+  transition:border-radius var(--d-snappy) var(--e-snappy),background-color 220ms,color 220ms,box-shadow 220ms,padding var(--d-snappy) var(--e-snappy),transform var(--d-snappy) var(--e-snappy)}
+.chip .tick{width:0;overflow:hidden;display:inline-flex;transition:width var(--d-snappy) var(--e-snappy)}
+.chip[aria-pressed="true"]{border-radius:var(--r-md);background:var(--tc);color:var(--fg);box-shadow:inset 0 0 0 1.4px transparent;padding-left:10px}
+.chip[aria-pressed="true"] .tick{width:16px}
+.chip:active{transform:scale(.97)}
+.chip .lv{font-family:var(--display);font-variant-numeric:tabular-nums}
+
+/* 5. Card into sheet */
+.weapons{display:flex;flex-direction:column;gap:8px}
+.wcard{display:flex;align-items:center;gap:12px;background:var(--low);border-radius:var(--r-lgp);padding:12px 14px;width:100%;text-align:left;
+  transition:transform var(--d-snappy) var(--e-snappy)}
+.wcard:active{transform:scale(.98)}
+.wcard .tile{width:40px;height:40px;border-radius:var(--r-md);display:grid;place-items:center;background:var(--sc);color:var(--secondary);flex:none}
+.wcard .name{font:600 16px/1.2 var(--display)}
+.wcard .sub{color:var(--muted);font-size:13px}
+.wcard .atk{margin-left:auto;font:600 15px/1 var(--display);font-variant-numeric:tabular-nums}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.45);opacity:0;pointer-events:none}
+.sheet{position:absolute;background:var(--cont);overflow:hidden;display:none;touch-action:none}
+.sheet .face{position:absolute;left:0;top:0;background:transparent;pointer-events:none}
+.sheet .grab{height:30px;display:grid;place-items:center;cursor:grab}
+.sheet .grab i{width:36px;height:4px;border-radius:var(--r-pill);background:var(--outline)}
+.sheet .inner{padding:0 20px 20px;display:flex;flex-direction:column;gap:12px}
+.sheet .sname{font:600 26px/1.1 var(--display);letter-spacing:-.02em}
+.sheet .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sheet .stat{background:var(--low);border-radius:var(--r-lg);padding:10px;display:flex;flex-direction:column;gap:2px}
+.sheet .stat b{font:600 18px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.sheet .stat span{font-size:11.5px;color:var(--muted)}
+.sheet p{margin:0;color:var(--muted);font-size:14px}
+
+/* 6. d20 */
+.dice-row{display:flex;justify-content:center;gap:24px;align-items:flex-end;min-height:186px;padding-top:34px}
+.die-wrap{position:relative;display:grid;justify-items:center;gap:12px;
+  transition:opacity 320ms var(--e-standard),transform var(--d-snappy) var(--e-snappy),filter 320ms var(--e-standard)}
+.die{width:120px;height:120px;display:grid;place-items:center;position:relative;z-index:1;will-change:transform}
+.die-wrap.small .die{width:96px;height:96px}
+.die svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.die .face{fill:var(--pc);stroke:var(--primary);stroke-width:2.5;stroke-linejoin:round;transition:fill 420ms var(--e-standard),stroke 420ms var(--e-standard)}
+.die .facet{fill:none;stroke:color-mix(in srgb,var(--primary) 45%,transparent);stroke-width:1.5;transition:stroke 420ms var(--e-standard)}
+.die .rim{fill:none;stroke:var(--tertiary);stroke-width:4;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:18 82;opacity:0}
+.die .n{position:relative;font:600 38px/1 var(--display);font-variant-numeric:tabular-nums;transition:color 420ms var(--e-standard)}
+.die-wrap.small .n{font-size:30px}
+.die-shadow{width:68%;height:12px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.42),transparent)}
+.die-glow{position:absolute;left:50%;top:60px;width:250px;height:250px;margin:-125px 0 0 -125px;border-radius:50%;pointer-events:none;opacity:0;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--tertiary) 40%,transparent),transparent)}
+.die-wrap.small .die-glow{top:48px;width:200px;height:200px;margin:-100px 0 0 -100px}
+.die-wrap.crit .face{stroke:var(--tertiary)}
+.die-wrap.crit .n{color:var(--tertiary)}
+.die-wrap.fail .face{fill:var(--high);stroke:var(--outline)}
+.die-wrap.fail .facet{stroke:color-mix(in srgb,var(--outline) 45%,transparent)}
+.die-wrap.fail .n{color:var(--muted)}
+.die-wrap.fail .die-glow{background:radial-gradient(closest-side,color-mix(in srgb,var(--primary) 22%,transparent),transparent)}
+.die-wrap.dropped{opacity:.38;transform:translateY(8px) scale(.86);filter:saturate(.35)}
+.result{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:62px}
+.result-line{display:flex;align-items:baseline;justify-content:center;gap:10px;font:600 22px/1.2 var(--display);font-variant-numeric:tabular-nums;min-height:34px}
+.result-line > span{opacity:0;transform:translateY(8px);transition:opacity 240ms var(--e-enter),transform var(--d-snappy) var(--e-snappy)}
+.result-line > span.in{opacity:1;transform:none}
+.result-line .mod,.result-line .eq{color:var(--muted)}
+.result-line .tot{font-size:30px;color:var(--fg)}
+.result .why{color:var(--muted);font-size:13.5px;min-height:20px;transition:color 400ms var(--e-standard)}
+.result .why.crit{color:var(--tertiary)}
+
+/* 7. Hold card */
+.hero{position:relative;display:flex;gap:14px;align-items:center;background:var(--low);padding:14px;border-radius:var(--r-xl);will-change:transform}
+.hero .av{width:64px;height:64px;border-radius:var(--r-lgp);display:grid;place-items:center;background:var(--pc);color:var(--primary);flex:none}
+.hero .av .icon{width:30px;height:30px}
+.hero .nm{font:600 18px/1.2 var(--display)}
+.hero .ln{color:var(--muted);font-size:13px}
+.pills{display:flex;gap:6px;margin-top:6px}
+.pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:var(--r-pill);font:600 12.5px/1 var(--body);background:var(--pc)}
+.pill.ac{background:var(--sc)}
+.ring{position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:0 0 0 2px var(--secondary);opacity:0}
+.menu{position:absolute;right:14px;top:96px;min-width:200px;background:var(--high);border-radius:var(--r-lgp);padding:6px;display:flex;flex-direction:column;
+  box-shadow:0 14px 30px -12px rgba(0,0,0,.6);transform-origin:top right;opacity:0;transform:scale(.94) translateY(-6px);pointer-events:none;z-index:3;
+  transition:opacity 140ms var(--e-exit),transform 180ms var(--e-exit)}
+.menu.open{opacity:1;transform:none;pointer-events:auto;transition:opacity 180ms var(--e-enter),transform var(--d-snappy) var(--e-snappy)}
+.menu button{display:flex;gap:10px;align-items:center;padding:12px;border-radius:var(--r-md);font-size:14px;text-align:left}
+.menu button:hover,.menu button:focus-visible{background:var(--highest)}
+.menu .danger{color:var(--primary)}
+.toast{position:absolute;left:18px;right:18px;bottom:18px;background:var(--high);border-radius:var(--r-lgp);padding:12px 16px;font-size:14px;
+  transform:translateY(140%);opacity:0;transition:transform var(--d-snappy) var(--e-snappy),opacity 200ms;z-index:4}
+.toast.show{transform:none;opacity:1}
+
+/* Summary */
+.summary{display:flex;flex-direction:column;gap:12px;background:var(--surface);border-radius:var(--r-xl);padding:20px;max-width:760px}
+.summary h2{margin:0;font:600 22px/1.2 var(--display)}
+.summary ul{margin:0;padding-left:18px;color:var(--muted)}
+.summary li b{color:var(--fg);font-weight:600}
+.copyrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.copyrow code{font-family:var(--body);background:var(--low);padding:8px 12px;border-radius:var(--r-md);user-select:all;-webkit-user-select:all}
+
+.reduce *,.reduce *::before,.reduce *::after{transition-duration:1ms!important;animation:none!important}
+@media (max-width:440px){.phone{padding:14px}.hp-cur{font-size:40px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-stats" viewBox="0 0 24 24"><path d="M5 20v-7M10 20V5M15 20v-9M20 20v-4"/></symbol>
+  <symbol id="i-magic" viewBox="0 0 24 24"><path d="M4 20 14.5 9.5M17 3l.8 2.2L20 6l-2.2.8L17 9l-.8-2.2L14 6l2.2-.8zM9 4.5l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5zM19 13l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5z"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M9 7V5.5a3 3 0 0 1 6 0V7M6 9.5A2.5 2.5 0 0 1 8.5 7h7A2.5 2.5 0 0 1 18 9.5V18a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2zM9.5 13h5"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M6 4h11a1 1 0 0 1 1 1v15H7.5A2.5 2.5 0 0 1 5 17.5V5a1 1 0 0 1 1-1zM18 16H7.5A2.5 2.5 0 0 0 5 18.5M9.5 4v6.5l2-1.4 2 1.4V4"/></symbol>
+  <symbol id="i-sword" viewBox="0 0 24 24"><path d="M14.5 4H20v5.5l-9 9-5.5-5.5zM8 16l-3.5 3.5M5.5 13.5l5 5"/></symbol>
+  <symbol id="i-spear" viewBox="0 0 24 24"><path d="M4 20 16 8M15 4h5v5l-2.5 1.5-4-4z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5 19 6v5.2c0 4.5-3 7.8-7 9.3-4-1.5-7-4.8-7-9.3V6z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><path d="M9 9h10v10H9zM5 15V5h10"/></symbol>
+  <symbol id="i-export" viewBox="0 0 24 24"><path d="M12 15V4M8 8l4-4 4 4M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19 14.5A7.5 7.5 0 1 1 9.5 5a6 6 0 0 0 9.5 9.5z"/></symbol>
+</svg>
+
+<div class="wrap">
+  <header class="head">
+    <span class="eyebrow">QDnD · волна 0 · прототип</span>
+    <h1>Живой набор компонентов</h1>
+    <p class="lead">Общие элементы, на которых будут построены все следующие волны. Здесь они показаны отдельно: можно жать, держать, тянуть и бросать. Это прототип для выбора, а не снимок приложения. Пружины, шрифты и палитры взяты из кода QDnD.</p>
+    <div class="controls">
+      <span class="label">Палитра</span>
+      <div class="seg" id="paletteSeg" role="group" aria-label="Палитра">
+        <i class="ind"></i>
+        <button type="button" data-p="monokai" aria-pressed="true">Monokai</button>
+        <button type="button" data-p="dune" aria-pressed="false">Rose of Dune</button>
+        <button type="button" data-p="nord" aria-pressed="false">Nord · светлая</button>
+      </div>
+      <button type="button" class="toggle" id="reduceToggle" role="switch" aria-checked="false"><span class="switch"></span>Меньше движения</button>
+    </div>
+  </header>
+
+  <main class="grid">
+
+    <!-- Navigation island -->
+    <section class="spec" aria-labelledby="s-nav">
+      <h2 id="s-nav">Навигационный островок</h2>
+      <p>Индикатор перетекает: передний край уходит первым, задний догоняет. Содержимое въезжает со стороны выбранной вкладки.</p>
+      <div class="meta">
+        <div class="seg variant" data-for="nav" role="group" aria-label="Вариант островка"><i class="ind"></i>
+          <button type="button" data-v="a" aria-pressed="true">A · капсула</button>
+          <button type="button" data-v="b" aria-pressed="false">B · растущая подпись</button>
+        </div>
+      </div>
+      <div class="phone">
+        <div class="island a" id="islandA" role="tablist" aria-label="Разделы листа">
+          <i class="ind"></i>
+          <button type="button" role="tab" aria-selected="true" aria-label="Обзор"><svg class="icon"><use href="#i-home"/></svg></button>
+          <button type="button" role="tab" aria-selected="false" aria-label="Характеристики"><svg class="icon"><use href="#i-stats"/></svg></button>
+          <button type="button" role="tab" aria-selected="false" aria-label="Магия"><svg class="icon"><use href="#i-magic"/></svg></button>
+          <button type="button" role="tab" aria-selected="false" aria-label="Инвентарь"><svg class="icon"><use href="#i-bag"/></svg></button>
+          <button type="button" role="tab" aria-selected="false" aria-label="Журнал"><svg class="icon"><use href="#i-book"/></svg></button>
+        </div>
+        <div class="island b" id="islandB" role="tablist" aria-label="Разделы листа" hidden>
+          <button type="button" role="tab" aria-selected="true"><svg class="icon"><use href="#i-home"/></svg><span class="lbl">Обзор</span></button>
+          <button type="button" role="tab" aria-selected="false"><svg class="icon"><use href="#i-stats"/></svg><span class="lbl">Характеристики</span></button>
+          <button type="button" role="tab" aria-selected="false"><svg class="icon"><use href="#i-magic"/></svg><span class="lbl">Магия</span></button>
+          <button type="button" role="tab" aria-selected="false"><svg class="icon"><use href="#i-bag"/></svg><span class="lbl">Инвентарь</span></button>
+          <button type="button" role="tab" aria-selected="false"><svg class="icon"><use href="#i-book"/></svg><span class="lbl">Журнал</span></button>
+        </div>
+        <div class="stage" id="navStage"></div>
+      </div>
+      <ul class="checks"><li>Быстро переключите несколько вкладок подряд: анимация перехватывается, а не ждёт конца.</li><li>B экономит место для подписи текущего раздела, A — самый спокойный.</li></ul>
+    </section>
+
+    <!-- HP -->
+    <section class="spec" aria-labelledby="s-hp">
+      <h2 id="s-hp">Живые ОЗ</h2>
+      <p>Число меняется на месте, полоса оставляет короткий след урона. Временные ОЗ принимают удар первыми. На нуле карточка сама предлагает следующее действие.</p>
+      <div class="meta">
+        <div class="seg variant" data-for="hp" role="group" aria-label="Вариант чисел"><i class="ind"></i>
+          <button type="button" data-v="a" aria-pressed="true">A · барабан</button>
+          <button type="button" data-v="b" aria-pressed="false">B · быстрый счёт</button>
+        </div>
+      </div>
+      <div class="phone">
+        <div class="cap">Cycle · Паладин · ур. 5</div>
+        <div class="hp" id="hpCard">
+          <div class="hp-top">
+            <span class="cap">ОЗ</span>
+            <div class="hp-val"><span class="hp-cur num" id="hpCur" aria-live="polite"></span><span class="hp-max num" id="hpMax">/ 44</span></div>
+          </div>
+          <div class="bar" aria-hidden="true"><i class="ghost" id="hpGhost"></i><i class="fill" id="hpFill"></i><i class="temp" id="hpTemp"></i></div>
+          <div class="hp-sub"><span id="hpTempText">Врем. ОЗ: 0</span><span id="hpState">В строю</span></div>
+          <div class="reveal" id="hpDown" style="--gap:12px"><div class="reveal-in"><div class="down">
+            <span class="msg" id="downMsg">Без сознания. Бросьте спасбросок от смерти.</span>
+            <div class="saves">
+              <span>Успехи</span><div class="marks" id="okMarks"><i class="mark"></i><i class="mark"></i><i class="mark"></i></div>
+              <span>Провалы</span><div class="marks" id="badMarks"><i class="mark"></i><i class="mark"></i><i class="mark"></i></div>
+            </div>
+            <div class="row-actions"><button type="button" class="btn primary small" id="deathRoll">Бросить спасбросок</button><span class="why num" id="deathLast" style="align-self:center;color:var(--muted);font-size:13px"></span></div>
+          </div></div></div>
+        </div>
+        <div class="quick">
+          <button type="button" class="btn small" data-hp="-5">− 5</button>
+          <button type="button" class="btn small" data-hp="-12">− 12</button>
+          <button type="button" class="btn heal small" data-hp="8">+ 8 лечение</button>
+          <button type="button" class="btn tonal small" data-temp="5">+ 5 врем.</button>
+          <button type="button" class="btn small" id="hpReset">Длинный отдых</button>
+        </div>
+      </div>
+      <ul class="checks"><li>Нажмите «− 12» несколько раз до нуля, затем бросайте спасброски.</li><li>Длинный отдых возвращает ОЗ, но временные ОЗ и отметки оставляет решать вам — как принято.</li></ul>
+    </section>
+
+    <!-- Slots -->
+    <section class="spec" aria-labelledby="s-slots">
+      <h2 id="s-slots">Ячейки заклинаний</h2>
+      <p>Потраченная ячейка меняет силуэт, а не только цвет, поэтому состояние читается и без цвета. Ручное превышение видно сразу. Отдых возвращает недостающее волной и сохраняет превышение.</p>
+      <div class="meta">
+        <div class="seg variant" data-for="slots" role="group" aria-label="Вариант отметок"><i class="ind"></i>
+          <button type="button" data-v="a" aria-pressed="true">A · грань</button>
+          <button type="button" data-v="b" aria-pressed="false">B · гаснущее кольцо</button>
+        </div>
+      </div>
+      <div class="phone">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span class="title-s">Бард · ур. 8</span><span class="cap">Нажмите строку — потратить</span></div>
+        <div class="slots a" id="slots"></div>
+        <div class="reveal" id="slotHint" style="--gap:14px"><div class="reveal-in"><div class="hint"><span>Ячейки закончились. Длинный отдых вернёт все.</span><button type="button" class="btn small primary" data-rest="long">Отдохнуть</button></div></div></div>
+        <div class="row-actions">
+          <button type="button" class="btn small tonal" id="slotExtra">+1 сверх нормы · 1 круг</button>
+          <button type="button" class="btn small" data-rest="long"><svg class="icon" style="width:18px;height:18px"><use href="#i-moon"/></svg>Длинный отдых</button>
+        </div>
+      </div>
+      <ul class="checks"><li>Потратьте все ячейки — появится подсказка следующего шага.</li><li>Добавьте ячейку сверх нормы, потом отдохните: «5 / 4» сохранится.</li></ul>
+    </section>
+
+    <!-- Segments & chips -->
+    <section class="spec" aria-labelledby="s-chips">
+      <h2 id="s-chips">Сегменты и чипы состояний</h2>
+      <p>Выбранное становится твёрже: капсула превращается в скруглённый квадрат с отметкой. Индикатор сегментов перетекает так же, как в островке.</p>
+      <div class="phone">
+        <span class="cap">Бросок</span>
+        <div class="seg" id="advSeg" role="group" aria-label="Режим броска"><i class="ind"></i>
+          <button type="button" data-a="dis" aria-pressed="false">Помеха</button>
+          <button type="button" data-a="normal" aria-pressed="true">Обычный</button>
+          <button type="button" data-a="adv" aria-pressed="false">Преимущество</button>
+        </div>
+        <span class="cap">Состояния</span>
+        <div class="chips" id="chips">
+          <button type="button" class="chip" aria-pressed="true"><span class="tick"><svg class="icon" style="width:16px;height:16px"><use href="#i-check"/></svg></span>Отравлен</button>
+          <button type="button" class="chip" aria-pressed="false"><span class="tick"><svg class="icon" style="width:16px;height:16px"><use href="#i-check"/></svg></span>Ослеплён</button>
+          <button type="button" class="chip" aria-pressed="false"><span class="tick"><svg class="icon" style="width:16px;height:16px"><use href="#i-check"/></svg></span>Испуган</button>
+          <button type="button" class="chip" aria-pressed="false"><span class="tick"><svg class="icon" style="width:16px;height:16px"><use href="#i-check"/></svg></span>Схвачен</button>
+          <button type="button" class="chip" aria-pressed="false"><span class="tick"><svg class="icon" style="width:16px;height:16px"><use href="#i-check"/></svg></span>Невидим</button>
+          <button type="button" class="chip" id="exhaust" aria-pressed="false"><span class="tick"><svg class="icon" style="width:16px;height:16px"><use href="#i-check"/></svg></span>Истощение <span class="lv">0</span></button>
+        </div>
+      </div>
+      <ul class="checks"><li>Истощение: каждое нажатие — следующая ступень, после шестой обратно к нулю.</li></ul>
+    </section>
+
+    <!-- Card into sheet -->
+    <section class="spec" aria-labelledby="s-sheet">
+      <h2 id="s-sheet">Карточка раскрывается в шторку</h2>
+      <p>Нажатая карточка становится шторкой, а не исчезает. Шторку можно тянуть: отпущенная, она продолжает движение со скоростью пальца и при закрытии возвращается обратно в свою карточку.</p>
+      <div class="phone" id="sheetPhone" style="min-height:440px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="title-s">Оружие и атаки</span><span class="cap num">3</span></div>
+        <div class="weapons">
+          <button type="button" class="wcard" data-w="0"><span class="tile"><svg class="icon"><use href="#i-sword"/></svg></span><span><span class="name">Длинный меч</span><br><span class="sub">1к8 рубящий · универсальное</span></span><span class="atk num">+6</span></button>
+          <button type="button" class="wcard" data-w="1"><span class="tile"><svg class="icon"><use href="#i-spear"/></svg></span><span><span class="name">Метательное копьё</span><br><span class="sub">1к6 колющий · 30/120 фт</span></span><span class="atk num">+6</span></button>
+          <button type="button" class="wcard" data-w="2"><span class="tile"><svg class="icon"><use href="#i-shield"/></svg></span><span><span class="name">Щит</span><br><span class="sub">+2 к КД · надет</span></span><span class="atk num">КД</span></button>
+        </div>
+        <div class="scrim" id="scrim"></div>
+        <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Описание предмета">
+          <div class="wcard face" id="sheetFace" aria-hidden="true"></div>
+          <div class="grab" id="grab"><i></i></div>
+          <div class="inner" id="sheetInner"></div>
+        </div>
+      </div>
+      <ul class="checks"><li>Резко смахните шторку вниз — закроется даже с короткого движения. Медленно и немного — вернётся на место.</li><li>Тянуть вверх можно чуть-чуть, с сопротивлением.</li></ul>
+    </section>
+
+    <!-- d20 -->
+    <section class="spec" aria-labelledby="s-d20">
+      <h2 id="s-d20">Бросок к20</h2>
+      <p>Кубик — единственная декоративная форма на экране, и она из мира игры. Он подлетает с вращением, приземляется и оседает, а результат закрепляется строкой под ним. Естественные 20 и 1 отмечаются тихо, но узнаваемо.</p>
+      <div class="phone">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span class="title-s">Проверка Восприятия</span><span class="cap num">к20 + 5</span></div>
+        <div class="seg" id="diceSeg" role="group" aria-label="Режим броска"><i class="ind"></i>
+          <button type="button" data-a="dis" aria-pressed="false">Помеха</button>
+          <button type="button" data-a="normal" aria-pressed="true">Обычный</button>
+          <button type="button" data-a="adv" aria-pressed="false">Преимущество</button>
+        </div>
+        <div class="dice-row" id="diceRow"></div>
+        <div class="result" aria-live="polite">
+          <div class="result-line" id="rollLine"><span class="raw num"></span><span class="mod num">+ 5</span><span class="eq">=</span><span class="tot num"></span></div>
+          <span class="why" id="rollWhy">Нажмите на кубик или «Бросить»</span>
+        </div>
+        <div class="row-actions">
+          <button type="button" class="btn primary" id="rollBtn" style="flex:1">Бросить</button>
+          <button type="button" class="btn small tonal" id="force20">Показать 20</button>
+          <button type="button" class="btn small" id="force1">Показать 1</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hold -->
+    <section class="spec" aria-labelledby="s-hold">
+      <h2 id="s-hold">Нажатие и удержание</h2>
+      <p>Короткое нажатие открывает, удержание постепенно сжимает карточку и открывает быстрые действия. Отпущенная карточка возвращается пружиной — это уже работает в приложении после U10. Кнопки на нажатии меняют капсулу на скруглённый квадрат.</p>
+      <div class="phone" id="holdPhone" style="min-height:330px">
+        <div class="hero" id="hero" tabindex="0" role="button" aria-label="Cycle · Паладин. Удерживайте для быстрых действий">
+          <span class="av"><svg class="icon"><use href="#i-shield"/></svg></span>
+          <span><span class="nm">Cycle · Паладин</span><br><span class="ln">Человек · ур. 5 · Клятва преданности</span>
+            <span class="pills"><span class="pill num">ОЗ 44/44</span><span class="pill ac num">КД 18</span></span></span>
+          <i class="ring" id="heroRing"></i>
+        </div>
+        <div class="menu" id="heroMenu" role="menu">
+          <button type="button" role="menuitem"><svg class="icon"><use href="#i-copy"/></svg>Дублировать</button>
+          <button type="button" role="menuitem"><svg class="icon"><use href="#i-export"/></svg>Экспорт .qdnd</button>
+          <button type="button" role="menuitem" class="danger"><svg class="icon"><use href="#i-trash"/></svg>Удалить</button>
+        </div>
+        <div class="row-actions" style="margin-top:auto">
+          <button type="button" class="btn primary">Применить</button>
+          <button type="button" class="btn tonal">Отмена</button>
+        </div>
+        <div class="toast" id="toast">Открыт лист героя</div>
+      </div>
+    </section>
+  </main>
+
+  <section class="summary" aria-labelledby="s-sum">
+    <h2 id="s-sum">Ваш выбор</h2>
+    <ul id="sumList"></ul>
+    <div class="copyrow"><code id="sumCode"></code><button type="button" class="btn small tonal" id="copySum">Скопировать</button></div>
+    <p style="margin:0;color:var(--muted);font-size:13.5px">Пришлите строку в чат вместе с замечаниями: что понравилось, что слишком, чего не хватает.</p>
+  </section>
+</div>
+
+<script>
+'use strict';
+/* ---------- palettes (AppPalettes after U10) ---------- */
+const PALETTES = {
+  monokai:{dark:true,surface:'#2A2720',on:'#FAF7F0',low:'#302D26',cont:'#3C382E',high:'#4C473C',highest:'#5E594B',primary:'#FE5685',secondary:'#66D9EF',tertiary:'#FD971F',pc:'#49313C',sc:'#314146',tc:'#473B2C',outline:'#79705B',heal:'#A6E22E',muted:.72},
+  dune:{dark:true,surface:'#2B2119',on:'#F6E4CC',low:'#34271D',cont:'#463424',high:'#5A4129',highest:'#6C4F32',primary:'#E8B965',secondary:'#E08F87',tertiary:'#CFA76A',pc:'#604128',sc:'#5C3B33',tc:'#5D432B',outline:'#A88958',heal:'#A9C98A',muted:.74},
+  nord:{dark:false,surface:'#ECEFF4',on:'#2E3440',low:'#E5E9F0',cont:'#D8DEE9',high:'#C8D0DA',highest:'#B9C3CF',primary:'#53759F',secondary:'#447B89',tertiary:'#507B7B',pc:null,sc:null,tc:null,outline:'#4C566A',heal:'#4F7A3F',muted:.80}
+};
+const hex2 = h => [1,3,5].map(i => parseInt(h.slice(i,i+2),16));
+const mix = (fg,bg,a) => '#'+hex2(fg).map((c,i)=>Math.round(c*a+hex2(bg)[i]*(1-a)).toString(16).padStart(2,'0')).join('');
+const lum = h => { const [r,g,b]=hex2(h).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}); return .2126*r+.7152*g+.0722*b; };
+const onColor = h => lum(h) >= .48 ? '#191512' : '#F8F4ED';
+function applyPalette(key){
+  const p = PALETTES[key], s = document.documentElement.style;
+  const set = (k,v) => s.setProperty('--'+k, v);
+  set('surface',p.surface); set('fg',p.on); set('low',p.low); set('cont',p.cont); set('high',p.high); set('highest',p.highest);
+  set('primary',p.primary); set('secondary',p.secondary); set('tertiary',p.tertiary); set('outline',p.outline); set('heal',p.heal);
+  set('pc', p.pc || mix(p.primary,p.surface,.12)); set('sc', p.sc || mix(p.secondary,p.surface,.12)); set('tc', p.tc || mix(p.tertiary,p.surface,.12));
+  set('muted', mix(p.on,p.surface,p.muted)); set('line', mix(p.on,p.surface,.1));
+  set('on-primary', onColor(p.primary));
+  set('page', mix('#000000', p.surface, p.dark ? .2 : .045));
+  s.setProperty('color-scheme', p.dark ? 'dark' : 'light');
+}
+
+/* ---------- motion (AppMotion springs) ---------- */
+// Damping ratios: snappy .9 and gentle 1.0 settle without visible wobble (shape, size,
+// state); bouncy .75 keeps a small overshoot for things the finger throws.
+const SPR = { snappy:{k:700,c:47.6}, bouncy:{k:380,c:29.2}, gentle:{k:260,c:32.2} };
+let reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function springEasing(cfg, seconds){
+  const N = 48, dt = seconds/N, pts = []; let x = 0, v = 0;
+  for (let i = 0; i <= N; i++) { pts.push(+x.toFixed(4)); for (let s = 0; s < 10; s++) { const a = -cfg.k*(x-1) - cfg.c*v; v += a*dt/10; x += v*dt/10; } }
+  pts[N] = 1; return `linear(${pts.join(',')})`;
+}
+if (CSS.supports('transition-timing-function','linear(0, 1)')) {
+  const r = document.documentElement.style;
+  r.setProperty('--e-snappy', springEasing(SPR.snappy,.45)); r.setProperty('--d-snappy','450ms');
+  r.setProperty('--e-bouncy', springEasing(SPR.bouncy,.75)); r.setProperty('--d-bouncy','750ms');
+  r.setProperty('--e-gentle', springEasing(SPR.gentle,.62)); r.setProperty('--d-gentle','620ms');
+}
+/* A physical spring driven per frame; retargeting keeps its velocity. */
+class Spring {
+  constructor(value, cfg, onUpdate){ this.x=value; this.v=0; this.t=value; this.cfg=cfg; this.cb=onUpdate; this.raf=0; }
+  to(target, cfg, velocity){
+    this.t = target; if (cfg) this.cfg = cfg; if (velocity !== undefined) this.v = velocity;
+    if (reduced) { this.stop(); this.x = target; this.v = 0; this.cb(this.x); return this; }
+    if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame(this.tick); }
+    return this;
+  }
+  set(v){ this.stop(); this.x = this.t = v; this.v = 0; this.cb(v); }
+  stop(){ if (this.raf) cancelAnimationFrame(this.raf); this.raf = 0; }
+  tick = now => {
+    const dt = Math.min(.034, (now - this.last)/1000); this.last = now;
+    for (let i = 0; i < 6; i++) { const h = dt/6, a = -this.cfg.k*(this.x-this.t) - this.cfg.c*this.v; this.v += a*h; this.x += this.v*h; }
+    const done = Math.abs(this.v) < .02 && Math.abs(this.x - this.t) < .02;
+    if (done) { this.x = this.t; this.v = 0; this.raf = 0; this.cb(this.x); if (this.onRest) this.onRest(); return; }
+    this.cb(this.x); this.raf = requestAnimationFrame(this.tick);
+  };
+}
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const lerp = (a,b,t) => a + (b-a)*t;
+
+/* ---------- flowing indicator: the leading edge moves first ---------- */
+function flowing(container, ind, inset){
+  let left, right, render = () => { ind.style.left = left.x+'px'; ind.style.width = Math.max(0, right.x-left.x)+'px'; };
+  left = new Spring(0, SPR.snappy, render); right = new Spring(0, SPR.snappy, render);
+  let current = -1, timer = 0;
+  function moveTo(btn, instant){
+    const l = btn.offsetLeft + (inset||0), r = btn.offsetLeft + btn.offsetWidth - (inset||0);
+    const idx = [...btn.parentNode.children].indexOf(btn);
+    clearTimeout(timer);
+    if (instant || current < 0) { left.set(l); right.set(r); current = idx; return; }
+    const forward = idx > current; current = idx;
+    const lead = forward ? right : left, lag = forward ? left : right;
+    lead.to(forward ? r : l, SPR.snappy);
+    timer = setTimeout(() => lag.to(forward ? l : r, SPR.bouncy), reduced ? 0 : 90);
+  }
+  // Direct placement while a finger drives the indicator.
+  function place(l, r, idx){ clearTimeout(timer); left.set(l); right.set(r); if (idx !== undefined) current = idx; }
+  return { moveTo, place };
+}
+function segment(seg, onPick){
+  const ind = seg.querySelector('.ind'), flow = flowing(seg, ind, 0);
+  const buttons = [...seg.querySelectorAll('button')];
+  const pick = (b, instant) => { buttons.forEach(x => x.setAttribute('aria-pressed', x === b)); flow.moveTo(b, instant); onPick && onPick(b); };
+  buttons.forEach(b => b.addEventListener('click', () => pick(b)));
+  requestAnimationFrame(() => flow.moveTo(buttons.find(b => b.getAttribute('aria-pressed') === 'true') || buttons[0], true));
+  addEventListener('resize', () => flow.moveTo(buttons.find(b => b.getAttribute('aria-pressed') === 'true'), true));
+  return { pick, refresh: () => flow.moveTo(buttons.find(b => b.getAttribute('aria-pressed') === 'true'), true) };
+}
+
+/* ---------- choices ---------- */
+const choice = { nav:'a', hp:'a', slots:'a' };
+const CHOICE_TEXT = {
+  nav:{label:'Островок', a:'A · капсула', b:'B · растущая подпись'},
+  hp:{label:'Числа ОЗ', a:'A · барабан', b:'B · быстрый счёт'},
+  slots:{label:'Отметки ячеек', a:'A · грань', b:'B · гаснущее кольцо'}
+};
+function renderSummary(){
+  document.getElementById('sumList').innerHTML = Object.keys(choice).map(k => `<li>${CHOICE_TEXT[k].label}: <b>${CHOICE_TEXT[k][choice[k]]}</b></li>`).join('');
+  document.getElementById('sumCode').textContent = Object.keys(choice).map(k => `${CHOICE_TEXT[k].label}: ${choice[k].toUpperCase()}`).join(' · ');
+}
+
+/* ---------- palette + reduce ---------- */
+const segs = [];
+segs.push(segment(document.getElementById('paletteSeg'), b => { applyPalette(b.dataset.p); }));
+const reduceToggle = document.getElementById('reduceToggle');
+function setReduced(v){ reduced = v; reduceToggle.setAttribute('aria-checked', v); document.documentElement.classList.toggle('reduce', v); }
+reduceToggle.addEventListener('click', () => setReduced(!reduced));
+setReduced(reduced);
+
+/* ---------- 1. island ---------- */
+const TABS = [
+  {t:'Обзор', rows:[['ОЗ','<span class="big num">44 / 44</span>'],['КД · Иниц. · Скор.','<b class="num">18 · +0 · 30 фт</b>'],['Состояния','<b>нет</b>']]},
+  {t:'Характеристики', rows:[['СИЛ 16','<b class="num">+3</b>'],['ТЕЛ 14','<b class="num">+2</b>'],['ХАР 16','<b class="num">+3</b>']]},
+  {t:'Магия', rows:[['Божественное чувство','<b class="num">4 / 4</b>'],['Наложение рук','<b class="num">25 / 25</b>'],['Ячейки 1 · 2 круг','<b class="num">4 · 2</b>']]},
+  {t:'Инвентарь', rows:[['Длинный меч','<b class="num">+6</b>'],['Кольчуга · Щит','<b class="num">КД 18</b>'],['Кошель','<b class="num">63 зм</b>']]},
+  {t:'Журнал', rows:[['Задание','<b>Найти Элиана</b>'],['Следующий шаг','<b class="num">1 / 3</b>'],['Записи','<b class="num">2</b>']]}
+];
+const stage = document.getElementById('navStage');
+stage.innerHTML = '<div class="track">' + TABS.map(d => `<div class="page"><div class="big" style="font-size:22px">${d.t}</div>` + d.rows.map(r => `<div class="row"><span>${r[0]}</span>${r[1]}</div>`).join('') + '</div>').join('') + '</div>';
+const track = stage.firstChild;
+const islandA = document.getElementById('islandA'), islandB = document.getElementById('islandB');
+const flowA = flowing(islandA, islandA.querySelector('.ind'), 2);
+const tabButtons = () => [...islandA.querySelectorAll('button')];
+let navIndex = 0, dragging = false;
+// Pages sit side by side like the app's PageView; one spring drives the strip.
+const pageStep = () => track.firstChild.getBoundingClientRect().width + 36;
+const xSpring = new Spring(0, SPR.snappy, x => { track.style.transform = `translateX(${x}px)`; if (dragging) followIndicator(-x / pageStep()); });
+function followIndicator(f){
+  const b = tabButtons(), i = clamp(Math.floor(f), 0, b.length - 1), j = clamp(i + 1, 0, b.length - 1), t = clamp(f - i, 0, 1);
+  flowA.place(lerp(b[i].offsetLeft, b[j].offsetLeft, t) + 2, lerp(b[i].offsetLeft + b[i].offsetWidth, b[j].offsetLeft + b[j].offsetWidth, t) - 2, Math.round(clamp(f, 0, b.length - 1)) + 1);
+}
+function selectTab(i, velocity){
+  [islandA, islandB].forEach(isl => [...isl.querySelectorAll('button')].forEach((b, j) => b.setAttribute('aria-selected', j === i)));
+  flowA.moveTo(tabButtons()[i]);
+  navIndex = i;
+  // A tap glides calmly; a thrown strip keeps the finger's speed and may settle with a small give.
+  xSpring.to(-i * pageStep(), velocity === undefined ? SPR.snappy : SPR.bouncy, velocity);
+}
+[islandA, islandB].forEach(isl => isl.querySelectorAll('button').forEach((b, i) => b.addEventListener('click', () => selectTab(i))));
+let sw = null;
+stage.addEventListener('pointerdown', e => { sw = {x0:e.clientX, y0:e.clientY, base:xSpring.x, axis:null, samples:[[e.timeStamp, e.clientX]]}; });
+stage.addEventListener('pointermove', e => {
+  if (!sw) return;
+  const dx = e.clientX - sw.x0, dy = e.clientY - sw.y0;
+  if (!sw.axis && Math.hypot(dx, dy) > 6) { sw.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'; if (sw.axis === 'x') { dragging = true; xSpring.stop(); stage.setPointerCapture(e.pointerId); } }
+  if (sw.axis !== 'x') return;
+  const min = -(TABS.length - 1) * pageStep();
+  let x = sw.base + dx;
+  if (x > 0) x *= .3; else if (x < min) x = min + (x - min) * .3; // resistance past the ends
+  xSpring.set(x); sw.samples.push([e.timeStamp, e.clientX]); if (sw.samples.length > 6) sw.samples.shift();
+});
+function endSwipe(){
+  if (!sw) return; const was = sw; sw = null;
+  if (was.axis !== 'x') return;
+  dragging = false;
+  const a = was.samples[0], b = was.samples[was.samples.length - 1], v = (b[1] - a[1]) / Math.max(1, b[0] - a[0]) * 1000;
+  let target = Math.round(-(xSpring.x + v * .18) / pageStep());
+  if (target === navIndex && Math.abs(v) > 500) target += v < 0 ? 1 : -1;
+  selectTab(clamp(target, 0, TABS.length - 1), v);
+}
+stage.addEventListener('pointerup', endSwipe); stage.addEventListener('pointercancel', endSwipe);
+requestAnimationFrame(() => flowA.moveTo(tabButtons()[0], true));
+addEventListener('resize', () => { flowA.moveTo(tabButtons()[navIndex], true); xSpring.set(-navIndex * pageStep()); });
+
+/* ---------- variant switches ---------- */
+document.querySelectorAll('.seg.variant').forEach(seg => segs.push(segment(seg, b => {
+  const key = seg.dataset.for; choice[key] = b.dataset.v; renderSummary();
+  if (key === 'nav') { islandA.hidden = b.dataset.v !== 'a'; islandB.hidden = b.dataset.v !== 'b'; if (!islandA.hidden) requestAnimationFrame(() => flowA.moveTo(islandA.querySelectorAll('button')[navIndex], true)); }
+  if (key === 'hp') renderHp(true);
+  if (key === 'slots') document.getElementById('slots').className = 'slots ' + b.dataset.v;
+})));
+
+/* ---------- 2. HP ---------- */
+const hp = { cur:44, max:44, temp:0, ok:0, bad:0, stable:false, dead:false };
+const hpCur = document.getElementById('hpCur');
+let shown = 44, countRaf = 0;
+function odometer(el, value){
+  const digits = String(value).padStart(3,' ').split('');
+  if (!el.firstChild || !el.firstChild.classList || !el.firstChild.classList.contains('odo')) {
+    el.innerHTML = '<span class="odo">' + [0,1,2].map(() => '<span class="col"><span class="strip">' + '0123456789'.split('').map(d => `<span>${d}</span>`).join('') + '</span></span>').join('') + '</span>';
+  }
+  el.querySelectorAll('.col').forEach((col, i) => {
+    const d = digits[i];
+    col.classList.toggle('blank', d === ' ');
+    col.firstChild.style.transform = `translateY(${-(d === ' ' ? 0 : +d)}em)`;
+  });
+}
+function countTo(value){
+  cancelAnimationFrame(countRaf); const from = shown, start = performance.now(), dur = reduced ? 1 : 380;
+  const step = now => { const t = clamp((now-start)/dur, 0, 1), e = 1 - Math.pow(1-t, 3); hpCur.textContent = Math.round(lerp(from, value, e)); if (t < 1) countRaf = requestAnimationFrame(step); };
+  countRaf = requestAnimationFrame(step);
+}
+function renderHp(variantChanged){
+  if (choice.hp === 'a') { if (variantChanged) hpCur.textContent = ''; odometer(hpCur, hp.cur); }
+  else { if (variantChanged) hpCur.textContent = shown; countTo(hp.cur); }
+  shown = hp.cur;
+  const total = Math.max(hp.max, hp.cur + hp.temp);
+  document.getElementById('hpFill').style.width = (hp.cur/total*100)+'%';
+  document.getElementById('hpGhost').style.width = (hp.cur/total*100)+'%';
+  document.getElementById('hpTemp').style.width = (hp.temp/total*100)+'%';
+  document.getElementById('hpTempText').textContent = 'Врем. ОЗ: ' + hp.temp;
+  hpCur.style.color = hp.cur === 0 ? 'var(--muted)' : '';
+  const down = document.getElementById('hpDown');
+  const state = hp.dead ? 'Погиб' : hp.cur > 0 ? 'В строю' : hp.stable ? 'Стабилизирован' : 'Без сознания';
+  document.getElementById('hpState').textContent = state;
+  down.classList.toggle('open', hp.cur === 0);
+  document.querySelectorAll('#okMarks .mark').forEach((m, i) => m.classList.toggle('ok', i < hp.ok));
+  document.querySelectorAll('#badMarks .mark').forEach((m, i) => m.classList.toggle('bad', i < hp.bad));
+  document.getElementById('deathRoll').disabled = hp.stable || hp.dead || hp.cur > 0;
+  document.getElementById('downMsg').textContent = hp.dead ? 'Три провала. Герой погиб — или мастер решит иначе.' : hp.stable ? 'Три успеха: герой стабилизирован, ОЗ 0.' : 'Без сознания. Бросьте спасбросок от смерти.';
+}
+function pulse(el, cls){ el.classList.remove(cls); el.getBoundingClientRect(); el.classList.add(cls); setTimeout(() => el.classList.remove(cls), 800); }
+document.querySelectorAll('[data-hp]').forEach(b => b.addEventListener('click', () => {
+  const card = document.getElementById('hpCard'), delta = +b.dataset.hp;
+  if (delta < 0) {
+    let dmg = -delta; const absorbed = Math.min(hp.temp, dmg); hp.temp -= absorbed; dmg -= absorbed;
+    hp.cur = Math.max(0, hp.cur - dmg);
+    // Ghost trail: the bar keeps the old width for a beat, then follows.
+    const ghost = document.getElementById('hpGhost'); ghost.style.transition = 'none'; ghost.getBoundingClientRect(); ghost.style.transition = '';
+    if (!reduced) pulse(card, 'hit');
+  } else {
+    if (hp.cur === 0) { hp.ok = 0; hp.bad = 0; hp.stable = false; hp.dead = false; }
+    hp.cur = Math.min(hp.max, hp.cur + delta); if (!reduced) pulse(card, 'healed');
+  }
+  renderHp();
+}));
+document.querySelectorAll('[data-temp]').forEach(b => b.addEventListener('click', () => { hp.temp = Math.max(hp.temp, +b.dataset.temp); renderHp(); }));
+document.getElementById('hpReset').addEventListener('click', () => { hp.cur = hp.max; hp.ok = hp.bad = 0; hp.stable = hp.dead = false; renderHp(); pulse(document.getElementById('hpCard'), 'healed'); });
+document.getElementById('deathRoll').addEventListener('click', () => {
+  const r = 1 + Math.floor(Math.random()*20); let note = `к20: ${r}`;
+  if (r === 20) { hp.cur = 1; hp.ok = hp.bad = 0; note += ' — герой приходит в себя с 1 ОЗ'; pulse(document.getElementById('hpCard'), 'healed'); }
+  else if (r === 1) { hp.bad = Math.min(3, hp.bad + 2); note += ' — два провала'; }
+  else if (r >= 10) hp.ok = Math.min(3, hp.ok + 1); else hp.bad = Math.min(3, hp.bad + 1);
+  hp.stable = hp.ok >= 3; hp.dead = hp.bad >= 3;
+  document.getElementById('deathLast').textContent = note; renderHp();
+});
+renderHp(true);
+
+/* ---------- 3. slots ---------- */
+const slots = [{c:1,max:4,cur:4},{c:2,max:3,cur:3},{c:3,max:3,cur:3},{c:4,max:2,cur:2}];
+const slotsEl = document.getElementById('slots');
+function buildSlots(){
+  slotsEl.innerHTML = slots.map((s, i) => `<button type="button" class="slot" data-i="${i}" aria-label="${s.c} круг"><span class="circle">${s.c}</span><span class="pips"></span><span class="count"></span></button>`).join('');
+  slotsEl.querySelectorAll('.slot').forEach(b => b.addEventListener('click', () => { const s = slots[+b.dataset.i]; if (s.cur > 0) { s.cur--; renderSlots(); } }));
+  renderSlots();
+}
+function renderSlots(){
+  slotsEl.querySelectorAll('.slot').forEach((b, i) => {
+    const s = slots[i], pips = b.querySelector('.pips'), n = Math.max(s.max, s.cur);
+    const live = () => [...pips.querySelectorAll('.pip:not(.leaving)')];
+    while (live().length < n) {
+      const p = document.createElement('i'); p.className = 'pip enter';
+      p.classList.toggle('extra', live().length >= s.max); pips.appendChild(p);
+      p.getBoundingClientRect(); requestAnimationFrame(() => p.classList.remove('enter'));
+    }
+    while (live().length > n) { const p = live().pop(); p.classList.add('leaving'); setTimeout(() => p.remove(), reduced ? 0 : 320); }
+    live().forEach((p, j) => { p.classList.toggle('spent', j >= s.cur); p.classList.toggle('extra', j >= s.max && j < s.cur); });
+    const c = b.querySelector('.count'); c.textContent = `${s.cur} / ${s.max}`; c.classList.toggle('over', s.cur > s.max);
+    b.setAttribute('aria-label', `${s.c} круг: ${s.cur} из ${s.max}`);
+  });
+  document.getElementById('slotHint').classList.toggle('open', !slots.some(s => s.cur > 0));
+}
+// Staggered refill: each missing slot returns 45 ms after the previous one.
+function restWave(){
+  const steps = [];
+  slots.forEach((s, i) => { for (let v = s.cur + 1; v <= s.max; v++) steps.push([i, v]); });
+  if (!steps.length) return;
+  steps.forEach(([i, v], k) => setTimeout(() => { slots[i].cur = Math.max(slots[i].cur, v); renderSlots(); }, reduced ? 0 : 45*k));
+}
+document.querySelectorAll('[data-rest="long"]').forEach(b => b.addEventListener('click', restWave));
+document.getElementById('slotExtra').addEventListener('click', () => { slots[0].cur++; renderSlots(); });
+buildSlots();
+
+/* ---------- 4. segments + chips ---------- */
+segs.push(segment(document.getElementById('advSeg')));
+document.querySelectorAll('#chips .chip:not(#exhaust)').forEach(c => c.addEventListener('click', () => c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true')));
+let exhaustion = 0;
+document.getElementById('exhaust').addEventListener('click', e => {
+  exhaustion = (exhaustion + 1) % 7; const c = e.currentTarget;
+  c.querySelector('.lv').textContent = exhaustion; c.setAttribute('aria-pressed', exhaustion > 0);
+});
+
+/* ---------- 5. card into sheet ---------- */
+const WEAPONS = [
+  {n:'Длинный меч', s:[['+6','атака'],['1к8+3','рубящий'],['1к10+3','двумя руками']], d:'Универсальное оружие. Паладин владеет им и добавляет Силу к атаке и урону. Божественная кара добавляет 2к8 излучением за ячейку 1 круга.'},
+  {n:'Метательное копьё', s:[['+6','атака'],['1к6+3','колющий'],['30/120','фт']], d:'Метательное оружие. На дальности до 30 фт атака обычная, до 120 фт — с помехой. После броска копьё нужно подобрать.'},
+  {n:'Щит', s:[['+2','к КД'],['6','фнт'],['надет','сейчас']], d:'Пока щит надет, КД равна 18. Снятие щита пересчитает КД, если вы не закрепили её вручную.'}
+];
+const phone = document.getElementById('sheetPhone'), sheet = document.getElementById('sheet'), scrim = document.getElementById('scrim'), inner = document.getElementById('sheetInner');
+const face = document.getElementById('sheetFace'), grab = document.getElementById('grab');
+let fromRect = null, toRect = null, openCard = null, prog = 0, off = 0;
+const pSpring = new Spring(0, SPR.gentle, v => { prog = v; layoutSheet(); });
+const oSpring = new Spring(0, SPR.snappy, v => { off = v; layoutSheet(); });
+function rectOf(el){ const a = el.getBoundingClientRect(), b = phone.getBoundingClientRect(); return {x:a.left-b.left, y:a.top-b.top, w:a.width, h:a.height}; }
+function layoutSheet(){
+  if (!fromRect) return;
+  const p = clamp(prog, -0.05, 1.05), q = clamp(prog, 0, 1);
+  const x = lerp(fromRect.x, toRect.x, p), y = lerp(fromRect.y, toRect.y, p) + off, w = lerp(fromRect.w, toRect.w, p), h = lerp(fromRect.h, toRect.h, p);
+  const rTop = lerp(20, 28, q), rBot = lerp(20, 0, q);
+  Object.assign(sheet.style, {left:x+'px', top:y+'px', width:w+'px', height:h+'px', borderRadius:`${rTop}px ${rTop}px ${rBot}px ${rBot}px`});
+  // Fade through: the card's own face stays until the sheet's content takes over.
+  face.style.opacity = 1 - clamp(q/.4, 0, 1);
+  inner.style.opacity = grab.style.opacity = clamp((q - .3)/.5, 0, 1);
+  sheet.style.background = `color-mix(in srgb, var(--cont) ${Math.round(q*100)}%, var(--low))`;
+  // The card casts no shadow, so the sheet's shadow grows and fades with the transform.
+  sheet.style.boxShadow = `0 -10px 30px -10px rgba(0,0,0,${(.5*q).toFixed(3)})`;
+  scrim.style.opacity = q * clamp(1 - off/(toRect.h||1), 0, 1);
+  scrim.style.pointerEvents = q > .5 ? 'auto' : 'none';
+}
+function openSheet(card){
+  const w = WEAPONS[+card.dataset.w]; openCard = card;
+  inner.innerHTML = `<div class="sname">${w.n}</div><div class="stats">${w.s.map(s => `<div class="stat"><b>${s[0]}</b><span>${s[1]}</span></div>`).join('')}</div><p>${w.d}</p><div class="row-actions"><button type="button" class="btn primary">Атака</button><button type="button" class="btn tonal">Урон</button><button type="button" class="btn" id="sheetClose">Закрыть</button></div>`;
+  inner.querySelector('#sheetClose').addEventListener('click', () => closeSheet(0));
+  fromRect = rectOf(card); const ph = phone.getBoundingClientRect();
+  face.innerHTML = card.innerHTML; face.style.width = fromRect.w + 'px';
+  toRect = {x:0, y:ph.height*0.22, w:ph.width, h:ph.height*0.78};
+  sheet.style.display = 'block'; card.style.visibility = 'hidden';
+  off = 0; oSpring.set(0); pSpring.set(0); pSpring.to(1, SPR.gentle);
+}
+function closeSheet(velocity){
+  pSpring.onRest = () => { if (prog <= .001) { sheet.style.display = 'none'; if (openCard) openCard.style.visibility = ''; openCard = null; scrim.style.pointerEvents = 'none'; } pSpring.onRest = null; };
+  // Critically damped: the sheet lands back in its card without a hop.
+  pSpring.to(0, SPR.gentle, velocity || 0); oSpring.to(0, SPR.gentle);
+}
+document.querySelectorAll('.wcard').forEach(c => c.addEventListener('click', () => openSheet(c)));
+scrim.addEventListener('click', () => closeSheet(0));
+let drag = null;
+sheet.addEventListener('pointerdown', e => {
+  if (e.target.closest('button')) return;
+  drag = {y0:e.clientY, o0:off, samples:[[e.timeStamp, e.clientY]]}; oSpring.stop(); sheet.setPointerCapture(e.pointerId);
+});
+sheet.addEventListener('pointermove', e => {
+  if (!drag) return; let d = drag.o0 + (e.clientY - drag.y0);
+  if (d < 0) d = d * .25; // resistance above the resting position
+  oSpring.set(d); drag.samples.push([e.timeStamp, e.clientY]); if (drag.samples.length > 6) drag.samples.shift();
+});
+function endDrag(){
+  if (!drag) return; const s = drag.samples, a = s[0], b = s[s.length-1];
+  const v = (b[1]-a[1]) / Math.max(1, b[0]-a[0]) * 1000; drag = null;
+  const h = toRect.h;
+  if (v > 700 || off > h*.33) closeSheet(-Math.max(v, 0)/h);
+  else oSpring.to(0, SPR.bouncy, v);
+}
+sheet.addEventListener('pointerup', endDrag); sheet.addEventListener('pointercancel', endDrag);
+addEventListener('keydown', e => { if (e.key === 'Escape' && openCard) closeSheet(0); });
+
+/* ---------- 6. d20 ---------- */
+const diceRow = document.getElementById('diceRow'), rollLine = document.getElementById('rollLine'), rollWhy = document.getElementById('rollWhy');
+const HEX = '50,4 90,27 90,73 50,96 10,73 10,27';
+const dieSvg = () => `<svg viewBox="0 0 100 100" aria-hidden="true"><polygon class="face" points="${HEX}"/><polyline class="facet" points="50,4 28,62 72,62 50,4"/><polyline class="facet" points="10,27 28,62 50,96 72,62 90,27"/><line class="facet" x1="10" y1="73" x2="28" y2="62"/><line class="facet" x1="90" y1="73" x2="72" y2="62"/><polygon class="rim" points="${HEX}" pathLength="100"/></svg>`;
+const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+let mode = 'normal', dice = [], rolling = false;
+function makeDie(wrap){
+  const d = { wrap, el:wrap.querySelector('.die'), shadow:wrap.querySelector('.die-shadow'), glow:wrap.querySelector('.die-glow'),
+    rim:wrap.querySelector('.rim'), n:wrap.querySelector('.n'), y:0, r:0, sq:0, falling:false };
+  const draw = () => {
+    d.el.style.transform = `translateY(${d.y}px) rotate(${d.r}deg) scale(${1 + .025*d.sq}, ${1 - .035*d.sq})`;
+    const lift = clamp(-d.y/24, 0, 1);
+    d.shadow.style.transform = `scale(${1 - .3*lift})`; d.shadow.style.opacity = 1 - .45*lift;
+  };
+  d.ys = new Spring(0, SPR.snappy, v => {
+    d.y = v; draw();
+    // Touchdown: a short squash, then the die settles.
+    if (d.falling && v >= -1) { d.falling = false; d.ss.set(1); d.ss.to(0, SPR.snappy); }
+  });
+  d.rs = new Spring(0, SPR.gentle, v => { d.r = v; draw(); });
+  d.ss = new Spring(0, SPR.snappy, v => { d.sq = v; draw(); });
+  return d;
+}
+function resetLine(){ rollLine.querySelectorAll('span').forEach(s => s.classList.remove('in')); }
+function buildDice(animate){
+  const n = mode === 'normal' ? 1 : 2;
+  diceRow.innerHTML = Array.from({length:n}, () => `<div class="die-wrap${n > 1 ? ' small' : ''}"><i class="die-glow"></i><button type="button" class="die" aria-label="Бросить к20">${dieSvg()}<span class="n num">20</span></button><i class="die-shadow"></i></div>`).join('');
+  dice = [...diceRow.querySelectorAll('.die-wrap')].map(makeDie);
+  dice.forEach((d, i) => {
+    d.el.addEventListener('click', () => roll());
+    if (!animate || reduced) return;
+    // Entrance: each die rolls in from below with a quarter turn.
+    d.ys.set(12); d.rs.set(i ? 18 : -18); d.wrap.style.opacity = 0;
+    setTimeout(() => { d.wrap.style.opacity = ''; d.ys.to(0, SPR.gentle); d.rs.to(0, SPR.gentle); }, 80*i + 16);
+  });
+  resetLine();
+}
+segs.push(segment(document.getElementById('diceSeg'), b => { mode = b.dataset.a; buildDice(true); rollWhy.textContent = 'Нажмите на кубик или «Бросить»'; rollWhy.classList.remove('crit'); }));
+function roll(force){
+  if (rolling) return; rolling = true; resetLine();
+  const results = dice.map(() => force || 1 + Math.floor(Math.random()*20));
+  const T = reduced ? 0 : 1, snappyEase = cssVar('--e-snappy') || 'ease-out';
+  dice.forEach(d => { d.wrap.classList.remove('dropped', 'crit', 'fail'); d.glow.getAnimations().forEach(a => a.cancel()); });
+  dice.forEach((d, i) => setTimeout(() => {
+    // Toss: a low lift with a spin while the shadow tightens on the table.
+    d.ys.to(-20, SPR.snappy, -320);
+    d.rs.to(d.r + 360 + Math.random()*120, SPR.gentle, 1100);
+    let wait = 38;
+    const flick = () => { d.n.textContent = 1 + Math.floor(Math.random()*20); wait *= 1.24; if (wait < 200 && T) d.timer = setTimeout(flick, wait); };
+    flick();
+    setTimeout(() => { d.falling = true; d.ys.to(0, SPR.snappy); }, 200*T);
+    setTimeout(() => {
+      clearTimeout(d.timer); d.n.textContent = results[i];
+      d.rs.to(Math.round(d.r/360)*360, SPR.gentle);
+      if (T) d.n.animate([{transform:'scale(.86)', opacity:.4}, {transform:'scale(1)', opacity:1}], {duration:420, easing:snappyEase});
+    }, 560*T);
+  }, 70*i*T));
+  setTimeout(() => settleRoll(results), (640 + 70*(dice.length - 1))*T);
+}
+function settleRoll(results){
+  const T = reduced ? 0 : 1;
+  const keep = mode === 'adv' ? Math.max(...results) : mode === 'dis' ? Math.min(...results) : results[0];
+  const ki = results.indexOf(keep), kept = dice[ki];
+  dice.forEach((d, i) => { if (dice.length > 1 && i !== ki) d.wrap.classList.add('dropped'); });
+  if (keep === 20) {
+    kept.wrap.classList.add('crit');
+    if (T) {
+      // A warm glow blooms and breathes out once; light runs along the die's rim.
+      kept.glow.animate([{opacity:0, transform:'scale(.7)'}, {opacity:1, transform:'scale(1)', offset:.3}, {opacity:.8, offset:.6}, {opacity:0, transform:'scale(1.06)'}], {duration:2400, easing:'ease-out'});
+      kept.rim.animate([{strokeDashoffset:0, opacity:0}, {opacity:1, offset:.12}, {opacity:1, offset:.8}, {strokeDashoffset:-200, opacity:0}], {duration:1600, easing:'linear'});
+    }
+  } else if (keep === 1) {
+    kept.wrap.classList.add('fail');
+    // The die sinks a little and tilts; a dim glow fades slowly.
+    kept.ys.to(3, SPR.gentle); kept.rs.to(kept.r - 6, SPR.gentle);
+    if (T) kept.glow.animate([{opacity:0}, {opacity:.9, offset:.3}, {opacity:0}], {duration:1800, easing:'ease-out'});
+  }
+  // Lock the result: the roll, then the modifier, then the total rolls into place.
+  const [raw, mod, eq, tot] = rollLine.children;
+  raw.textContent = keep;
+  [raw, mod, eq].forEach((el, k) => setTimeout(() => el.classList.add('in'), 130*k*T));
+  setTimeout(() => { tot.classList.add('in'); odometer(tot, keep + 5); }, 300*T);
+  rollWhy.classList.toggle('crit', keep === 20);
+  rollWhy.textContent = keep === 20 ? 'Естественная 20' : keep === 1 ? 'Естественная 1' : dice.length > 1 ? `Взято ${mode === 'adv' ? 'большее' : 'меньшее'} из ${results.join(' и ')}` : 'Мудрость (Восприятие) +5';
+  setTimeout(() => { rolling = false; }, 320*T);
+}
+document.getElementById('rollBtn').addEventListener('click', () => roll());
+document.getElementById('force20').addEventListener('click', () => roll(20));
+document.getElementById('force1').addEventListener('click', () => roll(1));
+buildDice(false);
+
+/* ---------- 7. hold ---------- */
+const hero = document.getElementById('hero'), menu = document.getElementById('heroMenu'), ring = document.getElementById('heroRing'), toast = document.getElementById('toast');
+let squeeze = 0, holdTimer = 0, pressStart = 0, pressRaf = 0, origin = null, held = false;
+const settle = new Spring(0, SPR.snappy, v => applySqueeze(v));
+function applySqueeze(s){ hero.style.transform = `scale(${1 - .035*s})`; hero.style.borderRadius = `${28 + 8*clamp(s,0,1)}px`; }
+const ease = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+function pressLoop(now){ const t = clamp((now - pressStart)/500, 0, 1), s = ease(clamp((t - .24)/.76, 0, 1)); squeeze = s; applySqueeze(s); if (t < 1) pressRaf = requestAnimationFrame(pressLoop); }
+function release(){ cancelAnimationFrame(pressRaf); clearTimeout(holdTimer); origin = null; settle.set(squeeze); settle.to(0, SPR.snappy); squeeze = 0; }
+function showToast(text){ toast.textContent = text; toast.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => toast.classList.remove('show'), 1600); }
+hero.addEventListener('pointerdown', e => {
+  menu.classList.remove('open'); held = false; origin = [e.clientX, e.clientY]; settle.stop();
+  if (!reduced) { pressStart = performance.now(); pressRaf = requestAnimationFrame(pressLoop); }
+  holdTimer = setTimeout(() => {
+    held = true; release();
+    ring.animate([{opacity:1, transform:'scale(1)'}, {opacity:0, transform:'scale(1.04)'}], {duration: reduced ? 1 : 420, easing:'ease-out'});
+    if (navigator.vibrate) try { navigator.vibrate(12); } catch (_) {}
+    menu.classList.add('open');
+  }, 500);
+});
+hero.addEventListener('pointermove', e => { if (origin && Math.hypot(e.clientX-origin[0], e.clientY-origin[1]) > 8) release(); });
+hero.addEventListener('pointerup', () => { const wasHeld = held; const tapped = origin !== null; release(); if (tapped && !wasHeld) { settle.set(.6); settle.to(0, SPR.snappy); showToast('Открыт лист героя'); } });
+hero.addEventListener('pointercancel', release);
+hero.addEventListener('contextmenu', e => e.preventDefault());
+hero.addEventListener('keydown', e => { if (e.key === 'Enter') showToast('Открыт лист героя'); if (e.key === ' ' ) { e.preventDefault(); menu.classList.toggle('open'); } });
+menu.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { menu.classList.remove('open'); showToast(b.textContent.trim() + ' — в прототипе ничего не меняется'); }));
+document.addEventListener('pointerdown', e => { if (!e.target.closest('#heroMenu') && !e.target.closest('#hero')) menu.classList.remove('open'); });
+
+/* ---------- summary ---------- */
+document.getElementById('copySum').addEventListener('click', () => {
+  const text = document.getElementById('sumCode').textContent;
+  const done = () => { const b = document.getElementById('copySum'); b.textContent = 'Скопировано'; setTimeout(() => b.textContent = 'Скопировать', 1400); };
+  (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(done, () => { const r = document.createRange(); r.selectNodeContents(document.getElementById('sumCode')); getSelection().removeAllRanges(); getSelection().addRange(r); });
+});
+renderSummary();
+document.fonts && document.fonts.ready.then(() => { segs.forEach(s => s.refresh()); flowA.moveTo(islandA.querySelectorAll('button')[navIndex], true); });
+</script>
+</body>
+</html>

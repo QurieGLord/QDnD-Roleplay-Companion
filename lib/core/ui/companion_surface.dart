@@ -1,7 +1,9 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'companion_motion.dart';
 import 'expressive_hold_surface.dart';
+import 'expressive_kit.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 /// Shared geometry, not a shared layout: each class composes its own controls.
@@ -282,23 +284,26 @@ class CompanionReserve extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context), c = t.colorScheme;
-    return AnimatedSwitcher(
-        duration: MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : const Duration(milliseconds: 200),
-        child: Text('$current / $maximum',
-            key: ValueKey('$current/$maximum'),
-            style:
-                (large ? t.textTheme.headlineMedium : t.textTheme.titleMedium)
-                    ?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -.5,
-                        color: current > maximum ? c.tertiary : c.onSurface)));
+    final style = (large ? t.textTheme.headlineMedium : t.textTheme.titleMedium)
+        ?.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: -.5,
+            color: current > maximum ? c.tertiary : c.onSurface);
+    return Semantics(
+      label: '$current / $maximum',
+      excludeSemantics: true,
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        RollingNumber(current, style: style),
+        Text(' / $maximum', style: style),
+      ]),
+    );
   }
 }
 
 /// Marks are supplementary. A manual excess or a large reserve stays numeric.
-class CompanionReserveMarks extends StatelessWidget {
+/// A spent mark shrinks into a hollow ring; marks added later grow from a
+/// point instead of popping in.
+class CompanionReserveMarks extends StatefulWidget {
   const CompanionReserveMarks(
       {super.key,
       required this.current,
@@ -307,25 +312,81 @@ class CompanionReserveMarks extends StatelessWidget {
   final int current, maximum;
   final CompanionContour contour;
   @override
+  State<CompanionReserveMarks> createState() => _CompanionReserveMarksState();
+}
+
+class _CompanionReserveMarksState extends State<CompanionReserveMarks> {
+  // Marks at or above this index arrived after the first build and grow in.
+  int _grownFrom = 1 << 30;
+  @override
+  void didUpdateWidget(covariant CompanionReserveMarks old) {
+    super.didUpdateWidget(old);
+    if (widget.maximum > old.maximum) {
+      _grownFrom = math.min(_grownFrom, old.maximum);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (maximum <= 0 || maximum > 10) return const SizedBox.shrink();
+    if (widget.maximum <= 0 || widget.maximum > 10) {
+      return const SizedBox.shrink();
+    }
     final c = Theme.of(context).colorScheme;
+    final d = AppMotion.of(context, AppMotion.snappySettle);
     return ExcludeSemantics(
         child: Wrap(spacing: 7, runSpacing: 7, children: [
-      for (var i = 0; i < maximum; i++)
-        AnimatedContainer(
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : const Duration(milliseconds: 220),
-          width: 13,
-          height: 13,
-          decoration: ShapeDecoration(
-              color: i < current ? c.secondary : c.surface,
-              shape: CompanionShape(
-                  contour: contour,
-                  side: BorderSide(color: c.secondary.withValues(alpha: .45)))),
-        ),
+      for (var i = 0; i < widget.maximum; i++)
+        _Mark(
+            key: ValueKey(i),
+            spent: i >= widget.current,
+            grow: i >= _grownFrom,
+            duration: d,
+            color: c.secondary,
+            contour: widget.contour),
     ]));
+  }
+}
+
+class _Mark extends StatelessWidget {
+  const _Mark(
+      {super.key,
+      required this.spent,
+      required this.grow,
+      required this.duration,
+      required this.color,
+      required this.contour});
+  final bool spent, grow;
+  final Duration duration;
+  final Color color;
+  final CompanionContour contour;
+  @override
+  Widget build(BuildContext context) {
+    final mark = AnimatedScale(
+      scale: spent ? .62 : 1,
+      duration: duration,
+      curve: AppMotion.snappyCurve,
+      child: AnimatedContainer(
+        duration: duration,
+        curve: AppMotion.standard,
+        width: 13,
+        height: 13,
+        decoration: ShapeDecoration(
+            color: spent ? color.withValues(alpha: 0) : color,
+            shape: CompanionShape(
+                contour: contour,
+                side: BorderSide(
+                    color: color.withValues(alpha: spent ? .8 : .45),
+                    width: spent ? 2.4 : 1))),
+      ),
+    );
+    if (!grow || duration == Duration.zero) return mark;
+    return TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: 1),
+        duration: duration,
+        curve: AppMotion.snappyCurve,
+        builder: (context, v, child) =>
+            Transform.scale(scale: v.clamp(0.0, 1.2), child: child),
+        child: mark);
   }
 }
 

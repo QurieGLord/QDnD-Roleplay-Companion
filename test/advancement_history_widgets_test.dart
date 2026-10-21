@@ -87,12 +87,16 @@ void main() {
     await tester.pumpWidget(
         widgets.app(CharacterSheetScreen(character: c), locale: 'ru'));
     await tester.pumpAndSettle();
+    // The rolling HP number is read through its accessible label.
     String healthText() => tester
-        .widget<Text>(find.descendant(
-            of: find.byKey(const ValueKey('sheet-health-edit')),
-            matching: find.byType(Text)))
-        .textSpan!
-        .toPlainText();
+        .widget<Semantics>(find
+            .descendant(
+                of: find.byKey(const ValueKey('sheet-health-edit')),
+                matching: find.byWidgetPredicate(
+                    (w) => w is Semantics && w.properties.label != null))
+            .first)
+        .properties
+        .label!;
     expect(healthText(), '11 / ${c.maxHp}');
     await tester
         .longPress(find.byKey(const ValueKey('character-level-control')));

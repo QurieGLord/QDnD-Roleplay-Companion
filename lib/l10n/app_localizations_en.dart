@@ -925,6 +925,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tapToRoll => 'Tap to Roll';
 
   @override
+  String get diceNaturalTwenty => 'Natural 20';
+
+  @override
+  String get diceNaturalOne => 'Natural 1';
+
+  @override
   String get levelUp => 'Level Up';
 
   @override
