@@ -350,6 +350,384 @@ abstract class AppLocalizations {
   /// **'Save a Fight Club 5 compatible character XML.'**
   String get exportFC5XmlActionDescription;
 
+  /// No description provided for @heroLevelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String heroLevelTitle(int level);
+
+  /// No description provided for @heroLevelRaise.
+  ///
+  /// In en, this message translates to:
+  /// **'level up'**
+  String get heroLevelRaise;
+
+  /// No description provided for @heroLevelSum.
+  ///
+  /// In en, this message translates to:
+  /// **'total of classes'**
+  String get heroLevelSum;
+
+  /// No description provided for @heroLevelHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'advancement history'**
+  String get heroLevelHistory;
+
+  /// No description provided for @heroHoldHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold for level-up history'**
+  String get heroHoldHistory;
+
+  /// No description provided for @heroExpand.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand hero'**
+  String get heroExpand;
+
+  /// No description provided for @hpKeypadEnterDamage.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter damage'**
+  String get hpKeypadEnterDamage;
+
+  /// No description provided for @hpKeypadEnterHealing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter healing'**
+  String get hpKeypadEnterHealing;
+
+  /// No description provided for @hpKeypadEnterTemporary.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter temporary HP'**
+  String get hpKeypadEnterTemporary;
+
+  /// No description provided for @hpKeypadApplyDamage.
+  ///
+  /// In en, this message translates to:
+  /// **'Take {amount} damage'**
+  String hpKeypadApplyDamage(int amount);
+
+  /// No description provided for @hpKeypadApplyHealing.
+  ///
+  /// In en, this message translates to:
+  /// **'Heal {amount}'**
+  String hpKeypadApplyHealing(int amount);
+
+  /// No description provided for @hpKeypadApplyTemporary.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary HP: {amount}'**
+  String hpKeypadApplyTemporary(int amount);
+
+  /// No description provided for @hpKeypadTemporary.
+  ///
+  /// In en, this message translates to:
+  /// **'Temp HP'**
+  String get hpKeypadTemporary;
+
+  /// No description provided for @hpKeypadErase.
+  ///
+  /// In en, this message translates to:
+  /// **'Erase'**
+  String get hpKeypadErase;
+
+  /// No description provided for @hpKeypadSameAsLast.
+  ///
+  /// In en, this message translates to:
+  /// **'same as last · {amount}'**
+  String hpKeypadSameAsLast(int amount);
+
+  /// No description provided for @acBreakdownSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What it is made of right now'**
+  String get acBreakdownSubtitle;
+
+  /// No description provided for @acSourceUnarmored.
+  ///
+  /// In en, this message translates to:
+  /// **'Unarmored'**
+  String get acSourceUnarmored;
+
+  /// No description provided for @acSourceDraconic.
+  ///
+  /// In en, this message translates to:
+  /// **'Draconic Resilience'**
+  String get acSourceDraconic;
+
+  /// No description provided for @acSourceDefense.
+  ///
+  /// In en, this message translates to:
+  /// **'Defense fighting style'**
+  String get acSourceDefense;
+
+  /// No description provided for @acDexCap.
+  ///
+  /// In en, this message translates to:
+  /// **'at most +{cap}'**
+  String acDexCap(int cap);
+
+  /// No description provided for @acTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get acTotal;
+
+  /// No description provided for @acPinned.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned by hand: {value}. From gear: {calculated}.'**
+  String acPinned(int value, int calculated);
+
+  /// No description provided for @acAutomaticNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculated from worn gear. If the DM rules otherwise, you can pin a value by hand.'**
+  String get acAutomaticNote;
+
+  /// No description provided for @acEditManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin by hand'**
+  String get acEditManual;
+
+  /// No description provided for @acEditPinned.
+  ///
+  /// In en, this message translates to:
+  /// **'Change pinned value'**
+  String get acEditPinned;
+
+  /// No description provided for @nowLowHpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Below half HP'**
+  String get nowLowHpTitle;
+
+  /// No description provided for @nowLowHpNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Short rest · hit dice left: {count}'**
+  String nowLowHpNote(int count);
+
+  /// No description provided for @nowRestAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest'**
+  String get nowRestAction;
+
+  /// No description provided for @nowReadyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before combat'**
+  String get nowReadyTitle;
+
+  /// No description provided for @nowReadyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Initiative {bonus} · one tap to roll'**
+  String nowReadyNote(String bonus);
+
+  /// No description provided for @nowRollAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Roll'**
+  String get nowRollAction;
+
+  /// No description provided for @overviewConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Conditions'**
+  String get overviewConditions;
+
+  /// No description provided for @overviewAddCondition.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get overviewAddCondition;
+
+  /// No description provided for @overviewNoConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'No active conditions'**
+  String get overviewNoConditions;
+
+  /// No description provided for @weaponKindMelee.
+  ///
+  /// In en, this message translates to:
+  /// **'Melee'**
+  String get weaponKindMelee;
+
+  /// No description provided for @weaponKindRanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Ranged'**
+  String get weaponKindRanged;
+
+  /// No description provided for @weaponKindThrown.
+  ///
+  /// In en, this message translates to:
+  /// **'Melee · thrown'**
+  String get weaponKindThrown;
+
+  /// No description provided for @weaponAttack.
+  ///
+  /// In en, this message translates to:
+  /// **'Attack'**
+  String get weaponAttack;
+
+  /// No description provided for @weaponDamageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Damage · {type}'**
+  String weaponDamageOf(String type);
+
+  /// No description provided for @statsPassivePerception.
+  ///
+  /// In en, this message translates to:
+  /// **'Passive Perception'**
+  String get statsPassivePerception;
+
+  /// No description provided for @statsTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to roll a check, the lower strip rolls a save'**
+  String get statsTapHint;
+
+  /// No description provided for @statsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'save {bonus}'**
+  String statsSave(String bonus);
+
+  /// No description provided for @statsFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get statsFilterAll;
+
+  /// No description provided for @statsFilterProficient.
+  ///
+  /// In en, this message translates to:
+  /// **'Proficient'**
+  String get statsFilterProficient;
+
+  /// No description provided for @lobbyReady.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hero ready for the next story} other{{count} heroes ready for the next story}}'**
+  String lobbyReady(int count);
+
+  /// No description provided for @heroAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About the hero'**
+  String get heroAbout;
+
+  /// No description provided for @vitalsStanding.
+  ///
+  /// In en, this message translates to:
+  /// **'Standing'**
+  String get vitalsStanding;
+
+  /// No description provided for @vitalsUnconscious.
+  ///
+  /// In en, this message translates to:
+  /// **'Unconscious'**
+  String get vitalsUnconscious;
+
+  /// No description provided for @deathSaveUnconscious.
+  ///
+  /// In en, this message translates to:
+  /// **'Unconscious. Roll a death saving throw.'**
+  String get deathSaveUnconscious;
+
+  /// No description provided for @deathSaveThreeSuccesses.
+  ///
+  /// In en, this message translates to:
+  /// **'Three successes: stable at 0 HP.'**
+  String get deathSaveThreeSuccesses;
+
+  /// No description provided for @deathSaveThreeFailures.
+  ///
+  /// In en, this message translates to:
+  /// **'Three failures. The DM decides what happens.'**
+  String get deathSaveThreeFailures;
+
+  /// No description provided for @quickSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'SPEED'**
+  String get quickSpeed;
+
+  /// No description provided for @quickProf.
+  ///
+  /// In en, this message translates to:
+  /// **'PROF'**
+  String get quickProf;
+
+  /// No description provided for @overviewWeapons.
+  ///
+  /// In en, this message translates to:
+  /// **'Weapons and attacks'**
+  String get overviewWeapons;
+
+  /// No description provided for @overviewAttacksPerAction.
+  ///
+  /// In en, this message translates to:
+  /// **'attacks: {count}'**
+  String overviewAttacksPerAction(int count);
+
+  /// No description provided for @restShortTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get restShortTile;
+
+  /// No description provided for @restLongTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Long'**
+  String get restLongTile;
+
+  /// No description provided for @conditionsPickerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark what affects the hero. Clear it here or with the cross on Overview.'**
+  String get conditionsPickerHint;
+
+  /// No description provided for @conditionsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get conditionsDone;
+
+  /// No description provided for @conditionsAllParameters.
+  ///
+  /// In en, this message translates to:
+  /// **'All game parameters'**
+  String get conditionsAllParameters;
+
+  /// No description provided for @statsTapHintShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to roll a check'**
+  String get statsTapHintShort;
+
+  /// No description provided for @deckOpenSheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Open sheet'**
+  String get deckOpenSheet;
+
+  /// No description provided for @deckProficiency.
+  ///
+  /// In en, this message translates to:
+  /// **'Proficiency'**
+  String get deckProficiency;
+
   /// No description provided
   ///
   /// In en, this message translates to:

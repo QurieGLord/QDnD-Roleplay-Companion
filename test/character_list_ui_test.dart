@@ -4,40 +4,89 @@ import 'package:qd_and_d/core/models/ability_scores.dart';
 import 'package:qd_and_d/core/models/character.dart';
 import 'package:qd_and_d/core/models/character_class.dart';
 import 'package:qd_and_d/features/character_list/character_list_screen.dart';
-import 'package:qd_and_d/features/character_list/widgets/character_card.dart';
+import 'package:qd_and_d/features/character_list/widgets/hero_deck.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('character card is compact and has no trailing arrow',
+  testWidgets('deck card fits a long name and reads its level',
       (tester) async {
     tester.view.physicalSize = const Size(360, 720);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    final handle = tester.ensureSemantics();
 
     await tester.pumpWidget(
       _wrap(
         SizedBox(
-          width: 328,
-          child: CharacterCard(
-            character: _character(
-              name: 'Rowan of the Extremely Long Violet Archive and Glass Moon',
-              race: 'Dragonborn',
-              characterClass: 'Paladin',
-              subclass: 'Oath of the Longest Possible Synthetic Test Name',
-            ),
-            onTap: () {},
-            onLongPress: () {},
+          width: 360,
+          height: 600,
+          child: HeroDeck(
+            characters: [
+              _character(
+                name:
+                    'Rowan of the Extremely Long Violet Archive and Glass Moon',
+                race: 'Dragonborn',
+                characterClass: 'Paladin',
+                subclass: 'Oath of the Longest Possible Synthetic Test Name',
+              ),
+            ],
+            onOpen: (_, __) {},
+            onHold: (_) {},
           ),
         ),
       ),
     );
+    await tester.pump(const Duration(milliseconds: 600));
 
-    expect(find.byIcon(Icons.chevron_right_rounded), findsNothing);
-    expect(find.textContaining('Level 4'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('Level 4')), findsOneWidget);
+    expect(find.text('Open sheet'), findsOneWidget);
     expect(tester.takeException(), isNull);
+    handle.dispose();
+  });
+
+  testWidgets('deck brings a folded card to focus before opening it',
+      (tester) async {
+    tester.view.physicalSize = const Size(360, 720);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final opened = <String>[];
+
+    await tester.pumpWidget(
+      _wrap(
+        SizedBox(
+          width: 360,
+          height: 600,
+          child: HeroDeck(
+            characters: [
+              for (final name in ['Ada', 'Bram', 'Cyra'])
+                _character(name: name)..id = name,
+            ],
+            onOpen: (character, _) => opened.add(character.name),
+            onHold: (_) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.text('Cyra'));
+    await tester.pumpAndSettle();
+    expect(opened, isEmpty);
+    final scroll = tester
+        .state<ScrollableState>(find.byType(Scrollable).first)
+        .position;
+    expect(scroll.pixels, closeTo(2 * 84, .5));
+
+    await tester.tap(find.text('Cyra'));
+    expect(opened, ['Cyra']);
+
+    await tester.drag(find.text('Cyra'), const Offset(0, 60));
+    await tester.pumpAndSettle();
+    expect(scroll.pixels % 84, closeTo(0, .5));
   });
 
   testWidgets('export format picker exposes QDND and FC5 choices',

@@ -168,6 +168,163 @@
   "@exportFC5XmlActionDescription": {
     "description": "Supporting copy for FC5 XML export"
   },
+  "heroLevelTitle": "Level {level}",
+  "@heroLevelTitle": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "heroLevelRaise": "level up",
+  "heroLevelSum": "total of classes",
+  "heroLevelHistory": "advancement history",
+  "heroHoldHistory": "Hold for level-up history",
+  "heroExpand": "Expand hero",
+  "hpKeypadEnterDamage": "Enter damage",
+  "hpKeypadEnterHealing": "Enter healing",
+  "hpKeypadEnterTemporary": "Enter temporary HP",
+  "hpKeypadApplyDamage": "Take {amount} damage",
+  "@hpKeypadApplyDamage": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "hpKeypadApplyHealing": "Heal {amount}",
+  "@hpKeypadApplyHealing": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "hpKeypadApplyTemporary": "Temporary HP: {amount}",
+  "@hpKeypadApplyTemporary": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "hpKeypadTemporary": "Temp HP",
+  "hpKeypadErase": "Erase",
+  "hpKeypadSameAsLast": "same as last · {amount}",
+  "@hpKeypadSameAsLast": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "acBreakdownSubtitle": "What it is made of right now",
+  "acSourceUnarmored": "Unarmored",
+  "acSourceDraconic": "Draconic Resilience",
+  "acSourceDefense": "Defense fighting style",
+  "acDexCap": "at most +{cap}",
+  "@acDexCap": {
+    "placeholders": {
+      "cap": {
+        "type": "int"
+      }
+    }
+  },
+  "acTotal": "Total",
+  "acPinned": "Pinned by hand: {value}. From gear: {calculated}.",
+  "@acPinned": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      },
+      "calculated": {
+        "type": "int"
+      }
+    }
+  },
+  "acAutomaticNote": "Calculated from worn gear. If the DM rules otherwise, you can pin a value by hand.",
+  "acEditManual": "Pin by hand",
+  "acEditPinned": "Change pinned value",
+  "nowLowHpTitle": "Below half HP",
+  "nowLowHpNote": "Short rest · hit dice left: {count}",
+  "@nowLowHpNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nowRestAction": "Rest",
+  "nowReadyTitle": "Before combat",
+  "nowReadyNote": "Initiative {bonus} · one tap to roll",
+  "@nowReadyNote": {
+    "placeholders": {
+      "bonus": {
+        "type": "String"
+      }
+    }
+  },
+  "nowRollAction": "Roll",
+  "overviewConditions": "Conditions",
+  "overviewAddCondition": "Add",
+  "overviewNoConditions": "No active conditions",
+  "weaponKindMelee": "Melee",
+  "weaponKindRanged": "Ranged",
+  "weaponKindThrown": "Melee · thrown",
+  "weaponAttack": "Attack",
+  "weaponDamageOf": "Damage · {type}",
+  "@weaponDamageOf": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "statsPassivePerception": "Passive Perception",
+  "statsTapHint": "Tap to roll a check, the lower strip rolls a save",
+  "statsSave": "save {bonus}",
+  "@statsSave": {
+    "placeholders": {
+      "bonus": {
+        "type": "String"
+      }
+    }
+  },
+  "statsFilterAll": "All",
+  "statsFilterProficient": "Proficient",
+  "lobbyReady": "{count, plural, =1{1 hero ready for the next story} other{{count} heroes ready for the next story}}",
+  "@lobbyReady": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "heroAbout": "About the hero",
+  "vitalsStanding": "Standing",
+  "vitalsUnconscious": "Unconscious",
+  "deathSaveUnconscious": "Unconscious. Roll a death saving throw.",
+  "deathSaveThreeSuccesses": "Three successes: stable at 0 HP.",
+  "deathSaveThreeFailures": "Three failures. The DM decides what happens.",
+  "quickSpeed": "SPEED",
+  "quickProf": "PROF",
+  "overviewWeapons": "Weapons and attacks",
+  "overviewAttacksPerAction": "attacks: {count}",
+  "@overviewAttacksPerAction": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "restShortTile": "Short",
+  "restLongTile": "Long",
+  "conditionsPickerHint": "Mark what affects the hero. Clear it here or with the cross on Overview.",
+  "conditionsDone": "Done",
+  "conditionsAllParameters": "All game parameters",
+  "statsTapHintShort": "Tap to roll a check",
+  "deckOpenSheet": "Open sheet",
+  "deckProficiency": "Proficiency",
   "viewDetails": "View Details",
   "@viewDetails": {
     "description": "No description provided"

@@ -19,7 +19,8 @@ import '../../../core/services/qdnd_bundle_file_service.dart';
 import '../../../core/services/qdnd_bundle_import_service.dart';
 import '../../../core/services/qdnd_bundle_schema.dart';
 import '../../../core/services/storage_service.dart';
-import 'widgets/character_card.dart';
+import 'widgets/hero_deck.dart';
+import '../../core/ui/companion_kit.dart';
 import 'widgets/character_roster_visuals.dart';
 import 'widgets/empty_state.dart';
 import 'widgets/roster_reveal.dart';
@@ -36,6 +37,8 @@ class CharacterListScreen extends StatefulWidget {
 }
 
 class _CharacterListScreenState extends State<CharacterListScreen> {
+  bool _revealing = false;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -49,158 +52,97 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
         final hasCharacters = characters.isNotEmpty;
 
         return Scaffold(
+          backgroundColor: colorScheme.surface,
           floatingActionButton: hasCharacters
               ? RosterReveal(
                   key: const ValueKey('character_list_fab'),
                   delay: const Duration(milliseconds: 220),
                   beginOffset: const Offset(0, 0.16),
                   beginScale: 0.94,
-                  child: FloatingActionButton.extended(
-                    heroTag: 'character_list_create_fab',
-                    tooltip: l10n.createNewCharacter,
+                  child: _CreateFab(
+                    label: l10n.createNewCharacter,
                     onPressed: () => _showCreateCharacterDialog(context),
-                    icon: Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: colorScheme.onPrimary.withValues(alpha: 0.14),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.add_rounded, size: 18),
-                    ),
-                    label: Text(l10n.createNewCharacter),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadii.xl),
-                    ),
                   ),
                 )
               : null,
-          body: Stack(
-            children: [
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color.alphaBlend(
-                          colorScheme.primary.withValues(alpha: 0.05),
-                          colorScheme.surface,
-                        ),
-                        colorScheme.surface,
-                        Color.alphaBlend(
-                          colorScheme.secondary.withValues(alpha: 0.04),
-                          colorScheme.surface,
-                        ),
-                      ],
-                      stops: const [0, 0.34, 1],
+          // While a hero's sheet grows out of its card, the lobby recedes:
+          // it shrinks a little and dims, then comes back on return.
+          body: _RecedeBehindReveal(
+            active: _revealing,
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  RosterReveal(
+                    key: const ValueKey('character_list_header'),
+                    delay: const Duration(milliseconds: 40),
+                    child: _RosterHeader(
+                      count: characters.length,
+                      onSettings: () {
+                        Navigator.of(context).pushNamed('/settings');
+                      },
                     ),
                   ),
-                ),
-              ),
-              Positioned(
-                top: -72,
-                right: -30,
-                child: _BackdropGlow(
-                  size: 180,
-                  color: colorScheme.primary.withValues(alpha: 0.12),
-                ),
-              ),
-              Positioned(
-                top: 220,
-                left: -90,
-                child: _BackdropGlow(
-                  size: 190,
-                  color: colorScheme.secondary.withValues(alpha: 0.08),
-                ),
-              ),
-              SafeArea(
-                bottom: false,
-                child: CustomScrollView(
-                  slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                      sliver: SliverToBoxAdapter(
-                        child: RosterReveal(
-                          key: const ValueKey('character_list_header'),
-                          delay: const Duration(milliseconds: 40),
-                          child: _RosterHeader(
-                            count: characters.length,
-                            onSettings: () {
-                              Navigator.of(context).pushNamed('/settings');
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (!hasCharacters)
-                      SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
-                          child: RosterReveal(
-                            key: const ValueKey('character_list_empty'),
-                            delay: const Duration(milliseconds: 120),
-                            child: EmptyState(
-                              onCreate: () => _openCharacterCreation(context),
-                              onImport: () =>
-                                  _showCreateCharacterDialog(context),
-                              importLabel: l10n.importCharacter,
-                            ),
-                          ),
-                        ),
-                      )
-                    else
-                      SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 112),
-                        sliver: SliverList(
-                          delegate:
-                              SliverChildBuilderDelegate((context, index) {
-                            final character = characters[index];
-                            final staggerMs = 80 + (index * 48).clamp(0, 240);
-
-                            return Padding(
-                              padding: EdgeInsets.only(
-                                bottom: index == characters.length - 1 ? 0 : 10,
-                              ),
-                              child: RosterReveal(
-                                key: ValueKey(
-                                  'character-card-reveal-${character.id}',
-                                ),
-                                delay: Duration(milliseconds: staggerMs),
-                                child: CharacterCard(
-                                  key: ValueKey(
-                                    'character-card-${character.id}',
+                  Expanded(
+                    child: hasCharacters
+                        ? RosterReveal(
+                            key: const ValueKey('character_list_deck'),
+                            delay: const Duration(milliseconds: 80),
+                            child: HeroDeck(
+                              characters: characters,
+                              onOpen: (character, origin) async {
+                                setState(() => _revealing = true);
+                                await Navigator.push(
+                                  context,
+                                  DeckRevealRoute<void>(
+                                    origin: origin,
+                                    heroId: character.id,
+                                    builder: (context) => CharacterSheetScreen(
+                                      character: character,
+                                    ),
+                                    faceBuilder: (context, height) => DeckCard(
+                                      character: character,
+                                      height: height,
+                                      face: true,
+                                      onTap: () {},
+                                      onHold: () {},
+                                    ),
                                   ),
-                                  character: character,
-                                  onTap: () async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            CharacterSheetScreen(
-                                          character: character,
-                                        ),
-                                      ),
-                                    );
-                                    if (mounted) {
-                                      setState(() {});
-                                    }
-                                  },
-                                  onLongPress: () {
-                                    _showCharacterOptions(context, character);
-                                  },
+                                );
+                                if (mounted) {
+                                  setState(() => _revealing = false);
+                                }
+                              },
+                              onHold: (character) {
+                                _showCharacterOptions(context, character);
+                              },
+                            ),
+                          )
+                        : CustomScrollView(slivers: [
+                            SliverFillRemaining(
+                              hasScrollBody: false,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(16, 16, 16, 28),
+                                child: RosterReveal(
+                                  key: const ValueKey('character_list_empty'),
+                                  delay: const Duration(milliseconds: 120),
+                                  child: EmptyState(
+                                    onCreate: () =>
+                                        _openCharacterCreation(context),
+                                    onImport: () =>
+                                        _showCreateCharacterDialog(context),
+                                    importLabel: l10n.importCharacter,
+                                  ),
                                 ),
                               ),
-                            );
-                          }, childCount: characters.length),
-                        ),
-                      ),
-                  ],
-                ),
+                            ),
+                          ]),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         );
       },
@@ -779,7 +721,8 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppRadii.lgPlus),
+                              borderRadius:
+                                  BorderRadius.circular(AppRadii.lgPlus),
                             ),
                           ),
                           child: Text(l10n.cancel),
@@ -819,7 +762,8 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
                             foregroundColor: colorScheme.onError,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppRadii.lgPlus),
+                              borderRadius:
+                                  BorderRadius.circular(AppRadii.lgPlus),
                             ),
                           ),
                         ),
@@ -1466,192 +1410,143 @@ class _RosterHeader extends StatelessWidget {
   final int count;
   final VoidCallback onSettings;
 
+  // The deck is the screen; the header stays a quiet title above it.
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final titleStyle = constraints.maxWidth >= 520
-            ? theme.textTheme.displaySmall
-            : theme.textTheme.headlineLarge;
-
-        return Material(
-          color: colorScheme.surfaceContainerLow,
-          elevation: 1,
-          shadowColor: colorScheme.shadow.withValues(alpha: 0.08),
-          surfaceTintColor: colorScheme.primary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadii.xlPlus),
-            side: BorderSide(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.65),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18, 22, 14, 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.characters,
+                  style: theme.textTheme.displaySmall?.copyWith(
+                    fontFamily: AppType.display,
+                    fontSize: 36,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -1.1,
+                    height: 1.08,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  count > 0
+                      ? l10n.lobbyReady(count)
+                      : l10n.rosterHeaderSubtitle,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontSize: 14.5,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
           ),
-          clipBehavior: Clip.antiAlias,
-          child: Stack(
-            children: [
-              Positioned(
-                top: -52,
-                right: -28,
-                child: _BackdropGlow(
-                  size: 140,
-                  color: colorScheme.primary.withValues(alpha: 0.14),
-                ),
+          const SizedBox(width: 12),
+          Pressable(
+            onTap: onSettings,
+            scale: .92,
+            semanticLabel: l10n.settings,
+            child: Container(
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colorScheme.onSurface.withValues(alpha: .08),
               ),
-              Positioned(
-                left: -16,
-                bottom: -56,
-                child: _BackdropGlow(
-                  size: 130,
-                  color: colorScheme.secondary.withValues(alpha: 0.09),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.characters,
-                                style: titleStyle?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.8,
-                                  height: 0.95,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                l10n.rosterHeaderSubtitle,
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: colorScheme.onSurfaceVariant,
-                                  height: 1.3,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        IconButton.filledTonal(
-                          onPressed: onSettings,
-                          tooltip: l10n.settings,
-                          icon: const Icon(Icons.settings_outlined),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        if (count > 0) _HeaderCountBadge(count: count),
-                        if (count > 0)
-                          _HeaderChip(
-                            icon: Icons.touch_app_rounded,
-                            label: l10n.rosterLongPressHint,
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              child:
+                  LineIcon('settings', size: 20, color: colorScheme.onSurface),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The prototype's create button: 56 high, corners 20, primary container.
+class _CreateFab extends StatelessWidget {
+  const _CreateFab({required this.label, required this.onPressed});
+  final String label;
+  final VoidCallback onPressed;
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context), c = t.colorScheme;
+    return Tooltip(
+      message: label,
+      child: Pressable(
+        onTap: onPressed,
+        semanticLabel: label,
+        child: Container(
+          height: 56,
+          padding: const EdgeInsets.fromLTRB(18, 0, 22, 0),
+          decoration: BoxDecoration(
+            color: c.primaryContainer,
+            borderRadius: BorderRadius.circular(AppRadii.lgPlus),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withValues(alpha: .6),
+                  blurRadius: 26,
+                  spreadRadius: -10,
+                  offset: const Offset(0, 12)),
             ],
           ),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            LineIcon('plus', size: 22, color: c.onSurface),
+            const SizedBox(width: 10),
+            Text(label,
+                style: t.textTheme.labelLarge?.copyWith(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: c.onSurface)),
+          ]),
+        ),
+      ),
+    );
+  }
+}
+
+/// Shrinks the lobby to 0.95 and dims it while a sheet is revealed over it,
+/// following the reveal route's own progress.
+class _RecedeBehindReveal extends StatelessWidget {
+  const _RecedeBehindReveal({required this.active, required this.child});
+  final bool active;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) {
+    final route = ModalRoute.of(context);
+    final progress = route?.secondaryAnimation;
+    if (progress == null || MediaQuery.disableAnimationsOf(context)) {
+      return child;
+    }
+    return AnimatedBuilder(
+      animation: progress,
+      child: child,
+      builder: (context, child) {
+        final p = active ? progress.value.clamp(0.0, 1.0) : 0.0;
+        if (p == 0) return child!;
+        // A plain dark veil, not a colour filter: filtering the whole lobby
+        // every frame would cost frames during the reveal.
+        return Transform.scale(
+          scale: 1 - .05 * p,
+          child: Stack(fit: StackFit.passthrough, children: [
+            child!,
+            Positioned.fill(
+              child: IgnorePointer(
+                child:
+                    ColoredBox(color: Colors.black.withValues(alpha: .35 * p)),
+              ),
+            ),
+          ]),
         );
       },
-    );
-  }
-}
-
-class _HeaderCountBadge extends StatelessWidget {
-  const _HeaderCountBadge({required this.count});
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Color.alphaBlend(
-          colorScheme.primary.withValues(alpha: 0.16),
-          colorScheme.surfaceContainerHighest,
-        ),
-        borderRadius: BorderRadius.circular(AppRadii.pill),
-        border: Border.all(
-          color: colorScheme.primary.withValues(alpha: 0.24),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.groups_2_rounded,
-            size: 16,
-            color: colorScheme.primary,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            '$count',
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeaderChip extends StatelessWidget {
-  const _HeaderChip({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final accent = colorScheme.secondary;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Color.alphaBlend(
-          accent.withValues(alpha: 0.1),
-          colorScheme.surfaceContainerHighest,
-        ),
-        borderRadius: BorderRadius.circular(AppRadii.pill),
-        border: Border.all(
-          color: accent.withValues(alpha: 0.14),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: accent),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -2220,35 +2115,6 @@ class _DetailTextPanel extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _BackdropGlow extends StatelessWidget {
-  const _BackdropGlow({
-    required this.size,
-    required this.color,
-  });
-
-  final double size;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: color,
-              blurRadius: size,
-              spreadRadius: size / 4,
-            ),
-          ],
-        ),
-        child: SizedBox.square(dimension: size),
       ),
     );
   }

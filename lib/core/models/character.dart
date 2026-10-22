@@ -6,6 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 import 'ability_scores.dart';
+import 'armor_class_parts.dart';
 import 'character_feature.dart';
 import 'character_class.dart';
 import 'item.dart';
@@ -1095,70 +1096,6 @@ class Character extends HiveObject {
     updatedAt = DateTime.now();
   }
 
-  int get calculatedArmorClass {
-    int baseAC = 10;
-    int dexMod = abilityScores.dexterityModifier;
-    int totalAC = baseAC;
-    final conMod = abilityScores.constitutionModifier;
-
-    // Find equipped armor and shield
-    Item? equippedArmor;
-    Item? equippedShield;
-
-    for (var item in inventory) {
-      if (item.isEquipped &&
-          item.type == ItemType.armor &&
-          item.armorProperties != null) {
-        if (item.armorProperties!.armorType == ArmorType.shield) {
-          equippedShield = item;
-        } else {
-          equippedArmor = item;
-        }
-      }
-    }
-
-    // Calculate AC from armor
-    if (equippedArmor != null && equippedArmor.armorProperties != null) {
-      final armorProps = equippedArmor.armorProperties!;
-      totalAC = armorProps.baseAC;
-
-      // Add DEX modifier based on armor type
-      if (armorProps.addDexModifier) {
-        if (armorProps.maxDexBonus != null) {
-          totalAC += dexMod.clamp(-10, armorProps.maxDexBonus!);
-        } else {
-          totalAC += dexMod; // Full DEX for light armor
-        }
-      }
-    } else {
-      // No armor: Barbarians with Unarmored Defense also add CON.
-      totalAC = 10 + dexMod;
-      if (hasBarbarianUnarmoredDefense) {
-        totalAC += conMod;
-      }
-      final hasMonkDefense =
-          (classLevel('monk') > 0 && !hasBarbarianUnarmoredDefense) ||
-              hasFeatureId('monk-unarmored-defense');
-      if (hasMonkDefense && equippedShield == null) {
-        totalAC = math.max(totalAC, 10 + dexMod + abilityScores.wisdomModifier);
-      }
-      if (hasFeatureId('draconic-resilience')) {
-        totalAC = math.max(totalAC, 13 + dexMod);
-      }
-    }
-
-    // Add shield bonus
-    if (equippedShield != null && equippedShield.armorProperties != null) {
-      totalAC += equippedShield.armorProperties!.baseAC;
-    }
-
-    if (equippedArmor != null &&
-        (hasFeatureId('fighter-fighting-style-defense') ||
-            hasFeatureId('fighting-style-defense') ||
-            hasFeatureId('ranger-fighting-style-defense'))) {
-      totalAC++;
-    }
-
-    return totalAC;
-  }
+  int get calculatedArmorClass =>
+      armorClassParts(this).fold(0, (sum, part) => sum + part.value);
 }

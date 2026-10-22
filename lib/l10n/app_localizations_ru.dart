@@ -141,6 +141,233 @@ class AppLocalizationsRu extends AppLocalizations {
       'Сохранить совместимый XML персонажа Fight Club 5.';
 
   @override
+  String heroLevelTitle(int level) {
+    return 'Уровень $level';
+  }
+
+  @override
+  String get heroLevelRaise => 'повысить';
+
+  @override
+  String get heroLevelSum => 'сумма классов';
+
+  @override
+  String get heroLevelHistory => 'история повышений';
+
+  @override
+  String get heroHoldHistory => 'Удерживай для истории повышений';
+
+  @override
+  String get heroExpand => 'Развернуть героя';
+
+  @override
+  String get hpKeypadEnterDamage => 'Введите урон';
+
+  @override
+  String get hpKeypadEnterHealing => 'Введите лечение';
+
+  @override
+  String get hpKeypadEnterTemporary => 'Введите временные ОЗ';
+
+  @override
+  String hpKeypadApplyDamage(int amount) {
+    return 'Нанести $amount урона';
+  }
+
+  @override
+  String hpKeypadApplyHealing(int amount) {
+    return 'Вылечить $amount';
+  }
+
+  @override
+  String hpKeypadApplyTemporary(int amount) {
+    return 'Временные ОЗ: $amount';
+  }
+
+  @override
+  String get hpKeypadTemporary => 'Врем. ОЗ';
+
+  @override
+  String get hpKeypadErase => 'Стереть';
+
+  @override
+  String hpKeypadSameAsLast(int amount) {
+    return 'как в прошлый раз · $amount';
+  }
+
+  @override
+  String get acBreakdownSubtitle => 'Из чего складывается сейчас';
+
+  @override
+  String get acSourceUnarmored => 'Без доспеха';
+
+  @override
+  String get acSourceDraconic => 'Драконья устойчивость';
+
+  @override
+  String get acSourceDefense => 'Боевой стиль «Оборона»';
+
+  @override
+  String acDexCap(int cap) {
+    return 'не больше +$cap';
+  }
+
+  @override
+  String get acTotal => 'Итого';
+
+  @override
+  String acPinned(int value, int calculated) {
+    return 'Закреплено вручную: $value. Расчёт по снаряжению: $calculated.';
+  }
+
+  @override
+  String get acAutomaticNote =>
+      'Считается из надетого снаряжения. Если мастер решил иначе, значение можно закрепить вручную.';
+
+  @override
+  String get acEditManual => 'Закрепить вручную';
+
+  @override
+  String get acEditPinned => 'Изменить закреплённое';
+
+  @override
+  String get nowLowHpTitle => 'Меньше половины ОЗ';
+
+  @override
+  String nowLowHpNote(int count) {
+    return 'Короткий отдых · костей хитов: $count';
+  }
+
+  @override
+  String get nowRestAction => 'Отдых';
+
+  @override
+  String get nowReadyTitle => 'Перед боем';
+
+  @override
+  String nowReadyNote(String bonus) {
+    return 'Инициатива $bonus · бросок одним касанием';
+  }
+
+  @override
+  String get nowRollAction => 'Бросить';
+
+  @override
+  String get overviewConditions => 'Состояния';
+
+  @override
+  String get overviewAddCondition => 'Добавить';
+
+  @override
+  String get overviewNoConditions => 'Нет активных состояний';
+
+  @override
+  String get weaponKindMelee => 'Ближний бой';
+
+  @override
+  String get weaponKindRanged => 'Дальний бой';
+
+  @override
+  String get weaponKindThrown => 'Ближний · метательное';
+
+  @override
+  String get weaponAttack => 'Атака';
+
+  @override
+  String weaponDamageOf(String type) {
+    return 'Урон · $type';
+  }
+
+  @override
+  String get statsPassivePerception => 'Пассивное Восприятие';
+
+  @override
+  String get statsTapHint =>
+      'Касание — бросок проверки, полоска снизу — спасбросок';
+
+  @override
+  String statsSave(String bonus) {
+    return 'спас $bonus';
+  }
+
+  @override
+  String get statsFilterAll => 'Все';
+
+  @override
+  String get statsFilterProficient => 'Владение';
+
+  @override
+  String lobbyReady(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count героя готовы к следующей истории',
+      many: '$count героев готовы к следующей истории',
+      few: '$count героя готовы к следующей истории',
+      one: '$count герой готов к следующей истории',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get heroAbout => 'О персонаже';
+
+  @override
+  String get vitalsStanding => 'В строю';
+
+  @override
+  String get vitalsUnconscious => 'Без сознания';
+
+  @override
+  String get deathSaveUnconscious =>
+      'Без сознания. Бросьте спасбросок от смерти.';
+
+  @override
+  String get deathSaveThreeSuccesses => 'Три успеха: стабилизирован с 0 ОЗ.';
+
+  @override
+  String get deathSaveThreeFailures => 'Три провала. Решение за мастером.';
+
+  @override
+  String get quickSpeed => 'СКОР';
+
+  @override
+  String get quickProf => 'МАСТ';
+
+  @override
+  String get overviewWeapons => 'Оружие и атаки';
+
+  @override
+  String overviewAttacksPerAction(int count) {
+    return 'атак: $count';
+  }
+
+  @override
+  String get restShortTile => 'Короткий';
+
+  @override
+  String get restLongTile => 'Длительный';
+
+  @override
+  String get conditionsPickerHint =>
+      'Отметьте, что действует на героя. Снять можно здесь или крестиком в Обзоре.';
+
+  @override
+  String get conditionsDone => 'Готово';
+
+  @override
+  String get conditionsAllParameters => 'Все игровые параметры';
+
+  @override
+  String get statsTapHintShort => 'Касание — бросок проверки';
+
+  @override
+  String get deckOpenSheet => 'Открыть лист';
+
+  @override
+  String get deckProficiency => 'Мастерство';
+
+  @override
   String get viewDetails => 'Подробнее';
 
   @override
@@ -157,10 +384,10 @@ class AppLocalizationsRu extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '# героя в ростере',
-      many: '# героев в ростере',
-      few: '# героя в ростере',
-      one: '# герой в ростере',
+      other: '$count героя в ростере',
+      many: '$count героев в ростере',
+      few: '$count героя в ростере',
+      one: '$count герой в ростере',
       zero: 'В ростере пока нет героев',
     );
     return '$_temp0';

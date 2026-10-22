@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:qd_and_d/core/ui/companion_kit.dart';
 import 'package:hive/hive.dart';
 import 'package:qd_and_d/core/models/character.dart';
 import 'package:qd_and_d/core/services/feature_service.dart';
@@ -31,6 +32,15 @@ Widget app(Widget child,
 Future<void> save(WidgetTester tester) async {
   await tester.runAsync(() async {
     await tester.tap(find.byKey(const ValueKey('sheet-value-save')));
+    await Hive.box<Character>('characters').flush();
+  });
+  await tester.pumpAndSettle();
+}
+
+Future<void> applyPad(WidgetTester tester) async {
+  await tester.pump();
+  await tester.runAsync(() async {
+    await tester.tap(find.byKey(const ValueKey('hp-keypad-apply')));
     await Hive.box<Character>('characters').flush();
   });
   await tester.pumpAndSettle();
@@ -99,20 +109,35 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('sheet-health-damage')));
     await tester.pumpAndSettle();
-    await tester.enterText(field('amount'), '0');
-    await tester.tap(find.byKey(const ValueKey('sheet-value-save')));
-    await tester.pumpAndSettle();
-    expect(c.currentHp, 17);
-    expect(find.text('Enter a whole number greater than zero'), findsOneWidget);
-    await tester.enterText(field('amount'), '10');
-    await save(tester);
+    // Nothing typed yet: the pad cannot apply zero.
+    await tester.tap(find.byKey(const ValueKey('hp-key-0')));
+    await tester.pump();
+    expect(
+        tester
+            .widget<ToneButton>(
+                find.byKey(const ValueKey('hp-keypad-apply')))
+            .onPressed,
+        isNull);
+    await tester.tap(find.byKey(const ValueKey('hp-key-1')));
+    await tester.tap(find.byKey(const ValueKey('hp-key-0')));
+    await tester.pump();
+    expect(find.text('Take 10 damage'), findsOneWidget);
+    await applyPad(tester);
     expect(c.currentHp, 14);
     expect(c.temporaryHp, 0);
     await tester.tap(find.byKey(const ValueKey('sheet-health-heal')));
     await tester.pumpAndSettle();
-    await tester.enterText(field('amount'), '5');
-    await save(tester);
+    await tester.tap(find.byKey(const ValueKey('hp-key-5')));
+    await applyPad(tester);
     expect(c.currentHp, 19);
+    // The pad remembers the last amount for this hero.
+    await tester.tap(find.byKey(const ValueKey('sheet-health-heal')));
+    await tester.pumpAndSettle();
+    expect(find.text('same as last · 5'), findsOneWidget);
+    await tester.tap(find.text('Temp HP'));
+    await tester.tap(find.text('same as last · 5'));
+    await applyPad(tester);
+    expect(c.temporaryHp, 5);
     expect(tester.takeException(), isNull);
   });
 
@@ -124,6 +149,12 @@ void main() {
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('19'));
     await tester.longPress(find.text('19'));
+    await tester.pumpAndSettle();
+    // The breakdown comes first; the calculation stays visible.
+    expect(find.byKey(const ValueKey('ac-breakdown-total')), findsOneWidget);
+    expect(find.text('Pinned by hand: 19. From gear: ${c.calculatedArmorClass}.'),
+        findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('ac-breakdown-edit')));
     await tester.pumpAndSettle();
     expect(find.byType(TextFormField), findsOneWidget);
     expect(find.byKey(const ValueKey('sheet-auto-value')), findsOneWidget);
@@ -241,8 +272,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('sheet-health-damage')));
     await tester.pumpAndSettle();
-    await tester.enterText(field('amount'), '30');
-    await save(tester);
+    await tester.tap(find.byKey(const ValueKey('hp-key-3')));
+    await tester.tap(find.byKey(const ValueKey('hp-key-0')));
+    await applyPad(tester);
     expect(c.concentratingOn, 'focus');
     expect(find.text('Concentration: Constitution save DC 15'), findsOneWidget);
     expect(tester.takeException(), isNull);

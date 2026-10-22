@@ -86,6 +86,10 @@ void main() {
       ..exhaustionLevel = 2;
     await tester.pumpWidget(app(c, locale: const Locale('ru'), scale: 2));
     await tester.pumpAndSettle();
+    // Conditions sit below health and the quick numbers.
+    await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('sheet-condition-blinded')), 200,
+        scrollable: find.byType(Scrollable).first);
     for (final condition in ConditionType.values) {
       expect(find.byKey(ValueKey('sheet-condition-${condition.name}')),
           findsOneWidget);

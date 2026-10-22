@@ -189,7 +189,6 @@ void main() {
               body: SingleChildScrollView(
                   child: ExpandableCharacterCard(
                       character: hero,
-                      isExpanded: false,
                       onDicePressed: () {})));
         })));
     await tester.pumpAndSettle();

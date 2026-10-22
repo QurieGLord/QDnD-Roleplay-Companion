@@ -1,5 +1,4 @@
 import '../../../core/progression/character_training.dart';
-import '../../../core/ui/companion_surface.dart';
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
@@ -7,6 +6,8 @@ import '../../../core/progression/skill_check.dart';
 import '../../../core/progression/proficiency_identity.dart';
 import '../../../shared/widgets/dice_roller_modal.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
+import '../../../core/ui/expressive_kit.dart';
+import '../../../core/ui/companion_kit.dart';
 
 class StatsTab extends StatelessWidget {
   final Character character;
@@ -96,389 +97,370 @@ class StatsTab extends StatelessWidget {
     }
   }
 
+  static const _abilities = [
+    'Strength',
+    'Dexterity',
+    'Constitution',
+    'Intelligence',
+    'Wisdom',
+    'Charisma'
+  ];
+  static const _skills = {
+    'Strength': ['Athletics'],
+    'Dexterity': ['Acrobatics', 'Sleight of Hand', 'Stealth'],
+    'Intelligence': [
+      'Arcana',
+      'History',
+      'Investigation',
+      'Nature',
+      'Religion'
+    ],
+    'Wisdom': [
+      'Animal Handling',
+      'Insight',
+      'Medicine',
+      'Perception',
+      'Survival'
+    ],
+    'Charisma': ['Deception', 'Intimidation', 'Performance', 'Persuasion'],
+  };
+
+  int _modifier(String ability) => switch (ability) {
+        'Strength' => character.abilityScores.strengthModifier,
+        'Dexterity' => character.abilityScores.dexterityModifier,
+        'Constitution' => character.abilityScores.constitutionModifier,
+        'Intelligence' => character.abilityScores.intelligenceModifier,
+        'Wisdom' => character.abilityScores.wisdomModifier,
+        _ => character.abilityScores.charismaModifier,
+      };
+
+  int _score(String ability) => switch (ability) {
+        'Strength' => character.abilityScores.strength,
+        'Dexterity' => character.abilityScores.dexterity,
+        'Constitution' => character.abilityScores.constitution,
+        'Intelligence' => character.abilityScores.intelligence,
+        'Wisdom' => character.abilityScores.wisdom,
+        _ => character.abilityScores.charisma,
+      };
+
+  bool _saveTrained(String ability) => character.savingThrowProficiencies
+      .map((s) => s.toLowerCase())
+      .contains(ability.toLowerCase());
+
+  int _save(String ability) =>
+      _modifier(ability) +
+      (_saveTrained(ability) ? character.proficiencyBonus : 0);
+
+  ({int bonus, bool proficient, bool expert}) _skill(
+      String ability, String skill) {
+    final id = skill.toLowerCase().replaceAll(' ', '_');
+    final expert = ProficiencyIdentity.contains(character.expertSkills, id);
+    final proficient =
+        expert || ProficiencyIdentity.contains(character.proficientSkills, id);
+    return (
+      bonus: _modifier(ability) + SkillCheck.trainingBonus(character, id),
+      proficient: proficient,
+      expert: expert
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final t = Theme.of(context), c = t.colorScheme;
+    final locale = Localizations.localeOf(context).languageCode;
+    final passive = 10 + _skill('Wisdom', 'Perception').bonus;
+    final tokens = CharacterTraining.tokens(character);
+    final inset = SheetPageInset.of(context);
+
+    // The prototype's `.pchip`: a quiet label with its number in Rubik.
+    Widget chip(String label, String value) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: ShapeDecoration(
+              shape: const StadiumBorder(), color: c.surfaceContainerLow),
+          child: Text.rich(
+              TextSpan(children: [
+                TextSpan(text: '$label  '),
+                TextSpan(
+                    text: value,
+                    style: AppType.numeric(null).copyWith(
+                        color: c.onSurface, fontWeight: FontWeight.w600)),
+              ]),
+              style: t.textTheme.labelMedium?.copyWith(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: c.onSurfaceVariant)),
+        );
+    Widget gap(Widget child, [double space = 14]) =>
+        Padding(padding: EdgeInsets.only(bottom: space), child: child);
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      // The page scrolls on under the floating island.
+      clipBehavior: Clip.none,
+      padding: EdgeInsets.fromLTRB(16, inset + 6, 16, 110),
       children: [
-        // 1. Ability Scores Grid
-        _buildSectionHeader(
-            context, l10n.abilities.toUpperCase(), Icons.accessibility_new),
-        const SizedBox(height: 12),
-        _buildAbilityScoresGrid(context, l10n),
-        const SizedBox(height: 24),
-
-        // 2. Saving Throws
-        _buildSectionHeader(
-            context, l10n.savingThrows.toUpperCase(), Icons.shield),
-        const SizedBox(height: 12),
-        _buildSavingThrowsList(context, l10n),
-        const SizedBox(height: 24),
-
-        // 3. Skills
-        _buildSectionHeader(
-            context, l10n.skills.toUpperCase(), Icons.psychology),
-        const SizedBox(height: 12),
-        _buildSkillsList(context, l10n),
-
-        if (CharacterTraining.tokens(character).isNotEmpty) ...[
-          const SizedBox(height: 24),
-          CompanionSurface(
-              quiet: true,
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                        Localizations.localeOf(context).languageCode == 'ru'
-                            ? 'Владения'
-                            : 'Proficiencies',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 12),
-                    Wrap(spacing: 8, runSpacing: 6, children: [
-                      for (final token in CharacterTraining.tokens(character))
-                        Chip(
-                            label: Text(CharacterTraining.label(token,
-                                Localizations.localeOf(context).languageCode)))
-                    ])
-                  ])),
-        ],
-        const SizedBox(height: 80),
-      ],
-    );
-  }
-
-  Widget _buildSectionHeader(
-      BuildContext context, String title, IconData icon) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: colorScheme.primary),
-        const SizedBox(width: 8),
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-            child: Divider(color: colorScheme.primary.withValues(alpha: 0.2))),
-      ],
-    );
-  }
-
-  Widget _buildAbilityScoresGrid(BuildContext context, AppLocalizations l10n) {
-    return GridView.count(
-      crossAxisCount: 3,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 8,
-      crossAxisSpacing: 8,
-      childAspectRatio: 0.85,
-      children: [
-        _buildAbilityCard(
-            context,
-            l10n.abilityStrAbbr,
-            l10n.abilityStr,
-            character.abilityScores.strength,
-            character.abilityScores.strengthModifier,
-            l10n),
-        _buildAbilityCard(
-            context,
-            l10n.abilityDexAbbr,
-            l10n.abilityDex,
-            character.abilityScores.dexterity,
-            character.abilityScores.dexterityModifier,
-            l10n),
-        _buildAbilityCard(
-            context,
-            l10n.abilityConAbbr,
-            l10n.abilityCon,
-            character.abilityScores.constitution,
-            character.abilityScores.constitutionModifier,
-            l10n),
-        _buildAbilityCard(
-            context,
-            l10n.abilityIntAbbr,
-            l10n.abilityInt,
-            character.abilityScores.intelligence,
-            character.abilityScores.intelligenceModifier,
-            l10n),
-        _buildAbilityCard(
-            context,
-            l10n.abilityWisAbbr,
-            l10n.abilityWis,
-            character.abilityScores.wisdom,
-            character.abilityScores.wisdomModifier,
-            l10n),
-        _buildAbilityCard(
-            context,
-            l10n.abilityChaAbbr,
-            l10n.abilityCha,
-            character.abilityScores.charisma,
-            character.abilityScores.charismaModifier,
-            l10n),
-      ],
-    );
-  }
-
-  Widget _buildAbilityCard(BuildContext context, String abbr, String full,
-      int score, int modifier, AppLocalizations l10n) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Card(
-      elevation: 2,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => showDiceRoller(context,
-            title: '${l10n.check} $abbr', modifier: modifier),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(abbr,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.secondary)),
-            const SizedBox(height: 4),
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: colorScheme.secondaryContainer,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  modifier >= 0 ? '+$modifier' : '$modifier',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onSecondaryContainer),
+        gap(SectionHeading(l10n.abilities)),
+        gap(Wrap(spacing: 8, runSpacing: 8, children: [
+          chip(l10n.statsPassivePerception, '$passive'),
+          chip(l10n.proficiencyBonusLabel, '+${character.proficiencyBonus}'),
+        ])),
+        gap(Row(children: [
+          LineIcon('dice', size: 15, color: c.onSurfaceVariant),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(l10n.statsTapHintShort,
+                style: t.textTheme.bodySmall
+                    ?.copyWith(fontSize: 12.5, color: c.onSurfaceVariant)),
+          ),
+        ])),
+        gap(LayoutBuilder(builder: (context, box) {
+          final large = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+          final columns = large || box.maxWidth < 300 ? 2 : 3;
+          final width = (box.maxWidth - (columns - 1) * 8) / columns;
+          return Wrap(spacing: 8, runSpacing: 8, children: [
+            for (final ability in _abilities)
+              SizedBox(
+                width: width,
+                child: _AbilityTile(
+                  ability: ability,
+                  abbr: _getAbilityAbbr(l10n, ability),
+                  name: _getAbilityName(l10n, ability),
+                  score: _score(ability),
+                  modifier: _modifier(ability),
+                  save: _save(ability),
+                  saveTrained: _saveTrained(ability),
                 ),
               ),
+          ]);
+        })),
+        gap(SectionHeading(l10n.skills)),
+        _SkillList(groups: [
+          for (final entry in _skills.entries)
+            (
+              header: _getAbilityName(l10n, entry.key),
+              abbr: _getAbilityAbbr(l10n, entry.key),
+              rows: [
+                for (final skill in entry.value)
+                  (
+                    id: skill.toLowerCase().replaceAll(' ', '_'),
+                    name: _getSkillName(l10n, skill),
+                    check: _skill(entry.key, skill)
+                  )
+              ]
+            )
+        ]),
+        if (tokens.isNotEmpty) ...[
+          const SizedBox(height: 14),
+          gap(SectionHeading(locale == 'ru' ? 'Владения' : 'Proficiencies')),
+          Wrap(spacing: 6, runSpacing: 6, children: [
+            for (final token in tokens)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: ShapeDecoration(
+                    shape: StadiumBorder(
+                        side: BorderSide(
+                            color: c.onSurface.withValues(alpha: .14),
+                            width: 1.2))),
+                child: Text(CharacterTraining.label(token, locale),
+                    style: t.textTheme.labelSmall?.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: c.onSurfaceVariant)),
+              ),
+          ]),
+        ],
+      ],
+    );
+  }
+}
+
+String _signed(int v) => v >= 0 ? '+$v' : '−${v.abs()}';
+
+/// The prototype's `.at`: the tile rolls the check, its lower strip (with a
+/// hairline above) rolls the saving throw; a filled dot marks proficiency.
+class _AbilityTile extends StatelessWidget {
+  const _AbilityTile({
+    required this.ability,
+    required this.abbr,
+    required this.name,
+    required this.score,
+    required this.modifier,
+    required this.save,
+    required this.saveTrained,
+  });
+  final String ability, abbr, name;
+  final int score, modifier, save;
+  final bool saveTrained;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context), c = t.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+    final id = ability.toLowerCase();
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
+      child: ColoredBox(
+        color: c.surfaceContainerLow,
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Pressable(
+            key: ValueKey('stat-check-$id'),
+            onTap: () => showDiceRoller(context,
+                title: '${l10n.check} $abbr', modifier: modifier),
+            semanticLabel: '${l10n.check}: $name ${_signed(modifier)}',
+            child: ExcludeSemantics(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(6, 12, 6, 8),
+                child: Column(children: [
+                  Text(abbr,
+                      style: t.textTheme.labelSmall?.copyWith(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: .7,
+                          color: c.onSurfaceVariant)),
+                  const SizedBox(height: 2),
+                  Text(_signed(modifier),
+                      style: AppType.numeric(t.textTheme.headlineMedium)
+                          .copyWith(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w600,
+                              height: 1.1)),
+                  const SizedBox(height: 2),
+                  Text('$score',
+                      style: t.textTheme.bodySmall
+                          ?.copyWith(fontSize: 12, color: c.onSurfaceVariant)),
+                ]),
+              ),
             ),
-            const SizedBox(height: 4),
-            Text('$score',
-                style: TextStyle(
-                    fontSize: 14, color: colorScheme.onSurfaceVariant)),
-          ],
-        ),
+          ),
+          Pressable(
+            key: ValueKey('stat-save-$id'),
+            onTap: () => showDiceRoller(context,
+                title: '${l10n.saveLabel} $abbr', modifier: save),
+            scale: .98,
+            semanticLabel: '${l10n.saveLabel}: $name ${_signed(save)}',
+            child: ExcludeSemantics(
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 6),
+                decoration: BoxDecoration(
+                    border: Border(
+                        top: BorderSide(
+                            color: c.onSurface.withValues(alpha: .07)))),
+                child:
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  ProficiencyDot(on: saveTrained),
+                  const SizedBox(width: 5),
+                  Flexible(
+                    child: Text(l10n.statsSave(_signed(save)),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: t.textTheme.labelSmall?.copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: c.onSurfaceVariant)),
+                  ),
+                ]),
+              ),
+            ),
+          ),
+        ]),
       ),
     );
   }
+}
 
-  Widget _buildSavingThrowsList(BuildContext context, AppLocalizations l10n) {
-    final saves = {
-      'Strength': character.abilityScores.strengthModifier,
-      'Dexterity': character.abilityScores.dexterityModifier,
-      'Constitution': character.abilityScores.constitutionModifier,
-      'Intelligence': character.abilityScores.intelligenceModifier,
-      'Wisdom': character.abilityScores.wisdomModifier,
-      'Charisma': character.abilityScores.charismaModifier,
-    };
+typedef _SkillRow = ({
+  String id,
+  String name,
+  ({int bonus, bool proficient, bool expert}) check
+});
+typedef _SkillGroup = ({String header, String abbr, List<_SkillRow> rows});
 
-    return Column(
-      children: saves.entries.map((entry) {
-        final isProficient = character.savingThrowProficiencies
-            .map((s) => s.toLowerCase())
-            .contains(entry.key.toLowerCase());
-        final totalMod =
-            entry.value + (isProficient ? character.proficiencyBonus : 0);
-        return _buildSkillRow(
-          context,
-          _getAbilityName(l10n, entry.key),
-          totalMod,
-          isProficient,
-          l10n,
-          isSave: true,
-          abilityLabel: _getAbilityAbbr(l10n, entry.key),
-        );
-      }).toList(),
-    );
-  }
+/// The prototype's skills: a wide flowing segment, then one list grouped by
+/// ability. The filter folds untrained rows away by their height.
+class _SkillList extends StatefulWidget {
+  const _SkillList({required this.groups});
+  final List<_SkillGroup> groups;
+  @override
+  State<_SkillList> createState() => _SkillListState();
+}
 
-  Widget _buildSkillsList(BuildContext context, AppLocalizations l10n) {
-    final skillsMap = {
-      'Athletics': 'Strength',
-      'Acrobatics': 'Dexterity',
-      'Sleight of Hand': 'Dexterity',
-      'Stealth': 'Dexterity',
-      'Arcana': 'Intelligence',
-      'History': 'Intelligence',
-      'Investigation': 'Intelligence',
-      'Nature': 'Intelligence',
-      'Religion': 'Intelligence',
-      'Animal Handling': 'Wisdom',
-      'Insight': 'Wisdom',
-      'Medicine': 'Wisdom',
-      'Perception': 'Wisdom',
-      'Survival': 'Wisdom',
-      'Deception': 'Charisma',
-      'Intimidation': 'Charisma',
-      'Performance': 'Charisma',
-      'Persuasion': 'Charisma',
-    };
+class _SkillListState extends State<_SkillList> {
+  bool _trainedOnly = false;
 
-    return Column(
-      children: skillsMap.entries.map((entry) {
-        final skillKey = entry.key; // English key
-        final ability = entry.value;
-
-        // Get ability mod
-        int mod = 0;
-        switch (ability) {
-          case 'Strength':
-            mod = character.abilityScores.strengthModifier;
-            break;
-          case 'Dexterity':
-            mod = character.abilityScores.dexterityModifier;
-            break;
-          case 'Constitution':
-            mod = character.abilityScores.constitutionModifier;
-            break;
-          case 'Intelligence':
-            mod = character.abilityScores.intelligenceModifier;
-            break;
-          case 'Wisdom':
-            mod = character.abilityScores.wisdomModifier;
-            break;
-          case 'Charisma':
-            mod = character.abilityScores.charismaModifier;
-            break;
-        }
-
-        // Check proficiency and expertise
-        // We need to match skillKey (e.g. "Animal Handling") to ID (e.g. "animal_handling")
-        final skillId = skillKey.toLowerCase().replaceAll(' ', '_');
-
-        final isExpert =
-            ProficiencyIdentity.contains(character.expertSkills, skillId);
-        final isProficient = isExpert ||
-            ProficiencyIdentity.contains(character.proficientSkills, skillId);
-        final bonus = SkillCheck.trainingBonus(character, skillId);
-
-        final totalMod = mod + bonus;
-
-        return _buildSkillRow(context, _getSkillName(l10n, skillKey), totalMod,
-            isProficient, l10n,
-            isExpert: isExpert, abilityLabel: _getAbilityAbbr(l10n, ability));
-      }).toList(),
-    );
-  }
-
-  Widget _buildSkillRow(BuildContext context, String name, int modifier,
-      bool isProficient, AppLocalizations l10n,
-      {bool isSave = false, bool isExpert = false, String? abilityLabel}) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final title = isSave
-        ? '${l10n.saveLabel} ${abilityLabel ?? name}'
-        : '$name ${l10n.check}';
-
-    // Visuals for Expertise vs Proficiency
-    // Expertise: Double circle or distinct icon
-
-    return InkWell(
-      onTap: () => showDiceRoller(context, title: title, modifier: modifier),
-      borderRadius: BorderRadius.circular(AppRadii.sm),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-        margin: const EdgeInsets.only(bottom: 4),
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context), c = t.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+    final rows = <Widget>[];
+    for (final group in widget.groups) {
+      final visible =
+          !_trainedOnly || group.rows.any((r) => r.check.proficient);
+      rows.add(Reveal(
+        open: visible,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
+          child: Text(group.header.toUpperCase(),
+              style: t.textTheme.labelSmall?.copyWith(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: .96,
+                  color: c.onSurfaceVariant)),
+        ),
+      ));
+      for (final row in group.rows) {
+        final check = row.check;
+        rows.add(Reveal(
+          open: !_trainedOnly || check.proficient,
+          child: Pressable(
+            key: ValueKey('skill-${row.id}'),
+            scale: .99,
+            onTap: () => showDiceRoller(context,
+                title: '${row.name} ${l10n.check}', modifier: check.bonus),
+            semanticLabel: '${row.name} ${_signed(check.bonus)}',
+            child: ExcludeSemantics(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+                child: Row(children: [
+                  SizedBox(
+                      width: 14,
+                      child: Center(
+                          child: ProficiencyDot(
+                              on: check.proficient, expert: check.expert))),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(row.name,
+                        style: t.textTheme.bodyMedium?.copyWith(fontSize: 15)),
+                  ),
+                  Text(_signed(check.bonus),
+                      style: AppType.numeric(t.textTheme.titleMedium)
+                          .copyWith(fontSize: 16, fontWeight: FontWeight.w600)),
+                ]),
+              ),
+            ),
+          ),
+        ));
+      }
+    }
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      FlowSegment<bool>(
+        keyPrefix: 'skills-filter',
+        values: const [false, true],
+        labels: [l10n.statsFilterAll, l10n.statsFilterProficient],
+        selected: _trainedOnly,
+        onChanged: (v) => setState(() => _trainedOnly = v),
+      ),
+      const SizedBox(height: 14),
+      Container(
+        padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: (isProficient || isExpert)
-              ? colorScheme.secondaryContainer.withValues(alpha: 0.3)
-              : null,
-          borderRadius: BorderRadius.circular(AppRadii.sm),
-          border: (isProficient || isExpert)
-              ? Border.all(color: colorScheme.secondary.withValues(alpha: 0.2))
-              : null,
-        ),
-        child: Row(
-          children: [
-            // Proficiency Indicator
-            SizedBox(
-              width: 24,
-              height: 24,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Outer circle (always visible if proficient)
-                  if (isProficient || isExpert)
-                    Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: isProficient
-                            ? colorScheme.primary
-                            : Colors.transparent,
-                        shape: BoxShape.circle,
-                        border:
-                            Border.all(color: colorScheme.primary, width: 1.5),
-                      ),
-                    )
-                  else
-                    Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border:
-                            Border.all(color: colorScheme.outline, width: 1.5),
-                      ),
-                    ),
-
-                  // Expertise Indicator (Outer ring or star)
-                  if (isExpert)
-                    Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border:
-                            Border.all(color: colorScheme.primary, width: 1.5),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 4),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name,
-                      style: TextStyle(
-                          fontWeight: (isProficient || isExpert)
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          fontSize: 15)),
-                  if (abilityLabel != null)
-                    Text(abilityLabel,
-                        style: TextStyle(
-                            fontSize: 10, color: colorScheme.onSurfaceVariant)),
-                ],
-              ),
-            ),
-            Text(
-              modifier >= 0 ? '+$modifier' : '$modifier',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: (isProficient || isExpert)
-                    ? colorScheme.primary
-                    : colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(width: 8),
-          ],
-        ),
+            color: c.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(AppRadii.xl)),
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch, children: rows),
       ),
-    );
+    ]);
   }
 }

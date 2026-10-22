@@ -121,7 +121,7 @@ void main() {
       (tester) async {
     final c = flow.mixed({'fighter': 1});
     await tester.pumpWidget(widgets.app(ExpandableCharacterCard(
-        character: c, isExpanded: false, onDicePressed: () {})));
+        character: c, onDicePressed: () {})));
     await tester.pumpAndSettle();
     final target = find.byKey(const ValueKey('character-level-control'));
     final gesture = await tester.startGesture(tester.getCenter(target));

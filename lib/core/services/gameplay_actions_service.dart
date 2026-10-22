@@ -474,6 +474,35 @@ class GameplayActionsService {
             (before) => c.exhaustionLevel = before));
   }
 
+  /// One death saving throw outside the combat screen, by the same rules:
+  /// a natural 20 restores 1 HP, a natural 1 counts as two failures, 10 or
+  /// more is a success. In combat it is limited to one per round.
+  static Future<bool> rollDeathSave(Character c, int roll) {
+    if (roll < 1 || roll > 20) throw ArgumentError.value(roll, 'roll');
+    return _serial(c, () async {
+      final saves = c.deathSaves;
+      if (c.currentHp > 0 || saves.isDead || saves.isStabilized) return false;
+      if (!c.combatState.canRollDeathSaveThisRound) return false;
+      await _write(c, () => _HealthSnapshot(c), () async {
+        if (c.combatState.isInCombat) {
+          c.combatState.markDeathSaveRolledThisRound();
+        }
+        if (roll == 20) {
+          await c.heal(1, source: 'Death save (nat 20)', persist: false);
+        } else if (roll == 1) {
+          saves.addFailure();
+          saves.addFailure();
+        } else if (roll >= 10) {
+          saves.addSuccess();
+        } else {
+          saves.addFailure();
+        }
+        c.updatedAt = DateTime.now();
+      }, (before) => before.restore(c));
+      return true;
+    });
+  }
+
   static Future<void> rest(Character c, {required bool short}) => _serial(
       c,
       () => _write(c, () => _RestSnapshot(c), () {

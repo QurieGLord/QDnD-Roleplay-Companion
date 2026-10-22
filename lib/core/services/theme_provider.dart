@@ -94,6 +94,11 @@ class ThemeProvider extends ChangeNotifier {
     const buttonMotion = Duration(milliseconds: 220);
 
     return baseTheme.copyWith(
+      extensions: [
+        AppPalettes.accents(
+            _isBasicMode ? AppPalettes.fallbackPreset : _colorPreset,
+            brightness)
+      ],
       textTheme: AppType.textTheme(baseTheme.textTheme),
       primaryTextTheme: AppType.textTheme(baseTheme.primaryTextTheme),
       scaffoldBackgroundColor: colorScheme.surface,

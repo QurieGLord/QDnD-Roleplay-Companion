@@ -65,6 +65,11 @@ abstract final class AppMotion {
   static const gentle =
       SpringDescription(mass: 1, stiffness: 260, damping: 32.2);
 
+  /// A screen growing out of a card and folding back into it: critically
+  /// damped and unhurried (about 0.6 s), so the eye can follow the card.
+  static const reveal =
+      SpringDescription(mass: 1, stiffness: 120, damping: 21.9);
+
   /// Default curve for state changes, expansion and swaps.
   static const Curve standard = Cubic(0.2, 0.0, 0.0, 1.0);
 

@@ -1,6 +1,4 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
@@ -26,31 +24,6 @@ Future<bool> showHealthValueEditor(BuildContext context, Character c,
           maximum: values['maximum']!,
           temporary: values['temporary']!,
           form: form));
-}
-
-Future<bool> showHealthAction(BuildContext context, Character c,
-    {required bool healing}) async {
-  final l10n = AppLocalizations.of(context)!;
-  int? concentrationDc;
-  final changed = await showSheetValueEditor(context,
-      title: healing ? l10n.heal : l10n.damage,
-      actionLabel: l10n.apply,
-      icon: healing ? Icons.add : Icons.remove,
-      description: healing ? l10n.sheetHealingHelp : l10n.sheetDamageHelp,
-      fields: [
-        SheetNumberField(
-            'amount', healing ? l10n.healAmount : l10n.damageAmount, 1,
-            minimum: 1)
-      ], onSave: (values, _) async {
-    final amount = values['amount']!;
-    final needsCheck = !healing && c.concentratingOn != null;
-    await GameplayActionsService.changeHealth(c, amount, healing: healing);
-    if (needsCheck) concentrationDc = math.max(10, amount ~/ 2);
-  });
-  if (changed && concentrationDc != null && context.mounted) {
-    AppSnackBar.info(context, l10n.sheetConcentrationDc(concentrationDc!));
-  }
-  return changed;
 }
 
 Future<bool> showArmorValueEditor(BuildContext context, Character c) {

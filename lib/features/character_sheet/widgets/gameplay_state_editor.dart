@@ -663,7 +663,7 @@ class _GameplayStateEditorState extends State<GameplayStateEditor> {
             l10n.conditions,
             Icons.spa_outlined,
             [
-              Wrap(spacing: 8, runSpacing: 8, children: [
+              FlipWrap(spacing: 8, runSpacing: 8, children: [
                 for (final condition in ConditionType.values)
                   ExpressiveStateChip(
                     key: ValueKey('game-state-condition-${condition.name}'),

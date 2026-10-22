@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 /// Living building blocks shared by every screen (redesign wave 0).
@@ -273,6 +275,14 @@ class ExpressiveStateChip extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback? onTap;
+
+  // A state flip is a discrete step: one light click.
+  VoidCallback? get tap => onTap == null
+      ? null
+      : () {
+          HapticFeedback.selectionClick();
+          onTap!();
+        };
   final Color? selectedColor;
   final Widget? leading;
 
@@ -295,7 +305,7 @@ class ExpressiveStateChip extends StatelessWidget {
       selected: selected,
       label: label,
       excludeSemantics: true,
-      onTap: onTap,
+      onTap: tap,
       child: AnimatedContainer(
         duration: d,
         curve: AppMotion.standard,
@@ -310,7 +320,7 @@ class ExpressiveStateChip extends StatelessWidget {
           shape: shape,
           clipBehavior: Clip.antiAlias,
           child: InkWell(
-            onTap: onTap,
+            onTap: tap,
             child: AnimatedPadding(
               duration: d,
               curve: AppMotion.standard,
@@ -369,5 +379,185 @@ class Reveal extends StatelessWidget {
         child: open ? child : const SizedBox(width: double.infinity),
       ),
     );
+  }
+}
+
+/// A wrap whose items glide to their new places when the row reflows, and
+/// whose new items grow in instead of flashing (FLIP). Items need keys.
+class FlipWrap extends StatefulWidget {
+  const FlipWrap({
+    super.key,
+    required this.children,
+    this.spacing = 8,
+    this.runSpacing = 8,
+  });
+  final List<Widget> children;
+  final double spacing, runSpacing;
+  @override
+  State<FlipWrap> createState() => _FlipWrapState();
+}
+
+class _FlipWrapState extends State<FlipWrap> {
+  // Items present on the first frame are already in place.
+  bool _settled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _settled = true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final still = MediaQuery.disableAnimationsOf(context);
+    final wrap = Wrap(
+      spacing: widget.spacing,
+      runSpacing: widget.runSpacing,
+      children: [
+        for (final child in widget.children)
+          _FlipItem(
+              key: child.key == null ? null : ValueKey(('flip', child.key)),
+              enter: _settled && !still,
+              still: still,
+              child: child),
+      ],
+    );
+    if (still) return wrap;
+    return AnimatedSize(
+      duration: AppMotion.snappySettle,
+      curve: AppMotion.snappyCurve,
+      alignment: Alignment.topLeft,
+      child: wrap,
+    );
+  }
+}
+
+class _FlipItem extends StatefulWidget {
+  const _FlipItem(
+      {super.key,
+      required this.enter,
+      required this.still,
+      required this.child});
+  final bool enter, still;
+  final Widget child;
+  @override
+  State<_FlipItem> createState() => _FlipItemState();
+}
+
+class _FlipItemState extends State<_FlipItem> with TickerProviderStateMixin {
+  late final _move =
+      AnimationController(vsync: this, duration: AppMotion.snappySettle);
+  late final _moveCurve =
+      CurvedAnimation(parent: _move, curve: AppMotion.snappyCurve);
+  late final _enter = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 380),
+      value: widget.enter ? 0 : 1);
+  late final _enterCurve =
+      CurvedAnimation(parent: _enter, curve: AppMotion.snappyCurve);
+
+  @override
+  void initState() {
+    super.initState();
+    _move.value = 1;
+    if (widget.enter) _enter.forward();
+  }
+
+  @override
+  void dispose() {
+    _moveCurve.dispose();
+    _enterCurve.dispose();
+    _move.dispose();
+    _enter.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => _Flip(
+        progress: _moveCurve,
+        restart: () {
+          if (mounted) _move.forward(from: 0);
+        },
+        still: widget.still,
+        child: FadeTransition(
+          opacity: _enterCurve,
+          child: ScaleTransition(
+              scale: Tween<double>(begin: .82, end: 1).animate(_enterCurve),
+              child: widget.child),
+        ),
+      );
+}
+
+class _Flip extends SingleChildRenderObjectWidget {
+  const _Flip(
+      {required this.progress,
+      required this.restart,
+      required this.still,
+      super.child});
+  final Animation<double> progress;
+  final VoidCallback restart;
+  final bool still;
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderFlip(progress, restart, still);
+  @override
+  void updateRenderObject(BuildContext context, _RenderFlip renderObject) {
+    renderObject
+      ..restart = restart
+      ..still = still;
+  }
+}
+
+/// Paints the item shifted from where it was towards where the wrap has
+/// just placed it; the shift is decided in paint, so no frame shows the
+/// item jumping first.
+class _RenderFlip extends RenderProxyBox {
+  _RenderFlip(this._progress, this.restart, this.still);
+  final Animation<double> _progress;
+  VoidCallback restart;
+  bool still;
+  Offset? _last;
+  Offset _from = Offset.zero;
+  bool _pending = false;
+
+  Offset get _shift => _pending ? _from : _from * (1 - _progress.value);
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    _progress.addListener(markNeedsPaint);
+  }
+
+  @override
+  void detach() {
+    _progress.removeListener(markNeedsPaint);
+    super.detach();
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    final data = parentData;
+    final place = data is BoxParentData ? data.offset : Offset.zero;
+    if (!still && _last != null && (place - _last!).distanceSquared > .25) {
+      _from = _last! - place + _shift;
+      _pending = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _pending = false;
+        restart();
+      });
+    }
+    _last = place;
+    final shift = still ? Offset.zero : _shift;
+    super.paint(context, offset + shift);
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    final shift = still ? Offset.zero : _shift;
+    return result.addWithPaintOffset(
+        offset: shift,
+        position: position,
+        hitTest: (result, transformed) =>
+            super.hitTestChildren(result, position: transformed));
   }
 }

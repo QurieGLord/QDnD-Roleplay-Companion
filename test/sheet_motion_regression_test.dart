@@ -69,6 +69,70 @@ void main() {
     expect(find.byIcon(Icons.build), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+  testWidgets('The folded island stays on top of the page it floats over',
+      (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester
+        .pumpWidget(app(CharacterSheetScreen(character: fixtures.hero())));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('sheet-tab-1')));
+    await tester.pumpAndSettle();
+    final nested =
+        tester.state<NestedScrollViewState>(find.byType(NestedScrollView));
+    final outer = nested.outerController.position;
+    expect(outer.pixels, closeTo(outer.maxScrollExtent, 1));
+    // Scroll the page so its content sits right under the island.
+    await tester.dragFrom(const Offset(195, 700), const Offset(0, -300));
+    await tester.pumpAndSettle();
+    final home = tester.getCenter(find.byKey(const ValueKey('sheet-tab-0')));
+    final hit = tester.hitTestOnBinding(home);
+    expect(
+        hit.path.any((e) =>
+            e.target is RenderObject &&
+            (e.target as RenderObject).debugCreator.toString().contains('sheet-tab-0')),
+        isTrue);
+    await tester.tapAt(home);
+    await tester.pumpAndSettle();
+    expect(tester.widget<PageView>(find.byType(PageView)).controller!.page, 0);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('A half-unfolded hero card settles at an end, never between',
+      (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester
+        .pumpWidget(app(CharacterSheetScreen(character: fixtures.hero())));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('sheet-tab-1')));
+    await tester.pumpAndSettle();
+    final outer = tester
+        .state<NestedScrollViewState>(find.byType(NestedScrollView))
+        .outerController
+        .position;
+    final fold = outer.maxScrollExtent;
+    // A small pull folds back.
+    final small = await tester.startGesture(const Offset(195, 500));
+    await small.moveBy(const Offset(0, 30));
+    await small.moveBy(const Offset(0, 20));
+    await small.up();
+    await tester.pumpAndSettle();
+    expect(outer.pixels, closeTo(fold, 1));
+    // A deliberate pull opens the card fully.
+    final pull = await tester.startGesture(const Offset(195, 400));
+    for (var i = 0; i < 10; i++) {
+      await pull.moveBy(Offset(0, fold * .06));
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await pull.up();
+    await tester.pumpAndSettle();
+    expect(outer.pixels, closeTo(0, 1));
+    expect(tester.takeException(), isNull);
+  });
   testWidgets(
       'Rapid taps settle on the requested destination and swipe still works',
       (tester) async {
@@ -82,7 +146,11 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('sheet-tab-4')));
     await tester.pumpAndSettle();
     expect(tester.widget<PageView>(find.byType(PageView)).controller!.page, 4);
-    await tester.drag(find.byType(PageView), const Offset(600, 0));
+    // Swipe across the lower part of the page, clear of the journal's search
+    // field (a text field keeps horizontal drags for selection).
+    final lower = tester.getBottomLeft(find.byType(PageView)) +
+        const Offset(100, -60);
+    await tester.dragFrom(lower, const Offset(600, 0));
     await tester.pumpAndSettle();
     expect(tester.widget<PageView>(find.byType(PageView)).controller!.page, 3);
     expect(find.byType(FloatingActionButton), findsOneWidget);
@@ -125,7 +193,10 @@ void main() {
       }
       await tester.tap(find.byKey(ValueKey('sheet-tab-${pair.$2}')));
       await tester.pumpAndSettle();
-      expect(nested.outerController.offset, closeTo(0, 1));
+      // Overview unfolds the hero card; other tabs fold it into the bar.
+      final outer = nested.outerController.position;
+      expect(outer.pixels,
+          closeTo(pair.$2 == 0 ? 0 : outer.maxScrollExtent, 1));
       for (final position in nested.innerController.positions) {
         expect(position.pixels, closeTo(position.minScrollExtent, 1));
       }
@@ -226,69 +297,35 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets(
-      'Character details grow along one reveal and honor reduced motion',
+  testWidgets('Tapping the hero opens what is known about them',
       (tester) async {
     final c = fixtures.hero()
       ..personalityTraits = 'Keeps a journal'
       ..backstory = 'An old promise.';
-    var expanded = false;
     await tester.pumpWidget(app(Scaffold(
-        body: StatefulBuilder(
-            builder: (context, refresh) => ExpandableCharacterCard(
-                character: c,
-                isExpanded: expanded,
-                onDicePressed: () {},
-                onDetailsToggled: (v) => refresh(() => expanded = v))))));
+        body: ExpandableCharacterCard(character: c, onDicePressed: () {}))));
     await tester.pumpAndSettle();
-    final initial = tester.getSize(find.byType(ExpandableCharacterCard)).height;
-    await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-    final middle = tester.getSize(find.byType(ExpandableCharacterCard)).height;
-    expect(middle, greaterThan(initial));
+    expect(find.text('Keeps a journal'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('character-about')));
     await tester.pumpAndSettle();
-    final full = tester.getSize(find.byType(ExpandableCharacterCard)).height;
-    expect(full, greaterThan(middle));
-    await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
-    await tester.pumpAndSettle();
-    expect(
-        tester.getSize(find.byType(ExpandableCharacterCard)).height, initial);
+    expect(find.text('Keeps a journal'), findsOneWidget);
+    expect(find.text('An old promise.'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
-  testWidgets(
-      'Reduced motion reveals details immediately and leaves no entrance tween',
-      (tester) async {
-    final c = fixtures.hero()..personalityTraits = 'Keeps a journal';
-    var expanded = false;
+  testWidgets('A hero without a story has no about sheet', (tester) async {
+    final c = fixtures.hero()
+      ..personalityTraits = null
+      ..ideals = null
+      ..bonds = null
+      ..flaws = null
+      ..backstory = null
+      ..age = null;
     await tester.pumpWidget(app(
         Scaffold(
-            body: StatefulBuilder(
-                builder: (context, refresh) => ExpandableCharacterCard(
-                    character: c,
-                    isExpanded: expanded,
-                    onDicePressed: () {},
-                    onDetailsToggled: (v) => refresh(() => expanded = v)))),
+            body: ExpandableCharacterCard(character: c, onDicePressed: () {})),
         reduced: true));
     await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
-    await tester.pump();
-    expect(
-        tester
-            .widget<SizeTransition>(
-                find.byKey(const ValueKey('character-details-reveal')))
-            .sizeFactor
-            .value,
-        1);
-    await tester.tap(find.byIcon(Icons.keyboard_arrow_down));
-    await tester.pump();
-    expect(
-        tester
-            .widget<SizeTransition>(
-                find.byKey(const ValueKey('character-details-reveal')))
-            .sizeFactor
-            .value,
-        0);
+    expect(find.byKey(const ValueKey('character-about')), findsNothing);
     expect(tester.takeException(), isNull);
   });
 

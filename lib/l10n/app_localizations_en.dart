@@ -141,6 +141,231 @@ class AppLocalizationsEn extends AppLocalizations {
       'Save a Fight Club 5 compatible character XML.';
 
   @override
+  String heroLevelTitle(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String get heroLevelRaise => 'level up';
+
+  @override
+  String get heroLevelSum => 'total of classes';
+
+  @override
+  String get heroLevelHistory => 'advancement history';
+
+  @override
+  String get heroHoldHistory => 'Hold for level-up history';
+
+  @override
+  String get heroExpand => 'Expand hero';
+
+  @override
+  String get hpKeypadEnterDamage => 'Enter damage';
+
+  @override
+  String get hpKeypadEnterHealing => 'Enter healing';
+
+  @override
+  String get hpKeypadEnterTemporary => 'Enter temporary HP';
+
+  @override
+  String hpKeypadApplyDamage(int amount) {
+    return 'Take $amount damage';
+  }
+
+  @override
+  String hpKeypadApplyHealing(int amount) {
+    return 'Heal $amount';
+  }
+
+  @override
+  String hpKeypadApplyTemporary(int amount) {
+    return 'Temporary HP: $amount';
+  }
+
+  @override
+  String get hpKeypadTemporary => 'Temp HP';
+
+  @override
+  String get hpKeypadErase => 'Erase';
+
+  @override
+  String hpKeypadSameAsLast(int amount) {
+    return 'same as last · $amount';
+  }
+
+  @override
+  String get acBreakdownSubtitle => 'What it is made of right now';
+
+  @override
+  String get acSourceUnarmored => 'Unarmored';
+
+  @override
+  String get acSourceDraconic => 'Draconic Resilience';
+
+  @override
+  String get acSourceDefense => 'Defense fighting style';
+
+  @override
+  String acDexCap(int cap) {
+    return 'at most +$cap';
+  }
+
+  @override
+  String get acTotal => 'Total';
+
+  @override
+  String acPinned(int value, int calculated) {
+    return 'Pinned by hand: $value. From gear: $calculated.';
+  }
+
+  @override
+  String get acAutomaticNote =>
+      'Calculated from worn gear. If the DM rules otherwise, you can pin a value by hand.';
+
+  @override
+  String get acEditManual => 'Pin by hand';
+
+  @override
+  String get acEditPinned => 'Change pinned value';
+
+  @override
+  String get nowLowHpTitle => 'Below half HP';
+
+  @override
+  String nowLowHpNote(int count) {
+    return 'Short rest · hit dice left: $count';
+  }
+
+  @override
+  String get nowRestAction => 'Rest';
+
+  @override
+  String get nowReadyTitle => 'Before combat';
+
+  @override
+  String nowReadyNote(String bonus) {
+    return 'Initiative $bonus · one tap to roll';
+  }
+
+  @override
+  String get nowRollAction => 'Roll';
+
+  @override
+  String get overviewConditions => 'Conditions';
+
+  @override
+  String get overviewAddCondition => 'Add';
+
+  @override
+  String get overviewNoConditions => 'No active conditions';
+
+  @override
+  String get weaponKindMelee => 'Melee';
+
+  @override
+  String get weaponKindRanged => 'Ranged';
+
+  @override
+  String get weaponKindThrown => 'Melee · thrown';
+
+  @override
+  String get weaponAttack => 'Attack';
+
+  @override
+  String weaponDamageOf(String type) {
+    return 'Damage · $type';
+  }
+
+  @override
+  String get statsPassivePerception => 'Passive Perception';
+
+  @override
+  String get statsTapHint =>
+      'Tap to roll a check, the lower strip rolls a save';
+
+  @override
+  String statsSave(String bonus) {
+    return 'save $bonus';
+  }
+
+  @override
+  String get statsFilterAll => 'All';
+
+  @override
+  String get statsFilterProficient => 'Proficient';
+
+  @override
+  String lobbyReady(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count heroes ready for the next story',
+      one: '1 hero ready for the next story',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get heroAbout => 'About the hero';
+
+  @override
+  String get vitalsStanding => 'Standing';
+
+  @override
+  String get vitalsUnconscious => 'Unconscious';
+
+  @override
+  String get deathSaveUnconscious => 'Unconscious. Roll a death saving throw.';
+
+  @override
+  String get deathSaveThreeSuccesses => 'Three successes: stable at 0 HP.';
+
+  @override
+  String get deathSaveThreeFailures =>
+      'Three failures. The DM decides what happens.';
+
+  @override
+  String get quickSpeed => 'SPEED';
+
+  @override
+  String get quickProf => 'PROF';
+
+  @override
+  String get overviewWeapons => 'Weapons and attacks';
+
+  @override
+  String overviewAttacksPerAction(int count) {
+    return 'attacks: $count';
+  }
+
+  @override
+  String get restShortTile => 'Short';
+
+  @override
+  String get restLongTile => 'Long';
+
+  @override
+  String get conditionsPickerHint =>
+      'Mark what affects the hero. Clear it here or with the cross on Overview.';
+
+  @override
+  String get conditionsDone => 'Done';
+
+  @override
+  String get conditionsAllParameters => 'All game parameters';
+
+  @override
+  String get statsTapHintShort => 'Tap to roll a check';
+
+  @override
+  String get deckOpenSheet => 'Open sheet';
+
+  @override
+  String get deckProficiency => 'Proficiency';
+
+  @override
   String get viewDetails => 'View Details';
 
   @override

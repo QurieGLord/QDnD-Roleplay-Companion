@@ -126,6 +126,51 @@ class _PaletteSpec {
       brightness == Brightness.dark ? darkError : lightError;
 }
 
+/// A family of six accents per palette: similar lightness, different hue.
+/// Used for categories such as character classes, never for the main action.
+@immutable
+class AppAccents extends ThemeExtension<AppAccents> {
+  const AppAccents(this.colors);
+  final List<Color> colors;
+
+  Color at(int index) => colors[index % colors.length];
+
+  /// Class identity colours; twelve classes share six accents.
+  static int classIndex(String classId) {
+    final id = classId.toLowerCase();
+    if (id.contains('bard') || id.contains('barbarian')) return 0;
+    if (id.contains('paladin') || id.contains('sorcerer')) return 1;
+    if (id.contains('cleric') || id.contains('monk')) return 2;
+    if (id.contains('fighter') ||
+        id.contains('druid') ||
+        id.contains('ranger')) {
+      return 3;
+    }
+    if (id.contains('wizard') || id.contains('rogue')) return 4;
+    if (id.contains('warlock')) return 5;
+    return 4;
+  }
+
+  static AppAccents of(BuildContext context) =>
+      Theme.of(context).extension<AppAccents>() ??
+      AppPalettes.accents(
+          AppPalettes.fallbackPreset, Theme.of(context).brightness);
+
+  Color forClass(String classId) => at(classIndex(classId));
+
+  @override
+  AppAccents copyWith({List<Color>? colors}) =>
+      AppAccents(colors ?? this.colors);
+
+  @override
+  AppAccents lerp(AppAccents? other, double t) => other == null
+      ? this
+      : AppAccents([
+          for (var i = 0; i < colors.length; i++)
+            Color.lerp(colors[i], other.at(i), t)!
+        ]);
+}
+
 class AppPalettes {
   static const AppColorPreset fallbackPreset = AppColorPreset.monokai;
 
@@ -305,6 +350,41 @@ class AppPalettes {
     darkTertiary: Color(0xFFD5C27F),
   );
 
+  // Pink, orange, yellow, green, cyan, lavender — tuned per palette and theme.
+  static const Map<AppColorPreset, List<List<int>>> _accentFamilies = {
+    AppColorPreset.monokai: [
+      [0xFFFE5685, 0xFFFD971F, 0xFFFFD866, 0xFFA6E22E, 0xFF66D9EF, 0xFFAB9DF2],
+      [0xFFD0185F, 0xFFB86000, 0xFF9A7A12, 0xFF5B8A12, 0xFF0083A0, 0xFF7457C4],
+    ],
+    AppColorPreset.gruvbox: [
+      [0xFFFB4934, 0xFFFE8019, 0xFFFABD2F, 0xFFB8BB26, 0xFF8EC07C, 0xFFD3869B],
+      [0xFF9D0006, 0xFFAF3A03, 0xFF976002, 0xFF79740E, 0xFF3F7855, 0xFF8F3F71],
+    ],
+    AppColorPreset.catppuccin: [
+      [0xFFF38BA8, 0xFFFAB387, 0xFFF9E2AF, 0xFFA6E3A1, 0xFF89DCEB, 0xFFCBA6F7],
+      [0xFFD20F39, 0xFFD5560A, 0xFFB57614, 0xFF40A02B, 0xFF0485B9, 0xFF8839EF],
+    ],
+    AppColorPreset.nord: [
+      [0xFFBF616A, 0xFFD08770, 0xFFEBCB8B, 0xFFA3BE8C, 0xFF88C0D0, 0xFFB48EAD],
+      [0xFFA3505D, 0xFFA0662E, 0xFF8A7A2E, 0xFF4F7A3F, 0xFF447B89, 0xFF7A5C8E],
+    ],
+    AppColorPreset.everforest: [
+      [0xFFE67E80, 0xFFE69875, 0xFFDBBC7F, 0xFFA7C080, 0xFF7FBBB3, 0xFFD699B6],
+      [0xFFC94F51, 0xFFC4661A, 0xFFA57712, 0xFF76870D, 0xFF2F7FA8, 0xFFB5528F],
+    ],
+    AppColorPreset.roseOfDune: [
+      [0xFFE08F87, 0xFFE8B965, 0xFFD9C27A, 0xFFA9C98A, 0xFF8FC1C4, 0xFFC3A3D6],
+      [0xFFB85C5C, 0xFFA77733, 0xFF8F7826, 0xFF5E7F44, 0xFF3F7E83, 0xFF85598F],
+    ],
+  };
+
+  static AppAccents accents(AppColorPreset preset, Brightness brightness) {
+    final family = _accentFamilies[preset] ?? _accentFamilies[fallbackPreset]!;
+    return AppAccents([
+      for (final v in family[brightness == Brightness.dark ? 0 : 1]) Color(v)
+    ]);
+  }
+
   /// Returns the ColorScheme for the given preset and brightness mode.
   static ColorScheme getScheme(AppColorPreset preset, Brightness brightness) {
     return _schemeFromSpec(
@@ -394,8 +474,8 @@ class AppPalettes {
       onTertiaryContainer: onSurface,
       surface: surface,
       onSurface: onSurface,
-      onSurfaceVariant: _readableMuted(
-          onSurface, surface, surfaceHigh, isDark ? 0.72 : 0.68),
+      onSurfaceVariant:
+          _readableMuted(onSurface, surface, surfaceHigh, isDark ? 0.72 : 0.68),
       surfaceContainerLowest: _blend(
         onSurface,
         surface,

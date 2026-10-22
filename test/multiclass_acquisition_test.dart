@@ -17,7 +17,7 @@ import 'package:qd_and_d/features/character_sheet/widgets/spell_slots_widget.dar
 import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/rogue_tools_widget.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/cleric_magic_widget.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/druid_magic_widget.dart';
-import 'package:qd_and_d/features/character_list/widgets/character_card.dart';
+import 'package:qd_and_d/features/character_list/widgets/hero_deck.dart';
 import 'multiclass_magic_flow_test.dart' as flow;
 import 'multiclass_sheet_integration_test.dart' as widgets;
 
@@ -120,12 +120,15 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       final c = flow.mixed({'fighter': 3, 'druid': 1});
       await tester.pumpWidget(widgets.app(
-          CharacterCard(character: c, onTap: () {}, onLongPress: () {}),
+          HeroDeck(characters: [c], onOpen: (_, __) {}, onHold: (_) {}),
           scale: 1.5,
           locale: locale));
       await tester.pumpAndSettle();
-      final text = locale == 'ru' ? 'Воин 3 / Друид 1' : 'Fighter 3 / Druid 1';
-      expect(find.textContaining(text), findsOneWidget);
+      final classes =
+          locale == 'ru' ? ['Воин 3', 'Друид 1'] : ['Fighter 3', 'Druid 1'];
+      for (final text in classes) {
+        expect(find.text(text), findsOneWidget);
+      }
       expect(tester.takeException(), isNull);
     });
   }

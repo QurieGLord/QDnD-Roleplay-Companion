@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
@@ -41,6 +40,7 @@ Future<T?> showCardSheet<T>(
   required WidgetBuilder faceBuilder,
   Color? originColor,
   double originRadius = AppRadii.xl,
+  BorderRadius? originBorderRadius,
 }) {
   final state = origin.currentState, rect = state?._rect;
   final colors = Theme.of(context).colorScheme;
@@ -59,7 +59,8 @@ Future<T?> showCardSheet<T>(
     faceBuilder: faceBuilder,
     originColor: originColor ?? colors.surface,
     sheetColor: colors.surfaceContainerLow,
-    originRadius: originRadius,
+    originRadius:
+        originBorderRadius ?? BorderRadius.circular(originRadius),
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
   ));
 }
@@ -83,7 +84,10 @@ class CardSheetRoute<T> extends PopupRoute<T> {
   final Rect origin;
   final WidgetBuilder builder, faceBuilder;
   final Color originColor, sheetColor;
-  final double originRadius;
+
+  /// The card's own corners; the sheet leaves and lands in exactly this
+  /// shape, so the card never changes form once it is back in place.
+  final BorderRadius originRadius;
   @override
   final String barrierLabel;
 
@@ -172,10 +176,10 @@ class _CardSheetBody extends StatelessWidget {
         final p = animation.value, q = p.clamp(0.0, 1.0);
         final rect = Rect.lerp(route.origin, target, p)!
             .shift(Offset(0, route.drag.value));
-        final top = lerpDouble(route.originRadius, AppRadii.xl, q)!;
-        final bottom = lerpDouble(route.originRadius, 0, q)!;
-        final radius = BorderRadius.vertical(
-            top: Radius.circular(top), bottom: Radius.circular(bottom));
+        final radius = BorderRadius.lerp(
+            route.originRadius,
+            const BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
+            q)!;
         // Fade through: the card's face holds until the content takes over.
         final face = 1 - (q / .4).clamp(0.0, 1.0);
         final content = ((q - .3) / .5).clamp(0.0, 1.0);

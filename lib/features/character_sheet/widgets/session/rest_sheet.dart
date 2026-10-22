@@ -8,11 +8,13 @@ import '../../../../core/models/character.dart';
 import '../../../../core/services/gameplay_actions_service.dart';
 import '../../../../core/services/qdnd_bundle_codec.dart';
 import '../../../../core/services/spell_service.dart';
-import '../abilities/abilities_section_header.dart';
-import '../abilities/abilities_section_surface.dart';
 import 'value_editor_dialog.dart';
+import 'package:qd_and_d/core/theme/app_palettes.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
+import '../../../../core/ui/companion_kit.dart';
 
+/// The prototype's rest tiles: two calm tiles side by side, each an icon in
+/// the violet accent and its name.
 class SheetRestActions extends StatelessWidget {
   const SheetRestActions({
     super.key,
@@ -26,37 +28,44 @@ class SheetRestActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    Widget action(
-            String id, String label, IconData icon, VoidCallback callback) =>
+    final t = Theme.of(context), c = t.colorScheme;
+    final violet = AppAccents.of(context).at(5);
+    Widget tile(String id, String label, String semantic, String icon,
+            VoidCallback callback) =>
         Expanded(
-          child: FilledButton.tonal(
-            key: ValueKey('sheet-rest-$id'),
-            onPressed: busy ? null : callback,
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(0, 80),
-              padding: const EdgeInsets.all(12),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
+          child: Opacity(
+            opacity: busy ? .45 : 1,
+            child: Pressable(
+              key: ValueKey('sheet-rest-$id'),
+              onTap: busy ? null : callback,
+              scale: .97,
+              semanticLabel: semantic,
+              child: ExcludeSemantics(
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 50),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                      color: c.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
+                  child: Row(children: [
+                    LineIcon(icon, size: 22, color: violet),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(label,
+                          style: t.textTheme.labelLarge?.copyWith(
+                              fontSize: 14, fontWeight: FontWeight.w600)),
+                    ),
+                  ]),
+                ),
+              ),
             ),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(icon, size: 24),
-              const SizedBox(height: 8),
-              Text(label, textAlign: TextAlign.center),
-            ]),
           ),
         );
-    return AbilitiesSectionSurface(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        AbilitiesSectionHeader(title: l10n.rest, icon: Icons.spa_outlined),
-        const SizedBox(height: 16),
-        IntrinsicHeight(
-          child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            action('short', l10n.shortRest, Icons.local_cafe_outlined,
-                onShortRest),
-            const SizedBox(width: 12),
-            action('long', l10n.longRest, Icons.bedtime_outlined, onLongRest),
-          ]),
-        ),
+    return IntrinsicHeight(
+      child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        tile('short', l10n.restShortTile, l10n.shortRest, 'cup', onShortRest),
+        const SizedBox(width: 8),
+        tile('long', l10n.restLongTile, l10n.longRest, 'moon', onLongRest),
       ]),
     );
   }
