@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:qd_and_d/core/ui/expressive_kit.dart' show RollingNumber;
 import 'package:hive/hive.dart';
 import 'package:qd_and_d/core/models/ability_scores.dart';
 import 'package:qd_and_d/core/models/character.dart';
@@ -146,11 +147,14 @@ void main() {
     await tester.pumpWidget(app(SingleChildScrollView(
         child: ClericMagicWidget(character: c, onStateChanged: () {}))));
     await tester.pumpAndSettle();
+    // The sun carries the reserve: six charges remain over a zero capacity.
+    final use = find.byKey(const ValueKey('cleric-sun'));
     expect(
-        find.byWidgetPredicate(
-            (w) => w is Semantics && w.properties.label == '6 / 0'),
-        findsOneWidget);
-    final use = find.byTooltip('Use');
+        tester
+            .widget<RollingNumber>(
+                find.descendant(of: use, matching: find.byType(RollingNumber)))
+            .value,
+        6);
     await tester.ensureVisible(use);
     await tester.runAsync(() async {
       await tester.tap(use);
@@ -174,7 +178,11 @@ void main() {
     await tester.pumpWidget(app(SingleChildScrollView(
         child: ClericMagicWidget(character: c, onStateChanged: () {}))));
     await tester.pumpAndSettle();
-    final use = find.byTooltip('Use: Channel Divinity: Preserve Life');
+    // Preserve Life is the way on the right; the sun spends the channel and
+    // opens the distribution, never healing the cleric by itself.
+    await tester.tap(find.byKey(const ValueKey('cleric-way-1')));
+    await tester.pumpAndSettle();
+    final use = find.byKey(const ValueKey('cleric-sun'));
     await tester.ensureVisible(use);
     await tester.runAsync(() async {
       await tester.tap(use);
@@ -227,7 +235,7 @@ void main() {
     await tester.pumpWidget(app(SingleChildScrollView(
         child: ClericMagicWidget(character: c, onStateChanged: () {}))));
     await tester.pumpAndSettle();
-    final use = find.byTooltip('Use');
+    final use = find.byKey(const ValueKey('cleric-sun'));
     await tester.scrollUntilVisible(use, 200);
     await tester.runAsync(() => tester.tap(use));
     await tester.pumpAndSettle();

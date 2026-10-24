@@ -47,15 +47,19 @@ class SheetRestActions extends StatelessWidget {
                   decoration: BoxDecoration(
                       color: c.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
-                  child: Row(children: [
-                    LineIcon(icon, size: 22, color: violet),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(label,
-                          style: t.textTheme.labelLarge?.copyWith(
-                              fontSize: 14, fontWeight: FontWeight.w600)),
-                    ),
-                  ]),
+                  // Centred like the damage and healing buttons above.
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        LineIcon(icon, size: 22, color: violet),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: Text(label,
+                              textAlign: TextAlign.center,
+                              style: t.textTheme.labelLarge?.copyWith(
+                                  fontSize: 14, fontWeight: FontWeight.w600)),
+                        ),
+                      ]),
                 ),
               ),
             ),

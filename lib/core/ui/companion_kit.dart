@@ -16,14 +16,16 @@ import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 /// Line icons drawn from the prototype's own symbol set (24 × 24, stroke 2).
 class LineIcon extends StatelessWidget {
-  const LineIcon(this.name, {super.key, this.size = 22, this.color, this.semanticLabel});
+  const LineIcon(this.name,
+      {super.key, this.size = 22, this.color, this.semanticLabel});
   final String name;
   final double size;
   final Color? color;
   final String? semanticLabel;
 
   static const _paths = <String, String>{
-    'home': 'M4 11.5 12 4l8 7.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z',
+    'home':
+        'M4 11.5 12 4l8 7.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z',
     'stats': 'M5 20v-7M10 20V5M15 20v-9M20 20v-4',
     'magic':
         'M4 20 14.5 9.5M17 3l.8 2.2L20 6l-2.2.8L17 9l-.8-2.2L14 6l2.2-.8zM9 4.5l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5zM19 13l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5z',
@@ -33,7 +35,8 @@ class LineIcon extends StatelessWidget {
         'M6 4h11a1 1 0 0 1 1 1v15H7.5A2.5 2.5 0 0 1 5 17.5V5a1 1 0 0 1 1-1zM18 16H7.5A2.5 2.5 0 0 0 5 18.5M9.5 4v6.5l2-1.4 2 1.4V4',
     'note':
         'M9 18V5l10-2v13M9 18a3 3 0 1 1-3-3 3 3 0 0 1 3 3zM19 16a3 3 0 1 1-3-3 3 3 0 0 1 3 3z',
-    'star': 'M12 3l2.4 5.8L20.5 9l-4.7 4 1.5 6.1L12 16l-5.3 3.1L8.2 13 3.5 9l6.1-.2z',
+    'star':
+        'M12 3l2.4 5.8L20.5 9l-4.7 4 1.5 6.1L12 16l-5.3 3.1L8.2 13 3.5 9l6.1-.2z',
     'leaf': 'M5 19c0-8 5-13 15-14-1 10-6 15-14 15M5 19l8-8',
     'shield': 'M12 3.5 19 6v5.2c0 4.5-3 7.8-7 9.3-4-1.5-7-4.8-7-9.3V6z',
     'sword': 'M14.5 4H20v5.5l-9 9-5.5-5.5zM8 16l-3.5 3.5M5.5 13.5l5 5',
@@ -43,7 +46,8 @@ class LineIcon extends StatelessWidget {
     'forward': 'M9 5l7 7-7 7',
     'plus': 'M12 5v14M5 12h14',
     'moon': 'M19 14.5A7.5 7.5 0 1 1 9.5 5a6 6 0 0 0 9.5 9.5z',
-    'cup': 'M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3v3M11 3v3',
+    'cup':
+        'M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3v3M11 3v3',
     'swords':
         'M4 4l9 9M20 4l-9 9M6.5 14.5l3 3M17.5 14.5l-3 3M4 20l3-3M20 20l-3-3',
     'bolt': 'M13 3 5 13.5h6L10 21l8-10.5h-6z',
@@ -69,7 +73,9 @@ class LineIcon extends StatelessWidget {
     if (id.contains('paladin')) return 'shield';
     if (id.contains('bard')) return 'note';
     if (id.contains('wizard') || id.contains('sorcerer')) return 'star';
-    if (id.contains('cleric') || id.contains('druid') || id.contains('ranger')) {
+    if (id.contains('cleric') ||
+        id.contains('druid') ||
+        id.contains('ranger')) {
       return 'leaf';
     }
     if (id.contains('fighter') ||
@@ -156,9 +162,7 @@ class _GlassSurfaceState extends State<GlassSurface> {
     // on one side cannot follow rounded corners, so it is painted).
     final fill = DecoratedBox(
       decoration: BoxDecoration(
-        color: opaque
-            ? c.surface
-            : c.surface.withValues(alpha: blur ? .7 : .9),
+        color: opaque ? c.surface : c.surface.withValues(alpha: blur ? .7 : .9),
         borderRadius: borderRadius,
       ),
       child: CustomPaint(
@@ -340,8 +344,7 @@ class ToneButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (icon != null) ...[
-              IconTheme(
-                  data: IconThemeData(color: fg, size: 20), child: icon!),
+              IconTheme(data: IconThemeData(color: fg, size: 20), child: icon!),
               const SizedBox(width: 8),
             ],
             Flexible(
@@ -406,7 +409,8 @@ class OutlineChip extends StatelessWidget {
                       width: 1.4))),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             if (leading != null) ...[
-              IconTheme(data: IconThemeData(color: fg, size: 18), child: leading!),
+              IconTheme(
+                  data: IconThemeData(color: fg, size: 18), child: leading!),
               const SizedBox(width: 6),
             ],
             Flexible(
@@ -432,12 +436,24 @@ class FlowSegment<T> extends StatefulWidget {
     required this.selected,
     required this.onChanged,
     this.keyPrefix,
+    this.itemKeys,
+    this.dots,
+    this.trailing,
   });
   final List<T> values;
   final List<String> labels;
   final T selected;
   final ValueChanged<T> onChanged;
   final String? keyPrefix;
+
+  /// Keys of the items themselves, when callers address them by identity.
+  final List<Key>? itemKeys;
+
+  /// A coloured dot before each label (a class in a multiclass switch).
+  final List<Color>? dots;
+
+  /// A quiet suffix after each label (the class level).
+  final List<String>? trailing;
   @override
   State<FlowSegment<T>> createState() => _FlowSegmentState<T>();
 }
@@ -533,9 +549,10 @@ class _FlowSegmentState<T> extends State<FlowSegment<T>>
                   label: widget.labels[i],
                   excludeSemantics: true,
                   child: GestureDetector(
-                    key: widget.keyPrefix == null
-                        ? null
-                        : ValueKey('${widget.keyPrefix}-$i'),
+                    key: widget.itemKeys?[i] ??
+                        (widget.keyPrefix == null
+                            ? null
+                            : ValueKey('${widget.keyPrefix}-$i')),
                     behavior: HitTestBehavior.opaque,
                     onTap: () {
                       if (i == _index) return;
@@ -555,10 +572,37 @@ class _FlowSegmentState<T> extends State<FlowSegment<T>>
                                 color: i == _index
                                     ? c.onSurface
                                     : c.onSurfaceVariant),
-                        child: Text(widget.labels[i],
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis),
+                        child: widget.dots == null && widget.trailing == null
+                            ? Text(widget.labels[i],
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis)
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                    if (widget.dots != null) ...[
+                                      Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: widget.dots![i])),
+                                      const SizedBox(width: 7),
+                                    ],
+                                    Flexible(
+                                        child: Text(widget.labels[i],
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis)),
+                                    if (widget.trailing != null) ...[
+                                      const SizedBox(width: 6),
+                                      Opacity(
+                                          opacity: .8,
+                                          child: Text(widget.trailing![i],
+                                              style: const TextStyle(
+                                                  fontFamily: AppType.display,
+                                                  fontSize: 12))),
+                                    ],
+                                  ]),
                       ),
                     ),
                   ),
@@ -624,26 +668,32 @@ Future<T?> showCompanionSheet<T>(BuildContext context,
             reverseDuration: Duration(milliseconds: 220)),
     shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl))),
-    builder: (context) => Column(mainAxisSize: MainAxisSize.min, children: [
-      SizedBox(
-        height: 28,
-        child: Center(
-          child: Container(
-            width: 36,
-            height: 4,
-            decoration: ShapeDecoration(
-                shape: const StadiumBorder(), color: c.outline),
+    builder: (context) => AnimatedPadding(
+      // Rises with the keyboard so a field stays in view while typing.
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        SizedBox(
+          height: 28,
+          child: Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: ShapeDecoration(
+                  shape: const StadiumBorder(), color: c.outline),
+            ),
           ),
         ),
-      ),
-      Flexible(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(
-              18, 0, 18, 20 + MediaQuery.viewPaddingOf(context).bottom),
-          child: builder(context),
+        Flexible(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+                18, 0, 18, 20 + MediaQuery.viewPaddingOf(context).bottom),
+            child: builder(context),
+          ),
         ),
-      ),
-    ]),
+      ]),
+    ),
   );
 }
 

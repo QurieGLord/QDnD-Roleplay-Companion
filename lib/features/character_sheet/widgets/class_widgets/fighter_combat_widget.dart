@@ -1,19 +1,23 @@
-import '../../../../shared/widgets/subclass_details_sheet.dart';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
+import 'package:qd_and_d/core/ui/companion_kit.dart';
+import 'package:qd_and_d/core/ui/expressive_kit.dart';
+
 import '../../../../core/models/character.dart';
 import '../../../../core/models/character_feature.dart';
 import '../../../../core/progression/character_class_context.dart';
 import '../../../../core/services/gameplay_actions_service.dart';
-import '../../../../core/ui/sheet_drag_region.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../shared/widgets/feature_details_sheet.dart';
 import '../session/value_editors.dart';
-import 'fighter_tactics_surface.dart';
-import 'package:qd_and_d/core/theme/app_tokens.dart';
+import 'instrument/instrument_kit.dart';
 
+/// Fighter (prototype `CLASS.fighter`): the accepted connected surface,
+/// chamfered. Second Wind rolls its d10 in place and the healing rolls into
+/// the hit points; Action Surge lights a second action; Indomitable rolls
+/// its d20 right on the cell.
 class FighterCombatWidget extends StatefulWidget {
   const FighterCombatWidget(
       {super.key,
@@ -23,9 +27,7 @@ class FighterCombatWidget extends StatefulWidget {
       this.indomitableFeature,
       this.onChanged});
   final Character character;
-  final CharacterFeature? secondWindFeature,
-      actionSurgeFeature,
-      indomitableFeature;
+  final CharacterFeature? secondWindFeature, actionSurgeFeature, indomitableFeature;
   final VoidCallback? onChanged;
   @override
   State<FighterCombatWidget> createState() => _FighterCombatWidgetState();
@@ -33,74 +35,63 @@ class FighterCombatWidget extends StatefulWidget {
 
 class _FighterCombatWidgetState extends State<FighterCombatWidget> {
   bool _busy = false;
-  int? _lastSecondWindRoll;
-  int? _lastSecondWindHealing;
-  CharacterClassContext get _fighter =>
-      CharacterClassContext(widget.character, 'fighter');
-  List<CharacterFeature> get _resources => [
-        if (widget.secondWindFeature?.resourcePool != null)
-          widget.secondWindFeature!,
-        if (widget.actionSurgeFeature?.resourcePool != null)
-          widget.actionSurgeFeature!,
-        if (widget.indomitableFeature?.resourcePool != null)
-          widget.indomitableFeature!,
-      ].where(_fighter.canUseFeature).toList();
+
+  /// The last Second Wind: what the d10 showed and what it healed.
+  int? lastSecondWindRoll, lastSecondWindHealing;
+  int _windKey = 0, _saveKey = 0;
+  int? _save;
+  bool _surging = false;
+
+  CharacterClassContext get _fighter => CharacterClassContext(widget.character, 'fighter');
+
+  CharacterFeature? _usable(CharacterFeature? f) =>
+      f?.resourcePool != null && _fighter.canUseFeature(f!) ? f : null;
 
   List<CharacterFeature> get _styles => widget.character.features.where((f) {
         if (!_fighter.canUseFeature(f)) return false;
         final id = f.id.toLowerCase().replaceAll('_', '-');
-        const containers = {
-          'fighting-style',
-          'additional-fighting-style',
-          'fighter-fighting-style'
-        };
-        if (containers.contains(id) ||
-            {'fighting style', 'additional fighting style'}
-                .contains(f.nameEn.toLowerCase())) {
+        const containers = {'fighting-style', 'additional-fighting-style', 'fighter-fighting-style'};
+        if (containers.contains(id) || {'fighting style', 'additional fighting style'}.contains(f.nameEn.toLowerCase())) {
           return false;
         }
-        // Ranger and Paladin styles are shown by their own panels.
         if (id.startsWith('ranger-') || id.startsWith('paladin-')) return false;
-        return id.startsWith('fighter-fighting-style-') ||
-            id.startsWith('fighting-style-') ||
-            id.startsWith('fs-');
+        return id.startsWith('fighter-fighting-style-') || id.startsWith('fighting-style-') || id.startsWith('fs-');
       }).toList();
 
-  CharacterFeature? get _critical => widget.character.features.where((f) {
-        if (!_fighter.canUseFeature(f)) return false;
-        final id = f.id.toLowerCase().replaceAll('_', '-');
-        return id.contains('improved-critical') ||
-            id.contains('superior-critical');
-      }).firstOrNull;
+  CharacterFeature? get _critical {
+    final found = widget.character.features.where((f) {
+      if (!_fighter.canUseFeature(f)) return false;
+      final id = f.id.toLowerCase().replaceAll('_', '-');
+      return id.contains('improved-critical') || id.contains('superior-critical');
+    }).toList();
+    return found.where((f) => f.id.contains('superior')).firstOrNull ?? found.firstOrNull;
+  }
 
   Future<void> _activate(CharacterFeature feature) async {
     if (_busy || !_fighter.canUseFeature(feature)) return;
     setState(() => _busy = true);
     final l10n = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context).languageCode;
     try {
       final secondWind = identical(feature, widget.secondWindFeature);
+      final indomitable = identical(feature, widget.indomitableFeature);
       final roll = secondWind ? Random().nextInt(10) + 1 : 0;
       final healing = secondWind ? roll + _fighter.level : 0;
-      final result = await GameplayActionsService.activateResource(
-          widget.character, feature,
-          healing: healing);
-      if (!mounted) return;
-      if (result.spent) {
+      final result = await GameplayActionsService.activateResource(widget.character, feature, healing: healing);
+      if (!mounted || !result.spent) return;
+      HapticFeedback.mediumImpact();
+      setState(() {
         if (secondWind) {
-          setState(() {
-            _lastSecondWindRoll = roll;
-            _lastSecondWindHealing = result.healed;
-          });
+          lastSecondWindRoll = roll;
+          lastSecondWindHealing = result.healed;
+          _windKey++;
+        } else if (indomitable) {
+          _save = Random().nextInt(20) + 1;
+          _saveKey++;
+        } else {
+          _surging = true;
         }
-        HapticFeedback.mediumImpact();
-        widget.onChanged?.call();
-        AppSnackBar.success(
-            context,
-            secondWind
-                ? l10n.secondWindHeal(result.healed)
-                : l10n.gameStateResourceUsed(feature.getName(locale)));
-      }
+      });
+      widget.onChanged?.call();
     } catch (_) {
       if (mounted) AppSnackBar.error(context, l10n.sheetSaveFailed);
     } finally {
@@ -109,247 +100,178 @@ class _FighterCombatWidgetState extends State<FighterCombatWidget> {
   }
 
   Future<void> _edit(CharacterFeature feature) async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    try {
-      final changed =
-          await showResourceValueEditor(context, widget.character, feature);
-      if (mounted && changed) widget.onChanged?.call();
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
+    final changed = await showResourceValueEditor(context, widget.character, feature);
+    if (mounted && changed) setState(() => widget.onChanged?.call());
   }
 
-  void _details(CharacterFeature feature, IconData icon) =>
-      showResponsiveSheet<void>(
-          context: context,
-          isScrollControlled: true,
-          useSafeArea: true,
-          builder: (_) =>
-              FeatureDetailsSheet(feature: feature, overrideIcon: icon));
-
-  Future<void> _subclassDetails() async {
-    await showClassSubclassDetails(context, widget.character, 'fighter');
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  Widget _tactic(CharacterFeature feature, FighterTactic tactic,
-          AppLocalizations l10n, String locale,
-          {bool compact = false, bool joined = false}) =>
-      FighterTacticsSurface(
-          key: ValueKey('fighter-action-${feature.id}'),
-          tactic: tactic,
-          name: feature.getName(locale).replaceAll(RegExp(r'\s*\(.*?\)'), ''),
-          current: feature.resourcePool!.currentUses,
-          maximum: feature.resourcePool!.maxUses,
-          bonus: _fighter.level,
-          lastRoll:
-              tactic == FighterTactic.secondWind ? _lastSecondWindRoll : null,
-          lastHealing: tactic == FighterTactic.secondWind
-              ? _lastSecondWindHealing
-              : null,
-          recovery: _recovery(feature.resourcePool!.recoveryType, l10n),
-          busy: _busy,
-          compact: compact,
-          joined: joined,
-          onActivate: feature.resourcePool!.currentUses > 0
-              ? () => _activate(feature)
-              : null,
-          onEdit: () => _edit(feature));
-
-  String _recovery(RecoveryType type, AppLocalizations l10n) => switch (type) {
-        RecoveryType.shortRest => l10n.shortRest,
-        RecoveryType.longRest => l10n.longRest,
-        RecoveryType.dawn => l10n.recoveryDawn,
-        RecoveryType.perTurn => l10n.recoveryEachTurn,
-        RecoveryType.recharge => l10n.recoveryRecharge,
-        RecoveryType.manual => l10n.recoveryManual,
-      };
+  InstrumentAbout _about(CharacterFeature f, String locale, String? how) => InstrumentAbout(
+      title: f.getName(locale).replaceAll(RegExp(r'\s*\(.*?\)'), ''),
+      paragraphs: f.getDescription(locale).split(RegExp(r'\n\s*\n')),
+      how: how);
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context), colors = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context).languageCode;
-    final resources = _resources, styles = _styles;
-    if (_fighter.level == 0 || (resources.isEmpty && styles.isEmpty)) {
-      return const SizedBox.shrink();
+    final ru = instrumentRu(context), locale = ru ? 'ru' : 'en';
+    final level = _fighter.level;
+    final wind = _usable(widget.secondWindFeature), surge = _usable(widget.actionSurgeFeature), indom = _usable(widget.indomitableFeature);
+    final styles = _styles, critical = _critical;
+    if (level == 0 || (wind == null && surge == null && indom == null && styles.isEmpty)) return const SizedBox.shrink();
+    final a4 = accentOf(context, 4), a0 = accentOf(context, 0), a2 = accentOf(context, 2);
+    final c = Theme.of(context).colorScheme;
+    final k = ru ? 'к' : 'd';
+    final crit = critical == null ? 20 : (critical.id.contains('superior') ? 18 : 19);
+    final children = <Widget>[];
+    if (wind != null) {
+      final pool = wind.resourcePool!;
+      children.add(Instrument(
+        key: const ValueKey('fighter-second-wind'),
+        accent: a4,
+        chamfer: true,
+        title: wind.getName(locale).replaceAll(RegExp(r'\s*\(.*?\)'), ''),
+        about: _about(wind, locale,
+            ru ? 'Коснитесь кости — она бросится, и ОЗ прибавятся сами.' : 'Tap the die: it rolls and the hit points are added.'),
+        trailing: RestChip(
+            short: pool.recoveryType == RecoveryType.shortRest,
+            onEdit: () => _edit(wind),
+            onRestore: () => restoreFeature(context, widget.character, wind, done: () => setState(() => widget.onChanged?.call()))),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const SizedBox(height: 12),
+          Row(children: [
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('1${k}10 + $level', style: bigStyle(context)),
+                const SizedBox(height: 6),
+                InstrumentHint([
+                  // An unusual reserve (overfilled, or more than one use) stays visible.
+                  if (pool.maxUses != 1 || pool.currentUses > 1) '${pool.currentUses} / ${pool.maxUses}',
+                  pool.currentUses > 0
+                      ? (ru ? 'коснитесь кости' : 'tap the die')
+                      : (ru ? 'вернёт короткий отдых' : 'a short rest restores it'),
+                ].join(' · ')),
+              ]),
+            ),
+            Opacity(
+              opacity: pool.currentUses > 0 ? 1 : .4,
+              child: Pressable(
+                key: ValueKey('fighter-action-${wind.id}'),
+                onTap: pool.currentUses > 0 && !_busy ? () => _activate(wind) : null,
+                scale: .93,
+                semanticLabel: wind.getName(locale),
+                child: TumbleDie(
+                    shape: DieShape.d10,
+                    label: lastSecondWindRoll?.toString() ?? '${k}10',
+                    accent: a4,
+                    rollKey: _windKey,
+                    sides: 10,
+                    natural: lastSecondWindRoll,
+                    size: 84),
+              ),
+            ),
+          ]),
+          if (lastSecondWindHealing != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Pulse(
+                trigger: _windKey,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                      color: AppPaletteRoles.heal(context).withValues(alpha: .16), borderRadius: BorderRadius.circular(16)),
+                  child: Row(children: [
+                    InstrumentGlyph('heart', size: 18, color: AppPaletteRoles.heal(context)),
+                    const SizedBox(width: 8),
+                    RollingNumber(lastSecondWindHealing!, style: bigStyle(context).copyWith(fontSize: 24)),
+                    const SizedBox(width: 6),
+                    Text(ru ? 'ОЗ' : 'HP', style: hintStyle(context)),
+                  ]),
+                ),
+              ),
+            ),
+        ]),
+      ));
     }
-    final subclass = _fighter.subclassName(locale);
-    return Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child:
-            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Padding(
-              padding: const EdgeInsets.fromLTRB(4, 0, 0, 10),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      Expanded(
-                          child: Text(_fighter.name(locale),
-                              style: theme.textTheme.headlineLarge?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -1.1,
-                                  height: 1.05,
-                                  color: colors.onSurface))),
-                      Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 7),
-                          decoration: BoxDecoration(
-                              color: colors.surfaceContainerLow,
-                              borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
-                          child: Text('${l10n.level} ${_fighter.level}',
-                              style: theme.textTheme.labelLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600))),
-                      _resourceMenu(resources, l10n, locale),
-                    ]),
-                    if (subclass != null && subclass.isNotEmpty)
-                      InkWell(
-                          onTap: _subclassDetails,
-                          borderRadius: BorderRadius.circular(AppRadii.md),
-                          child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 5),
-                              child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Flexible(
-                                        child: Text(subclass,
-                                            style: theme.textTheme.titleMedium
-                                                ?.copyWith(
-                                                    color: colors.secondary,
-                                                    fontWeight:
-                                                        FontWeight.w500))),
-                                    const SizedBox(width: 4),
-                                    Icon(Icons.chevron_right_rounded,
-                                        size: 20, color: colors.secondary),
-                                  ]))),
-                  ])),
-          LayoutBuilder(builder: (context, constraints) {
-            final secondary = resources
-                .where((f) => !identical(f, widget.secondWindFeature))
-                .toList();
-            final primary = widget.secondWindFeature;
-            final joined = primary?.resourcePool != null &&
-                secondary.length == 2 &&
-                constraints.maxWidth >= 330 &&
-                MediaQuery.textScalerOf(context).scale(1) <= 1.25;
-            Widget action(CharacterFeature f) => _tactic(
-                f,
-                identical(f, widget.actionSurgeFeature)
-                    ? FighterTactic.actionSurge
-                    : FighterTactic.indomitable,
-                l10n,
-                locale,
-                compact: true,
-                joined: joined);
-            final paired = secondary.length == 2 &&
-                constraints.maxWidth >= 330 &&
-                MediaQuery.textScalerOf(context).scale(1) <= 1.25;
-            final lower = paired
-                ? IntrinsicHeight(
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                        Expanded(child: action(secondary[0])),
-                        const SizedBox(width: 6),
-                        Expanded(child: action(secondary[1])),
-                      ]))
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                        for (final f in secondary) ...[
-                          action(f),
-                          const SizedBox(height: 8),
-                        ]
-                      ]);
-            if (joined) {
-              return AnimatedSize(
-                  alignment: Alignment.topCenter,
-                  duration: MediaQuery.disableAnimationsOf(context)
-                      ? Duration.zero
-                      : const Duration(milliseconds: 240),
-                  curve: Curves.easeInOutCubic,
-                  child: FighterTacticsCluster(
-                      overlap: 30,
-                      primary: _tactic(
-                          primary!, FighterTactic.secondWind, l10n, locale,
-                          joined: true),
-                      secondary: lower));
-            }
-            return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (primary?.resourcePool != null) ...[
-                    _tactic(primary!, FighterTactic.secondWind, l10n, locale),
-                    const SizedBox(height: 8),
-                  ],
-                  lower,
-                ]);
-          }),
-          if (styles.isNotEmpty || _critical != null) ...[
-            const SizedBox(height: 10),
-            for (final style in styles) ...[
-              _featureLink(style, Icons.shield_rounded, colors.primary, locale),
-              const SizedBox(height: 6),
-            ],
-            if (_critical != null)
-              _featureLink(_critical!, Icons.auto_awesome_rounded,
-                  colors.primary, locale),
+    final cells = <Widget>[
+      if (surge != null)
+        CellTile(
+          key: ValueKey('fighter-action-${surge.id}'),
+          accent: a0,
+          chamfer: true,
+          lit: _surging,
+          onTap: surge.resourcePool!.currentUses > 0 && !_busy ? () => _activate(surge) : null,
+          peek: (surge.getName(locale), surge.getDescription(locale)),
+          children: [
+            InstrumentCap(ru ? 'Всплеск' : 'Surge', accent: a0, about: _about(surge, locale, null)),
+            Row(children: [
+              for (var i = 0; i < 2; i++) ...[
+                if (i > 0) const SizedBox(width: 8),
+                Transform.rotate(
+                  angle: pi / 4,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 400),
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: i == 0 || _surging ? a0 : null,
+                        border: i == 0 || _surging ? null : Border.all(color: c.outline, width: 2)),
+                  ),
+                ),
+              ],
+            ]),
+            InstrumentHint(_surging
+                ? (ru ? 'два действия' : 'two actions')
+                : '${surge.resourcePool!.currentUses} / ${surge.resourcePool!.maxUses}'),
           ],
-        ]));
-  }
-
-  Widget _resourceMenu(List<CharacterFeature> resources, AppLocalizations l10n,
-          String locale) =>
-      MenuAnchor(
-          builder: (context, controller, child) => IconButton(
-              key: const ValueKey('fighter-panel-menu'),
-              tooltip: l10n.edit,
-              onPressed: _busy
-                  ? null
-                  : () => controller.isOpen
-                      ? controller.close()
-                      : controller.open(),
-              icon: const Icon(Icons.more_horiz_rounded)),
-          menuChildren: [
-            for (final f in resources)
-              SubmenuButton(menuChildren: [
-                MenuItemButton(
-                    onPressed: () => _details(f, Icons.military_tech_rounded),
-                    leadingIcon: const Icon(Icons.info_rounded),
-                    child: Text(l10n.advancementDetails)),
-                MenuItemButton(
-                    onPressed: () => _edit(f),
-                    leadingIcon: const Icon(Icons.tune_rounded),
-                    child: Text(l10n.edit)),
-              ], child: Text(f.getName(locale))),
-          ]);
-
-  Widget _featureLink(
-      CharacterFeature feature, IconData icon, Color accent, String locale) {
-    final t = Theme.of(context);
-    return Material(
-        color: t.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-        child: InkWell(
-            borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-            onTap: () => _details(feature, icon),
-            child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                child: Row(children: [
-                  Icon(icon, size: 24, color: accent),
-                  const SizedBox(width: 12),
-                  Expanded(
-                      child: Text(feature.getName(locale),
-                          style: t.textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: t.colorScheme.onSurface))),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.chevron_right_rounded, size: 22),
-                ]))));
+        )
+      else if (level < 2)
+        LockedCell(title: ru ? 'Всплеск' : 'Surge', level: 2, accent: a0),
+      if (indom != null)
+        CellTile(
+          key: ValueKey('fighter-action-${indom.id}'),
+          accent: a2,
+          chamfer: true,
+          onTap: indom.resourcePool!.currentUses > 0 && !_busy ? () => _activate(indom) : null,
+          peek: (indom.getName(locale), indom.getDescription(locale)),
+          children: [
+            InstrumentCap(indom.getName(locale).replaceAll(RegExp(r'\s*\(.*?\)'), ''), accent: a2, about: _about(indom, locale, null)),
+            TumbleDie(shape: DieShape.d20, label: _save?.toString() ?? '${k}20', accent: a2, rollKey: _saveKey, sides: 20, natural: _save, size: 46),
+            InstrumentHint(_save != null
+                ? (ru ? 'переброс' : 'reroll')
+                : '${indom.resourcePool!.currentUses} / ${indom.resourcePool!.maxUses}'),
+          ],
+        )
+      else if (level < 9)
+        LockedCell(title: ru ? 'Несгибаемый' : 'Indomitable', level: 9, accent: a2),
+    ];
+    if (cells.isNotEmpty) children.add(TileRow(children: cells));
+    if (critical != null) {
+      children.add(Peek(
+        title: critical.getName(locale),
+        text: ru ? 'Критическое попадание на $crit–20' : 'A critical hit on $crit–20',
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          decoration: BoxDecoration(color: c.surfaceContainerLow, borderRadius: BorderRadius.circular(24)),
+          child: Row(children: [
+            TumbleDie(shape: DieShape.d20, label: '$crit', accent: a2, size: 42),
+            const SizedBox(width: 12),
+            Expanded(child: Text(ru ? 'Крит на $crit–20' : 'Crit on $crit–20', style: labelStyle(context, size: 15))),
+          ]),
+        ),
+      ));
+    }
+    if (styles.isNotEmpty) {
+      children.add(Wrap(spacing: 6, runSpacing: 6, children: [
+        for (final style in styles)
+          InstrumentChip(style.getName(locale),
+              glyph: 'shield',
+              onTap: () => showInstrumentAbout(context, _about(style, locale, null), a4)),
+      ]));
+    }
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      for (var i = 0; i < children.length; i++) ...[
+        if (i > 0) const SizedBox(height: 12),
+        children[i],
+      ]
+    ]);
   }
 }

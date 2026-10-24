@@ -40,6 +40,62 @@ Future<void> seedExpressiveCycle() async {
   await Hive.box('settings').flush();
 }
 
+const veteranCycleSeedKey = '_veteran_cycle_seed_20261024_v1';
+const veteranCycleIdPrefix = 'cycle-veteran-20261024-';
+
+/// Late-game heroes spread over levels 15–20, so thresholds such as the
+/// 17th-level Arcanum or 18th-level Spell Mastery show both sides.
+const veteranCycleLevels = {
+  'barbarian': 20,
+  'bard': 17,
+  'cleric': 18,
+  'druid': 16,
+  'fighter': 15,
+  'monk': 19,
+  'paladin': 18,
+  'ranger': 15,
+  'rogue': 17,
+  'sorcerer': 19,
+  'warlock': 16,
+  'wizard': 20,
+};
+
+/// Opted in only by the separate Cycle package, like [seedExpressiveCycle].
+Future<void> seedVeteranCycle() async {
+  await _retireLevelOneCycle();
+  if (StorageService.getSetting(veteranCycleSeedKey) == true) return;
+  final roster = buildExpressiveCycleCharacters(
+      levels: veteranCycleLevels, idPrefix: veteranCycleIdPrefix);
+  for (final hero in roster) {
+    if (StorageService.getCharacter(hero.id) == null) {
+      await StorageService.saveCharacter(hero);
+    }
+  }
+  await Hive.box<Character>('characters').flush();
+  if (StorageService.getSetting('locale_code') == null) {
+    await StorageService.saveSetting('locale_code', 'ru');
+  }
+  await StorageService.saveSetting(veteranCycleSeedKey, true);
+  await Hive.box('settings').flush();
+}
+
+const _retiredLevelOneKey = '_veteran_cycle_retired_level_one_20261024_v1';
+
+/// The veteran Cycle replaces the level-one Cycle on the same device: its
+/// heroes are removed once, and only those (matched by their seed prefix),
+/// so veterans, the data-class hero and personal heroes stay.
+Future<void> _retireLevelOneCycle() async {
+  if (StorageService.getSetting(_retiredLevelOneKey) == true) return;
+  final box = Hive.box<Character>('characters');
+  for (final id in box.keys.whereType<String>().toList()) {
+    if (id.startsWith(levelUpCycleIdPrefix)) {
+      await StorageService.deleteCharacter(id);
+    }
+  }
+  await box.flush();
+  await StorageService.saveSetting(_retiredLevelOneKey, true);
+}
+
 const _preferences = [
   'dragon-ancestor-red---fire-damage',
   'pact-of-the-tome',
@@ -135,12 +191,16 @@ void _learn(Character hero, int count, int ceiling, {bool secrets = false}) {
 /// Curated single-class test sheets, constructed from the bundled personal
 /// snapshots. This prepares fixtures; it does not claim to exercise 19 wizard
 /// confirmations or to complete the application's remaining source binding.
-List<Character> buildExpressiveCycleCharacters() =>
+/// [levels] caps a class below 20 (the veteran Cycle spreads 15–20).
+List<Character> buildExpressiveCycleCharacters(
+        {Map<String, int> levels = const {},
+        String idPrefix = expressiveCycleIdPrefix}) =>
     buildLevelUpCycleCharacters().map((hero) {
       final id = hero.characterClass;
+      final top = (levels[id] ?? 20).clamp(1, 20);
       final rules = CharacterClassRules.resolve(hero.classes.single);
       final subclass = rules.data.subclasses.first.id;
-      hero.id = '$expressiveCycleIdPrefix$id';
+      hero.id = '$idPrefix$id';
       hero.name = 'Cycle · ${rules.data.getName('ru')}';
       hero.subclass = subclass;
       hero.classes.single.subclass = subclass;
@@ -151,7 +211,7 @@ List<Character> buildExpressiveCycleCharacters() =>
           if (f.id.startsWith('circle-of-the-land-')) f.id,
       };
       final catalog = AdvancementChoiceCatalog(rules.definitions);
-      for (var level = 1; level <= 20; level++) {
+      for (var level = 1; level <= top; level++) {
         hero.level = level;
         hero.classes.single.level = level;
         final acquired = rules
@@ -270,7 +330,7 @@ List<Character> buildExpressiveCycleCharacters() =>
       }
       hero.knownSpells.addAll(additions.map((s) => s.id));
       final slots =
-          SpellSlotsTable.getSlots(20, rules.data.spellcasting?.type ?? 'none');
+          SpellSlotsTable.getSlots(top, rules.data.spellcasting?.type ?? 'none');
       hero.spellSlots = List.of(slots);
       hero.maxSpellSlots = List.of(slots);
       if (['cleric', 'druid', 'paladin'].contains(id)) {
@@ -280,7 +340,8 @@ List<Character> buildExpressiveCycleCharacters() =>
         }.toList();
       }
       if (id == 'warlock') {
-        for (var circle = 6; circle <= 9; circle++) {
+        // An Arcanum of circle n arrives at warlock level 2n - 1.
+        for (var circle = 6; circle <= 9 && top >= circle * 2 - 1; circle++) {
           final spell = SpellService.getSpellsForClass(id)
               .where((s) => s.level == circle)
               .toList()
@@ -295,8 +356,8 @@ List<Character> buildExpressiveCycleCharacters() =>
         String at(int circle, int index) => hero.knownSpells
             .where((s) => SpellService.getSpellById(s)?.level == circle)
             .elementAt(index);
-        hero.spellMasterySpells = [at(1, 0), at(2, 0)];
-        hero.signatureSpells = [at(3, 0), at(3, 1)];
+        hero.spellMasterySpells = top >= 18 ? [at(1, 0), at(2, 0)] : [];
+        hero.signatureSpells = top >= 20 ? [at(3, 0), at(3, 1)] : [];
         hero.signatureSpellsUsed = {
           for (final s in hero.signatureSpells) s: false
         };
@@ -320,14 +381,14 @@ List<Character> buildExpressiveCycleCharacters() =>
       hero.wildShapeCharges = id == 'druid' ? 2 : 0;
       hero.maxHp = rules.data.hitDie +
           hero.abilityScores.constitutionModifier +
-          19 *
+          (top - 1) *
               (rules.data.hitDie ~/ 2 +
                   1 +
                   hero.abilityScores.constitutionModifier) +
-          (id == 'sorcerer' ? 20 : 0);
+          (id == 'sorcerer' ? top : 0);
       hero.currentHp = hero.maxHp;
-      hero.hitDice = [20];
-      hero.maxHitDice = 20;
+      hero.hitDice = [top];
+      hero.maxHitDice = top;
       hero.speed = id == 'monk'
           ? 60
           : id == 'barbarian'
@@ -335,7 +396,7 @@ List<Character> buildExpressiveCycleCharacters() =>
               : 30;
       hero.goldPieces = 450;
       hero.backstory =
-          'Тестовый персонаж 20-го уровня для проверки обновлённого листа. '
+          'Тестовый персонаж $top-го уровня для проверки обновлённого листа. '
           'Подкласс: ${rules.data.subclasses.first.getName('ru')}. '
           'ОЗ и ресурсы заполнены. Выборы заданы для демонстрации; лист можно свободно изменять. '
           'Изменения сохраняются после перезапуска.';

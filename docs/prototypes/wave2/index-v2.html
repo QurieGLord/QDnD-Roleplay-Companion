@@ -1,0 +1,1514 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>QDnD · Волна 2</title>
+<style>
+/* Wave 2 prototype: the Magic tab (class panels and their carousel,
+   spellcasting, slots, spell lists), casting, spell details and the
+   Almanac. Built on the accepted wave 0/1 language: fonts are the app's
+   own, colours mirror AppPalettes, springs mirror AppMotion. */
+@font-face{font-family:Rubik;font-weight:400;src:url(../../../assets/fonts/Rubik-Regular.ttf)}
+@font-face{font-family:Rubik;font-weight:500;src:url(../../../assets/fonts/Rubik-Medium.ttf)}
+@font-face{font-family:Rubik;font-weight:600;src:url(../../../assets/fonts/Rubik-SemiBold.ttf)}
+@font-face{font-family:Inter;font-weight:400;src:url(../../../assets/fonts/Inter-Regular.ttf)}
+@font-face{font-family:Inter;font-weight:500;src:url(../../../assets/fonts/Inter-Medium.ttf)}
+@font-face{font-family:Inter;font-weight:600;src:url(../../../assets/fonts/Inter-SemiBold.ttf)}
+@font-face{font-family:Inter;font-weight:700;src:url(../../../assets/fonts/Inter-Bold.ttf)}
+:root{
+  --page:#221f19; --surface:#2A2720; --fg:#FAF7F0; --muted:#c3bfb5; --low:#302D26; --cont:#3C382E;
+  --high:#4C473C; --highest:#5E594B; --primary:#FE5685; --on-primary:#191512; --secondary:#66D9EF;
+  --tertiary:#FD971F; --pc:#49313C; --sc:#314146; --tc:#473B2C; --outline:#79705B;
+  --heal:#A6E22E; --a0:#FE5685; --a1:#FD971F; --a2:#FFD866; --a3:#A6E22E; --a4:#66D9EF; --a5:#AB9DF2;
+  --display:Rubik,"Segoe UI",Roboto,system-ui,sans-serif; --body:Inter,"Segoe UI",Roboto,system-ui,sans-serif;
+  --r-md:12px; --r-lg:16px; --r-lgp:20px; --r-xl:28px; --r-xlp:32px;
+  --e-snappy:cubic-bezier(.2,0,0,1); --e-gentle:cubic-bezier(.2,0,0,1); --d-snappy:450ms; --d-gentle:620ms;
+  --e-standard:cubic-bezier(.2,0,0,1); --e-enter:cubic-bezier(.05,.7,.1,1); --e-exit:cubic-bezier(.3,0,.8,.15);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{background:var(--page);color:var(--fg);font:400 15px/1.45 var(--body);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:inherit}
+button:focus-visible{outline:2px solid var(--secondary);outline-offset:2px}
+.num{font-family:var(--display);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.icon{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.reduce *,.reduce *::before,.reduce *::after{transition-duration:1ms!important;animation:none!important}
+
+/* Stage */
+.stage{min-height:100%;display:flex;gap:36px;align-items:flex-start;justify-content:center;padding:28px 16px}
+.phone{position:relative;width:390px;height:844px;flex:none;border-radius:46px;overflow:hidden;background:var(--surface);
+  box-shadow:0 0 0 10px #12110e,0 30px 70px -20px rgba(0,0,0,.7);isolation:isolate}
+.panel{width:340px;display:flex;flex-direction:column;gap:18px;padding-top:8px}
+.panel h1{font:600 30px/1.1 var(--display);letter-spacing:-.025em;margin:0}
+.panel p{margin:0;color:var(--muted);font-size:14px}
+.opt{display:flex;flex-direction:column;gap:8px}
+.opt .lbl{font:600 12px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.opt .hint{font-size:12.5px;color:var(--muted)}
+.heroes{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.heroes button{padding:8px 10px;border-radius:14px;background:var(--low);font:600 12.5px/1.2 var(--body);color:var(--muted);display:flex;gap:8px;align-items:center}
+.heroes button i{width:8px;height:8px;border-radius:50%;flex:none}
+.heroes button[aria-pressed="true"]{background:var(--sc);color:var(--fg)}
+@media (max-width:760px){.stage{padding:0;display:block}.phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}.panel{display:none}}
+.vbtn{position:absolute;right:0;top:46%;z-index:40;width:34px;height:44px;border-radius:14px 0 0 14px;display:grid;place-items:center;opacity:.85}
+.vbtn .icon{width:18px;height:18px}
+@media (min-width:761px){.vbtn{display:none}}
+
+/* Glass: only for layers floating over live content */
+.glass{background:color-mix(in srgb,var(--surface) 70%,transparent);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);
+  box-shadow:inset 0 .7px 0 color-mix(in srgb,var(--fg) 14%,transparent),0 10px 30px -12px rgba(0,0,0,.55)}
+
+/* Segments with a flowing indicator */
+.seg{position:relative;display:flex;background:var(--low);border-radius:999px;padding:4px;isolation:isolate;max-width:100%}
+.seg .ind{position:absolute;top:4px;bottom:4px;left:0;width:0;border-radius:999px;background:var(--sc);z-index:-1}
+.seg button{position:relative;flex:1;text-align:center;padding:9px 12px;border-radius:999px;font:600 13px/1.1 var(--body);color:var(--muted);white-space:nowrap;transition:color 240ms var(--e-snappy)}
+.seg button[aria-pressed="true"]{color:var(--fg)}
+.seg .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px}
+.toggle{display:inline-flex;align-items:center;gap:10px;font:600 13px/1 var(--body);color:var(--muted)}
+.switch{width:46px;height:28px;border-radius:999px;background:var(--high);position:relative;transition:background-color 240ms var(--e-snappy);flex:none}
+.switch::after{content:"";position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:999px;background:var(--muted);transition:left var(--d-snappy) var(--e-snappy),background-color 240ms}
+.toggle[aria-checked="true"] .switch{background:var(--secondary)}
+.toggle[aria-checked="true"] .switch::after{left:22px;background:var(--surface)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 18px;border-radius:23px;font:600 14px/1 var(--body);
+  background:var(--high);color:var(--fg);box-shadow:inset 0 0 0 100px transparent;transition:transform var(--d-snappy) var(--e-snappy),box-shadow 260ms var(--e-standard),opacity 200ms}
+.btn:active{transform:scale(.975);box-shadow:inset 0 0 0 100px color-mix(in srgb,var(--fg) 9%,transparent);transition:transform 160ms var(--e-standard),box-shadow 120ms}
+.btn.primary{background:var(--primary);color:var(--on-primary)}
+.btn.tonal{background:color-mix(in srgb,var(--secondary) 16%,var(--low))}
+.btn.wide{width:100%}
+.btn.sm{height:38px;padding:0 14px;font-size:13px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:6px 14px;border-radius:18px;font:600 13px/1.2 var(--body);color:var(--muted);
+  box-shadow:inset 0 0 0 1.4px var(--outline);transition:background-color 220ms,color 220ms,box-shadow 220ms,transform var(--d-snappy) var(--e-snappy)}
+.chip:active{transform:scale(.97)}
+.chip[aria-pressed="true"]{border-radius:12px;background:var(--tc);color:var(--fg);box-shadow:none}
+.round{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--fg) 8%,transparent);flex:none;transition:transform var(--d-snappy) var(--e-snappy)}
+.round:active{transform:scale(.92)}
+
+/* App layers */
+.layer{position:absolute;inset:0;overflow:hidden}
+.scroller{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+.scroller::-webkit-scrollbar{display:none}
+.topbar{position:absolute;left:0;right:0;top:0;z-index:20;padding:8px 14px 10px;display:flex;align-items:center;gap:10px}
+.tb-hav{width:32px;height:32px;border-radius:11px;display:grid;place-items:center;flex:none}
+.tb-hav .icon{width:17px;height:17px}
+.tb-title{font:600 17px/1.2 var(--display);letter-spacing:-.01em;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmhp{display:flex;flex-direction:column;align-items:flex-end;gap:4px;width:78px}
+.cmhp b{font:600 14px/1 var(--display);font-variant-numeric:tabular-nums}
+.mini-hp{height:4px;width:100%;border-radius:999px;background:color-mix(in srgb,var(--fg) 9%,transparent);overflow:hidden}
+.mini-hp i{display:block;height:100%;border-radius:999px;background:var(--primary)}
+.island-wrap{position:absolute;left:0;right:0;top:58px;z-index:19;padding:6px 14px 10px}
+.island{position:relative;display:flex;padding:6px;border-radius:999px;isolation:isolate}
+.island .ind{position:absolute;top:6px;bottom:6px;border-radius:999px;z-index:-1;background:color-mix(in srgb,var(--secondary) 24%,color-mix(in srgb,var(--surface) 40%,transparent))}
+.island button{flex:1;height:50px;display:grid;place-items:center;border-radius:999px;color:var(--muted)}
+.island button[aria-selected="true"]{color:var(--fg)}
+.island button[aria-selected="true"] .icon{transform:scale(1.1)}
+.page{padding:150px 16px 120px;display:flex;flex-direction:column;gap:14px}
+.sec-title{font:600 20px/1.2 var(--display);letter-spacing:-.015em;margin:8px 2px 0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sec-title small{font:500 13px/1 var(--body);color:var(--muted)}
+.muted{color:var(--muted)}
+.toast{position:absolute;left:16px;right:16px;bottom:24px;z-index:60;padding:13px 16px;border-radius:var(--r-lgp);font-size:14px;
+  transform:translateY(30px);opacity:0;transition:transform var(--d-snappy) var(--e-snappy),opacity 200ms;pointer-events:none}
+.toast.show{transform:none;opacity:1}
+
+/* Class carousel: a flowing class switch and panels that follow the finger */
+.cls-switch .seg button{display:flex;align-items:center;justify-content:center;gap:7px}
+.cls-switch .lvl{font:600 12px/1 var(--display);opacity:.8}
+.strip-wrap{position:relative;overflow:hidden;touch-action:pan-y;transition:height 420ms var(--e-standard);margin:0 -16px}
+.strip{display:flex;align-items:flex-start;will-change:transform}
+.cpanel{flex:0 0 100%;padding:0 16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.chead{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:4px}
+.chead h2{font:600 28px/1.05 var(--display);letter-spacing:-.025em;margin:0}
+.chead>div{flex:1;min-width:0}
+.chead .sub{display:block;font:600 13.5px/1.3 var(--body);color:var(--secondary);margin-top:6px}
+.chead .sub .icon{width:15px;height:15px;vertical-align:-3px}
+.lvchip{font:600 12.5px/1 var(--body);padding:8px 12px;border-radius:999px;background:color-mix(in srgb,var(--fg) 7%,transparent);color:var(--muted);flex:none}
+.lvchip b{color:var(--fg);font-family:var(--display)}
+
+/* Shared class module language */
+.mod{position:relative;border-radius:var(--r-xl);padding:16px;overflow:hidden;background:var(--low);isolation:isolate}
+.mod .glow{position:absolute;inset:-50% -25% auto auto;width:80%;height:170%;z-index:-1;pointer-events:none;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--acc) 26%,transparent),transparent 72%);opacity:.7;transition:opacity 500ms,transform 700ms var(--e-gentle)}
+.mod-title{font:600 18px/1.2 var(--display);letter-spacing:-.01em}
+.mod-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.count{font:600 15px/1 var(--display);font-variant-numeric:tabular-nums;padding:7px 11px;border-radius:999px;background:color-mix(in srgb,var(--fg) 8%,transparent)}
+.count.big{font-size:32px;padding:0;background:none;letter-spacing:-.02em}
+.foot{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);margin-top:10px}
+.foot .icon{width:14px;height:14px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mini{border-radius:var(--r-lgp);padding:14px;background:var(--low);display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;transition:transform var(--d-snappy) var(--e-snappy)}
+.mini:active{transform:scale(.98)}
+.mini b{font:600 15px/1.2 var(--display)}
+.mini .v{font:600 26px/1 var(--display);font-variant-numeric:tabular-nums}
+.marks{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.mark{width:14px;height:14px;border-radius:50%;background:var(--acc,var(--secondary));box-shadow:inset 0 0 0 0 transparent;
+  transition:background-color 260ms,box-shadow 260ms,transform var(--d-snappy) var(--e-snappy)}
+.mark.off{background:transparent;box-shadow:inset 0 0 0 1.8px var(--outline);transform:scale(.86)}
+.mark.lg{width:18px;height:18px}
+.action{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;border-radius:24px;font:600 14.5px/1 var(--body);width:100%;
+  background:color-mix(in srgb,var(--acc) 22%,var(--cont));transition:transform var(--d-snappy) var(--e-snappy),background-color 300ms}
+.action:active{transform:scale(.975)}
+.action[disabled]{opacity:.45;pointer-events:none}
+.die{position:relative;width:64px;height:64px;flex:none;display:grid;place-items:center;transition:transform var(--d-snappy) var(--e-snappy)}
+.die svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.die .face{fill:color-mix(in srgb,var(--acc) 20%,var(--cont));stroke:var(--acc);stroke-width:3;stroke-linejoin:round}
+.die .facet{fill:none;stroke:color-mix(in srgb,var(--acc) 50%,transparent);stroke-width:2}
+.die b{position:relative;font:600 15px/1 var(--display)}
+.die:active{transform:scale(.94)}
+.list{border-radius:var(--r-xl);background:var(--low);padding:6px}
+.frow{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;width:100%;transition:background-color 160ms}
+.frow:active{background:color-mix(in srgb,var(--fg) 6%,transparent)}
+.frow .ficon{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 16%,var(--cont));color:var(--acc);flex:none}
+.frow .ficon .icon{width:18px;height:18px}
+.frow .ft{flex:1;min-width:0}
+.frow .ft b{display:block;font:600 15px/1.25 var(--body)}
+.frow .ft span{font-size:12.5px;color:var(--muted)}
+.frow .chev{color:var(--muted);width:18px;height:18px}
+.frow .cost{font:600 12px/1 var(--body);padding:6px 9px;border-radius:999px;background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--fg);flex:none}
+.tagrow{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font:600 12px/1 var(--body);padding:7px 11px;border-radius:999px;color:var(--muted);box-shadow:inset 0 0 0 1.2px color-mix(in srgb,var(--fg) 14%,transparent)}
+.tag.on{color:var(--fg);background:color-mix(in srgb,var(--acc) 18%,transparent);box-shadow:none}
+.pop{animation:pop 520ms var(--e-snappy)}
+@keyframes pop{30%{transform:scale(1.04)}100%{transform:none}}
+.flash::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 2px var(--acc);animation:fade 700ms var(--e-exit) forwards;pointer-events:none}
+@keyframes fade{from{opacity:1}to{opacity:0}}
+.reveal{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows var(--d-gentle) var(--e-standard),opacity 180ms var(--e-exit)}
+.reveal>div{overflow:hidden;min-height:0}
+.reveal.open{grid-template-rows:1fr;opacity:1;transition:grid-template-rows var(--d-gentle) var(--e-standard),opacity 300ms var(--e-enter) 80ms}
+
+/* Class instruments: one cohesive surface per class, its own gesture and
+   shape drawn from the mechanic, large numbers, one expressive event. */
+.inst{position:relative;border-radius:30px;padding:18px;overflow:hidden;isolation:isolate;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--acc) 15%,var(--low)) 0%,var(--low) 72%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--fg) 8%,transparent),0 20px 40px -28px rgba(0,0,0,.75)}
+.inst-h{display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative}
+.cap{font:600 11.5px/1.1 var(--body);letter-spacing:.09em;text-transform:uppercase;color:color-mix(in srgb,var(--acc) 72%,var(--fg))}
+.rest{display:inline-flex;align-items:center;gap:6px;font:500 12px/1 var(--body);color:var(--muted);padding:7px 10px;border-radius:999px;background:color-mix(in srgb,var(--fg) 6%,transparent);flex:none}
+.rest .icon{width:14px;height:14px}
+.huge{font:600 60px/.92 var(--display);letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.of{font:500 22px/1 var(--display);color:var(--muted);margin-left:6px}
+.big{font:600 34px/1 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sub{font-size:12.5px;line-height:1.35;color:var(--muted)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:14px;position:relative}
+.stack{display:flex;flex-direction:column;gap:12px}
+.lite{border-radius:24px;padding:14px 16px;background:var(--low);position:relative;overflow:hidden}
+.lite b{font:600 15px/1.25 var(--body)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cell2{border-radius:22px;padding:14px;background:var(--low);display:flex;flex-direction:column;gap:6px;text-align:left;position:relative;overflow:hidden;
+  transition:transform var(--d-snappy) var(--e-snappy),background-color 300ms}
+.cell2:active{transform:scale(.97)}
+.cell2 b{font:600 15px/1.2 var(--body)}
+.cell2[disabled]{opacity:.5}
+.go{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:26px;width:100%;font:600 15px/1 var(--body);position:relative;overflow:hidden;
+  background:var(--acc);color:color-mix(in srgb,var(--surface) 88%,black);transition:transform var(--d-snappy) var(--e-snappy),opacity 200ms,background-color 300ms}
+.go:active{transform:scale(.975)}
+.go[disabled]{opacity:.4;pointer-events:none}
+.go.soft{background:color-mix(in srgb,var(--acc) 22%,var(--cont));color:var(--fg)}
+.ghost{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:26px;font:600 14px/1 var(--body);background:color-mix(in srgb,var(--fg) 7%,transparent);transition:transform var(--d-snappy) var(--e-snappy)}
+.ghost:active{transform:scale(.97)}
+.swrow{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:20px;background:color-mix(in srgb,var(--fg) 5%,transparent);text-align:left}
+.swrow .ft{flex:1}
+.swrow b{display:block;font:600 14.5px/1.25 var(--body)}
+.swrow span.sub{display:block}
+.swrow[aria-checked="true"] .switch{background:var(--acc)}
+.swrow[aria-checked="true"] .switch::after{left:22px;background:var(--surface)}
+.ev{animation:ev 640ms var(--e-snappy)}
+@keyframes ev{25%{transform:scale(1.025)}100%{transform:none}}
+
+/* Barbarian: claws for uses; hold the bar to rage; heat floods in once */
+.barb .heat{position:absolute;inset:0;z-index:-1;opacity:0;transition:opacity 700ms var(--e-standard);
+  background:radial-gradient(110% 70% at 85% -10%,color-mix(in srgb,var(--a0) 55%,transparent),transparent 62%),radial-gradient(80% 60% at 0% 110%,color-mix(in srgb,var(--a1) 40%,transparent),transparent 60%)}
+.barb.on .heat{opacity:1}
+.barb.on{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--a0) 70%,transparent),0 20px 44px -24px color-mix(in srgb,var(--a0) 60%,black)}
+.barb.flare{animation:flare 820ms var(--e-snappy)}
+@keyframes flare{0%{transform:scale(.985)}30%{transform:scale(1.02);filter:brightness(1.25)}100%{transform:none;filter:none}}
+.claws{display:flex;gap:10px;align-items:flex-end;padding-right:6px}
+.claw{width:12px;height:52px;border-radius:7px;transform:skewX(-16deg);background:linear-gradient(180deg,var(--a1),var(--a0));transition:background 300ms,box-shadow 300ms,height 400ms var(--e-snappy)}
+.claw:nth-child(2){height:60px}
+.claw.off{background:transparent;box-shadow:inset 0 0 0 2px var(--outline)}
+.hold{position:relative;height:60px;border-radius:30px;width:100%;overflow:hidden;background:color-mix(in srgb,var(--fg) 8%,transparent);font:600 15px/1 var(--body);touch-action:none;user-select:none;-webkit-user-select:none}
+.hold .fill{position:absolute;inset:0;transform-origin:left;transform:scaleX(0);background:linear-gradient(90deg,var(--a1),var(--a0))}
+.hold span{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;height:100%}
+.hold[disabled]{opacity:.4}
+.effects{display:flex;flex-direction:column;gap:6px}
+.eff{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-radius:16px;padding:10px 12px;background:color-mix(in srgb,var(--fg) 5%,transparent);transition:opacity 400ms,background-color 400ms}
+.eff b{font:600 13.5px/1.2 var(--body);flex:none}
+.eff span{font-size:12px;color:var(--muted);line-height:1.3;text-align:right}
+.barb:not(.on) .eff{opacity:.45}
+.barb.on .eff{background:color-mix(in srgb,var(--a0) 14%,transparent)}
+.rounds{display:flex;align-items:center;gap:12px}
+.rounds .rd{flex:1;text-align:center}
+.rounds .rd b{display:block;font:600 26px/1 var(--display)}
+.pip{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--fg) 8%,transparent);font:600 22px/1 var(--display)}
+.warn{display:flex;gap:10px;align-items:center;padding:12px 14px;border-radius:18px;background:color-mix(in srgb,var(--a1) 16%,transparent);font-size:13px}
+
+/* Bard: rhythm lines; a tray of d8 tokens — flick one up to inspire */
+.bard .waves{position:absolute;left:0;right:0;top:40px;height:120px;z-index:-1;opacity:.45;pointer-events:none}
+.bard .waves path{fill:none;stroke:var(--a0);stroke-width:1.6;stroke-linecap:round}
+.bard .waves path:nth-child(2){stroke:var(--a5);opacity:.8}
+.bard .waves path:nth-child(3){stroke:var(--a4);opacity:.6}
+.bard.sing .waves path{animation:sing 1200ms var(--e-standard)}
+@keyframes sing{0%{transform:translateX(0)}100%{transform:translateX(-60px)}}
+.tray{display:flex;gap:8px}
+.tok{width:46px;height:52px;position:relative;display:grid;place-items:center;touch-action:none;transition:transform var(--d-snappy) var(--e-snappy),opacity 300ms}
+.tok svg{position:absolute;inset:0;width:100%;height:100%}
+.tok .face{fill:color-mix(in srgb,var(--a0) 28%,var(--cont));stroke:var(--a0);stroke-width:3;stroke-linejoin:round}
+.tok .fac{fill:none;stroke:color-mix(in srgb,var(--a0) 55%,transparent);stroke-width:2}
+.tok b{position:relative;font:600 12px/1 var(--display)}
+.tok.off .face{fill:transparent;stroke:var(--outline)}
+.tok.off .fac,.tok.off b{opacity:.35}
+.tok.fly{transition:transform 620ms var(--e-enter),opacity 620ms;transform:translate(40px,-150px) rotate(40deg) scale(.6)!important;opacity:0}
+.ticket{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:color-mix(in srgb,var(--a0) 12%,transparent);font-size:13px;animation:ev 520ms var(--e-snappy)}
+.ticket b{flex:1;font-weight:600}
+.ticket button{font:600 12.5px/1 var(--body);color:var(--a0)}
+
+/* Cleric: a sun of Channel Divinity; the rays turn to the chosen way */
+.sun{position:relative;width:148px;height:148px;flex:none;display:grid;place-items:center}
+.sun svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.sun .rays{transform-origin:74px 74px;transition:transform 700ms var(--e-snappy)}
+.sun .rays line{stroke:var(--a2);stroke-width:3;stroke-linecap:round;opacity:.22;transition:opacity 400ms}
+.sun .rays line.hi{opacity:1}
+.sun .core{position:relative;width:84px;height:84px;border-radius:50%;display:grid;place-items:center;text-align:center;
+  background:radial-gradient(circle at 40% 35%,color-mix(in srgb,var(--a2) 55%,var(--cont)),color-mix(in srgb,var(--a2) 18%,var(--cont)));box-shadow:0 0 0 6px color-mix(in srgb,var(--a2) 14%,transparent),0 12px 30px -12px color-mix(in srgb,var(--a2) 60%,black)}
+.sun .core b{display:block;font:600 34px/1 var(--display)}
+.sun .core span{font-size:11px;color:color-mix(in srgb,var(--fg) 80%,transparent)}
+.sun.dim .core{background:color-mix(in srgb,var(--fg) 7%,var(--cont));box-shadow:none}
+.sun.dim .rays line{opacity:.12}
+.sun.burst .rays{animation:burst 900ms var(--e-exit)}
+@keyframes burst{0%{transform:scale(1)}40%{transform:scale(1.35);opacity:.2}100%{transform:scale(1)}}
+.ways{display:flex;flex-direction:column;gap:8px;flex:1;min-width:0}
+.way{padding:12px;border-radius:18px;background:color-mix(in srgb,var(--fg) 5%,transparent);text-align:left;transition:background-color 260ms,box-shadow 260ms,transform var(--d-snappy) var(--e-snappy)}
+.way b{display:block;font:600 14px/1.2 var(--body)}
+.way span{display:block;font-size:12px;color:var(--muted);margin-top:3px;line-height:1.3}
+.way[aria-pressed="true"]{background:color-mix(in srgb,var(--a2) 20%,var(--cont));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--a2) 65%,transparent)}
+.way:active{transform:scale(.98)}
+
+/* Druid: an organic shape that morphs between the hero and the beast */
+.druid .blob{position:absolute;z-index:-1;width:260px;height:240px;right:-70px;top:-80px;opacity:.55;
+  background:radial-gradient(circle at 40% 40%,color-mix(in srgb,var(--a3) 60%,transparent),color-mix(in srgb,var(--a3) 10%,transparent) 70%);
+  border-radius:42% 58% 55% 45%/48% 42% 58% 52%;transition:border-radius 900ms var(--e-gentle),transform 900ms var(--e-gentle),opacity 600ms}
+.druid.beast .blob{border-radius:64% 36% 30% 70%/58% 30% 70% 42%;transform:translate(-60px,40px) rotate(28deg) scale(1.25);opacity:.75}
+.leaves{display:flex;gap:6px}
+.leaf{width:26px;height:38px;border-radius:0 100% 0 100%;background:linear-gradient(160deg,var(--a3),color-mix(in srgb,var(--a3) 50%,var(--a4)));transform:rotate(-12deg);transition:background 300ms,box-shadow 300ms}
+.leaf.off{background:transparent;box-shadow:inset 0 0 0 2px var(--outline)}
+.forms{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -18px;padding:2px 18px}
+.forms::-webkit-scrollbar{display:none}
+.form{flex:0 0 172px;scroll-snap-align:start;border-radius:22px;padding:14px;background:color-mix(in srgb,var(--fg) 6%,transparent);text-align:left;display:flex;flex-direction:column;gap:8px;
+  transition:transform var(--d-snappy) var(--e-snappy)}
+.form:active{transform:scale(.97)}
+.form b{font:600 16px/1.2 var(--display)}
+.form .stats{display:flex;gap:10px;font:600 13px/1 var(--display)}
+.form .stats span{color:var(--muted);font:500 11px/1 var(--body);display:block;margin-bottom:3px}
+.form .atk{font-size:12px;color:var(--muted);line-height:1.3}
+.form[disabled]{opacity:.45}
+.hpbar{height:12px;border-radius:999px;background:color-mix(in srgb,var(--fg) 9%,transparent);overflow:hidden}
+.hpbar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--a3),color-mix(in srgb,var(--a3) 60%,var(--a2)));transition:width 500ms var(--e-snappy)}
+.heroline{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:color-mix(in srgb,var(--fg) 5%,transparent);font-size:12.5px;color:var(--muted)}
+.heroline b{color:var(--fg);font-family:var(--display)}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+/* Fighter: a faceted, chamfered surface; d10 and its result */
+.cham{clip-path:polygon(18px 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%,0 18px)}
+.cham.inst,.cham.cell2{border-radius:6px}
+.d10{width:76px;height:84px;position:relative;display:grid;place-items:center;flex:none;transition:transform var(--d-snappy) var(--e-snappy)}
+.d10 svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.d10 .face{fill:color-mix(in srgb,var(--a4) 28%,var(--cont));stroke:var(--a4);stroke-width:3;stroke-linejoin:round}
+.d10 .fac{fill:none;stroke:color-mix(in srgb,var(--a4) 55%,transparent);stroke-width:2}
+.d10 b{position:relative;font:600 16px/1 var(--display)}
+.d10:active{transform:scale(.93)}
+.d10[disabled]{opacity:.4}
+.d10.roll{animation:roll 640ms var(--e-snappy)}
+@keyframes roll{0%{transform:rotate(0)}60%{transform:rotate(380deg) scale(1.08)}100%{transform:rotate(360deg)}}
+.result{display:flex;align-items:baseline;gap:8px;padding:10px 14px;border-radius:16px;background:color-mix(in srgb,var(--heal) 16%,transparent);font-size:13px;animation:ev 520ms var(--e-snappy)}
+.result b{font:600 22px/1 var(--display)}
+.apips{display:flex;gap:6px;margin-top:2px}
+.apips i{width:14px;height:14px;border-radius:4px;transform:rotate(45deg);background:var(--a0)}
+.apips i.off{background:transparent;box-shadow:inset 0 0 0 2px var(--outline)}
+.critrow{display:flex;align-items:center;gap:12px}
+.d20{width:48px;height:52px;position:relative;display:grid;place-items:center;flex:none}
+.d20 svg{position:absolute;inset:0;width:100%;height:100%}
+.d20 .face{fill:color-mix(in srgb,var(--a2) 22%,var(--cont));stroke:var(--a2);stroke-width:3;stroke-linejoin:round}
+.d20 b{position:relative;font:600 13px/1 var(--display)}
+
+/* Monk: river stones of ki; kata cards preview their price */
+.stones{display:flex;gap:8px;flex-wrap:wrap}
+.stone{width:38px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--a2) 85%,white),var(--a2) 55%,color-mix(in srgb,var(--a2) 60%,black));
+  box-shadow:0 6px 12px -6px rgba(0,0,0,.6);transition:transform 420ms var(--e-snappy),opacity 420ms,background 300ms,box-shadow 300ms}
+.stone.off{background:transparent;box-shadow:inset 0 0 0 2px var(--outline);transform:scale(.8)}
+.stone.pre{animation:breathe 1200ms ease-in-out infinite}
+@keyframes breathe{50%{transform:translateY(-4px);box-shadow:0 0 0 4px color-mix(in srgb,var(--a2) 35%,transparent)}}
+.stone.go-away{transform:scale(.2) translateY(-20px);opacity:0}
+.katas{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -18px;padding:2px 18px}
+.katas::-webkit-scrollbar{display:none}
+.kata{flex:0 0 150px;scroll-snap-align:start;border-radius:20px;padding:12px;background:color-mix(in srgb,var(--fg) 6%,transparent);text-align:left;display:flex;flex-direction:column;gap:6px;
+  transition:background-color 260ms,box-shadow 260ms,transform var(--d-snappy) var(--e-snappy)}
+.kata b{font:600 14px/1.2 var(--body)}
+.kata .cost{display:flex;gap:4px;align-items:center;font-size:11.5px;color:var(--muted)}
+.kata .cost i{width:12px;height:10px;border-radius:50%;background:var(--a2)}
+.kata .desc{font-size:12px;color:var(--muted);line-height:1.3}
+.kata[aria-pressed="true"]{background:color-mix(in srgb,var(--a2) 20%,var(--cont));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--a2) 65%,transparent)}
+.kata:active{transform:scale(.97)}
+.chiprow{display:flex;gap:6px;flex-wrap:wrap}
+.chipx{display:inline-flex;align-items:center;gap:6px;font:600 12.5px/1 var(--body);padding:8px 11px;border-radius:999px;background:color-mix(in srgb,var(--fg) 7%,transparent)}
+.chipx b{font-family:var(--display)}
+
+/* Paladin: a vessel of healing; drag the handle to measure out */
+.vessel{position:relative;height:64px;border-radius:32px;background:color-mix(in srgb,var(--fg) 7%,transparent);overflow:hidden;touch-action:none;cursor:ew-resize}
+.vessel .liquid{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,color-mix(in srgb,var(--a1) 55%,var(--cont)),color-mix(in srgb,var(--a2) 55%,var(--cont)));transition:width 500ms var(--e-snappy)}
+.vessel .pour{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--heal) 70%,transparent) 0 8px,color-mix(in srgb,var(--heal) 50%,transparent) 8px 16px)}
+.vessel .handle{position:absolute;top:8px;bottom:8px;width:6px;margin-left:-3px;border-radius:3px;background:var(--fg);box-shadow:0 0 0 4px color-mix(in srgb,var(--fg) 20%,transparent)}
+.vessel .vlab{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-start;padding:0 18px;font:600 12.5px/1 var(--body);color:var(--fg);pointer-events:none;mix-blend-mode:normal}
+.vessel.pour-now .pour{transition:width 600ms var(--e-exit),opacity 600ms;opacity:0}
+.smites{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
+.smt{border-radius:20px;padding:12px;background:color-mix(in srgb,var(--fg) 6%,transparent);text-align:left;transition:transform var(--d-snappy) var(--e-snappy),background-color 200ms}
+.smt small{display:block;font:600 11px/1 var(--body);letter-spacing:.06em;color:var(--muted)}
+.smt b{display:block;font:600 26px/1.1 var(--display);margin:4px 0}
+.smt span{font-size:11.5px;color:var(--muted)}
+.smt:active{transform:scale(.96);background:color-mix(in srgb,var(--a0) 22%,var(--cont))}
+.smt[disabled]{opacity:.35}
+.eyes{display:flex;gap:6px}
+.eye{width:22px;height:14px;border-radius:50%/50%;background:var(--a4);position:relative}
+.eye::after{content:"";position:absolute;inset:3px 7px;border-radius:50%;background:var(--surface)}
+.eye.off{background:transparent;box-shadow:inset 0 0 0 1.6px var(--outline)}
+.eye.off::after{display:none}
+
+/* Ranger: a scope that locks onto the marked target */
+.scope{width:118px;height:118px;flex:none;overflow:visible}
+.scope circle{fill:none;stroke:var(--a3);transition:r 600ms var(--e-snappy),opacity 400ms,stroke-width 400ms}
+.scope .r1{stroke-width:2;opacity:.35}
+.scope .r2{stroke-width:2;opacity:.55}
+.scope .r3{stroke-width:3}
+.scope .cross{stroke:var(--a3);stroke-width:2.5;stroke-linecap:round;transform-origin:59px 59px;transition:transform 700ms var(--e-snappy),opacity 400ms;opacity:.35}
+.scope.lock .cross{transform:rotate(45deg);opacity:1}
+.scope .dot{fill:var(--a0);opacity:0;transition:opacity 300ms 300ms}
+.scope.lock .dot{opacity:1}
+.scope.lock .r1{opacity:.15}
+.tname{font:600 22px/1.15 var(--display);letter-spacing:-.01em}
+.tname .icon{width:20px;height:20px;vertical-align:-2px;color:var(--acc)}
+.used{font:600 11.5px/1 var(--body);padding:6px 9px;border-radius:999px;background:color-mix(in srgb,var(--fg) 8%,transparent);color:var(--muted)}
+
+/* Rogue: overlapping shadow planes; the dice come out of the shadow */
+.rogue .plane{position:absolute;z-index:-1;border-radius:30px;background:color-mix(in srgb,var(--a4) 12%,transparent);transition:transform 700ms var(--e-gentle)}
+.rogue .p1{inset:30% -20% -30% 35%;transform:rotate(-14deg)}
+.rogue .p2{inset:55% 30% -40% -25%;transform:rotate(9deg);background:color-mix(in srgb,var(--a5) 10%,transparent)}
+.rogue.armed .p1{transform:rotate(-6deg) translate(-20px,-10px)}
+.rogue.armed .p2{transform:rotate(2deg) translate(10px,-10px)}
+.d6s{display:flex;gap:8px}
+.d6{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font:600 20px/1 var(--display);
+  background:color-mix(in srgb,var(--a4) 22%,var(--cont));box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--a4) 65%,transparent);
+  transform:translateY(10px);filter:brightness(.55) saturate(.4);transition:transform 520ms var(--e-snappy),filter 520ms}
+.rogue.armed .d6{transform:none;filter:none}
+.rogue.armed .d6:nth-child(2){transition-delay:70ms}
+.rogue.armed .d6:nth-child(3){transition-delay:140ms}
+.d6 .pipdots{font-size:10px;letter-spacing:2px;color:var(--a4)}
+.checks{display:flex;flex-direction:column;gap:6px}
+.chk{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;background:color-mix(in srgb,var(--fg) 5%,transparent);text-align:left;width:100%}
+.chk .box{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;box-shadow:inset 0 0 0 2px var(--outline);flex:none;transition:background-color 200ms,box-shadow 200ms}
+.chk .box .icon{width:16px;height:16px;opacity:0;color:var(--on-primary)}
+.chk[aria-checked="true"] .box{background:var(--a4);box-shadow:none}
+.chk[aria-checked="true"] .box .icon{opacity:1}
+.chk.bad[aria-checked="true"] .box{background:var(--a0)}
+.chk b{font:600 14px/1.2 var(--body);flex:1}
+.cun{display:flex;gap:6px}
+.cun button{flex:1;padding:12px 6px;border-radius:16px;background:color-mix(in srgb,var(--fg) 6%,transparent);font:600 13px/1.1 var(--body);text-align:center;transition:background-color 220ms}
+.cun button[aria-pressed="true"]{background:color-mix(in srgb,var(--a4) 24%,var(--cont))}
+
+/* Sorcerer: two orbs joined by a channel; magic flows either way */
+.orbs{display:grid;grid-template-columns:1fr 64px 1fr;align-items:center;gap:6px}
+.orb{position:relative;aspect-ratio:1;border-radius:50%;overflow:hidden;display:grid;place-items:center;text-align:center;background:color-mix(in srgb,var(--fg) 6%,transparent);
+  box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--acc) 40%,transparent)}
+.orb .lvl{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,color-mix(in srgb,var(--acc) 70%,var(--cont)),color-mix(in srgb,var(--acc) 35%,var(--cont)));transition:height 600ms var(--e-snappy)}
+.orb .lvl::before{content:"";position:absolute;left:-10%;right:-10%;top:-6px;height:12px;border-radius:50%;background:color-mix(in srgb,var(--acc) 50%,var(--cont))}
+.orb div{position:relative}
+.orb b{display:block;font:600 40px/1 var(--display)}
+.orb span{font-size:11.5px;color:var(--fg);opacity:.85}
+.orb.slots{--acc:var(--a5)}
+.chan{display:flex;flex-direction:column;gap:8px;align-items:center;position:relative}
+.chan button{width:52px;height:44px;border-radius:16px;display:grid;place-items:center;background:color-mix(in srgb,var(--a1) 22%,var(--cont));transition:transform var(--d-snappy) var(--e-snappy),opacity 200ms}
+.chan button:active{transform:scale(.92)}
+.chan button[disabled]{opacity:.35}
+.chan small{font:600 11px/1 var(--body);color:var(--muted)}
+.spark{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--a1);box-shadow:0 0 12px var(--a1);pointer-events:none;z-index:3}
+.mm{display:flex;gap:8px}
+.mm button{flex:1;border-radius:18px;padding:12px;background:color-mix(in srgb,var(--fg) 6%,transparent);text-align:left;transition:transform var(--d-snappy) var(--e-snappy)}
+.mm button:active{transform:scale(.97)}
+.mm b{display:block;font:600 14px/1.2 var(--body)}
+.mm span{font-size:12px;color:var(--muted)}
+
+/* Warlock: pact sigils in a triangle; the Arcanum is a sealed page */
+.sigils{display:flex;justify-content:center;gap:14px;margin:6px 0 2px}
+.sigil{width:74px;height:82px;position:relative;display:grid;place-items:center;transition:transform var(--d-snappy) var(--e-snappy),opacity 400ms,filter 400ms}
+.sigil:nth-child(2){transform:translateY(-14px)}
+.sigil svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.sigil .face{fill:color-mix(in srgb,var(--a5) 30%,var(--cont));stroke:var(--a5);stroke-width:3;stroke-linejoin:round}
+.sigil .rune{fill:none;stroke:color-mix(in srgb,var(--a5) 70%,var(--fg));stroke-width:2;stroke-linecap:round;opacity:.18}
+.sigil b{position:relative;font:600 22px/1 var(--display)}
+.sigil small{position:relative;display:block;font:500 10px/1 var(--body);color:var(--muted);margin-top:2px}
+.sigil.off .face{fill:transparent;stroke:var(--outline);stroke-dasharray:6 5}
+.sigil.off .rune{opacity:.15}
+.sigil.off b{color:var(--muted)}
+.sigil.crack{animation:crack 600ms var(--e-exit)}
+@keyframes crack{30%{transform:scale(1.12) rotate(-6deg)}100%{transform:none}}
+.seal{width:62px;height:62px;border-radius:50%;flex:none;display:grid;place-items:center;font:600 26px/1 var(--display);
+  background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--a0) 70%,var(--cont)),color-mix(in srgb,var(--a0) 30%,var(--cont)));box-shadow:0 0 0 5px color-mix(in srgb,var(--a0) 16%,transparent)}
+.seal.off{background:color-mix(in srgb,var(--fg) 6%,var(--cont));box-shadow:none;color:var(--muted)}
+.blast{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:20px;background:color-mix(in srgb,var(--fg) 5%,transparent)}
+.blast .ft{flex:1}
+.blast b{display:block;font:600 14.5px/1.2 var(--body)}
+.beams{display:flex;gap:4px;margin-top:6px}
+.beams i{width:22px;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--a5),var(--a0))}
+
+/* Wizard: a board of slots; spent cells gather into a recovery */
+.board{display:flex;flex-direction:column;gap:8px}
+.brow{display:flex;align-items:center;gap:10px}
+.brow small{width:54px;font:600 12px/1 var(--body);color:var(--muted)}
+.cells{display:flex;gap:8px;flex-wrap:wrap}
+.cellb{width:36px;height:36px;border-radius:11px;background:linear-gradient(160deg,color-mix(in srgb,var(--a4) 70%,var(--cont)),color-mix(in srgb,var(--a4) 35%,var(--cont)));
+  transition:background 300ms,box-shadow 300ms,transform var(--d-snappy) var(--e-snappy)}
+.cellb.spent{background:transparent;box-shadow:inset 0 0 0 2px var(--outline)}
+.cellb.sel{background:color-mix(in srgb,var(--a2) 22%,transparent);box-shadow:inset 0 0 0 2px var(--a2)}
+.cellb:active{transform:scale(.9)}
+.cellb.big6{opacity:.35}
+.meter{display:flex;gap:4px;width:120px}
+.meter i{flex:1;height:10px;border-radius:5px;background:color-mix(in srgb,var(--fg) 9%,transparent);transition:background-color 260ms}
+.meter i.on{background:var(--a2)}
+.board.ripple .cellb:not(.spent){animation:ev 520ms var(--e-snappy)}
+
+/* Gallery of all twelve classes and the hero dock */
+.gal{position:absolute;inset:0;z-index:35;background:var(--surface);overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+.gal::-webkit-scrollbar{display:none}
+.gal[hidden]{display:none}
+.gal-in{padding:54px 16px 112px}
+.gal .kick{font:600 12px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--tertiary)}
+.gal h2{font:600 34px/1.02 var(--display);letter-spacing:-.03em;margin:10px 0 8px}
+.gal p{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.4}
+.gtiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gtile{--acc:var(--a0);position:relative;overflow:hidden;isolation:isolate;border-radius:26px;padding:14px;min-height:156px;text-align:left;display:flex;flex-direction:column;gap:6px;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--acc) 22%,var(--low)) 0%,var(--low) 78%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--fg) 8%,transparent);transition:transform var(--d-snappy) var(--e-snappy)}
+.gtile:active{transform:scale(.96)}
+.gtile[aria-current="true"]{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--acc) 70%,transparent)}
+.gtile .gi{width:42px;height:42px;border-radius:15px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 26%,var(--cont));color:var(--acc);margin-bottom:4px}
+.gtile .gi .icon{width:22px;height:22px}
+.gtile b{font:600 19px/1.1 var(--display);letter-spacing:-.015em}
+.gtile .lv{font-size:12px;color:var(--muted);line-height:1.3}
+.gtile .tg{margin-top:auto;font:600 12px/1.25 var(--body);color:color-mix(in srgb,var(--acc) 75%,var(--fg))}
+.gtile .n{position:absolute;right:14px;top:12px;font:600 13px/1 var(--display);color:var(--muted);opacity:.7}
+.gtile{animation:tileIn 560ms var(--e-snappy) both;animation-delay:calc(var(--i) * 28ms)}
+@keyframes tileIn{from{transform:translateY(18px) scale(.97);opacity:0}}
+.reduce .gtile{animation:none}
+
+.dock{position:absolute;left:50%;bottom:18px;z-index:36;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:5px;border-radius:999px;touch-action:pan-y}
+.dock button{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;transition:transform var(--d-snappy) var(--e-snappy),background-color 200ms}
+.dock button:active{transform:scale(.9);background:color-mix(in srgb,var(--fg) 8%,transparent)}
+.dock .grid{background:color-mix(in srgb,var(--fg) 8%,transparent)}
+.dock .grid[aria-pressed="true"]{background:var(--secondary);color:var(--surface)}
+.dock .dl{width:158px;display:flex;flex-direction:column;align-items:center;gap:3px;overflow:hidden}
+.dock .dl b{display:flex;align-items:center;gap:7px;font:600 14.5px/1.1 var(--body);white-space:nowrap}
+.dock .dl b i{width:8px;height:8px;border-radius:50%;flex:none}
+.dock .dl small{font:500 11.5px/1 var(--body);color:var(--muted)}
+.toast{bottom:90px}
+.page{padding-bottom:128px}
+
+/* Magic section */
+.facts{display:flex;gap:10px;align-items:stretch}
+.fact{flex:1;border-radius:18px;padding:11px 12px;background:var(--low)}
+.fact small{display:block;font:600 11px/1 var(--body);letter-spacing:.05em;color:var(--muted)}
+.fact b{display:block;font:600 22px/1.15 var(--display);margin-top:4px;font-variant-numeric:tabular-nums}
+.src{border-radius:var(--r-xl);background:var(--low);padding:14px}
+.src-head{display:flex;align-items:center;gap:8px;font:600 14px/1.2 var(--body)}
+.src-head i{width:8px;height:8px;border-radius:50%}
+.src .facts{margin-top:10px}
+.src .fact{background:color-mix(in srgb,var(--fg) 5%,transparent)}
+.prep{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;font-size:13px;color:var(--muted)}
+.prep b{color:var(--fg);font-family:var(--display)}
+.prep button{color:var(--secondary);font:600 13px/1 var(--body)}
+.conc{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:20px;background:color-mix(in srgb,var(--a5) 18%,var(--low))}
+.conc .icon{color:var(--a5)}
+.conc b{flex:1;font:600 14px/1.25 var(--body)}
+.conc small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.console{display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:8px}
+.ccol{border-radius:18px;padding:10px 6px 10px;background:var(--low);text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;transition:transform var(--d-snappy) var(--e-snappy)}
+.ccol:active{transform:scale(.96)}
+.ccol small{font:600 11px/1 var(--body);letter-spacing:.04em;color:var(--muted)}
+.ccol b{font:600 20px/1 var(--display)}
+.ccol .marks{gap:4px;justify-content:center}
+.ccol .mark{width:9px;height:9px}
+.ccol.pact{background:color-mix(in srgb,var(--a5) 14%,var(--low))}
+.circle{border-radius:var(--r-xl);background:var(--low);overflow:hidden}
+.circle-h{display:flex;align-items:center;gap:10px;padding:13px 14px;width:100%}
+.circle-h .cn{font:600 16px/1.2 var(--display);min-width:68px}
+.circle-h .cn small{display:block;font:500 12px/1.2 var(--body);color:var(--muted)}
+.circle-h .marks{flex:1;gap:6px}
+.circle-h .mark{width:15px;height:15px}
+.circle-h .left{font:600 14px/1 var(--display);color:var(--muted);font-variant-numeric:tabular-nums}
+.circle-h .chev{width:18px;height:18px;color:var(--muted);transition:transform var(--d-snappy) var(--e-standard)}
+.circle.open .circle-h .chev{transform:rotate(180deg)}
+.spells{padding:0 6px 6px}
+.sp{display:flex;align-items:center;gap:10px;padding:10px 8px 10px 10px;border-radius:16px;width:100%;transition:background-color 160ms,opacity 300ms}
+.sp:active{background:color-mix(in srgb,var(--fg) 6%,transparent)}
+.sp.unprep{opacity:.55}
+.sp .star{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;flex:none;color:var(--muted)}
+.sp .star .icon{width:17px;height:17px}
+.sp .star.on{color:var(--a2)}
+.sp .star.on .icon{fill:currentColor}
+.sp .star.lock{color:var(--secondary)}
+.sp .st{flex:1;min-width:0}
+.sp .st b{display:block;font:600 15px/1.25 var(--body)}
+.sp .st span{font-size:12px;color:var(--muted)}
+.sp .badges{display:inline-flex;gap:4px;margin-left:6px;vertical-align:1px}
+.sp .badges i{font:600 10px/1 var(--body);font-style:normal;padding:3px 5px;border-radius:6px;background:color-mix(in srgb,var(--fg) 9%,transparent);color:var(--muted)}
+.cast{width:44px;height:40px;border-radius:14px;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--primary) 16%,transparent);color:var(--primary);transition:transform var(--d-snappy) var(--e-snappy),opacity 200ms}
+.cast:active{transform:scale(.92)}
+.cast .icon{width:20px;height:20px}
+.cast.off{opacity:.35}
+.passives .frow .ficon{background:color-mix(in srgb,var(--fg) 6%,transparent);color:var(--muted)}
+
+/* Bottom sheets */
+.modal{position:absolute;inset:0;z-index:50;pointer-events:none}
+.scrim{position:absolute;inset:0;background:rgba(10,8,6,.45);opacity:0}
+.bsheet{position:absolute;left:0;right:0;bottom:0;max-height:90%;display:flex;flex-direction:column;border-radius:var(--r-xl) var(--r-xl) 0 0;
+  background:var(--cont);box-shadow:0 -14px 40px -16px rgba(0,0,0,.6);transform:translateY(100%);touch-action:none}
+.grab{height:28px;display:grid;place-items:center;flex:none;cursor:grab}
+.grab i{width:36px;height:4px;border-radius:999px;background:var(--outline)}
+.bs-body{overflow-y:auto;padding:0 18px 20px;display:flex;flex-direction:column;gap:14px;touch-action:pan-y}
+.bs-kicker{font:600 13px/1 var(--body);color:var(--secondary)}
+.bs-title{font:600 26px/1.12 var(--display);letter-spacing:-.02em;margin:0}
+.bs-sub{color:var(--muted);font-size:13.5px;margin-top:-8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cell{border-radius:16px;padding:11px 12px;background:var(--low)}
+.cell small{display:block;font:600 11px/1 var(--body);color:var(--muted);letter-spacing:.04em}
+.cell b{display:block;font:600 14px/1.3 var(--body);margin-top:5px}
+.prose{font-size:15px;line-height:1.55;white-space:pre-line}
+.prose h4{font:600 16px/1.2 var(--display);margin:6px 0 4px}
+.ladder{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px}
+.rung{min-width:64px;padding:10px 10px 9px;border-radius:18px;background:var(--low);text-align:center;transition:background-color 220ms,box-shadow 220ms,transform var(--d-snappy) var(--e-snappy)}
+.rung small{display:block;font:500 11px/1.2 var(--body);color:var(--muted)}
+.rung b{font:600 18px/1.1 var(--display)}
+.rung[aria-pressed="true"]{background:color-mix(in srgb,var(--secondary) 22%,var(--low));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--secondary) 60%,transparent)}
+.rung[disabled]{opacity:.35;pointer-events:none}
+.note{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:18px;background:color-mix(in srgb,var(--a5) 14%,var(--low));font-size:13.5px}
+.note .icon{width:18px;height:18px;color:var(--a5);margin-top:1px}
+
+/* Almanac */
+.alm{background:var(--surface);transform:translateX(100%);transition:transform 0s}
+.alm-top{position:absolute;left:0;right:0;top:0;z-index:5;padding:8px 14px 12px;display:flex;flex-direction:column;gap:10px}
+.alm-row{display:flex;align-items:center;gap:10px}
+.alm-row h3{flex:1;font:600 20px/1.1 var(--display);margin:0}
+.search{display:flex;align-items:center;gap:10px;height:46px;padding:0 14px;border-radius:23px;background:var(--low)}
+.search input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--fg);font:500 15px/1 var(--body)}
+.search .icon{width:18px;height:18px;color:var(--muted)}
+.circles{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.circles button{flex:none;min-width:40px;height:34px;padding:0 12px;border-radius:17px;font:600 13px/1 var(--body);color:var(--muted);box-shadow:inset 0 0 0 1.4px var(--outline)}
+.circles button[aria-pressed="true"]{background:var(--sc);color:var(--fg);box-shadow:none;border-radius:12px}
+.alm-list{padding:224px 16px 40px;display:flex;flex-direction:column;gap:8px}
+.alm-h{font:600 13px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:12px 6px 4px}
+.atile{display:flex;gap:12px;align-items:center;padding:12px;border-radius:20px;background:var(--low);width:100%;transition:transform var(--d-snappy) var(--e-snappy)}
+.atile:active{transform:scale(.985)}
+.atile .lv{width:40px;height:44px;border-radius:14px;display:grid;place-items:center;font:600 18px/1 var(--display);background:color-mix(in srgb,var(--secondary) 14%,var(--cont));flex:none}
+.atile.mine .lv{background:color-mix(in srgb,var(--primary) 22%,var(--cont))}
+.atile .ft{flex:1;min-width:0}
+.atile b{display:block;font:600 15px/1.25 var(--body)}
+.atile span{font-size:12px;color:var(--muted)}
+.atile .st{font:600 11.5px/1 var(--body);padding:6px 8px;border-radius:999px;flex:none}
+.st.mine{background:color-mix(in srgb,var(--primary) 18%,transparent);color:var(--fg)}
+.st.ok{background:color-mix(in srgb,var(--heal) 16%,transparent);color:var(--fg)}
+.st.later{background:color-mix(in srgb,var(--fg) 7%,transparent);color:var(--muted)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-stats" viewBox="0 0 24 24"><path d="M5 20v-7M10 20V5M15 20v-9M20 20v-4"/></symbol>
+  <symbol id="i-magic" viewBox="0 0 24 24"><path d="M4 20 14.5 9.5M17 3l.8 2.2L20 6l-2.2.8L17 9l-.8-2.2L14 6l2.2-.8zM9 4.5l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5zM19 13l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5z"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M9 7V5.5a3 3 0 0 1 6 0V7M6 9.5A2.5 2.5 0 0 1 8.5 7h7A2.5 2.5 0 0 1 18 9.5V18a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2zM9.5 13h5"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M6 4h11a1 1 0 0 1 1 1v15H7.5A2.5 2.5 0 0 1 5 17.5V5a1 1 0 0 1 1-1zM18 16H7.5A2.5 2.5 0 0 0 5 18.5M9.5 4v6.5l2-1.4 2 1.4V4"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5 19 6v5.2c0 4.5-3 7.8-7 9.3-4-1.5-7-4.8-7-9.3V6z"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24"><path d="M9 18V5l10-2v13M9 18a3 3 0 1 1-3-3 3 3 0 0 1 3 3zM19 16a3 3 0 1 1-3-3 3 3 0 0 1 3 3z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.4 5.8L20.5 9l-4.7 4 1.5 6.1L12 16l-5.3 3.1L8.2 13 3.5 9l6.1-.2z"/></symbol>
+  <symbol id="i-sword" viewBox="0 0 24 24"><path d="M14.5 4H20v5.5l-9 9-5.5-5.5zM8 16l-3.5 3.5M5.5 13.5l5 5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12zM12 9.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-13 15-14-1 10-6 15-14 15M5 19l8-8"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-fwd" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8M14 4v6M8 14v6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19 14.5A7.5 7.5 0 1 1 9.5 5a6 6 0 0 0 9.5 9.5z"/></symbol>
+  <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3v3M11 3v3"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-dice" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 3v18M4 7.5l16 9M20 7.5l-16 9"/></symbol>
+  <symbol id="i-wand" viewBox="0 0 24 24"><path d="M5 19 15 9M14 4l1 2.5L17.5 7.5 15 8.5 14 11 13 8.5 10.5 7.5 13 6.5zM19 12l.6 1.4 1.4.6-1.4.6L19 16l-.6-1.4-1.4-.6 1.4-.6z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 7h11l-3-3M17 17H6l3 3"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol>
+  <symbol id="i-paw" viewBox="0 0 24 24"><path d="M12 13c3 0 5 3 5 5.5 0 1.5-1.3 2-2.5 2S13 20 12 20s-1.3.5-2.5.5S7 20 7 18.5C7 16 9 13 12 13zM6 11.5a1.8 2.3 0 1 0 0-.01M18 11.5a1.8 2.3 0 1 0 0-.01M9 7.5a1.8 2.3 0 1 0 0-.01M15 7.5a1.8 2.3 0 1 0 0-.01"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></symbol>
+  <symbol id="i-timer" viewBox="0 0 24 24"><path d="M12 21a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM12 9v4l2.5 2M10 2h4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3M6 11h12v9H6z"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M7 4h10v16l-5-3.5L7 20z"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><path d="M5 5h5v5H5zM14 5h5v5h-5zM5 14h5v5H5zM14 14h5v5h-5z"/></symbol>
+  <symbol id="i-run" viewBox="0 0 24 24"><path d="M14 5.5a1.5 1.5 0 1 0 0-.01M10 21l2-5-3-2 1-5 4 2 3 1M7 12l2-3"/></symbol>
+</svg>
+
+<div class="stage">
+  <div class="phone" id="phone">
+    <div class="layer" id="sheet"></div>
+    <div class="layer alm" id="alm"></div>
+    <div class="gal" id="gal" hidden></div>
+    <div class="dock glass" id="dock"></div>
+    <div class="modal" id="modal"></div>
+    <button type="button" class="vbtn glass" id="vbtn" aria-label="Варианты прототипа"><svg class="icon"><use href="#i-sliders"/></svg></button>
+    <div class="toast glass" id="toast" role="status"></div>
+  </div>
+  <aside class="panel" aria-label="Варианты">
+    <span style="font:600 12px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--tertiary)">QDnD · волна 2 · прототип</span>
+    <h1>Магия</h1>
+    <p>Живой прототип вкладки Магии: галерея всех двенадцати классов, у каждого — свой инструмент; карусель мультикласса, ячейки, применение, описание и Альманах. Герои — примеры по правилам SRD 2014, тексты заклинаний — из данных приложения.</p>
+    <div id="controls"></div>
+  </aside>
+</div>
+
+<script>
+'use strict';
+/* Spells and lists generated from assets/data/spells (app data). */
+const SPELLS = {"vicious-mockery": {"n": "Злая насмешка", "l": 0, "s": "Очарование", "t": "1 действие", "r": "60 фт.", "d": "Мгновенная", "c": "V", "m": null, "k": false, "ri": false, "x": "Вы обрушиваете на существо в пределах дистанции поток оскорблений, пронизанный тонкими чарами. Если цель может слышать вас (хотя ей не нужно понимать вас), она должна преуспеть в спасброске Мудрости или получить 1к4 психического урона и иметь помеху на следующий бросок атаки, который она совершает до конца своего следующего хода.\nУрон этого заклинания увеличивается на 1к4, когда вы достигаете 5-го уровня (2к4), 11-го уровня (3к4) и 17-го уровня (4к4).", "h": null, "cl": ["bard"]}, "minor-illusion": {"n": "Малая иллюзия", "l": 0, "s": "Иллюзия", "t": "1 действие", "r": "30 фт.", "d": "1 мин.", "c": "S · M", "m": "Немного овечьей шерсти.", "k": false, "ri": false, "x": "Вы создаете звук или образ объекта в пределах дистанции, который длится в течение длительности. Иллюзия заканчивается, если вы отпускаете ее действием или накладываете это заклинание снова.\nЕсли вы создаете звук, его громкость может варьироваться от шепота до крика. Это может быть ваш голос, голос кого-то другого, рык льва, бой барабанов или любой другой звук, который вы выберете. Звук продолжается непрерывно в течение длительности, или вы можете создавать дискретные звуки в разное время до окончания действия заклинания.\nЕсли вы создаете образ объекта - такого как стул, грязные следы или маленький сундук - он должен быть не больше 5-футового куба. Изображение не может создавать звук, свет, запах или любой другой сенсорный эффект. Физическое взаимодействие с изображением показывает, что это иллюзия, потому что вещи могут проходить сквозь него.\nЕсли существо использует свое действие для изучения звука или образа, существо может определить, что это иллюзия, с успешной проверкой Интеллекта (Расследование) против вашей Сл спасброска заклинаний. Если существо распознает иллюзию как таковую, иллюзия становится слабой для существа.", "h": null, "cl": ["bard", "sorcerer", "warlock", "wizard"]}, "prestidigitation": {"n": "Фокусы", "l": 0, "s": "Преобразование", "t": "1 действие", "r": "10 фт.", "d": "1 ч.", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Это заклинание - небольшой магический трюк, который начинающие заклинатели используют для практики. Вы создаете один из следующих магических эффектов в пределах дистанции:\n- Вы создаете мгновенный, безвредный сенсорный эффект, такой как сноп искр, порыв ветра, слабые музыкальные ноты или странный запах.\n- Вы мгновенно зажигаете или тушите свечу, факел или небольшой костер.\n- Вы мгновенно очищаете или загрязняете объект объемом не более 1 кубического фута.\n- Вы охлаждаете, нагреваете или придаете вкус до 1 кубического фута неживой материи в течение 1 часа.\n- Вы заставляете цвет, небольшую метку или символ появляться на объекте или поверхности в течение 1 часа.\n- Вы создаете немагическую безделушку или иллюзорное изображение, которое может поместиться в вашей руке и которое длится до конца вашего следующего хода.\nЕсли вы накладываете это заклинание несколько раз, вы можете иметь до трех его не мгновенных эффектов активными одновременно, и вы можете отменить такой эффект действием.", "h": null, "cl": ["bard", "sorcerer", "warlock", "wizard"]}, "healing-word": {"n": "Лечащее слово", "l": 1, "s": "Воплощение", "t": "1 бонусное действие", "r": "60 фт.", "d": "Мгновенная", "c": "V", "m": null, "k": false, "ri": false, "x": "Существо по вашему выбору, которое вы можете видеть в пределах дистанции, восстанавливает количество хитов, равное 1к4 + ваш модификатор базовой характеристики заклинания. Это заклинание не действует на нежить или конструктов.", "h": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, лечение увеличивается на 1к4 за каждый круг ячейки выше 1-го.", "cl": ["bard", "cleric", "druid"]}, "thunderwave": {"n": "Волна грома", "l": 1, "s": "Воплощение", "t": "1 действие", "r": "На себя", "d": "Мгновенная", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Волна громоподобной силы исходит от вас. Каждое существо в 15-футовом кубе, исходящем от вас, должно совершить спасбросок Телосложения. При провале существо получает 2к8 урона звуком и отталкивается на 10 футов от вас. При успехе существо получает половину урона и не отталкивается.\nКроме того, незакрепленные предметы, которые полностью находятся в области действия, автоматически отталкиваются на 10 футов от вас эффектом заклинания, и заклинание издает громоподобный гул, слышимый на расстоянии 300 футов.", "h": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, урон увеличивается на 1к8 за каждый круг ячейки выше 1-го.", "cl": ["bard", "druid", "sorcerer", "wizard"]}, "sleep": {"n": "Сон", "l": 1, "s": "Очарование", "t": "1 действие", "r": "90 фт.", "d": "1 мин.", "c": "V · S · M", "m": "Щепотка мелкого песка, лепестки розы или сверчок.", "k": false, "ri": false, "x": "Это заклинание погружает существ в магический сон. Бросьте 5к8; сумма - это количество хитов существ, на которые может воздействовать это заклинание. Существа в пределах 20 футов от точки, которую вы выбираете в пределах дистанции, затрагиваются в порядке возрастания их текущих хитов (игнорируя существ без сознания).\nНачиная с существа с наименьшим текущим количеством хитов, каждое существо, затронутое этим заклинанием, падает без сознания, пока заклинание не закончится, спящий не получит урон или кто-то не использует действие, чтобы потрясти или ударить спящего, чтобы разбудить его. Вычтите хиты каждого существа из общего количества, прежде чем переходить к следующему существу с наименьшим количеством хитов. Хиты существа должны быть равны или меньше оставшегося общего количества, чтобы это существо было затронуто.\nНежить и существа, иммунные к очарованию, не подвержены воздействию этого заклинания.", "h": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, бросайте дополнительные 2к8 за каждый круг ячейки выше 1-го.", "cl": ["bard", "sorcerer", "wizard"]}, "charm-person": {"n": "Очарование личности", "l": 1, "s": "Очарование", "t": "1 действие", "r": "30 фт.", "d": "1 ч.", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Вы пытаетесь очаровать гуманоида, которого вы можете видеть в пределах дистанции. Он должен совершить спасбросок Мудрости, и делает это с преимуществом, если вы или ваши спутники сражаетесь с ним. Если он проваливает спасбросок, он очарован вами, пока заклинание не закончится или пока вы или ваши спутники не сделаете что-либо вредное для него. Очарованное существо считает вас дружелюбным знакомым. Когда заклинание заканчивается, существо знает, что оно было очаровано вами.", "h": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, вы можете выбрать одно дополнительное существо за каждый круг ячейки выше 1-го. Существа должны находиться в пределах 30 футов друг от друга, когда вы нацеливаетесь на них.", "cl": ["bard", "druid", "sorcerer", "warlock", "wizard"]}, "heroism": {"n": "Героизм", "l": 1, "s": "Очарование", "t": "1 действие", "r": "Касание", "d": "Вплоть до 1 мин.", "c": "V · S", "m": null, "k": true, "ri": false, "x": "Добровольное существо, которого вы касаетесь, наполняется храбростью. До окончания действия заклинания существо иммунно к состоянию испуга и получает временные хиты, равные вашему модификатору базовой характеристики заклинания, в начале каждого своего хода. Когда заклинание заканчивается, цель теряет все оставшиеся временные хиты от этого заклинания.", "h": null, "cl": ["bard", "paladin"]}, "shatter": {"n": "Дробящий звук", "l": 2, "s": "Воплощение", "t": "1 действие", "r": "60 фт.", "d": "Мгновенная", "c": "V · S · M", "m": "Щепотка слюды.", "k": false, "ri": false, "x": "Внезапный громкий звон, болезненно интенсивный, раздается в точке по вашему выбору в пределах дистанции. Каждое существо в сфере радиусом 10 футов с центром в этой точке должно совершить спасбросок Телосложения. Существо получает 3к8 урона звуком при провале или половину этого урона при успехе. Существо, сделанное из неорганического материала, такого как камень, кристалл или металл, имеет помеху на этот спасбросок.\nНемагический объект, который не носит и не несет существо, также получает урон, если он находится в области заклинания.", "h": "Если вы накладываете это заклинание, используя ячейку 3-го круга или выше, урон увеличивается на 1к8 за каждый круг ячейки выше 2-го.", "cl": ["bard", "sorcerer", "warlock", "wizard"]}, "invisibility": {"n": "Невидимость", "l": 2, "s": "Иллюзия", "t": "1 действие", "r": "Касание", "d": "Вплоть до 1 ч.", "c": "V · S · M", "m": "Ресница, заключенная в гуммиарабик.", "k": true, "ri": false, "x": "Существо, которого вы касаетесь, становится невидимым, пока заклинание не закончится. Все, что цель носит или несет, невидимо, пока находится на ней. Заклинание заканчивается для цели, если она атакует или накладывает заклинание.", "h": "Если вы накладываете это заклинание, используя ячейку 3-го круга или выше, вы можете нацелиться на одно дополнительное существо за каждый круг ячейки выше 2-го.", "cl": ["bard", "sorcerer", "warlock", "wizard"]}, "hypnotic-pattern": {"n": "Гипнотический узор", "l": 3, "s": "Иллюзия", "t": "1 действие", "r": "120 фт.", "d": "Вплоть до 1 мин.", "c": "S · M", "m": "Светящаяся палочка благовоний или хрустальный флакон, наполненный фосфоресцирующим материалом.", "k": true, "ri": false, "x": "Вы создаете извивающийся узор цветов, который переплетается в воздухе внутри 30-футового куба в пределах дистанции. Узор появляется на мгновение и исчезает. Каждое существо в области, которое видит узор, должно совершить спасбросок Мудрости. При провале существо становится очарованным на время действия. Будучи очарованным этим заклинанием, существо недееспособно и имеет скорость 0.\nЗаклинание заканчивается для затронутого существа, если оно получает какой-либо урон или если кто-то другой использует действие, чтобы встряхнуть существо из его ступора.", "h": null, "cl": ["bard", "sorcerer", "warlock", "wizard"]}, "guidance": {"n": "Наставление", "l": 0, "s": "Прорицание", "t": "1 действие", "r": "Касание", "d": "Вплоть до 1 мин.", "c": "V · S", "m": null, "k": true, "ri": false, "x": "Вы касаетесь одного добровольного существа. Один раз до окончания действия заклинания цель может бросить к4 и добавить выпавшее число к одной проверке характеристики по своему выбору. Она может бросить кость до или после совершения проверки характеристики. После этого заклинание заканчивается.", "h": null, "cl": ["cleric", "druid"]}, "sacred-flame": {"n": "Священное пламя", "l": 0, "s": "Воплощение", "t": "1 действие", "r": "60 фт.", "d": "Мгновенная", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Пламя, похожее на пламя, нисходит на существо, которое вы можете видеть в пределах дистанции. Цель должна преуспеть в спасброске Ловкости или получить 1к8 урона излучением. Цель не получает выгоды от укрытия для этого спасброска.\nУрон этого заклинания увеличивается на 1к8, когда вы достигаете 5-го уровня (2к8), 11-го уровня (3к8) и 17-го уровня (4к8).", "h": null, "cl": ["cleric"]}, "spare-the-dying": {"n": "Уход за умирающим", "l": 0, "s": "Некромантия", "t": "1 действие", "r": "Касание", "d": "Мгновенная", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Вы касаетесь живого существа, у которого 0 хитов. Существо становится стабилизированным. Это заклинание не действует на нежить или конструктов.", "h": null, "cl": ["cleric"]}, "bless": {"n": "Благословение", "l": 1, "s": "Очарование", "t": "1 действие", "r": "30 фт.", "d": "Вплоть до 1 мин.", "c": "V · S · M", "m": "Капля святой воды.", "k": true, "ri": false, "x": "Вы благословляете до трех существ по вашему выбору в пределах дистанции. Всякий раз, когда цель совершает бросок атаки или спасбросок до окончания действия заклинания, цель может бросить к4 и добавить выпавшее число к броску атаки или спасброску.", "h": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, вы можете выбрать одно дополнительное существо за каждый круг ячейки выше 1-го.", "cl": ["cleric", "paladin"]}, "cure-wounds": {"n": "Лечение ран", "l": 1, "s": "Воплощение", "t": "1 действие", "r": "Касание", "d": "Мгновенная", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Существо, которого вы касаетесь, восстанавливает количество хитов, равное 1к8 + ваш модификатор базовой характеристики заклинания. Это заклинание не действует на нежить или конструктов.", "h": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, лечение увеличивается на 1к8 за каждый круг ячейки выше 1-го.", "cl": ["bard", "cleric", "druid", "paladin", "ranger"]}, "shield-of-faith": {"n": "Щит веры", "l": 1, "s": "Ограждение", "t": "1 бонусное действие", "r": "60 фт.", "d": "Вплоть до 10 мин.", "c": "V · S · M", "m": "Небольшой пергамент с написанным на нем текстом из святого писания.", "k": true, "ri": false, "x": "Мерцающее поле появляется и окружает существо по вашему выбору в пределах дистанции, предоставляя ему бонус +2 к КД на время действия.", "h": null, "cl": ["cleric", "paladin"]}, "command": {"n": "Приказ", "l": 1, "s": "Очарование", "t": "1 действие", "r": "60 фт.", "d": "1 раунд", "c": "V", "m": null, "k": false, "ri": false, "x": "Вы произносите команду из одного слова существу, которое вы можете видеть в пределах дистанции. Цель должна преуспеть в спасброске Мудрости или следовать команде в свой следующий ход. Заклинание не имеет эффекта, если цель нежить, если она не понимает ваш язык, или если ваша команда непосредственно вредна для нее.", "h": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, вы можете воздействовать на одно дополнительное существо за каждый круг ячейки выше 1-го. Существа должны находиться в пределах 30 футов друг от друга, когда вы нацеливаетесь на них.", "cl": ["cleric", "paladin"]}, "guiding-bolt": {"n": "Направляющий снаряд", "l": 1, "s": "Воплощение", "t": "1 действие", "r": "120 фт.", "d": "1 раунд", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Вспышка света устремляется к существу по вашему выбору в пределах дистанции. Совершите дальнобойную атаку заклинанием по цели. При попадании цель получает 4к6 урона излучением, и следующий бросок атаки, совершенный по этой цели до конца вашего следующего хода, имеет преимущество благодаря мистическому тусклому свету, который мерцает на цели до тех пор.", "h": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, урон увеличивается на 1к6 за каждый круг ячейки выше 1-го.", "cl": ["cleric"]}, "druidcraft": {"n": "Друидизм", "l": 0, "s": "Преобразование", "t": "1 действие", "r": "30 фт.", "d": "Мгновенная", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Шепча духам природы, вы создаете один из следующих эффектов в пределах дистанции:\n- Вы создаете крошечный, безвредный сенсорный эффект, который предсказывает, какой будет погода в вашем месте на следующие 24 часа. Эффект может проявиться как золотая сфера для ясного неба, облако для дождя, падающие снежинки для снега и так далее. Эффект сохраняется в течение 1 раунда.\n- Вы мгновенно заставляете цветок расцвести, семя прорасти или листовую почку раскрыться.\n- Вы создаете мгновенный, безвредный сенсорный эффект, такой как падающие листья, дуновение ветра, звук маленького животного или слабый запах скунса. Эффект должен поместиться в куб с ребром 5 футов.\n- Вы мгновенно зажигаете или тушите свечу, факел или небольшой костер.", "h": null, "cl": ["druid"]}, "produce-flame": {"n": "Сотворение пламени", "l": 0, "s": "Вызов", "t": "1 действие", "r": "На себя", "d": "10 мин.", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Мерцающее пламя появляется в вашей руке. Пламя остается там на время действия и не вредит ни вам, ни вашему снаряжению. Пламя излучает яркий свет в радиусе 10 футов и тусклый свет еще на 10 футов. Заклинание заканчивается, если вы отпускаете его действием или если вы накладываете его снова.\nВы также можете атаковать пламенем, хотя это и заканчивает заклинание. Когда вы накладываете это заклинание или в качестве действия в более поздний ход, вы можете метнуть пламя в существо в пределах 30 футов от вас. Совершите дальнобойную атаку заклинанием. При попадании цель получает 1к8 урона огнем.\nУрон этого заклинания увеличивается на 1к8, когда вы достигаете 5-го уровня (2к8), 11-го уровня (3к8) и 17-го уровня (4к8).", "h": null, "cl": ["druid"]}, "goodberry": {"n": "Чудо-ягоды", "l": 1, "s": "Преобразование", "t": "1 действие", "r": "Касание", "d": "Мгновенная", "c": "V · S · M", "m": "Ветка омелы.", "k": false, "ri": false, "x": "В вашей руке появляется до десяти ягод, наполненных магией на время действия. Существо может использовать свое действие, чтобы съесть одну ягоду. Поедание ягоды восстанавливает 1 хит, и ягода обеспечивает достаточно пищи, чтобы поддерживать существо в течение одного дня.\nЯгоды теряют свою силу, если они не были съедены в течение 24 часов после накладывания заклинания.", "h": null, "cl": ["druid", "ranger"]}, "entangle": {"n": "Опутывание", "l": 1, "s": "Вызов", "t": "1 действие", "r": "90 фт.", "d": "Вплоть до 1 мин.", "c": "V · S", "m": null, "k": true, "ri": false, "x": "Хватающие сорняки и лозы прорастают из земли в квадрате с ребром 20 футов, начиная с точки в пределах дистанции. В течение длительности эти растения превращают землю в области в труднопроходимую местность.\nСущество в области, когда вы накладываете заклинание, должно преуспеть в спасброске Силы или быть опутанным опутывающими растениями, пока заклинание не закончится. Существо, опутанное растениями, может использовать свое действие, чтобы совершить проверку Силы против вашей Сл спасброска заклинаний. При успехе оно освобождается.\nКогда заклинание заканчивается, созданные растения увядают.", "h": null, "cl": ["druid"]}, "faerie-fire": {"n": "Огонь фей", "l": 1, "s": "Воплощение", "t": "1 действие", "r": "60 фт.", "d": "Вплоть до 1 мин.", "c": "V", "m": null, "k": true, "ri": false, "x": "Каждый объект в 20-футовом кубе в пределах дистанции очерчивается синим, зеленым или фиолетовым светом (по вашему выбору). Любое существо в области, когда заклинание накладывается, также очерчивается светом, если оно проваливает спасбросок Ловкости. На время действия объекты и затронутые существа излучают тусклый свет в радиусе 10 футов.\nЛюбой бросок атаки против затронутого существа или объекта имеет преимущество, если атакующий может его видеть, и затронутое существо или объект не могут получить выгоду от невидимости.", "h": null, "cl": ["druid"]}, "shillelagh": {"n": "Дубинка", "l": 0, "s": "Преобразование", "t": "1 бонусное действие", "r": "Касание", "d": "1 мин.", "c": "V · S · M", "m": "Омела, лист клевера и дубинка или посох.", "k": false, "ri": false, "x": "Дерево дубинки или посоха, которое вы держите, наполняется силой природы. В течение длительности вы можете использовать свою базовую характеристику заклинания вместо Силы для бросков атаки и урона рукопашных атак, использующих это оружие, и кость урона оружия становится к8. Оружие также становится магическим, если оно еще не является таковым. Заклинание заканчивается, если вы накладываете его снова или если вы выпускаете оружие из рук.", "h": null, "cl": ["druid"]}, "moonbeam": {"n": "Лунный луч", "l": 2, "s": "Воплощение", "t": "1 действие", "r": "120 фт.", "d": "Вплоть до 1 мин.", "c": "V · S · M", "m": "Несколько семян лунного семени и кусок опалесцирующего полевого шпата.", "k": true, "ri": false, "x": "Серебристый луч бледного света светит вниз в цилиндре радиусом 5 футов и высотой 40 футов, центрированном на точке в пределах дистанции. Тусклый свет наполняет цилиндр. Когда существо входит в область заклинания впервые за ход или начинает там свой ход, оно поглощается призрачным пламенем, которое вызывает жгучую боль, и оно должно совершить спасбросок Телосложения. Оно получает 2к10 урона излучением при провале или половину этого урона при успехе.\nПеревертыш совершает свой спасбросок с помехой. Если он проваливает, он также мгновенно возвращается в свою первоначальную форму и не может принять другую форму, пока не покинет свет заклинания.\nВ каждый свой ход после того, как вы наложили это заклинание, вы можете использовать действие, чтобы переместить луч на 60 футов в любом направлении.", "h": "Если вы накладываете это заклинание, используя ячейку 3-го круга или выше, урон увеличивается на 1к10 за каждый круг ячейки выше 2-го.", "cl": ["druid"]}, "spike-growth": {"n": "Шипы", "l": 2, "s": "Преобразование", "t": "1 действие", "r": "150 фт.", "d": "Вплоть до 10 мин.", "c": "V · S · M", "m": "Семь острых шипов или семь маленьких веточек, каждая заостренная на конце.", "k": true, "ri": false, "x": "Земля в радиусе 20 футов с центром в точке в пределах дистанции скручивается и прорастает твердыми шипами и колючками. Область становится труднопроходимой местностью на время действия. Когда существо входит в область или перемещается в ней, оно получает 2к4 колющего урона за каждые 5 футов, которые оно проходит.\nТрансформация земли замаскирована, чтобы выглядеть естественно. Любое существо, которое не может видеть область во время накладывания заклинания, должно совершить проверку Мудрости (Внимательность) против вашей Сл спасброска заклинаний, чтобы распознать местность как опасную перед тем, как войти в нее.", "h": null, "cl": ["druid", "ranger"]}, "lesser-restoration": {"n": "Малое восстановление", "l": 2, "s": "Ограждение", "t": "1 действие", "r": "Касание", "d": "Мгновенная", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Вы касаетесь существа и можете закончить либо одну болезнь, либо одно состояние, влияющее на него. Состояние может быть ослепленным, оглушенным, парализованным или отравленным.", "h": null, "cl": ["bard", "cleric", "druid", "paladin", "ranger"]}, "divine-favor": {"n": "Божественная благосклонность", "l": 1, "s": "Воплощение", "t": "1 бонусное действие", "r": "На себя", "d": "Вплоть до 1 мин.", "c": "V · S", "m": null, "k": true, "ri": false, "x": "Ваша молитва наполняет вас божественным сиянием. До окончания действия заклинания ваши атаки оружием наносят дополнительные 1к4 урона излучением при попадании.", "h": null, "cl": ["paladin"]}, "protection-from-evil-and-good": {"n": "Защита от добра и зла", "l": 1, "s": "Ограждение", "t": "1 действие", "r": "Касание", "d": "Вплоть до 10 мин.", "c": "V · S · M", "m": "Святая вода или порошкообразное серебро и железо, которые заклинание расходует.", "k": true, "ri": false, "x": "До окончания действия заклинания одно добровольное существо, которого вы касаетесь, защищено от определенных типов существ: аберраций, небожителей, элементалей, фей, исчадий и нежити.\nЗащита дает несколько преимуществ. Существа этих типов совершают броски атаки против цели с помехой. Цель также не может быть очарована, испугана или одержима ими. Если цель уже очарована, испугана или одержима таким существом, цель имеет преимущество на любой новый спасбросок против соответствующего эффекта.", "h": null, "cl": ["cleric", "paladin", "warlock", "wizard"]}, "sanctuary": {"n": "Убежище", "l": 1, "s": "Ограждение", "t": "1 бонусное действие", "r": "30 фт.", "d": "1 мин.", "c": "V · S · M", "m": "Небольшое серебряное зеркало.", "k": false, "ri": false, "x": "Вы защищаете существо в пределах дистанции от атаки. До окончания действия заклинания любое существо, которое пытается нацелиться на защищенное существо атакой или вредоносным заклинанием, должно сначала совершить спасбросок Мудрости. При провале существо должно выбрать новую цель или потерять атаку или заклинание. Это заклинание не защищает защищенное существо от зональных эффектов, таких как взрыв огненного шара.\nЕсли защищенное существо совершает атаку, накладывает заклинание, которое влияет на вражеское существо, или наносит урон другому существу, это заклинание заканчивается.", "h": null, "cl": ["cleric", "paladin"]}, "zone-of-truth": {"n": "Зона правды", "l": 2, "s": "Очарование", "t": "1 действие", "r": "60 фт.", "d": "10 мин.", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Вы создаете магическую зону, которая защищает от обмана, в сфере радиусом 15 футов, центрированной на точке по вашему выбору в пределах дистанции. Пока заклинание длится, существо, которое входит в область заклинания впервые за ход или начинает там свой ход, должно совершить спасбросок Харизмы. При провале существо не может говорить преднамеренную ложь, пока находится в радиусе.\nВы знаете, удалось ли каждому существу пройти спасбросок или нет. Затронутое существо осознает заклинание и может избегать ответов на вопросы, на которые оно обычно лгало бы. Такие существа могут быть уклончивыми в своих ответах, пока они остаются в границах правды.", "h": null, "cl": ["bard", "cleric", "paladin"]}, "find-steed": {"n": "Поиск скакуна", "l": 2, "s": "Вызов", "t": "10 мин.", "r": "30 фт.", "d": "Мгновенная", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Вы призываете духа, который принимает форму необычайно умного, сильного и верного коня, создавая прочную связь с ним. Появляясь в незанятом пространстве в пределах дистанции, скакун принимает форму, которую вы выбираете: боевой конь, пони, верблюд, лось или мастиф (ваш ГМ может разрешить других животных в качестве скакунов). Скакун имеет статистику выбранной формы, хотя это небожитель, фея или исчадие (по вашему выбору), а не зверь. Кроме того, если ваш скакун имеет Интеллект 5 или меньше, его Интеллект становится 6, и он получает способность понимать один язык по вашему выбору, на котором вы говорите.\nВаш скакун служит вам верховым животным как в бою, так и вне его, и у вас есть инстинктивная связь с ним, которая позволяет вам сражаться как единое целое. Пока вы верхом на нем, вы можете сделать так, чтобы любое заклинание, которое вы накладываете, нацеленное только на вас, также нацеливалось на вашего скакуна.\nКогда скакун падает до 0 хитов, он исчезает, не оставляя после себя физической формы. Вы также можете отпустить своего скакуна в любое время действием, заставляя его исчезнуть. В любом случае, повторное накладывание этого заклинания призывает того же скакуна, восстановленного до полного здоровья.", "h": null, "cl": ["paladin"]}, "aid": {"n": "Помощь", "l": 2, "s": "Ограждение", "t": "1 действие", "r": "30 фт.", "d": "8 ч.", "c": "V · S · M", "m": "Крошечная полоска белой ткани.", "k": false, "ri": false, "x": "Ваши заклинания воодушевляют ваших союзников стойкостью и решимостью. Выберите до трех существ в пределах дистанции. Максимум хитов и текущие хиты каждой цели увеличиваются на 5 на время действия заклинания.", "h": "Если вы накладываете это заклинание, используя ячейку 3-го круга или выше, хиты увеличиваются на 5 за каждый круг ячейки выше 2-го.", "cl": ["cleric", "paladin"]}, "hunters-mark": {"n": "Метка охотника", "l": 1, "s": "Прорицание", "t": "1 бонусное действие", "r": "90 фт.", "d": "Вплоть до 1 ч.", "c": "V", "m": null, "k": true, "ri": false, "x": "Вы выбираете существо, которое вы можете видеть в пределах дистанции, и мистически помечаете его как свою добычу. До окончания действия заклинания вы наносите дополнительные 1к6 урона цели каждый раз, когда вы попадаете по ней атакой оружием, и вы имеете преимущество на любую проверку Мудрости (Внимательность) или Мудрости (Выживание), которую вы совершаете, чтобы найти ее. Если цель опускается до 0 хитов до окончания этого заклинания, вы можете использовать бонусное действие в один из ваших последующих ходов, чтобы пометить новое существо.", "h": "Если вы накладываете это заклинание, используя ячейку 3-го или 4-го круга, вы можете поддерживать концентрацию на заклинании до 8 часов. Если вы используете ячейку заклинания 5-го круга или выше, вы можете поддерживать концентрацию на заклинании до 24 часов.", "cl": ["ranger"]}, "fire-bolt": {"n": "Огненный снаряд", "l": 0, "s": "Воплощение", "t": "1 действие", "r": "120 фт.", "d": "Мгновенная", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Вы бросаете сгусток огня в существо или объект в пределах дистанции. Совершите дальнобойную атаку заклинанием по цели. При попадании цель получает 1к10 урона огнем. Горючий предмет, попавший под это заклинание, воспламеняется, если его никто не несет и не носит.\nУрон этого заклинания увеличивается на 1к10, когда вы достигаете 5-го уровня (2к10), 11-го уровня (3к10) и 17-го уровня (4к10).", "h": null, "cl": ["sorcerer", "wizard"]}, "mage-hand": {"n": "Рука мага", "l": 0, "s": "Вызов", "t": "1 действие", "r": "30 фт.", "d": "1 мин.", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Спектральная, парящая рука появляется в точке, которую вы выбираете в пределах дистанции. Рука длится в течение длительности или пока вы не отпустите ее действием. Рука исчезает, если она когда-либо находится более чем в 30 футах от вас или если вы накладываете это заклинание снова.\nВы можете использовать свое действие, чтобы управлять рукой. Вы можете использовать руку, чтобы манипулировать объектом, открыть незапертую дверь или контейнер, убрать или положить предмет из открытого контейнера или вылить содержимое флакона. Вы можете перемещать руку на расстояние до 30 футов каждый раз, когда вы ее используете.\nРука не может атаковать, активировать магические предметы или нести более 10 фунтов.", "h": null, "cl": ["bard", "sorcerer", "warlock", "wizard"]}, "shocking-grasp": {"n": "Шоковое прикосновение", "l": 0, "s": "Воплощение", "t": "1 действие", "r": "Касание", "d": "Мгновенная", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Молния срывается с вашей руки, чтобы поразить существо, которое вы пытаетесь коснуться. Совершите рукопашную атаку заклинанием по цели. Вы имеете преимущество на бросок атаки, если цель носит доспехи из металла. При попадании цель получает 1к8 урона молнией, и она не может использовать реакции до начала своего следующего хода.\nУрон этого заклинания увеличивается на 1к8, когда вы достигаете 5-го уровня (2к8), 11-го уровня (3к8) и 17-го уровня (4к8).", "h": null, "cl": ["sorcerer", "wizard"]}, "burning-hands": {"n": "Огненные ладони", "l": 1, "s": "Воплощение", "t": "1 действие", "r": "На себя", "d": "Мгновенная", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Когда вы держите руки с соприкасающимися большими пальцами и растопыренными остальными пальцами, тонкий лист пламени вырывается из ваших кончиков пальцев. Каждое существо в 15-футовом конусе должно совершить спасбросок Ловкости. Существо получает 3к6 урона огнем при провале или половину этого урона при успехе.\nОгонь воспламеняет любые горючие предметы в области, которые никто не несет и не носит.", "h": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, урон увеличивается на 1к6 за каждый круг ячейки выше 1-го.", "cl": ["sorcerer", "wizard"]}, "shield": {"n": "Щит", "l": 1, "s": "Ограждение", "t": "1 реакция", "r": "На себя", "d": "1 раунд", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Невидимый барьер магической силы появляется и защищает вас. До начала вашего следующего хода вы получаете бонус +5 к КД, в том числе против триггерной атаки, и вы не получаете урона от магической стрелы.", "h": null, "cl": ["sorcerer", "wizard"]}, "misty-step": {"n": "Туманный шаг", "l": 2, "s": "Вызов", "t": "1 бонусное действие", "r": "На себя", "d": "Мгновенная", "c": "V", "m": null, "k": false, "ri": false, "x": "Вы на мгновение окружаетесь серебристым туманом и телепортируетесь на расстояние до 30 футов в незанятое пространство, которое вы можете видеть.", "h": null, "cl": ["sorcerer", "warlock", "wizard"]}, "scorching-ray": {"n": "Опаляющий луч", "l": 2, "s": "Воплощение", "t": "1 действие", "r": "120 фт.", "d": "Мгновенная", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Вы создаете три луча огня и направляете их на цели в пределах дистанции. Вы можете направить их на одну цель или на несколько.\nСовершите дальнобойную атаку заклинанием для каждого луча. При попадании цель получает 2к6 урона огнем.", "h": "Если вы накладываете это заклинание, используя ячейку 3-го круга или выше, вы создаете один дополнительный луч за каждый круг ячейки выше 2-го.", "cl": ["sorcerer", "wizard"]}, "fireball": {"n": "Огненный шар", "l": 3, "s": "Воплощение", "t": "1 действие", "r": "150 фт.", "d": "Мгновенная", "c": "V · S · M", "m": "Крошечный шарик из гуано летучей мыши и серы.", "k": false, "ri": false, "x": "Яркий луч вылетает из вашего указательного пальца в точку, которую вы выбираете в пределах дистанции, а затем взрывается с низким ревом пламени. Каждое существо в сфере радиусом 20 футов с центром в этой точке должно совершить спасбросок Ловкости. Существо получает 8к6 урона огнем при провале или половину этого урона при успехе.\nОгонь распространяется за углы. Он воспламеняет горючие предметы в области, которые никто не несет и не носит.", "h": "Если вы накладываете это заклинание, используя ячейку 4-го круга или выше, урон увеличивается на 1к6 за каждый круг ячейки выше 3-го.", "cl": ["sorcerer", "wizard"]}, "haste": {"n": "Ускорение", "l": 3, "s": "Преобразование", "t": "1 действие", "r": "30 фт.", "d": "Вплоть до 1 мин.", "c": "V · S · M", "m": "Стружка корня лакрицы.", "k": true, "ri": false, "x": "Выберите добровольное существо, которое вы можете видеть в пределах дистанции. До окончания действия заклинания скорость цели удваивается, она получает бонус +2 к КД, она имеет преимущество на спасброски Ловкости, и она получает дополнительное действие в каждый свой ход. Это действие может быть использовано только для совершения действий Атака (только одна атака оружием), Рывок, Отход, Прятаться или Использование предмета.\nКогда заклинание заканчивается, цель не может двигаться или совершать действия до конца своего следующего хода, так как волна летаргии накатывает на нее.", "h": null, "cl": ["sorcerer", "wizard"]}, "eldritch-blast": {"n": "Мистический заряд", "l": 0, "s": "Воплощение", "t": "1 действие", "r": "120 фт.", "d": "Мгновенная", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Луч потрескивающей энергии устремляется к существу в пределах дистанции. Совершите дальнобойную атаку заклинанием по цели. При попадании цель получает 1к10 урона силовым полем.\nЗаклинание создает больше одного луча, когда вы достигаете более высоких уровней: два луча на 5-м уровне, три луча на 11-м уровне и четыре луча на 17-м уровне. Вы можете направить лучи в одну цель или в несколько. Совершите отдельный бросок атаки для каждого луча.", "h": null, "cl": ["warlock"]}, "hellish-rebuke": {"n": "Адское возмездие", "l": 1, "s": "Воплощение", "t": "1 реакция", "r": "60 фт.", "d": "Мгновенная", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Вы указываете пальцем, и существо, которое нанесло вам урон, на мгновение окружается адским пламенем. Существо должно совершить спасбросок Ловкости. Оно получает 2к10 урона огнем при провале или половину этого урона при успехе.", "h": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, урон увеличивается на 1к10 за каждый круг ячейки выше 1-го.", "cl": ["warlock"]}, "hold-person": {"n": "Удержание личности", "l": 2, "s": "Очарование", "t": "1 действие", "r": "60 фт.", "d": "Вплоть до 1 мин.", "c": "V · S · M", "m": "Небольшой, прямой кусок железа.", "k": true, "ri": false, "x": "Выберите гуманоида, которого вы можете видеть в пределах дистанции. Цель должна преуспеть в спасброске Мудрости или быть парализованной на время действия. В конце каждого своего хода цель может совершить еще один спасбросок Мудрости. При успехе заклинание заканчивается на цели.", "h": "Если вы накладываете это заклинание, используя ячейку 3-го круга или выше, вы можете нацелиться на одного дополнительного гуманоида за каждый круг ячейки выше 2-го. Гуманоиды должны находиться в пределах 30 футов друг от друга, когда вы нацеливаетесь на них.", "cl": ["bard", "cleric", "druid", "sorcerer", "warlock", "wizard"]}, "darkness": {"n": "Тьма", "l": 2, "s": "Воплощение", "t": "1 действие", "r": "60 фт.", "d": "Вплоть до 10 мин.", "c": "V · M", "m": "Мех летучей мыши и капля дегтя или кусок угля.", "k": true, "ri": false, "x": "Магическая тьма распространяется из точки, которую вы выбираете в пределах дистанции, заполняя сферу радиусом 15 футов в течение длительности. Тьма огибает углы. Существо с темным зрением не может видеть сквозь эту тьму, и немагический свет не может освещать ее.\nЕсли точка, которую вы выбираете, находится на предмете, который вы держите, или на том, который никто не носит и не несет, тьма исходит от предмета и движется вместе с ним. Полное накрытие источника тьмы непрозрачным предметом, таким как миска или шлем, блокирует тьму.\nЕсли какая-либо часть области этого заклинания перекрывается областью света, созданного заклинанием 2-го круга или ниже, заклинание, создавшее свет, рассеивается.", "h": null, "cl": ["sorcerer", "warlock", "wizard"]}, "counterspell": {"n": "Контрзаклинание", "l": 3, "s": "Ограждение", "t": "1 реакция", "r": "60 фт.", "d": "Мгновенная", "c": "S", "m": null, "k": false, "ri": false, "x": "Вы пытаетесь прервать существо в процессе накладывания заклинания. Если существо накладывает заклинание 3-го круга или ниже, его заклинание проваливается и не имеет эффекта. Если оно накладывает заклинание 4-го круга или выше, совершите проверку своей базовой характеристики заклинания. Сл равна 10 + круг заклинания. При успехе заклинание существа проваливается и не имеет эффекта.", "h": "Если вы накладываете это заклинание, используя ячейку 4-го круга или выше, прерванное заклинание не имеет эффекта, если его круг меньше или равен кругу ячейки, которую вы использовали.", "cl": ["sorcerer", "warlock", "wizard"]}, "fly": {"n": "Полет", "l": 3, "s": "Преобразование", "t": "1 действие", "r": "Касание", "d": "Вплоть до 10 мин.", "c": "V · S · M", "m": "Перо крыла любой птицы.", "k": true, "ri": false, "x": "Вы касаетесь согласного существа. Цель получает скорость полета 60 футов на время действия. Когда заклинание заканчивается, цель падает, если она все еще находится в воздухе, если только она не может остановить падение.", "h": "Если вы накладываете это заклинание, используя ячейку 4-го круга или выше, вы можете нацелиться на одно дополнительное существо за каждый круг ячейки выше 3-го.", "cl": ["sorcerer", "warlock", "wizard"]}, "banishment": {"n": "Изгнание", "l": 4, "s": "Ограждение", "t": "1 действие", "r": "60 фт.", "d": "Вплоть до 1 мин.", "c": "V · S · M", "m": "Предмет, неприятный для цели.", "k": true, "ri": false, "x": "Вы пытаетесь отправить одно существо, которое вы можете видеть в пределах дистанции, в другой план существования. Цель должна преуспеть в спасброске Харизмы, иначе будет изгнана.\nЕсли цель родом с плана существования, на котором вы находитесь, вы изгоняете цель в безвредный полуплан. Пока она там, цель недееспособна. Цель остается там до окончания действия заклинания, после чего она снова появляется в пространстве, которое она оставила, или в ближайшем незанятом пространстве, если это пространство занято.\nЕсли цель родом с другого плана существования, отличного от того, на котором вы находитесь, цель изгоняется с возвращением на свой родной план. Если заклинание заканчивается до истечения 1 минуты, цель снова появляется в пространстве, которое она оставила, или в ближайшем незанятом пространстве, если это пространство занято. В противном случае цель не возвращается.", "h": "Если вы накладываете это заклинание, используя ячейку 5-го круга или выше, вы можете выбрать одно дополнительное существо за каждый круг ячейки выше 4-го.", "cl": ["cleric", "paladin", "sorcerer", "warlock", "wizard"]}, "dimension-door": {"n": "Дверь в пространстве", "l": 4, "s": "Вызов", "t": "1 действие", "r": "500 фт.", "d": "Мгновенная", "c": "V", "m": null, "k": false, "ri": false, "x": "Вы телепортируетесь из своего текущего местоположения в любое другое место в пределах дистанции. Вы прибываете точно в нужное место. Это может быть место, которое вы видите, место, которое вы можете визуализировать, или место, которое вы можете описать расстоянием и направлением, например, «200 футов прямо вниз» или «вверх на северо-запад под углом 45 градусов, 300 футов».\nВы можете взять с собой предметы, если их вес не превышает вашу грузоподъемность. Вы также можете взять с собой одно добровольное существо вашего размера или меньше, которое несет снаряжение до своей грузоподъемности. Существо должно находиться в пределах 5 футов от вас, когда вы накладываете это заклинание.\nЕсли вы прибудете в место, которое уже занято объектом или существом, вы и любое существо, путешествующее с вами, получаете 4к6 урона силовым полем, и заклинание не может телепортировать вас.", "h": null, "cl": ["bard", "sorcerer", "warlock", "wizard"]}, "hold-monster": {"n": "Удержание чудовища", "l": 5, "s": "Очарование", "t": "1 действие", "r": "90 фт.", "d": "Вплоть до 1 мин.", "c": "V · S · M", "m": "Небольшой, прямой кусок железа.", "k": true, "ri": false, "x": "Выберите существо, которое вы можете видеть в пределах дистанции. Цель должна преуспеть в спасброске Мудрости или быть парализованной на время действия. Это заклинание не действует на нежить. В конце каждого своего хода цель может совершить еще один спасбросок Мудрости. При успехе заклинание заканчивается на цели.", "h": "Если вы накладываете это заклинание, используя ячейку 6-го круга или выше, вы можете нацелиться на одно дополнительное существо за каждый круг ячейки выше 5-го. Существа должны находиться в пределах 30 футов друг от друга, когда вы нацеливаетесь на них.", "cl": ["bard", "sorcerer", "warlock", "wizard"]}, "scrying": {"n": "Наблюдение", "l": 5, "s": "Прорицание", "t": "10 мин.", "r": "На себя", "d": "Вплоть до 10 мин.", "c": "V · S · M", "m": "Фокус стоимостью не менее 1000 зм, такой как хрустальный шар, серебряное зеркало или купель со святой водой.", "k": true, "ri": false, "x": "Вы можете видеть и слышать конкретное существо, которое вы выбираете, которое находится на том же плане существования, что и вы. Цель должна совершить спасбросок Мудрости, который изменяется в зависимости от того, насколько хорошо вы знаете цель и от типа физической связи, которую вы имеете с ней. Если цель знает, что вы накладываете это заклинание, она может провалить спасбросок добровольно, если захочет.\nПри успешном спасброске цель не подвергается воздействию, и вы не можете использовать это заклинание против нее снова в течение 24 часов.\nПри провале спасброска заклинание создает невидимый сенсор в пределах 10 футов от цели. Вы можете видеть и слышать через сенсор, как если бы вы были там. Сенсор движется вместе с целью, оставаясь в пределах 10 футов от нее в течение длительности. Существо, которое может видеть невидимые объекты, видит сенсор как светящуюся сферу размером с кулак.\nВместо того чтобы нацеливаться на существо, вы можете выбрать место, которое вы видели раньше, в качестве цели этого заклинания. Когда вы это делаете, сенсор появляется в этом месте и не движется.", "h": null, "cl": ["bard", "cleric", "druid", "warlock", "wizard"]}, "true-seeing": {"n": "Истинное зрение", "l": 6, "s": "Прорицание", "t": "1 действие", "r": "Касание", "d": "1 ч.", "c": "V · S · M", "m": "Мазь для глаз, которая стоит 25 зм, сделанная из грибного порошка, шафрана и жира, которую заклинание расходует.", "k": false, "ri": false, "x": "Это заклинание дает добровольному существу, которого вы касаетесь, способность видеть вещи такими, какие они есть на самом деле. В течение длительности существо имеет истинное зрение, замечает секретные двери, скрытые магией, и может видеть в Эфирный План, все на расстоянии 120 футов.", "h": null, "cl": ["bard", "cleric", "sorcerer", "warlock", "wizard"]}, "light": {"n": "Свет", "l": 0, "s": "Воплощение", "t": "1 действие", "r": "Касание", "d": "1 ч.", "c": "V · M", "m": "Светлячок или фосфоресцирующий мох.", "k": false, "ri": false, "x": "Вы касаетесь одного объекта, который не больше 10 футов в любом измерении. До окончания действия заклинания объект излучает яркий свет в радиусе 20 футов и тусклый свет еще на 20 футов. Свет может быть окрашен, как вам нравится. Полное покрытие объекта чем-то непрозрачным блокирует свет. Заклинание заканчивается, если вы накладываете его снова или отпускаете его действием.\nЕсли вы нацеливаетесь на объект, который держит или носит враждебное существо, это существо должно преуспеть в спасброске Ловкости, чтобы избежать заклинания.", "h": null, "cl": ["bard", "cleric", "sorcerer", "wizard"]}, "magic-missile": {"n": "Волшебная стрела", "l": 1, "s": "Воплощение", "t": "1 действие", "r": "120 фт.", "d": "Мгновенная", "c": "V · S", "m": null, "k": false, "ri": false, "x": "Вы создаете три светящихся дротика магической силы. Каждый дротик поражает существо по вашему выбору, которое вы можете видеть в пределах дистанции. Дротик наносит 1к4 + 1 урона силовым полем своей цели. Дротики ударяют одновременно, и вы можете направить их на одну цель или на несколько.", "h": "Если вы накладываете это заклинание, используя ячейку 2-го круга или выше, заклинание создает один дополнительный дротик за каждый круг ячейки выше 1-го.", "cl": ["sorcerer", "wizard"]}, "mage-armor": {"n": "Доспехи мага", "l": 1, "s": "Ограждение", "t": "1 действие", "r": "Касание", "d": "8 ч.", "c": "V · S · M", "m": "Кусок выделанной кожи.", "k": false, "ri": false, "x": "Вы касаетесь добровольного существа, которое не носит доспехов, и защитная магическая сила окружает его, пока заклинание не закончится. Базовый КД цели становится 13 + ее модификатор Ловкости. Заклинание заканчивается, если цель надевает доспехи или если вы отпускаете заклинание действием.", "h": null, "cl": ["sorcerer", "wizard"]}, "detect-magic": {"n": "Обнаружение магии", "l": 1, "s": "Прорицание", "t": "1 действие", "r": "На себя", "d": "Вплоть до 10 мин.", "c": "V · S", "m": null, "k": true, "ri": true, "x": "На время действия вы чувствуете присутствие магии в пределах 30 футов от вас. Если вы чувствуете магию таким образом, вы можете использовать свое действие, чтобы увидеть слабую ауру вокруг любого видимого существа или объекта в области, несущего магию, и вы узнаете его школу магии, если таковая имеется.\nЗаклинание может проникать через большинство барьеров, но оно блокируется 1 футом камня, 1 дюймом обычного металла, тонким листом свинца или 3 футами дерева или грязи.", "h": null, "cl": ["bard", "cleric", "druid", "paladin", "ranger", "sorcerer", "wizard"]}, "lightning-bolt": {"n": "Молния", "l": 3, "s": "Воплощение", "t": "1 действие", "r": "На себя", "d": "Мгновенная", "c": "V · S · M", "m": "Немного меха и стержень из янтаря, кристалла или стекла.", "k": false, "ri": false, "x": "Разряд молнии образует линию длиной 100 футов и шириной 5 футов, вырывающуюся из вас в направлении, которое вы выбираете. Каждое существо в линии должно совершить спасбросок Ловкости. Существо получает 8к6 урона молнией при провале или половину этого урона при успехе.\nМолния воспламеняет горючие предметы в области, которые никто не несет и не носит.", "h": "Если вы накладываете это заклинание, используя ячейку 4-го круга или выше, урон увеличивается на 1к6 за каждый круг ячейки выше 3-го.", "cl": ["sorcerer", "wizard"]}, "ice-storm": {"n": "Ледяной шторм", "l": 4, "s": "Воплощение", "t": "1 действие", "r": "300 фт.", "d": "Мгновенная", "c": "V · S · M", "m": "Щепотка пыли и несколько капель воды.", "k": false, "ri": false, "x": "Град каменных ледяных глыб падает на землю в цилиндре радиусом 20 футов и высотой 40 футов с центром в точке в пределах дистанции. Каждое существо в цилиндре должно совершить спасбросок Ловкости. Существо получает 2к8 дробящего урона и 4к6 урона холодом при провале или половину этого урона при успехе.\nГрад превращает область действия шторма в труднопроходимую местность до конца вашего следующего хода.", "h": "Если вы накладываете это заклинание, используя ячейку 5-го круга или выше, дробящий урон увеличивается на 1к8 за каждый круг ячейки выше 4-го.", "cl": ["druid", "sorcerer", "wizard"]}, "fire-shield": {"n": "Огненный щит", "l": 4, "s": "Воплощение", "t": "1 действие", "r": "На себя", "d": "10 мин.", "c": "V · S · M", "m": "Немного фосфора или светлячок.", "k": false, "ri": false, "x": "Тонкое и призрачное пламя окружает ваше тело на время действия, излучая яркий свет в радиусе 10 футов и тусклый свет еще на 10 футов. Вы можете закончить заклинание раньше, используя действие.\nПламя дает вам либо теплый щит, либо холодный щит, на ваш выбор. Теплый щит дает вам сопротивление урону холодом, а холодный щит — сопротивление урону огнем.\nКроме того, когда существо в пределах 5 футов от вас попадает по вам рукопашной атакой, щит извергает пламя. Атакующий получает 2к8 урона огнем (если выбран теплый щит) или холодом (если выбран холодный щит).", "h": null, "cl": ["wizard"]}};
+const LISTS = {"bard": ["vicious-mockery", "minor-illusion", "prestidigitation", "healing-word", "thunderwave", "sleep", "charm-person", "heroism", "shatter", "invisibility", "hypnotic-pattern"], "cleric": ["guidance", "sacred-flame", "spare-the-dying", "bless", "cure-wounds", "healing-word", "shield-of-faith", "command", "guiding-bolt"], "druidx": ["druidcraft", "produce-flame", "goodberry", "entangle", "faerie-fire", "healing-word", "thunderwave"], "druid": ["druidcraft", "produce-flame", "shillelagh", "goodberry", "entangle", "faerie-fire", "healing-word", "thunderwave", "moonbeam", "spike-growth", "lesser-restoration"], "paladin": ["bless", "command", "divine-favor", "shield-of-faith", "cure-wounds", "protection-from-evil-and-good", "sanctuary", "lesser-restoration", "zone-of-truth", "find-steed", "aid"], "ranger": ["hunters-mark", "cure-wounds", "goodberry", "spike-growth"], "sorcerer": ["fire-bolt", "mage-hand", "prestidigitation", "shocking-grasp", "burning-hands", "shield", "misty-step", "scorching-ray", "fireball", "haste"], "warlock": ["eldritch-blast", "mage-hand", "minor-illusion", "prestidigitation", "hellish-rebuke", "charm-person", "hold-person", "darkness", "invisibility", "counterspell", "fly", "banishment", "dimension-door", "hold-monster", "scrying", "true-seeing"], "wizard": ["fire-bolt", "mage-hand", "prestidigitation", "light", "magic-missile", "shield", "mage-armor", "detect-magic", "burning-hands", "sleep", "misty-step", "scorching-ray", "invisibility", "fireball", "counterspell", "lightning-bolt", "ice-storm", "fire-shield"]};
+
+
+/* ---------- palette ---------- */
+const PALETTES = {
+  monokai:{dark:true,surface:'#2A2720',on:'#FAF7F0',low:'#302D26',cont:'#3C382E',high:'#4C473C',highest:'#5E594B',primary:'#FE5685',secondary:'#66D9EF',tertiary:'#FD971F',pc:'#49313C',sc:'#314146',tc:'#473B2C',outline:'#79705B',muted:.72,
+    acc:['#FE5685','#FD971F','#FFD866','#A6E22E','#66D9EF','#AB9DF2']},
+  dune:{dark:true,surface:'#2B2119',on:'#F6E4CC',low:'#34271D',cont:'#463424',high:'#5A4129',highest:'#6C4F32',primary:'#E8B965',secondary:'#E08F87',tertiary:'#CFA76A',pc:'#604128',sc:'#5C3B33',tc:'#5D432B',outline:'#A88958',muted:.74,
+    acc:['#E08F87','#E8B965','#D9C27A','#A9C98A','#8FC1C4','#C3A3D6']},
+  nord:{dark:false,surface:'#ECEFF4',on:'#2E3440',low:'#E5E9F0',cont:'#D8DEE9',high:'#C8D0DA',highest:'#B9C3CF',primary:'#53759F',secondary:'#447B89',tertiary:'#507B7B',pc:null,sc:null,tc:null,outline:'#4C566A',muted:.80,
+    acc:['#A3505D','#A0662E','#8A7A2E','#4F7A3F','#447B89','#7A5C8E']}
+};
+const hex2 = h => [1,3,5].map(i => parseInt(h.slice(i,i+2),16));
+const mix = (fg,bg,a) => '#'+hex2(fg).map((c,i)=>Math.round(c*a+hex2(bg)[i]*(1-a)).toString(16).padStart(2,'0')).join('');
+const lum = h => { const [r,g,b]=hex2(h).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}); return .2126*r+.7152*g+.0722*b; };
+function applyPalette(key){
+  const p = PALETTES[key], s = document.documentElement.style, set = (k,v) => s.setProperty('--'+k, v);
+  ['surface','low','cont','high','highest','primary','secondary','tertiary','outline'].forEach(k => set(k, p[k]));
+  set('fg', p.on); set('pc', p.pc || mix(p.primary,p.surface,.12)); set('sc', p.sc || mix(p.secondary,p.surface,.12)); set('tc', p.tc || mix(p.tertiary,p.surface,.12));
+  set('muted', mix(p.on,p.surface,p.muted)); set('on-primary', lum(p.primary) >= .48 ? '#191512' : '#F8F4ED');
+  set('page', mix('#000000', p.surface, p.dark ? .2 : .045)); p.acc.forEach((c,i) => set('a'+i, c)); set('heal', p.acc[3]);
+  s.setProperty('color-scheme', p.dark ? 'dark' : 'light');
+}
+
+/* ---------- motion and touch ---------- */
+const SPR = { snappy:{k:700,c:47.6}, bouncy:{k:380,c:29.2}, gentle:{k:260,c:32.2} };
+let reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function springEasing(cfg, seconds){
+  const N = 48, dt = seconds/N, pts = []; let x = 0, v = 0;
+  for (let i = 0; i <= N; i++) { pts.push(+x.toFixed(4)); for (let s = 0; s < 10; s++) { const a = -cfg.k*(x-1) - cfg.c*v; v += a*dt/10; x += v*dt/10; } }
+  pts[N] = 1; return `linear(${pts.join(',')})`;
+}
+if (CSS.supports('transition-timing-function','linear(0, 1)')) {
+  const r = document.documentElement.style;
+  r.setProperty('--e-snappy', springEasing(SPR.snappy,.45)); r.setProperty('--e-gentle', springEasing(SPR.gentle,.62));
+}
+class Spring {
+  constructor(value, cfg, onUpdate){ this.x=value; this.v=0; this.t=value; this.cfg=cfg; this.cb=onUpdate; this.raf=0; }
+  to(target, cfg, velocity){
+    this.t = target; if (cfg) this.cfg = cfg; if (velocity !== undefined) this.v = velocity;
+    if (reduced) { this.stop(); this.x = target; this.v = 0; this.cb(this.x); this.onRest && this.onRest(); return this; }
+    if (!this.raf) { this.last = performance.now(); this.raf = requestAnimationFrame(this.tick); }
+    return this;
+  }
+  set(v){ this.stop(); this.x = this.t = v; this.v = 0; this.cb(v); }
+  stop(){ if (this.raf) cancelAnimationFrame(this.raf); this.raf = 0; }
+  tick = now => {
+    const dt = Math.min(.034, (now - this.last)/1000); this.last = now;
+    for (let i = 0; i < 6; i++) { const h = dt/6, a = -this.cfg.k*(this.x-this.t) - this.cfg.c*this.v; this.v += a*h; this.x += this.v*h; }
+    if (Math.abs(this.v) < .02 && Math.abs(this.x - this.t) < .02) { this.x = this.t; this.v = 0; this.raf = 0; this.cb(this.x); this.onRest && this.onRest(); return; }
+    this.cb(this.x); this.raf = requestAnimationFrame(this.tick);
+  };
+}
+// Haptics vocabulary of DESIGN_LANGUAGE.md: a tick for discrete steps, a
+// light tap for a confirmed action, a firmer one for a rare event.
+const buzz = { tick: () => navigator.vibrate && navigator.vibrate(8), light: () => navigator.vibrate && navigator.vibrate(14), medium: () => navigator.vibrate && navigator.vibrate(24) };
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v)), lerp = (a,b,t) => a + (b-a)*t;
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const icon = (id, cls='') => `<svg class="icon ${cls}"><use href="#i-${id}"/></svg>`;
+const fmt = n => (n >= 0 ? '+' : '−') + Math.abs(n);
+const plural = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; return m10 === 1 && m100 !== 11 ? one : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? few : many; };
+function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(el.t); el.t = setTimeout(() => el.classList.remove('show'), 2000); }
+function replay(el, cls){ if (!el || reduced) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+const DIE = '<svg viewBox="0 0 100 100" aria-hidden="true"><polygon class="face" points="50,6 88,28 88,72 50,94 12,72 12,28"/><polyline class="facet" points="50,6 30,60 70,60 50,6"/><polyline class="facet" points="12,28 30,60 50,94 70,60 88,28"/></svg>';
+const HEX = '<svg viewBox="0 0 100 110" aria-hidden="true"><polygon class="face" points="50,4 94,29 94,81 50,106 6,81 6,29"/></svg>';
+
+/* ---------- flowing indicator for segments ---------- */
+function flowing(ind){
+  let left, right; const render = () => { ind.style.left = left.x+'px'; ind.style.width = Math.max(0, right.x-left.x)+'px'; };
+  left = new Spring(0, SPR.snappy, render); right = new Spring(0, SPR.snappy, render);
+  let current = -1, timer = 0;
+  return {
+    moveTo(btn, instant){
+      const l = btn.offsetLeft, r = btn.offsetLeft + btn.offsetWidth, idx = [...btn.parentNode.querySelectorAll('button')].indexOf(btn);
+      clearTimeout(timer);
+      if (instant || current < 0) { left.set(l); right.set(r); current = idx; return; }
+      const fwd = idx > current; current = idx;
+      (fwd ? right : left).to(fwd ? r : l, SPR.snappy);
+      timer = setTimeout(() => (fwd ? left : right).to(fwd ? l : r, SPR.bouncy), reduced ? 0 : 90);
+    },
+    place(l, r){ clearTimeout(timer); left.set(l); right.set(r); }
+  };
+}
+function segment(seg, onPick){
+  const flow = flowing(seg.querySelector('.ind')), buttons = $$('button', seg);
+  const pick = (b, quiet) => { if (b.getAttribute('aria-pressed') === 'true' && !quiet) return; buttons.forEach(x => x.setAttribute('aria-pressed', x === b)); flow.moveTo(b); if (!quiet) buzz.tick(); onPick && onPick(b); };
+  buttons.forEach(b => b.addEventListener('click', () => pick(b)));
+  requestAnimationFrame(() => flow.moveTo(buttons.find(b => b.getAttribute('aria-pressed') === 'true') || buttons[0], true));
+  return { pick, flow, buttons };
+}
+const segHTML = (items, current, id = '') => `<div class="seg" ${id ? `id="${id}"` : ''}><i class="ind"></i>${items.map(([v,l]) => `<button type="button" data-v="${v}" aria-pressed="${v === current}">${l}</button>`).join('')}</div>`;
+
+/* ---------- bottom sheets ---------- */
+const modal = $('#modal');
+function openSheet(html, {onOpen, onClose} = {}){
+  modal.innerHTML = `<div class="scrim"></div><div class="bsheet" role="dialog" aria-modal="true"><div class="grab"><i></i></div><div class="bs-body">${html}</div></div>`;
+  modal.style.pointerEvents = 'auto';
+  const scrim = $('.scrim', modal), sh = $('.bsheet', modal);
+  let H = 0; const y = new Spring(1, SPR.gentle, v => { sh.style.transform = `translateY(${v*H}px)`; scrim.style.opacity = clamp(1 - v, 0, 1); });
+  requestAnimationFrame(() => { H = sh.offsetHeight; y.set(1); y.to(0, SPR.gentle); });
+  let closing = false;
+  const close = (vel = 0, then) => { if (closing) return; closing = true; y.onRest = () => { if (y.x >= .999) { modal.innerHTML = ''; modal.style.pointerEvents = 'none'; onClose && onClose(); then && then(); } }; y.to(1, SPR.gentle, vel); };
+  scrim.addEventListener('click', () => close());
+  let d = null;
+  $('.grab', modal).addEventListener('pointerdown', e => { d = {y0:e.clientY, b:y.x, s:[[e.timeStamp,e.clientY]]}; y.stop(); e.currentTarget.setPointerCapture(e.pointerId); });
+  $('.grab', modal).addEventListener('pointermove', e => { if (!d) return; let v = d.b + (e.clientY - d.y0)/H; if (v < 0) v *= .3; y.set(v); d.s.push([e.timeStamp,e.clientY]); if (d.s.length > 6) d.s.shift(); });
+  $('.grab', modal).addEventListener('pointerup', () => { if (!d) return; const a = d.s[0], b = d.s[d.s.length-1], v = (b[1]-a[1]) / Math.max(1, b[0]-a[0]) * 1000; d = null;
+    if (v > 700 || y.x > .33) close(v/H); else y.to(0, SPR.bouncy, v/H); });
+  onOpen && onOpen(sh, close);
+  return close;
+}
+
+/* ---------- heroes (SRD 2014 examples) ---------- */
+// slots: shared slots by circle {max, left}; pact: {circle, max, left}.
+const AB = {str:'Сила',dex:'Ловкость',con:'Телосложение',int:'Интеллект',wis:'Мудрость',cha:'Харизма'};
+const ABBR = {int:'ИНТ',wis:'МУД',cha:'ХАР'};
+const HEROES = [
+  {id:'barbarian',name:'Cycle · Варвар',acc:0,glyph:'sword',hp:55,max:55,classes:[{id:'barbarian',name:'Варвар',lvl:5,sub:'Путь берсерка',acc:0}],
+   feats:{active:[['Безрассудная атака','Первая атака в ход','с преимуществом',null],['Бешенство','Пока в ярости','бонусной атакой',null]],
+          passive:[['Чувство опасности','Преимущество на спасброски Ловкости'],['Дополнительная атака','Две атаки за действие'],['Быстрое передвижение','+10 фт. без тяжёлого доспеха'],['Защита без доспехов','10 + ЛОВ + ТЕЛ']]}},
+  {id:'bard',name:'Cycle · Бард',acc:0,glyph:'note',hp:38,max:38,classes:[{id:'bard',name:'Бард',lvl:5,sub:'Коллегия знаний',acc:0,ab:'cha',mod:4,list:'bard',prep:false}],
+   slots:{1:4,2:3,3:2},
+   feats:{active:[['Контрочарование','Действие','преимущество союзникам против страха и очарования',null]],passive:[['Мастер на все руки','+1 к проверкам без владения'],['Источник вдохновения','Вдохновение возвращается на коротком отдыхе'],['Компетентность','Удвоенный бонус мастерства в двух навыках']]}},
+  {id:'cleric',name:'Cycle · Жрец',acc:2,glyph:'leaf',hp:31,max:31,classes:[
+     {id:'cleric',name:'Жрец',lvl:2,sub:'Домен жизни',acc:2,ab:'wis',mod:3,list:'cleric',prep:true,always:['bless','cure-wounds']},
+     {id:'druid',name:'Друид',lvl:2,sub:'Круг земли · Лес',acc:3,ab:'wis',mod:3,list:'druidx',prep:true}],
+   slots:{1:4,2:3},
+   feats:{active:[],passive:[['Адепт жизни','Лечение заклинаниями +2 + круг ячейки'],['Природное восстановление','Друид · раз в день: ячейки на 1 круг']]}},
+  {id:'druid',name:'Cycle · Друид',acc:3,glyph:'leaf',hp:31,max:31,classes:[{id:'druid',name:'Друид',lvl:4,sub:'Круг луны',acc:3,ab:'wis',mod:3,list:'druid',prep:true}],
+   slots:{1:4,2:3},
+   feats:{active:[],passive:[['Друидический язык','Тайный язык друидов'],['Боевой дикий облик','Облик бонусным действием']]}},
+  {id:'fighter',name:'Cycle · Воин',acc:3,glyph:'sword',hp:76,max:84,classes:[{id:'fighter',name:'Воин',lvl:9,sub:'Чемпион',acc:3}],
+   feats:{active:[],passive:[['Боевой стиль: Оборона','+1 к КД в доспехе'],['Улучшенный критический удар','Критическое попадание на 19–20'],['Дополнительная атака','Две атаки за действие'],['Выдающийся атлет','Половина мастерства к проверкам Силы, Ловкости и Телосложения']]}},
+  {id:'monk',name:'Cycle · Монах',acc:2,glyph:'run',hp:45,max:45,classes:[{id:'monk',name:'Монах',lvl:6,sub:'Путь открытой ладони',acc:2}],
+   feats:{active:[],passive:[['Боевые искусства','Урон 1к6 безоружным'],['Движение без доспехов','+15 фт.'],['Отражение снарядов','Реакция'],['Удары, усиленные ци','Безоружные удары магические'],['Медленное падение','Реакция']]}},
+  {id:'paladin',name:'Cycle · Паладин',acc:1,glyph:'shield',hp:44,max:44,classes:[{id:'paladin',name:'Паладин',lvl:5,sub:'Клятва преданности',acc:1,ab:'cha',mod:3,list:'paladin',prep:true,always:['protection-from-evil-and-good','sanctuary','lesser-restoration','zone-of-truth']}],
+   slots:{1:4,2:2},
+   feats:{active:[],passive:[['Боевой стиль: Защита','Помеха атаке по союзнику рядом'],['Божественное здоровье','Иммунитет к болезням'],['Дополнительная атака','Две атаки за действие']]}},
+  {id:'ranger',name:'Cycle · Следопыт',acc:3,glyph:'leaf',hp:44,max:44,classes:[{id:'ranger',name:'Следопыт',lvl:5,sub:'Охотник',acc:3,ab:'wis',mod:3,list:'ranger',prep:false}],
+   slots:{1:4,2:2},
+   feats:{active:[],passive:[['Боевой стиль: Стрельба','+2 к броскам атаки дальнобойным оружием'],['Первозданная осведомлённость','Ощутить врагов за ячейку'],['Дополнительная атака','Две атаки за действие']]}},
+  {id:'rogue',name:'Cycle · Плут',acc:4,glyph:'eye',hp:38,max:38,classes:[{id:'rogue',name:'Плут',lvl:5,sub:'Вор',acc:4}],
+   feats:{active:[],passive:[['Компетентность','Скрытность, воровские инструменты'],['Воровской жаргон','Тайный язык'],['Быстрые руки','Хитрое действие: предметы и ловкость рук'],['Работа на втором этаже','Лазание без штрафа']]}},
+  {id:'sorcerer',name:'Cycle · Чародей',acc:1,glyph:'star',hp:37,max:37,classes:[{id:'sorcerer',name:'Чародей',lvl:5,sub:'Наследие драконьей крови · Красный',acc:1,ab:'cha',mod:4,list:'sorcerer',prep:false}],
+   slots:{1:4,2:3,3:2},
+   feats:{active:[],passive:[['Драконья устойчивость','КД 13 + ЛОВ без доспеха'],['Драконий язык','Говорить, читать, писать']]}},
+  {id:'warlock',name:'Cycle · Колдун',acc:5,glyph:'eye',hp:71,max:71,classes:[{id:'warlock',name:'Колдун',lvl:11,sub:'Исчадие',acc:5,ab:'cha',mod:5,list:'warlock',prep:false,arcanum:{6:'true-seeing'}}],
+   pact:{circle:5,max:3},
+   feats:{active:[['Удача Тёмного','Раз в отдых','+1к10 к проверке или спасброску',null]],passive:[['Благословение Тёмного','Временные ОЗ за победу над врагом'],['Стойкость исчадия','Сопротивление выбранному урону']]}},
+  {id:'wizard',name:'Cycle · Волшебник',acc:4,glyph:'star',hp:38,max:38,classes:[{id:'wizard',name:'Волшебник',lvl:7,sub:'Школа воплощения',acc:4,ab:'int',mod:4,list:'wizard',prep:true}],
+   slots:{1:4,2:3,3:3,4:1},
+   feats:{active:[],passive:[['Ваяние заклинаний','Союзники вне области воплощения'],['Учёный-эвокатор','Копирование воплощения вдвое дешевле'],['Могущественный заговор','Половина урона при успешном спасброске']]}},
+];
+// Spells on each hero: lists come from the app's data; preparation per class.
+function setupHero(h){
+  h.spell = {}; h.conc = null; h.feats = h.feats || {active:[],passive:[]};
+  h.slots = h.slots ? Object.fromEntries(Object.entries(h.slots).map(([c,m]) => [c, {max:m, left:m}])) : null;
+  if (h.pact) h.pact.left = h.pact.max;
+  h.classes.forEach(c => {
+    if (!c.list) return;
+    const ids = LISTS[c.list];
+    const cap = c.prep ? Math.max(1, c.mod + (c.id === 'paladin' ? Math.floor(c.lvl/2) : c.lvl)) : 0;
+    let prepared = 0;
+    ids.forEach(id => {
+      const sp = SPELLS[id], always = (c.always || []).includes(id), isArc = c.arcanum && Object.values(c.arcanum).includes(id);
+      const entry = {id, cls:c.id, always, arcanum:isArc};
+      if (sp.l === 0 || !c.prep || always) entry.prep = true;
+      else { entry.prep = prepared < cap; if (entry.prep) prepared++; }
+      h.spell[id + '@' + c.id] = entry;
+    });
+    c.cap = cap;
+  });
+  if (h.id === 'warlock') h.arc = {6:{left:1,max:1}};
+}
+HEROES.forEach(setupHero);
+const pb = h => { const lvl = h.classes.reduce((t,c) => t+c.lvl, 0); return 2 + Math.floor((lvl-1)/4); };
+const clsAcc = c => `var(--a${c.acc})`;
+
+/* ---------- state ---------- */
+let hero = HEROES[2], clsIndex = 0, palette = 'monokai';
+const vars = { magic:'a' };
+const open = new Set(['1']);
+
+/* ---------- sheet frame on the Magic tab ---------- */
+const sheet = $('#sheet');
+function renderSheet(){
+  const h = hero;
+  sheet.innerHTML = `
+    <div class="scroller" id="scroller"><div class="page" id="page"></div></div>
+    <div class="topbar glass">
+      <span class="tb-hav" style="background:color-mix(in srgb,var(--a${h.acc}) 18%,var(--cont));color:var(--a${h.acc})">${icon(h.glyph)}</span>
+      <span class="tb-title">${h.name}</span>
+      <span class="cmhp"><b>${h.hp}/${h.max}</b><span class="mini-hp"><i style="width:${h.hp/h.max*100}%"></i></span></span>
+      <button type="button" class="round" style="width:36px;height:36px" aria-label="Броски кубов" data-act="dice">${icon('dice')}</button>
+    </div>
+    <div class="island-wrap"><nav class="island glass" role="tablist"><i class="ind"></i>${[['home','Обзор'],['stats','Характеристики'],['magic','Магия'],['bag','Инвентарь'],['book','Журнал']].map(([ic,l],i) => `<button type="button" role="tab" aria-label="${l}" aria-selected="${i === 2}" data-tab="${i}">${icon(ic)}</button>`).join('')}</nav></div>`;
+  requestAnimationFrame(() => { const b = $$('.island button', sheet)[2], ind = $('.island .ind', sheet); ind.style.left = (b.offsetLeft) + 'px'; ind.style.width = b.offsetWidth + 'px'; });
+  renderPage();
+}
+function renderPage(){
+  const h = hero, page = $('#page');
+  const caster = h.classes.some(c => c.list);
+  page.innerHTML = `
+    ${h.classes.length > 1 ? `<div class="cls-switch">${segHTML(h.classes.map((c,i) => [i, `<i class="dot" style="background:${clsAcc(c)}"></i>${c.name} <span class="lvl num">${c.lvl}</span>`]), clsIndex, 'clsSeg')}</div>` : ''}
+    <div class="strip-wrap" id="stripWrap"><div class="strip" id="strip">${h.classes.map((c,i) => `<section class="cpanel" data-cls="${i}">${classHTML(h, c)}</section>`).join('')}</div></div>
+    ${h.feats.active.length ? `<div class="sec-title">Умения<small>${h.feats.active.length}</small></div><div class="list">${h.feats.active.map(f => `<button type="button" class="frow" style="--acc:var(--a${h.acc})" data-feat="${f[0]}"><span class="ficon">${icon('bolt')}</span><span class="ft"><b>${f[0]}</b><span>${f[1]} · ${f[2]}</span></span>${icon('fwd','chev')}</button>`).join('')}</div>` : ''}
+    ${caster ? magicHTML(h) : ''}
+    <button type="button" class="sec-title" data-act="passives" style="width:100%">Пассивные умения<small>${h.feats.passive.length} ${icon('down','chev')}</small></button>
+    <div class="reveal" id="passives"><div><div class="list passives">${h.feats.passive.map(f => `<div class="frow"><span class="ficon">${icon('spark')}</span><span class="ft"><b>${f[0]}</b><span>${f[1]}</span></span></div>`).join('')}</div></div></div>`;
+  bindPage();
+}
+
+/* ---------- class carousel ---------- */
+let xSpring = null;
+function bindCarousel(){
+  const wrap = $('#stripWrap'), strip = $('#strip'), h = hero;
+  const step = () => wrap.clientWidth;
+  const fit = () => { const p = $$('.cpanel', strip)[clsIndex]; if (p) wrap.style.height = p.offsetHeight + 'px'; };
+  xSpring = new Spring(-clsIndex * step(), SPR.snappy, x => { strip.style.transform = `translateX(${x}px)`; });
+  xSpring.set(-clsIndex * step()); fit();
+  wrap.fit = fit;
+  if (h.classes.length < 2) return;
+  const seg = segment($('#clsSeg'), b => go(+b.dataset.v));
+  const go = (i, v) => { const prev = clsIndex; clsIndex = clamp(i, 0, h.classes.length-1); seg.buttons.forEach((x,j) => x.setAttribute('aria-pressed', j === clsIndex)); seg.flow.moveTo(seg.buttons[clsIndex]); if (prev !== clsIndex) buzz.tick(); xSpring.to(-clsIndex*step(), v === undefined ? SPR.snappy : SPR.bouncy, v); fit(); };
+  // Horizontal drag inside the panels switches the class; vertical scrolls.
+  let sw = null;
+  wrap.addEventListener('pointerdown', e => { if (e.target.closest('button,input,.slider,.tok,.vessel,.katas,.forms')) return; sw = {x0:e.clientX, y0:e.clientY, base:xSpring.x, axis:null, s:[[e.timeStamp,e.clientX]]}; });
+  wrap.addEventListener('pointermove', e => {
+    if (!sw) return; const dx = e.clientX - sw.x0, dy = e.clientY - sw.y0;
+    if (!sw.axis && Math.hypot(dx, dy) > 7) { sw.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'; if (sw.axis === 'x') { xSpring.stop(); wrap.setPointerCapture(e.pointerId); } }
+    if (sw.axis !== 'x') return;
+    const min = -(h.classes.length-1) * step(); let x = sw.base + dx;
+    if (x > 0) x *= .3; else if (x < min) x = min + (x - min) * .3;
+    xSpring.set(x); sw.s.push([e.timeStamp, e.clientX]); if (sw.s.length > 6) sw.s.shift();
+    const f = -x / step(), i = clamp(Math.floor(f), 0, seg.buttons.length-1), j = clamp(i+1, 0, seg.buttons.length-1), t = clamp(f-i, 0, 1);
+    seg.flow.place(lerp(seg.buttons[i].offsetLeft, seg.buttons[j].offsetLeft, t), lerp(seg.buttons[i].offsetLeft + seg.buttons[i].offsetWidth, seg.buttons[j].offsetLeft + seg.buttons[j].offsetWidth, t));
+  });
+  const end = () => {
+    if (!sw) return; const w = sw; sw = null; if (w.axis !== 'x') return;
+    const a = w.s[0], b = w.s[w.s.length-1], v = (b[1]-a[1]) / Math.max(1, b[0]-a[0]) * 1000;
+    let target = Math.round(-(xSpring.x + v*.18) / step()); if (target === clsIndex && Math.abs(v) > 500) target += v < 0 ? 1 : -1;
+    go(target, v);
+  };
+  wrap.addEventListener('pointerup', end); wrap.addEventListener('pointercancel', end);
+}
+
+/* ---------- class instruments: one per class ---------- */
+// Each class gets one cohesive instrument around its own mechanic: its own
+// gesture, a shape drawn from the mechanic, large numbers and one event.
+const REST = {short:['cup','Короткий отдых'], long:['moon','Длительный отдых']};
+const rest = k => `<span class="rest">${icon(REST[k][0])}${REST[k][1]}</span>`;
+const D8 = '<svg viewBox="0 0 100 110" aria-hidden="true"><polygon class="face" points="50,4 94,55 50,106 6,55"/><polyline class="fac" points="6,55 50,40 94,55"/><line class="fac" x1="50" y1="4" x2="50" y2="40"/></svg>';
+const D10 = '<svg viewBox="0 0 100 110" aria-hidden="true"><polygon class="face" points="50,4 92,40 82,86 50,106 18,86 8,40"/><polyline class="fac" points="8,40 50,62 92,40"/><line class="fac" x1="50" y1="62" x2="50" y2="106"/><line class="fac" x1="50" y1="4" x2="50" y2="62"/></svg>';
+const D20 = '<svg viewBox="0 0 100 110" aria-hidden="true"><polygon class="face" points="50,4 94,29 94,81 50,106 6,81 6,29"/></svg>';
+const SIGIL = '<svg viewBox="0 0 100 110" aria-hidden="true"><polygon class="face" points="50,4 94,29 94,81 50,106 6,81 6,29"/><path class="rune" d="M50 22v66M30 40l40 30M70 40 30 70"/></svg>';
+function head(c){
+  return `<div class="chead"><div><h2>${c.name}</h2><div class="sub">${c.sub} ${icon('fwd')}</div></div><span class="lvchip">Уровень <b>${c.lvl}</b></span></div>`;
+}
+const CLASS = {};
+function st(h, key, init){ h.st = h.st || {}; if (!(key in h.st)) h.st[key] = init(); return h.st[key]; }
+function classHTML(h, c){ const f = CLASS[c.id]; return head(c) + `<div class="stack">${f ? f.html(h, c) : ''}</div>`; }
+function rollDice(n, d){ return Array.from({length:n}, () => 1 + Math.floor(Math.random()*d)); }
+
+// Barbarian · Rage. Hold the bar to fly into a rage: it fills with heat and
+// ticks as it goes; the whole instrument flares once and stays tense while
+// raging. Uses are drawn as claws; rounds are counted to the minute.
+CLASS.barbarian = {
+  html(h){ const s = st(h, 'rage', () => ({left:3, max:3, on:false, round:1, frenzy:false, reckless:false, exh:0}));
+    return `<div class="inst barb ${s.on ? 'on' : ''}" style="--acc:var(--a0)" id="barb"><i class="heat"></i>
+      <div class="inst-h"><span class="cap">${s.on ? 'В ярости' : 'Ярость'}</span>${rest('long')}</div>
+      <div class="row" style="margin-top:14px;align-items:flex-end"><div><div class="huge num">+2</div><div class="sub" style="margin-top:6px">к урону атаками Силы в ярости</div></div>
+        <div class="claws" aria-label="Осталось ${s.left} из ${s.max}">${Array.from({length:s.max},(_,i) => `<i class="claw ${i < s.left ? '' : 'off'}"></i>`).join('')}</div></div>
+      <div class="effects" style="margin-top:16px">
+        <div class="eff"><b>Сопротивление</b><span>дробящий, колющий, рубящий урон</span></div>
+        <div class="eff"><b>Преимущество</b><span>проверки и спасброски Силы</span></div>
+        <div class="eff"><b>Бешенство</b><span>${s.frenzy ? 'бонусная атака каждый ход' : 'по желанию при входе'}</span></div></div>
+      <div style="margin-top:14px">${s.on ? `
+        <div class="rounds"><button type="button" class="pip" data-a="rprev" aria-label="Раунд назад">−</button><div class="rd"><b class="num">Раунд ${s.round}</b><span class="sub">из 10 · кончится раньше без атак и урона</span></div><button type="button" class="pip" data-a="rnext" aria-label="Следующий раунд">+</button></div>
+        <button type="button" class="ghost" style="width:100%;margin-top:10px" data-a="end">Завершить ярость</button>` : `
+        <button type="button" class="hold" id="hold" ${s.left ? '' : 'disabled'}><i class="fill"></i><span>${s.left ? 'Удерживайте, чтобы впасть в ярость' : 'Ярость восстановит длительный отдых'}</span></button>`}</div>
+      <button type="button" class="swrow" role="switch" aria-checked="${s.on ? s.frenzy : s.reckless}" data-a="${s.on ? 'frenzy' : 'reckless'}" style="margin-top:10px"><span class="ft"><b>${s.on ? 'Бешенство' : 'Безрассудная атака'}</b><span class="sub">${s.on ? 'после ярости — 1 степень истощения' : 'преимущество на атаки Силы в этот ход; по вам — тоже'}</span></span><span class="switch"></span></button>
+      ${s.exh ? `<div class="warn" style="margin-top:10px">${icon('timer')}<span>Истощение: ${s.exh} — после Бешенства</span></div>` : ''}
+    </div>`; },
+  bind(sec, h){ const s = h.st.rage, hold = $('#hold', sec);
+    sec.onclick = e => { const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
+      if (a === 'rnext') { s.round = Math.min(10, s.round + 1); buzz.tick(); if (s.round === 10) toast('Последний раунд ярости'); }
+      if (a === 'rprev') { s.round = Math.max(1, s.round - 1); buzz.tick(); }
+      if (a === 'end') { s.on = false; if (s.frenzy) { s.exh++; s.frenzy = false; } buzz.light(); toast('Ярость завершена'); }
+      if (a === 'frenzy') { s.frenzy = !s.frenzy; buzz.tick(); }
+      if (a === 'reckless') { s.reckless = !s.reckless; buzz.tick(); }
+      remount(); };
+    if (!hold || hold.disabled) return;
+    const fill = $('.fill', hold); let t0 = 0, raf = 0, ticks = 0;
+    const tick = now => { const p = clamp((now - t0) / 650, 0, 1); fill.style.transform = `scaleX(${p})`;
+      if (p > (ticks + 1) / 3 && ticks < 2) { ticks++; buzz.tick(); }
+      if (p >= 1) { raf = 0; s.left--; s.on = true; s.round = 1; buzz.medium(); toast('Ярость! +2 к урону, сопротивление'); remount(() => replay($('#barb'), 'flare')); return; }
+      raf = requestAnimationFrame(tick); };
+    hold.addEventListener('pointerdown', e => { t0 = performance.now(); ticks = 0; hold.setPointerCapture(e.pointerId); raf = requestAnimationFrame(tick); });
+    const cancel = () => { if (!raf) return; cancelAnimationFrame(raf); raf = 0; const from = parseFloat((fill.style.transform.match(/[\d.]+/) || [0])[0]);
+      const sp = new Spring(from, SPR.snappy, v => fill.style.transform = `scaleX(${Math.max(0, v)})`); sp.to(0); };
+    hold.addEventListener('pointerup', cancel); hold.addEventListener('pointercancel', cancel); hold.addEventListener('pointerleave', cancel); }
+};
+
+// Bard · Inspiration. A tray of real d8 tokens; flick one upwards (or tap
+// the button) and it flies off to the ally along the rhythm lines. The
+// ally keeps the die and rolls it; Cutting Words spends the same pool.
+CLASS.bard = {
+  html(h){ const s = st(h, 'insp', () => ({left:4, max:4, given:0}));
+    return `<div class="inst bard" style="--acc:var(--a0)" id="bard">
+      <svg class="waves" viewBox="0 0 420 120" preserveAspectRatio="none" aria-hidden="true"><path d="M-60 60 Q -30 20 0 60 T 60 60 T 120 60 T 180 60 T 240 60 T 300 60 T 360 60 T 420 60 T 480 60"/><path d="M-60 72 Q -30 40 0 72 T 60 72 T 120 72 T 180 72 T 240 72 T 300 72 T 360 72 T 420 72 T 480 72"/><path d="M-60 48 Q -30 30 0 48 T 60 48 T 120 48 T 180 48 T 240 48 T 300 48 T 360 48 T 420 48 T 480 48"/></svg>
+      <div class="inst-h"><span class="cap">Вдохновение</span>${rest('short')}</div>
+      <div class="row" style="margin-top:14px;align-items:flex-end"><div><span class="huge num">${s.left}</span><span class="of num">/ ${s.max}</span><div class="sub" style="margin-top:6px">кость к8 · смахните вверх</div></div>
+        <div class="tray" id="tray">${Array.from({length:s.max},(_,i) => `<span class="tok ${i < s.left ? '' : 'off'}" data-i="${i}">${D8}<b>к8</b></span>`).join('')}</div></div>
+      ${s.given ? `<div class="ticket" style="margin-top:14px">${icon('note')}<b>У союзников: ${s.given} ${plural(s.given,'кость','кости','костей')} к8</b><button type="button" data-a="spent">одна использована</button></div>` : ''}
+      <button type="button" class="go" style="margin-top:14px" data-a="give" ${s.left ? '' : 'disabled'}>${icon('fwd')} Вдохновить союзника</button></div>
+    <div class="two">
+      <button type="button" class="cell2" style="--acc:var(--a1)" data-a="cut" ${s.left ? '' : 'disabled'}><span class="cap">Острые слова</span><b>Реакция</b><span class="sub">вычесть к8 из броска врага · из того же запаса</span></button>
+      <div class="cell2" style="--acc:var(--a4)"><span class="cap">Песнь отдыха</span><span class="big num">к6</span><span class="sub">союзникам за короткий отдых</span></div></div>`; },
+  give(h, how){ const s = h.st.insp; if (!s.left) return toast('Вдохновение вернёт короткий отдых');
+    const tok = $$('#tray .tok:not(.off)').pop(); s.left--; if (how !== 'cut') s.given++; buzz.light();
+    replay($('#bard'), 'sing');
+    if (tok && !reduced) { tok.classList.add('fly'); setTimeout(() => remount(), 560); } else remount();
+    toast(how === 'cut' ? 'Острые слова: враг вычитает к8' : 'Кость к8 у союзника · 10 минут'); },
+  bind(sec, h){ const me = this;
+    sec.onclick = e => { const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
+      if (a === 'give') me.give(h); if (a === 'cut') me.give(h, 'cut');
+      if (a === 'spent') { h.st.insp.given = Math.max(0, h.st.insp.given - 1); buzz.tick(); remount(); } };
+    $$('#tray .tok:not(.off)', sec).forEach(tok => { let y0 = null;
+      tok.addEventListener('pointerdown', e => { y0 = e.clientY; tok.setPointerCapture(e.pointerId); });
+      tok.addEventListener('pointermove', e => { if (y0 === null) return; const dy = Math.min(0, e.clientY - y0); tok.style.transform = `translateY(${dy * .6}px) rotate(${dy * -.15}deg)`; });
+      tok.addEventListener('pointerup', e => { const dy = e.clientY - y0; y0 = null; if (dy < -36) me.give(h); else { tok.style.transform = ''; } }); }); }
+};
+
+// Cleric · Channel Divinity. A sun at the centre with its charges; the rays
+// turn towards the chosen way, and channelling bursts them outwards.
+CLASS.cleric = {
+  ways: [['turn','Изгнание нежити','Нежить в 30 фт. · спасбросок Мудрости Сл 13 · бежит 1 минуту'],['life','Сохранение жизни','10 ОЗ между ранеными в 30 фт. · не выше половины их максимума']],
+  html(h){ const s = st(h, 'chan', () => ({left:1, max:1, pick:0})); const w = this.ways;
+    const rays = Array.from({length:16},(_,i) => { const a = i / 16 * Math.PI * 2, r1 = 50, r2 = 70; return `<line class="${(s.pick === 0 ? [13,14,15,0] : [0,1,2,3]).includes(i) ? 'hi' : ''}" x1="${74 + Math.cos(a)*r1}" y1="${74 + Math.sin(a)*r1}" x2="${74 + Math.cos(a)*r2}" y2="${74 + Math.sin(a)*r2}"/>`; }).join('');
+    return `<div class="inst" style="--acc:var(--a2)">
+      <div class="inst-h"><span class="cap">Божественный канал</span>${rest('short')}</div>
+      <div class="row" style="margin-top:12px;align-items:center">
+        <div class="sun ${s.left ? '' : 'dim'}" id="sun"><svg viewBox="0 0 148 148"><g class="rays">${rays}</g></svg><div class="core"><div><b class="num">${s.left}</b><span>из ${s.max}</span></div></div></div>
+        <div class="ways">${w.map((x,i) => `<button type="button" class="way" data-a="pick" data-i="${i}" aria-pressed="${s.pick === i}"><b>${x[1]}</b><span>${x[2]}</span></button>`).join('')}</div></div>
+      <button type="button" class="go" style="margin-top:14px" data-a="channel" ${s.left ? '' : 'disabled'}>${s.left ? 'Направить: ' + w[s.pick][1].toLowerCase() : 'Канал восстановит короткий отдых'}</button></div>
+    <div class="lite" style="--acc:var(--a2)"><span class="cap">Домен жизни</span><div style="margin-top:6px"><b>Адепт жизни</b><div class="sub">заклинания лечения 1 круга и выше восстанавливают ещё 2 + круг ячейки</div></div>
+      <div class="chiprow" style="margin-top:10px"><span class="chipx">${icon('lock')} Благословение</span><span class="chipx">${icon('lock')} Лечение ран</span></div></div>`; },
+  bind(sec, h){ const s = h.st.chan, me = this;
+    sec.onclick = e => { const el = e.target.closest('[data-a]'); if (!el) return; const a = el.dataset.a;
+      if (a === 'pick') { s.pick = +el.dataset.i; buzz.tick(); remount(); }
+      if (a === 'channel' && s.left) { s.left--; buzz.medium(); toast(me.ways[s.pick][1] + (s.pick ? ': 10 ОЗ' : ': Сл 13')); remount(() => replay($('#sun'), 'burst')); } }; }
+};
+
+// Druid · Wild Shape. The hero and the beast are two states of one organic
+// shape: choosing a form morphs it, the beast's hit points sit on top and
+// the hero waits underneath; overflow damage passes to the hero.
+CLASS.druid = {
+  forms: {moon:[['Бурый медведь','1',34,11,'40 фт., лазание 30','Укус +6 · 1к8+4 · Когти +6 · 2к6+4'],['Гигантский паук','1',26,14,'30 фт., лазание 30','Укус +5 · 1к8+3 и яд 2к8'],['Волк','¼',11,13,'40 фт.','Укус +4 · 2к4+2, сбивает с ног']],
+          land:[['Волк','¼',11,13,'40 фт.','Укус +4 · 2к4+2, сбивает с ног'],['Пантера','¼',13,12,'50 фт., лазание 40','Укус +4 · 1к6+2 · Когти +4 · 1к4+2'],['Кабан','¼',11,11,'40 фт.','Клыки +3 · 1к6+1, натиск']]},
+  html(h, c){ const s = st(h, 'wild' + c.lvl, () => ({left:2, max:2, form:null, hp:0, fmax:0})); const moon = c.sub.includes('луны');
+    const list = this.forms[moon ? 'moon' : 'land'], f = s.form !== null ? list[s.form] : null;
+    return `<div class="inst druid ${f ? 'beast' : ''}" style="--acc:var(--a3)" id="druid"><i class="blob"></i>
+      <div class="inst-h"><span class="cap">Дикий облик</span>${rest('short')}</div>
+      ${f ? `
+      <div class="tname" style="margin-top:10px">${icon('paw')} ${f[0]}</div>
+      <div class="row" style="margin-top:8px;align-items:flex-end"><div><span class="huge num">${s.hp}</span><span class="of num">/ ${s.fmax}</span><div class="sub" style="margin-top:6px">ОЗ облика</div></div>
+        <div style="text-align:right"><div class="big num">${f[3]}</div><div class="sub">КД · ${f[4]}</div></div></div>
+      <div class="hpbar" style="margin-top:12px"><i style="width:${s.hp / s.fmax * 100}%"></i></div>
+      <div class="sub" style="margin-top:10px">${f[5]}</div>
+      <div class="heroline" style="margin-top:12px">${icon('heart')}<span>Герой ждёт под обликом: <b>${h.hp} / ${h.max}</b> ОЗ · урон сверх облика переходит герою</span></div>
+      <div class="three" style="margin-top:12px"><button type="button" class="ghost" data-a="hit">Урон −7</button><button type="button" class="ghost" data-a="mend">Лечение +5</button><button type="button" class="go soft" data-a="leave">Выйти</button></div>` : `
+      <div class="row" style="margin-top:14px;align-items:flex-end"><div><span class="huge num">${s.left}</span><span class="of num">/ ${s.max}</span><div class="sub" style="margin-top:6px">${moon ? 'бонусным действием · ПО до 1' : 'действием · ПО до ¼, без плавания и полёта'} · до ${Math.floor(c.lvl/2)} ч</div></div>
+        <div class="leaves">${Array.from({length:s.max},(_,i) => `<i class="leaf ${i < s.left ? '' : 'off'}"></i>`).join('')}</div></div>
+      <div class="forms" style="margin-top:14px">${list.map((x,i) => `<button type="button" class="form" data-a="shape" data-i="${i}" ${s.left ? '' : 'disabled'}><b>${x[0]}</b><span class="stats"><span><span>ОЗ</span>${x[2]}</span><span><span>КД</span>${x[3]}</span><span><span>ПО</span>${x[1]}</span></span><span class="atk">${x[5]}</span></button>`).join('')}</div>`}
+    </div>`; },
+  bind(sec, h, c){ const s = h.st['wild' + c.lvl], list = this.forms[c.sub.includes('луны') ? 'moon' : 'land'];
+    sec.onclick = e => { const el = e.target.closest('[data-a]'); if (!el) return; const a = el.dataset.a;
+      if (a === 'shape' && s.left) { s.left--; s.form = +el.dataset.i; s.hp = s.fmax = list[s.form][2]; buzz.medium(); toast('Облик: ' + list[s.form][0]); }
+      if (a === 'hit') { s.hp -= 7; buzz.light(); if (s.hp <= 0) { const over = -s.hp; h.hp = Math.max(0, h.hp - over); s.form = null; toast(over ? `Облик сброшен · ${over} урона герою` : 'Облик сброшен'); renderSheetKeep(); return; } }
+      if (a === 'mend') { s.hp = Math.min(s.fmax, s.hp + 5); buzz.light(); }
+      if (a === 'leave') { s.form = null; buzz.light(); toast('Снова в облике героя'); }
+      remount(() => replay($('#druid'), 'ev')); }; }
+};
+
+// Fighter · the accepted connected surface, now chamfered: Second Wind with
+// its d10 and the healed result; Action Surge and Indomitable beside it.
+CLASS.fighter = {
+  html(h){ const s = st(h, 'f', () => ({wind:1, surge:1, indom:1, last:null, surgeOn:false}));
+    return `<div class="inst cham" style="--acc:var(--a4)">
+      <div class="inst-h"><span class="cap">Второе дыхание</span>${rest('short')}</div>
+      <div class="row" style="margin-top:14px"><div><div class="big num">1к10 + 9</div><div class="sub" style="margin-top:6px">ОЗ бонусным действием · ${s.wind}/1</div></div>
+        <button type="button" class="d10" id="d10" data-a="wind" ${s.wind ? '' : 'disabled'} aria-label="Бросить к10">${D10}<b>к10</b></button></div>
+      ${s.last ? `<div class="result" style="margin-top:12px"><b class="num">+${s.last.heal}</b><span>ОЗ · к10 выпало ${s.last.roll}</span></div>` : ''}</div>
+    <div class="two">
+      <button type="button" class="cell2 cham" style="--acc:var(--a0);background:color-mix(in srgb,var(--a0) 13%,var(--low))" data-a="surge" ${s.surge ? '' : 'disabled'}><span class="cap">Всплеск действий</span><span class="big num">${s.surge}/1</span>
+        <span class="sub">${s.surgeOn ? 'Ещё одно действие в этом ходу' : 'Дополнительное действие'}</span><span class="apips">${s.surgeOn ? '<i></i><i></i>' : '<i></i><i class="off"></i>'}</span></button>
+      <button type="button" class="cell2 cham" style="--acc:var(--a2);background:color-mix(in srgb,var(--a2) 10%,var(--low))" data-a="indom" ${s.indom ? '' : 'disabled'}><span class="cap">Несгибаемый</span><span class="big num">${s.indom}/1</span><span class="sub">перебросить проваленный спасбросок</span><span class="sub">${icon('moon')}</span></button></div>
+    <div class="lite critrow" style="--acc:var(--a2)"><span class="d20" style="--acc:var(--a2)">${D20}<b>19–20</b></span><div><b>Улучшенный критический удар</b><div class="sub">критическое попадание на 19 и 20 · Чемпион</div></div></div>`; },
+  bind(sec, h){ const s = h.st.f;
+    sec.onclick = e => { const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
+      if (a === 'wind' && s.wind) { s.wind = 0; const r = rollDice(1, 10)[0]; s.last = {roll:r, heal:Math.min(h.max - h.hp, r + 9)}; h.hp += s.last.heal; buzz.medium();
+        const d = $('#d10'); replay(d, 'roll'); setTimeout(() => { renderSheetKeep(); }, reduced ? 0 : 520); return; }
+      if (a === 'surge' && s.surge) { s.surge = 0; s.surgeOn = true; buzz.medium(); toast('Всплеск действий: ещё одно действие'); }
+      if (a === 'indom' && s.indom) { s.indom = 0; buzz.light(); toast('Несгибаемый: перебросьте спасбросок'); }
+      remount(); }; }
+};
+
+// Monk · Ki. River stones of the pool; choosing a kata makes the stones it
+// would cost breathe, and using it dissolves exactly those stones.
+CLASS.monk = {
+  katas: [['flurry','Шквал ударов',1,'Бонусное','два безоружных удара после атаки'],['patient','Терпеливая оборона',1,'Бонусное','Уклонение'],['step','Поступь ветра',1,'Бонусное','Рывок или Отход, прыжок ×2'],['stun','Оглушающий удар',1,'При попадании','Тел. Сл 14 — ошеломлён до конца твоего хода'],['whole','Целостность тела',0,'Действие','18 ОЗ · раз в длительный отдых']],
+  html(h){ const s = st(h, 'ki', () => ({left:6, max:6, pick:null, whole:1})); const k = s.pick ? this.katas.find(x => x[0] === s.pick) : null, cost = k ? k[2] : 0;
+    return `<div class="inst" style="--acc:var(--a2)" id="monk">
+      <div class="inst-h"><span class="cap">Ци</span>${rest('short')}</div>
+      <div class="row" style="margin-top:14px;align-items:flex-end"><div style="white-space:nowrap"><span class="huge num">${s.left}</span><span class="of num">/ ${s.max}</span></div>
+        <div class="chiprow" style="justify-content:flex-end"><span class="chipx">Боевые искусства <b>к6</b></span><span class="chipx">Скорость <b>+15</b> фт.</span></div></div>
+      <div class="stones" style="margin-top:14px" id="stones">${Array.from({length:s.max},(_,i) => `<i class="stone ${i >= s.left ? 'off' : i >= s.left - cost ? 'pre' : ''}"></i>`).join('')}</div>
+      <div class="katas" style="margin-top:14px">${this.katas.map(x => `<button type="button" class="kata" data-a="pick" data-k="${x[0]}" aria-pressed="${s.pick === x[0]}"><b>${x[1]}</b><span class="cost">${x[2] ? '<i></i>'.repeat(x[2]) + ' ' + x[2] + ' ци' : (x[0] === 'whole' ? s.whole + '/1' : 'без ци')} · ${x[3]}</span><span class="desc">${x[4]}</span></button>`).join('')}</div>
+      <button type="button" class="go" style="margin-top:14px" data-a="use" ${k && s.left >= cost && (k[0] !== 'whole' || s.whole) ? '' : 'disabled'}>${k ? k[1] + (cost ? ' · ' + cost + ' ци' : '') : 'Выберите приём'}</button></div>`; },
+  bind(sec, h){ const s = h.st.ki, me = this;
+    sec.onclick = e => { const el = e.target.closest('[data-a]'); if (!el) return; const a = el.dataset.a;
+      if (a === 'pick') { s.pick = s.pick === el.dataset.k ? null : el.dataset.k; buzz.tick(); const x = $('.katas', sec).scrollLeft; remount(() => { $('.katas').scrollLeft = x; }); return; }
+      if (a === 'use') { const k = me.katas.find(x => x[0] === s.pick); const pre = $$('#stones .pre', sec);
+        if (k[0] === 'whole') { s.whole = 0; h.hp = Math.min(h.max, h.hp + 18); }
+        s.left -= k[2]; buzz.light(); pre.forEach((st, i) => setTimeout(() => { st.classList.add('go-away'); buzz.tick(); }, i * 90));
+        toast(k[1]); setTimeout(() => { s.pick = null; remount(); }, reduced ? 0 : 420 + pre.length * 90); } }; }
+};
+
+// Paladin · Lay on Hands. A vessel of healing: drag the handle to measure
+// out how much to pour; the pour drains from the vessel. Smite picks its
+// slot right in place; Divine Sense and the oath channel sit below.
+CLASS.paladin = {
+  html(h){ const s = st(h, 'lay', () => ({left:25, max:25, amt:5, sense:4, chan:1, undead:false, smite:null}));
+    const p0 = (s.left - s.amt) / s.max * 100, pw = s.amt / s.max * 100;
+    return `<div class="inst" style="--acc:var(--a1)" id="pal">
+      <div class="inst-h"><span class="cap">Наложение рук</span>${rest('long')}</div>
+      <div class="row" style="margin-top:14px;align-items:flex-end"><div><span class="huge num" id="amt">${s.amt}</span><span class="of">ОЗ</span><div class="sub" style="margin-top:6px">отмерено из запаса <b class="num" style="color:var(--fg)">${s.left}</b> / ${s.max}</div></div></div>
+      <div class="vessel" id="vessel" style="margin-top:14px" aria-label="Запас наложения рук"><i class="liquid" style="width:${s.left / s.max * 100}%"></i><i class="pour" style="left:${p0}%;width:${pw}%"></i><i class="handle" style="left:${p0}%"></i><span class="vlab">${s.left ? '← тяните, чтобы отмерить' : 'Запас пуст'}</span></div>
+      <div class="two" style="margin-top:12px"><button type="button" class="go" data-a="heal" ${s.left ? '' : 'disabled'}>${icon('heart')} Исцелить ${s.amt}</button><button type="button" class="ghost" data-a="cure" ${s.left >= 5 ? '' : 'disabled'}>Болезнь или яд · 5</button></div></div>
+    <div class="inst" style="--acc:var(--a0)">
+      <div class="inst-h"><span class="cap">Божественная кара</span><span class="sub">после попадания</span></div>
+      <div class="smites" style="margin-top:12px">${Object.entries(h.slots).map(([c, v]) => `<button type="button" class="smt" data-a="smite" data-c="${c}" ${v.left ? '' : 'disabled'}><small>${c} КРУГ</small><b class="num">${+c + 1 + (s.undead ? 1 : 0)}к8</b><span>ячеек ${v.left}</span></button>`).join('')}</div>
+      <button type="button" class="swrow" role="switch" aria-checked="${s.undead}" data-a="undead" style="margin-top:10px"><span class="ft"><b>Нежить или исчадие</b><span class="sub">ещё +1к8 излучением</span></span><span class="switch"></span></button>
+      ${s.smite ? `<div class="result" style="margin-top:10px;background:color-mix(in srgb,var(--a0) 16%,transparent)"><b class="num">${s.smite.total}</b><span>излучением · ${s.smite.rolls.join(' + ')}</span></div>` : ''}</div>
+    <div class="two">
+      <button type="button" class="cell2" style="--acc:var(--a4)" data-a="sense" ${s.sense ? '' : 'disabled'}><span class="cap">Божественное чувство</span><span class="eyes">${Array.from({length:4},(_,i) => `<i class="eye ${i < s.sense ? '' : 'off'}"></i>`).join('')}</span><span class="sub">действие · 60 фт. · до конца следующего хода</span></button>
+      <div class="cell2" style="--acc:var(--a2)"><span class="cap">Канал · ${s.chan}/1</span><button type="button" class="chipx" data-a="weapon" ${s.chan ? '' : 'disabled'}>Священное оружие</button><button type="button" class="chipx" data-a="turn" ${s.chan ? '' : 'disabled'}>Изгнание нечестивых</button></div></div>`; },
+  bind(sec, h){ const s = h.st.lay, vessel = $('#vessel', sec);
+    sec.onclick = e => { const el = e.target.closest('[data-a]'); if (!el) return; const a = el.dataset.a;
+      if (a === 'heal' && s.left) { const n = Math.min(s.amt, s.left); vessel.classList.add('pour-now'); s.left -= n; buzz.light(); toast(`Наложение рук: +${n} ОЗ`); setTimeout(() => { s.amt = clamp(s.amt, 1, Math.max(1, s.left)); remount(); }, reduced ? 0 : 560); return; }
+      if (a === 'cure' && s.left >= 5) { s.left -= 5; s.amt = clamp(s.amt, 1, Math.max(1, s.left)); buzz.light(); toast('Болезнь или яд излечены'); }
+      if (a === 'undead') { s.undead = !s.undead; buzz.tick(); }
+      if (a === 'smite') { const c = +el.dataset.c; h.slots[c].left--; const rolls = rollDice(c + 1 + (s.undead ? 1 : 0), 8); s.smite = {rolls, total:rolls.reduce((x,y) => x+y)}; buzz.medium(); renderPageKeep(); return; }
+      if (a === 'sense' && s.sense) { s.sense--; buzz.light(); toast('Божественное чувство: нежить, исчадия, небожители рядом'); }
+      if ((a === 'weapon' || a === 'turn') && s.chan) { s.chan = 0; buzz.light(); toast(a === 'weapon' ? 'Священное оружие: +3 к атакам, 1 минута' : 'Изгнание нечестивых: Сл 13'); }
+      remount(); };
+    if (!vessel || !s.left) return;
+    let drag = false;
+    const set = e => { const r = vessel.getBoundingClientRect(); const x = clamp(e.clientX - r.left, 0, r.width);
+      const v = clamp(Math.round(s.left - x / r.width * s.max), 1, s.left);
+      if (v === s.amt) return; s.amt = v; buzz.tick();
+      const p0 = (s.left - v) / s.max * 100; $('.pour', vessel).style.cssText = `left:${p0}%;width:${v / s.max * 100}%`; $('.handle', vessel).style.left = p0 + '%';
+      $('#amt', sec).textContent = v; $('[data-a="heal"]', sec).innerHTML = icon('heart') + ' Исцелить ' + v; };
+    vessel.addEventListener('pointerdown', e => { drag = true; vessel.setPointerCapture(e.pointerId); set(e); });
+    vessel.addEventListener('pointermove', e => drag && set(e)); vessel.addEventListener('pointerup', () => drag = false); }
+};
+
+// Ranger · Hunter's Mark. A scope that locks onto the marked quarry; the
+// mark moves with a bonus action and never spends a new slot.
+CLASS.ranger = {
+  quarry: ['Гнилой упырь','Скелет-лучник','Призрак'],
+  html(h){ const s = st(h, 'mark', () => ({target:null, slayer:false, i:0}));
+    return `<div class="inst" style="--acc:var(--a3)" id="rgr">
+      <div class="inst-h"><span class="cap">Метка охотника</span><span class="used">${s.target ? 'Концентрация · до 1 ч' : 'Без цели'}</span></div>
+      <div class="row" style="margin-top:12px;justify-content:flex-start">
+        <svg class="scope ${s.target ? 'lock' : ''}" viewBox="0 0 118 118" aria-hidden="true"><circle class="r1" cx="59" cy="59" r="${s.target ? 40 : 54}"/><circle class="r2" cx="59" cy="59" r="${s.target ? 28 : 40}"/><circle class="r3" cx="59" cy="59" r="${s.target ? 14 : 24}"/><g class="cross"><line x1="59" y1="2" x2="59" y2="30"/><line x1="59" y1="88" x2="59" y2="116"/><line x1="2" y1="59" x2="30" y2="59"/><line x1="88" y1="59" x2="116" y2="59"/></g><circle class="dot" cx="59" cy="59" r="5"/></svg>
+        <div style="min-width:0"><div class="tname">${s.target || 'Цель не выбрана'}</div><div class="sub" style="margin-top:6px">${s.target ? '+1к6 к урону оружием · преимущество на поиск по Восприятию и Выживанию' : 'Отметьте цель — заклинание 1 круга, бонусное действие'}</div></div></div>
+      <div style="margin-top:14px">${s.target ? `<div class="two"><button type="button" class="go soft" data-a="move">${icon('target')} Перенести</button><button type="button" class="ghost" data-a="end">Снять</button></div><div class="sub" style="margin-top:8px;text-align:center">Перенос — бонусным действием, когда цель падает до 0 ОЗ</div>`
+        : `<button type="button" class="go" data-a="cast">${icon('wand')} Отметить · ячейка 1 круга</button>`}</div></div>
+    <button type="button" class="swrow" role="switch" aria-checked="${s.slayer}" data-a="slayer" style="--acc:var(--a1);background:var(--low)"><span class="ft"><b>Убийца колоссов</b><span class="sub">${s.slayer ? 'использовано в этом ходу · +1к8 раненой цели' : '+1к8 урона раненой цели · раз в ход'}</span></span><span class="switch"></span></button>
+    <div class="two"><div class="cell2" style="--acc:var(--a3)"><span class="cap">Избранный враг</span><b>Нежить</b><span class="sub">преимущество на выслеживание и знания о ней</span></div>
+      <div class="cell2" style="--acc:var(--a4)"><span class="cap">Исследователь природы</span><b>Лес</b><span class="sub">группа не сбивается с пути, двойная добыча</span></div></div>`; },
+  bind(sec, h){ const s = h.st.mark, me = this;
+    sec.onclick = e => { const a = e.target.closest('[data-a]')?.dataset.a; if (!a) return;
+      if (a === 'cast') return castSheet(h, 'hunters-mark@ranger', () => { s.target = me.quarry[0]; s.i = 0; remount(); });
+      if (a === 'move') { s.i = (s.i + 1) % me.quarry.length; s.target = me.quarry[s.i]; buzz.tick(); toast('Метка перенесена: ' + s.target); remount(() => replay($('#rgr .tname'), 'ev')); return; }
+      if (a === 'end') { s.target = null; if (h.conc === 'hunters-mark@ranger') h.conc = null; buzz.light(); renderPageKeep(); return; }
+      if (a === 'slayer') { s.slayer = !s.slayer; buzz.tick(); }
+      remount(); }; }
+};
+
+// Rogue · Sneak Attack. The dice wait in the shadow until the conditions
+// hold; then they slide out, and the roll is spent for this turn.
+CLASS.rogue = {
+  html(h){ const s = st(h, 'sneak', () => ({adv:false, ally:false, dis:false, used:false, roll:null, cun:null}));
+    const armed = (s.adv || s.ally) && !s.dis && !s.used;
+    const chk = (k, t, bad) => `<button type="button" class="chk ${bad ? 'bad' : ''}" role="checkbox" aria-checked="${s[k]}" data-a="${k}"><span class="box">${icon(bad ? 'x' : 'check')}</span><b>${t}</b></button>`;
+    return `<div class="inst rogue ${armed || s.roll ? 'armed' : ''}" style="--acc:var(--a4)"><i class="plane p1"></i><i class="plane p2"></i>
+      <div class="inst-h"><span class="cap">Скрытая атака</span><span class="used">${s.used ? 'Использована в этом ходу' : 'Раз в ход'}</span></div>
+      <div class="row" style="margin-top:14px;align-items:flex-end"><div><div class="huge num">${s.roll ? s.roll.total : '3к6'}</div><div class="sub" style="margin-top:6px">${s.roll ? 'дополнительного урона · ' + s.roll.rolls.join(' + ') : 'фехтовальное или дальнобойное оружие'}</div></div>
+        <div class="d6s">${[0,1,2].map(i => `<span class="d6">${s.roll ? s.roll.rolls[i] : '<span class="pipdots">⁘</span>'}</span>`).join('')}</div></div>
+      <div class="checks" style="margin-top:14px">${chk('adv','Преимущество на атаку')}${chk('ally','Союзник в 5 фт. от цели')}${chk('dis','Помеха на атаку',true)}</div>
+      ${s.used ? `<button type="button" class="ghost" style="width:100%;margin-top:12px" data-a="turn">Новый ход</button>` : `<button type="button" class="go" style="margin-top:12px" data-a="roll" ${armed ? '' : 'disabled'}>${armed ? 'Бросить 3к6' : s.dis ? 'Помеха отменяет атаку' : 'Нужно преимущество или союзник'}</button>`}</div>
+    <div class="lite" style="--acc:var(--a4)"><div class="inst-h"><span class="cap">Хитрое действие</span><span class="sub">бонусное действие</span></div>
+      <div class="cun" style="margin-top:10px">${['Рывок','Отход','Засада'].map(x => `<button type="button" data-a="cun" data-v="${x}" aria-pressed="${s.cun === x}">${x}</button>`).join('')}</div></div>
+    <div class="cell2" style="--acc:var(--a5)"><span class="cap">Невероятное уклонение</span><span class="sub">Реакция · половина урона от атаки видимого врага</span></div>`; },
+  bind(sec, h){ const s = h.st.sneak;
+    sec.onclick = e => { const el = e.target.closest('[data-a]'); if (!el) return; const a = el.dataset.a;
+      if (['adv','ally','dis'].includes(a)) { s[a] = !s[a]; buzz.tick(); }
+      if (a === 'roll') { const rolls = rollDice(3, 6); s.roll = {rolls, total:rolls.reduce((x,y) => x+y)}; s.used = true; buzz.medium(); }
+      if (a === 'turn') { Object.assign(s, {used:false, roll:null, adv:false, ally:false, dis:false, cun:null}); buzz.tick(); }
+      if (a === 'cun') { s.cun = s.cun === el.dataset.v ? null : el.dataset.v; buzz.tick(); }
+      remount(); }; }
+};
+
+// Sorcerer · Font of Magic. Two orbs joined by a channel: points pour into a
+// new slot of the chosen circle, or a slot melts back into points.
+CLASS.sorcerer = {
+  cost: {1:2, 2:3, 3:5},
+  html(h){ const s = st(h, 'font', () => ({left:5, max:5, circle:1})); const cost = this.cost[s.circle], slot = h.slots[s.circle];
+    return `<div class="inst" style="--acc:var(--a1)" id="sorc">
+      <div class="inst-h"><span class="cap">Источник магии</span>${rest('long')}</div>
+      <div class="orbs" style="margin-top:14px" id="orbs">
+        <div class="orb pts" id="orbP"><i class="lvl" style="height:${s.left / s.max * 100}%"></i><div><b class="num">${s.left}</b><span>единиц из ${s.max}</span></div></div>
+        <div class="chan"><button type="button" data-a="make" ${s.left >= cost ? '' : 'disabled'} aria-label="Создать ячейку">${icon('fwd')}</button><small>${cost} ед.</small><button type="button" data-a="melt" ${slot.left && s.left + s.circle <= s.max ? '' : 'disabled'} aria-label="Превратить ячейку">${icon('back')}</button><small>+${s.circle}</small></div>
+        <div class="orb slots" id="orbS"><i class="lvl" style="height:${Math.min(1, slot.left / Math.max(slot.max, 1)) * 100}%"></i><div><b class="num">${slot.left}</b><span>ячеек ${s.circle} круга</span></div></div></div>
+      <div class="cun" style="margin-top:14px">${[1,2,3].map(c => `<button type="button" data-a="circle" data-c="${c}" aria-pressed="${s.circle === c}">${c} круг · ${this.cost[c]} ед.</button>`).join('')}</div>
+      <div class="sub" style="margin-top:10px">Гибкая магия · бонусным действием · созданные ячейки исчезают после длительного отдыха</div></div>
+    <div class="lite" style="--acc:var(--a1)"><span class="cap">Метамагия</span><div class="mm" style="margin-top:10px">
+      <button type="button" data-a="meta" data-v="2"><b>Ускоренное</b><span>2 ед. · заклинание бонусным действием</span></button>
+      <button type="button" data-a="meta" data-v="0"><b>Сдвоенное</b><span>ед. = круг · вторая цель</span></button></div></div>`; },
+  flow(dir){ if (reduced) return; const orbs = $('#orbs'), r = orbs.getBoundingClientRect(), a = $(dir === 'make' ? '#orbP' : '#orbS').getBoundingClientRect(), b = $(dir === 'make' ? '#orbS' : '#orbP').getBoundingClientRect();
+    for (let i = 0; i < 5; i++) { const sp = document.createElement('i'); sp.className = 'spark'; orbs.appendChild(sp);
+      const x0 = a.left + a.width/2 - r.left, y0 = a.top + a.height/2 - r.top, x1 = b.left + b.width/2 - r.left, y1 = b.top + b.height/2 - r.top;
+      sp.animate([{transform:`translate(${x0}px,${y0}px) scale(.6)`, opacity:0},{opacity:1, offset:.2},{transform:`translate(${(x0+x1)/2}px,${Math.min(y0,y1) - 30}px) scale(1)`, offset:.5},{transform:`translate(${x1}px,${y1}px) scale(.4)`, opacity:0}], {duration:620, delay:i*70, easing:'cubic-bezier(.2,0,0,1)'}).onfinish = () => sp.remove(); } },
+  bind(sec, h){ const s = h.st.font, me = this;
+    sec.onclick = e => { const el = e.target.closest('[data-a]'); if (!el) return; const a = el.dataset.a;
+      if (a === 'circle') { s.circle = +el.dataset.c; buzz.tick(); remount(); return; }
+      if (a === 'make') { s.left -= me.cost[s.circle]; h.slots[s.circle].left++; me.flow('make'); buzz.light(); setTimeout(() => { renderPageKeep(); toast(`Создана ячейка ${s.circle} круга`); }, reduced ? 0 : 700); return; }
+      if (a === 'melt') { h.slots[s.circle].left--; s.left += s.circle; me.flow('melt'); buzz.light(); setTimeout(() => { renderPageKeep(); toast(`+${s.circle} ед. чародейства`); }, reduced ? 0 : 700); return; }
+      if (a === 'meta') { const v = +el.dataset.v || 1; if (s.left < v) return toast('Не хватает единиц'); s.left -= v; buzz.light(); toast(v === 2 ? 'Ускоренное заклинание' : 'Сдвоенное заклинание'); remount(); } }; }
+};
+
+// Warlock · Pact Magic. Three sigils of the pact, all of the same circle,
+// spent with a crack and restored by a short rest. The Mystic Arcanum is a
+// sealed page of its own; Eldritch Blast fires its beams from here.
+CLASS.warlock = {
+  html(h){ const p = h.pact, arc = h.arc[6], s = st(h, 'blast', () => ({last:null}));
+    return `<div class="inst" style="--acc:var(--a5)" id="wlk">
+      <div class="inst-h"><span class="cap">Магия договора</span>${rest('short')}</div>
+      <div class="row" style="margin-top:10px;align-items:flex-end"><div><span class="huge num">${p.left}</span><span class="of num">/ ${p.max}</span><div class="sub" style="margin-top:6px">ячейки ${p.circle} круга · любое заклинание договора</div></div></div>
+      <div class="sigils" style="margin-top:22px">${Array.from({length:p.max},(_,i) => `<button type="button" class="sigil ${i < p.left ? '' : 'off'}" data-a="pact" data-i="${i}" aria-label="Ячейка договора">${SIGIL}<span><b class="num">${p.circle}</b><small>круг</small></span></button>`).join('')}</div>
+      <div class="blast" style="margin-top:16px"><div class="ft"><b>Мистический заряд</b><span class="sub">3 луча · 1к10+5 силовым · 120 фт.</span><div class="beams"><i></i><i></i><i></i></div></div><button type="button" class="go soft" style="width:auto;padding:0 18px;height:44px" data-a="blast">Бросить</button></div>
+      ${s.last ? `<div class="result" style="margin-top:10px;background:color-mix(in srgb,var(--a5) 16%,transparent)"><b class="num">${s.last.reduce((a,b) => a+b, 0) + 15}</b><span>урона, если попали все · ${s.last.map(r => r + '+5').join(' · ')}</span></div>` : ''}</div>
+    <div class="inst" style="--acc:var(--a0)"><div class="row"><span class="seal ${arc.left ? '' : 'off'}">6</span><div style="flex:1;min-width:0"><span class="cap">Арканум</span><div class="tname" style="font-size:18px;margin-top:4px">Истинное зрение</div><div class="sub">без ячейки · ${arc.left}/1 · ${REST.long[1].toLowerCase()}</div></div>
+      <button type="button" class="go" style="width:auto;padding:0 16px;height:44px" data-a="arc" ${arc.left ? '' : 'disabled'}>${icon('wand')}</button></div></div>
+    <div class="lite" style="--acc:var(--a5)"><div class="inst-h"><span class="cap">Таинственные воззвания</span><span class="sub">без зарядов</span></div>
+      ${[['Мучительный взрыв','+ХАР к урону мистического заряда'],['Отталкивающий взрыв','отбросить на 10 фт.'],['Дьявольский взор','видеть в магической тьме'],['Маска многих лиц','маскировка без ячейки'],['Книга древних секретов','ритуалы в гримуаре']].map(i => `<div style="padding:9px 0;border-top:1px solid color-mix(in srgb,var(--fg) 6%,transparent)"><b style="display:block;font-size:14px">${i[0]}</b><span class="sub">${i[1]}</span></div>`).join('')}</div>`; },
+  bind(sec, h){
+    sec.onclick = e => { const el = e.target.closest('[data-a]'); if (!el) return; const a = el.dataset.a;
+      if (a === 'pact') { if (!h.pact.left) return toast('Ячейки договора восстановит короткий отдых'); h.pact.left--; buzz.light(); const i = h.pact.left; renderPageKeep(); toast('Потрачена ячейка договора'); requestAnimationFrame(() => replay($$('#wlk .sigil')[i], 'crack')); return; }
+      if (a === 'blast') { h.st.blast.last = rollDice(3, 10); buzz.medium(); remount(); }
+      if (a === 'arc') castSheet(h, 'true-seeing@warlock'); }; }
+};
+
+// Wizard · Arcane Recovery. A board of every slot: tap a filled cell to
+// spend it, tap spent cells to gather them into a recovery within budget.
+CLASS.wizard = {
+  html(h, c){ const s = st(h, 'rec', () => ({done:false, pick:[]})); const budget = Math.ceil(c.lvl / 2);
+    const sum = s.pick.reduce((t,k) => t + +k.split('.')[0], 0);
+    return `<div class="inst" style="--acc:var(--a4)">
+      <div class="inst-h"><span class="cap">Магическое восстановление</span><span class="used">${s.done ? 'Уже сегодня' : 'Раз в день'}</span></div>
+      <div class="row" style="margin-top:14px;align-items:flex-end"><div><span class="huge num">${sum}</span><span class="of num">/ ${budget}</span><div class="sub" style="margin-top:6px">сумма кругов · после короткого отдыха · без 6 круга и выше</div></div>
+        <div class="meter">${Array.from({length:budget},(_,i) => `<i class="${i < sum ? 'on' : ''}"></i>`).join('')}</div></div>
+      <div class="board" style="margin-top:16px" id="board">${Object.entries(h.slots).map(([cc, v]) => `<div class="brow"><small>${cc} круг</small><div class="cells">${Array.from({length:v.max},(_,i) => { const spent = i >= v.left, key = cc + '.' + i; return `<button type="button" class="cellb ${spent ? 'spent' : ''} ${s.pick.includes(key) ? 'sel' : ''}" data-a="${spent ? 'pick' : 'spend'}" data-k="${key}" aria-label="${cc} круг"></button>`; }).join('')}</div></div>`).join('')}</div>
+      <div class="sub" style="margin-top:10px">Касание ячейки — потратить · потраченные — выбрать для восстановления</div>
+      <button type="button" class="go" style="margin-top:12px" data-a="recover" ${!s.done && sum ? '' : 'disabled'}>${s.done ? 'Восстановление уже использовано' : sum ? 'Восстановить ' + sum + ' ' + plural(sum,'круг','круга','кругов') : 'Выберите потраченные ячейки'}</button></div>
+    <div class="two"><div class="cell2" style="--acc:var(--a4)"><span class="cap">Книга</span><span class="big num">${Object.values(h.spell).filter(e => SPELLS[e.id].l > 0).length}</span><span class="sub">заклинаний · ${c.cap} к подготовке</span></div>
+      <div class="cell2" style="--acc:var(--a1)"><span class="cap">Воплощение</span><b>Ваяние заклинаний</b><span class="sub">союзники вне области · Могущественный заговор</span></div></div>`; },
+  bind(sec, h, c){ const s = h.st.rec, budget = Math.ceil(c.lvl / 2);
+    sec.onclick = e => { const el = e.target.closest('[data-a]'); if (!el) return; const a = el.dataset.a;
+      if (a === 'spend') { const cc = el.dataset.k.split('.')[0]; h.slots[cc].left--; buzz.light(); renderPageKeep(); return; }
+      if (a === 'pick') { if (s.done) return; const k = el.dataset.k, cc = +k.split('.')[0], i = s.pick.indexOf(k), sum = s.pick.reduce((t,x) => t + +x.split('.')[0], 0);
+        if (i >= 0) s.pick.splice(i, 1); else if (sum + cc <= budget) s.pick.push(k); else return toast(`Не больше ${budget} кругов за раз`);
+        buzz.tick(); remount(); return; }
+      if (a === 'recover') { const n = s.pick.reduce((t,k) => t + +k.split('.')[0], 0); s.pick.forEach(k => h.slots[k.split('.')[0]].left++); s.pick = []; s.done = true; buzz.medium(); toast(`Восстановлено ${n} ${plural(n,'круг','круга','кругов')}`); renderPageKeep(); requestAnimationFrame(() => replay($('#board'), 'ripple')); } }; }
+};
+
+/* ---------- mounting ---------- */
+function bindPanel(sec, c){ const f = CLASS[c.id]; f && f.bind && f.bind(sec, hero, c); }
+function mountPanel(sec, c){ sec.innerHTML = classHTML(hero, c); bindPanel(sec, c); }
+function remount(after){
+  const sec = $$('.cpanel')[clsIndex], c = hero.classes[clsIndex];
+  mountPanel(sec, c); $('#stripWrap').fit(); after && requestAnimationFrame(after);
+}
+function renderSheetKeep(){ const y = $('#scroller').scrollTop; renderSheet(); $('#scroller').scrollTop = y; }
+
+/* ---------- magic section ---------- */
+function sources(h){ return h.classes.filter(c => c.list); }
+function heroSpells(h){ return Object.entries(h.spell).map(([key, e]) => ({key, ...e, sp:SPELLS[e.id]})); }
+function slotMarks(v, cls = ''){ return `<span class="marks">${Array.from({length:v.max},(_,i) => `<i class="mark ${cls} ${i < v.left ? '' : 'off'}"></i>`).join('')}</span>`; }
+function magicHTML(h){
+  const src = sources(h), all = heroSpells(h).filter(s => !s.arcanum);
+  const circles = [...new Set(all.map(s => s.sp.l))].sort((a,b) => a-b);
+  const castable = s => s.sp.l === 0 || (h.pact ? h.pact.left > 0 && s.sp.l <= h.pact.circle : Object.entries(h.slots || {}).some(([c,v]) => +c >= s.sp.l && v.left > 0));
+  const row = s => {
+    const c = h.classes.find(x => x.id === s.cls), prepCls = c.prep && s.sp.l > 0;
+    const star = s.always ? `<span class="star lock" title="Всегда подготовлено">${icon('lock')}</span>` : prepCls ? `<button type="button" class="star ${s.prep ? 'on' : ''}" data-prep="${s.key}" aria-label="Подготовка">${icon('star')}</button>` : `<span class="star">${icon(s.sp.l ? 'bookmark' : 'spark')}</span>`;
+    return `<div class="sp ${s.prep ? '' : 'unprep'}" style="--acc:${clsAcc(c)}">${star}<button type="button" class="st" data-spell="${s.key}"><b>${s.sp.n}<span class="badges">${s.sp.k ? '<i>К</i>' : ''}${s.sp.ri ? '<i>Р</i>' : ''}</span></b><span>${s.sp.s} · ${s.sp.t}${src.length > 1 ? ` · <span style="color:${clsAcc(c)}">${c.name}</span>` : ''}</span></button>
+      <button type="button" class="cast ${s.prep && castable(s) ? '' : 'off'}" data-cast="${s.key}" aria-label="Наложить">${icon('wand')}</button></div>`;
+  };
+  const group = c => {
+    const spells = all.filter(s => s.sp.l === c).sort((a,b) => (b.prep - a.prep) || a.sp.n.localeCompare(b.sp.n, 'ru'));
+    const slot = c > 0 && h.slots && h.slots[c];
+    const isOpen = open.has(String(c));
+    const headA = c === 0 ? `<span class="cn">Заговоры<small>без ячеек</small></span><span class="marks"></span><span class="left">${spells.length}</span>`
+      : `<span class="cn">${c} круг<small>${spells.filter(s => s.prep).length} ${plural(spells.filter(s => s.prep).length,'заклинание','заклинания','заклинаний')}</small></span>${vars.magic === 'a' && slot ? slotMarks(slot) + `<span class="left num">${slot.left}/${slot.max}</span>` : `<span class="marks"></span><span class="left">${spells.length}</span>`}`;
+    return `<div class="circle ${isOpen ? 'open' : ''}" data-circle="${c}"><button type="button" class="circle-h" data-toggle="${c}">${headA}${icon('down','chev')}</button>
+      <div class="reveal ${isOpen ? 'open' : ''}"><div><div class="spells">${spells.map(row).join('')}</div></div></div></div>`;
+  };
+  // Circles above the known spells (multiclass upcasting) still get a slot row in A.
+  const slotOnly = h.slots ? Object.keys(h.slots).map(Number).filter(c => !circles.includes(c)) : [];
+  const conc = h.conc ? SPELLS[h.conc.split('@')[0]] : null;
+  return `<div class="sec-title">Магия<button type="button" class="btn tonal sm" data-act="almanac">${icon('book')} Альманах</button></div>
+    ${conc ? `<div class="conc" id="conc">${icon('timer')}<b>Концентрация: ${conc.n}<small>${conc.d}</small></b><button type="button" class="btn sm" data-act="endconc">Прервать</button></div>` : ''}
+    ${src.map(c => { const dc = 8 + pb(h) + c.mod, atk = pb(h) + c.mod; const prepN = heroSpells(h).filter(s => s.cls === c.id && s.sp.l > 0 && s.prep && !s.always).length;
+      return `<div class="src">${src.length > 1 ? `<div class="src-head"><i style="background:${clsAcc(c)}"></i>${c.name} ${c.lvl}</div>` : ''}
+        <div class="facts"><div class="fact"><small>${ABBR[c.ab]}</small><b>${fmt(c.mod)}</b></div><div class="fact"><small>СЛ СПАСА</small><b>${dc}</b></div><div class="fact"><small>АТАКА</small><b>${fmt(atk)}</b></div></div>
+        ${c.prep ? `<div class="prep"><span>Подготовлено <b>${prepN} / ${c.cap}</b>${c.always ? ' · ещё ' + c.always.length + ' всегда' : ''}</span></div>` : `<div class="prep"><span>Известно <b>${heroSpells(h).filter(s => s.cls === c.id && s.sp.l > 0 && !s.arcanum).length}</b> · заговоров <b>${heroSpells(h).filter(s => s.cls === c.id && s.sp.l === 0).length}</b></span></div>`}</div>`; }).join('')}
+    ${vars.magic === 'b' && (h.slots || h.pact) ? `<div class="console">${h.pact ? `<button type="button" class="ccol pact" data-slot="pact"><small>ДОГОВОР</small><b class="num">${h.pact.left}/${h.pact.max}</b>${slotMarks({max:h.pact.max,left:h.pact.left})}<small>${h.pact.circle} круг</small></button>` : Object.entries(h.slots).map(([c,v]) => `<button type="button" class="ccol" data-slot="${c}"><small>${c} КРУГ</small><b class="num">${v.left}/${v.max}</b>${slotMarks(v)}</button>`).join('')}</div>` : ''}
+    ${vars.magic === 'a' && h.pact ? `<div class="circle" style="background:color-mix(in srgb,var(--a5) 10%,var(--low))"><div class="circle-h"><span class="cn">Договор<small>все ячейки ${h.pact.circle} круга</small></span>${slotMarks({max:h.pact.max,left:h.pact.left})}<span class="left num">${h.pact.left}/${h.pact.max}</span></div></div>` : ''}
+    ${circles.map(group).join('')}
+    ${vars.magic === 'a' ? slotOnly.map(c => `<div class="circle"><div class="circle-h" data-slot="${c}"><span class="cn">${c} круг<small>для усиления</small></span>${slotMarks(h.slots[c])}<span class="left num">${h.slots[c].left}/${h.slots[c].max}</span></div></div>`).join('') : ''}
+    <div class="muted" style="font-size:12.5px;text-align:center">Касание отметки — потратить ячейку · удержание — изменить вручную</div>`;
+}
+
+/* ---------- page bindings ---------- */
+function bindPage(){
+  const h = hero;
+  bindCarousel();
+  $$('.cpanel').forEach((sec, i) => bindPanel(sec, h.classes[i]));
+  const page = $('#page');
+  page.addEventListener('click', e => {
+    const t = e.target;
+    if (t.closest('.cpanel')) return;
+    const tog = t.closest('[data-toggle]'); if (tog) { const c = tog.dataset.toggle; const box = tog.parentNode; if (open.has(c)) open.delete(c); else open.add(c); box.classList.toggle('open'); $('.reveal', box).classList.toggle('open'); buzz.tick(); return; }
+    const sl = t.closest('[data-slot]'); if (sl) return spendSlot(sl.dataset.slot, sl);
+    const mk = t.closest('.circle-h .mark'); if (mk) { const c = mk.closest('.circle').dataset.circle; e.stopPropagation(); return spendSlot(c, mk); }
+    const pr = t.closest('[data-prep]'); if (pr) return togglePrep(pr.dataset.prep);
+    const cs = t.closest('[data-cast]'); if (cs) return castSheet(h, cs.dataset.cast);
+    const spl = t.closest('[data-spell]'); if (spl) return detailSheet(h, spl.dataset.spell);
+    const act = t.closest('[data-act]')?.dataset.act;
+    if (act === 'almanac') return openAlmanac();
+    if (act === 'endconc') { h.conc = null; buzz.light(); renderPageKeep(); toast('Концентрация прервана'); if (h.st && h.st.mark) h.st.mark.target = null; return; }
+    if (act === 'passives') { $('#passives').classList.toggle('open'); buzz.tick(); return; }
+    if (act === 'preptoggle') return toast('Подготовка — звёздочкой у заклинания или в Альманахе');
+    const ft = t.closest('[data-feat]'); if (ft) return toast(ft.dataset.feat);
+  });
+  // Marks inside circle headers spend without folding the circle.
+  $$('.circle-h .mark', page).forEach(m => m.addEventListener('click', e => { e.stopPropagation(); spendSlot(m.closest('.circle').dataset.circle, m); }));
+}
+function renderPageKeep(){ const y = $('#scroller').scrollTop; renderPage(); $('#scroller').scrollTop = y; }
+function spendSlot(c, el){
+  const h = hero;
+  if (c === 'pact') { if (!h.pact.left) return toast('Ячейки договора восстановит короткий отдых'); h.pact.left--; }
+  else { const v = h.slots[c]; if (!v.left) return toast(`Ячеек ${c} круга не осталось`); v.left--; }
+  buzz.light(); renderPageKeep(); toast(c === 'pact' ? 'Потрачена ячейка договора' : `Потрачена ячейка ${c} круга`);
+}
+function togglePrep(key){
+  const h = hero, s = h.spell[key], c = h.classes.find(x => x.id === s.cls);
+  const prepared = heroSpells(h).filter(x => x.cls === c.id && x.sp.l > 0 && x.prep && !x.always).length;
+  if (!s.prep && prepared >= c.cap) return toast(`${c.name}: подготовлено ${prepared} из ${c.cap} — сначала уберите другое`);
+  s.prep = !s.prep; buzz.tick(); renderPageKeep(); toast(s.prep ? 'Подготовлено: ' + SPELLS[s.id].n : 'Убрано из подготовки');
+}
+
+/* ---------- casting: one sheet, an honest ladder of circles ---------- */
+function castSheet(h, key, after){
+  const s = h.spell[key], sp = SPELLS[s.id], c = h.classes.find(x => x.id === s.cls);
+  if (!s.prep) return toast('Сначала подготовьте заклинание');
+  const dc = 8 + pb(h) + c.mod, atk = pb(h) + c.mod;
+  let rungs = [];
+  if (s.arcanum) rungs = [{k:'arc', label:'Арканум', v:'6 круг', left:h.arc[6].left}];
+  else if (sp.l === 0) rungs = [];
+  else if (h.pact) rungs = [{k:'pact', label:'Договор', v:h.pact.circle + ' круг', left:h.pact.left}];
+  else rungs = Object.entries(h.slots).filter(([cc]) => +cc >= sp.l).map(([cc, v]) => ({k:cc, label:cc + ' круг', v:cc + ' круг', left:v.left}));
+  if (sp.ri) rungs.push({k:'ritual', label:'Ритуал', v:'+10 мин', left:1});
+  let pick = (rungs.find(r => r.left > 0 && r.k !== 'ritual') || rungs.find(r => r.left > 0) || {}).k;
+  const conc = sp.k && h.conc && h.conc !== key ? SPELLS[h.conc.split('@')[0]] : null;
+  openSheet(`<span class="bs-kicker">${sp.l ? sp.l + ' круг' : 'Заговор'} · ${sp.s}</span><h2 class="bs-title">${sp.n}</h2>
+    <div class="facts"><div class="fact"><small>ИСТОЧНИК</small><b style="font-size:16px;color:${clsAcc(c)}">${c.name}</b></div><div class="fact"><small>СЛ СПАСА</small><b>${dc}</b></div><div class="fact"><small>АТАКА</small><b>${fmt(atk)}</b></div></div>
+    ${rungs.length ? `<div><div class="muted" style="font-size:13px;margin-bottom:8px">Чем оплатить</div><div class="ladder" id="ladder">${rungs.map(r => `<button type="button" class="rung" data-k="${r.k}" aria-pressed="${r.k === pick}" ${r.left ? '' : 'disabled'}><small>${r.label}</small><b class="num">${r.k === 'ritual' ? 'Р' : r.left}</b><small>${r.k === 'ritual' ? r.v : 'осталось'}</small></button>`).join('')}</div></div>` : '<div class="note">' + icon('spark') + '<span>Заговор — без ячейки. Урон растёт с уровнем персонажа.</span></div>'}
+    ${sp.h && rungs.length > 1 ? `<div class="note">${icon('spark')}<span id="upcast">${sp.h.slice(0, 160)}${sp.h.length > 160 ? '…' : ''}</span></div>` : ''}
+    ${conc ? `<div class="note">${icon('timer')}<span>Сейчас концентрация на «${conc.n}». Новое заклинание её прервёт.</span></div>` : ''}
+    <div class="grid2"><div class="cell"><small>ВРЕМЯ</small><b>${sp.t}</b></div><div class="cell"><small>ДИСТАНЦИЯ</small><b>${sp.r}</b></div></div>
+    <button type="button" class="btn primary wide" id="castGo" style="height:54px">${icon('wand')} ${pick === 'ritual' ? 'Провести ритуал' : 'Наложить'}</button>`, {onOpen(sh, close){
+      $$('.rung', sh).forEach(b => b.addEventListener('click', () => { pick = b.dataset.k; buzz.tick(); $$('.rung', sh).forEach(x => x.setAttribute('aria-pressed', x === b)); $('#castGo', sh).innerHTML = icon('wand') + ' ' + (pick === 'ritual' ? 'Провести ритуал' : 'Наложить'); }));
+      $('#castGo', sh).addEventListener('click', () => {
+        let paid = '';
+        if (pick === 'arc') { h.arc[6].left--; paid = 'Арканум'; }
+        else if (pick === 'pact') { h.pact.left--; paid = 'ячейка договора'; }
+        else if (pick === 'ritual') paid = 'ритуал';
+        else if (pick) { h.slots[pick].left--; paid = `ячейка ${pick} круга`; }
+        if (sp.k) h.conc = key;
+        buzz.light();
+        close(0, () => { renderPageKeep(); toast(`${sp.n}${paid ? ' · ' + paid : ''}`); replay($('#conc'), 'pop'); after && after(); });
+      });
+    }});
+}
+
+/* ---------- spell details ---------- */
+function detailSheet(h, key, fromAlmanac){
+  const id = key.split('@')[0], sp = SPELLS[id], s = h && h.spell[key];
+  const owner = s ? h.classes.find(x => x.id === s.cls) : null;
+  const paras = (sp.x || '').split(/\n\s*\n/).map(p => `<p style="margin:0 0 10px">${p}</p>`).join('');
+  openSheet(`<span class="bs-kicker">${sp.l ? sp.l + ' круг' : 'Заговор'} · ${sp.s}</span><h2 class="bs-title">${sp.n}</h2>
+    <div class="grid2"><div class="cell"><small>ВРЕМЯ</small><b>${sp.t}</b></div><div class="cell"><small>ДИСТАНЦИЯ</small><b>${sp.r}</b></div><div class="cell"><small>ДЛИТЕЛЬНОСТЬ</small><b>${sp.d}</b></div><div class="cell"><small>КОМПОНЕНТЫ</small><b>${sp.c}</b></div></div>
+    ${sp.m ? `<div class="muted" style="font-size:13.5px">Материалы: ${sp.m}</div>` : ''}
+    ${sp.k || sp.ri ? `<div class="tagrow">${sp.k ? '<span class="tag on" style="--acc:var(--a5)">Концентрация</span>' : ''}${sp.ri ? '<span class="tag on" style="--acc:var(--a4)">Ритуал</span>' : ''}</div>` : ''}
+    <div class="prose">${paras}${sp.h ? `<h4>На больших уровнях</h4><p style="margin:0">${sp.h}</p>` : ''}</div>
+    ${owner ? `<div class="src"><div class="src-head"><i style="background:${clsAcc(owner)}"></i>${owner.name} ${owner.lvl} · ${s.always ? 'всегда подготовлено' : s.prep ? (owner.prep ? 'подготовлено' : 'известно') : 'не подготовлено'}</div></div>` : ''}
+    <div class="pair">${owner && owner.prep && sp.l && !s.always ? `<button type="button" class="btn" id="dPrep">${s.prep ? 'Убрать из подготовки' : 'Подготовить'}</button>` : '<span></span>'}
+      ${owner ? `<button type="button" class="btn primary" id="dCast" ${s.prep ? '' : 'disabled'}>${icon('wand')} Наложить</button>` : `<button type="button" class="btn primary" id="dAdd">${icon('plus')} В лист</button>`}</div>`, {onOpen(sh, close){
+      $('#dPrep', sh)?.addEventListener('click', () => close(0, () => togglePrep(key)));
+      $('#dCast', sh)?.addEventListener('click', () => close(0, () => castSheet(h, key)));
+      $('#dAdd', sh)?.addEventListener('click', () => { buzz.light(); close(0, () => toast('Добавление в лист — с выбором класса-владельца')); });
+    }});
+}
+
+/* ---------- Almanac: a screen of its own ---------- */
+const alm = $('#alm');
+let almState = {q:'', avail:'ok', circle:null};
+function openAlmanac(){
+  alm.innerHTML = `<div class="scroller" id="almScroll"><div class="alm-list" id="almList"></div></div>
+    <div class="alm-top glass"><div class="alm-row"><button type="button" class="round" data-act="almback" aria-label="Назад">${icon('back')}</button><h3>Альманах</h3><span class="muted" style="font-size:12.5px" id="almCount"></span></div>
+      <label class="search">${icon('search')}<input id="almQ" placeholder="Название, школа или «огонь»" autocomplete="off"></label>
+      ${segHTML([['ok','Доступные'],['mine','В листе'],['all','Все']], almState.avail, 'almSeg')}
+      <div class="circles" id="almC"><button type="button" data-c="" aria-pressed="${almState.circle === null}">Все</button>${['Заговоры',1,2,3,4,5,6].map((c,i) => `<button type="button" data-c="${i}" aria-pressed="${almState.circle === i}">${c}</button>`).join('')}</div></div>`;
+  alm.hidden = false;
+  const spring = new Spring(1, SPR.gentle, v => { alm.style.transform = `translateX(${v*100}%)`; sheet.style.transform = `translateX(${-v*0 - (1-v)*18}%) scale(${1 - (1-v)*.02})`; sheet.style.filter = `brightness(${1 - (1-v)*.3})`; });
+  spring.set(1); spring.to(0, SPR.gentle); buzz.tick();
+  alm.close = () => { spring.onRest = () => { if (spring.x >= .999) { alm.hidden = true; sheet.style.transform = ''; sheet.style.filter = ''; } }; spring.to(1, SPR.gentle); };
+  segment($('#almSeg'), b => { almState.avail = b.dataset.v; renderAlm(); });
+  $('#almQ').addEventListener('input', e => { almState.q = e.target.value; renderAlm(); });
+  $$('#almC button').forEach(b => b.addEventListener('click', () => { almState.circle = b.dataset.c === '' ? null : +b.dataset.c; $$('#almC button').forEach(x => x.setAttribute('aria-pressed', x === b)); buzz.tick(); renderAlm(); }));
+  alm.addEventListener('click', e => { if (e.target.closest('[data-act="almback"]')) alm.close(); const t = e.target.closest('[data-aspell]'); if (t) detailSheet(hero, t.dataset.aspell, true); });
+  renderAlm();
+}
+function renderAlm(){
+  const h = hero, q = almState.q.trim().toLowerCase();
+  const mine = new Map(heroSpells(h).map(s => [s.id, s.key]));
+  // Highest circle a class can learn by its own level (SRD 2014): full
+  // casters ceil(lvl/2), half casters ceil(lvl/4) from level 2, pact up to 5.
+  const maxCircle = c => c.id === 'paladin' || c.id === 'ranger' ? (c.lvl < 2 ? 0 : Math.ceil(c.lvl/4)) : c.id === 'warlock' ? Math.min(5, Math.ceil(c.lvl/2)) : Math.min(9, Math.ceil(c.lvl/2));
+  const status = id => { if (mine.has(id)) return 'mine'; const sp = SPELLS[id]; const own = h.classes.filter(c => c.list && sp.cl.includes(c.id)); if (!own.length) return 'other'; return own.some(c => sp.l <= maxCircle(c)) ? 'ok' : 'later'; };
+  let rows = Object.entries(SPELLS).map(([id, sp]) => ({id, sp, st:status(id)}));
+  // «Доступные» — what the hero's own classes can take now; «Все» shows the
+  // rest too, with an honest reason instead of hiding it.
+  if (almState.avail === 'ok') rows = rows.filter(r => r.st === 'ok' || r.st === 'mine'); if (almState.avail === 'mine') rows = rows.filter(r => r.st === 'mine');
+  if (almState.circle !== null) rows = rows.filter(r => r.sp.l === almState.circle);
+  if (q) rows = rows.filter(r => (r.sp.n + ' ' + r.sp.s + ' ' + (r.sp.x || '')).toLowerCase().includes(q));
+  rows.sort((a,b) => a.sp.l - b.sp.l || a.sp.n.localeCompare(b.sp.n, 'ru'));
+  $('#almCount').textContent = rows.length + ' ' + plural(rows.length, 'заклинание', 'заклинания', 'заклинаний');
+  let last = -1, html = '';
+  rows.forEach(r => { if (r.sp.l !== last && !q) { html += `<div class="alm-h">${r.sp.l ? r.sp.l + ' круг' : 'Заговоры'}</div>`; last = r.sp.l; }
+    html += `<button type="button" class="atile ${r.st === 'mine' ? 'mine' : ''}" data-aspell="${r.st === 'mine' ? mine.get(r.id) : r.id}"><span class="lv">${r.sp.l || '∞'}</span><span class="ft"><b>${r.sp.n}</b><span>${r.sp.s} · ${r.sp.t}${r.sp.k ? ' · К' : ''}${r.sp.ri ? ' · Р' : ''}</span></span><span class="st ${r.st === 'other' ? 'later' : r.st}">${r.st === 'mine' ? 'в листе' : r.st === 'ok' ? 'доступно' : r.st === 'later' ? 'позже' : 'не из списка'}</span></button>`; });
+  $('#almList').innerHTML = html || '<div class="muted" style="text-align:center;padding:40px 0">Ничего не найдено</div>';
+}
+
+/* ---------- controls ---------- */
+function controlsHTML(){
+  return `<div class="opt"><span class="lbl">Герой</span><div class="heroes">${HEROES.map(h => `<button type="button" data-hero="${h.id}" aria-pressed="${h === hero}"><i style="background:var(--a${h.acc})"></i>${h.classes.map(c => c.name + ' ' + c.lvl).join(' / ')}</button>`).join('')}</div></div>
+    <div class="opt"><span class="lbl">Ячейки в Магии</span>${segHTML([['a','A · в кругах'],['b','B · пульт']], vars.magic).replace('class="seg"','class="seg" data-var="magic"')}<span class="hint">A — отметки ячеек в заголовке своего круга, рядом с заклинаниями. B — отдельный пульт ячеек над списками.</span></div>
+    <div class="opt"><span class="lbl">Палитра</span>${segHTML([['monokai','Monokai'],['dune','Rose of Dune'],['nord','Nord']], palette).replace('class="seg"','class="seg" data-var="palette"')}</div>
+    <button type="button" class="toggle" id="rm" role="switch" aria-checked="${reduced}"><span class="switch"></span>Меньше движения</button>`;
+}
+function bindControls(root, closeSheet){
+  $$('[data-hero]', root).forEach(b => b.addEventListener('click', () => { const i = HEROES.findIndex(h => h.id === b.dataset.hero); closeSheet && closeSheet(); if (!gal.hidden) hideGallery(); selectHero(i); }));
+  $$('[data-var]', root).forEach(seg => segment(seg, b => { const k = seg.dataset.var, v = b.dataset.v; if (k === 'palette') { palette = v; applyPalette(v); return; } vars[k] = v; renderPageKeep(); }));
+  $('#rm', root).addEventListener('click', e => { reduced = !reduced; e.currentTarget.setAttribute('aria-checked', reduced); document.documentElement.classList.toggle('reduce', reduced); });
+}
+/* ---------- gallery of all twelve classes, and the hero dock ---------- */
+const TAG = {barbarian:'Ярость удержанием', bard:'Кости вдохновения — смахнуть', cleric:'Жрец и Друид · карусель', druid:'Облик зверя поверх героя',
+  fighter:'Второе дыхание и к10', monk:'Камни ци и ката', paladin:'Сосуд наложения рук', ranger:'Прицел метки охотника',
+  rogue:'Кости выходят из тени', sorcerer:'Сферы источника магии', warlock:'Печати договора', wizard:'Доска ячеек'};
+const gal = $('#gal'), dock = $('#dock');
+function galleryHTML(){
+  return `<div class="gal-in"><span class="kick">Волна 2 · Магия</span><h2>Двенадцать классов</h2><p>У каждого класса — свой инструмент на вкладке Магии. Выберите героя; переключать можно и в доке снизу.</p>
+    <div class="gtiles">${HEROES.map((h, i) => `<button type="button" class="gtile" style="--acc:var(--a${h.acc});--i:${i}" data-gi="${i}" aria-current="${h === hero}"><span class="n">${i + 1}</span>
+      <span class="gi">${icon(h.glyph)}</span><b>${h.classes.map(c => c.name).join(' / ')}</b><span class="lv">${h.classes.map(c => c.lvl + ' · ' + c.sub).join(' / ')}</span><span class="tg">${TAG[h.id]}</span></button>`).join('')}</div></div>`;
+}
+function renderDock(){
+  const i = HEROES.indexOf(hero);
+  dock.innerHTML = `<button type="button" class="grid" data-d="grid" aria-pressed="${!gal.hidden}" aria-label="Все классы">${icon('grid')}</button>
+    <button type="button" data-d="prev" aria-label="Предыдущий класс">${icon('back')}</button>
+    <span class="dl"><b><i style="background:var(--a${hero.acc})"></i>${hero.classes.map(c => c.name).join(' / ')}</b><small>${i + 1} из ${HEROES.length}</small></span>
+    <button type="button" data-d="next" aria-label="Следующий класс">${icon('fwd')}</button>`;
+}
+// Switching heroes slides the sheet a little in the direction of travel.
+function selectHero(i, dir = 0){
+  hero = HEROES[(i + HEROES.length) % HEROES.length]; clsIndex = 0; open.clear(); open.add('1');
+  alm.hidden = true; sheet.style.transform = ''; sheet.style.filter = '';
+  renderSheet(); renderDock(); buzz.tick();
+  $('#controls').innerHTML = controlsHTML(); bindControls($('#controls'));
+  if (dir && !reduced) sheet.animate([{transform:`translateX(${dir * 28}px)`, opacity:.4}, {transform:'none', opacity:1}], {duration:520, easing:springEasing(SPR.snappy, .52)});
+}
+function showGallery(){
+  gal.innerHTML = galleryHTML(); gal.hidden = false; gal.scrollTop = 0; renderDock();
+  if (!reduced) gal.animate([{opacity:0, transform:'scale(1.03)'}, {opacity:1, transform:'none'}], {duration:420, easing:springEasing(SPR.gentle, .42)});
+}
+function hideGallery(){
+  renderDock();
+  if (reduced) { gal.hidden = true; return; }
+  gal.animate([{opacity:1, transform:'none'}, {opacity:0, transform:'scale(1.04)'}], {duration:320, easing:'cubic-bezier(.3,0,.8,.15)'}).onfinish = () => { gal.hidden = true; renderDock(); };
+  sheet.animate([{transform:'scale(.96)', opacity:.6}, {transform:'none', opacity:1}], {duration:560, easing:springEasing(SPR.gentle, .56)});
+}
+gal.addEventListener('click', e => { const t = e.target.closest('[data-gi]'); if (!t) return; selectHero(+t.dataset.gi); hideGallery(); });
+dock.addEventListener('click', e => { if (dock.swiped) { dock.swiped = false; return; } const d = e.target.closest('[data-d]')?.dataset.d; if (!d) return; const i = HEROES.indexOf(hero);
+  if (d === 'grid') { gal.hidden ? showGallery() : hideGallery(); buzz.tick(); return; }
+  if (!gal.hidden) hideGallery();
+  selectHero(i + (d === 'next' ? 1 : -1), d === 'next' ? 1 : -1); });
+// A horizontal swipe along the dock flips through the heroes too.
+{ let x0 = null; dock.addEventListener('pointerdown', e => { x0 = e.clientX; });
+  dock.addEventListener('pointerup', e => { if (x0 === null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 40) { dock.swiped = true; if (!gal.hidden) hideGallery(); selectHero(HEROES.indexOf(hero) + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1); } }); }
+
+$('#controls').innerHTML = controlsHTML(); bindControls($('#controls'));
+$('#vbtn').addEventListener('click', () => openSheet(`<h2 class="bs-title">Варианты прототипа</h2>${controlsHTML()}`, {onOpen(sh, close){ bindControls(sh, close); }, onClose(){ $('#controls').innerHTML = controlsHTML(); bindControls($('#controls')); }}));
+sheet.addEventListener('click', e => { const t = e.target.closest('[data-tab]'); if (t && t.dataset.tab !== '2') toast('Эта вкладка — волна 1, здесь показана Магия'); if (e.target.closest('[data-act="dice"]')) toast('Броски кубов — волна 3'); });
+addEventListener('resize', () => { if (xSpring && $('#stripWrap')) { xSpring.set(-clsIndex * $('#stripWrap').clientWidth); $('#stripWrap').fit(); } });
+if (reduced) document.documentElement.classList.add('reduce');
+applyPalette('monokai'); renderSheet(); showGallery();
+</script>
+</body>
+</html>

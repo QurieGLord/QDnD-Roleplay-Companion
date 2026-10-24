@@ -1,5 +1,6 @@
 import '../../core/content/content_reference_repair.dart';
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/ui/sheet_drag_region.dart' show SheetSafeArea;
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -403,7 +404,7 @@ class LibraryManagerScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       useSafeArea: true,
       isScrollControlled: true,
-      builder: (sheetContext) => StatefulBuilder(
+      builder: (sheetContext) => SheetSafeArea(child: StatefulBuilder(
         builder: (sheetContext, setSheetState) {
           final selectedEntries = preview.entries
               .where((entry) => selectedPaths.contains(entry.rawPath))
@@ -653,7 +654,7 @@ class LibraryManagerScreen extends StatelessWidget {
             },
           );
         },
-      ),
+      )),
     );
   }
 
@@ -776,7 +777,7 @@ class LibraryManagerScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       useSafeArea: true,
       isScrollControlled: true,
-      builder: (sheetContext) => SafeArea(
+      builder: (sheetContext) => SheetSafeArea(child: SafeArea(
         top: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -945,7 +946,7 @@ class LibraryManagerScreen extends StatelessWidget {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 

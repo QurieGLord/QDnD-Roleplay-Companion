@@ -89,14 +89,14 @@ void main() {
     await tester.pumpWidget(widgets.app(SingleChildScrollView(
         child: DruidMagicWidget(character: c, onStateChanged: () {}))));
     await tester.pumpAndSettle();
-    expect(find.text('Wild Shape'), findsNothing);
-    expect(find.text('Transform'), findsNothing);
+    expect(find.byKey(const ValueKey('druid-wild-shape')), findsNothing);
+    expect(find.byKey(const ValueKey('druid-transform')), findsNothing);
     c.classes.last.level = 2;
     c.level = 20;
     await tester.pumpWidget(widgets.app(SingleChildScrollView(
         child: DruidMagicWidget(character: c, onStateChanged: () {}))));
     await tester.pumpAndSettle();
-    expect(find.text('Wild Shape'), findsOneWidget);
+    expect(find.byKey(const ValueKey('druid-wild-shape')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
   test('Extra Attack and prepared spell allowance use their own class levels',

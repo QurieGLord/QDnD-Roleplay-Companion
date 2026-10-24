@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/ui/sheet_drag_region.dart' show SheetSafeArea;
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:qd_and_d/core/ui/expressive_kit.dart';
@@ -60,11 +61,11 @@ void showDiceRoller(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (context) => DiceRollerModal(
+    builder: (context) => SheetSafeArea(child: DiceRollerModal(
       title: title,
       initialModifier: modifier,
       initialDice: initialDice,
-    ),
+    )),
   );
 }
 

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/ui/sheet_drag_region.dart' show SheetSafeArea;
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
@@ -176,7 +177,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       backgroundColor: Colors.transparent,
       useSafeArea: true,
       isScrollControlled: true,
-      builder: (sheetContext) => _ExpressiveSheetShell(
+      builder: (sheetContext) => SheetSafeArea(child: _ExpressiveSheetShell(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,7 +237,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 
@@ -248,7 +249,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       backgroundColor: Colors.transparent,
       useSafeArea: true,
       isScrollControlled: true,
-      builder: (sheetContext) => _ExpressiveSheetShell(
+      builder: (sheetContext) => SheetSafeArea(child: _ExpressiveSheetShell(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,7 +338,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 
@@ -408,7 +409,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       backgroundColor: Colors.transparent,
       useSafeArea: true,
       isScrollControlled: true,
-      builder: (sheetContext) => _ExpressiveSheetShell(
+      builder: (sheetContext) => SheetSafeArea(child: _ExpressiveSheetShell(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -553,7 +554,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             ],
           ],
         ),
-      ),
+      )),
     );
   }
 
@@ -819,7 +820,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       backgroundColor: Colors.transparent,
       useSafeArea: true,
       isScrollControlled: true,
-      builder: (sheetContext) => _ExpressiveSheetShell(
+      builder: (sheetContext) => SheetSafeArea(child: _ExpressiveSheetShell(
         child: CharacterExportOptionsContent(
           onQdndBundle: () {
             _dismissSheetThen(sheetContext, () async {
@@ -834,7 +835,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
           primaryAccent: colorScheme.primary,
           secondaryAccent: colorScheme.secondary,
         ),
-      ),
+      )),
     );
   }
 
@@ -1151,7 +1152,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       backgroundColor: Colors.transparent,
       useSafeArea: true,
       isScrollControlled: true,
-      builder: (sheetContext) => _ExpressiveSheetShell(
+      builder: (sheetContext) => SheetSafeArea(child: _ExpressiveSheetShell(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1230,7 +1231,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 
@@ -1249,7 +1250,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
       backgroundColor: Colors.transparent,
       useSafeArea: true,
       isScrollControlled: true,
-      builder: (sheetContext) => _ExpressiveSheetShell(
+      builder: (sheetContext) => SheetSafeArea(child: _ExpressiveSheetShell(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1329,7 +1330,7 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 

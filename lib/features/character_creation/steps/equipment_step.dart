@@ -1,6 +1,7 @@
 import '../../../core/ui/app_menu_style.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/ui/sheet_drag_region.dart' show SheetSafeArea;
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
@@ -474,7 +475,7 @@ class _EquipmentStepState extends State<EquipmentStep> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => _ItemCatalogDialog(
+      builder: (context) => SheetSafeArea(child: _ItemCatalogDialog(
         state: state,
         locale: locale,
         l10n: l10n,
@@ -497,7 +498,7 @@ class _EquipmentStepState extends State<EquipmentStep> {
             }
           }
         },
-      ),
+      )),
     );
   }
 

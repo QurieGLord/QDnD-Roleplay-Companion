@@ -53,7 +53,7 @@ void main() {
       await tester.scrollUntilVisible(find.text('10%'), 200);
       await tester.pumpAndSettle();
       expect(
-          find.text(locale == 'ru' ? 'Ожидание · 7 дней' : 'Waiting · 7 days'),
+          find.text(locale == 'ru' ? 'через 7 дней' : 'in 7 days'),
           findsOneWidget);
       expect(tester.takeException(), isNull);
     });

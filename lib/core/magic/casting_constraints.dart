@@ -25,8 +25,8 @@ extension CastingConstraintLabel on CastingConstraint {
           ? 'Во время ярости нельзя накладывать заклинания.'
           : 'Spells cannot be cast while raging.',
       CastingConstraint.form => ru
-          ? 'Эта форма не позволяет накладывать заклинание из выбранного источника.'
-          : 'This form cannot cast a spell from the chosen source.',
+          ? 'В облике зверя заклинания не накладываются (друид сможет с 18 уровня). Сначала вернитесь в свой облик.'
+          : 'A beast form cannot cast spells (a druid can from level 18). Return to your own form first.',
       CastingConstraint.formMaterials => ru
           ? 'В этой форме нельзя предоставить необходимые материальные компоненты.'
           : 'This form cannot provide the required material components.',

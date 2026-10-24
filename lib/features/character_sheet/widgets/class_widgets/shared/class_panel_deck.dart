@@ -2,18 +2,101 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:qd_and_d/l10n/app_localizations.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
+import 'package:qd_and_d/core/theme/app_palettes.dart';
+import 'package:qd_and_d/core/ui/companion_kit.dart';
 
 class ClassPanelEntry {
   const ClassPanelEntry(
       {required this.id,
       required this.name,
       required this.level,
-      required this.child});
+      required this.child,
+      this.subclass,
+      this.onSubclass,
+      this.accent});
   final String id, name;
   final int level;
   final Widget child;
+  final String? subclass;
+  final VoidCallback? onSubclass;
+  final Color? accent;
+}
+
+/// The head of a class panel (`.chead`): the class in display type, its
+/// subclass as a quiet link to its details, the level in a chip.
+class ClassPanelHead extends StatelessWidget {
+  const ClassPanelHead({super.key, required this.entry});
+  final ClassPanelEntry entry;
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context), c = t.colorScheme;
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 4, 0, 12),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(entry.name,
+                style: const TextStyle(
+                    fontFamily: AppType.display,
+                    fontSize: 28,
+                    height: 1.05,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -.7)),
+            if (entry.subclass != null && entry.subclass!.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Pressable(
+                onTap: entry.onSubclass,
+                scale: .97,
+                semanticLabel: entry.subclass,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Text.rich(
+                      TextSpan(children: [
+                        TextSpan(text: entry.subclass),
+                        if (entry.onSubclass != null)
+                          WidgetSpan(
+                              alignment: PlaceholderAlignment.middle,
+                              child: Padding(
+                                  padding: const EdgeInsets.only(left: 4),
+                                  child: LineIcon('forward',
+                                      size: 15, color: c.secondary))),
+                      ]),
+                      style: TextStyle(
+                          fontFamily: AppType.body,
+                          fontSize: 13.5,
+                          height: 1.3,
+                          fontWeight: FontWeight.w600,
+                          color: c.secondary)),
+                ),
+              ),
+            ],
+          ]),
+        ),
+        const SizedBox(width: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: ShapeDecoration(
+              shape: const StadiumBorder(),
+              color: c.onSurface.withValues(alpha: .07)),
+          child: Text.rich(TextSpan(children: [
+            TextSpan(text: ru ? 'Уровень ' : 'Level '),
+            TextSpan(
+                text: '${entry.level}',
+                style: TextStyle(
+                    fontFamily: AppType.display, color: c.onSurface)),
+          ]),
+              style: TextStyle(
+                  fontFamily: AppType.body,
+                  fontSize: 12.5,
+                  height: 1,
+                  fontWeight: FontWeight.w600,
+                  color: c.onSurfaceVariant)),
+        ),
+      ]),
+    );
+  }
 }
 
 /// An inline class carousel. Each panel keeps its local state; the viewport
@@ -140,53 +223,40 @@ class _ClassPanelDeckState extends State<ClassPanelDeck> {
   @override
   Widget build(BuildContext context) {
     if (widget.panels.isEmpty) return const SizedBox.shrink();
-    if (widget.panels.length == 1) return widget.panels.single.child;
+    if (widget.panels.length == 1) {
+      final only = widget.panels.single;
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        ClassPanelHead(entry: only),
+        only.child,
+      ]);
+    }
     final selected = widget.panels.indexWhere((p) => p.id == _selected);
     final current = selected < 0 ? 0 : selected;
-    final theme = Theme.of(context), colors = theme.colorScheme;
-    final l = AppLocalizations.of(context)!,
-        ru = Localizations.localeOf(context).languageCode == 'ru';
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
     final reduced = MediaQuery.disableAnimationsOf(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Padding(
           padding: const EdgeInsets.only(bottom: 14),
-          child: Row(children: [
-            Expanded(
-                child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(children: [
-                      for (var i = 0; i < widget.panels.length; i++)
-                        Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: KeyedSubtree(
-                                key: _tabs.putIfAbsent(
-                                    widget.panels[i].id, GlobalKey.new),
-                                child: ChoiceChip(
-                                    key: ValueKey(
-                                        'class-panel-tab-${widget.panels[i].id}'),
-                                    selected: i == current,
-                                    showCheckmark: false,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 10),
-                                    label: Text(
-                                        '${widget.panels[i].name} · ${l.levelShort} ${widget.panels[i].level}'),
-                                    labelStyle: theme.textTheme.labelLarge
-                                        ?.copyWith(fontWeight: FontWeight.w600),
-                                    selectedColor: colors.secondaryContainer,
-                                    side: BorderSide.none,
-                                    onSelected: (_) => _select(i)))),
-                    ]))),
-            const SizedBox(width: 8),
-            Semantics(
-                liveRegion: true,
-                label: ru
-                    ? 'Класс ${current + 1} из ${widget.panels.length}'
-                    : 'Class ${current + 1} of ${widget.panels.length}',
-                excludeSemantics: true,
-                child: Text('${current + 1} / ${widget.panels.length}',
-                    style: theme.textTheme.labelMedium
-                        ?.copyWith(color: colors.onSurfaceVariant))),
-          ])),
+          child: Semantics(
+            liveRegion: true,
+            label: ru
+                ? 'Класс ${current + 1} из ${widget.panels.length}'
+                : 'Class ${current + 1} of ${widget.panels.length}',
+            child: FlowSegment<int>(
+              values: [for (var i = 0; i < widget.panels.length; i++) i],
+              labels: [for (final p in widget.panels) p.name],
+              trailing: [for (final p in widget.panels) '${p.level}'],
+              dots: [
+                for (final p in widget.panels)
+                  p.accent ?? AppAccents.of(context).forClass(p.id)
+              ],
+              itemKeys: [
+                for (final p in widget.panels) ValueKey('class-panel-tab-${p.id}')
+              ],
+              selected: current,
+              onChanged: _select,
+            ),
+          )),
       AnimatedContainer(
           height: _height,
           duration: reduced || _paging
@@ -242,7 +312,17 @@ class _ClassPanelDeckState extends State<ClassPanelDeck> {
                                                             : 1 -
                                                                 .015 *
                                                                     (i - _page).abs().clamp(0, 1),
-                                                        child: widget.panels[i].child))))))))),
+                                                        child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .stretch,
+                                                            children: [
+                                                              ClassPanelHead(
+                                                                  entry: widget
+                                                                      .panels[i]),
+                                                              widget.panels[i]
+                                                                  .child,
+                                                            ])))))))))),
                 ]),
           )),
     ]);

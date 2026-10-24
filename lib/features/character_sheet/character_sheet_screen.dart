@@ -142,9 +142,8 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
                 current: _activeTab,
                 stamp: _stamp,
                 followsActivity: true,
-                builder: (active) => _Inset(
-                    child: AbilitiesTab(
-                        character: widget.character, isActive: active)))),
+                builder: (active) => AbilitiesTab(
+                    character: widget.character, isActive: active))),
         PageArrival(
             controller: _pageController,
             index: 3,
@@ -152,11 +151,10 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
                 index: 3,
                 current: _activeTab,
                 stamp: _stamp,
-                builder: (_) => _Inset(
-                    child: InventoryTab(
-                        character: widget.character,
-                        showAddButton: false,
-                        onCharacterUpdated: _dataChanged)))),
+                builder: (_) => InventoryTab(
+                    character: widget.character,
+                    showAddButton: false,
+                    onCharacterUpdated: _dataChanged))),
         PageArrival(
             controller: _pageController,
             index: 4,
@@ -164,8 +162,7 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
                 index: 4,
                 current: _activeTab,
                 stamp: _stamp,
-                builder: (_) =>
-                    _Inset(child: JournalTab(character: widget.character)))),
+                builder: (_) => JournalTab(character: widget.character))),
       ];
 
   @override
@@ -880,10 +877,3 @@ class _RoundButton extends StatelessWidget {
 }
 
 /// Pages not yet redesigned keep to the space below the floating island.
-class _Inset extends StatelessWidget {
-  const _Inset({required this.child});
-  final Widget child;
-  @override
-  Widget build(BuildContext context) => Padding(
-      padding: EdgeInsets.only(top: SheetPageInset.of(context)), child: child);
-}

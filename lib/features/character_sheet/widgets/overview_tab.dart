@@ -606,13 +606,15 @@ class _WeaponFace extends StatelessWidget {
           semanticLabel: semantics,
           child: ExcludeSemantics(
             child: Container(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+              // The lead sits on the weapon icon's axis (42 wide) and the
+              // text starts on the weapon name's line.
+              padding: const EdgeInsets.fromLTRB(0, 10, 12, 10),
               decoration: BoxDecoration(
                   color: c.onSurface.withValues(alpha: .06),
                   borderRadius: BorderRadius.circular(18)),
               child: Row(children: [
-                lead,
-                const SizedBox(width: 10),
+                SizedBox(width: 42, child: Center(child: lead)),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

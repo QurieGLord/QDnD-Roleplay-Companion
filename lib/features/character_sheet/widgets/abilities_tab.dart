@@ -4,11 +4,14 @@ import '../../../core/magic/spell_use.dart';
 import '../../../core/magic/magic_slots.dart';
 import '../../../core/progression/character_class_context.dart';
 import 'class_widgets/shared/class_panel_deck.dart';
+import 'class_widgets/instrument/instrument_kit.dart';
+import '../../../shared/widgets/subclass_details_sheet.dart';
 import '../../../core/services/gameplay_actions_service.dart';
 import 'session/resource_counter.dart';
 import 'session/value_editors.dart';
 
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/ui/sheet_drag_region.dart' show SheetSafeArea;
 import 'package:flutter/services.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
@@ -17,7 +20,6 @@ import '../../../core/models/character.dart';
 import '../../../core/models/spell.dart';
 import '../../../core/models/character_feature.dart';
 import '../../../core/services/spell_service.dart';
-import '../../../core/services/spellcasting_service.dart';
 import '../../../core/services/feature_service.dart';
 import 'spell_slots_widget.dart';
 import '../../spell_almanac/spell_almanac_screen.dart';
@@ -25,7 +27,6 @@ import '../../../shared/widgets/spell_details_sheet.dart';
 import '../../../shared/widgets/feature_details_sheet.dart';
 import '../../../core/utils/spell_utils.dart';
 import 'abilities/abilities_empty_state.dart';
-import 'abilities/abilities_quick_jump_row.dart';
 import 'abilities/abilities_reveal.dart';
 import 'abilities/abilities_shell_tokens.dart';
 import 'abilities/abilities_tab_logic.dart';
@@ -44,9 +45,31 @@ import 'class_widgets/sorcerer_magic_widget.dart';
 import 'class_widgets/warlock_magic_widget.dart';
 import 'class_widgets/druid_magic_widget.dart';
 import 'class_widgets/wizard_magic_widget.dart';
+import 'class_widgets/instrument/universal_kit_panel.dart';
+import 'session/value_editor_dialog.dart';
+import '../../../core/ui/companion_kit.dart' show Pressable, SheetPageInset;
+import '../../../core/magic/spellbook_state.dart';
+import '../../../core/progression/class_spellcasting_profile.dart';
+import '../../../core/services/magic_resource_actions_service.dart';
+import '../../../core/services/spellbook_actions_service.dart';
 import 'class_widgets/cleric_magic_widget.dart';
 import 'class_widgets/ranger_survival_widget.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
+
+const _builtInClasses = {
+  'barbarian',
+  'bard',
+  'cleric',
+  'druid',
+  'fighter',
+  'monk',
+  'paladin',
+  'ranger',
+  'rogue',
+  'sorcerer',
+  'warlock',
+  'wizard',
+};
 
 class AbilitiesTab extends StatefulWidget {
   final Character character;
@@ -371,10 +394,6 @@ class _AbilitiesTabState extends State<AbilitiesTab>
     }
   }
 
-  Future<void> _castSpell(
-          Spell spell, int slotLevel, String locale, AppLocalizations l10n) =>
-      _showCastSpellDialog(spell, locale, l10n);
-
   bool _isRenderableWidget(Widget widget) {
     return widget is! SizedBox ||
         widget.width != null ||
@@ -393,21 +412,13 @@ class _AbilitiesTabState extends State<AbilitiesTab>
     );
   }
 
-  Future<void> _scrollToSection(GlobalKey key) async {
-    final context = key.currentContext;
-    if (context == null) return;
-
-    HapticFeedback.selectionClick();
-    final disableAnimations =
-        MediaQuery.maybeOf(this.context)?.disableAnimations ?? false;
-    await Scrollable.ensureVisible(
-      context,
-      duration: disableAnimations
-          ? Duration.zero
-          : AbilitiesShellTokens.scrollDuration,
-      curve: AppMotion.standard,
-      alignment: 0.04,
-    );
+  bool _slotsReadable() {
+    try {
+      MagicSlots.read(widget.character);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   void _openSpellAlmanac() {
@@ -427,7 +438,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: true,
-      builder: (context) => FeatureDetailsSheet(feature: feature),
+      builder: (context) => SheetSafeArea(child: FeatureDetailsSheet(feature: feature)),
     );
   }
 
@@ -437,14 +448,14 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: true,
-      builder: (context) => SpellDetailsSheet(
+      builder: (context) => SheetSafeArea(child: SpellDetailsSheet(
         spell: spell,
         character: widget.character,
         editable: true,
         onChanged: () {
           if (mounted) setState(() {});
         },
-      ),
+      )),
     );
   }
 
@@ -549,8 +560,14 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         ...widget.character.signatureSpells,
       };
 
+      // Mystic Arcanum spells live on their seals in the warlock panel.
+      final arcanumIds = {
+        for (var circle = 6; circle <= 9; circle++)
+          SpellUse.arcanumSpell(widget.character, circle),
+      }.whereType<String>().toSet();
       for (var spell in displaySpells) {
         if (vipSpellIds.contains(spell.id)) continue;
+        if (arcanumIds.contains(spell.id)) continue;
         spellsByLevel.putIfAbsent(spell.level, () => []).add(spell);
       }
 
@@ -562,25 +579,29 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         }
         final key = FeatureService.classKey(f.associatedClass!);
         final owner = CharacterClassContext(widget.character, key);
-        if (owner.entry == null &&
-            !{
-              'barbarian',
-              'bard',
-              'cleric',
-              'druid',
-              'fighter',
-              'monk',
-              'paladin',
-              'ranger',
-              'rogue',
-              'sorcerer',
-              'warlock',
-              'wizard'
-            }.contains(key)) {
+        if (owner.entry == null && !_builtInClasses.contains(key)) {
           return f.minLevel <= widget.character.level;
         }
         return owner.canUseFeature(f);
       }).toList();
+
+      // A class outside the built-in twelve (third-party, homebrew, an
+      // import) is drawn by the universal kit from its own features.
+      final kitClasses = <String, List<CharacterFeature>>{
+        for (final entry in widget.character.classes)
+          if (!_builtInClasses.contains(FeatureService.classKey(entry.id)))
+            FeatureService.classKey(entry.id): widget.character.features
+                .where((f) =>
+                    f.associatedClass != null &&
+                    CharacterClassContext(
+                            widget.character, FeatureService.classKey(entry.id))
+                        .acceptsFeature(f) &&
+                    FeatureService.classKey(f.associatedClass!) != 'optional')
+                .toList(),
+      }..removeWhere((_, features) => features.isEmpty);
+      final kitFeatureIds = {
+        for (final list in kitClasses.values) ...list.map((f) => f.id)
+      };
 
       // Deep Search for Class Widgets
       final monkKiFeature = _findFeatureDeep(allFeatures, ['ki']);
@@ -735,6 +756,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
             (f) =>
                 f.resourcePool == null &&
                 f.type != FeatureType.passive &&
+                !kitFeatureIds.contains(f.id) &&
                 _shouldShowInList(f),
           )
           .toList();
@@ -749,6 +771,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
             (f) =>
                 f.resourcePool == null &&
                 f.type == FeatureType.passive &&
+                !kitFeatureIds.contains(f.id) &&
                 _shouldShowInList(f),
           )
           .toList();
@@ -759,7 +782,10 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       );
 
       final rawResourceFeatures = allFeatures
-          .where((f) => f.resourcePool != null && _shouldShowInList(f))
+          .where((f) =>
+              f.resourcePool != null &&
+              !kitFeatureIds.contains(f.id) &&
+              _shouldShowInList(f))
           .toList();
 
       final resourceFeatures = _deduplicateAndFilterFeatures(
@@ -781,6 +807,11 @@ class _AbilitiesTabState extends State<AbilitiesTab>
               id: id,
               name: owner.name(locale),
               level: owner.level,
+              subclass: subclassDisplayName(widget.character, id, locale),
+              onSubclass: () async {
+                await showClassSubclassDetails(context, widget.character, id);
+                if (mounted) setState(() {});
+              },
               child: panel,
             ),
           );
@@ -1005,39 +1036,31 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         );
       }
 
+      for (final MapEntry(key: id, value: features) in kitClasses.entries) {
+        final level = CharacterClassContext(widget.character, id).level;
+        addFeaturedModule(
+          id,
+          _safeBuildWidget(
+            () => UniversalKitPanel(
+              hero: widget.character,
+              classId: id,
+              features: features
+                  .where(
+                      CharacterClassContext(widget.character, id).canUseFeature)
+                  .toList(),
+              locked: features.where((f) => f.minLevel > level).toList(),
+              onChanged: () => setState(() {}),
+            ),
+          ),
+        );
+      }
+
       final hasFeaturedModules = featuredModules.isNotEmpty;
       final isEmpty = featuredModules.isEmpty &&
           resourceFeatures.isEmpty &&
           activeFeatures.isEmpty &&
           !showMagicSection &&
           passiveFeatures.isEmpty;
-
-      final quickJumpItems = <AbilitiesQuickJumpItem>[
-        if (resourceFeatures.isNotEmpty)
-          AbilitiesQuickJumpItem(
-            label: l10n.resources,
-            icon: Icons.tune,
-            onTap: () => _scrollToSection(_resourcesSectionAnchor),
-          ),
-        if (activeFeatures.isNotEmpty)
-          AbilitiesQuickJumpItem(
-            label: l10n.activeAbilities,
-            icon: Icons.bolt,
-            onTap: () => _scrollToSection(_activeSectionAnchor),
-          ),
-        if (showMagicSection)
-          AbilitiesQuickJumpItem(
-            label: l10n.magic,
-            icon: Icons.auto_awesome,
-            onTap: () => _scrollToSection(_magicSectionAnchor),
-          ),
-        if (passiveFeatures.isNotEmpty)
-          AbilitiesQuickJumpItem(
-            label: l10n.passiveTraits,
-            icon: Icons.auto_stories,
-            onTap: () => _scrollToSection(_passiveSectionAnchor),
-          ),
-      ];
 
       final magicVipBlocks = <Widget>[
         if (isWizard &&
@@ -1051,7 +1074,6 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       ];
 
       final children = <Widget>[];
-      final hasQuickJumpRow = hasFeaturedModules && quickJumpItems.length >= 3;
       var hasAddedGenericSection = false;
 
       if (hasFeaturedModules) {
@@ -1074,25 +1096,11 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         );
       }
 
-      if (hasQuickJumpRow) {
-        if (children.isNotEmpty) {
-          children.add(const SizedBox(height: 8));
-        }
-        children.add(
-          AbilitiesReveal(
-            delay: const Duration(milliseconds: 72),
-            child: AbilitiesQuickJumpRow(items: quickJumpItems),
-          ),
-        );
-      }
-
       if (resourceFeatures.isNotEmpty) {
         if (children.isNotEmpty) {
           children.add(
             SizedBox(
-              height: hasFeaturedModules &&
-                      !hasQuickJumpRow &&
-                      !hasAddedGenericSection
+              height: hasFeaturedModules && !hasAddedGenericSection
                   ? 0
                   : AbilitiesShellTokens.sectionSpacing,
             ),
@@ -1140,9 +1148,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         if (children.isNotEmpty) {
           children.add(
             SizedBox(
-              height: hasFeaturedModules &&
-                      !hasQuickJumpRow &&
-                      !hasAddedGenericSection
+              height: hasFeaturedModules && !hasAddedGenericSection
                   ? 0
                   : AbilitiesShellTokens.sectionSpacing,
             ),
@@ -1175,9 +1181,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         if (children.isNotEmpty) {
           children.add(
             SizedBox(
-              height: hasFeaturedModules &&
-                      !hasQuickJumpRow &&
-                      !hasAddedGenericSection
+              height: hasFeaturedModules && !hasAddedGenericSection
                   ? 0
                   : AbilitiesShellTokens.sectionSpacing,
             ),
@@ -1193,20 +1197,25 @@ class _AbilitiesTabState extends State<AbilitiesTab>
                 stats: const [],
                 preparationStatus: SpellSourceSummary(
                     hero: widget.character, onPrepare: _openSpellAlmanac),
-                slotsLabel: SpellcastingService.getSpellcastingType(
-                          widget.character.characterClass,
-                        ) ==
-                        'pact_magic'
-                    ? (locale == 'ru'
-                        ? 'Магия Договора (Короткий отдых)'
-                        : 'Pact Magic (Short Rest)')
-                    : null,
-                slotsWidget: widget.character.classLevel('warlock') > 0 &&
-                        widget.character.classes.length == 1
+                concentration: _concentrationBanner(locale),
+                // Slots live in the circle headers; only an older mixed
+                // sheet whose pools are not separated keeps the old panel.
+                slotsWidget: _slotsReadable()
                     ? null
                     : SpellSlotsWidget(
                         character: widget.character,
                         onChanged: () => setState(() {})),
+                footer: hasSpellSlots
+                    ? Text(
+                        locale == 'ru'
+                            ? 'Касание отметки — потратить ячейку · удержание — изменить вручную'
+                            : 'Tap a mark to spend a slot · hold to edit',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontFamily: AppType.body,
+                            fontSize: 12.5,
+                            color: colorScheme.onSurfaceVariant))
+                    : null,
                 onOpenSpellAlmanac: _openSpellAlmanac,
                 vipBlocks: magicVipBlocks,
                 spellGroups: _buildSpellList(spellsByLevel, locale, l10n),
@@ -1223,9 +1232,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         if (children.isNotEmpty) {
           children.add(
             SizedBox(
-              height: hasFeaturedModules &&
-                      !hasQuickJumpRow &&
-                      !hasAddedGenericSection
+              height: hasFeaturedModules && !hasAddedGenericSection
                   ? 0
                   : AbilitiesShellTokens.sectionSpacing,
             ),
@@ -1248,9 +1255,12 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         hasAddedGenericSection = true;
       }
 
+      // The page scrolls on under the floating island, like Overview.
       return ListView(
         controller: _scrollController,
-        padding: AbilitiesShellTokens.pagePadding,
+        clipBehavior: Clip.none,
+        padding: AbilitiesShellTokens.pagePadding
+            .add(EdgeInsets.only(top: SheetPageInset.of(context))),
         children: isEmpty ? const [AbilitiesEmptyState()] : children,
       );
     } catch (e, stack) {
@@ -1295,281 +1305,390 @@ class _AbilitiesTabState extends State<AbilitiesTab>
     String locale,
     AppLocalizations l10n,
   ) {
-    final List<Widget> children = [];
+    final hero = widget.character;
+    final ru = locale == 'ru';
+    final children = <Widget>[];
+    MagicSlots? slots;
+    try {
+      slots = MagicSlots.read(hero);
+    } catch (_) {}
+    CircleSlots? sharedAt(int level) {
+      if (slots == null || level < 1 || level > slots.maximum.length) {
+        return null;
+      }
+      final maximum = slots.maximum[level - 1];
+      if (maximum <= 0) return null;
+      return (
+        current: slots.remaining(MagicPool.shared, level),
+        maximum: maximum
+      );
+    }
+
     final levels = spellsByLevel.keys.toList()..sort();
-    final defaultExpandedLevel = AbilitiesTabLogic.defaultExpandedSpellLevel(
-      levels,
-    );
+    final defaultExpandedLevel =
+        AbilitiesTabLogic.defaultExpandedSpellLevel(levels);
+    final casters = hero.classes.where((entry) {
+      try {
+        return ClassSpellcastingProfile.resolve(hero, entry.id) != null;
+      } catch (_) {
+        return false;
+      }
+    }).length;
+
+    final pact = slots?.pact;
+    if (pact != null && pact.maximum > 0) {
+      children.add(AbilitiesSpellLevelGroup(
+        key: const ValueKey('spell-circle-pact'),
+        character: hero,
+        level: pact.circle,
+        spells: const [],
+        locale: locale,
+        initiallyExpanded: false,
+        onExpandedChanged: (_) {},
+        onOpenDetails: _showSpellSheet,
+        onCastSpell: (_) {},
+        onTogglePreparation: (_) {},
+        title: ru ? 'Договор' : 'Pact',
+        subtitle: ru
+            ? 'все ячейки ${pact.circle} круга'
+            : 'all slots level ${pact.circle}',
+        tint: accentOf(context, 5),
+        slots: (current: pact.current, maximum: pact.maximum),
+        onSpendSlot: () => _spendSlot(MagicPool.pact, pact.circle),
+        onEditSlot: () => _editSlot(MagicPool.pact, pact.circle),
+      ));
+    }
 
     for (final level in levels) {
       try {
         final spells = spellsByLevel[level] ?? [];
-        if (spells.isNotEmpty) {
-          children.add(
-            _buildSpellLevelGroup(
-              level,
-              spells,
-              locale,
-              l10n,
-              defaultExpandedLevel: defaultExpandedLevel,
-            ),
-          );
-        }
+        if (spells.isEmpty) continue;
+        final circle = sharedAt(level);
+        children.add(AbilitiesSpellLevelGroup(
+          key: PageStorageKey('spell_level_$level'),
+          character: hero,
+          level: level,
+          spells: spells,
+          locale: locale,
+          initiallyExpanded:
+              _expandedLevels[level] ?? level == defaultExpandedLevel,
+          onExpandedChanged: (expanded) => _expandedLevels[level] = expanded,
+          onOpenDetails: _showSpellSheet,
+          onCastSpell: (spell) => _showCastSpellDialog(spell, locale, l10n),
+          onTogglePreparation: _togglePrepared,
+          showOwner: casters > 1,
+          slots: circle,
+          onSpendSlot:
+              circle == null ? null : () => _spendSlot(MagicPool.shared, level),
+          onEditSlot:
+              circle == null ? null : () => _editSlot(MagicPool.shared, level),
+        ));
       } catch (e) {
         debugPrint('Error rendering spell level $level: $e');
+      }
+    }
+
+    // Circles above the known spells (multiclass upcasting) keep their row.
+    if (slots != null) {
+      for (var level = 1; level <= slots.maximum.length; level++) {
+        if (levels.contains(level)) continue;
+        final circle = sharedAt(level);
+        if (circle == null) continue;
+        children.add(AbilitiesSpellLevelGroup(
+          key: ValueKey('spell-circle-slots-$level'),
+          character: hero,
+          level: level,
+          spells: const [],
+          locale: locale,
+          initiallyExpanded: false,
+          onExpandedChanged: (_) {},
+          onOpenDetails: _showSpellSheet,
+          onCastSpell: (_) {},
+          onTogglePreparation: (_) {},
+          subtitle: ru ? 'для усиления' : 'for upcasting',
+          slots: circle,
+          onSpendSlot: () => _spendSlot(MagicPool.shared, level),
+          onEditSlot: () => _editSlot(MagicPool.shared, level),
+        ));
       }
     }
     return children;
   }
 
-  Widget _buildSpellLevelGroup(
-    int level,
-    List<Spell> spells,
-    String locale,
-    AppLocalizations l10n, {
-    required int? defaultExpandedLevel,
-  }) {
-    return AbilitiesSpellLevelGroup(
-      key: PageStorageKey('spell_level_$level'),
-      character: widget.character,
-      level: level,
-      spells: spells,
-      locale: locale,
-      initiallyExpanded:
-          _expandedLevels[level] ?? level == defaultExpandedLevel,
-      onExpandedChanged: (expanded) => _expandedLevels[level] = expanded,
-      onOpenDetails: (spell) {
-        _showSpellSheet(spell);
-      },
-      onCastSpell: (spell) => _showCastSpellDialog(spell, locale, l10n),
-      onTogglePreparation: _showSpellSheet,
+  Future<void> _spendSlot(MagicPool pool, int circle) async {
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    final hero = widget.character;
+    if (MagicSlots.read(hero).remaining(pool, circle) <= 0) {
+      AppSnackBar.info(
+          context,
+          pool == MagicPool.pact
+              ? (ru
+                  ? 'Ячейки договора восстановит короткий отдых'
+                  : 'A short rest restores Pact slots')
+              : (ru
+                  ? 'Ячеек $circle круга не осталось'
+                  : 'No level $circle slots left'));
+      return;
+    }
+    HapticFeedback.lightImpact();
+    try {
+      await MagicResourceActionsService.spendSlot(hero, pool, circle);
+    } catch (_) {
+      if (mounted) {
+        AppSnackBar.error(
+            context, AppLocalizations.of(context)!.sheetSaveFailed);
+      }
+      return;
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _editSlot(MagicPool pool, int circle) async {
+    final l10n = AppLocalizations.of(context)!;
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    final hero = widget.character;
+    final state = MagicSlots.read(hero);
+    final current = state.remaining(pool, circle);
+    final maximum = pool == MagicPool.pact
+        ? state.pact?.maximum ?? 0
+        : state.maximum[circle - 1];
+    HapticFeedback.mediumImpact();
+    await showSheetValueEditor(context,
+        title: pool == MagicPool.pact
+            ? (ru ? 'Магия договора' : 'Pact Magic')
+            : l10n.levelSlot(circle),
+        icon: Icons.auto_awesome,
+        fields: [
+          SheetNumberField('value', l10n.sheetRemainder, current,
+              hint: l10n.gameStateNormalMaximum(maximum))
+        ],
+        onSave: (values, _) => GameplayActionsService.editMagicSlot(
+            hero, pool, circle, values['value']!));
+    if (mounted) setState(() {});
+  }
+
+  /// The star of a spell row: toggles preparation in place when one class
+  /// owns the spell, otherwise opens the spell to choose.
+  Future<void> _togglePrepared(Spell spell) async {
+    final hero = widget.character;
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    final state = SpellbookState.read(hero.spellbookData);
+    final owners = state
+        .ownersOf(spell.id)
+        .where((o) =>
+            o.startsWith('class:') &&
+            SpellbookActionsService.preparationLimit(hero, o) != null)
+        .toList();
+    if (owners.length != 1) return _showSpellSheet(spell);
+    final source = owners.single;
+    final on = state.ids(source, 'prepared').contains(spell.id) ||
+        (hero.classes.length == 1 &&
+            state.unassignedPrepared(hero).contains(spell.id));
+    final limit = SpellbookActionsService.preparationLimit(hero, source)!;
+    final count = SpellbookActionsService.preparedCount(hero, source);
+    if (!on && count >= limit) {
+      HapticFeedback.heavyImpact();
+      AppSnackBar.info(
+          context,
+          ru
+              ? 'Подготовлено $count из $limit — сначала уберите другое'
+              : '$count of $limit prepared — remove one first');
+      return;
+    }
+    HapticFeedback.selectionClick();
+    try {
+      await SpellbookActionsService.setPrepared(hero, spell.id, !on,
+          source: source);
+    } catch (_) {
+      if (mounted) {
+        AppSnackBar.error(
+            context, AppLocalizations.of(context)!.sheetSaveFailed);
+      }
+      return;
+    }
+    if (mounted) setState(() {});
+  }
+
+  Widget? _concentrationBanner(String locale) {
+    final id = widget.character.concentratingOn;
+    if (id == null) return null;
+    final spell = SpellService.getSpellById(id);
+    final ru = locale == 'ru';
+    final l10n = AppLocalizations.of(context)!;
+    final c = Theme.of(context).colorScheme;
+    final a5 = accentOf(context, 5);
+    return Container(
+      key: const ValueKey('magic-concentration'),
+      padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+      decoration: BoxDecoration(
+          color: mixColor(a5, .18, c.surfaceContainerLow),
+          borderRadius: BorderRadius.circular(20)),
+      child: Row(children: [
+        InstrumentGlyph('timer', size: 20, color: a5),
+        const SizedBox(width: 10),
+        Expanded(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+                '${ru ? 'Концентрация' : 'Concentration'}: ${spell?.getName(locale) ?? id}',
+                style: const TextStyle(
+                    fontFamily: AppType.body,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    height: 1.25)),
+            if (spell != null)
+              Text(SpellUtils.getLocalizedValue(l10n, spell.duration),
+                  style: TextStyle(
+                      fontFamily: AppType.body,
+                      fontSize: 12,
+                      color: c.onSurfaceVariant)),
+          ]),
+        ),
+        TextButton(
+          onPressed: () async {
+            HapticFeedback.lightImpact();
+            try {
+              await MagicResourceActionsService.endConcentration(
+                  widget.character);
+            } catch (_) {
+              if (mounted) AppSnackBar.error(context, l10n.sheetSaveFailed);
+              return;
+            }
+            if (!mounted) return;
+            setState(() {});
+            AppSnackBar.info(
+                context, ru ? 'Концентрация прервана' : 'Concentration ended');
+          },
+          child: Text(ru ? 'Прервать' : 'End'),
+        ),
+      ]),
     );
   }
 
   // --- Wizard VIP Block Builders ---
-
-  void _showFeatureLore(String featureId) {
-    final feature = FeatureService.getFeatureById(featureId);
-    if (feature != null) {
-      _showFeatureSheet(feature);
-    }
-  }
-
   Widget _buildSpellMasteryBlock(
     BuildContext context,
     AppLocalizations l10n,
     String locale,
-  ) {
-    final theme = Theme.of(context);
-    final spells = widget.character.spellMasterySpells
-        .map((id) => SpellService.getSpellById(id))
-        .whereType<Spell>()
-        .toList();
-
-    final isHC = theme.dividerTheme.thickness == 2;
-
-    return Card(
-      elevation: 4,
-      color: theme.colorScheme.surfaceContainerHighest,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(
-          color: isHC ? theme.colorScheme.primary : theme.colorScheme.tertiary,
-          width: 2,
-        ),
-        borderRadius: BorderRadius.circular(AppRadii.lg),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header: Giant Clickable Area
-          InkWell(
-            onTap: () => _showFeatureLore('spell-mastery'),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.lg)),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0), // Generous padding
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      locale == 'ru'
-                          ? "Мастерство заклинаний"
-                          : "Spell Mastery",
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.tertiary,
-                      ),
-                    ),
-                  ),
-                  Icon(Icons.auto_awesome, color: theme.colorScheme.tertiary),
-                ],
-              ),
-            ),
-          ),
-          const Divider(height: 1, indent: 16, endIndent: 16),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-            child: Column(
-              children: spells
-                  .map(
-                    (spell) => _buildVipSpellCard(
-                      context,
-                      spell,
-                      locale,
-                      l10n,
-                      "Mastery",
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  ) =>
+      _vipBlock(
+        key: const ValueKey('wizard-spell-mastery'),
+        title: locale == 'ru' ? 'Мастерство заклинаний' : 'Spell Mastery',
+        featureId: 'spell-mastery',
+        chip: locale == 'ru' ? 'без ячейки' : 'no slot',
+        ids: widget.character.spellMasterySpells,
+        signature: false,
+        locale: locale,
+        l10n: l10n,
+      );
 
   Widget _buildSignatureSpellsBlock(
     BuildContext context,
     AppLocalizations l10n,
     String locale,
-  ) {
-    final theme = Theme.of(context);
-    final spells = widget.character.signatureSpells
-        .map((id) => SpellService.getSpellById(id))
-        .whereType<Spell>()
-        .toList();
+  ) =>
+      _vipBlock(
+        key: const ValueKey('wizard-signature-spells'),
+        title: locale == 'ru' ? 'Фирменные заклинания' : 'Signature Spells',
+        featureId: 'signature-spell',
+        chip: locale == 'ru' ? 'раз в отдых' : 'once a rest',
+        ids: widget.character.signatureSpells,
+        signature: true,
+        locale: locale,
+        l10n: l10n,
+      );
 
-    final isHC = theme.dividerTheme.thickness == 2;
-
-    return Card(
-      elevation: 4,
-      color: theme.colorScheme.surfaceContainerHighest,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(
-          color: isHC ? theme.colorScheme.primary : theme.colorScheme.tertiary,
-          width: 2,
-        ),
-        borderRadius: BorderRadius.circular(AppRadii.lg),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header: Giant Clickable Area
-          InkWell(
-            onTap: () => _showFeatureLore('signature-spell'),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.lg)),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0), // Generous padding
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      locale == 'ru'
-                          ? "Фирменные заклинания"
-                          : "Signature Spells",
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.tertiary,
-                      ),
+  /// Spell Mastery and Signature Spells: a lite block of the wizard accent
+  /// whose rows cast without a slot (a signature spell once per rest).
+  Widget _vipBlock({
+    required Key key,
+    required String title,
+    required String featureId,
+    required String chip,
+    required List<String> ids,
+    required bool signature,
+    required String locale,
+    required AppLocalizations l10n,
+  }) {
+    final c = Theme.of(context).colorScheme;
+    final a4 = accentOf(context, 4);
+    final spells =
+        ids.map(SpellService.getSpellById).whereType<Spell>().toList();
+    final feature = FeatureService.getFeatureById(featureId);
+    return LiteBlock(
+      key: key,
+      accent: a4,
+      title: title,
+      about: feature == null
+          ? null
+          : InstrumentAbout(
+              title: feature.getName(locale),
+              paragraphs:
+                  feature.getDescription(locale).split(RegExp(r'\n\s*\n'))),
+      trailing: InstrumentChip(chip),
+      child: Column(children: [
+        for (final spell in spells)
+          Builder(builder: (context) {
+            final used = signature &&
+                (widget.character.signatureSpellsUsed[spell.id] ?? false);
+            return Pressable(
+              onTap: () => _showSpellSheet(spell),
+              scale: .99,
+              semanticLabel: spell.getName(locale),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(children: [
+                  SizedBox.square(
+                    dimension: 30,
+                    child: Center(
+                      child: InstrumentGlyph(signature ? 'wand' : 'spark',
+                          size: 18, color: used ? c.outline : a4),
                     ),
                   ),
-                  Icon(Icons.auto_fix_high, color: theme.colorScheme.tertiary),
-                ],
-              ),
-            ),
-          ),
-          const Divider(height: 1, indent: 16, endIndent: 16),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-            child: Column(
-              children: spells
-                  .map(
-                    (spell) => _buildVipSpellCard(
-                      context,
-                      spell,
-                      locale,
-                      l10n,
-                      "Signature",
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(spell.getName(locale),
+                              style: TextStyle(
+                                  fontFamily: AppType.body,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.25,
+                                  color: used ? c.onSurfaceVariant : null)),
+                          Text(
+                              used
+                                  ? (locale == 'ru'
+                                      ? 'использовано · дальше ячейкой'
+                                      : 'used · now with a slot')
+                                  : '${SpellUtils.getLocalizedSchool(l10n, spell.school)} · ${locale == 'ru' ? '${spell.level} круг' : 'level ${spell.level}'}',
+                              style: TextStyle(
+                                  fontFamily: AppType.body,
+                                  fontSize: 12,
+                                  color: c.onSurfaceVariant)),
+                        ]),
+                  ),
+                  const SizedBox(width: 10),
+                  Pressable(
+                    onTap: () => _showCastSpellDialog(spell, locale, l10n),
+                    scale: .92,
+                    semanticLabel: l10n.castSpell,
+                    child: Container(
+                      width: 44,
+                      height: 40,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          color: a4.withValues(alpha: .16),
+                          borderRadius: BorderRadius.circular(14)),
+                      child: InstrumentGlyph('wand', size: 20, color: a4),
                     ),
-                  )
-                  .toList(),
-            ),
-          ),
-        ],
-      ),
+                  ),
+                ]),
+              ),
+            );
+          }),
+      ]),
     );
-  }
-
-  Widget _buildVipSpellCard(
-    BuildContext context,
-    Spell spell,
-    String locale,
-    AppLocalizations l10n,
-    String type,
-  ) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isSignature = type == "Signature";
-    final isUsed = isSignature &&
-        (widget.character.signatureSpellsUsed[spell.id] ?? false);
-
-    final isHC = colorScheme.outlineVariant == colorScheme.primary &&
-        Theme.of(context).dividerTheme.thickness == 2;
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 6),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(
-          color: isHC ? colorScheme.primary : colorScheme.outlineVariant,
-          width: isHC ? 2 : 1,
-        ),
-        borderRadius: BorderRadius.circular(AppRadii.md),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-        dense: true,
-        title: Text(
-          spell.getName(locale),
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            decoration: isUsed ? TextDecoration.lineThrough : null,
-            color: isUsed ? colorScheme.onSurface.withValues(alpha: 0.5) : null,
-          ),
-        ),
-        subtitle: Text(
-          SpellUtils.getLocalizedSchool(l10n, spell.school),
-          style: TextStyle(color: colorScheme.secondary, fontSize: 11),
-        ),
-        trailing: IconButton(
-          icon: Icon(
-            isUsed ? Icons.refresh : Icons.auto_fix_high,
-          ), // Changed icon for "Used" state to show it can be upcast
-          onPressed: () {
-            // --- Instant Cast Logic (UX Fix) ---
-            if (type == "Mastery") {
-              // Mastery is always instant free
-              _handleInstantVipCast(spell, locale, l10n, "Mastery");
-            } else if (isSignature && !isUsed) {
-              // Signature first use is instant free
-              _handleInstantVipCast(spell, locale, l10n, "Signature");
-            } else {
-              // Signature subsequent use shows normal dialog
-              _showCastSpellDialog(spell, locale, l10n);
-            }
-          },
-          color: isUsed ? colorScheme.primary : colorScheme.primary,
-          tooltip: l10n.castSpell,
-        ),
-        onTap: () => _showSpellSheet(spell),
-      ),
-    );
-  }
-
-  void _handleInstantVipCast(
-    Spell spell,
-    String locale,
-    AppLocalizations l10n,
-    String type,
-  ) {
-    _castSpell(spell, 0, locale, l10n);
   }
 }

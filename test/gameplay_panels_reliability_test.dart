@@ -19,7 +19,10 @@ import 'package:qd_and_d/core/services/feature_service.dart';
 import 'package:qd_and_d/core/services/spell_service.dart';
 import 'package:qd_and_d/core/services/storage_service.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/abilities_tab.dart';
-import 'package:qd_and_d/features/character_sheet/widgets/spell_slots_widget.dart';
+import 'package:qd_and_d/core/ui/companion_kit.dart' show Pressable;
+import 'package:qd_and_d/core/ui/expressive_kit.dart' show RollingNumber;
+import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/instrument/instrument_kit.dart'
+    show StateBadge, SwitchRow;
 import 'package:qd_and_d/features/combat/widgets/hp_manager_card.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/bard_inspiration_widget.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/cleric_magic_widget.dart';
@@ -346,12 +349,21 @@ void main() {
           expect(ratio(6, 4), findsWidgets);
           expect(ratio(6, 0), findsWidgets);
           if (c.maxSpellSlots.any((n) => n > 0)) {
-            await show(tester, find.byType(SpellSlotsWidget));
+            // Slots live in the circle headers: a rolling remainder and its
+            // maximum beside the marks.
+            final count = find.byKey(ValueKey(
+                cls == 'warlock' ? 'slot-count-pact' : 'slot-count-1'));
+            await show(tester, count);
             expect(
-              ratio(6, 4, scope: find.byType(SpellSlotsWidget)),
-              findsWidgets,
+              tester
+                  .widget<RollingNumber>(find.descendant(
+                      of: count, matching: find.byType(RollingNumber)))
+                  .value,
+              6,
               reason: '$cls actual slot remainder is shown',
             );
+            expect(find.descendant(of: count, matching: find.text('/4')),
+                findsOneWidget);
           }
           for (var i = 0; i < 3; i++) {
             key.currentState!.redraw();
@@ -506,15 +518,15 @@ void main() {
       final key = GlobalKey<PanelHostState>();
       await tester.pumpWidget(PanelHost(key: key, character: c));
       await frame(tester, 'rage true');
-      final switches = find.descendant(
-        of: find.byType(RageControlWidget),
-        matching: find.byType(Switch),
-      );
-      expect(switches, findsWidgets);
-      expect(
-        tester.widgetList<Switch>(switches).map((w) => w.value),
-        everyElement(true),
-      );
+      bool reckless() => tester
+          .widget<SwitchRow>(find.byKey(const ValueKey('barbarian-reckless')))
+          .value;
+      bool frenzy() => tester
+          .widget<StateBadge>(find.byKey(const ValueKey('barbarian-frenzy')))
+          .pressed ==
+          true;
+      expect(reckless(), isTrue);
+      expect(frenzy(), isTrue);
       await tester.tap(find.text('Away'));
       await frame(tester, 'rage away');
       await tester.tap(find.text('Sheet'));
@@ -527,50 +539,32 @@ void main() {
       c.isReckless = false;
       key.currentState!.redraw();
       await frame(tester, 'rage external update');
-      expect(switches, findsWidgets);
-      expect(
-        tester.widgetList<Switch>(switches).map((w) => w.value),
-        everyElement(false),
-      );
+      expect(reckless(), isFalse);
+      expect(frenzy(), isFalse);
     },
   );
   testWidgets(
-    'retained Rogue Hidden appears as Reveal and follows external Character update',
+    'retained Rogue Hidden shows as In the shadows and follows external Character update',
     (tester) async {
       mobile(tester);
       final c = fixture('rogue');
       final key = GlobalKey<PanelHostState>();
       await tester.pumpWidget(PanelHost(key: key, character: c));
       await frame(tester, 'hidden true');
-      expect(
-        find.descendant(
-          of: find.byType(RogueToolsWidget),
-          matching: find.text('Reveal'),
-        ),
-        findsOneWidget,
-      );
+      Finder condition(String label) => find.descendant(
+          of: find.byKey(const ValueKey('rogue-advantage')),
+          matching: find.text(label));
+      expect(condition('Hidden'), findsOneWidget);
       await tester.tap(find.text('Away'));
       await frame(tester, 'hidden away');
       await tester.tap(find.text('Sheet'));
       await frame(tester, 'hidden return');
       expect(c.isHidden, true);
-      expect(
-        find.descendant(
-          of: find.byType(RogueToolsWidget),
-          matching: find.text('Reveal'),
-        ),
-        findsOneWidget,
-      );
+      expect(condition('Hidden'), findsOneWidget);
       c.isHidden = false;
       key.currentState!.redraw();
       await frame(tester, 'hidden external update');
-      expect(
-        find.descendant(
-          of: find.byType(RogueToolsWidget),
-          matching: find.text('Hide'),
-        ),
-        findsOneWidget,
-      );
+      expect(condition('Advantage'), findsOneWidget);
       expect(c.saveCalls, 0);
     },
   );
@@ -585,27 +579,30 @@ void main() {
       final control = find.byKey(
           const ValueKey('paladin-channel-channel-divinity-sacred-weapon'));
       expect(control, findsOneWidget);
-      Finder endAction() =>
-          find.descendant(of: control, matching: find.byTooltip('End'));
-      expect(endAction(), findsOneWidget);
+      // A lit weapon counts its rounds; touching it advances or ends it.
+      Finder rounds() => find.descendant(
+          of: control, matching: find.textContaining('round'));
+      expect(rounds(), findsOneWidget);
       await tester.tap(find.text('Away'));
       await frame(tester, 'sacred away');
       await tester.tap(find.text('Sheet'));
       await frame(tester, 'sacred return');
       expect(c.isSacredWeaponActive, true);
-      expect(endAction(), findsOneWidget);
+      expect(rounds(), findsOneWidget);
       c.channelDivinityCharges = 0;
       key.currentState!.redraw();
       await frame(tester, 'sacred with spent reserve');
-      final endButton = find.descendant(
-          of: control,
-          matching: find
-              .byWidgetPredicate((w) => w is IconButton && w.tooltip == 'End'));
-      expect(tester.widget<IconButton>(endButton).onPressed, isNotNull);
+      expect(
+          tester
+              .widget<Pressable>(find
+                  .descendant(of: control, matching: find.byType(Pressable))
+                  .first)
+              .onTap,
+          isNotNull);
       c.isSacredWeaponActive = false;
       key.currentState!.redraw();
       await frame(tester, 'sacred external update');
-      expect(endAction(), findsNothing);
+      expect(rounds(), findsNothing);
       expect(c.saveCalls, 0);
     },
   );

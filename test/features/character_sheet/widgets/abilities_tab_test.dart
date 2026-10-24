@@ -218,7 +218,10 @@ void main() {
       await tester.pumpWidget(_wrap(AbilitiesTab(character: character)));
       await tester.pumpAndSettle();
 
-      expect(find.text('Action Surge'), findsOneWidget);
+      // Action Surge lives only in the fighter panel, never again below it.
+      expect(find.byKey(const ValueKey('fighter-action-action_surge')),
+          findsOneWidget);
+      expect(find.text('Action Surge'), findsNothing);
       expect(find.text('Battle Cry'), findsOneWidget);
     });
 

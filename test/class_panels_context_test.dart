@@ -19,7 +19,6 @@ import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/warlock_
 import 'package:qd_and_d/core/models/character_feature.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/rogue_tools_widget.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/shared/class_panel_deck.dart';
-import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/fighter_tactics_surface.dart';
 import 'package:qd_and_d/core/services/spell_service.dart';
 import 'package:qd_and_d/core/services/gameplay_actions_service.dart';
 import 'journal_service_test.dart' as fixtures;
@@ -64,14 +63,19 @@ void main() {
     await tester.pumpAndSettle();
     final pact = find.byKey(const ValueKey('warlock-pact-panel'));
     final arcanum = find.byKey(const ValueKey('warlock-arcanum-panel'));
-    expect(find.descendant(of: pact, matching: find.text('Short Rest')),
-        findsOneWidget);
-    expect(find.descendant(of: pact, matching: find.text('Long Rest')),
-        findsNothing);
-    expect(find.descendant(of: arcanum, matching: find.text('Long Rest')),
-        findsOneWidget);
-    expect(find.descendant(of: arcanum, matching: find.text('Short Rest')),
-        findsNothing);
+    // Each block names its own rest on its rest chip.
+    Finder rest(Finder block, String label) => find.descendant(
+        of: block,
+        matching: find.byWidgetPredicate((w) =>
+            w is Text &&
+            w.textSpan
+                    ?.toPlainText(includePlaceholders: false)
+                    .trim() ==
+                label));
+    expect(rest(pact, 'Short'), findsOneWidget);
+    expect(rest(pact, 'Long'), findsNothing);
+    expect(rest(arcanum, 'Long'), findsOneWidget);
+    expect(rest(arcanum, 'Short'), findsNothing);
     expect(QdndBundleCodec.characterToJson(hero), before);
     expect(tester.takeException(), isNull);
   });
@@ -123,9 +127,21 @@ void main() {
     await tester.pumpWidget(app(SingleChildScrollView(
         child: BardInspirationWidget(
             character: hero, inspirationFeature: inspiration))));
+    await tester.pumpAndSettle();
+    // The only note in the pool goes to the allies; a second touch on the
+    // same note rolls the ally's die in place and spends nothing more.
+    final note = find
+        .byWidgetPredicate((w) =>
+            w.key is ValueKey<String> &&
+            (w.key as ValueKey<String>).value.startsWith('note-'))
+        .first;
     await tester.runAsync(() async {
-      await tester.tap(find.widgetWithText(FilledButton, 'Inspire'));
-      await tester.tap(find.widgetWithText(FilledButton, 'Inspire'));
+      await tester.tap(note);
+      await GameplayActionsService.serializeCharacter(hero, () async {});
+    });
+    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      await tester.tap(note);
       await GameplayActionsService.serializeCharacter(hero, () async {});
     });
     await tester.pumpAndSettle();
@@ -151,8 +167,9 @@ void main() {
     await tester.pumpWidget(app(SingleChildScrollView(
         child: KiTrackerWidget(character: hero, kiFeature: ki))));
     await tester.pumpAndSettle();
-    expect(find.text('1d4'), findsOneWidget);
-    expect(find.text('1d10'), findsNothing);
+    // The martial arts die follows the monk's level, not the Ki maximum.
+    expect(find.text('d4'), findsOneWidget);
+    expect(find.text('d10'), findsNothing);
     expect(QdndBundleCodec.characterToJson(hero), before);
     expect(tester.takeException(), isNull);
   });
@@ -372,9 +389,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(FighterCombatWidget), findsOneWidget);
     expect(find.byType(RogueToolsWidget), findsNothing);
-    final action = tester.widget<FighterTacticsSurface>(
-        find.byKey(const ValueKey('fighter-action-second-wind')));
-    expect(action.bonus, 2);
+    // Second Wind heals 1d10 + the fighter's own level, not the total.
+    expect(find.byKey(const ValueKey('fighter-action-second-wind')),
+        findsOneWidget);
+    expect(find.text('1d10 + 2'), findsOneWidget);
     expect(find.text('Thief'), findsNothing);
     expect(QdndBundleCodec.characterToJson(hero), before);
     expect(tester.takeException(), isNull);
@@ -408,7 +426,13 @@ void main() {
             locale: locale,
             scale: scale));
         await tester.pumpAndSettle();
-        expect(find.byType(FighterTacticsSurface), findsNWidgets(3));
+        for (final id in [
+          'second-wind',
+          'action-surge-2-uses',
+          'indomitable-3-uses'
+        ]) {
+          expect(find.byKey(ValueKey('fighter-action-$id')), findsOneWidget);
+        }
         expect(tester.takeException(), isNull);
       }
     });
@@ -434,10 +458,7 @@ void main() {
           dark: locale == 'ru',
           scale: 1.5));
       await tester.pumpAndSettle();
-      expect(
-          find.byWidgetPredicate(
-              (w) => w is Semantics && w.properties.label == '6 / 0'),
-          findsOneWidget);
+      expect(find.textContaining('6 / 0'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
@@ -455,50 +476,41 @@ void main() {
     expect(context.acceptsFeature(foreign), isFalse);
   });
 
-  testWidgets(
-      'Joined fighter controls keep taps and holds on their own resource',
+  testWidgets('Surge and Indomitable each spend only their own resource',
       (tester) async {
     tester.view.physicalSize = const Size(390, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final taps = <FighterTactic>[];
-    final edits = <FighterTactic>[];
-    Widget control(FighterTactic tactic) => FighterTacticsSurface(
-        key: ValueKey(tactic),
-        tactic: tactic,
-        joined: true,
-        name: tactic.name,
-        current: 1,
-        maximum: 1,
-        recovery: 'Short rest',
-        onEdit: () => edits.add(tactic),
-        onActivate: () => taps.add(tactic));
+    final hero = fixtures.hero()..level = 20;
+    hero.classes.single.level = 20;
+    hero.features = [
+      for (final id in [
+        'second-wind',
+        'action-surge-2-uses',
+        'indomitable-3-uses'
+      ])
+        FeatureService.getFeatureById(id)!.copyForCharacter()
+    ];
+    final uses = [for (final f in hero.features) f.resourcePool!.currentUses];
+    await tester.runAsync(() => StorageService.saveCharacter(hero));
     await tester.pumpWidget(app(SingleChildScrollView(
-        child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: FighterTacticsCluster(
-                overlap: 30,
-                primary: control(FighterTactic.secondWind),
-                secondary: IntrinsicHeight(
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                      Expanded(child: control(FighterTactic.actionSurge)),
-                      const SizedBox(width: 6),
-                      Expanded(child: control(FighterTactic.indomitable)),
-                    ])))))));
+        child: FighterCombatWidget(
+            character: hero,
+            secondWindFeature: hero.features[0],
+            actionSurgeFeature: hero.features[1],
+            indomitableFeature: hero.features[2]))));
     await tester.pumpAndSettle();
-    for (final tactic in FighterTactic.values) {
-      await tester.tap(find.byKey(ValueKey(tactic)));
+    for (final (i, id) in [(1, 'action-surge-2-uses'), (2, 'indomitable-3-uses')]) {
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(ValueKey('fighter-action-$id')));
+        await GameplayActionsService.serializeCharacter(hero, () async {});
+      });
       await tester.pumpAndSettle();
+      uses[i]--;
+      expect([for (final f in hero.features) f.resourcePool!.currentUses],
+          uses);
     }
-    expect(taps, FighterTactic.values);
-    await tester
-        .longPress(find.byKey(const ValueKey(FighterTactic.actionSurge)));
-    await tester.pumpAndSettle();
-    expect(edits, [FighterTactic.actionSurge]);
-    expect(taps, FighterTactic.values);
     expect(tester.takeException(), isNull);
   });
 
@@ -525,10 +537,15 @@ void main() {
     });
     await tester.pumpAndSettle();
     expect(hero.features.single.resourcePool!.currentUses, 0);
-    final panel = tester.widget<FighterTacticsSurface>(surface);
-    expect(panel.lastRoll, inInclusiveRange(1, 10));
-    expect(hero.currentHp, 1 + panel.lastRoll! + 2);
-    expect(find.text('Use'), findsNothing);
+    final panel =
+        tester.state(find.byType(FighterCombatWidget)) as dynamic;
+    final roll = panel.lastSecondWindRoll as int?;
+    expect(roll, inInclusiveRange(1, 10));
+    expect(hero.currentHp, 1 + roll! + 2);
+    // The die flickers on a timer while it tumbles; let it land first.
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+    expect(find.text('$roll'), findsWidgets);
     final hp = hero.currentHp;
     await tester.tap(surface);
     await tester.pumpAndSettle();

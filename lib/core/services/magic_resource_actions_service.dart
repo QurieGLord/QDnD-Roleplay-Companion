@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../magic/magic_slots.dart';
+import '../magic/spell_session_effects.dart';
 import '../models/character.dart';
 import '../models/combat_state.dart';
 import 'gameplay_actions_service.dart';
@@ -32,6 +33,22 @@ class MagicResourceActionsService {
           rethrow;
         }
       });
+  /// Ends concentration and anything it held (Hunter's Mark) as one save.
+  static Future<void> endConcentration(Character hero,
+      {Future<void> Function(Character)? write}) async {
+    final before =
+        (hero.concentratingOn, hero.isHuntersMarkActive, hero.huntersMarkTarget);
+    try {
+      await change(hero, () => SpellSessionEffects.endConcentration(hero),
+          write: write);
+    } catch (_) {
+      hero.concentratingOn = before.$1;
+      hero.isHuntersMarkActive = before.$2;
+      hero.huntersMarkTarget = before.$3;
+      rethrow;
+    }
+  }
+
   static Future<void> spendSlot(Character hero, MagicPool pool, int circle,
           {Future<void> Function(Character)? write}) =>
       change(hero, () {

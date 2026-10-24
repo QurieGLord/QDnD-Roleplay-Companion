@@ -12,11 +12,14 @@ import '../../../core/models/character.dart';
 import '../../../core/progression/character_class_context.dart';
 import 'character_roster_visuals.dart';
 import '../../../core/ui/companion_kit.dart';
+import '../../character_sheet/widgets/class_widgets/instrument/instrument_kit.dart'
+    show InstrumentGlyph, classSigil, subclassDisplayName;
 
 /// The lobby as a deck: the card at the focus line is open, the next one
 /// slides up over it while the previous tucks behind as a thin edge. Every
 /// card is positioned from the scroll offset, so it follows the finger and
-/// only transforms move on each frame.
+/// only transforms move on each frame. Above it the party line shows the
+/// whole roster as class sigils; behind it the focused hero's colour glows.
 class HeroDeck extends StatefulWidget {
   const HeroDeck({
     super.key,
@@ -35,9 +38,13 @@ class HeroDeck extends StatefulWidget {
 
 class _HeroDeckState extends State<HeroDeck> {
   final _controller = ScrollController();
+  final _party = ScrollController();
   final _keys = <String, GlobalKey>{};
   int _focus = 0;
+  bool _moved = false;
   final _sinceTick = Stopwatch()..start();
+
+  static const _sigil = 48.0;
 
   @override
   void initState() {
@@ -49,6 +56,7 @@ class _HeroDeckState extends State<HeroDeck> {
   void dispose() {
     _controller.removeListener(_tick);
     _controller.dispose();
+    _party.dispose();
     super.dispose();
   }
 
@@ -57,12 +65,52 @@ class _HeroDeckState extends State<HeroDeck> {
   // A light click each time a new card takes the focus line; a fast throw
   // through several cards ticks at most every 60 ms.
   void _tick() {
-    final focus = (_controller.offset / _pitch).round();
+    final focus = (_controller.offset / _pitch)
+        .round()
+        .clamp(0, math.max(0, widget.characters.length - 1))
+        .toInt();
+    _moved = true;
     if (focus == _focus) return;
     _focus = focus;
+    _followInParty(focus);
     if (_sinceTick.elapsedMilliseconds >= 60) {
       _sinceTick.reset();
       HapticFeedback.selectionClick();
+    }
+  }
+
+  // The party line keeps the focused hero in view.
+  void _followInParty(int index) {
+    if (!_party.hasClients) return;
+    final view = _party.position.viewportDimension;
+    final to = (16 + index * _sigil + _sigil / 2 - view / 2)
+        .clamp(0.0, _party.position.maxScrollExtent);
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _party.jumpTo(to);
+    } else {
+      _party.animateTo(to,
+          duration: AppMotion.of(context, AppMotion.gentleSettle),
+          curve: AppMotion.gentleCurve);
+    }
+  }
+
+  // The deck has come to rest on a card: one soft knock, the viscous settle.
+  bool _settled(ScrollEndNotification n) {
+    if (_moved && n.depth == 0) {
+      _moved = false;
+      HapticFeedback.lightImpact();
+    }
+    return false;
+  }
+
+  void _jump(int index) {
+    HapticFeedback.selectionClick();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.jumpTo(index * _pitch);
+    } else {
+      _controller.animateTo(index * _pitch,
+          duration: AppMotion.of(context, AppMotion.gentleSettle),
+          curve: AppMotion.gentleCurve);
     }
   }
 
@@ -83,7 +131,10 @@ class _HeroDeckState extends State<HeroDeck> {
   Widget build(BuildContext context) {
     final geometry = _DeckGeometry.of(context);
     final heroes = widget.characters;
-    return LayoutBuilder(builder: (context, box) {
+    final accents = AppAccents.of(context);
+    Color accentOf(Character h) => accents
+        .forClass(h.classes.isEmpty ? h.characterClass : h.classes.first.id);
+    final deck = LayoutBuilder(builder: (context, box) {
       final extent = math.max(
           box.maxHeight, (heroes.length - 1) * geometry.pitch + box.maxHeight);
       final cards = [
@@ -107,26 +158,92 @@ class _HeroDeckState extends State<HeroDeck> {
             ),
           ),
       ];
-      return SingleChildScrollView(
-        controller: _controller,
-        physics: _DeckPhysics(pitch: geometry.pitch),
-        child: SizedBox(
-          height: extent,
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, _) {
-              final offset = _controller.hasClients ? _controller.offset : 0.0;
-              final f = (offset / geometry.pitch)
-                  .clamp(0.0, math.max(0, heroes.length - 1).toDouble());
-              return Stack(clipBehavior: Clip.none, children: [
-                for (var i = 0; i < heroes.length; i++)
-                  _placed(i - f, offset, geometry, cards[i]),
-              ]);
-            },
+      return NotificationListener<ScrollEndNotification>(
+        onNotification: _settled,
+        child: SingleChildScrollView(
+          controller: _controller,
+          physics: _DeckPhysics(pitch: geometry.pitch),
+          child: SizedBox(
+            height: extent,
+            child: AnimatedBuilder(
+              animation: _controller,
+              builder: (context, _) {
+                final offset =
+                    _controller.hasClients ? _controller.offset : 0.0;
+                final f = (offset / geometry.pitch)
+                    .clamp(0.0, math.max(0, heroes.length - 1).toDouble());
+                return Stack(clipBehavior: Clip.none, children: [
+                  for (var i = 0; i < heroes.length; i++)
+                    _placed(i - f, offset, geometry, cards[i]),
+                ]);
+              },
+            ),
           ),
         ),
       );
     });
+    double focus() => _controller.hasClients
+        ? (_controller.offset / geometry.pitch)
+            .clamp(0.0, math.max(0, heroes.length - 1).toDouble())
+        : 0.0;
+    return Stack(children: [
+      // The focused hero's colour glows behind the deck and flows between
+      // heroes as the cards pass.
+      Positioned.fill(
+        child: RepaintBoundary(
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) {
+              if (heroes.isEmpty) return const SizedBox.shrink();
+              final f = focus();
+              final a = accentOf(heroes[f.floor()]);
+              final b = accentOf(heroes[f.ceil()]);
+              final glow = Color.lerp(a, b, f - f.floor())!;
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: const Alignment(0, -.62),
+                    radius: 1.05,
+                    colors: [
+                      glow.withValues(alpha: .3),
+                      glow.withValues(alpha: .08),
+                      Colors.transparent
+                    ],
+                    stops: const [0, .45, 1],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        SizedBox(
+          height: 58,
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) {
+              final f = focus();
+              return ListView.builder(
+                key: const ValueKey('lobby-party-line'),
+                controller: _party,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemExtent: _sigil,
+                itemCount: heroes.length,
+                itemBuilder: (context, i) => _PartySigil(
+                  key: ValueKey('party-${heroes[i].id}'),
+                  character: heroes[i],
+                  focus: (1 - (f - i).abs()).clamp(0.0, 1.0),
+                  onTap: () => _jump(i),
+                ),
+              );
+            },
+          ),
+        ),
+        Expanded(child: deck),
+      ]),
+    ]);
   }
 
   Widget _placed(double d, double offset, _DeckGeometry g, Widget card) {
@@ -175,9 +292,9 @@ class _HeroDeckState extends State<HeroDeck> {
 class _DeckGeometry {
   _DeckGeometry(this.scale);
   final double scale;
-  double get header => 72 * scale;
-  double get pitch => header + 12;
-  double get full => 214 * scale;
+  double get header => 66 * scale;
+  double get pitch => header + 10;
+  double get full => 190 * scale;
   double get extra => full - header;
   static _DeckGeometry of(BuildContext context) => _DeckGeometry(
       (MediaQuery.textScalerOf(context).scale(16) / 16).clamp(1.0, 1.6));
@@ -193,8 +310,21 @@ class _DeckPhysics extends ScrollPhysics {
   _DeckPhysics applyTo(ScrollPhysics? ancestor) =>
       _DeckPhysics(pitch: pitch, parent: buildParent(ancestor));
 
+  // A little over critical damping: the card glides the last pixels into
+  // place instead of snapping, like a weight sinking through honey.
   @override
-  SpringDescription get spring => AppMotion.gentle;
+  SpringDescription get spring =>
+      SpringDescription.withDampingRatio(mass: 1, stiffness: 150, ratio: 1.15);
+
+  // Viscous detents: under the finger the deck is heavier near a resting
+  // card and flows freely between cards, so each card is felt as it passes.
+  @override
+  double applyPhysicsToUserOffset(ScrollMetrics position, double offset) {
+    final phase = (position.pixels / pitch) % 1.0;
+    final between = 1 - (phase - .5).abs() * 2;
+    return super
+        .applyPhysicsToUserOffset(position, offset * (.6 + .4 * between));
+  }
 
   @override
   Simulation? createBallisticSimulation(
@@ -295,125 +425,152 @@ class DeckCard extends StatelessWidget {
                   offset: const Offset(0, -10)),
             ],
           ),
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(children: [
-                _DeckAvatar(character: character, accent: first),
-                const SizedBox(width: 12),
-                Expanded(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                      Text(character.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: t.textTheme.titleLarge),
-                      const SizedBox(height: 3),
-                      _ClassLine(character: character),
-                    ])),
-                const SizedBox(width: 10),
-                Container(
-                  width: 40,
-                  height: 40,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: c.onSurface.withValues(alpha: .08),
-                      border: Border.all(
-                          color: first.withValues(alpha: .6), width: 1.5)),
-                  child: Text('${character.level}',
-                      style: AppType.numeric(t.textTheme.titleMedium)),
+          child: Stack(children: [
+            // The class sigil, large and faint, gives each card its face.
+            Positioned(
+              right: -22,
+              bottom: -30,
+              child: IgnorePointer(
+                child: Transform.rotate(
+                  angle: -.18,
+                  child: InstrumentGlyph(
+                      classSigil(classes.isEmpty
+                          ? character.characterClass
+                          : classes.first.id),
+                      size: 150,
+                      color: first.withValues(alpha: .07)),
                 ),
-              ]),
-              const Spacer(),
-              Builder(
-                  builder: (context) => Opacity(
-                        opacity: DeckOpenness.of(context),
-                        child: Transform.translate(
-                          offset:
-                              Offset(0, (1 - DeckOpenness.of(context)) * 10),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Row(children: [
-                                  Text(l10n.hpShort,
-                                      style: t.textTheme.labelMedium?.copyWith(
-                                          color: c.onSurfaceVariant)),
-                                  const Spacer(),
-                                  Text.rich(
-                                      TextSpan(children: [
-                                        TextSpan(
-                                            text: '${character.currentHp}'),
-                                        TextSpan(
-                                            text: ' / ${character.maxHp}',
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                color: c.onSurfaceVariant)),
-                                      ]),
-                                      style: AppType.numeric(
-                                          t.textTheme.titleLarge)),
-                                ]),
-                                const SizedBox(height: 6),
-                                ClipRRect(
-                                  borderRadius:
-                                      BorderRadius.circular(AppRadii.pill),
-                                  child: SizedBox(
-                                    height: 8,
-                                    child:
-                                        Stack(fit: StackFit.expand, children: [
-                                      ColoredBox(
-                                          color: c.onSurface
-                                              .withValues(alpha: .09)),
-                                      FractionallySizedBox(
-                                          alignment: Alignment.centerLeft,
-                                          widthFactor: hp,
-                                          child: ColoredBox(color: c.primary)),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(children: [
+                    _DeckAvatar(character: character, accent: first),
+                    const SizedBox(width: 12),
+                    Expanded(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                          Text(character.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: t.textTheme.titleLarge),
+                          const SizedBox(height: 3),
+                          _ClassLine(character: character),
+                        ])),
+                    const SizedBox(width: 10),
+                    Container(
+                      width: 40,
+                      height: 40,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: c.onSurface.withValues(alpha: .08),
+                          border: Border.all(
+                              color: first.withValues(alpha: .6), width: 1.5)),
+                      child: Text('${character.level}',
+                          style: AppType.numeric(t.textTheme.titleMedium)),
+                    ),
+                  ]),
+                  const Spacer(),
+                  Builder(
+                      builder: (context) => Opacity(
+                            opacity: DeckOpenness.of(context),
+                            child: Transform.translate(
+                              offset: Offset(
+                                  0, (1 - DeckOpenness.of(context)) * 10),
+                              child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Row(children: [
+                                      Text(l10n.hpShort,
+                                          style: t.textTheme.labelMedium
+                                              ?.copyWith(
+                                                  color: c.onSurfaceVariant)),
+                                      const Spacer(),
+                                      Text.rich(
+                                          TextSpan(children: [
+                                            TextSpan(
+                                                text: '${character.currentHp}'),
+                                            TextSpan(
+                                                text: ' / ${character.maxHp}',
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: c.onSurfaceVariant)),
+                                          ]),
+                                          style: AppType.numeric(
+                                              t.textTheme.titleLarge)),
                                     ]),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      _Stat(
-                                          value: '${character.armorClass}',
-                                          label: l10n.armorClassAC),
-                                      const SizedBox(width: 22),
-                                      Flexible(
-                                        child: _Stat(
-                                            value:
-                                                '+${character.proficiencyBonus}',
-                                            label: l10n.deckProficiency),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
+                                    const SizedBox(height: 6),
+                                    ClipRRect(
+                                      borderRadius:
+                                          BorderRadius.circular(AppRadii.pill),
+                                      child: SizedBox(
+                                        height: 8,
+                                        child: Stack(
+                                            fit: StackFit.expand,
                                             children: [
-                                              Flexible(
-                                                child: Text(l10n.deckOpenSheet,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style:
-                                                        t.textTheme.labelLarge),
-                                              ),
-                                              const SizedBox(width: 4),
-                                              const LineIcon('forward',
-                                                  size: 16),
+                                              ColoredBox(
+                                                  color: c.onSurface
+                                                      .withValues(alpha: .09)),
+                                              FractionallySizedBox(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  widthFactor: hp,
+                                                  child: ColoredBox(
+                                                      color: c.primary)),
                                             ]),
                                       ),
-                                    ]),
-                              ]),
-                        ),
-                      )),
-            ],
-          ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          _Stat(
+                                              value: '${character.armorClass}',
+                                              label: l10n.armorClassAC),
+                                          const SizedBox(width: 22),
+                                          Flexible(
+                                            child: _Stat(
+                                                value:
+                                                    '+${character.proficiencyBonus}',
+                                                label: l10n.deckProficiency),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Flexible(
+                                                    child: Text(
+                                                        l10n.deckOpenSheet,
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: t.textTheme
+                                                            .labelLarge),
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  const LineIcon('forward',
+                                                      size: 16),
+                                                ]),
+                                          ),
+                                        ]),
+                                  ]),
+                            ),
+                          )),
+                ],
+              ),
+            ),
+          ]),
         ),
       ),
     );
@@ -468,10 +625,15 @@ class _ClassLine extends StatelessWidget {
           ]),
       ]);
     }
+    final first = character.classes.isEmpty ? null : character.classes.first;
+    // Data classes (imports, homebrew) name their subclass in their rules.
     final subclass = character.subclass == null
         ? null
-        : getLocalizedSubclassName(
-            context, character.characterClass, character.subclass!);
+        : first != null &&
+                CharacterClassContext(character, first.id).definition != null
+            ? subclassDisplayName(character, first.id, locale)
+            : getLocalizedSubclassName(
+                context, character.characterClass, character.subclass!);
     final entry = character.classes.isEmpty ? null : character.classes.first;
     final name = entry == null
         ? getCharacterClassSummary(context, character)
@@ -498,7 +660,7 @@ class _DeckAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = Theme.of(context).colorScheme;
     final fallback = Center(
-        child: LineIcon(LineIcon.forClass(character.characterClass),
+        child: InstrumentGlyph(classSigil(character.characterClass),
             color: accent, size: 22));
     return Container(
       width: 44,
@@ -685,6 +847,81 @@ class DeckRevealRoute<T> extends PageRoute<T> {
           ),
         ]);
       },
+    );
+  }
+}
+
+/// One hero of the party line: their class sigil, filling with their colour
+/// as their card takes the focus line.
+class _PartySigil extends StatelessWidget {
+  const _PartySigil(
+      {super.key,
+      required this.character,
+      required this.focus,
+      required this.onTap});
+  final Character character;
+  final double focus;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+    final accents = AppAccents.of(context);
+    final classes = character.classes;
+    final first = accents.forClass(
+        classes.isEmpty ? character.characterClass : classes.first.id);
+    final second = classes.length > 1 ? accents.forClass(classes[1].id) : null;
+    final size = 36 + 6 * focus;
+    return Center(
+      child: Pressable(
+        onTap: onTap,
+        scale: .9,
+        semanticLabel: character.name,
+        child: SizedBox.square(
+          dimension: 44,
+          child: Stack(alignment: Alignment.center, children: [
+            Container(
+              width: size,
+              height: size,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(13 + 2 * focus),
+                color: Color.lerp(
+                    Color.alphaBlend(
+                        first.withValues(alpha: .16), c.surfaceContainer),
+                    first,
+                    focus * .9),
+                border: Border.all(
+                    color: first.withValues(alpha: .35 + .4 * focus),
+                    width: 1.2),
+                boxShadow: [
+                  if (focus > .05)
+                    BoxShadow(
+                        color: first.withValues(alpha: .45 * focus),
+                        blurRadius: 16,
+                        spreadRadius: -6,
+                        offset: const Offset(0, 6)),
+                ],
+              ),
+              child: InstrumentGlyph(classSigil(character.characterClass),
+                  size: 18 + 2 * focus,
+                  color: Color.lerp(first, c.surface, focus)),
+            ),
+            if (second != null)
+              Positioned(
+                right: 2,
+                bottom: 2,
+                child: Container(
+                  width: 11,
+                  height: 11,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: second,
+                      border: Border.all(color: c.surface, width: 2)),
+                ),
+              ),
+          ]),
+        ),
+      ),
     );
   }
 }

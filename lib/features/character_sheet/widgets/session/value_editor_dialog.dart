@@ -41,7 +41,7 @@ Future<bool> showSheetValueEditor(
                 reverseDuration: Duration(milliseconds: 220)),
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xlPlus))),
-        builder: (_) => _SheetValueEditor(
+        builder: (_) => SheetSafeArea(child: _SheetValueEditor(
             title: title,
             icon: icon,
             fields: fields,
@@ -50,7 +50,7 @@ Future<bool> showSheetValueEditor(
             content: content,
             calculatedValue: calculatedValue,
             initiallyAutomatic: initiallyAutomatic,
-            actionLabel: actionLabel),
+            actionLabel: actionLabel)),
       ) ??
       false;
 }

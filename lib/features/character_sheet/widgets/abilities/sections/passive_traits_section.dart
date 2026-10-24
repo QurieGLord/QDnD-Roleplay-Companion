@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
+import 'package:qd_and_d/core/ui/companion_kit.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
-import '../../../../../core/models/character_feature.dart';
-import '../../../../../core/ui/companion_surface.dart';
-import '../abilities_expander.dart';
-import '../abilities_feature_icon.dart';
 
-class AbilitiesPassiveTraitsSection extends StatelessWidget {
+import '../../../../../core/models/character_feature.dart';
+import '../abilities_feature_icon.dart';
+import 'feature_row.dart';
+
+/// Passive abilities fold under one title (prototype `#passives`): quiet
+/// rows with a muted icon and the first line of each description.
+class AbilitiesPassiveTraitsSection extends StatefulWidget {
   const AbilitiesPassiveTraitsSection(
       {super.key,
       required this.features,
@@ -15,71 +20,58 @@ class AbilitiesPassiveTraitsSection extends StatelessWidget {
   final String locale;
   final ValueChanged<CharacterFeature> onOpenDetails;
   @override
+  State<AbilitiesPassiveTraitsSection> createState() => _AbilitiesPassiveTraitsSectionState();
+}
+
+class _AbilitiesPassiveTraitsSectionState extends State<AbilitiesPassiveTraitsSection> {
+  bool _open = false;
+
+  String _line(CharacterFeature f) {
+    final text = f.getDescription(widget.locale).trim().split('\n').first;
+    final dot = text.indexOf('. ');
+    final first = dot > 0 && dot < 110 ? text.substring(0, dot + 1) : text;
+    return first.length > 110 ? '${first.substring(0, 107)}…' : first;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context), c = t.colorScheme;
+    final c = Theme.of(context).colorScheme;
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Divider(height: 24, color: c.outlineVariant.withValues(alpha: .4)),
-      AbilitiesExpander(
-        header: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-            child: Row(children: [
-              Expanded(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                    Text(AppLocalizations.of(context)!.passiveTraits,
-                        style: t.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800, letterSpacing: -.5)),
-                    const SizedBox(height: 5),
-                    Text(
-                        features
-                            .take(2)
-                            .map((f) => f.getName(locale))
-                            .join(' · '),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: t.textTheme.bodySmall
-                            ?.copyWith(color: c.onSurfaceVariant)),
-                  ])),
-              const SizedBox(width: 12),
-              Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: c.surfaceContainerLow, shape: BoxShape.circle),
-                  child: Text('${features.length}',
-                      style: t.textTheme.titleSmall
-                          ?.copyWith(fontWeight: FontWeight.w700))),
-              const SizedBox(width: 8),
-              const Icon(Icons.expand_more),
-            ])),
-        child: Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Column(children: [
-              for (final feature in features) ...[
-                CompanionSurface(
-                    quiet: true,
-                    padding: const EdgeInsets.all(14),
-                    onTap: () => onOpenDetails(feature),
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(resolveAbilitiesFeatureIcon(feature.iconName),
-                              color: c.secondary, size: 24),
-                          const SizedBox(width: 12),
-                          Expanded(
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                Text(feature.getName(locale),
-                                    style: t.textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.w700)),
-                              ])),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.chevron_right_rounded, size: 20),
-                        ])),
-                const SizedBox(height: 8),
-              ]
-            ])),
+      Pressable(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          setState(() => _open = !_open);
+        },
+        scale: .99,
+        semanticLabel: AppLocalizations.of(context)!.passiveTraits,
+        child: SectionTitle(
+          AppLocalizations.of(context)!.passiveTraits,
+          count: '${widget.features.length}',
+          trailing: AnimatedRotation(
+            turns: _open ? .5 : 0,
+            duration: AppMotion.of(context, const Duration(milliseconds: 260)),
+            curve: AppMotion.snappyCurve,
+            child: Icon(Icons.expand_more, size: 20, color: c.onSurfaceVariant),
+          ),
+        ),
+      ),
+      AnimatedSize(
+        duration: AppMotion.of(context, const Duration(milliseconds: 380)),
+        curve: AppMotion.standard,
+        alignment: Alignment.topCenter,
+        child: !_open
+            ? const SizedBox(width: double.infinity)
+            : FeatureList(children: [
+                for (final f in widget.features)
+                  FeatureRow(
+                    icon: resolveAbilitiesFeatureIcon(f.iconName),
+                    title: f.getName(widget.locale),
+                    subtitle: _line(f),
+                    muted: true,
+                    trailing: const SizedBox.shrink(),
+                    onTap: () => widget.onOpenDetails(f),
+                  ),
+              ]),
       ),
     ]);
   }

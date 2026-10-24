@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/ui/sheet_drag_region.dart' show SheetSafeArea;
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:qd_and_d/core/ui/app_scroll_behavior.dart';
@@ -313,7 +314,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => Padding(
+      builder: (context) => SheetSafeArea(child: Padding(
         padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom + 20,
             top: 20,
@@ -388,7 +389,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 
@@ -404,7 +405,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
   void _showConditionsDialog(Character character, AppLocalizations l10n) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => ListView(
+      builder: (context) => SheetSafeArea(child: ListView(
         padding: const EdgeInsets.all(16),
         children: ConditionType.values.map((c) {
           final isActive = character.activeConditions.contains(c);
@@ -419,7 +420,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
             },
           );
         }).toList(),
-      ),
+      )),
     );
   }
 
@@ -589,7 +590,7 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
             onPressed: () => showModalBottomSheet(
                 context: context,
                 builder: (_) =>
-                    CombatLogView(combatLog: character.combatState.combatLog)),
+                    SheetSafeArea(child: CombatLogView(combatLog: character.combatState.combatLog))),
           ),
         ],
       ),
@@ -1162,12 +1163,12 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen>
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (context) => CombatSpellcasterSheet(
+            builder: (context) => SheetSafeArea(child: CombatSpellcasterSheet(
               character: character,
               onStateChange: () {
                 if (mounted) setState(() {});
               },
-            ),
+            )),
           );
         },
         icon: const Icon(Icons.auto_fix_high),

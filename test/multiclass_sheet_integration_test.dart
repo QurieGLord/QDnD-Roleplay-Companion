@@ -1,11 +1,11 @@
 import 'package:qd_and_d/core/services/qdnd_bundle_codec.dart';
-import 'package:qd_and_d/core/ui/companion_surface.dart';
 import 'package:qd_and_d/features/character_level_up/steps/features_step.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:qd_and_d/core/ui/companion_kit.dart' show Pressable;
 import 'package:hive/hive.dart';
 import 'package:qd_and_d/core/magic/magic_slots.dart';
 import 'package:qd_and_d/core/magic/spellbook_state.dart';
@@ -192,13 +192,16 @@ void main() {
     await tester
         .pumpWidget(app(SpellCastSheet(hero: c, spell: spell), locale: 'ru'));
     await tester.pumpAndSettle();
-    final ritual = find.ancestor(
-        of: find.text('Ритуал'), matching: find.byType(CompanionSurface));
-    expect(tester.widget<CompanionSurface>(ritual).raised, isFalse);
-    expect(find.text('Наложить заклинание'), findsOneWidget);
-    await tester.tap(find.text('Ритуал'));
+    // The ladder starts on a slot; the ritual rung is chosen explicitly.
+    final ritual = find.byWidgetPredicate((w) =>
+        w is Pressable &&
+        w.key is ValueKey<String> &&
+        (w.key as ValueKey<String>).value.startsWith('cast-rung-ritual'));
+    expect(tester.widget<Pressable>(ritual).selected, isFalse);
+    expect(find.textContaining('Наложить · ячейка'), findsOneWidget);
+    await tester.tap(ritual);
     await tester.pumpAndSettle();
-    expect(tester.widget<CompanionSurface>(ritual).raised, isTrue);
+    expect(tester.widget<Pressable>(ritual).selected, isTrue);
     expect(find.text('Провести ритуал'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

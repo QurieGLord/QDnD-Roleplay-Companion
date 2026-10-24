@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 
-import '../abilities_section_header.dart';
+import 'package:qd_and_d/core/theme/app_tokens.dart';
 import '../abilities_shell_tokens.dart';
 import '../abilities_tap_feedback.dart';
 
@@ -26,6 +26,8 @@ class AbilitiesMagicSection extends StatelessWidget {
     this.vipBlocks = const [],
     this.spellGroups = const [],
     this.emptySpellState,
+    this.concentration,
+    this.footer,
   });
 
   final List<MagicStatData> stats;
@@ -37,10 +39,17 @@ class AbilitiesMagicSection extends StatelessWidget {
   final List<Widget> spellGroups;
   final Widget? emptySpellState;
 
+  /// The active concentration banner, above the spellcasting facts.
+  final Widget? concentration;
+
+  /// A quiet line under the circles (how slot marks work).
+  final Widget? footer;
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -50,11 +59,14 @@ class AbilitiesMagicSection extends StatelessWidget {
           LayoutBuilder(
             builder: (context, constraints) {
               final theme = Theme.of(context);
-              final titleStyle = theme.textTheme.titleLarge!.copyWith(
-                fontWeight: FontWeight.w800,
-              );
+              const titleStyle = TextStyle(
+                  fontFamily: AppType.display,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  height: 1.2,
+                  letterSpacing: -.3);
               final buttonStyle = theme.textTheme.labelLarge!.copyWith(
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               );
               double textWidth(String text, TextStyle style) {
                 final painter = TextPainter(
@@ -68,36 +80,38 @@ class AbilitiesMagicSection extends StatelessWidget {
                 return width;
               }
 
-              // Keep the header on one row. Use the shorter page title or an
-              // accessible icon when larger text leaves too little room.
-              final available = constraints.maxWidth -
-                  40 -
-                  12 -
-                  textWidth(l10n.magic, titleStyle) -
-                  12;
+              // Keep the header on one row: the full name on a wide screen,
+              // the short one on a phone, an accessible icon when larger
+              // text leaves too little room.
+              final available =
+                  constraints.maxWidth - textWidth(l10n.magic, titleStyle) - 24;
               String? label;
               for (final candidate in [
-                l10n.spellAlmanac,
-                l10n.spellAlmanacTitle
+                if (constraints.maxWidth >= 520) l10n.spellAlmanac,
+                ru ? 'Альманах' : 'Almanac',
               ]) {
-                if (textWidth(candidate, buttonStyle) + 50 <= available) {
+                if (textWidth(candidate, buttonStyle) + 54 <= available) {
                   label = candidate;
                   break;
                 }
               }
-              return AbilitiesSectionHeader(
-                title: l10n.magic,
-                icon: Icons.auto_awesome,
-                emphasized: true,
-                trailing: _AlmanacButton(
+              return Row(children: [
+                Expanded(
+                    child: Text(l10n.magic,
+                        style: titleStyle.copyWith(color: colorScheme.onSurface))),
+                _AlmanacButton(
                   key: const ValueKey('spell-almanac-button'),
                   onTap: onOpenSpellAlmanac,
                   label: label,
                   semanticLabel: l10n.spellAlmanac,
                 ),
-              );
+              ]);
             },
           ),
+          if (concentration != null) ...[
+            const SizedBox(height: 12),
+            concentration!,
+          ],
           if (preparationStatus != null) ...[
             const SizedBox(height: 14),
             preparationStatus!,
@@ -156,14 +170,17 @@ class AbilitiesMagicSection extends StatelessWidget {
           ],
           if (spellGroups.isNotEmpty) ...[
             const SizedBox(height: 16),
-            ...spellGroups.expand((group) => [
+              ...spellGroups.expand((group) => [
                   group,
-                  if (group != spellGroups.last)
-                    const SizedBox(height: AbilitiesShellTokens.itemSpacing),
+                  if (group != spellGroups.last) const SizedBox(height: 10),
                 ]),
           ] else if (emptySpellState != null) ...[
             const SizedBox(height: 16),
             emptySpellState!,
+          ],
+          if (footer != null) ...[
+            const SizedBox(height: 12),
+            footer!,
           ],
         ],
       ),
@@ -198,24 +215,24 @@ class _AlmanacButton extends StatelessWidget {
         child: AbilitiesTapFeedback(
           onTap: onTap,
           borderRadius: BorderRadius.circular(AbilitiesShellTokens.pillRadius),
-          color: colorScheme.primaryContainer,
+          color: colorScheme.secondaryContainer.withValues(alpha: .7),
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.library_books,
-                      size: 18, color: colorScheme.onPrimaryContainer),
+                  Icon(Icons.menu_book_rounded,
+                      size: 18, color: colorScheme.onSecondaryContainer),
                   if (label != null) ...[
                     const SizedBox(width: 8),
                     Text(
                       label!,
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: colorScheme.onPrimaryContainer,
-                            fontWeight: FontWeight.w800,
+                            color: colorScheme.onSecondaryContainer,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                   ],

@@ -94,4 +94,28 @@ Future<T?> showResponsiveSheet<T>(
         showDragHandle: showDragHandle,
         useSafeArea: useSafeArea,
         sheetAnimationStyle: sheetAnimationStyle,
-        builder: (context) => SheetScrollDismiss(child: builder(context)));
+        builder: (context) =>
+            SheetScrollDismiss(child: SheetSafeArea(child: builder(context))));
+
+/// A modal sheet keeps its last buttons above the gesture bar (Flutter's
+/// sheets only guard the top) and rises with the keyboard, so a text field
+/// at the bottom stays in view while typing.
+class SheetSafeArea extends StatelessWidget {
+  const SheetSafeArea({super.key, required this.child});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) {
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: keyboard),
+      // The keyboard is consumed here, so content that lifts itself above
+      // it does not rise twice.
+      child: MediaQuery.removeViewInsets(
+          context: context,
+          removeBottom: true,
+          child: SafeArea(top: false, left: false, right: false, child: child)),
+    );
+  }
+}

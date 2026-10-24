@@ -17,7 +17,7 @@ Future<JournalEntity?> editJournalEntity(BuildContext context,
       sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
           ? AnimationStyle.noAnimation
           : null,
-      builder: (_) => _EntityEditor(entity: entity, name: name, kind: kind));
+      builder: (_) => SheetSafeArea(child: _EntityEditor(entity: entity, name: name, kind: kind)));
 }
 
 class _EntityEditor extends StatefulWidget {

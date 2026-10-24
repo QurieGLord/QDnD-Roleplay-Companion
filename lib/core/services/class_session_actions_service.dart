@@ -326,7 +326,11 @@ class ClassSessionActionsService {
       });
 
   static Future<bool> wildShape(Character c, bool active,
-          {int? hp, String? name, Future<void> Function(Character)? write}) =>
+          {int? hp,
+          String? name,
+          Map<String, dynamic>? details,
+          bool remember = false,
+          Future<void> Function(Character)? write}) =>
       GameplayActionsService.serializeCharacter(c, () async {
         if (c.isWildShaped == active) return false;
         final owner = CharacterClassContext(c, 'druid');
@@ -349,12 +353,26 @@ class ClassSessionActionsService {
           c.beastName,
           c.updatedAt
         );
+        final magic = Map<String, dynamic>.from(
+                jsonDecode(jsonEncode(c.magicData)) as Map),
+            slots = List<int>.of(c.spellSlots),
+            maximum = List<int>.of(c.maxSpellSlots);
         try {
           if (active) {
             if (!CastingConstraints.coreDruid(c, 20)) c.wildShapeCharges--;
             c.beastMaxHp = hp;
             c.beastCurrentHp = hp;
             c.beastName = name;
+            if (details != null || remember) {
+              ClassActionState.setBeast(c, details);
+            }
+            if (remember && name != null) {
+              final form = {...?details, 'name': name, 'hp': hp};
+              ClassActionState.setForms(c, [
+                form,
+                ...ClassActionState.forms(c).where((f) => f['name'] != name)
+              ].take(4).toList());
+            }
           }
           c.isWildShaped = active;
           await (write ?? StorageService.saveCharacter)(c);
@@ -366,6 +384,9 @@ class ClassSessionActionsService {
           c.beastCurrentHp = before.$4;
           c.beastName = before.$5;
           c.updatedAt = before.$6;
+          c.magicData = magic;
+          c.spellSlots = slots;
+          c.maxSpellSlots = maximum;
           rethrow;
         }
       });

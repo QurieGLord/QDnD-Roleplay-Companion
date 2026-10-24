@@ -21,6 +21,7 @@ import 'features/settings/settings_screen.dart';
 import 'features/journal/cycle_fixture.dart';
 import 'features/character_level_up/cycle_fixture.dart';
 import 'features/expressive_cycle/cycle_fixture.dart';
+import 'features/expressive_cycle/custom_class_fixture.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +56,14 @@ void main() async {
     }
     if (const bool.fromEnvironment('QDND_LEVEL_UP_CYCLE')) {
       await seedLevelUpCycle();
+    }
+    if (const bool.fromEnvironment('QDND_VETERAN_CYCLE')) {
+      await seedVeteranCycle();
+    }
+    if (const bool.fromEnvironment('QDND_EXPRESSIVE_CYCLE') ||
+        const bool.fromEnvironment('QDND_LEVEL_UP_CYCLE') ||
+        const bool.fromEnvironment('QDND_VETERAN_CYCLE')) {
+      await seedCustomClassCycle();
     }
     if (const bool.fromEnvironment('QDND_WORKING_JOURNAL_CYCLE')) {
       await seedJournalCycle();

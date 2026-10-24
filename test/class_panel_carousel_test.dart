@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:qd_and_d/core/ui/companion_kit.dart' show FlowSegment;
 import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/shared/class_panel_deck.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 
@@ -22,6 +23,12 @@ ClassPanelEntry panel(String id, double height) => ClassPanelEntry(
     child: SizedBox(height: height, child: Text('Body $id')));
 Finder get viewport => find.byKey(const ValueKey('class-panel-carousel'));
 
+/// The class segment above a multiclass deck marks the visible panel.
+int selectedClass(WidgetTester tester) =>
+    (tester.widget(find.byWidgetPredicate((w) => w is FlowSegment))
+            as FlowSegment)
+        .selected as int;
+
 void main() {
   testWidgets(
       'An inline swipe follows the finger, adapts height, and leaves shared magic below the carousel',
@@ -32,20 +39,22 @@ void main() {
       const Text('Shared magic', key: ValueKey('shared-magic')),
     ]))));
     await tester.pumpAndSettle();
-    expect(tester.getSize(viewport).height, closeTo(126, 1));
+    // The viewport holds the class head and the panel body: it grows by the
+    // difference of the bodies (120 → 360) and never beyond it.
+    final start = tester.getSize(viewport).height;
     final gesture = await tester.startGesture(tester.getCenter(viewport));
     await gesture.moveBy(const Offset(-240, 0));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 32));
     final during = tester.getSize(viewport).height;
-    expect(during, greaterThan(126));
-    expect(during, lessThanOrEqualTo(366));
+    expect(during, greaterThan(start));
+    expect(during, lessThanOrEqualTo(start + 240));
     await gesture.moveBy(const Offset(-360, 0));
     await gesture.up();
     await tester.pumpAndSettle();
     expect(find.text('Body wizard'), findsOneWidget);
     expect(find.text('Body fighter'), findsNothing);
-    expect(tester.getSize(viewport).height, closeTo(366, 1));
+    expect(tester.getSize(viewport).height, closeTo(start + 240, 1));
     expect(tester.getTopLeft(find.byKey(const ValueKey('shared-magic'))).dy,
         greaterThanOrEqualTo(tester.getBottomLeft(viewport).dy));
     expect(tester.takeException(), isNull);
@@ -128,11 +137,11 @@ void main() {
     redraw(() => panels = [panels[2], panels[0], panels[1]]);
     await tester.pumpAndSettle();
     expect(find.text('Body second'), findsOneWidget);
-    expect(find.text('3 / 3'), findsOneWidget);
+    expect(selectedClass(tester), 2);
     redraw(() => panels = [panels[0], panels[1]]);
     await tester.pumpAndSettle();
     expect(find.text('Body third'), findsOneWidget);
-    expect(find.text('1 / 2'), findsOneWidget);
+    expect(selectedClass(tester), 0);
     expect(tester.takeException(), isNull);
   });
   for (final locale in ['ru', 'en']) {
@@ -157,7 +166,7 @@ void main() {
       await tester.drag(viewport, const Offset(-310, 0));
       await tester.pumpAndSettle();
       expect(find.text('Body Second class'), findsOneWidget);
-      expect(find.text('2 / 3'), findsOneWidget);
+      expect(selectedClass(tester), 1);
       expect(tester.takeException(), isNull);
     });
   }

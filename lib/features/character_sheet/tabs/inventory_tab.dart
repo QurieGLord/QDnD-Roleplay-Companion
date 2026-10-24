@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/ui/companion_kit.dart' show SheetPageInset;
 import 'package:flutter/services.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/item.dart';
@@ -214,9 +215,12 @@ class _InventoryTabState extends State<InventoryTab> {
             : null,
         body: CustomScrollView(
             key: const PageStorageKey('inventory-scroll'),
+            // The page scrolls on under the floating island, like Overview.
+            clipBehavior: Clip.none,
             slivers: [
               SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  padding: EdgeInsets.fromLTRB(
+                      20, 20 + SheetPageInset.of(context), 20, 0),
                   sliver: SliverToBoxAdapter(
                       child: AnimatedSize(
                           duration: MediaQuery.disableAnimationsOf(context)

@@ -40,6 +40,38 @@ class ClassActionState {
     };
   }
 
+  /// The beast of the current Wild Shape beyond its name and hit points:
+  /// armour, speed, attacks and challenge, as the player recorded them.
+  static Map<String, dynamic>? beast(Character hero) {
+    final raw = _read(hero)['beast'];
+    return raw is Map ? Map<String, dynamic>.from(raw) : null;
+  }
+
+  static void setBeast(Character hero, Map<String, dynamic>? beast) {
+    final state = _read(hero);
+    MagicSlots.read(hero).applyTo(hero);
+    hero.magicData = {
+      ...hero.magicData,
+      'classActions': {...state, 'beast': beast}
+    };
+  }
+
+  /// Forms the player shaped by hand, newest first, for one-tap reuse.
+  static List<Map<String, dynamic>> forms(Character hero) {
+    final raw = _read(hero)['forms'];
+    if (raw is! List) return const [];
+    return [for (final f in raw) if (f is Map) Map<String, dynamic>.from(f)];
+  }
+
+  static void setForms(Character hero, List<Map<String, dynamic>> forms) {
+    final state = _read(hero);
+    MagicSlots.read(hero).applyTo(hero);
+    hero.magicData = {
+      ...hero.magicData,
+      'classActions': {...state, 'forms': forms}
+    };
+  }
+
   static void longRest(Character hero) {
     if (hero.magicData['classActions'] != null) {
       setInterventionAttempted(hero, false);

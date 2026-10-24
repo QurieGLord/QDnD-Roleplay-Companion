@@ -16,6 +16,7 @@ import 'package:qd_and_d/core/services/feature_service.dart';
 import 'package:qd_and_d/core/services/spell_service.dart';
 import 'package:qd_and_d/core/services/item_service.dart';
 import 'package:qd_and_d/features/expressive_cycle/cycle_fixture.dart';
+import 'package:qd_and_d/features/character_level_up/cycle_fixture.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -175,6 +176,35 @@ void main() {
         1);
   });
 
+  test('Veteran Cycle heroes spread over 15–20 with level-true thresholds',
+      () {
+    final roster = buildExpressiveCycleCharacters(
+        levels: veteranCycleLevels, idPrefix: veteranCycleIdPrefix);
+    expect(roster.length, 12);
+    for (final c in roster) {
+      final level = veteranCycleLevels[c.characterClass]!;
+      expect(c.level, level, reason: c.characterClass);
+      expect(c.classes.single.level, level);
+      expect(c.id, startsWith(veteranCycleIdPrefix));
+      expect(c.currentHp, c.maxHp);
+      expect(c.hitDice, [level]);
+      final rules = CharacterClassRules.resolve(c.classes.single);
+      expect(c.maxSpellSlots,
+          SpellSlotsTable.getSlots(level, rules.data.spellcasting?.type ?? 'none'));
+    }
+    Character hero(String id) =>
+        roster.singleWhere((c) => c.characterClass == id);
+    // Warlock 16: Arcana of 6th–8th circle, not yet the 9th.
+    expect(
+        hero('warlock')
+            .knownSpells
+            .where((s) => (SpellService.getSpellById(s)?.level ?? 0) > 5)
+            .length,
+        3);
+    expect(hero('wizard').spellMasterySpells, hasLength(2));
+    expect(hero('wizard').signatureSpells, hasLength(2));
+  });
+
   testWidgets('A level-twenty badge cannot open a fictitious level twenty-one',
       (tester) async {
     final hero = buildExpressiveCycleCharacters().first;
@@ -237,5 +267,24 @@ void main() {
     expect(StorageService.getCharacter(first.id)!.currentHp, 7);
     expect(StorageService.getCharacter(deleted), isNull);
     expect(StorageService.getSetting('locale_code'), 'ru');
+  });
+
+  test('The veteran Cycle retires only the level-one Cycle heroes', () async {
+    final levelOne = buildLevelUpCycleCharacters().first;
+    final personal = buildLevelUpCycleCharacters().last
+      ..id = 'personal-hero'
+      ..name = 'Мой герой';
+    await StorageService.saveCharacter(levelOne);
+    await StorageService.saveCharacter(personal);
+    await seedVeteranCycle();
+    expect(StorageService.getCharacter(levelOne.id), isNull);
+    expect(StorageService.getCharacter('personal-hero'), isNotNull);
+    final veterans = StorageService.getAllCharacters()
+        .where((c) => c.id.startsWith(veteranCycleIdPrefix));
+    expect(veterans.length, 12);
+    // Once retired, a later launch never deletes again.
+    await StorageService.saveCharacter(levelOne);
+    await seedVeteranCycle();
+    expect(StorageService.getCharacter(levelOne.id), isNotNull);
   });
 }

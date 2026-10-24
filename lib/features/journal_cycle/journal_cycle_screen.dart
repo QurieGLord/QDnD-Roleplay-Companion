@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/ui/sheet_drag_region.dart' show SheetSafeArea;
 import 'package:flutter/services.dart';
 import '../../core/search/journal_search.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
@@ -484,7 +485,7 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
       sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
           ? AnimationStyle.noAnimation
           : null,
-      builder: (context) => SafeArea(
+      builder: (context) => SheetSafeArea(child: SafeArea(
           child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
         child: Column(
@@ -504,7 +505,7 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
                   onTap: () => Navigator.pop(context, id),
                 ),
             ]),
-      )),
+      ))),
     );
     if (result != null && mounted) {
       _touch();
@@ -941,7 +942,7 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
       sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
           ? AnimationStyle.noAnimation
           : null,
-      builder: (context) => Padding(
+      builder: (context) => SheetSafeArea(child: Padding(
         padding: EdgeInsets.fromLTRB(
             24, 0, 24, MediaQuery.viewInsetsOf(context).bottom + 24),
         child: SafeArea(
@@ -991,7 +992,7 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
                                   },
                                   child: Text(t('Сохранить', 'Save')))),
                         ])))),
-      ),
+      )),
     );
     if (saved == true && mounted) {
       _touch();

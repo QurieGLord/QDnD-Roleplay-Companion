@@ -1,6 +1,7 @@
 import '../../../core/ui/app_menu_style.dart';
 import '../../../core/ui/sheet_drag_region.dart';
 import 'package:flutter/material.dart';
+import 'package:qd_and_d/core/ui/companion_kit.dart' show SheetPageInset;
 import 'package:flutter/services.dart';
 import '../../../core/journal/journal_graph.dart';
 import '../../../core/journal/journal_service.dart';
@@ -433,10 +434,12 @@ class _JournalTabState extends State<JournalTab>
           }
         },
         onPointerCancel: (_) => _pointerTravel = double.infinity,
-        child: CustomScrollView(slivers: [
+        // The page scrolls on under the floating island, like Overview.
+        child: CustomScrollView(clipBehavior: Clip.none, slivers: [
           SliverToBoxAdapter(
               child: Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.fromLTRB(
+                      20, 20 + SheetPageInset.of(context), 20, 20),
                   child: AdventurerQuoteCard(
                       characterName: widget.character.name))),
           SliverToBoxAdapter(

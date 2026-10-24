@@ -13,6 +13,13 @@ import '../../core/ui/companion_surface.dart';
 import '../../core/ui/sheet_drag_region.dart';
 import '../../l10n/app_localizations.dart';
 import '../../features/spell_almanac/spell_almanac_strings.dart';
+import '../../core/progression/character_class_context.dart';
+import '../../core/theme/app_tokens.dart';
+import '../../core/ui/companion_kit.dart' show Pressable;
+import '../../core/utils/spell_utils.dart';
+import '../../features/character_sheet/widgets/class_widgets/instrument/instrument_kit.dart'
+    show classAccent;
+import 'spell_effects.dart';
 
 Future<bool> showSpellCastSheet(
         BuildContext context, Character hero, Spell spell) async =>
@@ -104,13 +111,14 @@ class _SpellCastSheetState extends State<SpellCastSheet> {
         t = Theme.of(context).textTheme,
         c = Theme.of(context).colorScheme;
     final locale = s.ru ? 'ru' : 'en';
+    final spell = widget.spell;
     List<SpellUseOption> options = [];
     List<SpellUseSource> sources = [];
     String? issue;
     try {
-      sources = SpellUse.sources(widget.hero, widget.spell,
-          manualAbility: _manualAbility);
-      options = SpellUse.options(widget.hero, widget.spell,
+      sources =
+          SpellUse.sources(widget.hero, spell, manualAbility: _manualAbility);
+      options = SpellUse.options(widget.hero, spell,
           manualAbility: _manualAbility, tableException: _tableException);
     } catch (_) {
       issue = s.t(
@@ -121,7 +129,7 @@ class _SpellCastSheetState extends State<SpellCastSheet> {
     final source = sources.where((s) => s.id == _source).firstOrNull;
     final restrictions = source == null
         ? <CastingConstraint>[]
-        : CastingConstraints.forSource(widget.hero, widget.spell, source.id);
+        : CastingConstraints.forSource(widget.hero, spell, source.id);
     final choices = options.where((o) => o.source.id == _source).toList();
     if (!choices.any((o) => o.key == _choice)) {
       _choice = (choices
@@ -137,7 +145,204 @@ class _SpellCastSheetState extends State<SpellCastSheet> {
                 as Map)['known'] is List &&
             (((widget.hero.spellbookData['sources'] as Map)['manual']
                     as Map)['known'] as List)
-                .contains(widget.spell.id);
+                .contains(spell.id);
+    final classId = source != null && source.id.startsWith('class:')
+        ? source.id.substring(6)
+        : null;
+    final accent =
+        classId == null ? c.secondary : classAccent(context, classId);
+    final circle = selected?.circle ?? spell.level;
+    final effect = spellEffect(
+        spell.id, circle == 0 ? 1 : circle, source?.modifier ?? 0, widget.hero,
+        ru: s.ru);
+    final description = spell.getDescription(locale).toLowerCase();
+    // A save the spell imposes names its ability («спасбросок Мудрости»,
+    // "Wisdom saving throw"); «+1к4 к спасброскам» is not one.
+    final save = RegExp(
+            r'спасброс(?:ок|ка|ке|ку|ком|ки)\s+(?:силы|ловкости|телосложения|интеллекта|мудрости|харизмы)|'
+            r'(?:strength|dexterity|constitution|intelligence|wisdom|charisma)\s+saving throw|'
+            r'сл\s+спасброска|spell save dc')
+        .hasMatch(description);
+    final attack =
+        RegExp(r'атак[уа] заклинанием|spell attack').hasMatch(description);
+    final concentration = widget.hero.concentratingOn;
+    final replaces = spell.concentration &&
+            concentration != null &&
+            concentration != spell.id
+        ? SpellService.getSpellById(concentration)?.getName(locale) ??
+            concentration
+        : null;
+    final className = classId == null
+        ? null
+        : CharacterClassContext(widget.hero, classId).name(locale);
+    String timeLabel(String value) => SpellUtils.getLocalizedValue(l, value);
+    final facts = <(String, String)>[
+      (s.t('Время', 'Time'), timeLabel(spell.castingTime)),
+      (s.t('Дистанция', 'Range'), timeLabel(spell.range)),
+      (
+        s.t('Длительность', 'Duration'),
+        effect?.duration ?? timeLabel(spell.duration)
+      ),
+      if (save && source != null)
+        (s.t('Сл спаса', 'Save DC'), '${source.saveDC}'),
+      if (attack && source != null)
+        (
+          s.t('Атака', 'Attack'),
+          '${source.attack >= 0 ? '+' : ''}${source.attack}'
+        ),
+    ];
+    final higher = spell.getAtHigherLevels(locale);
+
+    Widget rung(SpellUseOption o) {
+      final on = _choice == o.key;
+      final pool = switch (o.method) {
+        SpellUseMethod.sharedSlot => MagicPool.shared,
+        SpellUseMethod.pactSlot => MagicPool.pact,
+        _ => null,
+      };
+      var left = 1, max = 1;
+      if (pool != null) {
+        try {
+          final state = MagicSlots.read(widget.hero);
+          left = state.remaining(pool, o.circle);
+          max = pool == MagicPool.pact
+              ? state.pact?.maximum ?? left
+              : state.maximum[o.circle - 1];
+        } catch (_) {}
+      }
+      final caption = switch (o.method) {
+        SpellUseMethod.sharedSlot => s.t('круг', 'level'),
+        SpellUseMethod.pactSlot => s.t('договор', 'pact'),
+        SpellUseMethod.ritual => s.t('ритуал', 'ritual'),
+        SpellUseMethod.arcanum => s.t('арканум', 'arcanum'),
+        SpellUseMethod.mastery => s.t('мастерство', 'mastery'),
+        SpellUseMethod.signature => s.t('фирменное', 'signature'),
+        SpellUseMethod.cantrip => s.t('заговор', 'cantrip'),
+      };
+      return Pressable(
+        key: ValueKey('cast-rung-${o.method.name}-${o.circle}'),
+        onTap: _saving
+            ? null
+            : () {
+                if (on) return;
+                HapticFeedback.selectionClick();
+                setState(() => _choice = o.key);
+              },
+        selected: on,
+        scale: .95,
+        semanticLabel: _label(o, s, l),
+        child: AnimatedContainer(
+          duration: AppMotion.of(context, const Duration(milliseconds: 220)),
+          curve: AppMotion.standard,
+          constraints: const BoxConstraints(minWidth: 68),
+          padding: const EdgeInsets.all(10),
+          transform: Matrix4.translationValues(0, on ? -2 : 0, 0),
+          decoration: BoxDecoration(
+            color: on
+                ? c.secondary.withValues(alpha: .22)
+                : c.onSurface.withValues(alpha: .05),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+                color:
+                    on ? c.secondary.withValues(alpha: .6) : Colors.transparent,
+                width: 1.5),
+          ),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Text(caption,
+                style: TextStyle(
+                    fontFamily: AppType.body,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    height: 1,
+                    color: c.onSurfaceVariant)),
+            const SizedBox(height: 5),
+            SizedBox(
+              height: 24,
+              child: Center(
+                child: o.method == SpellUseMethod.ritual
+                    ? Icon(Icons.menu_book_rounded,
+                        size: 22, color: c.onSurface)
+                    : Text(
+                        o.method == SpellUseMethod.cantrip
+                            ? '0'
+                            : '${o.circle}',
+                        style: const TextStyle(
+                            fontFamily: AppType.display,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                            height: 1)),
+              ),
+            ),
+            const SizedBox(height: 5),
+            if (o.method == SpellUseMethod.ritual)
+              Text(s.t('+10 мин', '+10 min'),
+                  style: TextStyle(
+                      fontFamily: AppType.body,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      height: 1,
+                      color: c.onSurfaceVariant))
+            else if (pool != null)
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                for (var i = 0; i < max.clamp(0, 6); i++)
+                  Container(
+                    width: 7,
+                    height: 7,
+                    margin: const EdgeInsets.symmetric(horizontal: 1.5),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: i < left ? c.secondary : Colors.transparent,
+                      border: i < left
+                          ? null
+                          : Border.all(color: c.outline, width: 1.4),
+                    ),
+                  ),
+              ])
+            else
+              const SizedBox(height: 7),
+          ]),
+        ),
+      );
+    }
+
+    Widget fact((String, String) f) => Container(
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          decoration: BoxDecoration(
+              color: c.onSurface.withValues(alpha: .05),
+              borderRadius: BorderRadius.circular(18)),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(f.$1.toUpperCase(),
+                style: TextStyle(
+                    fontFamily: AppType.body,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: .55,
+                    height: 1,
+                    color: c.onSurfaceVariant)),
+            const SizedBox(height: 5),
+            AnimatedSwitcher(
+              duration:
+                  AppMotion.of(context, const Duration(milliseconds: 380)),
+              transitionBuilder: (child, a) => FadeTransition(
+                  opacity: a,
+                  child: SlideTransition(
+                      position:
+                          Tween(begin: const Offset(0, .4), end: Offset.zero)
+                              .animate(CurvedAnimation(
+                                  parent: a, curve: AppMotion.snappyCurve)),
+                      child: child)),
+              child: Text(f.$2,
+                  key: ValueKey(f.$2),
+                  style: const TextStyle(
+                      fontFamily: AppType.body,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      height: 1.25)),
+            ),
+          ]),
+        );
+
     return PopScope(
         canPop: !_saving,
         child: DraggableScrollableSheet(
@@ -149,28 +354,100 @@ class _SpellCastSheetState extends State<SpellCastSheet> {
                   Expanded(
                       child: ListView(
                           controller: controller,
-                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                          padding: const EdgeInsets.fromLTRB(18, 4, 18, 18),
                           children: [
                         SheetDragRegion(
                             enabled: !_saving,
                             child: Padding(
-                                padding: const EdgeInsets.only(bottom: 18),
+                                padding: const EdgeInsets.only(bottom: 14),
                                 child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                          widget.spell.level == 0
-                                              ? l.cantrips
-                                              : l.levelLabel(
-                                                  widget.spell.level),
-                                          style: t.labelLarge
-                                              ?.copyWith(color: c.secondary)),
-                                      const SizedBox(height: 7),
-                                      Text(widget.spell.getName(locale),
-                                          style: t.headlineMedium?.copyWith(
-                                              fontWeight: FontWeight.w800)),
+                                          [
+                                            if (className != null) className,
+                                            spell.level == 0
+                                                ? s.t('заговор', 'cantrip')
+                                                : s.t('${spell.level} круг',
+                                                    'level ${spell.level}'),
+                                            SpellUtils.getLocalizedSchool(
+                                                l, spell.school),
+                                          ].join(' · '),
+                                          style: TextStyle(
+                                              fontFamily: AppType.body,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: accent)),
+                                      const SizedBox(height: 8),
+                                      Text(spell.getName(locale),
+                                          style: const TextStyle(
+                                              fontFamily: AppType.display,
+                                              fontSize: 26,
+                                              fontWeight: FontWeight.w600,
+                                              height: 1.15,
+                                              letterSpacing: -.4)),
                                     ]))),
+                        if (effect != null) ...[
+                          Container(
+                            key: const ValueKey('spell-cast-effect'),
+                            padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(22),
+                              gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color.lerp(
+                                        c.surfaceContainerLow, accent, .2)!,
+                                    c.surfaceContainerLow
+                                  ]),
+                            ),
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  AnimatedSwitcher(
+                                    duration: AppMotion.of(context,
+                                        const Duration(milliseconds: 420)),
+                                    transitionBuilder: (child, a) =>
+                                        FadeTransition(
+                                            opacity: a,
+                                            child: SlideTransition(
+                                                position: Tween(
+                                                        begin: const Offset(
+                                                            0, .35),
+                                                        end: Offset.zero)
+                                                    .animate(CurvedAnimation(
+                                                        parent: a,
+                                                        curve: AppMotion
+                                                            .snappyCurve)),
+                                                child: child)),
+                                    layoutBuilder: (current, previous) => Stack(
+                                        alignment: Alignment.centerLeft,
+                                        children: [
+                                          ...previous,
+                                          if (current != null) current
+                                        ]),
+                                    child: Text(effect.value,
+                                        key: ValueKey(effect.value),
+                                        style: const TextStyle(
+                                            fontFamily: AppType.display,
+                                            fontSize: 40,
+                                            fontWeight: FontWeight.w600,
+                                            height: 1,
+                                            letterSpacing: -.8)),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(effect.label,
+                                      style: TextStyle(
+                                          fontFamily: AppType.body,
+                                          fontSize: 13.5,
+                                          color: c.onSurface
+                                              .withValues(alpha: .78))),
+                                ]),
+                          ),
+                          const SizedBox(height: 14),
+                        ],
                         if (manual) ...[
                           Text(
                               s.t('Базовая характеристика решения стола',
@@ -206,7 +483,7 @@ class _SpellCastSheetState extends State<SpellCastSheet> {
                           ]),
                           const SizedBox(height: 14)
                         ],
-                        if (sources.length > 1)
+                        if (sources.length > 1) ...[
                           Wrap(spacing: 8, runSpacing: 4, children: [
                             for (final source in sources)
                               ChoiceChip(
@@ -222,23 +499,80 @@ class _SpellCastSheetState extends State<SpellCastSheet> {
                                           });
                                         })
                           ]),
-                        if (source != null) ...[
                           const SizedBox(height: 12),
-                          CompanionSurface(
-                              contour: CompanionContour.focus,
-                              padding: const EdgeInsets.all(16),
-                              child:
-                                  Wrap(spacing: 22, runSpacing: 12, children: [
-                                _fact(source.label(locale),
-                                    s.t('Источник', 'Source')),
-                                _fact('${source.saveDC}', l.spellSaveDC),
-                                _fact(
-                                    '${source.attack >= 0 ? '+' : ''}${source.attack}',
-                                    l.spellAttack)
-                              ])),
-                          const SizedBox(height: 18)
+                        ],
+                        if (choices.isNotEmpty &&
+                            !(choices.length == 1 &&
+                                choices.single.method ==
+                                    SpellUseMethod.cantrip)) ...[
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            clipBehavior: Clip.none,
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            child: Row(children: [
+                              for (final o in choices) ...[
+                                if (o != choices.first)
+                                  const SizedBox(width: 8),
+                                rung(o),
+                              ]
+                            ]),
+                          ),
+                          const SizedBox(height: 14),
+                        ] else if (spell.level == 0) ...[
+                          _note(
+                              context,
+                              Icons.auto_awesome_outlined,
+                              s.t('Заговор — без ячейки, растёт с уровнем',
+                                  'A cantrip — no slot, grows with level')),
+                          const SizedBox(height: 14),
+                        ],
+                        LayoutBuilder(builder: (context, box) {
+                          final w = (box.maxWidth - 8) / 2;
+                          return Wrap(spacing: 8, runSpacing: 8, children: [
+                            for (final f in facts)
+                              SizedBox(width: w, child: fact(f)),
+                          ]);
+                        }),
+                        if (effect == null &&
+                            higher != null &&
+                            higher.trim().isNotEmpty &&
+                            spell.level > 0) ...[
+                          const SizedBox(height: 10),
+                          _Higher(text: higher),
+                        ],
+                        if (spell.concentration) ...[
+                          const SizedBox(height: 12),
+                          Wrap(spacing: 6, children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 11, vertical: 7),
+                              decoration: BoxDecoration(
+                                  color: classAccent(context, 'warlock')
+                                      .withValues(alpha: .18),
+                                  borderRadius: BorderRadius.circular(999)),
+                              child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.timer_outlined,
+                                        size: 13, color: c.onSurface),
+                                    const SizedBox(width: 5),
+                                    Text(s.t('Концентрация', 'Concentration'),
+                                        style: const TextStyle(
+                                            fontFamily: AppType.body,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            height: 1)),
+                                  ]),
+                            ),
+                          ]),
+                        ],
+                        if (replaces != null) ...[
+                          const SizedBox(height: 10),
+                          _note(context, Icons.timer_outlined,
+                              s.t('Прервёт «$replaces»', 'Ends “$replaces”')),
                         ],
                         if (restrictions.isNotEmpty) ...[
+                          const SizedBox(height: 14),
                           CompanionSurface(
                               quiet: true,
                               padding: const EdgeInsets.all(16),
@@ -270,15 +604,16 @@ class _SpellCastSheetState extends State<SpellCastSheet> {
                                             : (v) => setState(() =>
                                                 _tableException = v == true)),
                                   ])),
-                          const SizedBox(height: 12),
                         ],
-                        if (CastingConstraints.hasMaterials(widget.spell))
+                        if (CastingConstraints.hasMaterials(spell))
                           Padding(
-                              padding: const EdgeInsets.only(bottom: 14),
+                              padding: const EdgeInsets.only(top: 12),
                               child: Text(
-                                  '${s.t('Материалы', 'Materials')}: ${widget.spell.getMaterialComponents(locale) ?? s.t('не указаны в книге', 'not specified in the book')}',
-                                  style: t.bodyMedium)),
+                                  '${s.t('Материалы', 'Materials')}: ${spell.getMaterialComponents(locale) ?? s.t('не указаны в книге', 'not specified in the book')}',
+                                  style: t.bodyMedium
+                                      ?.copyWith(color: c.onSurfaceVariant))),
                         if (issue != null) ...[
+                          const SizedBox(height: 12),
                           Text(issue, style: t.bodyMedium),
                           const SizedBox(height: 10),
                           FilledButton.tonal(
@@ -292,69 +627,27 @@ class _SpellCastSheetState extends State<SpellCastSheet> {
                         ],
                         if (issue == null &&
                             choices.isEmpty &&
-                            restrictions.isEmpty)
+                            restrictions.isEmpty) ...[
+                          const SizedBox(height: 12),
                           Text(
                               s.t('Проверь источник, подготовку и остаток ячеек. Источник старой записи можно указать в описании заклинания.',
                                   'Check the source, preparation and remaining slots. Assign an older spell in its details.'),
                               style: t.bodyMedium),
-                        for (final choice in choices)
-                          Padding(
-                              padding: const EdgeInsets.only(bottom: 9),
-                              child: CompanionSurface(
-                                  quiet: _choice != choice.key,
-                                  raised: _choice == choice.key,
-                                  color: _choice == choice.key
-                                      ? c.secondaryContainer
-                                      : null,
-                                  padding: const EdgeInsets.all(15),
-                                  onTap: _saving
-                                      ? null
-                                      : () {
-                                          HapticFeedback.selectionClick();
-                                          setState(() => _choice = choice.key);
-                                        },
-                                  child: Row(children: [
-                                    Icon(
-                                        _choice == choice.key
-                                            ? Icons.radio_button_checked_rounded
-                                            : Icons
-                                                .radio_button_unchecked_rounded,
-                                        color: c.secondary),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                          Text(_label(choice, s, l),
-                                              style: t.titleSmall?.copyWith(
-                                                  fontWeight: FontWeight.w700)),
-                                          if (choice.method ==
-                                                  SpellUseMethod.sharedSlot ||
-                                              choice.method ==
-                                                  SpellUseMethod.pactSlot)
-                                            Text(
-                                                s.t('Осталось ${MagicSlots.read(widget.hero).remaining(choice.method == SpellUseMethod.pactSlot ? MagicPool.pact : MagicPool.shared, choice.circle)}',
-                                                    '${MagicSlots.read(widget.hero).remaining(choice.method == SpellUseMethod.pactSlot ? MagicPool.pact : MagicPool.shared, choice.circle)} remaining'),
-                                                style: t.bodySmall),
-                                          if (choice.method ==
-                                              SpellUseMethod.ritual)
-                                            Text(
-                                                s.t('Время накладывания увеличивается на 10 минут',
-                                                    'Casting time increases by 10 minutes'),
-                                                style: t.bodySmall),
-                                        ]))
-                                  ]))),
+                        ],
                       ])),
                   Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                      padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
                       child: SizedBox(
                           width: double.infinity,
+                          height: 56,
                           child: FilledButton.icon(
                               key: const ValueKey('spell-cast-confirm'),
                               style: FilledButton.styleFrom(
-                                  backgroundColor: c.secondary,
-                                  foregroundColor: c.onSecondary),
+                                  backgroundColor: accent,
+                                  foregroundColor: c.surface,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(999))),
                               onPressed: _saving || selected == null
                                   ? null
                                   : () => _cast(selected),
@@ -364,25 +657,109 @@ class _SpellCastSheetState extends State<SpellCastSheet> {
                                       height: 18,
                                       child: CircularProgressIndicator(
                                           strokeWidth: 2))
-                                  : const Icon(Icons.auto_awesome_rounded),
-                              label: Text(selected?.method ==
-                                      SpellUseMethod.ritual
-                                  ? s.t('Провести ритуал', 'Perform ritual')
-                                  : s.t(
-                                      'Наложить заклинание', 'Cast spell'))))),
+                                  : const Icon(Icons.auto_fix_high_rounded),
+                              label: Text(
+                                  selected?.method == SpellUseMethod.ritual
+                                      ? s.t('Провести ритуал', 'Perform ritual')
+                                      : switch (selected?.method) {
+                                          SpellUseMethod.sharedSlot => s.t(
+                                              'Наложить · ячейка ${selected!.circle} круга',
+                                              'Cast · level ${selected.circle} slot'),
+                                          SpellUseMethod.pactSlot => s.t(
+                                              'Наложить · ячейка договора',
+                                              'Cast · pact slot'),
+                                          SpellUseMethod.arcanum => s.t(
+                                              'Наложить · арканум',
+                                              'Cast · arcanum'),
+                                          _ => s.t('Наложить заклинание',
+                                              'Cast spell'),
+                                        },
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      fontFamily: AppType.body,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600))))),
                 ])));
   }
 
-  Widget _fact(String value, String label) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(label, style: Theme.of(context).textTheme.labelSmall),
-            const SizedBox(height: 3),
-            Text(value,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w800))
-          ]);
+  Widget _note(BuildContext context, IconData icon, String text) {
+    final c = Theme.of(context).colorScheme;
+    final a5 = classAccent(context, 'warlock');
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: BoxDecoration(
+          color: Color.lerp(c.surfaceContainerLow, a5, .14),
+          borderRadius: BorderRadius.circular(18)),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Padding(
+            padding: const EdgeInsets.only(top: 1),
+            child: Icon(icon, size: 18, color: a5)),
+        const SizedBox(width: 10),
+        Expanded(
+            child: Text(text,
+                style:
+                    const TextStyle(fontFamily: AppType.body, fontSize: 13.5))),
+      ]),
+    );
+  }
+}
+
+/// "What a higher slot gives" for spells without a one-line effect.
+class _Higher extends StatefulWidget {
+  const _Higher({required this.text});
+  final String text;
+  @override
+  State<_Higher> createState() => _HigherState();
+}
+
+class _HigherState extends State<_Higher> {
+  bool _open = false;
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+    final ru = Localizations.localeOf(context).languageCode == 'ru';
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Pressable(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          setState(() => _open = !_open);
+        },
+        semanticLabel: ru ? 'Что даёт круг выше' : 'At higher levels',
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            AnimatedRotation(
+              turns: _open ? .5 : 0,
+              duration:
+                  AppMotion.of(context, const Duration(milliseconds: 240)),
+              child: Icon(Icons.keyboard_arrow_down_rounded,
+                  size: 16, color: c.secondary),
+            ),
+            const SizedBox(width: 6),
+            Text(ru ? 'Что даёт круг выше' : 'At higher levels',
+                style: TextStyle(
+                    fontFamily: AppType.body,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: c.secondary)),
+          ]),
+        ),
+      ),
+      AnimatedSize(
+        duration: AppMotion.of(context, const Duration(milliseconds: 320)),
+        curve: AppMotion.standard,
+        alignment: Alignment.topLeft,
+        child: _open
+            ? Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(widget.text,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(height: 1.5)))
+            : const SizedBox(width: double.infinity),
+      ),
+    ]);
+  }
 }

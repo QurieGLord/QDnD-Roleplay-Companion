@@ -76,17 +76,21 @@ void main() {
     await tester.tap(find.text('Cyra'));
     await tester.pumpAndSettle();
     expect(opened, isEmpty);
+    // The deck scrolls vertically under the horizontal party line; a card
+    // pitch is its 66 header plus a 10 gap.
     final scroll = tester
-        .state<ScrollableState>(find.byType(Scrollable).first)
+        .state<ScrollableState>(find.descendant(
+            of: find.byType(SingleChildScrollView),
+            matching: find.byType(Scrollable)))
         .position;
-    expect(scroll.pixels, closeTo(2 * 84, .5));
+    expect(scroll.pixels, closeTo(2 * 76, .5));
 
     await tester.tap(find.text('Cyra'));
     expect(opened, ['Cyra']);
 
     await tester.drag(find.text('Cyra'), const Offset(0, 60));
     await tester.pumpAndSettle();
-    expect(scroll.pixels % 84, closeTo(0, .5));
+    expect(scroll.pixels % 76, closeTo(0, .5));
   });
 
   testWidgets('export format picker exposes QDND and FC5 choices',
