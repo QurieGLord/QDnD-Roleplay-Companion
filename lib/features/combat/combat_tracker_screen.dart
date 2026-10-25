@@ -604,6 +604,10 @@ class _CombatTrackerScreenState extends State<CombatTrackerScreen> {
     );
 
     return Scaffold(
+      // Fields here sit at the top or in sheets over the page; the page never
+      // resizes for the keyboard, so it is not laid out again on every frame
+      // of the keyboard's slide.
+      resizeToAvoidBottomInset: false,
       backgroundColor: c.surface,
       body: Stack(children: [
         Positioned.fill(child: page),

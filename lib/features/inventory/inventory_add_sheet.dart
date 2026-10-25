@@ -80,10 +80,7 @@ class _AddSheetState extends State<_AddSheet> {
         canPop: !busy,
         child: SizedBox(
             height: MediaQuery.sizeOf(context).height * .88,
-            child: Padding(
-                padding: EdgeInsets.only(
-                    bottom: MediaQuery.viewInsetsOf(context).bottom),
-                child: Column(
+            child: KeyboardPadding(child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Padding(

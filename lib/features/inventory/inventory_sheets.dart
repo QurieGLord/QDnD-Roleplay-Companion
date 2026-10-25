@@ -375,9 +375,9 @@ class _NumberSheetState extends State<_NumberSheet> {
     final t = Theme.of(context), l = AppLocalizations.of(context)!;
     return PopScope(
         canPop: !busy,
-        child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-                24, 8, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
+        child: KeyboardPadding(child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+                24, 8, 24, 24),
             child: Form(
                 key: form,
                 child: Column(
@@ -439,7 +439,7 @@ class _NumberSheetState extends State<_NumberSheet> {
                                   }
                                 },
                           child: Text(l.save)),
-                    ]))));
+                    ])))));
   }
 }
 
@@ -472,9 +472,9 @@ class _WalletSheetState extends State<_WalletSheet> {
     final names = [l.currencyPP, l.currencyGP, l.currencySP, l.currencyCP];
     return PopScope(
         canPop: !busy,
-        child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-                24, 8, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
+        child: KeyboardPadding(child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+                24, 8, 24, 24),
             child: Form(
                 key: form,
                 child: Column(
@@ -557,6 +557,6 @@ class _WalletSheetState extends State<_WalletSheet> {
                                   }
                                 },
                           child: Text(l.save)),
-                    ]))));
+                    ])))));
   }
 }

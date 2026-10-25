@@ -26,8 +26,7 @@ void main() {
     await Hive.close();
     await dir.delete(recursive: true);
   });
-  testWidgets(
-      'Quest status dropdown opens with shared rounding and supports selection',
+  testWidgets('The quest state is a segment that saves in one tap',
       (tester) async {
     final c = fixtures.hero()
       ..quests.add(Quest(id: 'q', title: 'Find the keeper'));
@@ -39,22 +38,12 @@ void main() {
         supportedLocales: AppLocalizations.supportedLocales,
         home: JournalEntryPage(character: c, entryKey: 'q:q')));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-        find.byType(DropdownButtonFormField<QuestStatus>), 140,
+    final completed = find.byKey(const ValueKey('journal-status-1'));
+    await tester.scrollUntilVisible(completed, 140,
         scrollable: find.byType(Scrollable).first);
-    final button = tester.widget<DropdownButton<QuestStatus>>(
-        find.byType(DropdownButton<QuestStatus>));
-    expect(button.borderRadius, AppMenuStyle.radius);
-    expect(button.elevation, 4);
-    expect(button.dropdownColor,
-        provider.lightTheme.colorScheme.surfaceContainerHigh);
-    await tester.runAsync(() async {
-      await tester.tap(find.byType(DropdownButtonFormField<QuestStatus>));
-    });
-    await tester.pumpAndSettle();
     expect(find.text('Completed'), findsOneWidget);
     await tester.runAsync(() async {
-      await tester.tap(find.text('Completed'));
+      await tester.tap(completed);
       await Future<void>.delayed(const Duration(milliseconds: 80));
     });
     await tester.pumpAndSettle();

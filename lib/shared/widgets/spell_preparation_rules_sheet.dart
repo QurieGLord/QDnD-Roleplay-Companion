@@ -51,9 +51,9 @@ class _RulesSheetState extends State<_RulesSheet> {
         canPop: !_busy,
         child: SheetScrollDismiss(
             enabled: !_busy,
-            child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(
-                    20, 12, 20, 24 + MediaQuery.viewInsetsOf(context).bottom),
+            child: KeyboardPadding(child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(
+                    20, 12, 20, 24),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisSize: MainAxisSize.min,
@@ -110,6 +110,6 @@ class _RulesSheetState extends State<_RulesSheet> {
                           label: Text(ru
                               ? 'Сохранить для героя'
                               : 'Save for this hero')),
-                    ]))));
+                    ])))));
   }
 }

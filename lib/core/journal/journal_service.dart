@@ -209,6 +209,45 @@ class JournalService {
         }
       });
 
+  /// The player opens the next session on the tape; new records land in it.
+  static Future<void> startSession(Character c) =>
+      _mutate(c, (g) async => g.sessions = g.currentSession + 1);
+
+  /// The latest session, while nothing was written in it, can be taken back.
+  static Future<bool> dropSession(Character c) async {
+    var dropped = false;
+    await _mutate(c, (g) async {
+      final current = g.currentSession;
+      if (current < 2 || g.countIn(current) > 0) return;
+      g.sessions = current - 1;
+      dropped = true;
+    });
+    return dropped;
+  }
+
+  /// Ticks one step of a quest in a single write.
+  static Future<void> setObjective(
+          Character c, String key, int index, bool done) =>
+      _mutate(c, (g) async {
+        final at = c.quests.indexWhere((quest) => 'q:${quest.id}' == key);
+        if (at < 0 || index >= c.quests[at].objectives.length) return;
+        final copy = Quest.fromJson(c.quests[at].toJson());
+        copy.objectives[index].isCompleted = done;
+        c.quests[at] = copy;
+      });
+
+  static Future<void> addObjective(Character c, String key, String text) =>
+      _mutate(c, (g) async {
+        final at = c.quests.indexWhere((quest) => 'q:${quest.id}' == key);
+        if (at < 0 || text.trim().isEmpty) return;
+        final copy = Quest.fromJson(c.quests[at].toJson());
+        copy.objectives = [
+          ...copy.objectives,
+          QuestObjective(description: text.trim())
+        ];
+        c.quests[at] = copy;
+      });
+
   static Future<void> delete(Character c, String key) => _mutate(c, (g) async {
         c.journalNotes.removeWhere((n) => 'n:${n.id}' == key);
         c.quests.removeWhere((q) => 'q:${q.id}' == key);

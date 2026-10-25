@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../../core/ui/sheet_drag_region.dart' show KeyboardPadding;
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -1579,12 +1580,7 @@ class _BasicInfoStepState extends State<BasicInfoStep> {
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (sheetContext) {
-        return AnimatedPadding(
-          duration: _basicMotionDuration(sheetContext, _kBasicFastMotion),
-          curve: AppMotion.standard,
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.viewInsetsOf(sheetContext).bottom,
-          ),
+        return KeyboardPadding(
           child: FractionallySizedBox(
             heightFactor: 0.94,
             child: ClipRRect(

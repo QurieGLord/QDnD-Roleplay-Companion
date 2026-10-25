@@ -5,8 +5,6 @@ import 'package:qd_and_d/core/models/ability_scores.dart';
 import 'package:qd_and_d/core/models/journal_note.dart';
 import 'package:qd_and_d/core/models/quest.dart';
 import 'package:qd_and_d/features/character_sheet/tabs/journal_tab.dart';
-import 'package:qd_and_d/features/journal/widgets/adventurer_quote_card.dart';
-import 'package:qd_and_d/features/journal/journal_entry_tile.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 
 void main() {
@@ -47,66 +45,29 @@ void main() {
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(body: JournalTab(character: character))));
     await tester.pumpAndSettle();
-    final quote = tester
-        .widgetList<Text>(find.descendant(
-            of: find.byType(AdventurerQuoteCard), matching: find.byType(Text)))
-        .map((e) => e.data)
-        .toList();
-    await tester.enterText(find.byType(TextField), 'дорога');
+    final search = find.byKey(const ValueKey('journal-search'));
+    // The quest is the one in work; the note sits on the board.
+    final quest = find.text('Угроза на северной дороге');
+    final note = find.text('Письмо');
+    await tester.enterText(search, 'дорога');
     await tester.pumpAndSettle();
-    expect(
-        find.byWidgetPredicate(
-            (w) => w is JournalEntryTile && w.entry.quest != null),
-        findsOneWidget);
-    expect(
-        find.byWidgetPredicate(
-            (w) => w is JournalEntryTile && w.entry.note != null),
-        findsNothing);
-    await tester.enterText(find.byType(TextField), 'пристань');
+    expect(quest, findsOneWidget);
+    expect(note, findsNothing);
+    await tester.enterText(search, 'пристань');
     await tester.pumpAndSettle();
-    expect(
-        find.byWidgetPredicate(
-            (w) => w is JournalEntryTile && w.entry.quest != null),
-        findsOneWidget);
-    await tester.enterText(find.byType(TextField), 'улика');
+    expect(quest, findsOneWidget);
+    await tester.enterText(search, 'улика');
     await tester.pumpAndSettle();
-    expect(
-        find.byWidgetPredicate(
-            (w) => w is JournalEntryTile && w.entry.quest != null),
-        findsNothing);
-    await tester.scrollUntilVisible(
-        find.byWidgetPredicate(
-            (w) => w is JournalEntryTile && w.entry.note != null),
-        160,
-        scrollable: find.byType(Scrollable).first);
-    expect(
-        find.byWidgetPredicate(
-            (w) => w is JournalEntryTile && w.entry.note != null),
-        findsOneWidget);
-    await tester.scrollUntilVisible(find.byType(TextField), -160,
-        scrollable: find.byType(Scrollable).first);
-    await tester.enterText(find.byType(TextField), 'Локация');
+    expect(quest, findsNothing);
+    expect(note, findsOneWidget);
+    await tester.enterText(search, 'Локация');
     await tester.pumpAndSettle();
-    expect(
-        find.byWidgetPredicate(
-            (w) => w is JournalEntryTile && w.entry.note != null),
-        findsOneWidget);
-    await tester.tap(find.byIcon(Icons.clear));
+    expect(note, findsOneWidget);
+    await tester.tap(find.byTooltip('Очистить поиск'));
     await tester.pumpAndSettle();
-    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text,
-        isEmpty);
-    expect(
-        find.byWidgetPredicate(
-            (w) => w is JournalEntryTile && w.entry.quest != null),
-        findsOneWidget);
-    expect(
-        tester
-            .widgetList<Text>(find.descendant(
-                of: find.byType(AdventurerQuoteCard),
-                matching: find.byType(Text)))
-            .map((e) => e.data)
-            .toList(),
-        quote);
+    expect(tester.widget<TextField>(search).controller!.text, isEmpty);
+    expect(quest, findsOneWidget);
+    expect(note, findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

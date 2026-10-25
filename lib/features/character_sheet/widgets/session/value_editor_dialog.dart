@@ -135,10 +135,7 @@ class _SheetValueEditorState extends State<_SheetValueEditor> {
     final theme = Theme.of(context);
     return PopScope(
       canPop: !_saving,
-      child: Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
+      child: KeyboardPadding(child: Column(mainAxisSize: MainAxisSize.min, children: [
           SheetDragRegion(
               key: const ValueKey('sheet-value-header'),
               enabled: !_saving,
@@ -299,8 +296,7 @@ class _SheetValueEditorState extends State<_SheetValueEditor> {
                           ]),
                     ),
                   ))),
-        ]),
-      ),
+        ])),
     );
   }
 }

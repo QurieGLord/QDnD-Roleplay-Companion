@@ -310,6 +310,10 @@ class _CharacterSheetScreenState extends State<CharacterSheetScreen>
     }
     final c = Theme.of(context).colorScheme;
     return Scaffold(
+      // Fields here sit at the top or in sheets over the page; the page never
+      // resizes for the keyboard, so it is not laid out again on every frame
+      // of the keyboard's slide.
+      resizeToAvoidBottomInset: false,
       backgroundColor: c.surface,
       // The sheet scrolls under two floating glass layers, as in the
       // prototype: the compact hero bar at the top and the island below it.

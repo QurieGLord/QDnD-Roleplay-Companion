@@ -38,9 +38,9 @@ class _HistorySheetState extends State<_HistorySheet> {
     }
     return PopScope(
         canPop: !_busy,
-        child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-                24, 12, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
+        child: KeyboardPadding(child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+                24, 12, 24, 24),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
@@ -229,6 +229,6 @@ class _HistorySheetState extends State<_HistorySheet> {
                     ],
                   ],
                   const SizedBox(height: 12),
-                ])));
+                ]))));
   }
 }

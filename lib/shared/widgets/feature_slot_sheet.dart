@@ -57,9 +57,9 @@ class _FeatureSlotSheetState extends State<_FeatureSlotSheet> {
     final circle = circles.contains(_circle) ? _circle : circles.firstOrNull;
     return PopScope(
         canPop: !_busy,
-        child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-                24, 12, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
+        child: KeyboardPadding(child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+                24, 12, 24, 24),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
@@ -202,6 +202,6 @@ class _FeatureSlotSheetState extends State<_FeatureSlotSheet> {
                       icon: const Icon(Icons.explore_rounded),
                       label:
                           Text(ru ? 'Ощутить присутствие' : 'Sense presence')),
-                ])));
+                ]))));
   }
 }

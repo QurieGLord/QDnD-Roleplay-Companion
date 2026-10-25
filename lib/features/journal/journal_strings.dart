@@ -20,6 +20,23 @@ class JournalStrings {
         JournalEntityKind.event => Icons.history,
         JournalEntityKind.story => Icons.auto_stories_outlined,
       };
+  /// «3 записи», «1 entry»: Russian takes one, few, many; English one, many.
+  String plural(int n, List<String> ru, List<String> en) {
+    if (!this.ru) return '$n ${n == 1 ? en[0] : en[1]}';
+    final last = n % 10, teen = n % 100;
+    final form = teen >= 11 && teen <= 14
+        ? 2
+        : last == 1
+            ? 0
+            : last >= 2 && last <= 4
+                ? 1
+                : 2;
+    return '$n ${ru[form]}';
+  }
+
+  String records(int n) =>
+      plural(n, const ['запись', 'записи', 'записей'], const ['entry', 'entries']);
+
   String count(int n) {
     if (!ru) return '$n ${n == 1 ? 'entry' : 'entries'}';
     final last = n % 10, teen = n % 100;

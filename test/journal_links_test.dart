@@ -61,4 +61,16 @@ void main() {
     expect(
         JournalMatcher(names).analyze('We met Person 42.').automatic, {'42'});
   });
+
+  test('Mentions mark each trusted name where it sits, endings and all', () {
+    final matcher = JournalMatcher([
+      JournalEntity(id: 'elian', name: 'Элиан'),
+      JournalEntity(id: 'pier', name: 'Старая пристань', kind: JournalEntityKind.place),
+    ]);
+    const text = 'Альдрен просил найти Элиана у старой пристани.';
+    final hits = matcher.mentions(text);
+    expect([for (final h in hits) text.substring(h.start, h.end)],
+        ['Элиана', 'старой пристани']);
+    expect(hits.map((h) => h.entity.id), ['elian', 'pier']);
+  });
 }

@@ -53,6 +53,10 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
         final hasCharacters = characters.isNotEmpty;
 
         return Scaffold(
+          // Fields here sit at the top or in sheets over the page; the page never
+          // resizes for the keyboard, so it is not laid out again on every frame
+          // of the keyboard's slide.
+          resizeToAvoidBottomInset: false,
           backgroundColor: colorScheme.surface,
           floatingActionButton: hasCharacters
               ? RosterReveal(

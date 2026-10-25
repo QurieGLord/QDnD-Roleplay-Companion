@@ -1,0 +1,12 @@
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></symbol>
+  <symbol id="i-gem" viewBox="0 0 24 24"><path d="M7 4h10l4 5-9 11L3 9zM3 9h18M12 20 8.5 9 12 4l3.5 5z"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3.2-3.2a4.5 4.5 0 0 0-6.4-6.4L12 5.6M14 10a4.5 4.5 0 0 0-6.4 0l-3.2 3.2a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2.5 4L16 12H5"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3.5 12.5V4.5a1 1 0 0 1 1-1h8l8 8-9 9zM8.5 8.5h.01"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M4.5 6.5h15v13h-15zM4.5 10.5h15M8.5 4v4M15.5 4v4"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><path d="M4 5.5h16v13H4zM4 15l4.5-4.5 4 4 2.5-2.5L20 17M15.5 9.5h.01"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M15.5 4.5 19.5 8.5 9 19H5v-4zM13 7l4 4"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><path d="M12 5.5h.01M12 12h.01M12 18.5h.01"/></symbol>
+  <symbol id="i-quote" viewBox="0 0 24 24"><path d="M5 17c2.5-1 4-3 4-6V7H4.5v5H9M15 17c2.5-1 4-3 4-6V7h-4.5v5H19"/></symbol>
+  <symbol id="i-thread" viewBox="0 0 24 24"><path d="M6 4v5a4 4 0 0 0 4 4h4a4 4 0 0 1 4 4v3M6 4h.01M18 20h.01"/></symbol>
+  <symbol id="i-feather" viewBox="0 0 24 24"><path d="M19 5c-7 0-12 5-13 13M6 18l3-3M19 5c0 6-4 10-10 10M19 5l-6 6"/></symbol>

@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
-import '../../core/ui/companion_surface.dart';
-import '../../core/ui/companion_motion.dart';
 import 'package:flutter/services.dart';
 import '../../core/journal/journal_graph.dart';
 import '../../core/journal/journal_service.dart';
 import '../../core/models/character.dart';
 import '../../core/search/journal_search.dart';
+import '../../core/theme/app_tokens.dart';
 import '../../core/ui/app_snack_bar.dart';
+import '../../core/ui/companion_kit.dart';
 import 'entity_editor.dart';
+import 'journal_constellation.dart';
+import 'journal_entity_sheet.dart';
 import 'journal_entry_page.dart';
-import 'journal_story_carousel.dart';
+import 'journal_index.dart';
+import 'journal_kit.dart';
 import 'journal_strings.dart';
-import 'package:qd_and_d/core/theme/app_tokens.dart';
 
+/// The Atlas: people, places and events of the story as a living
+/// constellation, filtered by kind and name, with the chosen star's card,
+/// the names it shares records with and its trail through the sessions.
 class JournalAtlasPage extends StatefulWidget {
   const JournalAtlasPage({super.key, required this.character, this.selected});
   final Character character;
@@ -24,30 +29,53 @@ class JournalAtlasPage extends StatefulWidget {
 class _JournalAtlasPageState extends State<JournalAtlasPage> {
   late String? _selected = widget.selected;
   final _query = TextEditingController();
+  final _queryFocus = FocusNode();
+  final _scroll = ScrollController();
+  final _starsKey = GlobalKey();
+  final _off = <JournalEntityKind>{};
+  bool _titled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _queryFocus.addListener(() => setState(() {}));
+  }
+
   @override
   void dispose() {
     _query.dispose();
+    _queryFocus.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
-  void _select(String id) {
-    if (_selected == id) return;
-    setState(() => _selected = id);
-    HapticFeedback.selectionClick();
+  void _select(String? id) => setState(() => _selected = id);
+
+  void _toStar(String id) {
+    if (_selected != id) {
+      HapticFeedback.selectionClick();
+      _select(id);
+    }
+    final ctx = _starsKey.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(ctx,
+          alignment: .3,
+          duration: AppMotion.of(context, AppMotion.gentleSettle),
+          curve: AppMotion.gentleCurve);
+    }
   }
 
   Future<void> _edit(JournalEntity? entity) async {
-    final result = await editJournalEntity(context, entity: entity);
+    final s = JournalStrings(context);
+    final result = await editJournalEntity(context,
+        entity: entity, onDelete: entity == null ? null : () => _delete(entity));
     if (result == null || !mounted) return;
     try {
       await JournalService.updateEntity(widget.character, result);
       if (mounted) setState(() => _selected = result.id);
     } catch (_) {
       if (mounted) {
-        AppSnackBar.error(
-            context,
-            JournalStrings(context)
-                .t('Не удалось сохранить историю', 'Could not save the story'));
+        AppSnackBar.error(context, s.t('Не удалось сохранить имя', 'Could not save the name'));
       }
     }
   }
@@ -57,400 +85,418 @@ class _JournalAtlasPageState extends State<JournalAtlasPage> {
     final yes = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-                title: Text(s.t('Удалить историю?', 'Delete story?')),
+                title: Text(s.t('Убрать из Атласа?', 'Remove from the Atlas?')),
                 content: Text(s.t(
-                    'Записи останутся. Их привязки к этой истории будут убраны.',
-                    'Entries remain. Their connections to this story will be removed.')),
+                    'Записи останутся. Их связи с этим именем будут убраны.',
+                    'Entries remain. Their ties to this name will be removed.')),
                 actions: [
                   TextButton(
                       onPressed: () => Navigator.pop(context, false),
                       child: Text(s.t('Отмена', 'Cancel'))),
                   TextButton(
+                      key: const ValueKey('journal-entity-delete-confirm'),
                       onPressed: () => Navigator.pop(context, true),
-                      child: Text(s.t('Удалить', 'Delete')))
+                      child: Text(s.t('Убрать', 'Remove')))
                 ]));
     if (yes != true || !mounted) return;
     try {
       await JournalService.deleteEntity(widget.character, entity.id);
+      HapticFeedback.mediumImpact();
       if (mounted) setState(() => _selected = null);
     } catch (_) {
       if (mounted) {
-        AppSnackBar.error(context,
-            s.t('Не удалось удалить историю', 'Could not delete the story'));
+        AppSnackBar.error(context, s.t('Не удалось убрать имя', 'Could not remove the name'));
       }
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final s = JournalStrings(context);
-    final graph = JournalService.graph(widget.character),
-        all = JournalService.entries(widget.character);
-    if (graph.entity(_selected ?? '') == null) {
-      _selected = graph.entities.firstOrNull?.id;
+  void _focus(JournalEntity entity) {
+    HapticFeedback.lightImpact();
+    JournalFocus.request.value = entity.id;
+    final home = JournalFocus.home;
+    if (home != null && home.isActive) {
+      Navigator.popUntil(context, (r) => r == home);
+    } else {
+      Navigator.maybePop(context);
     }
-    final catalogue = graph.entities
-        .where((e) => JournalSearch(_query.text)
-            .matches([e.name, e.description, ...e.aliases]))
-        .toList();
-    final shown = catalogue.any((e) => e.id == _selected)
-        ? _selected
-        : catalogue.firstOrNull?.id;
-    final entity = graph.entity(shown ?? '');
-    final duration = MediaQuery.disableAnimationsOf(context)
-        ? Duration.zero
-        : const Duration(milliseconds: 240);
-    return Scaffold(
-        appBar: AppBar(
-            scrolledUnderElevation: 0,
-            surfaceTintColor: Colors.transparent,
-            leading: IconButton(
-                key: const ValueKey('atlas-exit'),
-                icon: const Icon(Icons.arrow_back),
-                tooltip: s.t('Назад', 'Back'),
-                onPressed: () => Navigator.pop(context)),
-            title: Text(s.t('Атлас историй', 'Story atlas')),
-            actions: [
-              IconButton(
-                  onPressed: () => _edit(null),
-                  icon: const Icon(Icons.add),
-                  tooltip: s.t('Новая история', 'New story')),
-              if (entity != null)
-                PopupMenuButton<String>(
-                    tooltip: s.t('История', 'Story'),
-                    onSelected: (value) {
-                      if (value == 'edit') {
-                        _edit(entity);
-                      } else {
-                        _delete(entity);
-                      }
-                    },
-                    itemBuilder: (_) => [
-                          PopupMenuItem(
-                              value: 'edit',
-                              child: Text(
-                                  s.t('Об этой истории', 'About this story'))),
-                          PopupMenuItem(
-                              value: 'delete',
-                              child: Text(s.t('Удалить', 'Delete')))
-                        ]),
-            ]),
-        body: SafeArea(
-            child: CompanionEntrance(
-                child: ListView(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-                    children: [
-              Text(s.t('Связи твоей истории', 'Your story, connected'),
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w800, letterSpacing: -.7)),
-              const SizedBox(height: 6),
-              Text(
-                  s.t('Люди, места и события — в контексте записей.',
-                      'People, places and events, with the entries behind them.'),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
-              const SizedBox(height: 16),
-              TextField(
-                  controller: _query,
-                  onChanged: (_) => setState(() {}),
-                  decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search),
-                      hintText: s.t('Найти историю', 'Find a story'))),
-              const SizedBox(height: 14),
-              if (catalogue.isEmpty)
-                Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Text(graph.entities.isEmpty
-                        ? s.t(
-                            'Истории появятся, когда ты подтвердишь новое имя в записи. Можно добавить свою здесь.',
-                            'Stories appear when you confirm a new name in an entry. You can also add one here.')
-                        : s.t('История не найдена', 'Story not found')))
-              else
-                JournalStoryCarousel(
-                    entities: catalogue,
-                    selected: shown,
-                    count: (id) => all
-                        .where(
-                            (e) => graph.forRecord(e.key).entities.contains(id))
-                        .length,
-                    onSelected: _select),
-              const SizedBox(height: 20),
-              // Both the summary and its sources share one size/fade transition.
-              // Outgoing content is painted below the incoming content without layout jumps.
-              AnimatedSize(
-                  key: const ValueKey('atlas-content-size'),
-                  duration: duration,
-                  reverseDuration: duration,
-                  alignment: Alignment.topCenter,
-                  curve: Curves.easeInOutCubic,
-                  child: AnimatedSwitcher(
-                      duration: duration,
-                      layoutBuilder: (current, previous) => Stack(
-                              alignment: Alignment.topCenter,
-                              clipBehavior: Clip.none,
-                              children: [
-                                for (final child in previous.reversed.take(1))
-                                  Positioned(
-                                      top: 0, left: 0, right: 0, child: child),
-                                if (current != null) current,
-                              ]),
-                      switchInCurve: AppMotion.standard,
-                      switchOutCurve: Curves.easeInCubic,
-                      child: entity == null
-                          ? const SizedBox.shrink()
-                          : _AtlasContent(
-                              key: ValueKey(entity.id),
-                              entity: entity,
-                              graph: graph,
-                              entries: all,
-                              onSelect: _select,
-                              onEntry: (key) async {
-                                await Navigator.push(
-                                    context,
-                                    MaterialPageRoute<void>(
-                                        builder: (_) => JournalEntryPage(
-                                            character: widget.character,
-                                            entryKey: key)));
-                                if (mounted) setState(() {});
-                              }))),
-            ]))));
   }
-}
 
-class _AtlasContent extends StatelessWidget {
-  const _AtlasContent(
-      {super.key,
-      required this.entity,
-      required this.graph,
-      required this.entries,
-      required this.onSelect,
-      required this.onEntry});
-  final JournalEntity entity;
-  final JournalGraph graph;
-  final List<JournalEntry> entries;
-  final ValueChanged<String> onSelect, onEntry;
+  Future<void> _open(String key) async {
+    await Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+            builder: (_) => JournalEntryPage(character: widget.character, entryKey: key)));
+    if (mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = JournalStrings(context), c = Theme.of(context).colorScheme;
-    final related = entries
-        .where((e) => graph.forRecord(e.key).entities.contains(entity.id))
-        .toList()
-      ..sort((a, b) {
-        final aa = graph.forRecord(a.key).session,
-            bb = graph.forRecord(b.key).session;
-        return aa != null && bb != null
-            ? aa.compareTo(bb)
-            : a.date.compareTo(b.date);
-      });
-    // Count shared sources once instead of scanning every source for every entity.
-    final sharedCounts = <String, int>{};
-    for (final entry in related) {
-      for (final id in graph.forRecord(entry.key).entities) {
-        if (id != entity.id) {
-          sharedCounts.update(id, (count) => count + 1, ifAbsent: () => 1);
-        }
+    final index = JournalIndex(widget.character);
+    final graph = index.graph;
+    if (_selected != null && graph.entity(_selected!) == null) _selected = null;
+    final search = JournalSearch(_query.text);
+    final shown = {
+      for (final e in graph.entities)
+        if (!_off.contains(e.kind) && search.matches([e.name, e.description, ...e.aliases])) e.id
+    };
+    final ties = <JournalTie>[];
+    final list = graph.entities;
+    for (var i = 0; i < list.length; i++) {
+      for (var j = i + 1; j < list.length; j++) {
+        final n = index.entries.where((r) {
+          final ids = graph.forRecord(r.key).entities;
+          return ids.contains(list[i].id) && ids.contains(list[j].id);
+        }).length;
+        if (n > 0) ties.add(JournalTie(list[i].id, list[j].id, n));
       }
     }
-    final neighbors =
-        graph.entities.where((e) => sharedCounts.containsKey(e.id)).toList();
-    final t = Theme.of(context);
-    String countWord(int value, {bool connection = false}) {
-      if (!s.ru) {
-        return connection
-            ? (value == 1 ? 'connection' : 'connections')
-            : (value == 1 ? 'entry' : 'entries');
-      }
-      final last = value % 10, hundred = value % 100;
-      final form = hundred >= 11 && hundred <= 14
-          ? 2
-          : last == 1
-              ? 0
-              : last >= 2 && last <= 4
-                  ? 1
-                  : 2;
-      return (connection
-          ? ['пересечение', 'пересечения', 'пересечений']
-          : ['запись', 'записи', 'записей'])[form];
-    }
-
-    Widget metric(String label, int value) =>
-        Row(mainAxisSize: MainAxisSize.min, children: [
-          Text('$value',
-              style: t.textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800)),
-          const SizedBox(width: 7),
-          Flexible(
-              child: Text(label,
-                  style: t.textTheme.bodySmall
-                      ?.copyWith(color: c.onSurfaceVariant))),
-        ]);
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      CompanionSurface(
-          key: ValueKey('atlas-entity-${entity.id}'),
-          contour: CompanionContour.focus,
-          raised: true,
-          color: c.secondaryContainer,
-          padding: const EdgeInsets.all(20),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: companionDecoration(context,
-                      color: c.surface,
-                      shape:
-                          const CompanionShape(contour: CompanionContour.fold)),
-                  child:
-                      Icon(s.icon(entity.kind), size: 28, color: c.secondary)),
-              const SizedBox(width: 14),
-              Expanded(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                    Text(s.kind(entity.kind),
-                        style: t.textTheme.labelMedium
-                            ?.copyWith(color: c.onSurfaceVariant)),
-                    const SizedBox(height: 5),
-                    Text(entity.name,
-                        style: t.textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            height: 1.08,
-                            letterSpacing: -.8)),
-                  ])),
-            ]),
-            if (entity.description.isNotEmpty) ...[
-              const SizedBox(height: 18),
-              Text(entity.description,
-                  style: t.textTheme.bodyLarge?.copyWith(height: 1.45)),
-            ],
-            if (entity.aliases.isNotEmpty) ...[
+    final weight = {for (final e in list) e.id: index.recordsOf(e.id).length};
+    final selected = _selected == null ? null : graph.entity(_selected!);
+    final top = MediaQuery.paddingOf(context).top;
+    final a1 = JournalLook.accent(context, 1);
+    return Scaffold(
+      // Fields here sit at the top or in sheets over the page; the page never
+      // resizes for the keyboard, so it is not laid out again on every frame
+      // of the keyboard's slide.
+      resizeToAvoidBottomInset: false,
+      body: Stack(children: [
+        NotificationListener<ScrollUpdateNotification>(
+          onNotification: (n) {
+            final titled = n.metrics.pixels > 96;
+            if (n.depth == 0 && titled != _titled) setState(() => _titled = titled);
+            return false;
+          },
+          child: ListView(
+            controller: _scroll,
+            padding: EdgeInsets.fromLTRB(
+                16, top + JournalTopBar.height + 16, 16, 40 + MediaQuery.paddingOf(context).bottom),
+            children: [
+              Text(journalUpper(widget.character.name),
+                  maxLines: 1, overflow: TextOverflow.ellipsis, style: journalCap(context, a1)),
+              const SizedBox(height: 6),
+              Text(s.t('Атлас', 'Atlas'),
+                  style: TextStyle(
+                      fontFamily: AppType.display,
+                      fontSize: 46,
+                      height: .95,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -2.07,
+                      color: c.onSurface)),
+              const SizedBox(height: 8),
+              Text(
+                  s.t('Люди, места и события — и как они связаны записями.',
+                      'People, places and events — and how entries tie them together.'),
+                  style: TextStyle(fontSize: 14, color: c.onSurfaceVariant)),
               const SizedBox(height: 14),
-              Text(entity.aliases.join(' · '),
-                  style: t.textTheme.bodySmall
-                      ?.copyWith(color: c.onSurfaceVariant)),
+              JournalSearchField(
+                  controller: _query,
+                  focus: _queryFocus,
+                  hint: s.t('Найти имя или место', 'Find a name or a place'),
+                  onChanged: () => setState(() {})),
+              const SizedBox(height: 14),
+              SizedBox(
+                height: 42,
+                child: OverflowBox(
+                  alignment: Alignment.centerLeft,
+                  minWidth: MediaQuery.sizeOf(context).width,
+                  maxWidth: MediaQuery.sizeOf(context).width,
+                  child: Transform.translate(
+                    offset: const Offset(-16, 0),
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                      itemCount: JournalEntityKind.values.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 6),
+                      itemBuilder: (_, i) {
+                        final kind = JournalEntityKind.values[i];
+                        return Center(
+                          child: _KindChip(
+                              kind: kind,
+                              count: list.where((e) => e.kind == kind).length,
+                              off: _off.contains(kind),
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                setState(() => _off.contains(kind) ? _off.remove(kind) : _off.add(kind));
+                              }),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              SizedBox(
+                key: _starsKey,
+                height: 340,
+                child: OverflowBox(
+                  alignment: Alignment.centerLeft,
+                  minWidth: MediaQuery.sizeOf(context).width,
+                  maxWidth: MediaQuery.sizeOf(context).width,
+                  child: Transform.translate(
+                    offset: const Offset(-16, 0),
+                    child: list.isEmpty
+                        ? Center(
+                            child: Padding(
+                            padding: const EdgeInsets.all(32),
+                            child: Text(
+                                s.t('Имена появятся, когда журнал узнает их в записях. Можно добавить своё — кнопкой «+».',
+                                    'Names appear once the journal knows them in entries. Add your own with «+».'),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 14, color: c.onSurfaceVariant)),
+                          ))
+                        : JournalConstellation(
+                            key: const ValueKey('journal-constellation'),
+                            entities: list,
+                            ties: ties,
+                            weight: weight,
+                            shown: shown,
+                            selected: _selected,
+                            onSelect: _select),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              AnimatedSwitcher(
+                duration: AppMotion.of(context, AppMotion.long),
+                switchInCurve: AppMotion.snappyCurve,
+                transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                        position: Tween(begin: const Offset(0, .04), end: Offset.zero)
+                            .animate(animation),
+                        child: child)),
+                layoutBuilder: (current, previous) => Stack(
+                    alignment: Alignment.topCenter,
+                    children: [...previous, if (current != null) current]),
+                child: selected == null
+                    ? JournalDashed(
+                        key: const ValueKey('atlas-empty'),
+                        color: c.onSurface.withValues(alpha: .14),
+                        child: Padding(
+                          padding: const EdgeInsets.all(18),
+                          child: Center(
+                            child: Text(
+                                s.t('Коснитесь звезды — здесь появится её история.',
+                                    'Tap a star — its story appears here.'),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 14, color: c.onSurfaceVariant)),
+                          ),
+                        ),
+                      )
+                    : _Detail(
+                        key: ValueKey('atlas-entity-${selected.id}'),
+                        index: index,
+                        entity: selected,
+                        onEdit: () => _edit(selected),
+                        onFocus: () => _focus(selected),
+                        onName: _toStar,
+                        onOpen: _open),
+              ),
             ],
-            const SizedBox(height: 18),
-            Divider(
-                height: 1, color: c.onSurfaceVariant.withValues(alpha: .15)),
-            const SizedBox(height: 14),
-            Wrap(spacing: 22, runSpacing: 12, children: [
-              metric(countWord(related.length), related.length),
-              metric(countWord(neighbors.length, connection: true),
-                  neighbors.length),
-            ]),
-          ])),
-      if (neighbors.isNotEmpty) ...[
-        const SizedBox(height: 24),
-        Text(s.t('Вместе в записях', 'Together in entries'),
-            style:
-                t.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-        const SizedBox(height: 12),
-        for (final e in neighbors) ...[
-          CompanionSurface(
-              quiet: true,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              onTap: () => onSelect(e.id),
-              child: Row(children: [
-                Icon(s.icon(e.kind), color: c.secondary, size: 25),
-                const SizedBox(width: 12),
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          top: 0,
+          child: JournalTopBar(
+            titled: _titled,
+            title: s.t('Атлас', 'Atlas'),
+            leading: JournalRound(
+                key: const ValueKey('atlas-exit'),
+                icon: 'back',
+                label: s.t('Назад', 'Back'),
+                onTap: () => Navigator.maybePop(context)),
+            actions: [
+              JournalRound(
+                  key: const ValueKey('atlas-new'),
+                  icon: 'plus',
+                  label: s.t('Новое имя', 'New name'),
+                  onTap: () => _edit(null)),
+            ],
+          ),
+        ),
+      ]),
+    );
+  }
+}
+
+class _KindChip extends StatelessWidget {
+  const _KindChip({required this.kind, required this.count, required this.off, required this.onTap});
+  final JournalEntityKind kind;
+  final int count;
+  final bool off;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final s = JournalStrings(context), c = Theme.of(context).colorScheme;
+    final a = JournalLook.accent(context, JournalLook.kindAccent(kind));
+    final dur = AppMotion.of(context, AppMotion.snappySettle);
+    return Pressable(
+      key: ValueKey('atlas-kind-${kind.name}'),
+      onTap: onTap,
+      scale: .95,
+      selected: !off,
+      semanticLabel: '${JournalLook.kindPlural(s, kind)}: $count',
+      child: AnimatedContainer(
+        duration: dur,
+        curve: AppMotion.standard,
+        height: 38,
+        padding: const EdgeInsets.fromLTRB(6, 0, 12, 0),
+        decoration: BoxDecoration(
+          color: off ? Colors.transparent : JournalLook.mix(a, .16, c.surfaceContainerLow),
+          borderRadius: BorderRadius.circular(off ? 19 : 12),
+          border: Border.all(
+              color: off ? c.onSurface.withValues(alpha: .14) : Colors.transparent, width: 1.3),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          AnimatedContainer(
+            duration: dur,
+            curve: AppMotion.standard,
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+                color: off ? c.onSurface.withValues(alpha: .08) : a,
+                borderRadius: BorderRadius.circular(off ? 13 : 8)),
+            child: Center(
+                child: LineIcon(JournalLook.kindIcon(kind),
+                    size: 15, color: off ? c.onSurfaceVariant : c.surface)),
+          ),
+          const SizedBox(width: 7),
+          Text(JournalLook.kindPlural(s, kind),
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: off ? c.onSurfaceVariant : c.onSurface)),
+          const SizedBox(width: 7),
+          Text('$count', style: TextStyle(fontSize: 12, color: c.onSurfaceVariant)),
+        ]),
+      ),
+    );
+  }
+}
+
+class _Detail extends StatelessWidget {
+  const _Detail(
+      {super.key,
+      required this.index,
+      required this.entity,
+      required this.onEdit,
+      required this.onFocus,
+      required this.onName,
+      required this.onOpen});
+  final JournalIndex index;
+  final JournalEntity entity;
+  final VoidCallback onEdit, onFocus;
+  final ValueChanged<String> onName, onOpen;
+  @override
+  Widget build(BuildContext context) {
+    final s = JournalStrings(context), c = Theme.of(context).colorScheme;
+    final a = JournalLook.accent(context, JournalLook.kindAccent(entity.kind));
+    final trail = index.trailOf(entity.id), together = index.together(entity.id);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+            color: c.surfaceContainerLow, borderRadius: BorderRadius.circular(30)),
+        child: Stack(children: [
+          Positioned(
+            right: -110,
+            top: -140,
+            child: IgnorePointer(
+              child: Container(
+                width: 320,
+                height: 260,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                      colors: [a.withValues(alpha: .3), a.withValues(alpha: 0)], stops: const [0, .66]),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                JournalSeal(
+                    icon: JournalLook.kindIcon(entity.kind),
+                    accent: a,
+                    size: JournalSealSize.lg,
+                    dimension: 56),
+                const SizedBox(width: 14),
                 Expanded(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                      Text(e.name,
-                          style: t.textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 3),
-                      Text(
-                          s.t('Общих записей: ${sharedCounts[e.id]}',
-                              'Shared entries: ${sharedCounts[e.id]}'),
-                          style: t.textTheme.bodySmall
-                              ?.copyWith(color: c.onSurfaceVariant)),
-                    ])),
-                const SizedBox(width: 8),
-                const Icon(Icons.chevron_right_rounded, size: 22),
-              ])),
-          const SizedBox(height: 8),
-        ],
-        Text(
-            s.t('Общее упоминание не подтверждает сюжетную связь.',
-                'A shared mention does not confirm a story relationship.'),
-            style: t.textTheme.bodySmall?.copyWith(color: c.onSurfaceVariant)),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(
+                        journalUpper([
+                          s.kind(entity.kind),
+                          if (entity.aliases.isNotEmpty) entity.aliases.join(', ')
+                        ].join(' · ')),
+                        style: journalCap(context, a)),
+                    const SizedBox(height: 6),
+                    Text(entity.name,
+                        style: TextStyle(
+                            fontFamily: AppType.display,
+                            fontSize: 30,
+                            height: 1.02,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -.9,
+                            color: c.onSurface)),
+                  ]),
+                ),
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: JournalRound(
+                      key: const ValueKey('atlas-edit'),
+                      icon: 'edit',
+                      label: s.t('Изменить', 'Edit'),
+                      size: 36,
+                      onTap: onEdit),
+                ),
+              ]),
+              if (entity.description.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(entity.description,
+                    style: TextStyle(fontSize: 15, height: 1.5, color: c.onSurface.withValues(alpha: .84))),
+              ],
+              const SizedBox(height: 12),
+              JournalStats(records: trail.length, together: together.length, strings: s),
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ToneButton(
+                    key: const ValueKey('atlas-focus'),
+                    label: s.t('Фокус журнала', 'Focus the journal'),
+                    icon: const LineIcon('search', size: 16),
+                    kind: ToneKind.tonal,
+                    height: 38,
+                    fontSize: 13,
+                    onPressed: onFocus),
+              ),
+            ]),
+          ),
+        ]),
+      ),
+      if (together.isNotEmpty) ...[
+        const SizedBox(height: 18),
+        JournalHeading(s.t('Вместе в записях', 'Together in entries')),
+        const SizedBox(height: 10),
+        Wrap(spacing: 7, runSpacing: 7, children: [
+          for (final (e, _) in together) JournalToken(entity: e, onTap: () => onName(e.id)),
+        ]),
       ],
-      const SizedBox(height: 26),
-      Text(s.t('След истории', 'Story trail'),
-          style: t.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-      const SizedBox(height: 16),
-      if (related.isEmpty)
-        Text(s.t(
-            'Пока нет связанных записей. Добавь имя в текст или выбери эту историю в редакторе.',
-            'No linked entries yet. Use the name in your text or choose this story in the editor.')),
-      for (var i = 0; i < related.length; i++)
+      const SizedBox(height: 18),
+      JournalHeading(s.t('След истории', 'Story trail'), count: s.t('по сессиям', 'by session')),
+      const SizedBox(height: 6),
+      if (trail.isEmpty)
         Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Stack(children: [
-              if (i < related.length - 1)
-                Positioned(
-                    left: 12,
-                    top: 24,
-                    bottom: -12,
-                    child: Container(
-                        width: 2, color: c.secondary.withValues(alpha: .2))),
-              Padding(
-                  padding: const EdgeInsets.only(left: 36),
-                  child: CompanionSurface(
-                      quiet: true,
-                      padding: const EdgeInsets.all(16),
-                      onTap: () => onEntry(related[i].key),
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                graph.forRecord(related[i].key).session != null
-                                    ? s.t(
-                                        'Сессия ${graph.forRecord(related[i].key).session}',
-                                        'Session ${graph.forRecord(related[i].key).session}')
-                                    : '${related[i].date.day}.${related[i].date.month}.${related[i].date.year}',
-                                style: t.textTheme.labelMedium
-                                    ?.copyWith(color: c.secondary)),
-                            const SizedBox(height: 8),
-                            Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                      child: Text(related[i].title,
-                                          style: t.textTheme.titleMedium
-                                              ?.copyWith(
-                                                  fontWeight:
-                                                      FontWeight.w700))),
-                                  const SizedBox(width: 8),
-                                  const Icon(Icons.chevron_right_rounded,
-                                      size: 20),
-                                ]),
-                            if (related[i].text.isNotEmpty) ...[
-                              const SizedBox(height: 8),
-                              Text(related[i].text,
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: t.textTheme.bodyMedium?.copyWith(
-                                      color: c.onSurfaceVariant, height: 1.45)),
-                            ],
-                          ]))),
-              Positioned(
-                  left: 0,
-                  top: 16,
-                  child: Container(
-                      width: 26,
-                      height: 26,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle, color: c.secondaryContainer),
-                      child: Icon(
-                          related[i].quest == null
-                              ? Icons.history_edu_rounded
-                              : Icons.flag_outlined,
-                          size: 15,
-                          color: c.secondary))),
-            ])),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Text(s.t('Пока ни одной записи.', 'No entries yet.'),
+              style: TextStyle(fontSize: 14, color: c.onSurfaceVariant)),
+        )
+      else
+        JournalTrail(index: index, records: trail, ring: c.surface, onOpen: onOpen),
     ]);
   }
 }

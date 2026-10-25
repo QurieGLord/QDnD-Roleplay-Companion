@@ -119,3 +119,15 @@ class SheetSafeArea extends StatelessWidget {
     );
   }
 }
+
+/// Lifts its child by the keyboard. Only this small widget depends on the
+/// keyboard's height, so while the keyboard slides the content inside is
+/// laid out again but never rebuilt.
+class KeyboardPadding extends StatelessWidget {
+  const KeyboardPadding({super.key, required this.child});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: child);
+}

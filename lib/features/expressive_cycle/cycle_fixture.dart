@@ -1,11 +1,8 @@
 import 'dart:math' as math;
 import 'package:hive/hive.dart';
-import '../../core/journal/journal_graph.dart';
-import '../../core/journal/journal_service.dart';
+import '../journal/journal_campaign.dart';
 import '../../core/models/ability_scores.dart';
 import '../../core/models/character.dart';
-import '../../core/models/journal_note.dart';
-import '../../core/models/quest.dart';
 import '../../core/models/spell.dart';
 import '../../core/models/spell_slots_table.dart';
 import '../../core/progression/advancement_choice.dart';
@@ -63,6 +60,7 @@ const veteranCycleLevels = {
 /// Opted in only by the separate Cycle package, like [seedExpressiveCycle].
 Future<void> seedVeteranCycle() async {
   await _retireLevelOneCycle();
+  await _refreshVeteranJournals();
   if (StorageService.getSetting(veteranCycleSeedKey) == true) return;
   final roster = buildExpressiveCycleCharacters(
       levels: veteranCycleLevels, idPrefix: veteranCycleIdPrefix);
@@ -77,6 +75,29 @@ Future<void> seedVeteranCycle() async {
   }
   await StorageService.saveSetting(veteranCycleSeedKey, true);
   await Hive.box('settings').flush();
+}
+
+const _journalWave4Key = '_veteran_cycle_journal_wave4_20261025_v1';
+
+/// Veterans seeded before wave 4 carry a two-note journal. Those journals,
+/// while still untouched, get the wave 4 campaign once; a journal the
+/// player has written in stays as it is.
+Future<void> _refreshVeteranJournals() async {
+  if (StorageService.getSetting(_journalWave4Key) == true) return;
+  for (final hero in StorageService.getAllCharacters().toList()) {
+    if (!hero.id.startsWith(veteranCycleIdPrefix)) continue;
+    final notes = hero.journalNotes.map((n) => n.id).toSet(),
+        quests = hero.quests.map((q) => q.id).toSet();
+    if (notes.length != 2 ||
+        !notes.containsAll(['letter', 'meeting']) ||
+        quests.length != 1 ||
+        !quests.contains('elian')) {
+      continue;
+    }
+    writeJournalCampaign(hero);
+    await StorageService.saveCharacter(hero);
+  }
+  await StorageService.saveSetting(_journalWave4Key, true);
 }
 
 const _retiredLevelOneKey = '_veteran_cycle_retired_level_one_20261024_v1';
@@ -405,44 +426,4 @@ List<Character> buildExpressiveCycleCharacters(
       return hero;
     }).toList();
 
-void _journal(Character hero) {
-  hero.journalNotes = [
-    JournalNote(
-        id: 'letter',
-        title: 'Письмо из Лесной гавани',
-        isPinned: true,
-        category: NoteCategory.story,
-        tags: ['улика', 'письмо'],
-        content:
-            'Элиан ждёт нас у старой пристани в Лесной гавани. Капитан Альдрен оставил ему письмо.'),
-    JournalNote(
-        id: 'meeting',
-        title: 'Встреча на пристани',
-        category: NoteCategory.npc,
-        tags: ['Альдрен'],
-        content:
-            'Альдрен попросил найти сына Элиана и передать письмо в Лесной гавани.'),
-  ];
-  hero.quests = [
-    Quest(
-        id: 'elian',
-        title: 'Найти Элиана',
-        description: 'Передать Элиану письмо Альдрена в Лесной гавани.',
-        objectives: [
-          QuestObjective(description: 'Прочитать письмо', isCompleted: true),
-          QuestObjective(description: 'Расспросить смотрителя пристани'),
-          QuestObjective(description: 'Передать письмо Элиану')
-        ])
-  ];
-  final graph = JournalGraph(entities: [
-    JournalEntity(id: 'elian', name: 'Элиан', aliases: ['Elian']),
-    JournalEntity(id: 'aldren', name: 'Альдрен', aliases: ['Aldren']),
-    JournalEntity(
-        id: 'haven',
-        name: 'Лесная гавань',
-        kind: JournalEntityKind.place,
-        aliases: ['Woodland Haven']),
-  ]);
-  JournalService.reconcile(hero, graph);
-  hero.journalData = graph.toJson();
-}
+void _journal(Character hero) => writeJournalCampaign(hero);

@@ -234,6 +234,38 @@ void main() {
     final json = QdndBundleCodec.characterToJson(hero())..remove('journalData');
     expect(QdndBundleCodec.characterFromJson(json).journalData, isEmpty);
   });
+  test('Sessions open on the tape and only an empty latest one is taken back',
+      () async {
+    final c = hero();
+    c.journalNotes.add(JournalNote(id: 'n', title: 'At the tavern'));
+    c.journalData =
+        (JournalGraph(sessions: 1)..forRecord('n:n').session = 2).toJson();
+    await StorageService.saveCharacter(c);
+    expect(JournalService.graph(c).currentSession, 2);
+    await JournalService.startSession(c);
+    expect(JournalService.graph(c).currentSession, 3);
+    expect(await JournalService.dropSession(c), isTrue);
+    expect(JournalService.graph(c).currentSession, 2);
+    // Session 2 holds a record: it stays.
+    expect(await JournalService.dropSession(c), isFalse);
+    expect(JournalService.graph(c).currentSession, 2);
+    expect(JournalService.graph(c).forRecord('n:n').session, 2);
+  });
+
+  test('Quest steps are ticked and added in one write each', () async {
+    final c = hero();
+    c.quests.add(Quest(id: 'q', title: 'Find the keeper', objectives: [
+      QuestObjective(description: 'Read the letter')
+    ]));
+    await StorageService.saveCharacter(c);
+    await JournalService.setObjective(c, 'q:q', 0, true);
+    await JournalService.addObjective(c, 'q:q', '  Ask Mira  ');
+    await JournalService.addObjective(c, 'q:q', '   ');
+    expect(c.quests.single.objectives.map((o) => o.description),
+        ['Read the letter', 'Ask Mira']);
+    expect(c.quests.single.objectives.first.isCompleted, isTrue);
+  });
+
   test('Failed writes restore data and clean a newly copied image', () async {
     final c = hero();
     c.journalNotes.addAll([

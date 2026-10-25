@@ -71,7 +71,8 @@ class JournalGraph {
       {List<JournalEntity>? entities,
       Map<String, JournalRecordLinks>? records,
       List<String>? noteOrder,
-      List<String>? questOrder})
+      List<String>? questOrder,
+      this.sessions = 0})
       : entities = List.of(entities ?? []),
         records = Map.of(records ?? {}),
         noteOrder = List.of(noteOrder ?? []),
@@ -79,6 +80,18 @@ class JournalGraph {
   final List<String> noteOrder, questOrder;
   final List<JournalEntity> entities;
   final Map<String, JournalRecordLinks> records;
+
+  /// Sessions the player has opened on the tape. The current session is the
+  /// latest of these and of any session a record was written in.
+  int sessions;
+  int get currentSession => [
+        sessions,
+        1,
+        for (final r in records.values)
+          if (r.session != null) r.session!
+      ].reduce((a, b) => a > b ? a : b);
+  int countIn(int session) =>
+      records.values.where((r) => r.session == session).length;
   JournalRecordLinks forRecord(String key) =>
       records.putIfAbsent(key, JournalRecordLinks.new);
   JournalEntity? entity(String id) {
@@ -110,12 +123,14 @@ class JournalGraph {
         'version': 1,
         'noteOrder': noteOrder,
         'questOrder': questOrder,
+        'sessions': sessions,
         'entities': entities.map((e) => e.toJson()).toList(),
         'records': records.map((key, value) => MapEntry(key, value.toJson()))
       };
   factory JournalGraph.fromJson(Map<dynamic, dynamic>? json) => JournalGraph(
       noteOrder: List<String>.from(json?['noteOrder'] ?? []),
       questOrder: List<String>.from(json?['questOrder'] ?? []),
+      sessions: json?['sessions'] as int? ?? 0,
       entities: (json?['entities'] as List? ?? [])
           .map((e) =>
               JournalEntity.fromJson(Map<String, dynamic>.from(e as Map)))

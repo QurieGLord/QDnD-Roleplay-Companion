@@ -14,7 +14,6 @@ import 'package:qd_and_d/features/character_sheet/character_sheet_screen.dart';
 import 'package:qd_and_d/features/character_sheet/tabs/inventory_tab.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/expandable_character_card.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/session/value_editor_dialog.dart';
-import 'package:qd_and_d/features/journal/journal_appear.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import 'journal_service_test.dart' as fixtures;
 
@@ -326,41 +325,6 @@ void main() {
         reduced: true));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('character-about')), findsNothing);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('Entry reveals when visible, then stays still when scrolled back',
-      (tester) async {
-    var seen = 0;
-    var visited = false;
-    final scroll = ScrollController();
-    addTearDown(scroll.dispose);
-    await tester.pumpWidget(app(Scaffold(
-        body: StatefulBuilder(
-            builder: (context, refresh) =>
-                ListView(controller: scroll, children: [
-                  const SizedBox(height: 900),
-                  JournalAppear(
-                      seen: visited,
-                      onSeen: () {
-                        seen++;
-                        refresh(() => visited = true);
-                      },
-                      child: const SizedBox(height: 120, child: Text('Entry'))),
-                  const SizedBox(height: 900)
-                ])))));
-    await tester.pumpAndSettle();
-    expect(seen, 0);
-    scroll.jumpTo(700);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-    expect(seen, 1);
-    await tester.pumpAndSettle();
-    scroll.jumpTo(0);
-    await tester.pumpAndSettle();
-    scroll.jumpTo(700);
-    await tester.pumpAndSettle();
-    expect(seen, 1);
     expect(tester.takeException(), isNull);
   });
 }

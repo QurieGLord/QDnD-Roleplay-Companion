@@ -92,9 +92,13 @@ void main() {
       expect(c.expertSkills.toSet().length, c.expertSkills.length);
       expect(c.expertSkills.every(c.proficientSkills.contains), isTrue);
       expect(c.journalNotes, isNotEmpty);
-      expect(c.quests.single.objectives.length, 3);
-      expect(c.journalData['entities'], hasLength(3));
+      // Each class keeps a journal of its own: quests, names, sessions.
+      expect(c.quests.length, greaterThanOrEqualTo(3));
+      expect((c.journalData['entities'] as List).length, greaterThanOrEqualTo(6));
+      expect(c.journalData['sessions'] as int, greaterThanOrEqualTo(5));
     }
+    // No two heroes share a story.
+    expect({for (final c in roster) c.quests.first.title}, hasLength(roster.length));
     Character hero(String id) =>
         roster.singleWhere((c) => c.characterClass == id);
     expect(hero('barbarian').abilityScores.strength, 24);

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qd_and_d/core/journal/journal_service.dart';
 import 'package:qd_and_d/core/models/quest.dart';
 import 'package:qd_and_d/core/models/journal_note.dart';
 import 'package:qd_and_d/features/journal/journal_entry_page.dart';
-import 'package:qd_and_d/features/journal/journal_entry_tile.dart';
+import 'package:qd_and_d/features/journal/journal_pin_board.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import 'journal_service_test.dart' as fixtures;
 
@@ -22,21 +21,28 @@ void main() {
       (tester) async {
     await tester.pumpWidget(app(Scaffold(
         body: ListView(children: [
-      JournalEntryTile(
-          entry: JournalEntry.note(JournalNote(id: 'n', title: 'Letter')),
-          onTap: () {},
-          onMenu: () {}),
+      JournalPinBoard(
+          pinned: const [],
+          loose: const [
+            JournalCardData(
+                key: 'n:n', title: 'Letter', text: '', category: NoteCategory.general)
+          ],
+          onOpen: (_) {},
+          onCommit: (_, __, ___) {}),
       const SizedBox(height: 900)
     ]))));
     await tester.pumpAndSettle();
-    final key = find.byKey(const ValueKey('journal-card-press-n:n'));
+    double scale() => tester
+        .widget<AnimatedScale>(find.ancestor(
+            of: find.text('Letter'), matching: find.byType(AnimatedScale)))
+        .scale;
     final gesture =
         await tester.startGesture(tester.getCenter(find.text('Letter')));
     await tester.pump(const Duration(milliseconds: 180));
-    expect(tester.widget<Transform>(key).transform.storage[0], 1);
+    expect(scale(), 1);
     await gesture.moveBy(const Offset(0, -80));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(tester.widget<Transform>(key).transform.storage[0], 1);
+    expect(scale(), 1);
     await gesture.up();
     await tester.pumpAndSettle();
     await tester.drag(find.byType(ListView), const Offset(0, 140));
@@ -45,7 +51,7 @@ void main() {
         await tester.startGesture(tester.getCenter(find.text('Letter')));
     await tester.pump(const Duration(milliseconds: 380));
     await tester.pump(const Duration(milliseconds: 80));
-    expect(tester.widget<Transform>(key).transform.storage[0], lessThan(1));
+    expect(scale(), lessThan(1));
     await hold.up();
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
@@ -67,20 +73,17 @@ void main() {
     await tester.pumpWidget(
         app(JournalEntryPage(character: c, entryKey: 'q:q'), scale: 1.6));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-        find.byKey(const ValueKey('journal-reader-content')), 160,
-        scrollable: find.byType(Scrollable).first);
-    expect(find.text('Content'), findsOneWidget);
-    expect(find.byType(SelectableText), findsOneWidget);
-    await tester.scrollUntilVisible(
-        find.byKey(const ValueKey('journal-reader-objectives')), 160,
-        scrollable: find.byType(Scrollable).first);
-    expect(find.text('Quest steps'), findsOneWidget);
-    expect(find.byType(CheckboxListTile), findsNWidgets(2));
-    await tester.scrollUntilVisible(
-        find.byKey(const ValueKey('journal-reader-status')), 160,
-        scrollable: find.byType(Scrollable).first);
-    expect(find.text('Quest state'), findsOneWidget);
+    for (final key in [
+      'journal-reader-content',
+      'journal-reader-objectives',
+      'journal-step-1',
+      'journal-reader-status'
+    ]) {
+      await tester.scrollUntilVisible(find.byKey(ValueKey(key)), 160,
+          scrollable: find.byType(Scrollable).first);
+      expect(find.byKey(ValueKey(key)), findsOneWidget);
+    }
+    expect(find.text('Step 2 of 2'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

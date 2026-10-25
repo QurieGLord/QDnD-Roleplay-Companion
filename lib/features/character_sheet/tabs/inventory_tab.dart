@@ -200,6 +200,8 @@ class _InventoryTabState extends State<InventoryTab> {
         wallet = Wallet.read(hero),
         filtered = type != null || equipped != 'all' || query.isNotEmpty;
     return Scaffold(
+        // Lives inside the sheet's page: it never resizes for the keyboard.
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.transparent,
         floatingActionButton: widget.showAddButton
             ? FloatingActionButton(

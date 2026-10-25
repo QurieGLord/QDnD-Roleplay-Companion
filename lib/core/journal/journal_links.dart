@@ -6,6 +6,12 @@ class JournalLinkAnalysis {
   final List<List<JournalEntity>> ambiguous;
 }
 
+class JournalMention {
+  const JournalMention(this.start, this.end, this.entity);
+  final int start, end;
+  final JournalEntity entity;
+}
+
 class JournalLinks {
   static final _token = RegExp(r'[\p{L}\p{M}\p{N}]+', unicode: true);
   static List<String> words(String text) => _token
@@ -227,6 +233,39 @@ class JournalMatcher {
       }
     }
     return word;
+  }
+
+  /// Where each trusted name sits in [text], so it can be drawn in its
+  /// kind's colour. Ambiguous names are left unmarked.
+  List<JournalMention> mentions(String text) {
+    final folded = text.toLowerCase().replaceAll('ё', 'е');
+    if (folded.length != text.length) return const [];
+    final tokens = JournalLinks._token.allMatches(folded).toList();
+    final words = [for (final t in tokens) _identityWord(t.group(0)!)];
+    final found = <(int, int), JournalEntity>{};
+    for (var start = 0; start < words.length; start++) {
+      var key = '';
+      for (var length = 1;
+          length <= _maximum && start + length <= words.length;
+          length++) {
+        key = key.isEmpty ? words[start] : '$key ${words[start + length - 1]}';
+        final matches = _patterns[key];
+        if (matches != null && matches.length == 1) {
+          found[(start, length)] = matches.single;
+        }
+      }
+    }
+    final result = <JournalMention>[];
+    var reached = 0;
+    final ranges = found.keys.toList()
+      ..sort((a, b) => a.$1 != b.$1 ? a.$1.compareTo(b.$1) : b.$2.compareTo(a.$2));
+    for (final range in ranges) {
+      if (range.$1 < reached) continue;
+      result.add(JournalMention(tokens[range.$1].start,
+          tokens[range.$1 + range.$2 - 1].end, found[range]!));
+      reached = range.$1 + range.$2;
+    }
+    return result;
   }
 
   JournalLinkAnalysis analyze(String text) {

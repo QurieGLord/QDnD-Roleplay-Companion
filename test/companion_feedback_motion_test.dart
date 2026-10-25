@@ -76,8 +76,11 @@ void main() {
   });
 
   testWidgets(
-      'Atlas filters the visible story, survives no matches and exits without an undo history',
+      'The Atlas constellation selects, filters and exits without writing',
       (tester) async {
+    tester.view.physicalSize = const Size(390, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final hero = fixtures.hero();
     hero.journalNotes = [
       JournalNote(
@@ -96,30 +99,31 @@ void main() {
     graph.forRecord('n:two').manual.addAll({'a', 'c'});
     hero.journalData = graph.toJson();
     final before = QdndBundleCodec.characterToJson(hero);
-    await tester.pumpWidget(app(Builder(
-        builder: (context) => TextButton(
-            onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                    builder: (_) => JournalAtlasPage(character: hero))),
-            child: const Text('Open atlas')))));
+    // Less motion: the stars do not drift, so the sky comes to rest.
+    await tester.pumpWidget(app(
+        Builder(
+            builder: (context) => TextButton(
+                onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                        builder: (_) => JournalAtlasPage(character: hero))),
+                child: const Text('Open atlas'))),
+        reduced: true));
     await tester.tap(find.text('Open atlas'));
     await tester.pumpAndSettle();
+    expect(find.text('Tap a star — its story appears here.'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('journal-star-a')),
+        warnIfMissed: false);
+    await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('atlas-entity-a')), findsOneWidget);
-    expect(find.text('Shared entries: 1'), findsNWidgets(2));
+    expect(find.text('Together in entries'), findsOneWidget);
     await tester.enterText(find.byType(TextField), 'Northroad');
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('atlas-entity-c')), findsOneWidget);
-    expect(find.byKey(const ValueKey('atlas-entity-a')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('atlas-kind-place')));
+    await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'zzzz-no-match');
     await tester.pumpAndSettle();
-    expect(find.text('Story not found'), findsOneWidget);
-    await tester.enterText(find.byType(TextField), '');
-    await tester.pumpAndSettle();
-    await tester.drag(find.byKey(const ValueKey('journal-story-carousel')),
-        const Offset(-490, 0));
-    await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('atlas-entity-b')), findsOneWidget);
+    expect(find.byKey(const ValueKey('journal-constellation')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('atlas-exit')));
     await tester.pumpAndSettle();
     expect(find.byType(JournalAtlasPage), findsNothing);

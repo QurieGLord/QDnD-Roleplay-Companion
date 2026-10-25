@@ -34,9 +34,9 @@ class _WildShapeEditorState extends State<_WildShapeEditor> {
         c = theme.colorScheme;
     return PopScope(
         canPop: !_busy,
-        child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-                24, 12, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
+        child: KeyboardPadding(child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+                24, 12, 24, 24),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
@@ -115,6 +115,6 @@ class _WildShapeEditorState extends State<_WildShapeEditor> {
                             },
                       icon: const Icon(Icons.pets_rounded),
                       label: Text(ru ? 'Принять облик' : 'Transform')),
-                ])));
+                ]))));
   }
 }

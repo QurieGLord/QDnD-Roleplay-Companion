@@ -56,9 +56,9 @@ class _CompanionEditorState extends State<_CompanionEditor> {
 
     return PopScope(
         canPop: !_busy,
-        child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-                24, 12, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
+        child: KeyboardPadding(child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+                24, 12, 24, 24),
             child: Form(
                 key: _form,
                 child: Column(
@@ -145,6 +145,6 @@ class _CompanionEditorState extends State<_CompanionEditor> {
                           icon: const Icon(Icons.check_rounded),
                           label: Text(
                               ru ? 'Сохранить спутника' : 'Save companion')),
-                    ]))));
+                    ])))));
   }
 }

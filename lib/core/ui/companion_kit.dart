@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'sheet_drag_region.dart' show SheetScrollDismiss;
+import 'sheet_drag_region.dart' show KeyboardPadding, SheetScrollDismiss;
 import 'package:flutter/services.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -61,6 +61,31 @@ class LineIcon extends StatelessWidget {
     'up': 'M12 19V5M6 11l6-6 6 6',
     'dice': 'M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 3v18M4 7.5l16 9M20 7.5l-16 9',
     'user': 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20a7.5 7.5 0 0 1 15 0',
+    // The journal (wave 4).
+    'person':
+        'M12 4a3.2 3.2 0 1 1 0 6.4A3.2 3.2 0 0 1 12 4zM5.5 20c0-3.6 2.9-6.3 6.5-6.3s6.5 2.7 6.5 6.3',
+    'pin':
+        'M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
+    'gem': 'M7 4h10l4 5-9 11L3 9zM3 9h18M12 20 8.5 9 12 4l3.5 5z',
+    'link':
+        'M10 14a4.5 4.5 0 0 0 6.4 0l3.2-3.2a4.5 4.5 0 0 0-6.4-6.4L12 5.6M14 10a4.5 4.5 0 0 0-6.4 0l-3.2 3.2a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2',
+    'flag': 'M5 21V4M5 4h11l-2.5 4L16 12H5',
+    'tag': 'M3.5 12.5V4.5a1 1 0 0 1 1-1h8l8 8-9 9zM8.5 8.5h.01',
+    'image':
+        'M4 5.5h16v13H4zM4 15l4.5-4.5 4 4 2.5-2.5L20 17M15.5 9.5h.01',
+    'edit': 'M15.5 4.5 19.5 8.5 9 19H5v-4zM13 7l4 4',
+    'more': 'M12 5.5h.01M12 12h.01M12 18.5h.01',
+    'quote':
+        'M5 17c2.5-1 4-3 4-6V7H4.5v5H9M15 17c2.5-1 4-3 4-6V7h-4.5v5H19',
+    'feather': 'M19 5c-7 0-12 5-13 13M6 18l3-3M19 5c0 6-4 10-10 10M19 5l-6 6',
+    'bookmark': 'M7 4h10v16l-5-3.5L7 20z',
+    'search': 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4',
+    'grid': 'M5 5h5v5H5zM14 5h5v5h-5zM5 14h5v5H5zM14 14h5v5h-5z',
+    'target':
+        'M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM12 2v3M12 19v3M2 12h3M19 12h3',
+    'minus': 'M5 12h14',
+    'spark':
+        'M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6',
     'settings':
         'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z',
   };
@@ -676,11 +701,9 @@ Future<T?> showCompanionSheet<T>(BuildContext context,
             reverseDuration: Duration(milliseconds: 220)),
     shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl))),
-    builder: (context) => AnimatedPadding(
-      // Rises with the keyboard so a field stays in view while typing.
-      duration: const Duration(milliseconds: 120),
-      curve: Curves.easeOut,
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+    // Rises with the keyboard so a field stays in view while typing; only
+    // the lift depends on the keyboard, the content is never rebuilt by it.
+    builder: (context) => KeyboardPadding(
       // The handle floats over the content: no band of sheet colour cuts
       // what scrolls up beneath it.
       child: Stack(children: [
