@@ -23,7 +23,7 @@ import 'package:qd_and_d/core/ui/companion_kit.dart' show Pressable;
 import 'package:qd_and_d/core/ui/expressive_kit.dart' show RollingNumber;
 import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/instrument/instrument_kit.dart'
     show StateBadge, SwitchRow;
-import 'package:qd_and_d/features/combat/widgets/hp_manager_card.dart';
+import 'package:qd_and_d/features/character_sheet/widgets/session/life_band.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/bard_inspiration_widget.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/cleric_magic_widget.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/class_widgets/druid_magic_widget.dart';
@@ -497,16 +497,21 @@ void main() {
         final before = snapshot(c);
         await tester.pumpWidget(
           MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: SingleChildScrollView(
-                child: HpManagerCard(character: c, onCharacterUpdated: () {}),
+                child: LifeSection(character: c),
               ),
             ),
           ),
         );
         await frame(tester, 'HP card max$max');
         unchanged(c, before, 'HP card max$max');
-        expect(ratio(6, max), findsWidgets);
+        expect(
+            find.byWidgetPredicate(
+                (w) => w is Semantics && w.properties.label == '6 / $max'),
+            findsOneWidget);
       },
     );
   }

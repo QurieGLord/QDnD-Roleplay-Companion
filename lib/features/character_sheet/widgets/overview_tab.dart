@@ -2,15 +2,20 @@ import '../../../core/progression/character_training.dart';
 import '../../../core/utils/dice_utils.dart';
 import '../../../shared/widgets/formula_roll_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/item.dart';
 import '../../../shared/widgets/dice_roller_modal.dart';
+import '../../combat/arsenal.dart' show syncEffectsIn;
 import '../../combat/combat_tracker_screen.dart';
-import 'gameplay_state_editor.dart';
-import 'session/health_panel.dart';
+import '../../combat/initiative_ceremony.dart';
+import '../../../core/services/combat_actions_service.dart';
+import '../../../core/services/gameplay_actions_service.dart';
+import 'session/game_console.dart';
+import 'session/life_band.dart';
 import 'session/condition_chips.dart';
 import 'session/rest_sheet.dart';
 import 'session/armor_class_sheet.dart';
@@ -85,7 +90,7 @@ class _OverviewTabState extends State<OverviewTab> {
   }
 
   Future<void> _editState() async {
-    if (await showGameplayStateEditor(context, character)) _updated();
+    if (await showGameConsole(context, character)) _updated();
   }
 
   Future<void> _pickConditions() async {
@@ -105,11 +110,47 @@ class _OverviewTabState extends State<OverviewTab> {
       title: AppLocalizations.of(context)!.rollInitiative,
       modifier: character.initiativeBonus);
 
+  /// Wave 3: the initiative is thrown on a full-screen ceremony, the fight
+  /// begins in one write, and the combat page grows in.
   Future<void> _startCombat() async {
+    if (!character.combatState.isInCombat) {
+      final total = await showInitiativeCeremony(context,
+          bonus: character.initiativeBonus,
+          advantage: character.hasFeralInstinct);
+      if (total == null || !mounted) return;
+      final ru = Localizations.localeOf(context).languageCode == 'ru';
+      try {
+        await CombatActionsService.start(character, total,
+            text: ru
+                ? 'Бой начат · инициатива $total'
+                : 'Combat started · initiative $total');
+        await GameplayActionsService.combat(
+            character, () => syncEffectsIn(character, ru));
+      } catch (_) {
+        if (mounted) {
+          AppSnackBar.error(
+              context, AppLocalizations.of(context)!.sheetSaveFailed);
+        }
+        return;
+      }
+      if (!mounted) return;
+    }
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => CombatTrackerScreen(character: character),
+      PageRouteBuilder<void>(
+        transitionDuration:
+            AppMotion.of(context, const Duration(milliseconds: 620)),
+        reverseTransitionDuration:
+            AppMotion.of(context, const Duration(milliseconds: 300)),
+        pageBuilder: (context, _, __) =>
+            CombatTrackerScreen(character: character),
+        transitionsBuilder: (context, animation, _, child) => FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+              scale: Tween(begin: 1.04, end: 1.0).animate(CurvedAnimation(
+                  parent: animation, curve: AppMotion.gentleCurve)),
+              child: child),
+        ),
       ),
     );
     _updated();
@@ -132,7 +173,7 @@ class _OverviewTabState extends State<OverviewTab> {
       clipBehavior: Clip.none,
       padding: EdgeInsets.fromLTRB(16, inset + 6, 16, 110),
       children: [
-        gap(SheetHealthPanel(character: character, onChanged: _updated)),
+        gap(LifeSection(character: character, onChanged: _updated)),
         if (now != null) gap(now),
         gap(_QuickStats(
           armorClass: '${character.armorClass}',
@@ -159,7 +200,13 @@ class _OverviewTabState extends State<OverviewTab> {
           onShortRest: () => _showRestDialog(context, short: true),
           onLongRest: () => _showRestDialog(context, short: false),
         )),
-        _CombatButton(label: l10n.startCombat, onPressed: _startCombat),
+        _CombatButton(
+            label: character.combatState.isInCombat
+                ? (Localizations.localeOf(context).languageCode == 'ru'
+                    ? 'Вернуться в бой'
+                    : 'Back to combat')
+                : l10n.startCombat,
+            onPressed: _startCombat),
       ],
     );
   }
@@ -184,8 +231,7 @@ class _OverviewTabState extends State<OverviewTab> {
         title: l10n.nowLowHpTitle,
         note: l10n.nowLowHpNote(dice),
         action: l10n.nowRestAction,
-        onAction:
-            _resting ? null : () => _showRestDialog(context, short: true),
+        onAction: _resting ? null : () => _showRestDialog(context, short: true),
       );
     }
     return _NowCard(
@@ -469,15 +515,19 @@ class _QuickTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context), c = t.colorScheme;
+    final valueStyle = AppType.numeric(t.textTheme.headlineSmall)
+        .copyWith(fontSize: 24, fontWeight: FontWeight.w600, height: 1.1);
     final body = Padding(
       padding: const EdgeInsets.fromLTRB(4, 12, 4, 10),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        LineIcon(icon, size: 18, color: c.secondary),
-        const SizedBox(height: 2),
-        Text(value,
-            maxLines: 1,
-            style: AppType.numeric(t.textTheme.headlineSmall).copyWith(
-                fontSize: 24, fontWeight: FontWeight.w600, height: 1.1)),
+        if (shieldTint)
+          // Armour class sits on its shield (wave 3, `.qshield`).
+          _ShieldValue(value: value, style: valueStyle)
+        else ...[
+          LineIcon(icon, size: 18, color: c.secondary),
+          const SizedBox(height: 2),
+          Text(value, maxLines: 1, style: valueStyle),
+        ],
         const SizedBox(height: 2),
         Text(label,
             maxLines: 1,
@@ -493,26 +543,38 @@ class _QuickTile extends StatelessWidget {
       decoration: BoxDecoration(
           color: c.surfaceContainerLow,
           borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
-      child: shieldTint
-          // The armour tile carries a faint shield shape inside it.
-          ? Stack(children: [
-              Positioned.fill(
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  child: DecoratedBox(
-                      decoration: BoxDecoration(
-                          color: c.secondary.withValues(alpha: .09),
-                          borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              topRight: Radius.circular(12),
-                              bottomLeft: Radius.circular(22),
-                              bottomRight: Radius.circular(22)))),
-                ),
-              ),
-              Center(child: body),
-            ])
-          : Center(child: body),
+      child: Center(child: body),
+    );
+  }
+}
+
+/// The armour class value on a small shield in the accent of defence.
+class _ShieldValue extends StatelessWidget {
+  const _ShieldValue({required this.value, required this.style});
+  final String value;
+  final TextStyle style;
+  @override
+  Widget build(BuildContext context) {
+    final a4 = AppAccents.of(context).at(4);
+    String hex(Color c) =>
+        '#${(c.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
+    final svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 112">'
+        '<path d="M50 4 92 18v34c0 28-18 48-42 56C26 100 8 80 8 52V18z" '
+        'fill="${hex(a4)}" fill-opacity=".2" stroke="${hex(a4)}" stroke-width="5" '
+        'stroke-linejoin="round"/></svg>';
+    return SizedBox(
+      width: 44,
+      height: 46,
+      child: Stack(alignment: Alignment.center, children: [
+        SvgPicture.string(svg, width: 44, height: 48),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(value,
+                  maxLines: 1, style: style.copyWith(fontSize: 21, height: 1))),
+        ),
+      ]),
     );
   }
 }
@@ -544,7 +606,10 @@ class _WeaponSurface extends StatelessWidget {
                     tone.withValues(alpha: .12), c.surfaceContainerLow),
                 c.surfaceContainerLow,
               ],
-              stops: const [0, .6]),
+              stops: const [
+                0,
+                .6
+              ]),
         ),
         child: Stack(children: [
           Positioned.fill(
@@ -606,15 +671,15 @@ class _WeaponFace extends StatelessWidget {
           semanticLabel: semantics,
           child: ExcludeSemantics(
             child: Container(
-              // The lead sits on the weapon icon's axis (42 wide) and the
-              // text starts on the weapon name's line.
-              padding: const EdgeInsets.fromLTRB(0, 10, 12, 10),
+              // Both zones are laid out alike: an even inset, a 32 mark,
+              // the label and value beside it.
+              padding: const EdgeInsets.fromLTRB(10, 10, 12, 10),
               decoration: BoxDecoration(
                   color: c.onSurface.withValues(alpha: .06),
                   borderRadius: BorderRadius.circular(18)),
               child: Row(children: [
-                SizedBox(width: 42, child: Center(child: lead)),
-                const SizedBox(width: 12),
+                SizedBox.square(dimension: 32, child: Center(child: lead)),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -681,8 +746,17 @@ class _WeaponFace extends StatelessWidget {
             flex: 10,
             child: pill(
                 key: const ValueKey('weapon-attack'),
-                lead: SizedBox.square(
-                    dimension: 30,
+                // The d20 sits in a mark of the same weight as the damage
+                // type's, so the two zones read as a pair.
+                lead: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                        color: c.primary.withValues(alpha: .16),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                            color: c.primary.withValues(alpha: .7), width: 2)),
+                    padding: const EdgeInsets.all(5),
                     child: CustomPaint(painter: _FacetPainter(c.primary))),
                 label: l10n.weaponAttack,
                 value: attack,
@@ -731,8 +805,8 @@ class _DamageType extends StatelessWidget {
   final Color color;
   @override
   Widget build(BuildContext context) => Container(
-        width: 30,
-        height: 30,
+        width: 32,
+        height: 32,
         decoration: BoxDecoration(
             color: color.withValues(alpha: .22),
             borderRadius: BorderRadius.circular(10),

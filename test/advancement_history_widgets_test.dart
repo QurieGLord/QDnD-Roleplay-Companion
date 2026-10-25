@@ -89,12 +89,7 @@ void main() {
     await tester.pumpAndSettle();
     // The rolling HP number is read through its accessible label.
     String healthText() => tester
-        .widget<Semantics>(find
-            .descendant(
-                of: find.byKey(const ValueKey('sheet-health-edit')),
-                matching: find.byWidgetPredicate(
-                    (w) => w is Semantics && w.properties.label != null))
-            .first)
+        .widget<Semantics>(find.byKey(const ValueKey('life-number')))
         .properties
         .label!;
     expect(healthText(), '11 / ${c.maxHp}');

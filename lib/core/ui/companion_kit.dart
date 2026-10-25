@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'sheet_drag_region.dart' show SheetScrollDismiss;
 import 'package:flutter/services.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -573,10 +574,17 @@ class _FlowSegmentState<T> extends State<FlowSegment<T>>
                                     ? c.onSurface
                                     : c.onSurfaceVariant),
                         child: widget.dots == null && widget.trailing == null
-                            ? Text(widget.labels[i],
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis)
+                            // A single long word never breaks inside
+                            // itself; it narrows to fit instead.
+                            ? widget.labels[i].trim().contains(' ')
+                                ? Text(widget.labels[i],
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis)
+                                : FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(widget.labels[i],
+                                        maxLines: 1, softWrap: false))
                             : Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -651,7 +659,7 @@ class SectionHeading extends StatelessWidget {
 /// A bottom sheet in the prototype's style: `cont` background, 28 corners,
 /// a 36 × 4 grab handle, content padded 18 with 14 between blocks.
 Future<T?> showCompanionSheet<T>(BuildContext context,
-    {required WidgetBuilder builder}) {
+    {required WidgetBuilder builder, bool bleed = false}) {
   FocusManager.instance.primaryFocus?.unfocus();
   final c = Theme.of(context).colorScheme;
   return showModalBottomSheet<T>(
@@ -673,28 +681,81 @@ Future<T?> showCompanionSheet<T>(BuildContext context,
       duration: const Duration(milliseconds: 120),
       curve: Curves.easeOut,
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        SizedBox(
-          height: 28,
-          child: Center(
-            child: Container(
-              width: 36,
-              height: 4,
-              decoration: ShapeDecoration(
-                  shape: const StadiumBorder(), color: c.outline),
-            ),
+      // The handle floats over the content: no band of sheet colour cuts
+      // what scrolls up beneath it.
+      child: Stack(children: [
+        SheetTopFade(
+          // Pulling the content down from its top closes the sheet too.
+          child: SheetScrollDismiss(
+            child: SingleChildScrollView(
+                // A bleeding sheet draws to its edges and pads itself.
+                padding: bleed
+                    ? EdgeInsets.only(
+                        bottom: 20 + MediaQuery.viewPaddingOf(context).bottom)
+                    : EdgeInsets.fromLTRB(18, SheetGrab.inset, 18,
+                        20 + MediaQuery.viewPaddingOf(context).bottom),
+                child: builder(context)),
           ),
         ),
-        Flexible(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-                18, 0, 18, 20 + MediaQuery.viewPaddingOf(context).bottom),
-            child: builder(context),
-          ),
-        ),
+        const Positioned(left: 0, right: 0, top: 0, child: SheetGrab()),
       ]),
     ),
   );
+}
+
+/// The grab handle of a sheet, floating over its content: a pill with a
+/// soft ring in the sheet's colour, so it reads over text scrolling below.
+class SheetGrab extends StatelessWidget {
+  const SheetGrab({super.key});
+
+  /// Space the content leaves above itself for the handle at rest.
+  static const double inset = 30;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+    // The strip takes the touch (a transparent fill hit-tests) so the
+    // sheet's own drag pulls it down, as before the handle floated.
+    return Container(
+      color: Colors.transparent,
+      child: SizedBox(
+        height: inset,
+        child: Center(
+          child: Container(
+            width: 40,
+            height: 5,
+            decoration: ShapeDecoration(
+              shape: const StadiumBorder(),
+              color: c.onSurface.withValues(alpha: .42),
+              shadows: [
+                BoxShadow(
+                    color: c.surfaceContainer.withValues(alpha: .45),
+                    spreadRadius: 3)
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Content scrolling up under a floating handle fades out over its last
+/// pixels instead of being cut by a hard edge.
+class SheetTopFade extends StatelessWidget {
+  const SheetTopFade({super.key, required this.child});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => ShaderMask(
+        blendMode: BlendMode.dstIn,
+        shaderCallback: (r) => LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: const [Color(0x00000000), Color(0xFF000000)],
+          stops: [0, r.height <= 0 ? 0 : (14 / r.height).clamp(0.0, 1.0)],
+        ).createShader(r),
+        child: child,
+      );
 }
 
 /// Title and optional subtitle at the top of a companion sheet.

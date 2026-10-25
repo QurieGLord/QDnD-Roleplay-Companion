@@ -54,11 +54,23 @@ void main() {
     final events = <BoxEvent>[];
     final sub =
         Hive.box<Character>('characters').watch(key: c.id).listen(events.add);
+    // A seal opens the conditions sheet; its cell clears the mark.
+    await tester.tap(find.byKey(const ValueKey('sheet-condition-unconscious')));
+    await tester.pumpAndSettle();
+    await tester
+        .ensureVisible(find.byKey(const ValueKey('condition-pick-unconscious')));
+    await tester.pumpAndSettle();
     await tester.runAsync(() async {
-      await tester.tap(find.byTooltip('Clear: Unconscious'));
+      await tester
+          .tap(find.byKey(const ValueKey('condition-pick-unconscious')));
       await Future<void>.delayed(const Duration(milliseconds: 20));
       await Hive.box<Character>('characters').flush();
     });
+    await tester.pumpAndSettle();
+    await tester
+        .ensureVisible(find.byKey(const ValueKey('condition-pick-done')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('condition-pick-done')));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('sheet-condition-unconscious')),
         findsNothing);
@@ -109,8 +121,14 @@ void main() {
     await tester.pumpWidget(app(c));
     await tester.pumpAndSettle();
     final log = List.from(c.combatState.combatLog);
+    await tester.tap(find.byKey(const ValueKey('sheet-condition-poisoned')));
+    await tester.pumpAndSettle();
+    await tester
+        .ensureVisible(find.byKey(const ValueKey('condition-pick-poisoned')));
+    await tester.pumpAndSettle();
     await tester.runAsync(() => Hive.box<Character>('characters').close());
-    await tester.runAsync(() => tester.tap(find.byTooltip('Clear: Poisoned')));
+    await tester.runAsync(() =>
+        tester.tap(find.byKey(const ValueKey('condition-pick-poisoned'))));
     await tester.pumpAndSettle();
     expect(c.activeConditions, [ConditionType.poisoned]);
     expect(c.combatState.combatLog, log);

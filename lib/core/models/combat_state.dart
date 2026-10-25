@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:hive/hive.dart';
 
 part 'combat_state.g.dart';
@@ -31,6 +33,12 @@ class CombatState extends HiveObject {
   @HiveField(8)
   int? lastDeathSaveRound;
 
+  /// The hero's own turn and the round's effects (see `CombatTurn`):
+  /// spent tokens, feet moved, attacks, effects with rounds left. Additive
+  /// map payload: older records read it empty.
+  @HiveField(9, defaultValue: {})
+  Map<String, dynamic> turn;
+
   CombatState({
     this.isInCombat = false,
     this.currentRound = 0,
@@ -41,7 +49,9 @@ class CombatState extends HiveObject {
     this.totalHealing = 0,
     this.combatStartTime,
     this.lastDeathSaveRound,
-  }) : combatLog = combatLog ?? [];
+    Map<String, dynamic>? turn,
+  })  : combatLog = combatLog ?? [],
+        turn = turn ?? {};
 
   void startCombat(int initiativeRoll) {
     isInCombat = true;
@@ -53,6 +63,7 @@ class CombatState extends HiveObject {
     totalHealing = 0;
     combatStartTime = DateTime.now();
     lastDeathSaveRound = null;
+    turn = {};
     // Note: Don't save here - parent Character will save
   }
 
@@ -67,6 +78,7 @@ class CombatState extends HiveObject {
     totalDamageTaken = 0;
     totalHealing = 0;
     lastDeathSaveRound = null;
+    turn = {};
     // Note: Don't save here - parent Character will save
   }
 
@@ -99,6 +111,7 @@ class CombatState extends HiveObject {
       'totalHealing': totalHealing,
       'combatStartTime': combatStartTime?.toIso8601String(),
       'lastDeathSaveRound': lastDeathSaveRound,
+      'turn': turn,
     };
   }
 
@@ -117,6 +130,9 @@ class CombatState extends HiveObject {
           ? DateTime.parse(json['combatStartTime'])
           : null,
       lastDeathSaveRound: json['lastDeathSaveRound'] as int?,
+      turn: json['turn'] is Map
+          ? Map<String, dynamic>.from(jsonDecode(jsonEncode(json['turn'])))
+          : null,
     );
   }
 }

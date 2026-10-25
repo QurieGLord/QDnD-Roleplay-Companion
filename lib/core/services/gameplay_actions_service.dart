@@ -7,6 +7,7 @@ import 'dart:math' as math;
 import '../models/character.dart';
 import '../models/character_feature.dart';
 import '../models/combat_state.dart';
+import '../models/combat_turn.dart';
 import '../models/condition.dart';
 import 'storage_service.dart';
 import 'feature_service.dart';
@@ -503,6 +504,56 @@ class GameplayActionsService {
     });
   }
 
+  /// One action of the combat screen (G01): whatever [apply] changes is
+  /// written once; a failed write restores the whole combat picture.
+  static Future<T> combat<T>(Character c, FutureOr<T> Function() apply) =>
+      _serial(c, () async {
+        late T result;
+        await _write(c, () => CombatSnapshot(c), () async {
+          result = await apply();
+          c.updatedAt = DateTime.now();
+        }, (before) => before.restore(c));
+        return result;
+      });
+
+  /// Damage by the table's rules in one write: Uncanny Dodge halves it
+  /// once; at 0 HP it is a failed death save; falling to 0 ends
+  /// concentration. Returns the damage that landed.
+  static Future<int> takeHit(Character c, int amount) {
+    if (amount <= 0) throw ArgumentError.value(amount, 'amount');
+    return combat(c, () async {
+      var n = amount;
+      final turn = CombatTurn(c.combatState);
+      if (c.combatState.isInCombat && turn.halveNext) {
+        turn.halveNext = false;
+        n ~/= 2;
+      }
+      final form =
+          c.isWildShaped && c.beastCurrentHp != null && c.beastMaxHp != null;
+      final wasDown = !form && c.currentHp == 0;
+      if (n > 0) await c.takeDamage(n, persist: false);
+      if (wasDown && n > 0 && !c.deathSaves.isDead) {
+        c.deathSaves.stabilizedReset();
+        c.deathSaves.addFailure();
+      }
+      if (c.currentHp == 0 && c.concentratingOn != null) {
+        c.concentratingOn = null;
+        turn.removeConcentration();
+        turn.check = null;
+      } else if (c.concentratingOn != null &&
+          n > 0 &&
+          c.combatState.isInCombat) {
+        // The screen asks for the Constitution save until it is rolled.
+        turn.check = math.max(10, n ~/ 2);
+      }
+      return n;
+    });
+  }
+
+  /// Undo on the combat screen: puts back a picture taken before an action.
+  static Future<void> restoreCombat(Character c, CombatSnapshot snapshot) =>
+      combat(c, () => snapshot.restore(c));
+
   static Future<void> rest(Character c, {required bool short}) => _serial(
       c,
       () => _write(c, () => _RestSnapshot(c), () {
@@ -588,6 +639,65 @@ class _RestSnapshot {
     c.naturalRecoveryUsed = natural;
     c.signatureSpellsUsed = signature;
     for (final entry in pools) {
+      entry.$1.currentUses = entry.$2;
+    }
+  }
+}
+
+/// Everything a combat action can touch: health and death saves, the
+/// combat state with its turn, conditions, concentration, slots, resource
+/// pools and the hero's combat flags. Taken before an action for rollback,
+/// and kept by the combat screen for undo.
+class CombatSnapshot {
+  CombatSnapshot(Character c)
+      : _health = _HealthSnapshot(c),
+        _conditions = List<ConditionType>.of(c.activeConditions),
+        _concentration = c.concentratingOn,
+        _slots = List<int>.of(c.spellSlots),
+        _maxSlots = List<int>.of(c.maxSpellSlots),
+        _magic = Map<String, dynamic>.from(
+            jsonDecode(jsonEncode(c.magicData)) as Map),
+        _channel = c.channelDivinityCharges,
+        _sacred = c.isSacredWeaponActive,
+        _reckless = c.isReckless,
+        _hidden = c.isHidden,
+        _dice = List<int>.of(c.hitDice),
+        _wildShape = c.wildShapeCharges,
+        _poolReferences = [for (final f in c.features) (f, f.resourcePool)],
+        _pools = [
+          for (final f in c.features)
+            if (f.resourcePool != null)
+              (f.resourcePool!, f.resourcePool!.currentUses)
+        ];
+  final _HealthSnapshot _health;
+  final List<ConditionType> _conditions;
+  final String? _concentration;
+  final List<int> _slots, _maxSlots, _dice;
+  final Map<String, dynamic> _magic;
+  final int _channel, _wildShape;
+  final bool _sacred, _reckless, _hidden;
+  final List<(CharacterFeature, ResourcePool?)> _poolReferences;
+  final List<(ResourcePool, int)> _pools;
+
+  void restore(Character c) {
+    _health.restore(c);
+    c.combatState = CombatState.fromJson(_health.combat.toJson());
+    c.activeConditions = List<ConditionType>.of(_conditions);
+    c.concentratingOn = _concentration;
+    c.spellSlots = List<int>.of(_slots);
+    c.maxSpellSlots = List<int>.of(_maxSlots);
+    c.magicData =
+        Map<String, dynamic>.from(jsonDecode(jsonEncode(_magic)) as Map);
+    c.channelDivinityCharges = _channel;
+    c.isSacredWeaponActive = _sacred;
+    c.isReckless = _reckless;
+    c.isHidden = _hidden;
+    c.hitDice = List<int>.of(_dice);
+    c.wildShapeCharges = _wildShape;
+    for (final entry in _poolReferences) {
+      entry.$1.resourcePool = entry.$2;
+    }
+    for (final entry in _pools) {
       entry.$1.currentUses = entry.$2;
     }
   }

@@ -1106,9 +1106,13 @@ class Peek extends StatefulWidget {
       required this.title,
       required this.text,
       required this.child,
-      this.accent});
+      this.accent,
+      this.tap = false});
   final String title, text;
   final Widget child;
+
+  /// An information token opens on a tap as well as on a hold.
+  final bool tap;
 
   /// The block's accent for the title chip; Monokai pink when unset.
   final Color? accent;
@@ -1149,6 +1153,7 @@ class _PeekState extends State<Peek> {
   Widget build(BuildContext context) => GestureDetector(
         behavior: HitTestBehavior.translucent,
         onLongPress: _show,
+        onTap: widget.tap ? _show : null,
         child: widget.child,
       );
 }
@@ -1256,7 +1261,7 @@ class _PeekBubbleState extends State<_PeekBubble>
 }
 
 /// Dice shapes of the prototype (`DSHAPE`).
-enum DieShape { d4, d6, d8, d10, d12, d20 }
+enum DieShape { d4, d6, d8, d10, d12, d20, d100 }
 
 DieShape dieShapeFor(int sides) => switch (sides) {
       4 => DieShape.d4,
@@ -1264,6 +1269,7 @@ DieShape dieShapeFor(int sides) => switch (sides) {
       8 => DieShape.d8,
       10 => DieShape.d10,
       12 => DieShape.d12,
+      100 => DieShape.d100,
       _ => DieShape.d20,
     };
 
@@ -1320,6 +1326,7 @@ class _TumbleDieState extends State<TumbleDie> with TickerProviderStateMixin {
         DieShape.d10 => 10,
         DieShape.d12 => 12,
         DieShape.d20 => 20,
+        DieShape.d100 => 100,
       };
 
   bool get _max => !_rolling && widget.natural != null && widget.natural == _sides;
@@ -1459,8 +1466,12 @@ class _TumbleDieState extends State<TumbleDie> with TickerProviderStateMixin {
                   dimension: size,
                   child: CustomPaint(
                     painter: _DiePainter(widget.shape, accent, c.surfaceContainer, widget.dim || fumble, _max ? glow : 0),
-                    // The number stays upright while the die turns.
-                    child: Center(
+                    // The number stays upright while the die turns; on a d4
+                    // it sits in the lower, wider part of the triangle.
+                    child: Align(
+                      alignment: widget.shape == DieShape.d4
+                          ? const Alignment(0, .38)
+                          : Alignment.center,
                       child: Transform.rotate(
                         angle: -_spin.value,
                         child: Opacity(
@@ -1526,28 +1537,83 @@ class _DiePainter extends CustomPainter {
     final r = 10 * s;
     late Path face;
     final facets = Path();
+    // Wave 3 silhouettes (`DSH`): each die reads as itself even small —
+    // a pyramid, a cube, a diamond, a banded kite, a pentagon, a hexagon,
+    // and two kites for the d100.
+    List<Offset> kite10(double dx, double dy, double k) => [
+          for (final (x, y) in const [(50.0, 4.0), (95.0, 44.0), (95.0, 56.0), (50.0, 96.0), (5.0, 56.0), (5.0, 44.0)])
+            p(50 + (x - 50) * k + dx, 50 + (y - 50) * k + dy)
+        ];
+    Path? back;
     switch (shape) {
       case DieShape.d6:
         face = Path()
-          ..addRRect(RRect.fromRectAndRadius(Rect.fromLTWH(10 * s, 10 * s, 80 * s, 80 * s), Radius.circular(20 * s)));
+          ..addRRect(RRect.fromRectAndRadius(Rect.fromLTWH(10 * s, 10 * s, 80 * s, 80 * s), Radius.circular(18 * s)));
+        facets.addRRect(RRect.fromRectAndRadius(Rect.fromLTWH(24 * s, 24 * s, 52 * s, 52 * s), Radius.circular(9 * s)));
       case DieShape.d8:
-        face = _soft([p(50, 5), p(93, 50), p(50, 95), p(7, 50)], r);
+        face = _soft([p(50, 4), p(95, 50), p(50, 96), p(5, 50)], r);
         facets
-          ..moveTo(12 * s, 50 * s)
-          ..lineTo(88 * s, 50 * s);
+          ..moveTo(9 * s, 50 * s)
+          ..lineTo(50 * s, 36 * s)
+          ..lineTo(91 * s, 50 * s)
+          ..moveTo(50 * s, 8 * s)
+          ..lineTo(50 * s, 36 * s);
       case DieShape.d10:
-        face = _soft([p(50, 5), p(92, 42), p(50, 95), p(8, 42)], r);
+        face = _soft(kite10(0, 0, 1), r * .8);
         facets
-          ..moveTo(14 * s, 42 * s)
-          ..lineTo(50 * s, 58 * s)
-          ..lineTo(86 * s, 42 * s);
+          ..moveTo(9 * s, 44 * s)
+          ..lineTo(28 * s, 58 * s)
+          ..lineTo(50 * s, 44 * s)
+          ..lineTo(72 * s, 58 * s)
+          ..lineTo(91 * s, 44 * s)
+          ..moveTo(28 * s, 58 * s)
+          ..lineTo(50 * s, 92 * s)
+          ..lineTo(72 * s, 58 * s);
       case DieShape.d12:
-        face = _soft([for (var i = 0; i < 5; i++) Offset(50 * s + 46 * s * math.cos(-math.pi / 2 + i * 2 * math.pi / 5), 52 * s + 46 * s * math.sin(-math.pi / 2 + i * 2 * math.pi / 5))], r);
+        Offset pent(double radius, int i) => Offset(50 * s + radius * s * math.cos(-math.pi / 2 + i * 2 * math.pi / 5),
+            53 * s + radius * s * math.sin(-math.pi / 2 + i * 2 * math.pi / 5));
+        face = _soft([for (var i = 0; i < 5; i++) pent(47, i)], r);
+        facets.addPath(_soft([for (var i = 0; i < 5; i++) pent(22, i)], r * .4), Offset.zero);
+        for (var i = 0; i < 5; i++) {
+          facets
+            ..moveTo(pent(43, i).dx, pent(43, i).dy)
+            ..lineTo(pent(22, i).dx, pent(22, i).dy);
+        }
       case DieShape.d4:
-        face = _soft([p(50, 8), p(94, 88), p(6, 88)], r * 1.2);
+        face = _soft([p(50, 6), p(95, 88), p(5, 88)], r * 1.1);
+        facets
+          ..moveTo(10 * s, 86 * s)
+          ..lineTo(50 * s, 64 * s)
+          ..lineTo(90 * s, 86 * s)
+          ..moveTo(50 * s, 12 * s)
+          ..lineTo(50 * s, 64 * s);
       case DieShape.d20:
-        face = _soft([p(50, 4), p(91, 27), p(91, 73), p(50, 96), p(9, 73), p(9, 27)], r);
-        facets.addPath(_soft([p(50, 26), p(72, 64), p(28, 64)], r * .6), Offset.zero);
+        face = _soft([p(50, 4), p(92, 28), p(92, 72), p(50, 96), p(8, 72), p(8, 28)], r);
+        facets.addPath(_soft([p(50, 26), p(74, 66), p(26, 66)], r * .6), Offset.zero);
+        facets
+          ..moveTo(50 * s, 8 * s)
+          ..lineTo(50 * s, 26 * s)
+          ..moveTo(88 * s, 30 * s)
+          ..lineTo(74 * s, 66 * s)
+          ..moveTo(12 * s, 30 * s)
+          ..lineTo(26 * s, 66 * s);
+      case DieShape.d100:
+        back = _soft(kite10(14, -8, .84), r * .7);
+        face = _soft(kite10(-4, 6, .9), r * .8);
+        facets
+          ..moveTo(9 * s, 50 * s)
+          ..lineTo(46 * s, 57 * s)
+          ..lineTo(88 * s, 50 * s);
+    }
+    if (back != null) {
+      canvas.drawPath(back, Paint()..color = mixColor(accent, dim ? .06 : .12, cont));
+      canvas.drawPath(
+          back,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = math.max(1.2, 3 * s)
+            ..strokeJoin = StrokeJoin.round
+            ..color = accent.withValues(alpha: dim ? .25 : .6));
     }
     final a = dim ? accent.withValues(alpha: .4) : accent;
     final bounds = Offset.zero & size;

@@ -215,6 +215,7 @@ class _RogueToolsWidgetState extends State<RogueToolsWidget> {
       ];
       final speed = _hero.speed;
       children.add(LiteBlock(
+        key: const ValueKey('rogue-cunning'),
         accent: a4,
         title: cunning.getName(locale),
         about: InstrumentAbout(title: cunning.getName(locale), kicker: ru ? 'Бонусное действие' : 'Bonus action', paragraphs: cunning.getDescription(locale).split(RegExp(r'\n\s*\n'))),

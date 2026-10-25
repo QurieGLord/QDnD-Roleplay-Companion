@@ -37,13 +37,35 @@ Future<void> open(WidgetTester tester, Character c, bool short,
   await tester.pumpAndSettle();
 }
 
+/// Finishes the rest the way the sheet asks: a tap on the short rest's
+/// button, or holding the long rest's until dawn.
 Future<void> confirm(WidgetTester tester) async {
-  await tester.ensureVisible(find.byKey(const ValueKey('sheet-value-save')));
+  final short = find.byKey(const ValueKey('rest-short-go'));
+  if (short.evaluate().isNotEmpty) {
+    await tester.ensureVisible(short);
+    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      await tester.tap(short);
+      await Hive.box<Character>('characters').flush();
+    });
+    await tester.pumpAndSettle();
+    return;
+  }
+  final hold = find.byKey(const ValueKey('rest-long-hold'));
+  await tester.ensureVisible(hold);
   await tester.pumpAndSettle();
+  // The screen reader's tap: the write runs on the real clock.
   await tester.runAsync(() async {
-    await tester.tap(find.byKey(const ValueKey('sheet-value-save')));
+    tester.widget<Semantics>(hold).properties.onTap!();
+    await Future<void>.delayed(const Duration(milliseconds: 1100));
     await Hive.box<Character>('characters').flush();
   });
+  await tester.pumpAndSettle();
+}
+
+/// Closes the sheet without resting, by tapping the dimmed page above it.
+Future<void> dismiss(WidgetTester tester) async {
+  await tester.tapAt(const Offset(10, 10));
   await tester.pumpAndSettle();
 }
 
@@ -72,12 +94,11 @@ void main() {
     await tester.runAsync(() => StorageService.saveCharacter(c));
     final before = c.toJson(), timestamp = c.updatedAt;
     await open(tester, c, true);
-    expect(find.text('0 / 4 → 4 / 4'), findsOneWidget);
+    expect(find.text('0 / 4 → 4 / 4', findRichText: true), findsOneWidget);
     expect(find.byType(TextFormField), findsNothing);
     expect(c.toJson(), before);
     expect(c.updatedAt, timestamp);
-    await tester.tap(find.text('Cancel'));
-    await tester.pumpAndSettle();
+    await dismiss(tester);
     expect(c.features.single.resourcePool!.currentUses, 0);
     expect(
         StorageService.getCharacter(c.id)!
@@ -98,8 +119,7 @@ void main() {
     await tester.runAsync(() => Hive.box<Character>('characters').flush());
     expect(c.hitDice, [0]);
     expect(StorageService.getCharacter(c.id)!.toJson(), before);
-    await tester.tap(find.text('Cancel'));
-    await tester.pumpAndSettle();
+    await dismiss(tester);
     expect(StorageService.getCharacter(c.id)!.toJson(), before);
   });
 
@@ -143,7 +163,7 @@ void main() {
     expect(find.byKey(const ValueKey('sheet-rest-change-hp')), findsNothing);
     expect(
         find.byKey(const ValueKey('sheet-rest-change-slot-1')), findsNothing);
-    expect(find.text('1 / 3 → 3 / 3'), findsOneWidget);
+    expect(find.text('1 / 3 → 3 / 3', findRichText: true), findsOneWidget);
     await confirm(tester);
     expect(c.currentHp, 31);
     expect(c.spellSlots, [6, 3]);
@@ -188,7 +208,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('sheet-rest-short')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('sheet-value-editor')), findsOneWidget);
+    expect(find.byKey(const ValueKey('rest-short-go')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -220,16 +240,18 @@ void main() {
     await tester.runAsync(() => StorageService.saveCharacter(c));
     await open(tester, c, false);
     await tester.runAsync(() => Hive.box<Character>('characters').close());
-    await tester.ensureVisible(find.byKey(const ValueKey('sheet-value-save')));
-    await tester.runAsync(
-        () => tester.tap(find.byKey(const ValueKey('sheet-value-save'))));
+    final hold = find.byKey(const ValueKey('rest-long-hold'));
+    await tester.ensureVisible(hold);
+    await tester.runAsync(() async {
+      tester.widget<Semantics>(hold).properties.onTap!();
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
     await tester.pumpAndSettle();
     expect(c.currentHp, 17);
     expect(c.spellSlots, [1]);
     expect(c.features.single.resourcePool!.currentUses, 0);
-    expect(
-        find.byKey(const ValueKey('sheet-value-save-error')), findsOneWidget);
-    expect(find.byKey(const ValueKey('sheet-value-editor')), findsOneWidget);
+    // The night stays open to try again.
+    expect(hold, findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

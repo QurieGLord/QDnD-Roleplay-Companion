@@ -5,7 +5,6 @@ import '../../../core/magic/magic_slots.dart';
 import '../../../core/progression/character_class_context.dart';
 import 'class_widgets/shared/class_panel_deck.dart';
 import 'class_widgets/instrument/instrument_kit.dart';
-import '../../../shared/widgets/subclass_details_sheet.dart';
 import '../../../core/services/gameplay_actions_service.dart';
 import 'session/resource_counter.dart';
 import 'session/value_editors.dart';
@@ -35,41 +34,16 @@ import 'abilities/sections/magic_section.dart';
 import 'abilities/sections/passive_traits_section.dart';
 import 'abilities/sections/resources_section.dart';
 import 'abilities/sections/spell_level_group.dart';
-import 'class_widgets/ki_tracker_widget.dart';
-import 'class_widgets/rage_control_widget.dart';
-import 'class_widgets/rogue_tools_widget.dart';
-import 'class_widgets/fighter_combat_widget.dart';
-import 'class_widgets/bard_inspiration_widget.dart';
-import 'class_widgets/paladin_divine_widget.dart';
-import 'class_widgets/sorcerer_magic_widget.dart';
-import 'class_widgets/warlock_magic_widget.dart';
-import 'class_widgets/druid_magic_widget.dart';
-import 'class_widgets/wizard_magic_widget.dart';
-import 'class_widgets/instrument/universal_kit_panel.dart';
+import 'class_panels.dart';
 import 'session/value_editor_dialog.dart';
 import '../../../core/ui/companion_kit.dart' show Pressable, SheetPageInset;
 import '../../../core/magic/spellbook_state.dart';
 import '../../../core/progression/class_spellcasting_profile.dart';
 import '../../../core/services/magic_resource_actions_service.dart';
 import '../../../core/services/spellbook_actions_service.dart';
-import 'class_widgets/cleric_magic_widget.dart';
-import 'class_widgets/ranger_survival_widget.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
 
-const _builtInClasses = {
-  'barbarian',
-  'bard',
-  'cleric',
-  'druid',
-  'fighter',
-  'monk',
-  'paladin',
-  'ranger',
-  'rogue',
-  'sorcerer',
-  'warlock',
-  'wizard',
-};
+const _builtInClasses = builtInClasses;
 
 class AbilitiesTab extends StatefulWidget {
   final Character character;
@@ -146,12 +120,6 @@ class _AbilitiesTabState extends State<AbilitiesTab>
 
   bool _shouldShowInList(CharacterFeature feature) =>
       AbilitiesTabLogic(widget.character).shouldShowInList(feature);
-
-  CharacterFeature? _findFeatureDeep(
-    List<CharacterFeature> list,
-    List<String> keywords,
-  ) =>
-      AbilitiesTabLogic(widget.character).findFeatureDeep(list, keywords);
 
   CharacterFeature? _findResourceFeature(String id) =>
       AbilitiesTabLogic(widget.character).findResourceFeature(id);
@@ -394,13 +362,6 @@ class _AbilitiesTabState extends State<AbilitiesTab>
     }
   }
 
-  bool _isRenderableWidget(Widget widget) {
-    return widget is! SizedBox ||
-        widget.width != null ||
-        widget.height != null ||
-        widget.child != null;
-  }
-
   Widget _sectionAnchor({
     required GlobalKey anchorKey,
     required Key testKey,
@@ -438,7 +399,8 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: true,
-      builder: (context) => SheetSafeArea(child: FeatureDetailsSheet(feature: feature)),
+      builder: (context) =>
+          SheetSafeArea(child: FeatureDetailsSheet(feature: feature)),
     );
   }
 
@@ -448,7 +410,8 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: true,
-      builder: (context) => SheetSafeArea(child: SpellDetailsSheet(
+      builder: (context) => SheetSafeArea(
+          child: SpellDetailsSheet(
         spell: spell,
         character: widget.character,
         editable: true,
@@ -538,7 +501,6 @@ class _AbilitiesTabState extends State<AbilitiesTab>
     // NUCLEAR SAFE MODE: Wrap entire build logic in try-catch to prevent grey screen
     try {
       // 1. Setup Spells
-      final classId = widget.character.characterClass.toLowerCase();
       final isWizard = widget.character.classLevel('wizard') > 0;
       bool hasSpellSlots;
       try {
@@ -603,154 +565,6 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         for (final list in kitClasses.values) ...list.map((f) => f.id)
       };
 
-      // Deep Search for Class Widgets
-      final monkKiFeature = _findFeatureDeep(allFeatures, ['ki']);
-      final barbarianRageFeature = _findFeatureDeep(allFeatures, [
-        'rage',
-        'barbarian_rage',
-      ]);
-      final rogueSneakAttack = _findFeatureDeep(allFeatures, ['sneak_attack']);
-      final bardInspiration = _findFeatureDeep(allFeatures, [
-        'bardic_inspiration',
-        'bardic-inspiration',
-      ]);
-
-      final fighterActionSurge = _findFeatureDeep(allFeatures, [
-        'action_surge',
-        'action surge',
-      ]);
-      final fighterSecondWind = _findFeatureDeep(allFeatures, [
-        'second_wind',
-        'second wind',
-      ]);
-      final fighterIndomitable = _findFeatureDeep(allFeatures, ['indomitable']);
-
-      // Paladin Features
-      final paladinLayOnHands = _findFeatureDeep(allFeatures, [
-        'lay-on-hands',
-        'lay_on_hands',
-      ]);
-      final paladinDivineSense = _findFeatureDeep(allFeatures, [
-        'divine-sense',
-        'divine_sense',
-      ]);
-      final paladinDivineSmite = _findFeatureDeep(allFeatures, [
-        'divine-smite',
-        'divine_smite',
-      ]);
-      final paladinChannelDivinity = _findFeatureDeep(allFeatures, [
-        'channel-divinity',
-        'channel_divinity',
-      ]);
-
-      // Ranger Features
-      final primevalAwareness = _findFeatureDeep(allFeatures, [
-        'primeval-awareness',
-        'primeval_awareness',
-      ]);
-
-      // Sorcerer Features (Robust Search)
-      final sorceryPoints = _findFeatureDeep(allFeatures, [
-            'sorcery_points',
-            'sorcery-points',
-            'sorcery_point',
-            'sorcery-point',
-            'font_of_magic',
-            'font-of-magic',
-          ]) ??
-          allFeatures
-              .where(
-                (f) =>
-                    f.resourcePool != null &&
-                    (f.nameEn.toLowerCase().contains('sorcery point') ||
-                        f.nameRu.toLowerCase().contains(
-                              'единицы чародейства',
-                            ) ||
-                        f.nameEn.toLowerCase().contains('font of magic') ||
-                        f.nameRu.toLowerCase().contains('источник магии')),
-              )
-              .firstOrNull;
-
-      final metamagicOptions = allFeatures
-          .where(
-            (f) =>
-                (f.id).toLowerCase().contains('metamagic') ||
-                f.nameEn.toLowerCase().contains('metamagic') ||
-                f.nameRu.toLowerCase().contains('метамагия'),
-          )
-          .toList();
-
-      final sorcererAncestry = allFeatures
-          .where(
-            (f) =>
-                (f.id).toLowerCase().contains('dragon-ancestor') ||
-                (f.id).toLowerCase().contains('draconic') ||
-                (f.id).toLowerCase().contains('dragon') ||
-                f.nameEn.toLowerCase().contains('draconic') ||
-                f.nameRu.toLowerCase().contains('дракон'),
-          )
-          .toList();
-
-      // Debug Sorcerer Detection
-      if (classId.contains('sorcerer')) {
-        debugPrint('--- SORCERER DEBUG ---');
-        debugPrint('Sorcery Points Found: ${sorceryPoints?.id ?? "NULL"}');
-        debugPrint(
-          'Metamagic Options: ${metamagicOptions.map((e) => e.id).join(', ')}',
-        );
-        debugPrint(
-          'Ancestry Features: ${sorcererAncestry.map((e) => e.id).join(', ')}',
-        );
-      }
-
-      // Warlock Features
-      final warlockPatron = _findFeatureDeep(allFeatures, [
-        'patron',
-        'fiend',
-        'archfey',
-        'great_old_one',
-        'celestial',
-        'hexblade',
-        'fathomless',
-        'genie',
-        'undead',
-      ]);
-      final warlockPactBoon = _findFeatureDeep(allFeatures, [
-        'pact-boon',
-        'pact_boon',
-        'pact-of-the-chain',
-        'pact_of_the_chain',
-        'pact-of-the-blade',
-        'pact_of_the_blade',
-        'pact-of-the-tome',
-        'pact_of_the_tome',
-        'pact-of-the-talismam',
-        'pact_of_the_talismam',
-      ]);
-      final warlockInvocations = allFeatures
-          .where(
-            (f) =>
-                (f.id).toLowerCase().contains('invocation') ||
-                f.nameEn.toLowerCase().contains('invocation') ||
-                f.nameRu.toLowerCase().contains('воззвание'),
-          )
-          .toList();
-
-      List<CharacterFeature> paladinChannelSpells = [];
-      if (paladinChannelDivinity != null) {
-        paladinChannelSpells = allFeatures
-            .where((f) {
-              final id = (f.id).toLowerCase();
-              final usageCost = (f.usageCostId ?? '').toLowerCase();
-              return (id.startsWith('channel-divinity-') ||
-                      id.startsWith('channel_divinity_')) ||
-                  (usageCost.contains('channel-divinity') ||
-                      usageCost.contains('channel_divinity'));
-            })
-            .where((f) => f.id != paladinChannelDivinity.id)
-            .toList();
-      }
-
       final rawActiveFeatures = allFeatures
           .where(
             (f) =>
@@ -797,263 +611,8 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         'Features Filtered: Res=${resourceFeatures.length}, Active=${activeFeatures.length}, Passive=${passiveFeatures.length}',
       );
 
-      final featuredModules = <ClassPanelEntry>[];
-
-      void addFeaturedModule(String id, Widget panel) {
-        if (_isRenderableWidget(panel)) {
-          final owner = CharacterClassContext(widget.character, id);
-          featuredModules.add(
-            ClassPanelEntry(
-              id: id,
-              name: owner.name(locale),
-              level: owner.level,
-              subclass: subclassDisplayName(widget.character, id, locale),
-              onSubclass: () async {
-                await showClassSubclassDetails(context, widget.character, id);
-                if (mounted) setState(() {});
-              },
-              child: panel,
-            ),
-          );
-        }
-      }
-
-      if (widget.character.classLevel('monk') > 0) {
-        addFeaturedModule(
-          'monk',
-          _safeBuildWidget(() {
-            final martialArts = _findFeatureDeep(allFeatures, [
-              'martial_arts',
-              'martial-arts',
-            ]);
-            if (monkKiFeature == null && martialArts == null) {
-              return const SizedBox.shrink();
-            }
-            return KiTrackerWidget(
-              character: widget.character,
-              kiFeature: monkKiFeature ??
-                  CharacterFeature(
-                    id: 'ki_fallback',
-                    nameEn: 'Ki',
-                    nameRu: 'Энергия Ци',
-                    descriptionEn: '',
-                    descriptionRu: '',
-                    type: FeatureType.resourcePool,
-                    minLevel: 2,
-                    resourcePool: ResourcePool(
-                      currentUses: 0,
-                      maxUses: 0,
-                      recoveryType: RecoveryType.shortRest,
-                    ),
-                  ),
-              onChanged: () => setState(() {}),
-            );
-          }),
-        );
-      }
-
-      if (widget.character.classLevel('barbarian') > 0 &&
-          barbarianRageFeature != null) {
-        addFeaturedModule(
-          'barbarian',
-          _safeBuildWidget(
-            () => RageControlWidget(
-              character: widget.character,
-              rageFeature: barbarianRageFeature,
-              onChanged: () => setState(() {}),
-            ),
-          ),
-        );
-      }
-
-      if (widget.character.classLevel('rogue') > 0 &&
-          rogueSneakAttack != null) {
-        addFeaturedModule(
-          'rogue',
-          _safeBuildWidget(() => RogueToolsWidget(character: widget.character)),
-        );
-      }
-
-      if (widget.character.classLevel('fighter') > 0 &&
-          (fighterSecondWind != null ||
-              fighterActionSurge != null ||
-              fighterIndomitable != null)) {
-        addFeaturedModule(
-          'fighter',
-          _safeBuildWidget(
-            () => FighterCombatWidget(
-              character: widget.character,
-              secondWindFeature: fighterSecondWind,
-              actionSurgeFeature: fighterActionSurge,
-              indomitableFeature: fighterIndomitable,
-              onChanged: () => setState(() {}),
-            ),
-          ),
-        );
-      }
-
-      if (widget.character.classLevel('bard') > 0 && bardInspiration != null) {
-        addFeaturedModule(
-          'bard',
-          _safeBuildWidget(
-            () => BardInspirationWidget(
-              character: widget.character,
-              inspirationFeature: bardInspiration,
-              onChanged: () => setState(() {}),
-            ),
-          ),
-        );
-      }
-
-      if (widget.character.classLevel('paladin') > 0) {
-        addFeaturedModule(
-          'paladin',
-          _safeBuildWidget(() {
-            if (paladinLayOnHands == null &&
-                paladinDivineSense == null &&
-                paladinChannelDivinity == null) {
-              return const SizedBox.shrink();
-            }
-            return PaladinDivineWidget(
-              character: widget.character,
-              layOnHands: paladinLayOnHands ??
-                  CharacterFeature(
-                    id: 'lay_on_hands_fallback',
-                    nameEn: 'Lay on Hands',
-                    nameRu: 'Наложение рук',
-                    descriptionEn: '',
-                    descriptionRu: '',
-                    type: FeatureType.resourcePool,
-                    minLevel: 1,
-                    resourcePool: ResourcePool(
-                      currentUses: 0,
-                      maxUses: 0,
-                      recoveryType: RecoveryType.longRest,
-                    ),
-                  ),
-              divineSense: paladinDivineSense,
-              divineSmite: paladinDivineSmite,
-              channelDivinityResource: paladinChannelDivinity,
-              channelDivinitySpells: paladinChannelSpells,
-              onChanged: () => setState(() {}),
-            );
-          }),
-        );
-      }
-
-      if (widget.character.classLevel('sorcerer') > 0) {
-        addFeaturedModule(
-          'sorcerer',
-          _safeBuildWidget(() {
-            if (sorceryPoints == null &&
-                metamagicOptions.isEmpty &&
-                sorcererAncestry.isEmpty) {
-              return const SizedBox.shrink();
-            }
-            return SorcererMagicWidget(
-              character: widget.character,
-              sorceryPoints: sorceryPoints,
-              metamagic: metamagicOptions,
-              ancestryFeatures: sorcererAncestry,
-              onChanged: () => setState(() {}),
-            );
-          }),
-        );
-      }
-
-      if (widget.character.classLevel('warlock') > 0) {
-        addFeaturedModule(
-          'warlock',
-          _safeBuildWidget(() {
-            if (warlockPatron == null &&
-                warlockPactBoon == null &&
-                warlockInvocations.isEmpty) {
-              return const SizedBox.shrink();
-            }
-            return WarlockMagicWidget(
-              character: widget.character,
-              patron: warlockPatron,
-              pactBoon: warlockPactBoon,
-              invocations: warlockInvocations,
-              onChanged: () => setState(() {}),
-            );
-          }),
-        );
-      }
-
-      if (widget.character.classLevel('druid') > 0) {
-        addFeaturedModule(
-          'druid',
-          _safeBuildWidget(
-            () => DruidMagicWidget(
-              character: widget.character,
-              onStateChanged: () => setState(() {}),
-            ),
-          ),
-        );
-      }
-
-      if (widget.character.classLevel('wizard') > 0) {
-        addFeaturedModule(
-          'wizard',
-          _safeBuildWidget(
-            () => WizardMagicWidget(
-              character: widget.character,
-              onStateChanged: () => setState(() {}),
-            ),
-          ),
-        );
-      }
-
-      if (widget.character.classLevel('cleric') > 0) {
-        addFeaturedModule(
-          'cleric',
-          _safeBuildWidget(
-            () => ClericMagicWidget(
-              character: widget.character,
-              onStateChanged: () => setState(() {}),
-            ),
-          ),
-        );
-      }
-
-      if (widget.character.classLevel('ranger') > 0) {
-        addFeaturedModule(
-          'ranger',
-          _safeBuildWidget(() {
-            if (primevalAwareness == null &&
-                widget.character.favoredEnemies.isEmpty &&
-                widget.character.naturalExplorers.isEmpty &&
-                widget.character.beastName == null) {
-              return const SizedBox.shrink();
-            }
-            return RangerSurvivalWidget(
-              character: widget.character,
-              primevalAwareness: primevalAwareness,
-              onChanged: () => setState(() {}),
-            );
-          }),
-        );
-      }
-
-      for (final MapEntry(key: id, value: features) in kitClasses.entries) {
-        final level = CharacterClassContext(widget.character, id).level;
-        addFeaturedModule(
-          id,
-          _safeBuildWidget(
-            () => UniversalKitPanel(
-              hero: widget.character,
-              classId: id,
-              features: features
-                  .where(
-                      CharacterClassContext(widget.character, id).canUseFeature)
-                  .toList(),
-              locked: features.where((f) => f.minLevel > level).toList(),
-              onChanged: () => setState(() {}),
-            ),
-          ),
-        );
-      }
+      final featuredModules = buildClassPanels(context, widget.character,
+          onChanged: () => setState(() {}));
 
       final hasFeaturedModules = featuredModules.isNotEmpty;
       final isEmpty = featuredModules.isEmpty &&
@@ -1291,14 +850,6 @@ class _AbilitiesTabState extends State<AbilitiesTab>
   }
 
   /// Wraps a widget builder in try-catch to prevent one bad item from crashing the whole list
-  Widget _safeBuildWidget(Widget Function() builder) {
-    try {
-      return builder();
-    } catch (e) {
-      debugPrint('Error building widget item: $e');
-      return const SizedBox.shrink();
-    }
-  }
 
   List<Widget> _buildSpellList(
     Map<int, List<Spell>> spellsByLevel,

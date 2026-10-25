@@ -31,20 +31,24 @@ Widget _host({required bool reduced, Random? random, int modifier = 5}) =>
         data: MediaQueryData(
             size: const Size(412, 915), disableAnimations: reduced),
         child: Scaffold(
-            body: DiceRollerModal(initialModifier: modifier, random: random)),
+            body: SingleChildScrollView(
+                child: DiceRollerModal(
+                    title: 'Атака', initialModifier: modifier, random: random))),
       ),
     );
 
 int? _shownTotal(WidgetTester tester) {
-  final numbers = tester.widgetList<RollingNumber>(find.byType(RollingNumber));
-  return numbers.isEmpty ? null : numbers.first.value;
+  final total = find.byKey(const ValueKey('dice-total'));
+  return total.evaluate().isEmpty
+      ? null
+      : tester.widget<RollingNumber>(total).value;
 }
 
 void main() {
-  testWidgets('a toss lands, locks the total in and leaves no pending timers',
+  testWidgets('a throw lands, rolls the total in and leaves no pending timers',
       (tester) async {
     await tester.pumpWidget(_host(reduced: false));
-    await tester.tap(find.text('20').first);
+    await tester.tap(find.byKey(const ValueKey('dice-roll')));
     await tester.pump(const Duration(milliseconds: 100));
     expect(find.text('Бросок...'), findsOneWidget);
     await tester.pumpAndSettle();
@@ -55,17 +59,18 @@ void main() {
 
   testWidgets('a natural 20 is named and keeps its total', (tester) async {
     await tester.pumpWidget(_host(reduced: false, random: _TopFace()));
-    await tester.tap(find.text('20').first);
+    await tester.tap(find.byKey(const ValueKey('dice-roll')));
     await tester.pumpAndSettle();
     expect(_shownTotal(tester), 25);
-    expect(find.text('Естественная 20'), findsOneWidget);
+    expect(find.text('Критический успех'), findsOneWidget);
   });
 
   testWidgets('reduced motion shows the result at once', (tester) async {
     await tester.pumpWidget(_host(reduced: true, random: _TopFace()));
-    await tester.tap(find.text('20').first);
+    await tester.tap(find.byKey(const ValueKey('dice-roll')));
     await tester.pump();
     expect(_shownTotal(tester), 25);
     expect(find.text('Бросок...'), findsNothing);
   });
 }
+

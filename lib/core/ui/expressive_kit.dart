@@ -12,9 +12,13 @@ import 'package:qd_and_d/core/theme/app_tokens.dart';
 /// A number whose digits roll in place, like a counter drum. Leading digits
 /// that appear or disappear slide their width instead of popping.
 class RollingNumber extends StatefulWidget {
-  const RollingNumber(this.value, {super.key, required this.style});
+  const RollingNumber(this.value, {super.key, required this.style, this.from});
   final int value;
   final TextStyle? style;
+
+  /// Rolls up from this value on the first frame (a hero back on their feet
+  /// counts up from zero); later changes roll from the shown value.
+  final int? from;
   @override
   State<RollingNumber> createState() => _RollingNumberState();
 }
@@ -58,6 +62,8 @@ class _RollingNumberState extends State<RollingNumber> {
       ..layout();
     final w = painter.width, h = painter.height;
     final digits = _digits(widget.value).padLeft(_slots, ' ');
+    final start =
+        widget.from == null ? null : _digits(widget.from!).padLeft(_slots, '0');
     final duration = AppMotion.of(context, AppMotion.snappySettle);
     return Semantics(
       label: '${widget.value}',
@@ -78,6 +84,9 @@ class _RollingNumberState extends State<RollingNumber> {
                   maxHeight: h * 10,
                   child: TweenAnimationBuilder<double>(
                     tween: Tween(
+                        begin: start == null || start.length != digits.length
+                            ? null
+                            : double.tryParse(start[i]) ?? 0,
                         end: digits[i] == ' ' ? 0 : double.parse(digits[i])),
                     duration: duration,
                     curve: AppMotion.snappyCurve,
@@ -560,4 +569,26 @@ class _RenderFlip extends RenderProxyBox {
         hitTest: (result, transformed) =>
             super.hitTestChildren(result, position: transformed));
   }
+}
+
+/// [AnimatedSize] that steps aside under reduced motion: a zero duration
+/// would make it re-dirty its own layout.
+class CalmSize extends StatelessWidget {
+  const CalmSize({
+    super.key,
+    required this.duration,
+    required this.child,
+    this.curve = Curves.linear,
+    this.alignment = Alignment.center,
+  });
+  final Duration duration;
+  final Curve curve;
+  final AlignmentGeometry alignment;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) =>
+      MediaQuery.disableAnimationsOf(context) || duration == Duration.zero
+          ? child
+          : AnimatedSize(
+              duration: duration, curve: curve, alignment: alignment, child: child);
 }

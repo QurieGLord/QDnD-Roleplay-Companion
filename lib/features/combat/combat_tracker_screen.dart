@@ -1,1403 +1,919 @@
-import '../../core/progression/character_class_context.dart';
-import '../../core/magic/spell_use.dart';
-import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:qd_and_d/core/ui/sheet_drag_region.dart' show SheetSafeArea;
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:qd_and_d/core/ui/app_scroll_behavior.dart';
-import 'package:qd_and_d/core/ui/app_snack_bar.dart';
-import 'package:qd_and_d/l10n/app_localizations.dart';
+
 import '../../core/models/character.dart';
 import '../../core/models/combat_state.dart';
+import '../../core/models/combat_turn.dart';
 import '../../core/models/condition.dart';
-import '../../core/services/storage_service.dart';
-import '../../core/services/spellcasting_service.dart';
-import 'widgets/combat_log_view.dart';
-import 'widgets/combat_spellcaster_sheet.dart';
+import '../../core/progression/character_class_context.dart';
+import '../../core/services/combat_actions_service.dart';
+import '../../core/services/gameplay_actions_service.dart';
+import '../../core/services/spell_service.dart';
+import '../../core/theme/app_palettes.dart';
+import '../../core/theme/app_tokens.dart';
+import '../../core/ui/app_snack_bar.dart';
+import '../../core/ui/companion_kit.dart';
+import '../../core/ui/condition_presentation.dart';
+import '../../l10n/app_localizations.dart';
+import '../../shared/widgets/dice_roller_modal.dart';
+import '../../shared/widgets/spell_cast_sheet.dart';
+import '../character_sheet/widgets/class_widgets/instrument/instrument_kit.dart';
+import '../character_sheet/widgets/session/condition_chips.dart';
+import '../character_sheet/widgets/session/game_console.dart';
+import '../character_sheet/widgets/session/hp_keypad_sheet.dart';
+import '../character_sheet/widgets/session/life_band.dart';
+import 'arsenal.dart';
+import 'initiative_ceremony.dart';
+import 'round_tape.dart';
+import 'turn_panel.dart';
 
-import '../character_sheet/widgets/gameplay_state_editor.dart';
-import 'package:qd_and_d/core/theme/app_tokens.dart';
-
+/// Wave 3 combat (`docs/prototypes/wave3`, scene "В бою"): the hero's
+/// fight on one page. Life on top, the turn, the arsenal, the round tape
+/// with its effects, conditions and the journal with undo; damage, the
+/// d20 and healing in a glass dock. Every change goes through the shared
+/// action path (G01): one write per action, rolled back on failure.
 class CombatTrackerScreen extends StatefulWidget {
   final Character character;
-
-  const CombatTrackerScreen({
-    super.key,
-    required this.character,
-  });
-
+  const CombatTrackerScreen({super.key, required this.character});
   @override
   State<CombatTrackerScreen> createState() => _CombatTrackerScreenState();
 }
 
-class _CombatTrackerScreenState extends State<CombatTrackerScreen>
-    with TickerProviderStateMixin {
-  late Character _character;
+class _CombatTrackerScreenState extends State<CombatTrackerScreen> {
+  final _undo = <CombatSnapshot>[];
+  bool _busy = false;
+  late Character _c = widget.character;
 
-  // Animations
-  late AnimationController _shakeController;
-  late Animation<double> _shakeAnimation;
-  late AnimationController _pulseController;
+  bool get _ru => instrumentRu(context);
 
-  Timer? _deathSaveRollTimer;
-  bool _isDeathSaveRolling = false;
-  int? _deathSavePreviewRoll;
-  int? _lastDeathSaveRoll;
-  bool? _lastDeathSaveWasSuccess;
-  String? _lastDeathSaveMessage;
-
-  @override
-  void initState() {
-    super.initState();
-    _character = widget.character;
-
-    _shakeController = AnimationController(
-        duration: const Duration(milliseconds: 500), vsync: this);
-    _shakeAnimation = Tween<double>(begin: 0, end: 10)
-        .chain(CurveTween(curve: Curves.elasticIn))
-        .animate(_shakeController);
-
-    _pulseController =
-        AnimationController(duration: const Duration(seconds: 2), vsync: this)
-          ..repeat(reverse: true);
-    // pulse animation drives the controller; value accessed via _pulseController
-  }
-
-  @override
-  void dispose() {
-    _deathSaveRollTimer?.cancel();
-    _shakeController.dispose();
-    _pulseController.dispose();
-    super.dispose();
-  }
-
-  void _triggerShake() {
-    _shakeController.forward(from: 0);
-    HapticFeedback.heavyImpact();
-  }
-
-  Future<void> _save([Character? character]) async {
-    _character = character ?? _character;
-    await StorageService.saveCharacter(_character);
-    if (mounted) {
-      setState(() {});
+  /// Runs an action; when it changed the hero, the picture before it is
+  /// kept for undo. Afterwards rage at 0 HP asks for Relentless Rage.
+  Future<void> _track(Future<void> Function() action) async {
+    if (_busy) return;
+    final before = CombatSnapshot(_c), stamp = _c.updatedAt;
+    setState(() => _busy = true);
+    try {
+      await action();
+      if (_c.updatedAt != stamp) {
+        _undo.add(before);
+        if (_undo.length > 40) _undo.removeAt(0);
+      }
+    } catch (_) {
+      if (mounted) {
+        AppSnackBar.error(
+            context, AppLocalizations.of(context)!.sheetSaveFailed);
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
+    if (mounted) await _relentless();
   }
 
-  void _resetDeathSaveRollState() {
-    _deathSaveRollTimer?.cancel();
-    _deathSaveRollTimer = null;
-    _isDeathSaveRolling = false;
-    _deathSavePreviewRoll = null;
-  }
-
-  Future<int> _animateDeathSaveRoll() async {
-    final completer = Completer<int>();
-    final random = Random();
-    int ticks = 0;
-
-    _deathSaveRollTimer?.cancel();
-    setState(() {
-      _isDeathSaveRolling = true;
-      _deathSavePreviewRoll = random.nextInt(20) + 1;
-      _lastDeathSaveRoll = null;
-      _lastDeathSaveWasSuccess = null;
-      _lastDeathSaveMessage = null;
-    });
-
-    _deathSaveRollTimer = Timer.periodic(const Duration(milliseconds: 80), (
-      timer,
-    ) {
-      ticks++;
-
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-
-      setState(() {
-        _deathSavePreviewRoll = random.nextInt(20) + 1;
-      });
-
-      if (ticks >= 12) {
-        timer.cancel();
-        _deathSaveRollTimer = null;
-        completer.complete(random.nextInt(20) + 1);
-      }
-    });
-
-    return completer.future;
-  }
-
-  Future<void> _maybeHandleRelentlessRage(
-    Character character,
-    AppLocalizations l10n,
-  ) async {
-    if (character.currentHp > 0 ||
-        !character.hasRelentlessRage ||
-        !character.isRaging) {
+  Future<void> _undoLast() async {
+    if (_undo.isEmpty) {
+      AppSnackBar.info(context, _ru ? 'Отменять нечего' : 'Nothing to undo');
       return;
     }
+    final snap = _undo.removeLast();
+    setState(() => _busy = true);
+    try {
+      await GameplayActionsService.restoreCombat(_c, snap);
+      HapticFeedback.lightImpact();
+      if (mounted) AppSnackBar.info(context, _ru ? 'Отменено' : 'Undone');
+    } catch (_) {
+      _undo.add(snap);
+      if (mounted) {
+        AppSnackBar.error(
+            context, AppLocalizations.of(context)!.sheetSaveFailed);
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
-    final locale = Localizations.localeOf(context).languageCode;
-    final feature = character.features
-        .where((candidate) =>
-            candidate.id.toLowerCase() == 'relentless-rage' &&
-            CharacterClassContext(character, 'barbarian')
-                .canUseFeature(candidate))
-        .firstOrNull;
-    if (feature == null) return;
-    final dc = character.relentlessRageSaveDc;
-    final conSaveBonus = character.constitutionSavingThrowBonus;
-
-    await showDialog<void>(
+  /// Barbarian at 0 HP while raging: a Constitution save keeps them at 1.
+  Future<void> _relentless() async {
+    final c = _c;
+    if (c.currentHp > 0 || !c.hasRelentlessRage || !c.isRaging) return;
+    final dc = c.relentlessRageSaveDc, bonus = c.constitutionSavingThrowBonus;
+    final ru = _ru;
+    final roll = await showDialog<int>(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Text(feature.getName(locale)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('DC $dc'),
-            const SizedBox(height: 8),
-            Text(
-              '${l10n.modifier}: ${character.formatModifier(conSaveBonus)}',
-            ),
-          ],
-        ),
+        title: Text(ru ? 'Неукротимая ярость' : 'Relentless Rage'),
+        content: Text(ru
+            ? 'Спасбросок Телосложения Сл $dc (${bonus >= 0 ? '+' : '−'}${bonus.abs()}): успех — 1 ОЗ.'
+            : 'Constitution save DC $dc (${bonus >= 0 ? '+' : '−'}${bonus.abs()}): success leaves you at 1 HP.'),
         actions: [
           FilledButton(
-            onPressed: () {
-              final roll = Random().nextInt(20) + 1;
-              final total = roll + conSaveBonus;
-              final succeeded = total >= dc;
-
-              if (succeeded) {
-                character.currentHp = 1;
-              } else {
-                character.isRaging = false;
-              }
-
-              character.increaseRelentlessRageSaveDc();
-              Navigator.pop(context);
-
-              AppSnackBar.info(
-                this.context,
-                succeeded
-                    ? '${feature.getName(locale)}: $roll + $conSaveBonus = $total, 1 HP'
-                    : '${feature.getName(locale)}: $roll + $conSaveBonus = $total, 0 HP',
-              );
-            },
-            child: Text(l10n.roll),
-          ),
+              onPressed: () => Navigator.pop(context, Random().nextInt(20) + 1),
+              child: Text(AppLocalizations.of(context)!.roll)),
         ],
       ),
     );
-
-    await _save(character);
-  }
-
-  String _getConditionName(AppLocalizations l10n, ConditionType type) {
-    switch (type) {
-      case ConditionType.blinded:
-        return l10n.conditionBlinded;
-      case ConditionType.charmed:
-        return l10n.conditionCharmed;
-      case ConditionType.deafened:
-        return l10n.conditionDeafened;
-      case ConditionType.frightened:
-        return l10n.conditionFrightened;
-      case ConditionType.grappled:
-        return l10n.conditionGrappled;
-      case ConditionType.incapacitated:
-        return l10n.conditionIncapacitated;
-      case ConditionType.invisible:
-        return l10n.conditionInvisible;
-      case ConditionType.paralyzed:
-        return l10n.conditionParalyzed;
-      case ConditionType.petrified:
-        return l10n.conditionPetrified;
-      case ConditionType.poisoned:
-        return l10n.conditionPoisoned;
-      case ConditionType.prone:
-        return l10n.conditionProne;
-      case ConditionType.restrained:
-        return l10n.conditionRestrained;
-      case ConditionType.stunned:
-        return l10n.conditionStunned;
-      case ConditionType.unconscious:
-        return l10n.conditionUnconscious;
+    if (roll == null || !mounted) return;
+    final total = roll + bonus, kept = total >= dc;
+    await GameplayActionsService.combat(c, () {
+      if (kept) {
+        c.currentHp = 1;
+        c.deathSaves.reset();
+      } else {
+        c.endRage();
+        CombatTurn(c.combatState).removeEffect('rage');
+      }
+      c.increaseRelentlessRageSaveDc();
+      CombatActionsService.note(
+          c,
+          ru
+              ? 'Неукротимая ярость: $total против Сл $dc'
+              : 'Relentless Rage: $total vs DC $dc');
+    });
+    if (mounted) {
+      AppSnackBar.info(
+          context,
+          kept
+              ? (ru ? 'Ярость держит: 1 ОЗ' : 'Rage holds: 1 HP')
+              : (ru ? 'Ярость угасла' : 'The rage fades'));
     }
   }
 
-  void _startCombat(Character character, AppLocalizations l10n) {
-    final locale = Localizations.localeOf(context).languageCode;
-    final feralInstinct = character.hasFeralInstinct
-        ? character.features
-            .where((feature) =>
-                feature.id.toLowerCase() == 'feral-instinct' &&
-                CharacterClassContext(character, 'barbarian')
-                    .canUseFeature(feature))
-            .firstOrNull
-        : null;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.rollInitiative),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.sports_martial_arts, size: 48),
-            const SizedBox(height: 16),
-            Text(
-              '${l10n.modifier}: ${character.formatModifier(character.initiativeBonus)}',
-            ),
-            if (feralInstinct != null) ...[
-              const SizedBox(height: 8),
-              Text('${l10n.advantage}: ${feralInstinct.getName(locale)}'),
-            ],
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.cancel)),
-          FilledButton(
-            onPressed: () async {
-              final d20 = Random().nextInt(20) + 1;
-              final initiativeRoll = character.hasFeralInstinct
-                  ? [d20, Random().nextInt(20) + 1].reduce(max)
-                  : d20;
-              final init = initiativeRoll + character.initiativeBonus;
-              Navigator.pop(context);
-              character.combatState.startCombat(init);
-              await _save(character);
-            },
-            child: Text(l10n.roll),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _endCombat(Character character, AppLocalizations l10n) {
-    showDialog(
+  Future<void> _end() async {
+    final l10n = AppLocalizations.of(context)!;
+    final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.endCombat),
         content: Text(l10n.endCombatConfirm),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(context, false),
               child: Text(l10n.cancel)),
           FilledButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              character.combatState.endCombat();
-              _resetDeathSaveRollState();
-              await _save(character);
-            },
-            child: Text(l10n.finish),
-          ),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.finish)),
         ],
       ),
     );
+    if (ok != true || !mounted) return;
+    final rounds = _c.combatState.currentRound;
+    try {
+      await CombatActionsService.end(_c);
+      HapticFeedback.lightImpact();
+      if (!mounted) return;
+      final ru = _ru;
+      Navigator.pop(context);
+      AppSnackBar.info(
+          context,
+          ru
+              ? 'Бой окончен за $rounds ${ruPlural(rounds, 'раунд', 'раунда', 'раундов')}'
+              : 'Combat over in $rounds rounds');
+    } catch (_) {
+      if (mounted) AppSnackBar.error(context, l10n.sheetSaveFailed);
+    }
   }
 
-  void _modifyHP(Character character, bool heal, AppLocalizations l10n) {
-    final controller = TextEditingController();
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => SheetSafeArea(child: Padding(
-        padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            top: 20,
-            left: 20,
-            right: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(heal ? l10n.heal : l10n.takeDamage,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: heal ? Colors.green : Colors.red,
-                    fontWeight: FontWeight.bold)),
-            const SizedBox(height: 20),
-            TextField(
-              controller: controller,
-              keyboardType: TextInputType.number,
-              autofocus: true,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-              decoration: InputDecoration(
-                hintText: '0',
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadii.lg)),
-                prefixIcon:
-                    heal ? const Icon(Icons.add) : const Icon(Icons.remove),
+  Future<void> _start() async {
+    final total = await showInitiativeCeremony(context,
+        bonus: _c.initiativeBonus, advantage: _c.hasFeralInstinct);
+    if (total == null || !mounted) return;
+    final ru = _ru;
+    await _track(() => CombatActionsService.start(_c, total,
+        text: ru
+            ? 'Бой начат · инициатива $total'
+            : 'Combat started · initiative $total'));
+    await _track(
+        () => GameplayActionsService.combat(_c, () => syncEffectsIn(_c, ru)));
+  }
+
+  Future<void> _nextRound() async {
+    final ru = _ru;
+    List<CombatEffect> ended = const [];
+    await _track(() async {
+      ended = await CombatActionsService.nextRound(_c,
+          roundText: ru
+              ? 'Раунд ${_c.combatState.currentRound + 1}'
+              : 'Round ${_c.combatState.currentRound + 1}',
+          endedText: (e) =>
+              ru ? '${e.name}: время вышло' : '${e.name}: time is up');
+    });
+    HapticFeedback.mediumImpact();
+    if (ended.isNotEmpty && mounted) {
+      AppSnackBar.info(context,
+          '${ended.map((e) => e.name).join(', ')} — ${ru ? 'закончилось' : 'ended'}');
+    }
+  }
+
+  Future<void> _openArsenal(ArsenalTab tab) async {
+    final pick = await showArsenalSheet(context, _c, tab);
+    if (pick == null || !mounted) return;
+    final ru = _ru;
+    switch (pick) {
+      case SpellPick(:final spell):
+        var cast = false;
+        await _track(() async {
+          cast =
+              await showSpellCastSheet(context, _c, spell, rollAfterCast: true);
+          if (!cast) return;
+          await GameplayActionsService.combat(_c, () {
+            CombatTurn(_c.combatState)
+                .setUsed(TurnCostKey.parse(spell.castingTime), true);
+            syncEffectsIn(_c, ru);
+            CombatActionsService.note(
+                _c,
+                ru
+                    ? 'Наложено: ${spell.getName('ru')}'
+                    : 'Cast: ${spell.getName('en')}');
+          });
+        });
+      case AttackPick(:final attack):
+        await _track(() => showAttackSheet(context, _c, attack));
+      case FeaturePick(:final feature):
+        await _track(() async {
+          if (!await showFeatureInstrument(context, _c, feature)) return;
+          await GameplayActionsService.combat(_c, () {
+            CombatTurn(_c.combatState).setUsed(featureCost(feature), true);
+            syncEffectsIn(_c, ru);
+            CombatActionsService.note(_c, feature.getName(ru ? 'ru' : 'en'));
+          });
+        });
+    }
+  }
+
+  Future<void> _move() async {
+    final turn = CombatTurn(_c.combatState);
+    final result = await showMovementSheet(context,
+        kicker: _c.name, speed: _c.speed, moved: turn.moved, dash: turn.dash);
+    if (!mounted || (result.moved == turn.moved && result.dash == turn.dash)) {
+      return;
+    }
+    final ru = _ru;
+    await _track(() => CombatActionsService.move(_c,
+        moved: result.moved,
+        dash: result.dash,
+        dashText: ru ? 'Рывок · действие' : 'Dash · action'));
+  }
+
+  Future<void> _concentrationRoll() async {
+    final ru = _ru;
+    final roll = Random().nextInt(20) + 1;
+    var kept = true;
+    await _track(() async {
+      kept = await CombatActionsService.concentrationSave(_c, roll,
+          text: (total, dc, kept) => ru
+              ? 'Концентрация ${kept ? 'удержана' : 'потеряна'}: $total против Сл $dc'
+              : 'Concentration ${kept ? 'held' : 'lost'}: $total vs DC $dc');
+    });
+    HapticFeedback.lightImpact();
+    if (mounted) {
+      AppSnackBar.info(
+          context,
+          kept
+              ? (ru ? 'Концентрация удержана' : 'Concentration held')
+              : (ru ? 'Концентрация потеряна' : 'Concentration lost'));
+    }
+  }
+
+  String _logText(CombatLogEntry e, AppLocalizations l10n) {
+    final ru = _ru;
+    switch (e.type) {
+      case CombatLogType.damage:
+        return ru ? 'Урон ${e.amount ?? ''}' : 'Damage ${e.amount ?? ''}';
+      case CombatLogType.healing:
+        return ru ? 'Лечение ${e.amount ?? ''}' : 'Healing ${e.amount ?? ''}';
+      case CombatLogType.conditionAdded:
+      case CombatLogType.conditionRemoved:
+        final name = ConditionType.values
+            .where((c) => (e.description ?? '').endsWith(c.displayName))
+            .map((c) => ConditionPresentation.label(l10n, c))
+            .firstOrNull;
+        final on = e.type == CombatLogType.conditionAdded;
+        return name == null
+            ? e.description ?? ''
+            : '${on ? (ru ? 'Наложено' : 'Gained') : (ru ? 'Снято' : 'Removed')}: $name';
+      case CombatLogType.concentrationCheck:
+        return (e.description ?? '').startsWith('Concentration check required')
+            ? (ru
+                ? 'Концентрация: Сл ${e.amount}'
+                : 'Concentration: DC ${e.amount}')
+            : e.description ?? '';
+      default:
+        return e.description ?? '';
+    }
+  }
+
+  int _logAccent(CombatLogEntry e) => switch (e.type) {
+        CombatLogType.damage => 0,
+        CombatLogType.healing => 3,
+        CombatLogType.deathSave => 0,
+        CombatLogType.conditionAdded || CombatLogType.conditionRemoved => 5,
+        CombatLogType.concentrationCheck => 5,
+        CombatLogType.roundStart => 2,
+        CombatLogType.other => 4,
+      };
+
+  Future<void> _logSheet() async {
+    final l10n = AppLocalizations.of(context)!;
+    final ru = _ru;
+    final undo = await showCompanionSheet<bool>(context, builder: (context) {
+      final c = Theme.of(context).colorScheme;
+      final log = _c.combatState.combatLog.reversed.toList();
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text(_c.name,
+            style: TextStyle(
+                fontFamily: AppType.body,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: c.secondary)),
+        const SizedBox(height: 8),
+        SheetHeading(ru ? 'Журнал боя' : 'Combat log'),
+        const SizedBox(height: 14),
+        if (log.isEmpty)
+          Text(ru ? 'Пока пусто' : 'Nothing yet',
+              style: TextStyle(color: c.onSurfaceVariant))
+        else
+          for (final e in log)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                decoration: BoxDecoration(
+                    color: c.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(18)),
+                child: Row(children: [
+                  Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppAccents.of(context).at(_logAccent(e)))),
+                  const SizedBox(width: 12),
+                  Expanded(
+                      child: Text(_logText(e, l10n),
+                          style: const TextStyle(
+                              fontFamily: AppType.body, fontSize: 14.5))),
+                  Text(ru ? 'р. ${e.round}' : 'r. ${e.round}',
+                      style: TextStyle(
+                          fontFamily: AppType.display,
+                          fontSize: 12,
+                          color: c.onSurfaceVariant)),
+                ]),
               ),
             ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                if (!heal)
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () async {
-                        final amount = int.tryParse(controller.text) ?? 0;
-                        if (amount > 0) {
-                          Navigator.pop(context);
-                          character.addTemporaryHp(amount);
-                          await _save(character);
-                        }
-                      },
-                      child: Text('+ ${l10n.tempHp}'),
-                    ),
-                  ),
-                if (!heal) const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    style: FilledButton.styleFrom(
-                        backgroundColor: heal ? Colors.green : Colors.red,
-                        minimumSize: const Size(0, 56)),
-                    onPressed: () async {
-                      final amount = int.tryParse(controller.text) ?? 0;
-                      if (amount > 0) {
-                        Navigator.pop(context);
-                        if (heal) {
-                          await character.heal(amount);
-                          _resetDeathSaveRollState();
-                        } else {
-                          await character.takeDamage(amount);
-                          await _maybeHandleRelentlessRage(character, l10n);
-                          _triggerShake();
-                        }
-                        await _save(character);
-                      }
-                    },
-                    child: Text(heal
-                        ? l10n.heal.toUpperCase()
-                        : l10n.takeDamage.toUpperCase()),
-                  ),
-                ),
-              ],
-            ),
-          ],
+        const SizedBox(height: 8),
+        ToneButton(
+          key: const ValueKey('log-undo'),
+          height: 50,
+          expand: true,
+          icon: LineIcon('back', size: 18, color: c.onSurface),
+          label: ru ? 'Отменить последнее' : 'Undo the last',
+          onPressed: _undo.isEmpty ? null : () => Navigator.pop(context, true),
         ),
-      )),
-    );
-  }
-
-  void _toggleCondition(Character character, ConditionType condition) {
-    if (character.activeConditions.contains(condition)) {
-      character.removeCondition(condition);
-    } else {
-      character.addCondition(condition);
-    }
-    _save(character);
-  }
-
-  void _showConditionsDialog(Character character, AppLocalizations l10n) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SheetSafeArea(child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: ConditionType.values.map((c) {
-          final isActive = character.activeConditions.contains(c);
-          return ListTile(
-            title: Text(_getConditionName(l10n, c)),
-            trailing: isActive
-                ? const Icon(Icons.check_circle, color: Colors.green)
-                : null,
-            onTap: () {
-              _toggleCondition(character, c);
-              Navigator.pop(context);
-            },
-          );
-        }).toList(),
-      )),
-    );
-  }
-
-  Future<void> _rollDeathSave(
-    Character character,
-    AppLocalizations l10n,
-  ) async {
-    if (character.currentHp > 0 ||
-        character.deathSaves.isDead ||
-        character.deathSaves.isStabilized) {
-      return;
-    }
-
-    if (!character.combatState.canRollDeathSaveThisRound) {
-      AppSnackBar.warning(context, l10n.deathSaveAlreadyRolled);
-      return;
-    }
-
-    final roll = await _animateDeathSaveRoll();
-    final round = character.combatState.currentRound;
-    String message;
-    bool wasSuccess;
-
-    if (character.combatState.isInCombat) {
-      character.combatState.markDeathSaveRolledThisRound();
-    }
-
-    if (roll == 20) {
-      wasSuccess = true;
-      message = l10n.deathSaveNat20;
-      character.combatState.addLogEntry(
-        CombatLogEntry(
-          id: DateTime.now().microsecondsSinceEpoch.toString(),
-          timestamp: DateTime.now(),
-          type: CombatLogType.deathSave,
-          amount: roll,
-          description: message,
-          round: round,
-        ),
-      );
-      await character.heal(1, source: 'Death save (nat 20)');
-    } else if (roll == 1) {
-      wasSuccess = false;
-      message = l10n.deathSaveNat1;
-      character.deathSaves.addFailure();
-      character.deathSaves.addFailure();
-      if (character.combatState.isInCombat) {
-        character.combatState.addLogEntry(
-          CombatLogEntry(
-            id: DateTime.now().microsecondsSinceEpoch.toString(),
-            timestamp: DateTime.now(),
-            type: CombatLogType.deathSave,
-            amount: roll,
-            description: message,
-            round: round,
-          ),
-        );
-      }
-      await _save(character);
-    } else if (roll >= 10) {
-      wasSuccess = true;
-      message = l10n.deathSaveSuccessResult(roll);
-      character.deathSaves.addSuccess();
-      if (character.combatState.isInCombat) {
-        character.combatState.addLogEntry(
-          CombatLogEntry(
-            id: DateTime.now().microsecondsSinceEpoch.toString(),
-            timestamp: DateTime.now(),
-            type: CombatLogType.deathSave,
-            amount: roll,
-            description: message,
-            round: round,
-          ),
-        );
-      }
-      await _save(character);
-    } else {
-      wasSuccess = false;
-      message = l10n.deathSaveFailureResult(roll);
-      character.deathSaves.addFailure();
-      if (character.combatState.isInCombat) {
-        character.combatState.addLogEntry(
-          CombatLogEntry(
-            id: DateTime.now().microsecondsSinceEpoch.toString(),
-            timestamp: DateTime.now(),
-            type: CombatLogType.deathSave,
-            amount: roll,
-            description: message,
-            round: round,
-          ),
-        );
-      }
-      await _save(character);
-    }
-
-    if (!mounted) return;
-
-    setState(() {
-      _isDeathSaveRolling = false;
-      _deathSavePreviewRoll = roll;
-      _lastDeathSaveRoll = roll;
-      _lastDeathSaveWasSuccess = wasSuccess;
-      _lastDeathSaveMessage = message;
+      ]);
     });
-
-    if (wasSuccess) {
-      AppSnackBar.success(context, message);
-    } else {
-      AppSnackBar.error(context, message);
-    }
+    if (undo == true && mounted) await _undoLast();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: Hive.box<Character>('characters').listenable(),
-      builder: (context, Box<Character> box, _) {
-        final character = box.get(widget.character.key) ?? widget.character;
-        return _buildUI(context, character);
-      },
+  Widget build(BuildContext context) => ValueListenableBuilder(
+        valueListenable: Hive.box<Character>('characters').listenable(),
+        builder: (context, Box<Character> box, _) {
+          _c = box.get(widget.character.key) ?? widget.character;
+          return _page(context);
+        },
+      );
+
+  Widget _section(String title, {Widget? trailing}) {
+    final c = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 8, 2, 0),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        Expanded(
+          child: Text(title,
+              style: const TextStyle(
+                  fontFamily: AppType.display,
+                  fontSize: 20,
+                  height: 1.2,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -.3)),
+        ),
+        if (trailing != null)
+          DefaultTextStyle.merge(
+              style: TextStyle(
+                  fontFamily: AppType.body,
+                  fontSize: 13,
+                  color: c.onSurfaceVariant),
+              child: trailing),
+      ]),
     );
   }
 
-  Widget _buildUI(BuildContext context, Character character) {
-    _character = character;
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+  Widget _page(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    final isInCombat = character.combatState.isInCombat;
-    final hpPercent = character.maxHp > 0
-        ? (character.currentHp / character.maxHp).clamp(0.0, 1.0)
-        : 0.0;
-    final isDying = character.currentHp <= 0;
-    final showActiveDeathSaves = isDying && character.deathSaves.isActive;
-    final showDeathSaveStatus = isDying && !character.deathSaves.isActive;
-    final isSpellcaster = SpellUse.visible(character).isNotEmpty ||
-        character.classes
-            .any((entry) => SpellcastingService.isSpellcaster(entry.id));
+    final ru = _ru, locale = ru ? 'ru' : 'en';
+    final hero = _c;
+    final state = hero.combatState;
+    final turn = CombatTurn(state);
+    final inCombat = state.isInCombat;
+    final down = hero.currentHp == 0 &&
+        !(hero.isWildShaped && hero.beastCurrentHp != null);
+    final classLine = [
+      for (final e in hero.classes)
+        '${CharacterClassContext(hero, e.id).name(locale)} ${e.level}',
+    ].join(' / ');
+    final sub = hero.classes.isEmpty
+        ? null
+        : CharacterClassContext(hero, hero.classes.first.id)
+            .subclassName(locale);
+    final top = MediaQuery.paddingOf(context).top;
+    final bottom = MediaQuery.paddingOf(context).bottom;
+    final concName = hero.concentratingOn == null
+        ? null
+        : SpellService.getSpellById(hero.concentratingOn!)?.getName(locale) ??
+            hero.concentratingOn;
+    final log = state.combatLog.reversed.take(6).toList();
+    Widget gap(Widget w) =>
+        Padding(padding: const EdgeInsets.only(bottom: 14), child: w);
+
+    final page = ListView(
+      padding: EdgeInsets.fromLTRB(16, top + 72, 16, bottom + 120),
+      children: [
+        gap(Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+          Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(hero.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontFamily: AppType.display,
+                      fontSize: 28,
+                      height: 1.05,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -.7)),
+              const SizedBox(height: 4),
+              Text([classLine, if (sub != null) sub].join(' · '),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontFamily: AppType.body,
+                      fontSize: 13,
+                      color: c.onSurfaceVariant)),
+            ]),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: ShapeDecoration(
+                shape: const StadiumBorder(),
+                color: c.onSurface.withValues(alpha: .07)),
+            child: Text.rich(
+                TextSpan(children: [
+                  TextSpan(text: ru ? 'КД ' : 'AC '),
+                  TextSpan(
+                      text: '${hero.armorClass}',
+                      style: TextStyle(
+                          fontFamily: AppType.display, color: c.onSurface)),
+                ]),
+                style: TextStyle(
+                    fontFamily: AppType.body,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: c.onSurfaceVariant)),
+          ),
+        ])),
+        gap(LifeSection(character: hero, onChanged: () => _track(() async {}))),
+        if (concName != null)
+          gap(_Concentration(
+              name: concName,
+              dc: turn.check,
+              busy: _busy,
+              onRoll: _concentrationRoll,
+              onEnd: () => _track(() => CombatActionsService.endConcentration(
+                  _c, ru ? 'Концентрация прервана' : 'Concentration ended')))),
+        if (inCombat && !down) ...[
+          _section(ru ? 'Мой ход' : 'My turn',
+              trailing:
+                  Text(ru ? 'сбросится в новом раунде' : 'resets next round')),
+          const SizedBox(height: 14),
+          gap(TurnTokens(
+            turn: turn,
+            speed: hero.speed,
+            busy: _busy,
+            onToggle: (cost) =>
+                _track(() => CombatActionsService.toggleToken(_c, cost)),
+            onMove: _move,
+          )),
+          _section(ru ? 'Арсенал' : 'Arsenal'),
+          const SizedBox(height: 14),
+          gap(ArsenalDoors(character: hero, onOpen: _openArsenal)),
+        ],
+        if (inCombat) ...[
+          _section(ru ? 'Раунды' : 'Rounds',
+              trailing: Text(ru ? 'листайте ленту' : 'pull the tape')),
+          const SizedBox(height: 14),
+          gap(RoundTape(
+            round: state.currentRound,
+            initiative: state.initiative,
+            effects: turn.effects,
+            busy: _busy,
+            onNext: _nextRound,
+            onEndEffect: (e) => _track(() => CombatActionsService.endEffect(
+                _c, e.key, ru ? '${e.name}: завершено' : '${e.name}: ended')),
+          )),
+        ] else
+          gap(SizedBox(
+            height: 60,
+            child: FilledButton.icon(
+              key: const ValueKey('combat-start'),
+              style: FilledButton.styleFrom(
+                  backgroundColor: c.primary,
+                  foregroundColor: c.onPrimary,
+                  shape: const StadiumBorder()),
+              onPressed: _busy ? null : _start,
+              icon: const LineIcon('sword', size: 20),
+              label: Text(l10n.startCombat,
+                  style: const TextStyle(
+                      fontFamily: AppType.body,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600)),
+            ),
+          )),
+        _section(l10n.overviewConditions),
+        const SizedBox(height: 14),
+        gap(SheetConditionChips(
+          character: hero,
+          onChanged: () {},
+          onAdd: () => _track(() async {
+            final r = await showConditionPicker(this.context, _c);
+            if (r == ConditionPickerResult.allParameters && mounted) {
+              await showGameConsole(this.context, _c);
+            }
+          }),
+        )),
+        if (log.isNotEmpty) ...[
+          _section(ru ? 'Журнал' : 'Journal',
+              trailing: GestureDetector(
+                key: const ValueKey('combat-undo'),
+                onTap: _busy ? null : _undoLast,
+                child: Text(ru ? 'Отменить' : 'Undo',
+                    style: TextStyle(
+                        fontFamily: AppType.body,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: c.secondary)),
+              )),
+          const SizedBox(height: 14),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            clipBehavior: Clip.none,
+            child: Row(children: [
+              for (final e in log) ...[
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+                  decoration: BoxDecoration(
+                      color: c.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Container(
+                        width: 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppAccents.of(context).at(_logAccent(e)))),
+                    const SizedBox(width: 6),
+                    Text(_logText(e, l10n),
+                        style: TextStyle(
+                            fontFamily: AppType.body,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: c.onSurfaceVariant)),
+                  ]),
+                ),
+                const SizedBox(width: 8),
+              ],
+            ]),
+          ),
+        ],
+      ],
+    );
 
     return Scaffold(
-      backgroundColor: isInCombat
-          ? colorScheme.surfaceContainerLow
-          : theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(character.name),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            tooltip: l10n.editGameState,
-            icon: const Icon(Icons.edit_outlined),
-            onPressed: () async {
-              if (await showGameplayStateEditor(context, character) &&
-                  mounted) {
-                setState(() {});
-              }
-            },
-          ),
-          if (isInCombat)
-            IconButton(
-              icon: const Icon(Icons.stop_circle_outlined),
-              color: colorScheme.error,
-              tooltip: l10n.endCombat,
-              onPressed: () => _endCombat(character, l10n),
+      backgroundColor: c.surface,
+      body: Stack(children: [
+        Positioned.fill(child: page),
+        // The edge glows while the fight is on.
+        Positioned.fill(
+          child: IgnorePointer(
+            child: AnimatedOpacity(
+              duration:
+                  AppMotion.of(context, const Duration(milliseconds: 700)),
+              opacity: inCombat ? 1 : 0,
+              child: CustomPaint(
+                  painter: _EdgeGlow(c.primary.withValues(alpha: .16))),
             ),
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () => showModalBottomSheet(
-                context: context,
-                builder: (_) =>
-                    SheetSafeArea(child: CombatLogView(combatLog: character.combatState.combatLog))),
           ),
-        ],
-      ),
-      body: AnimatedBuilder(
-        animation: _shakeAnimation,
-        builder: (context, child) {
-          return Transform.translate(
-            offset: Offset(
-                sin(_shakeController.value * pi * 10) * _shakeAnimation.value,
-                0),
-            child: child,
-          );
-        },
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return ScrollConfiguration(
-              behavior: const _CombatTrackerScrollBehavior(),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      children: [
-                        // --- HEADER: ROUND & INIT ---
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _buildHeaderStat(
-                                  l10n.initiativeINIT,
-                                  '${character.combatState.initiative}',
-                                  Icons.flash_on,
-                                  colorScheme.tertiary),
-                              if (isInCombat)
-                                _buildHeaderStat(
-                                    'ROUND',
-                                    '${character.combatState.currentRound}',
-                                    Icons.refresh,
-                                    colorScheme.primary),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // --- MAIN VISUAL: HP RING (Smaller) ---
-                        Center(
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          top: 0,
+          child: GlassSurface(
+            borderRadius: BorderRadius.zero,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(14, top + 8, 14, 10),
+              child: Row(children: [
+                _Round(
+                    key: const ValueKey('combat-close'),
+                    icon: inCombat ? 'x' : 'back',
+                    label: inCombat ? l10n.endCombat : l10n.cancel,
+                    onTap: inCombat ? _end : () => Navigator.pop(context)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: inCombat
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 11, vertical: 7),
+                            decoration: ShapeDecoration(
+                                shape: const StadiumBorder(),
+                                color: c.primary.withValues(alpha: .2)),
+                            child:
+                                Row(mainAxisSize: MainAxisSize.min, children: [
                               Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: colorScheme.surface,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: (isDying
-                                              ? colorScheme.error
-                                              : colorScheme.primary)
-                                          .withValues(alpha: 0.15),
-                                      blurRadius: 30,
-                                      spreadRadius: 5,
-                                    )
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                width: 180,
-                                height: 180,
-                                child: CircularProgressIndicator(
-                                  value: hpPercent,
-                                  strokeWidth: 12,
-                                  backgroundColor:
-                                      colorScheme.surfaceContainerHighest,
-                                  color: isDying
-                                      ? colorScheme.error
-                                      : (hpPercent > 0.5
-                                          ? Colors.green
-                                          : Colors.amber),
-                                  strokeCap: StrokeCap.round,
-                                ),
-                              ),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (isDying) ...[
-                                    const Icon(
-                                      Icons.dangerous,
-                                      size: 40,
-                                      color: Colors.grey,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      l10n.conditionUnconscious.toUpperCase(),
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        color: colorScheme.error,
-                                        letterSpacing: 1.0,
-                                      ),
-                                    ),
-                                  ] else ...[
-                                    Icon(
-                                      Icons.favorite,
-                                      size: 24,
-                                      color: colorScheme.error.withValues(
-                                        alpha: 0.8,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${character.currentHp}',
-                                      style: TextStyle(
-                                        fontSize: 48,
-                                        fontWeight: FontWeight.w900,
-                                        color: colorScheme.onSurface,
-                                        height: 1,
-                                      ),
-                                    ),
-                                    Text(
-                                      '/${character.maxHp}',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: colorScheme.onSurfaceVariant,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // --- STATS DASHBOARD (Indicators) ---
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: Column(
-                            children: [
-                              if (character.temporaryHp > 0)
-                                Container(
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
-                                  ),
+                                  width: 7,
+                                  height: 7,
                                   decoration: BoxDecoration(
-                                    color: colorScheme.secondaryContainer,
-                                    borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-                                    border: Border.all(
-                                      color: colorScheme.secondary,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.shield,
-                                        size: 16,
-                                        color: colorScheme.onSecondaryContainer,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        '${character.temporaryHp} ${l10n.tempHp}',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color:
-                                              colorScheme.onSecondaryContainer,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              if (character.activeConditions.isNotEmpty)
-                                Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  alignment: WrapAlignment.center,
-                                  children: character.activeConditions
-                                      .map((c) => Chip(
-                                            label: Text(
-                                              _getConditionName(l10n, c),
-                                            ),
-                                            backgroundColor:
-                                                colorScheme.errorContainer,
-                                            labelStyle: TextStyle(
-                                              color:
-                                                  colorScheme.onErrorContainer,
-                                              fontSize: 12,
-                                            ),
-                                            padding: EdgeInsets.zero,
-                                            visualDensity:
-                                                VisualDensity.compact,
-                                            onDeleted: () =>
-                                                _toggleCondition(character, c),
-                                          ))
-                                      .toList(),
-                                ),
-                              AnimatedSize(
-                                duration: const Duration(milliseconds: 320),
-                                curve: Curves.easeInOutCubicEmphasized,
-                                alignment: Alignment.topCenter,
-                                child: showActiveDeathSaves
-                                    ? _buildActiveDeathSavesCard(
-                                        character,
-                                        theme,
-                                        l10n,
-                                        colorScheme,
-                                        isInCombat,
-                                      )
-                                    : showDeathSaveStatus
-                                        ? _buildDeathSaveStatusCard(
-                                            character,
-                                            theme,
-                                            l10n,
-                                            colorScheme,
-                                          )
-                                        : const SizedBox.shrink(),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        if (isSpellcaster)
-                          _buildMagicButton(
-                            context,
-                            character,
-                            l10n,
-                            colorScheme,
-                          ),
-                        const Spacer(),
-
-                        // --- CONTROLS ---
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 24,
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildActionButton(
-                                        context,
-                                        l10n.takeDamage.toUpperCase(),
-                                        Icons.broken_image,
-                                        colorScheme.error,
-                                        () =>
-                                            _modifyHP(character, false, l10n)),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: _buildActionButton(
-                                        context,
-                                        l10n.heal.toUpperCase(),
-                                        Icons.healing,
-                                        Colors.green,
-                                        () => _modifyHP(character, true, l10n)),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: OutlinedButton.icon(
-                                      onPressed: () => _showConditionsDialog(
-                                        character,
-                                        l10n,
-                                      ),
-                                      icon: const Icon(Icons.sick_outlined),
-                                      label: Text(l10n.condition),
-                                      style: OutlinedButton.styleFrom(
-                                        minimumSize: const Size(0, 56),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: isInCombat
-                                        ? FilledButton.tonalIcon(
-                                            onPressed: () {
-                                              setState(() {
-                                                character
-                                                    .combatState.currentRound++;
-                                                _save(character);
-                                              });
-                                            },
-                                            icon: const Icon(Icons.skip_next),
-                                            label: Text(l10n.nextRound),
-                                            style: FilledButton.styleFrom(
-                                              minimumSize: const Size(0, 56),
-                                            ),
-                                          )
-                                        : FilledButton.icon(
-                                            onPressed: () =>
-                                                _startCombat(character, l10n),
-                                            icon: const Icon(Icons.play_arrow),
-                                            label: Text(l10n.startCombat),
-                                            style: FilledButton.styleFrom(
-                                              minimumSize: const Size(0, 56),
-                                            ),
-                                          ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                                      shape: BoxShape.circle,
+                                      color: c.primary)),
+                              const SizedBox(width: 6),
+                              Text(
+                                  ru
+                                      ? 'Бой · раунд ${state.currentRound}'
+                                      : 'Combat · round ${state.currentRound}',
+                                  style: TextStyle(
+                                      fontFamily: AppType.body,
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: c.primary)),
+                            ]),
+                          )
+                        : Text(hero.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontFamily: AppType.display,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600)),
                   ),
                 ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActiveDeathSavesCard(
-    Character character,
-    ThemeData theme,
-    AppLocalizations l10n,
-    ColorScheme colorScheme,
-    bool isInCombat,
-  ) {
-    final deathSaveRollPanel = _buildDeathSaveRollPanel(
-      theme,
-      l10n,
-      colorScheme,
-    );
-
-    return Container(
-      margin: const EdgeInsets.only(top: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(AppRadii.lg),
-        border: Border.all(color: colorScheme.error.withValues(alpha: 0.5)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                l10n.deathSaves.toUpperCase(),
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.error,
-                  fontSize: 10,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const Spacer(),
-              if (isInCombat &&
-                  !character.combatState.canRollDeathSaveThisRound)
-                _buildStatusPill(
-                  theme,
-                  l10n.deathSaveRolledThisRound,
-                  colorScheme.secondaryContainer,
-                  colorScheme.onSecondaryContainer,
-                ),
-            ],
+                _Round(
+                    key: const ValueKey('combat-log'),
+                    icon: 'book',
+                    label: ru ? 'Журнал боя' : 'Combat log',
+                    onTap: _logSheet),
+                const SizedBox(width: 10),
+                _Round(
+                    key: const ValueKey('combat-console'),
+                    icon: 'settings',
+                    label: ru ? 'Игровые параметры' : 'Game parameters',
+                    onTap: () => _track(() => showGameConsole(context, _c))),
+              ]),
+            ),
           ),
-          const SizedBox(height: 12),
-          AnimatedSize(
-            duration: const Duration(milliseconds: 280),
-            curve: Curves.easeInOutCubicEmphasized,
-            alignment: Alignment.topCenter,
-            child: Column(
-              children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  switchInCurve: Curves.easeOutBack,
-                  switchOutCurve: Curves.easeIn,
-                  transitionBuilder: (child, animation) => FadeTransition(
-                    opacity: animation,
-                    child: SizeTransition(
-                      sizeFactor: animation,
-                      axisAlignment: -1,
-                      child: child,
-                    ),
+        ),
+        Positioned(
+          left: 12,
+          right: 12,
+          bottom: bottom + 14,
+          child: GlassSurface(
+            borderRadius: BorderRadius.circular(999),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Row(children: [
+                Expanded(
+                  child: _DockButton(
+                    key: const ValueKey('combat-damage'),
+                    label: l10n.damage,
+                    icon: 'minus',
+                    tint: c.primary.withValues(alpha: .26),
+                    onTap: () => _track(
+                        () => showHpKeypad(context, _c, mode: HpChange.damage)),
                   ),
-                  child: deathSaveRollPanel ??
-                      const SizedBox(
-                        key: ValueKey('death-save-empty'),
+                ),
+                const SizedBox(width: 10),
+                Semantics(
+                  button: true,
+                  label: ru ? 'Бросок' : 'Roll',
+                  child: Pressable(
+                    key: const ValueKey('combat-dice'),
+                    onTap: () => showDiceRoller(context, title: hero.name),
+                    scale: .92,
+                    semanticLabel: ru ? 'Лоток костей' : 'Dice tray',
+                    child: Container(
+                      width: 64,
+                      height: 64,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: c.onSurface,
+                        borderRadius: BorderRadius.circular(22),
+                        boxShadow: const [
+                          BoxShadow(
+                              color: Color(0x99000000),
+                              blurRadius: 24,
+                              offset: Offset(0, 10),
+                              spreadRadius: -8)
+                        ],
                       ),
-                ),
-                if (deathSaveRollPanel != null) const SizedBox(height: 12),
-              ],
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildDeathSaveRow(
-                label: l10n.successes,
-                count: character.deathSaves.successes,
-                icon: Icons.check_circle,
-                color: Colors.green,
-                onToggle: (index, isFilled) async {
-                  if (isFilled && character.deathSaves.successes > index) {
-                    character.deathSaves.successes--;
-                  } else if (!isFilled && character.deathSaves.successes < 3) {
-                    character.deathSaves.addSuccess();
-                  }
-                  await _save(character);
-                },
-              ),
-              Container(
-                width: 1,
-                height: 30,
-                color: colorScheme.outlineVariant,
-              ),
-              _buildDeathSaveRow(
-                label: l10n.failures,
-                count: character.deathSaves.failures,
-                icon: Icons.cancel,
-                color: colorScheme.error,
-                onToggle: (index, isFilled) async {
-                  if (isFilled && character.deathSaves.failures > index) {
-                    character.deathSaves.failures--;
-                  } else if (!isFilled && character.deathSaves.failures < 3) {
-                    character.deathSaves.addFailure();
-                  }
-                  await _save(character);
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: _isDeathSaveRolling ||
-                      !character.combatState.canRollDeathSaveThisRound
-                  ? null
-                  : () => _rollDeathSave(character, l10n),
-              icon: Icon(
-                _isDeathSaveRolling ? Icons.hourglass_top : Icons.casino,
-              ),
-              label: Text(
-                _isDeathSaveRolling ? l10n.rolling : l10n.rollDeathSave,
-              ),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 48),
-                backgroundColor: colorScheme.error,
-                foregroundColor: colorScheme.onError,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${l10n.deathSaveOnePerRound}. ${l10n.deathSaveManualAdjustHint}',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDeathSaveStatusCard(
-    Character character,
-    ThemeData theme,
-    AppLocalizations l10n,
-    ColorScheme colorScheme,
-  ) {
-    final isStabilized = character.deathSaves.isStabilized;
-    final accent = isStabilized ? Colors.green : colorScheme.error;
-    final label = isStabilized ? l10n.stabilized : l10n.deadLabel;
-    final icon =
-        isStabilized ? Icons.health_and_safety_outlined : Icons.dangerous;
-    final hint =
-        isStabilized ? l10n.deathSaveStabilizedHint : l10n.deathSaveDeadHint;
-
-    return Container(
-      margin: const EdgeInsets.only(top: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(AppRadii.lg),
-        border: Border.all(color: accent.withValues(alpha: 0.35)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.14),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: accent),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildStatusPill(
-                  theme,
-                  label,
-                  accent,
-                  Colors.white,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  hint,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
+                      child: LineIcon('dice', size: 32, color: c.surface),
+                    ),
                   ),
                 ),
-              ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _DockButton(
+                    key: const ValueKey('combat-heal'),
+                    label: l10n.heal,
+                    icon: 'plus',
+                    tint: AppPaletteRoles.heal(context).withValues(alpha: .22),
+                    onTap: () => _track(() =>
+                        showHpKeypad(context, _c, mode: HpChange.healing)),
+                  ),
+                ),
+              ]),
             ),
           ),
-          IconButton(
-            tooltip: l10n.resetDeathSaves,
-            onPressed: () => _resetDeathSaves(character),
-            icon: const Icon(Icons.restart_alt),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMagicButton(BuildContext context, Character character,
-      AppLocalizations l10n, ColorScheme colorScheme) {
-    // Count total remaining slots
-    for (int i = 0; i < character.maxSpellSlots.length; i++) {
-      if (i < character.spellSlots.length) {
-        // spellSlots stores REMAINING
-      }
-    }
-    // Correct logic: spellSlots stores remaining. So used = max - remaining.
-    // Wait, spellSlots list stores REMAINING slots.
-    // Example: Max [4, 2]. Current [3, 2].
-    // Total Max = 6. Total Remaining = 5.
-
-    int remaining = 0;
-    for (int i = 0; i < character.spellSlots.length; i++) {
-      remaining += character.spellSlots[i];
-    }
-
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      height: 56,
-      child: FilledButton.icon(
-        style: FilledButton.styleFrom(
-          backgroundColor: colorScheme.primary,
-          foregroundColor: colorScheme.onPrimary,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.lg)),
         ),
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) => SheetSafeArea(child: CombatSpellcasterSheet(
-              character: character,
-              onStateChange: () {
-                if (mounted) setState(() {});
-              },
-            )),
-          );
-        },
-        icon: const Icon(Icons.auto_fix_high),
-        label: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(l10n.castSpell.toUpperCase(),
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, letterSpacing: 1.0)),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: colorScheme.onPrimary.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(AppRadii.md),
-              ),
-              child: Text(
-                l10n.slotsRemaining(remaining),
-                style: const TextStyle(fontSize: 12),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _resetDeathSaves(Character character) async {
-    _deathSaveRollTimer?.cancel();
-    setState(() {
-      character.deathSaves.reset();
-      character.combatState.resetDeathSaveTracking();
-      _resetDeathSaveRollState();
-      _lastDeathSaveRoll = null;
-      _lastDeathSaveWasSuccess = null;
-      _lastDeathSaveMessage = null;
-    });
-    await _save(character);
-  }
-
-  Widget _buildStatusPill(
-    ThemeData theme,
-    String label,
-    Color backgroundColor,
-    Color foregroundColor,
-  ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(AppRadii.pill),
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: foregroundColor,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget? _buildDeathSaveRollPanel(
-    ThemeData theme,
-    AppLocalizations l10n,
-    ColorScheme colorScheme,
-  ) {
-    if (_isDeathSaveRolling) {
-      return Container(
-        key: const ValueKey('death-save-rolling'),
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(AppRadii.md),
-          border: Border.all(color: colorScheme.outlineVariant),
-        ),
-        child: Column(
-          children: [
-            Icon(Icons.casino, color: colorScheme.error),
-            const SizedBox(height: 8),
-            Text(
-              l10n.rolling,
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              (_deathSavePreviewRoll ?? 0).toString(),
-              style: theme.textTheme.displaySmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: colorScheme.error,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (_lastDeathSaveRoll == null || _lastDeathSaveMessage == null) {
-      return null;
-    }
-
-    final isSuccess = _lastDeathSaveWasSuccess ?? false;
-    final accent = isSuccess ? Colors.green : colorScheme.error;
-
-    return Container(
-      key: ValueKey(
-          'death-save-result-$_lastDeathSaveRoll-$_lastDeathSaveMessage'),
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(AppRadii.md),
-        border: Border.all(color: accent.withValues(alpha: 0.35)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: accent,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              _lastDeathSaveRoll.toString(),
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              _lastDeathSaveMessage!,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeaderStat(
-      String label, String value, IconData icon, Color color) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 20),
-        Text(value,
-            style: TextStyle(
-                fontSize: 24, fontWeight: FontWeight.w900, color: color)),
-        Text(label,
-            style: const TextStyle(
-                fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
-      ],
-    );
-  }
-
-  Widget _buildActionButton(BuildContext context, String label, IconData icon,
-      Color color, VoidCallback onTap) {
-    return Material(
-      color: color.withValues(alpha: 0.15),
-      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-        child: Container(
-          height: 80,
-          alignment: Alignment.center,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: color, size: 32),
-              const SizedBox(height: 4),
-              Text(label,
-                  style: TextStyle(fontWeight: FontWeight.bold, color: color)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDeathSaveRow({
-    required String label,
-    required int count,
-    required IconData icon,
-    required Color color,
-    required Future<void> Function(int index, bool isFilled) onToggle,
-  }) {
-    return Column(
-      children: [
-        Text(label, style: const TextStyle(fontSize: 12)),
-        const SizedBox(height: 4),
-        Row(
-          children: List.generate(3, (i) {
-            final isFilled = i < count;
-            return IconButton(
-              onPressed: () => onToggle(i, isFilled),
-              icon: Icon(
-                isFilled ? icon : Icons.check_box_outline_blank,
-                color: isFilled ? color : Colors.grey,
-              ),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            );
-          }),
-        ),
-      ],
+      ]),
     );
   }
 }
 
-class _CombatTrackerScrollBehavior extends AppScrollBehavior {
-  const _CombatTrackerScrollBehavior();
+class _Round extends StatelessWidget {
+  const _Round(
+      {super.key,
+      required this.icon,
+      required this.label,
+      required this.onTap});
+  final String icon, label;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+    return Pressable(
+      onTap: onTap,
+      scale: .92,
+      semanticLabel: label,
+      child: Container(
+        width: 40,
+        height: 40,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            shape: BoxShape.circle, color: c.onSurface.withValues(alpha: .08)),
+        child: InstrumentGlyph(icon, size: 20, color: c.onSurface),
+      ),
+    );
+  }
+}
+
+class _DockButton extends StatelessWidget {
+  const _DockButton(
+      {super.key,
+      required this.label,
+      required this.icon,
+      required this.tint,
+      required this.onTap});
+  final String label, icon;
+  final Color tint;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+    return Pressable(
+      onTap: onTap,
+      scale: .95,
+      semanticLabel: label,
+      child: Container(
+        height: 56,
+        decoration: BoxDecoration(
+            color: Color.alphaBlend(tint, c.surfaceContainer),
+            borderRadius: BorderRadius.circular(28)),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          InstrumentGlyph(icon, size: 20, color: c.onSurface),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    fontFamily: AppType.body,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600)),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+/// Concentration on the combat page: the spell and, after damage, the
+/// Constitution save to roll.
+class _Concentration extends StatelessWidget {
+  const _Concentration(
+      {required this.name,
+      required this.dc,
+      required this.busy,
+      required this.onRoll,
+      required this.onEnd});
+  final String name;
+  final int? dc;
+  final bool busy;
+  final VoidCallback onRoll, onEnd;
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+    final ru = instrumentRu(context);
+    final a5 = AppAccents.of(context).at(5);
+    final alert = dc != null;
+    return AnimatedContainer(
+      duration: AppMotion.of(context, const Duration(milliseconds: 420)),
+      padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+      decoration: BoxDecoration(
+        color:
+            Color.alphaBlend(a5.withValues(alpha: .16), c.surfaceContainerLow),
+        borderRadius: BorderRadius.circular(20),
+        border: alert ? Border.all(color: a5, width: 1.6) : null,
+      ),
+      child: Row(children: [
+        InstrumentGlyph('timer', size: 22, color: a5),
+        const SizedBox(width: 12),
+        Expanded(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('${ru ? 'Концентрация' : 'Concentration'} · $name',
+                style: const TextStyle(
+                    fontFamily: AppType.body,
+                    fontSize: 14,
+                    height: 1.25,
+                    fontWeight: FontWeight.w600)),
+            Text(
+                alert
+                    ? (ru
+                        ? 'Урон: спасбросок Телосложения, Сл $dc'
+                        : 'Damage: Constitution save, DC $dc')
+                    : (ru
+                        ? 'Урон потребует спасбросок Телосложения'
+                        : 'Damage will call for a Constitution save'),
+                style: TextStyle(
+                    fontFamily: AppType.body,
+                    fontSize: 12,
+                    color: c.onSurfaceVariant)),
+          ]),
+        ),
+        const SizedBox(width: 8),
+        ToneButton(
+          key: ValueKey(alert ? 'concentration-roll' : 'concentration-end'),
+          kind: alert ? ToneKind.primary : ToneKind.plain,
+          height: 38,
+          fontSize: 13,
+          label: alert ? (ru ? 'Бросить' : 'Roll') : (ru ? 'Прервать' : 'End'),
+          onPressed: busy ? null : (alert ? onRoll : onEnd),
+        ),
+      ]),
+    );
+  }
+}
+
+/// An inner glow along the screen's edges (`.combat-edge`).
+class _EdgeGlow extends CustomPainter {
+  _EdgeGlow(this.color);
+  final Color color;
+  @override
+  void paint(Canvas canvas, Size size) {
+    const w = 36.0;
+    final clear = color.withValues(alpha: 0);
+    void edge(Rect r, Alignment from, Alignment to) => canvas.drawRect(
+        r,
+        Paint()
+          ..shader =
+              LinearGradient(begin: from, end: to, colors: [color, clear])
+                  .createShader(r));
+    edge(Rect.fromLTWH(0, 0, w, size.height), Alignment.centerLeft,
+        Alignment.centerRight);
+    edge(Rect.fromLTWH(size.width - w, 0, w, size.height),
+        Alignment.centerRight, Alignment.centerLeft);
+    edge(Rect.fromLTWH(0, 0, size.width, w), Alignment.topCenter,
+        Alignment.bottomCenter);
+    edge(Rect.fromLTWH(0, size.height - w, size.width, w),
+        Alignment.bottomCenter, Alignment.topCenter);
+  }
 
   @override
-  Widget buildScrollbar(
-    BuildContext context,
-    Widget child,
-    ScrollableDetails details,
-  ) {
-    return child;
-  }
+  bool shouldRepaint(_EdgeGlow old) => old.color != color;
 }

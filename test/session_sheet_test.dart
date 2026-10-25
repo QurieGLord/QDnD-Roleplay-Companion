@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qd_and_d/core/ui/companion_kit.dart';
 import 'package:hive/hive.dart';
 import 'package:qd_and_d/core/models/character.dart';
 import 'package:qd_and_d/core/services/feature_service.dart';
@@ -12,7 +11,7 @@ import 'package:qd_and_d/features/character_sheet/widgets/overview_tab.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/spell_slots_widget.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/abilities_tab.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/gameplay_state_editor.dart';
-import 'package:qd_and_d/features/character_sheet/widgets/session/health_panel.dart';
+import 'package:qd_and_d/features/character_sheet/widgets/session/life_band.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import 'gameplay_state_editor_test.dart' as fixtures;
 
@@ -82,7 +81,7 @@ void main() {
     await tester.runAsync(() => StorageService.saveCharacter(c));
     await tester.pumpWidget(app(OverviewTab(character: c)));
     await tester.pumpAndSettle();
-    await tester.longPress(find.byKey(const ValueKey('sheet-health-edit')));
+    await tester.longPress(find.byKey(const ValueKey('life-number')));
     await tester.pumpAndSettle();
     expect(find.byType(GameplayStateEditor), findsNothing);
     expect(find.byType(TextFormField), findsNWidgets(3));
@@ -91,7 +90,7 @@ void main() {
     expect(c.currentHp, 31);
     expect(c.armorClass, 19);
     expect(StorageService.getCharacter(c.id)!.currentHp, 31);
-    await tester.longPress(find.byKey(const ValueKey('sheet-health-edit')));
+    await tester.longPress(find.byKey(const ValueKey('life-number')));
     await tester.pumpAndSettle();
     await tester.enterText(field('current'), '99');
     await tester.tap(find.text('Cancel'));
@@ -107,14 +106,14 @@ void main() {
     await tester.runAsync(() => StorageService.saveCharacter(c));
     await tester.pumpWidget(app(OverviewTab(character: c)));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('sheet-health-damage')));
+    await tester.tap(find.byKey(const ValueKey('life-number')));
     await tester.pumpAndSettle();
     // Nothing typed yet: the pad cannot apply zero.
     await tester.tap(find.byKey(const ValueKey('hp-key-0')));
     await tester.pump();
     expect(
         tester
-            .widget<ToneButton>(
+            .widget<FilledButton>(
                 find.byKey(const ValueKey('hp-keypad-apply')))
             .onPressed,
         isNull);
@@ -125,16 +124,19 @@ void main() {
     await applyPad(tester);
     expect(c.currentHp, 14);
     expect(c.temporaryHp, 0);
-    await tester.tap(find.byKey(const ValueKey('sheet-health-heal')));
+    await tester.tap(find.byKey(const ValueKey('life-number')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('hp-mode-1')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('hp-key-5')));
     await applyPad(tester);
     expect(c.currentHp, 19);
     // The pad remembers the last amount for this hero.
-    await tester.tap(find.byKey(const ValueKey('sheet-health-heal')));
+    await tester.tap(find.byKey(const ValueKey('life-number')));
     await tester.pumpAndSettle();
     expect(find.text('same as last · 5'), findsOneWidget);
-    await tester.tap(find.text('Temp HP'));
+    await tester.tap(find.byKey(const ValueKey('hp-mode-2')));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('same as last · 5'));
     await applyPad(tester);
     expect(c.temporaryHp, 5);
@@ -225,7 +227,7 @@ void main() {
     await tester.pumpWidget(
         app(OverviewTab(character: c), locale: const Locale('ru'), scale: 2));
     await tester.pumpAndSettle();
-    expect(find.byType(SheetHealthPanel), findsOneWidget);
+    expect(find.byType(LifeSection), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(app(
         SingleChildScrollView(
@@ -246,11 +248,11 @@ void main() {
       ..beastMaxHp = 8;
     await tester.runAsync(() => StorageService.saveCharacter(c));
     await tester.pumpWidget(
-        app(SingleChildScrollView(child: SheetHealthPanel(character: c))));
+        app(SingleChildScrollView(child: LifeSection(character: c))));
     await tester.pumpAndSettle();
-    expect(find.text('Wolf'), findsOneWidget);
+    expect(find.text('WOLF'), findsOneWidget);
     expect(find.text('Character HP: 17 / 20'), findsOneWidget);
-    await tester.longPress(find.byKey(const ValueKey('sheet-health-edit')));
+    await tester.longPress(find.byKey(const ValueKey('life-number')));
     await tester.pumpAndSettle();
     expect(
         tester.widget<TextFormField>(field('current')).controller!.text, '4');
@@ -265,12 +267,16 @@ void main() {
   testWidgets('damage shows the concentration check without clearing its mark',
       (tester) async {
     mobile(tester);
-    final c = fixtures.hero()..concentratingOn = 'focus';
+    // Enough HP to stay up: falling to 0 would end the concentration.
+    final c = fixtures.hero()
+      ..concentratingOn = 'focus'
+      ..maxHp = 40
+      ..currentHp = 40;
     await tester.runAsync(() => StorageService.saveCharacter(c));
     await tester.pumpWidget(
-        app(SingleChildScrollView(child: SheetHealthPanel(character: c))));
+        app(SingleChildScrollView(child: LifeSection(character: c))));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('sheet-health-damage')));
+    await tester.tap(find.byKey(const ValueKey('life-number')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('hp-key-3')));
     await tester.tap(find.byKey(const ValueKey('hp-key-0')));
@@ -289,7 +295,7 @@ void main() {
     await tester.runAsync(() => StorageService.saveCharacter(c));
     await tester.pumpWidget(app(OverviewTab(character: c)));
     await tester.pumpAndSettle();
-    await tester.longPress(find.byKey(const ValueKey('sheet-health-edit')));
+    await tester.longPress(find.byKey(const ValueKey('life-number')));
     await tester.pumpAndSettle();
     await tester.enterText(field('current'), '31');
     await tester.runAsync(() => Hive.box<Character>('characters').close());

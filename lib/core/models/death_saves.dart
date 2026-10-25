@@ -33,6 +33,11 @@ class DeathSaves extends HiveObject {
     }
   }
 
+  /// Damage to a stable hero starts the saves again (successes reset).
+  void stabilizedReset() {
+    if (isStabilized) successes = 0;
+  }
+
   void reset() {
     successes = 0;
     failures = 0;
