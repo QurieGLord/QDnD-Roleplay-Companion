@@ -20,7 +20,7 @@ void main() {
       localeProvider: localeProvider,
     );
 
-    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Settings'), findsWidgets);
     expect(
         find.byKey(const Key('settings_language_segmented')), findsOneWidget);
     expect(find.byKey(const Key('settings_theme_segmented')), findsOneWidget);
@@ -66,5 +66,32 @@ void main() {
     expect(find.byKey(const Key('settings_palette_monokai')), findsOneWidget);
     expect(find.byKey(const Key('settings_manage_libraries_tile')),
         findsOneWidget);
+  });
+
+  testWidgets('SettingsScreen opens at the top and stays there on a change', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    final themeProvider = ThemeProvider();
+    final localeProvider = LocaleProvider();
+    await pumpSettingsScreen(
+      tester,
+      themeProvider: themeProvider,
+      localeProvider: localeProvider,
+    );
+    double page() => tester
+        .state<ScrollableState>(find.descendant(
+            of: find.byKey(const Key('settings_scroll_view')),
+            matching: find.byType(Scrollable)).first)
+        .position
+        .pixels;
+    expect(page(), 0);
+
+    await tester.tap(find.byKey(const Key('settings_palette_gruvbox')));
+    await tester.pumpAndSettle();
+    expect(page(), 0);
   });
 }

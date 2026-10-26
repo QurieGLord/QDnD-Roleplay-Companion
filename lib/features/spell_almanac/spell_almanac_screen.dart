@@ -84,7 +84,7 @@ class _SpellAlmanacScreenState extends State<SpellAlmanacScreen> {
     }
     _revision = SpellService.catalogRevision;
     _classRevision = CharacterDataService.catalogRevision;
-    _catalog = SpellCatalog(SpellService.getAllSpells());
+    _catalog = SpellCatalog(SpellService.shelfSpells());
     _content = ContentCatalog(_catalog.spells.map(ContentRecords.spell));
     _eligibility.clear();
     _results = null;

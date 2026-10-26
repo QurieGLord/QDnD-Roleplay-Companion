@@ -114,7 +114,6 @@ class _JournalSessionTapeState extends State<JournalSessionTape> {
             ),
         ]),
       ),
-      const SizedBox(height: 4),
       ShaderMask(
         blendMode: BlendMode.dstIn,
         shaderCallback: (r) => LinearGradient(colors: const [
@@ -131,8 +130,9 @@ class _JournalSessionTapeState extends State<JournalSessionTape> {
         child: SingleChildScrollView(
           controller: _scroll,
           scrollDirection: Axis.horizontal,
-          clipBehavior: Clip.none,
-          padding: const EdgeInsets.fromLTRB(18, 4, 18, 0),
+          // Clipped to the fade: bubbles never ride past its soft edges.
+          clipBehavior: Clip.hardEdge,
+          padding: const EdgeInsets.fromLTRB(18, 8, 18, 0),
           child: CustomPaint(
             painter: _RailPainter(
                 c.onSurface.withValues(alpha: .06), a.withValues(alpha: .5)),

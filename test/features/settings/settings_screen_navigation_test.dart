@@ -27,7 +27,7 @@ void main() {
     await tester.tap(
       find.descendant(
         of: librariesFinder,
-        matching: find.text('Manage Libraries'),
+        matching: find.text('Libraries'),
       ),
     );
     await pumpInteraction(tester, const Duration(milliseconds: 450));

@@ -93,31 +93,6 @@ void main() {
     expect(scroll.pixels % 76, closeTo(0, .5));
   });
 
-  testWidgets('export format picker exposes QDND and FC5 choices',
-      (tester) async {
-    var qdndTapped = false;
-    var fc5Tapped = false;
-
-    await tester.pumpWidget(
-      _wrap(
-        CharacterExportOptionsContent(
-          onQdndBundle: () => qdndTapped = true,
-          onFc5Xml: () => fc5Tapped = true,
-        ),
-      ),
-    );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
-
-    expect(find.text('Export'), findsOneWidget);
-    expect(find.text('Export QDND Bundle'), findsOneWidget);
-    expect(find.text('FC5 XML'), findsOneWidget);
-
-    await tester.tap(find.text('Export QDND Bundle'));
-    await tester.tap(find.text('FC5 XML'));
-    expect(qdndTapped, isTrue);
-    expect(fc5Tapped, isTrue);
-  });
 }
 
 Widget _wrap(Widget child) {

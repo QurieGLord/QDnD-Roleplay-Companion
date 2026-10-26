@@ -67,7 +67,7 @@ class _AddSheetState extends State<_AddSheet> {
         c = t.colorScheme,
         l = AppLocalizations.of(context)!,
         locale = Localizations.localeOf(context).languageCode;
-    final items = ItemService.getAllItems()
+    final items = ItemService.shelfItems()
         .where((i) =>
             (type == null || i.type == type) &&
             (query.isEmpty ||

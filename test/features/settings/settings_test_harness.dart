@@ -44,6 +44,13 @@ Future<void> pumpSettingsScreen(
   required LocaleProvider localeProvider,
   bool disableAnimations = false,
 }) async {
+  // The settings page is one tall column under a floating top bar: a tall
+  // window keeps every control in view, so taps never land under the bar.
+  if (tester.view.physicalSize == const Size(2400, 1800)) {
+    tester.view.physicalSize = const Size(1200, 6000);
+    tester.view.devicePixelRatio = 1.5;
+    addTearDown(tester.view.reset);
+  }
   addTearDown(() async {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(milliseconds: 120));

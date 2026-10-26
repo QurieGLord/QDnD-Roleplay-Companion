@@ -201,7 +201,7 @@ class _JournalSealState extends State<JournalSeal>
         boxShadow: large
             ? [
                 BoxShadow(
-                    color: a.withValues(alpha: .55),
+                    color: a.withValues(alpha: .55 * AppCalm.of(context).glow),
                     blurRadius: 26,
                     spreadRadius: -12,
                     offset: const Offset(0, 12))

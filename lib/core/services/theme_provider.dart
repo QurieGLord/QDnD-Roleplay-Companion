@@ -75,9 +75,10 @@ class ThemeProvider extends ChangeNotifier {
   ThemeData get darkTheme => _createTheme(Brightness.dark);
 
   ThemeData _createTheme(Brightness brightness) {
-    final colorScheme = _isBasicMode
-        ? AppPalettes.getBasicScheme(brightness)
-        : AppPalettes.getScheme(_colorPreset, brightness);
+    final paletteScheme = AppPalettes.getScheme(_colorPreset, brightness);
+    final colorScheme =
+        _isBasicMode ? AppPalettes.calmScheme(paletteScheme) : paletteScheme;
+    final accents = AppPalettes.accents(_colorPreset, brightness);
 
     final baseTheme = ThemeData(
       useMaterial3: true,
@@ -95,9 +96,8 @@ class ThemeProvider extends ChangeNotifier {
 
     return baseTheme.copyWith(
       extensions: [
-        AppPalettes.accents(
-            _isBasicMode ? AppPalettes.fallbackPreset : _colorPreset,
-            brightness)
+        _isBasicMode ? AppPalettes.calmAccents(accents) : accents,
+        AppCalm(_isBasicMode ? 1 : 0),
       ],
       textTheme: AppType.textTheme(baseTheme.textTheme),
       primaryTextTheme: AppType.textTheme(baseTheme.primaryTextTheme),

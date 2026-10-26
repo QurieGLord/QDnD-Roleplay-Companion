@@ -2,12 +2,14 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../models/spell.dart';
+import '../content/library_policy.dart';
 import 'storage_service.dart';
 
 class SpellService {
   static int _catalogRevision = 0;
   static int get catalogRevision => _catalogRevision;
   static List<Spell>? _allSpells;
+  static Set<String> _builtInIds = {};
 
   static Future<void> loadSpells() async {
     if (_allSpells != null) return;
@@ -21,6 +23,7 @@ class SpellService {
       final List<dynamic> jsonList = json.decode(jsonString);
       final assetSpells = jsonList.map((json) => Spell.fromJson(json)).toList();
       _allSpells!.addAll(assetSpells);
+      _builtInIds = {for (final s in assetSpells) s.id};
       print('✅ Loaded ${assetSpells.length} spells from assets');
     } catch (e) {
       print('❌ Failed to load asset spells: $e');
@@ -51,6 +54,22 @@ class SpellService {
     return _allSpells ?? [];
   }
 
+  /// The built-in SRD 2014 spells.
+  static List<Spell> builtInSpells() =>
+      getAllSpells().where((s) => _builtInIds.contains(s.id)).toList();
+
+  /// Spells from the player's libraries.
+  static List<Spell> librarySpells() =>
+      getAllSpells().where((s) => !_builtInIds.contains(s.id)).toList();
+
+  static String _name(Spell s) => s.nameEn.isEmpty ? s.nameRu : s.nameEn;
+
+  /// What the shelf offers for choosing: the built-in book (unless turned
+  /// off) and the player's libraries, overlaps settled by [LibraryPolicy].
+  /// Lookups by ID still see every spell.
+  static List<Spell> shelfSpells() =>
+      LibraryPolicy.listed(builtInSpells(), librarySpells(), _name);
+
   static Spell? getSpellById(String id) {
     try {
       return _allSpells?.firstWhere((spell) => spell.id == id);
@@ -60,11 +79,10 @@ class SpellService {
   }
 
   static List<Spell> getSpellsForClass(String className) {
-    return _allSpells?.where((spell) {
+    return shelfSpells().where((spell) {
           return spell.availableToClasses
               .any((c) => c.toLowerCase() == className.toLowerCase());
-        }).toList() ??
-        [];
+        }).toList();
   }
 
   static List<Spell> getSpellsByLevel(int level) {
@@ -73,11 +91,10 @@ class SpellService {
 
   static List<Spell> searchSpells(String query) {
     final lowerQuery = query.toLowerCase();
-    return _allSpells?.where((spell) {
+    return shelfSpells().where((spell) {
           return spell.nameEn.toLowerCase().contains(lowerQuery) ||
               spell.nameRu.toLowerCase().contains(lowerQuery);
-        }).toList() ??
-        [];
+        }).toList();
   }
 
   static List<Spell> filterSpells({

@@ -447,6 +447,7 @@ class Instrument extends StatelessWidget {
         ]),
       ),
     );
+    final calm = AppCalm.of(context);
     return AnimatedContainer(
       duration: AppMotion.of(context, const Duration(milliseconds: 500)),
       curve: AppMotion.standard,
@@ -458,12 +459,12 @@ class Instrument extends StatelessWidget {
           begin: const Alignment(-.35, -1),
           end: const Alignment(.35, 1),
           stops: const [0, .72],
-          colors: [mixColor(accent, .15, low), low],
+          colors: [mixColor(accent, .15 * calm.glow, low), low],
         ),
         shadows: [
           BoxShadow(
-              color: (glow ?? Colors.black)
-                  .withValues(alpha: glow == null ? .75 : .55),
+              color: (glow == null || calm.on ? Colors.black : glow!)
+                  .withValues(alpha: glow == null || calm.on ? .75 : .55),
               blurRadius: 40,
               spreadRadius: -28,
               offset: const Offset(0, 20)),
@@ -1506,6 +1507,46 @@ class _TumbleDieState extends State<TumbleDie> with TickerProviderStateMixin {
 
 /// A die silhouette with softened corners, a little volume (light from the
 /// top left) and faint facets, so it reads as a die even when small.
+/// A die's face alone, without motion or shadow: for scenes that move
+/// the die themselves (the launch throw). [glow] lights it in its accent.
+class DieFace extends StatelessWidget {
+  const DieFace(
+      {super.key,
+      required this.shape,
+      required this.label,
+      required this.accent,
+      this.size = 58,
+      this.glow = 0});
+  final DieShape shape;
+  final String label;
+  final Color accent;
+  final double size, glow;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+    return SizedBox.square(
+      dimension: size,
+      child: CustomPaint(
+        painter: _DiePainter(shape, accent, c.surfaceContainer, false, glow),
+        child: Align(
+          alignment:
+              shape == DieShape.d4 ? const Alignment(0, .38) : Alignment.center,
+          child: Text(label,
+              maxLines: 1,
+              style: TextStyle(
+                  fontFamily: AppType.display,
+                  fontSize: size * (label.length > 2 ? .24 : .3),
+                  height: 1,
+                  fontWeight: FontWeight.w700,
+                  fontFeatures: AppType.tabular,
+                  color: Color.lerp(c.onSurface, accent, .55 * glow))),
+        ),
+      ),
+    );
+  }
+}
+
 class _DiePainter extends CustomPainter {
   _DiePainter(this.shape, this.accent, this.cont, this.dim, this.glow);
   final DieShape shape;

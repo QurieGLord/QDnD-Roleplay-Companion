@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../models/item.dart';
+import '../content/library_policy.dart';
 import 'storage_service.dart';
 
 /// Service for managing D&D items (weapons, armor, gear)
@@ -10,6 +11,7 @@ import 'storage_service.dart';
 class ItemService {
   static List<Item> _itemTemplates = [];
   static bool _isInitialized = false;
+  static Set<String> _builtInIds = {};
 
   /// Load all items from JSON database and Local Storage
   /// Should be called once during app initialization
@@ -34,6 +36,7 @@ class ItemService {
         }).toList();
 
         _itemTemplates.addAll(assetItems);
+        _builtInIds = {for (final i in assetItems) i.id};
         print('   - Loaded ${assetItems.length} items from assets');
       } catch (e) {
         print('❌ ItemService: Failed to load asset items: $e');
@@ -84,6 +87,18 @@ class ItemService {
     }
     return List.from(_itemTemplates);
   }
+
+  /// The built-in SRD 2014 items.
+  static List<Item> builtInItems() =>
+      getAllItems().where((i) => _builtInIds.contains(i.id)).toList();
+
+  /// Items from the player's libraries.
+  static List<Item> libraryItems() =>
+      getAllItems().where((i) => !_builtInIds.contains(i.id)).toList();
+
+  /// What the shelf offers for choosing; lookups by ID still see all.
+  static List<Item> shelfItems() => LibraryPolicy.listed(builtInItems(),
+      libraryItems(), (i) => i.nameEn.isEmpty ? i.nameRu : i.nameEn);
 
   /// Get items filtered by type
   static List<Item> getItemsByType(ItemType type) {

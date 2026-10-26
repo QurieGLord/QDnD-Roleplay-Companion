@@ -839,7 +839,7 @@ class _ItemCatalogDialogState extends State<_ItemCatalogDialog> {
   }
 
   List<Item> _getFilteredItems() {
-    var items = ItemService.getAllItems();
+    var items = ItemService.shelfItems();
 
     if (_selectedCategory != null) {
       items = items.where((item) => item.type == _selectedCategory).toList();

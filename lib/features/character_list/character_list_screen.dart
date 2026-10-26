@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/core/ui/sheet_drag_region.dart' show SheetSafeArea;
 import 'package:flutter/services.dart';
@@ -11,16 +10,12 @@ import 'package:uuid/uuid.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 
 import '../../../core/models/character.dart';
-import '../../../core/services/fc5_export_service.dart';
-import '../../../core/services/fc5_parser.dart';
-import '../../../core/services/import_service.dart';
-import '../../../core/services/qdnd_bundle_export_service.dart';
 import '../../../core/services/qdnd_bundle_codec.dart';
-import '../../../core/services/qdnd_bundle_file_service.dart';
-import '../../../core/services/qdnd_bundle_import_service.dart';
-import '../../../core/services/qdnd_bundle_schema.dart';
 import '../../../core/services/storage_service.dart';
+import 'hero_transfer.dart';
 import 'widgets/hero_deck.dart';
+import '../../core/theme/app_palettes.dart';
+import '../../core/ui/page_kit.dart';
 import '../../core/ui/companion_kit.dart';
 import 'widgets/character_roster_visuals.dart';
 import 'widgets/empty_state.dart';
@@ -173,177 +168,124 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
   }
 
   void _showCreateCharacterDialog(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      useSafeArea: true,
-      isScrollControlled: true,
-      builder: (sheetContext) => SheetSafeArea(child: _ExpressiveSheetShell(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _SheetTitleBlock(
-              icon: Icons.person_add_alt_1_rounded,
-              title: l10n.createNewCharacter,
-              subtitle: l10n.createCharacterSheetSubtitle,
-            ),
-            const SizedBox(height: 20),
-            RosterReveal(
-              delay: const Duration(milliseconds: 40),
-              beginOffset: const Offset(0, 0.04),
-              child: _SheetActionTile(
-                icon: Icons.edit_note_rounded,
-                title: l10n.createNewCharacter,
-                subtitle: l10n.createCharacterActionDescription,
-                accent: colorScheme.primary,
-                onTap: () {
-                  _dismissSheetThen(sheetContext, () {
-                    _openCharacterCreation(context);
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: 12),
-            RosterReveal(
-              delay: const Duration(milliseconds: 90),
-              beginOffset: const Offset(0, 0.04),
-              child: _SheetActionTile(
-                icon: Icons.inventory_2_outlined,
-                title: l10n.importQdndBundle,
-                subtitle: l10n.importQdndBundleActionDescription,
-                accent: colorScheme.secondary,
-                onTap: () {
-                  _dismissSheetThen(sheetContext, () {
-                    _importFromQdndBundle(context);
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: 12),
-            RosterReveal(
-              delay: const Duration(milliseconds: 140),
-              beginOffset: const Offset(0, 0.04),
-              child: _SheetActionTile(
-                icon: Icons.upload_file_rounded,
-                title: l10n.importFC5Character,
-                subtitle: l10n.importFC5CharacterActionDescription,
-                accent: colorScheme.tertiary,
-                onTap: () {
-                  _dismissSheetThen(sheetContext, () {
-                    _importFromFC5(context);
-                  });
-                },
-              ),
-            ),
-          ],
+    final s = Tr(context);
+    showCompanionSheet<void>(context, builder: (sheet) {
+      final a = AppAccents.of(sheet);
+      void then(VoidCallback action) => _dismissSheetThen(sheet, action);
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        PageSheetHead(
+            kicker: s.t('Отряд', 'Party'),
+            title: s.t('Добавить героя', 'Add a hero')),
+        const SizedBox(height: 14),
+        SheetListRow(
+          leading: PageSeal('plus', accent: a.at(3)),
+          accent: a.at(3),
+          index: 0,
+          title: s.t('Новый герой', 'New hero'),
+          subtitle: s.t('Мастер создания: раса, класс, характеристики',
+              'The creation wizard: race, class, abilities'),
+          onTap: () => then(() => _openCharacterCreation(context)),
         ),
-      )),
-    );
+        const SizedBox(height: 6),
+        SheetListRow(
+          leading: PageSeal('download', accent: a.at(1)),
+          accent: a.at(1),
+          index: 1,
+          title: s.t('Из файла QDnD', 'From a QDnD file'),
+          subtitle: s.t('Полная копия героя с другого устройства · .qdnd',
+              'A full copy of a hero from another device · .qdnd'),
+          onTap: () => then(() => importHero(context, qdnd: true)),
+        ),
+        const SizedBox(height: 6),
+        SheetListRow(
+          leading: PageSeal('file', accent: a.at(4)),
+          accent: a.at(4),
+          index: 2,
+          title: s.t('Из файла XML', 'From an XML file'),
+          subtitle: s.t('Лист персонажа из другого приложения · .xml',
+              'A character sheet from another app · .xml'),
+          onTap: () => then(() => importHero(context, qdnd: false)),
+        ),
+      ]);
+    });
   }
 
   void _showCharacterOptions(BuildContext context, Character character) {
-    final l10n = AppLocalizations.of(context)!;
-
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      useSafeArea: true,
-      isScrollControlled: true,
-      builder: (sheetContext) => SheetSafeArea(child: _ExpressiveSheetShell(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _CharacterActionSheetHeader(character: character),
-            const SizedBox(height: 20),
-            RosterReveal(
-              delay: const Duration(milliseconds: 40),
-              beginOffset: const Offset(0, 0.04),
-              child: _SheetActionTile(
-                icon: Icons.info_outline_rounded,
-                title: l10n.viewDetails,
-                onTap: () {
-                  _dismissSheetThen(sheetContext, () {
-                    _showCharacterDetails(context, character);
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: 12),
-            RosterReveal(
-              delay: const Duration(milliseconds: 90),
-              beginOffset: const Offset(0, 0.04),
-              child: _SheetActionTile(
-                icon: Icons.edit_rounded,
-                title: l10n.edit,
-                onTap: () {
-                  _dismissSheetThen(sheetContext, () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            CharacterEditScreen(character: character),
-                      ),
-                    );
-                    if (mounted) {
-                      setState(() {});
-                    }
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: 12),
-            RosterReveal(
-              delay: const Duration(milliseconds: 140),
-              beginOffset: const Offset(0, 0.04),
-              child: _SheetActionTile(
-                icon: Icons.copy_rounded,
-                title: l10n.duplicate,
-                onTap: () {
-                  _dismissSheetThen(sheetContext, () async {
-                    await _duplicateCharacter(context, character);
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: 12),
-            RosterReveal(
-              delay: const Duration(milliseconds: 190),
-              beginOffset: const Offset(0, 0.04),
-              child: _SheetActionTile(
-                icon: Icons.ios_share_rounded,
-                title: l10n.exportCharacter,
-                subtitle: l10n.exportCharacterActionDescription,
-                onTap: () {
-                  _dismissSheetThen(sheetContext, () {
-                    _showExportOptions(context, character);
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: 16),
-            RosterReveal(
-              delay: const Duration(milliseconds: 240),
-              beginOffset: const Offset(0, 0.04),
-              child: _SheetActionTile(
-                icon: Icons.delete_outline_rounded,
-                title: l10n.delete,
-                destructive: true,
-                onTap: () {
-                  _dismissSheetThen(sheetContext, () {
-                    _confirmDelete(context, character);
-                  });
-                },
-              ),
-            ),
-          ],
+    final s = Tr(context);
+    showCompanionSheet<void>(context, builder: (sheet) {
+      final a = AppAccents.of(sheet);
+      void then(VoidCallback action) => _dismissSheetThen(sheet, action);
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        HeroHeadCard(
+          name: character.name,
+          accent: AppAccents.of(sheet).forClass(character.classes.isEmpty
+              ? character.characterClass
+              : character.classes.first.id),
+          cap: '${getLocalizedRaceName(sheet, character.race)} · '
+              '${getCharacterClassSummary(sheet, character)} ${character.level}',
+          line: character.subclass == null
+              ? null
+              : getLocalizedSubclassName(
+                  sheet, character.characterClass, character.subclass!),
         ),
-      )),
-    );
+        const SizedBox(height: 14),
+        SheetListRow(
+          leading: PageSeal('eye', accent: a.at(5)),
+          accent: a.at(5),
+          index: 0,
+          title: s.t('Подробнее', 'Details'),
+          subtitle: s.t('Характеристики и история одним взглядом',
+              'Abilities and story at a glance'),
+          onTap: () => then(() => _showCharacterDetails(context, character)),
+        ),
+        const SizedBox(height: 6),
+        SheetListRow(
+          leading: PageSeal('edit', accent: a.at(4)),
+          accent: a.at(4),
+          index: 1,
+          title: s.t('Анкета героя', 'The hero\'s card'),
+          subtitle: s.t('Имя, облик, личность, предыстория',
+              'Name, looks, personality, backstory'),
+          onTap: () => then(() async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CharacterEditScreen(character: character),
+              ),
+            );
+            if (mounted) setState(() {});
+          }),
+        ),
+        const SizedBox(height: 6),
+        SheetListRow(
+          leading: PageSeal('share', accent: a.at(1)),
+          accent: a.at(1),
+          index: 2,
+          title: s.t('Перенести героя', 'Move the hero'),
+          subtitle: s.t('Файл для другого устройства или приложения',
+              'A file for another device or app'),
+          onTap: () => then(() => showHeroTransfer(context, character)),
+        ),
+        const SizedBox(height: 6),
+        SheetListRow(
+          leading: PageSeal('layers', accent: a.at(2)),
+          accent: a.at(2),
+          index: 3,
+          title: s.t('Дублировать', 'Duplicate'),
+          subtitle: s.t('Копия героя рядом с ним', 'A copy of the hero beside them'),
+          onTap: () => then(() => _duplicateCharacter(context, character)),
+        ),
+        const SizedBox(height: 6),
+        SheetListRow(
+          leading: PageSeal('trash', accent: a.at(0)),
+          accent: a.at(0),
+          index: 4,
+          title: s.t('Удалить', 'Delete'),
+          subtitle: s.t('Спросим ещё раз', 'We will ask once more'),
+          onTap: () => then(() => _confirmDelete(context, character)),
+        ),
+      ]);
+    });
   }
 
   void _showCharacterDetails(BuildContext context, Character character) {
@@ -816,594 +758,6 @@ class _CharacterListScreenState extends State<CharacterListScreen> {
     }
   }
 
-  void _showExportOptions(BuildContext context, Character character) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      useSafeArea: true,
-      isScrollControlled: true,
-      builder: (sheetContext) => SheetSafeArea(child: _ExpressiveSheetShell(
-        child: CharacterExportOptionsContent(
-          onQdndBundle: () {
-            _dismissSheetThen(sheetContext, () async {
-              await _exportQdndBundle(context, character);
-            });
-          },
-          onFc5Xml: () {
-            _dismissSheetThen(sheetContext, () async {
-              await _exportFC5Xml(context, character);
-            });
-          },
-          primaryAccent: colorScheme.primary,
-          secondaryAccent: colorScheme.secondary,
-        ),
-      )),
-    );
-  }
-
-  Future<void> _exportQdndBundle(
-    BuildContext context,
-    Character character,
-  ) async {
-    final l10n = AppLocalizations.of(context)!;
-    try {
-      final exportResult = await QdndBundleExportService.exportCharacter(
-        character,
-        options: const QdndBundleExportOptions(
-          includeUserCreatedContent: true,
-        ),
-      );
-      final fileName = '${_safeBundleFileName(character.name)}.qdnd';
-      final outputPath = await FilePicker.platform.saveFile(
-        dialogTitle: l10n.exportQdndBundle,
-        fileName: fileName,
-        type: FileType.custom,
-        allowedExtensions: ['qdnd'],
-        bytes: exportResult.bytes,
-      );
-
-      if (outputPath == null) {
-        return;
-      }
-
-      if (!Platform.isAndroid && !Platform.isIOS) {
-        await File(outputPath).writeAsBytes(exportResult.bytes, flush: true);
-      }
-
-      if (context.mounted) {
-        final warningCount = exportResult.diagnostics
-            .where(
-              (entry) => entry.severity == QdndBundleDiagnosticSeverity.warning,
-            )
-            .length;
-        AppSnackBar.success(
-          context,
-          l10n.qdndBundleExportedSuccess(fileName),
-          duration: const Duration(seconds: 2),
-          actionLabel: warningCount > 0 ? l10n.importWarningsAction : null,
-          onAction: warningCount > 0
-              ? () {
-                  if (mounted) {
-                    _showQdndBundleDiagnostics(
-                      context,
-                      exportResult.diagnostics,
-                    );
-                  }
-                }
-              : null,
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        AppSnackBar.error(
-          context,
-          l10n.qdndBundleExportFailed('$e'),
-          duration: const Duration(seconds: 2),
-        );
-      }
-    }
-  }
-
-  Future<void> _exportFC5Xml(
-    BuildContext context,
-    Character character,
-  ) async {
-    final l10n = AppLocalizations.of(context)!;
-    try {
-      final exportResult = await FC5ExportService.exportCharacter(character);
-      final fileName = '${_safeBundleFileName(character.name)}.xml';
-      final outputPath = await FilePicker.platform.saveFile(
-        dialogTitle: l10n.exportFC5Xml,
-        fileName: fileName,
-        type: FileType.custom,
-        allowedExtensions: ['xml'],
-        bytes: exportResult.bytes,
-      );
-
-      if (outputPath == null) {
-        return;
-      }
-
-      if (!Platform.isAndroid && !Platform.isIOS) {
-        await File(outputPath).writeAsBytes(exportResult.bytes, flush: true);
-      }
-
-      if (context.mounted) {
-        AppSnackBar.success(
-          context,
-          l10n.fc5XmlExportedSuccess(fileName),
-          duration: const Duration(seconds: 2),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        AppSnackBar.error(
-          context,
-          l10n.fc5XmlExportFailed('$e'),
-          duration: const Duration(seconds: 2),
-        );
-      }
-    }
-  }
-
-  Future<void> _importFromQdndBundle(BuildContext context) async {
-    final l10n = AppLocalizations.of(context)!;
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.any,
-        withReadStream: true,
-      );
-
-      if (result == null || result.files.isEmpty) {
-        return;
-      }
-
-      final selectedFile = result.files.single;
-      final bytes = await QdndBundleFileService.readPlatformFile(selectedFile);
-      final preview = await QdndBundleImportService.previewBytes(bytes);
-      if (!context.mounted) return;
-      final confirmed = await _showQdndBundlePreview(context, preview);
-      if (confirmed != true) {
-        return;
-      }
-
-      final importResult = await QdndBundleImportService.importBytes(bytes);
-      final warningCount = importResult.diagnostics
-          .where(
-            (entry) => entry.severity == QdndBundleDiagnosticSeverity.warning,
-          )
-          .length;
-
-      if (context.mounted) {
-        final message = warningCount > 0
-            ? l10n.qdndBundleImportedWithWarnings(
-                importResult.character.name,
-                warningCount,
-              )
-            : l10n.qdndBundleImportedSuccess(importResult.character.name);
-
-        AppSnackBar.success(
-          context,
-          message,
-          duration: const Duration(seconds: 2),
-          actionLabel: warningCount > 0 ? l10n.importWarningsAction : null,
-          onAction: warningCount > 0
-              ? () {
-                  if (mounted) {
-                    _showQdndBundleDiagnostics(
-                      context,
-                      importResult.diagnostics,
-                    );
-                  }
-                }
-              : null,
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        AppSnackBar.error(
-          context,
-          l10n.qdndBundleImportFailed('$e'),
-          duration: const Duration(seconds: 2),
-        );
-      }
-    }
-  }
-
-  Future<bool?> _showQdndBundlePreview(
-    BuildContext context,
-    QdndBundleImportPreview preview,
-  ) {
-    final l10n = AppLocalizations.of(context)!;
-    final classes =
-        preview.classes.where((value) => value.isNotEmpty).join(', ');
-
-    return showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.qdndBundlePreviewTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.qdndBundlePreviewSummary(
-              preview.characterName,
-              preview.level,
-            )),
-            if (classes.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text('${l10n.classLabel}: $classes'),
-            ],
-            const SizedBox(height: 8),
-            Text(l10n.qdndBundlePreviewDetails(
-              preview.embeddedContentCount,
-              preview.resolvedDependencyCount,
-              preview.missingDependencyCount,
-            )),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.importQdndBundle),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _importFromFC5(BuildContext context) async {
-    final l10n = AppLocalizations.of(context)!;
-    try {
-      print('🔧 _importFromFC5: Starting FC5 import');
-
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['xml'],
-      );
-
-      if (result == null || result.files.isEmpty) {
-        print('🔧 _importFromFC5: User cancelled file picker');
-        return;
-      }
-
-      print('🔧 _importFromFC5: File selected: ${result.files.single.path}');
-
-      final file = File(result.files.single.path!);
-      final importResult =
-          await ImportService.importCharactersFromFC5File(file);
-      final importedCharacters = importResult.characters;
-      final firstName = importedCharacters.first.name;
-
-      print(
-        '🔧 _importFromFC5: Imported ${importedCharacters.length} character(s)',
-      );
-
-      if (context.mounted) {
-        final warningCount = importResult.warningCount;
-        final message = warningCount > 0
-            ? l10n.importedCharactersWithWarnings(
-                importedCharacters.length,
-                firstName,
-                warningCount,
-              )
-            : l10n.importedCharactersSuccess(
-                importedCharacters.length,
-                firstName,
-              );
-
-        AppSnackBar.success(
-          context,
-          message,
-          duration: const Duration(seconds: 2),
-          actionLabel: warningCount > 0 ? l10n.importWarningsAction : null,
-          onAction: warningCount > 0
-              ? () {
-                  if (mounted) {
-                    _showImportDiagnostics(
-                      context,
-                      importResult.diagnostics,
-                    );
-                  }
-                }
-              : null,
-        );
-      }
-    } catch (e, stackTrace) {
-      print('❌ _importFromFC5: ERROR: $e');
-      print('❌ Stack trace: $stackTrace');
-
-      if (context.mounted) {
-        final diagnostics = e is ImportServiceException ? e.diagnostics : null;
-        AppSnackBar.error(
-          context,
-          l10n.importFailed('$e'),
-          duration: const Duration(seconds: 2),
-          actionLabel: diagnostics != null && !diagnostics.isEmpty
-              ? l10n.importWarningsAction
-              : null,
-          onAction: diagnostics != null && !diagnostics.isEmpty
-              ? () {
-                  if (mounted) {
-                    _showImportDiagnostics(context, diagnostics);
-                  }
-                }
-              : null,
-        );
-      }
-    }
-  }
-
-  void _showImportDiagnostics(
-    BuildContext context,
-    FC5ParseDiagnostics diagnostics,
-  ) {
-    final l10n = AppLocalizations.of(context)!;
-    final visibleEntries = diagnostics.entries
-        .where((entry) => entry.severity != FC5DiagnosticSeverity.info)
-        .toList();
-    final entries =
-        visibleEntries.isEmpty ? diagnostics.entries : visibleEntries;
-
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      useSafeArea: true,
-      isScrollControlled: true,
-      builder: (sheetContext) => SheetSafeArea(child: _ExpressiveSheetShell(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _SheetTitleBlock(
-              icon: Icons.rule_rounded,
-              title: l10n.importWarningsTitle,
-              subtitle: l10n.importWarningsSubtitle(entries.length),
-            ),
-            const SizedBox(height: 16),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 360),
-              child: ListView.separated(
-                shrinkWrap: true,
-                itemCount: entries.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
-                itemBuilder: (context, index) {
-                  final entry = entries[index];
-                  final colorScheme = Theme.of(context).colorScheme;
-                  final isError = entry.severity == FC5DiagnosticSeverity.error;
-                  final tone =
-                      isError ? colorScheme.error : colorScheme.tertiary;
-                  return Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Color.alphaBlend(
-                        tone.withValues(alpha: 0.08),
-                        colorScheme.surfaceContainerHighest,
-                      ),
-                      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-                      border: Border.all(
-                        color: tone.withValues(alpha: 0.18),
-                      ),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          isError
-                              ? Icons.error_outline_rounded
-                              : Icons.warning_amber_rounded,
-                          color: tone,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                entry.message,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(fontWeight: FontWeight.w700),
-                              ),
-                              if (entry.context != null) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  entry.context!,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: colorScheme.onSurfaceVariant,
-                                      ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      )),
-    );
-  }
-
-  void _showQdndBundleDiagnostics(
-    BuildContext context,
-    List<QdndBundleDiagnostic> diagnostics,
-  ) {
-    final l10n = AppLocalizations.of(context)!;
-    final visibleEntries = diagnostics
-        .where((entry) => entry.severity != QdndBundleDiagnosticSeverity.info)
-        .toList();
-    final entries = visibleEntries.isEmpty ? diagnostics : visibleEntries;
-
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      useSafeArea: true,
-      isScrollControlled: true,
-      builder: (sheetContext) => SheetSafeArea(child: _ExpressiveSheetShell(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _SheetTitleBlock(
-              icon: Icons.rule_rounded,
-              title: l10n.importWarningsTitle,
-              subtitle: l10n.importWarningsSubtitle(entries.length),
-            ),
-            const SizedBox(height: 16),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 360),
-              child: ListView.separated(
-                shrinkWrap: true,
-                itemCount: entries.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
-                itemBuilder: (context, index) {
-                  final entry = entries[index];
-                  final colorScheme = Theme.of(context).colorScheme;
-                  final isError =
-                      entry.severity == QdndBundleDiagnosticSeverity.error;
-                  final tone =
-                      isError ? colorScheme.error : colorScheme.tertiary;
-                  return Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Color.alphaBlend(
-                        tone.withValues(alpha: 0.08),
-                        colorScheme.surfaceContainerHighest,
-                      ),
-                      borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-                      border: Border.all(
-                        color: tone.withValues(alpha: 0.18),
-                      ),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          isError
-                              ? Icons.error_outline_rounded
-                              : Icons.warning_amber_rounded,
-                          color: tone,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                entry.message,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(fontWeight: FontWeight.w700),
-                              ),
-                              if (entry.context != null) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  entry.context!,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: colorScheme.onSurfaceVariant,
-                                      ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      )),
-    );
-  }
-
-  String _safeBundleFileName(String name) {
-    final normalized = name
-        .trim()
-        .toLowerCase()
-        .replaceAll(RegExp(r'[^a-z0-9а-яё]+'), '_')
-        .replaceAll(RegExp(r'_+'), '_')
-        .replaceAll(RegExp(r'^_|_$'), '');
-    return normalized.isEmpty ? 'character' : normalized;
-  }
-}
-
-class CharacterExportOptionsContent extends StatelessWidget {
-  const CharacterExportOptionsContent({
-    super.key,
-    required this.onQdndBundle,
-    required this.onFc5Xml,
-    this.primaryAccent,
-    this.secondaryAccent,
-  });
-
-  final VoidCallback onQdndBundle;
-  final VoidCallback onFc5Xml;
-  final Color? primaryAccent;
-  final Color? secondaryAccent;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SheetTitleBlock(
-          icon: Icons.ios_share_rounded,
-          title: l10n.exportCharacter,
-          subtitle: l10n.exportFormatSubtitle,
-        ),
-        const SizedBox(height: 20),
-        RosterReveal(
-          delay: const Duration(milliseconds: 40),
-          beginOffset: const Offset(0, 0.04),
-          child: _SheetActionTile(
-            icon: Icons.inventory_2_outlined,
-            title: l10n.exportQdndBundle,
-            subtitle: l10n.exportQdndBundleActionDescription,
-            accent: primaryAccent ?? colorScheme.primary,
-            onTap: onQdndBundle,
-          ),
-        ),
-        const SizedBox(height: 12),
-        RosterReveal(
-          delay: const Duration(milliseconds: 90),
-          beginOffset: const Offset(0, 0.04),
-          child: _SheetActionTile(
-            icon: Icons.code_rounded,
-            title: l10n.exportFC5Xml,
-            subtitle: l10n.exportFC5XmlActionDescription,
-            accent: secondaryAccent ?? colorScheme.secondary,
-            onTap: onFc5Xml,
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 class _RosterHeader extends StatelessWidget {
@@ -1617,169 +971,6 @@ class _ExpressiveSheetShell extends StatelessWidget {
   }
 }
 
-class _SheetTitleBlock extends StatelessWidget {
-  const _SheetTitleBlock({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(
-            color: Color.alphaBlend(
-              colorScheme.primary.withValues(alpha: 0.14),
-              colorScheme.surfaceContainerHighest,
-            ),
-            borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-            border: Border.all(
-              color: colorScheme.primary.withValues(alpha: 0.2),
-            ),
-          ),
-          child: Icon(icon, color: colorScheme.primary),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                subtitle,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  height: 1.35,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _CharacterActionSheetHeader extends StatelessWidget {
-  const _CharacterActionSheetHeader({required this.character});
-
-  final Character character;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
-    final localizedRaceName = getLocalizedRaceName(context, character.race);
-    final accent = resolveClassAccent(colorScheme, character.characterClass);
-    final localizedClassName = getCharacterClassSummary(context, character);
-    final localizedSubclass = character.subclass != null
-        ? getLocalizedSubclassName(
-            context,
-            character.characterClass,
-            character.subclass!,
-          )
-        : null;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Color.alphaBlend(
-              accent.withValues(alpha: 0.1),
-              colorScheme.surfaceContainerHighest,
-            ),
-            borderRadius: BorderRadius.circular(AppRadii.xl),
-            border: Border.all(
-              color: accent.withValues(alpha: 0.16),
-            ),
-          ),
-          child: Row(
-            children: [
-              _ActionSheetAvatar(
-                character: character,
-                accent: accent,
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      character.name,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '$localizedRaceName • ${l10n.levelShort} ${character.level} $localizedClassName',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (localizedSubclass != null) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        localizedSubclass,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: accent,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 18),
-        Text(
-          l10n.characterActionsTitle,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          l10n.characterActionsSubtitle,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _ActionSheetAvatar extends StatelessWidget {
   const _ActionSheetAvatar({
     required this.character,
@@ -1830,117 +1021,6 @@ class _ActionSheetAvatar extends StatelessWidget {
               getClassIcon(character.characterClass),
               color: accent,
             ),
-    );
-  }
-}
-
-class _SheetActionTile extends StatelessWidget {
-  const _SheetActionTile({
-    required this.icon,
-    required this.title,
-    required this.onTap,
-    this.subtitle,
-    this.accent,
-    this.destructive = false,
-  });
-
-  final IconData icon;
-  final String title;
-  final String? subtitle;
-  final VoidCallback onTap;
-  final Color? accent;
-  final bool destructive;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final tone = destructive
-        ? colorScheme.onErrorContainer
-        : (accent ?? colorScheme.primary);
-    final backgroundColor = destructive
-        ? Color.alphaBlend(
-            colorScheme.errorContainer.withValues(alpha: 0.96),
-            colorScheme.surfaceContainerHighest,
-          )
-        : colorScheme.surfaceContainerHighest.withValues(alpha: 0.82);
-    final iconTone = destructive ? colorScheme.onErrorContainer : tone;
-    final subtitleColor = destructive
-        ? colorScheme.onErrorContainer.withValues(alpha: 0.78)
-        : colorScheme.onSurfaceVariant;
-
-    return Material(
-      color: backgroundColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-        side: BorderSide(
-          color: destructive
-              ? colorScheme.error.withValues(alpha: 0.42)
-              : tone.withValues(alpha: 0.12),
-        ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          HapticFeedback.selectionClick();
-          onTap();
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: destructive
-                      ? Color.alphaBlend(
-                          colorScheme.error.withValues(alpha: 0.18),
-                          colorScheme.errorContainer,
-                        )
-                      : tone.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(AppRadii.lg),
-                ),
-                child: Icon(icon, color: iconTone),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color:
-                            destructive ? colorScheme.onErrorContainer : null,
-                      ),
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle!,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: subtitleColor,
-                          height: 1.3,
-                          fontWeight: destructive ? FontWeight.w600 : null,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: destructive
-                    ? colorScheme.onErrorContainer.withValues(alpha: 0.9)
-                    : colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

@@ -261,7 +261,9 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
           bottom: 0,
           child: IgnorePointer(
             child:
-                CustomPaint(painter: _ClassLight(first, second, topSpill: 64)),
+                CustomPaint(
+                    painter: _ClassLight(first, second,
+                        topSpill: 64, strength: AppCalm.of(context).glow)),
           ),
         ),
         Padding(
@@ -518,10 +520,14 @@ class _ExpandableCharacterCardState extends State<ExpandableCharacterCard> {
 /// The prototype's `.flow` light: a soft ellipse of the class colour at the
 /// top right, and for a multiclass hero a second one at the bottom left.
 class _ClassLight extends CustomPainter {
-  const _ClassLight(this.first, this.second, {required this.topSpill});
+  const _ClassLight(this.first, this.second,
+      {required this.topSpill, this.strength = 1});
   final Color first;
   final Color? second;
   final double topSpill;
+
+  /// Basic mode fades the class light out.
+  final double strength;
 
   void _glow(Canvas canvas, Offset center, double rx, double ry, Color color,
       double angle) {
@@ -531,7 +537,7 @@ class _ClassLight extends CustomPainter {
     canvas.scale(rx, ry);
     final paint = Paint()
       ..shader = RadialGradient(colors: [
-        color.withValues(alpha: .3 * .6),
+        color.withValues(alpha: .3 * .6 * strength),
         color.withValues(alpha: 0),
       ], stops: const [
         0,
@@ -555,5 +561,7 @@ class _ClassLight extends CustomPainter {
 
   @override
   bool shouldRepaint(_ClassLight old) =>
-      old.first != first || old.second != second;
+      old.first != first ||
+      old.second != second ||
+      old.strength != strength;
 }

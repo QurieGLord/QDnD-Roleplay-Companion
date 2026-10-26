@@ -5,6 +5,7 @@ import '../models/race_data.dart';
 import '../models/class_data.dart';
 import '../models/background_data.dart';
 import '../models/character_feature.dart';
+import '../content/library_policy.dart';
 import 'storage_service.dart';
 import 'feature_service.dart';
 import 'feature_hydration_service.dart';
@@ -20,6 +21,8 @@ class CharacterDataService {
   static List<ClassData>? _classReferences;
   static List<BackgroundData>? _backgrounds;
   static List<CharacterFeature>? _feats;
+  static Set<String> _builtInRaces = {}, _builtInBackgrounds = {};
+  static int _builtInClasses = 0;
 
   static Future<void> loadAllData() async {
     await Future.wait([
@@ -61,6 +64,7 @@ class CharacterDataService {
       final storageRaces = StorageService.getAllRaces();
 
       _races = [...assetRaces, ...storageRaces];
+      _builtInRaces = {for (final r in assetRaces) r.id};
       print(
           '✅ Loaded ${_races!.length} races (${assetRaces.length} assets + ${storageRaces.length} custom)');
     } catch (e) {
@@ -105,6 +109,7 @@ class CharacterDataService {
       final assetClasses = (await Future.wait(assetClassesFutures))
           .whereType<ClassData>()
           .toList();
+      _builtInClasses = assetClasses.length;
 
       // Load storage classes
       final storageClasses = StorageService.getAllClasses();
@@ -165,6 +170,7 @@ class CharacterDataService {
       final storageBackgrounds = StorageService.getAllBackgrounds();
 
       _backgrounds = [...assetBackgrounds, ...storageBackgrounds];
+      _builtInBackgrounds = {for (final b in assetBackgrounds) b.id};
       print(
           '✅ Loaded ${_backgrounds!.length} backgrounds (${assetBackgrounds.length} assets + ${storageBackgrounds.length} custom)');
     } catch (e) {
@@ -192,6 +198,25 @@ class CharacterDataService {
       _classReferences ?? _classes ?? [];
   static List<BackgroundData> getAllBackgrounds() => _backgrounds ?? [];
   static List<CharacterFeature> getAllFeats() => _feats ?? [];
+
+  /// The built-in SRD 2014 races, classes and backgrounds.
+  static List<RaceData> builtInRaces() =>
+      getAllRaces().where((r) => _builtInRaces.contains(r.id)).toList();
+  static List<RaceData> libraryRaces() =>
+      getAllRaces().where((r) => !_builtInRaces.contains(r.id)).toList();
+  static int builtInClassCount() => _builtInClasses;
+  static List<BackgroundData> builtInBackgrounds() => getAllBackgrounds()
+      .where((b) => _builtInBackgrounds.contains(b.id))
+      .toList();
+  static List<BackgroundData> libraryBackgrounds() => getAllBackgrounds()
+      .where((b) => !_builtInBackgrounds.contains(b.id))
+      .toList();
+
+  /// What the shelf offers when a hero is made; lookups still see all.
+  static List<RaceData> shelfRaces() => LibraryPolicy.listed(
+      builtInRaces(), libraryRaces(), (r) => r.name['en'] ?? r.id);
+  static List<BackgroundData> shelfBackgrounds() => LibraryPolicy.listed(
+      builtInBackgrounds(), libraryBackgrounds(), (b) => b.name['en'] ?? b.id);
 
   static List<CharacterFeature> getFeaturesForLevel({
     required String classId,

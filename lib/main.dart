@@ -138,6 +138,10 @@ class QDnDApp extends StatelessWidget {
           theme: themeProvider.lightTheme,
           darkTheme: themeProvider.darkTheme,
           themeMode: themeProvider.themeMode,
+          // Palettes, modes and Basic mode morph into each other instead of
+          // switching at once.
+          themeAnimationDuration: const Duration(milliseconds: 560),
+          themeAnimationCurve: const Cubic(.2, 0, 0, 1),
           locale: localeProvider.locale,
           localizationsDelegates: const [
             AppLocalizations.delegate,

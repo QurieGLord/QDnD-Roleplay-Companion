@@ -17,7 +17,7 @@ void main() {
       localeProvider: localeProvider,
     );
 
-    await tester.tap(find.text('Русский'));
+    await tester.tap(find.text('Рус'));
     await pumpInteraction(tester);
     await waitForSetting(tester, 'locale_code', 'ru');
 

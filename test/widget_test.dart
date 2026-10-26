@@ -23,11 +23,11 @@ void main() {
       ),
     );
 
-    // Verify that splash screen shows the expected text
-    expect(find.text('Roleplay Companion'), findsOneWidget);
+    // The name rises letter by letter and reads as one label.
+    expect(find.bySemanticsLabel('Roleplay Companion'), findsOneWidget);
 
     // Let the delayed navigation timer complete after the widget is disposed.
     await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 3));
   });
 }

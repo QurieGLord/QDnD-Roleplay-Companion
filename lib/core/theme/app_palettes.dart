@@ -171,6 +171,32 @@ class AppAccents extends ThemeExtension<AppAccents> {
         ]);
 }
 
+/// Tells widgets that Basic mode is on: they drop glows and colour
+/// gradients and keep flat, readable fills. Lerps as a number so a glow
+/// fades out with the theme morph instead of blinking.
+@immutable
+class AppCalm extends ThemeExtension<AppCalm> {
+  const AppCalm(this.level);
+
+  /// 0 — the full palette, 1 — Basic mode.
+  final double level;
+
+  bool get on => level > .5;
+
+  /// How much of a glow or gradient to keep (1 → all of it, 0 → none).
+  double get glow => 1 - level;
+
+  static AppCalm of(BuildContext context) =>
+      Theme.of(context).extension<AppCalm>() ?? const AppCalm(0);
+
+  @override
+  AppCalm copyWith({double? level}) => AppCalm(level ?? this.level);
+
+  @override
+  AppCalm lerp(AppCalm? other, double t) =>
+      other == null ? this : AppCalm(level + (other.level - level) * t);
+}
+
 class AppPalettes {
   static const AppColorPreset fallbackPreset = AppColorPreset.monokai;
 
@@ -339,17 +365,6 @@ class AppPalettes {
     ),
   };
 
-  static const _PaletteSpec _basicSpec = _PaletteSpec(
-    lightSurface: Color(0xFFFAF3E8),
-    darkSurface: Color(0xFF272822),
-    lightAccent: Color(0xFF9E5261),
-    darkAccent: Color(0xFFE092A2),
-    lightSecondary: Color(0xFF68764A),
-    darkSecondary: Color(0xFFBAC98B),
-    lightTertiary: Color(0xFF8B7446),
-    darkTertiary: Color(0xFFD5C27F),
-  );
-
   // Pink, orange, yellow, green, cyan, lavender — tuned per palette and theme.
   static const Map<AppColorPreset, List<List<int>>> _accentFamilies = {
     AppColorPreset.monokai: [
@@ -391,9 +406,60 @@ class AppPalettes {
         _specs[preset] ?? _specs[fallbackPreset]!, brightness);
   }
 
-  /// Returns a quieter Monokai-inspired baseline for Basic mode.
-  static ColorScheme getBasicScheme(Brightness brightness) {
-    return _schemeFromSpec(_basicSpec, brightness);
+  /// Basic mode keeps the chosen palette and only calms it: surfaces turn
+  /// nearly neutral, accents lose a good part of their colour, text and
+  /// outlines gain contrast. The ratios follow the accepted wave 5 prototype.
+  static ColorScheme calmScheme(ColorScheme s) {
+    final isDark = s.brightness == Brightness.dark;
+    Color keep(Color c, double amount) => _blend(c, _grayOf(c), amount);
+    final surface = keep(s.surface, .35);
+    final onSurface =
+        _blend(isDark ? Colors.white : Colors.black, s.onSurface, .5);
+    final primary = keep(s.primary, .62);
+    final secondary = keep(s.secondary, .62);
+    final tertiary = keep(s.tertiary, .62);
+    final outline = _blend(onSurface, surface, .5);
+    final danger = keep(s.error, .8);
+    return s.copyWith(
+      primary: primary,
+      onPrimary: _foregroundFor(primary),
+      primaryContainer: keep(s.primaryContainer, .45),
+      onPrimaryContainer: onSurface,
+      secondary: secondary,
+      onSecondary: _foregroundFor(secondary),
+      secondaryContainer: keep(s.secondaryContainer, .45),
+      onSecondaryContainer: onSurface,
+      tertiary: tertiary,
+      onTertiary: _foregroundFor(tertiary),
+      tertiaryContainer: keep(s.tertiaryContainer, .45),
+      onTertiaryContainer: onSurface,
+      surface: surface,
+      onSurface: onSurface,
+      onSurfaceVariant: _blend(onSurface, surface, .88),
+      surfaceContainerLowest: keep(s.surfaceContainerLowest, .35),
+      surfaceContainerLow: keep(s.surfaceContainerLow, .35),
+      surfaceContainer: keep(s.surfaceContainer, .35),
+      surfaceContainerHigh: keep(s.surfaceContainerHigh, .35),
+      surfaceContainerHighest: keep(s.surfaceContainerHighest, .35),
+      surfaceDim: keep(s.surfaceDim, .35),
+      surfaceBright: keep(s.surfaceBright, .35),
+      outline: outline,
+      outlineVariant: _blend(outline, surface, isDark ? .56 : .46),
+      error: danger,
+      onError: _foregroundFor(danger),
+      errorContainer: _blend(danger, surface, isDark ? .18 : .12),
+      onErrorContainer: onSurface,
+      surfaceTint: primary,
+    );
+  }
+
+  static AppAccents calmAccents(AppAccents accents) => AppAccents([
+        for (final c in accents.colors) _blend(c, _grayOf(c), .58),
+      ]);
+
+  static Color _grayOf(Color c) {
+    final y = .2126 * c.r + .7152 * c.g + .0722 * c.b;
+    return Color.from(alpha: 1, red: y, green: y, blue: y);
   }
 
   static AppColorPreset parsePreset(Object? value) {

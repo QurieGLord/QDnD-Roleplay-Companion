@@ -199,14 +199,15 @@ class _HeroDeckState extends State<HeroDeck> {
               final a = accentOf(heroes[f.floor()]);
               final b = accentOf(heroes[f.ceil()]);
               final glow = Color.lerp(a, b, f - f.floor())!;
+              final keep = AppCalm.of(context).glow;
               return DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
                     center: const Alignment(0, -.62),
                     radius: 1.05,
                     colors: [
-                      glow.withValues(alpha: .3),
-                      glow.withValues(alpha: .08),
+                      glow.withValues(alpha: .3 * keep),
+                      glow.withValues(alpha: .08 * keep),
                       Colors.transparent
                     ],
                     stops: const [0, .45, 1],

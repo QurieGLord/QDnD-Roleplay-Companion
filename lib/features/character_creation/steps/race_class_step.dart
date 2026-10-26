@@ -256,7 +256,7 @@ class _RaceClassStepState extends State<RaceClassStep> {
     final locale = Localizations.localeOf(context).languageCode;
     final l10n = AppLocalizations.of(context)!;
 
-    final races = CharacterDataService.getAllRaces();
+    final races = CharacterDataService.shelfRaces();
     final classes = CharacterDataService.getAllClasses();
 
     return ListView(

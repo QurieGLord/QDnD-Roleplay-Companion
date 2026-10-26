@@ -8,6 +8,7 @@ import '../../core/journal/journal_service.dart';
 import '../../core/models/character.dart';
 import '../../core/models/journal_note.dart';
 import '../../core/models/quest.dart';
+import '../../core/theme/app_palettes.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/ui/app_snack_bar.dart';
 import '../../core/ui/companion_kit.dart';
@@ -318,7 +319,11 @@ class _JournalEntryPageState extends State<JournalEntryPage> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
-                            colors: [a.withValues(alpha: .3), a.withValues(alpha: 0)],
+                            colors: [
+                              a.withValues(
+                                  alpha: .3 * AppCalm.of(context).glow),
+                              a.withValues(alpha: 0)
+                            ],
                             stops: const [0, .66]),
                       ),
                     ),

@@ -55,7 +55,7 @@ class BackgroundStep extends StatelessWidget {
     final state = context.watch<CharacterCreationState>();
     final locale = Localizations.localeOf(context).languageCode;
     final l10n = AppLocalizations.of(context)!;
-    final backgrounds = CharacterDataService.getAllBackgrounds();
+    final backgrounds = CharacterDataService.shelfBackgrounds();
 
     return ListView(
       padding: const EdgeInsets.all(24),

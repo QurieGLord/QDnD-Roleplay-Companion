@@ -460,7 +460,10 @@ class _JournalPinBoardState extends State<JournalPinBoard>
           scrollDirection: Axis.horizontal,
           clipBehavior: Clip.none,
           padding: const EdgeInsets.fromLTRB(20, 6, 20, 10),
-          child: IntrinsicHeight(
+          // Pinned notes share one height; the empty shelf's hint sizes
+          // itself.
+          child: _ShelfHeight(
+            empty: _shelf.isEmpty,
             child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               for (final key in _shelf)
                 AnimatedContainer(
@@ -590,6 +593,16 @@ class _JournalPinBoardState extends State<JournalPinBoard>
       }),
     ]);
   }
+}
+
+class _ShelfHeight extends StatelessWidget {
+  const _ShelfHeight({required this.empty, required this.child});
+  final bool empty;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => empty
+      ? IntrinsicHeight(child: child)
+      : SizedBox(height: _PinFace.height, child: child);
 }
 
 /// Reports its child's height after layout.
@@ -757,11 +770,8 @@ class _NoteFace extends StatelessWidget {
   final JournalCardData data;
   @override
   Widget build(BuildContext context) {
-    final s = JournalStrings(context), c = Theme.of(context).colorScheme;
-    final accents = [
-      for (final k in data.kinds)
-        JournalLook.accent(context, JournalLook.kindAccent(k))
-    ];
+    final c = Theme.of(context).colorScheme;
+    final accents = _linkColors(context, data);
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
       decoration: BoxDecoration(
@@ -779,35 +789,58 @@ class _NoteFace extends StatelessWidget {
         ],
         if (accents.isNotEmpty || data.session != null) ...[
           const SizedBox(height: 8),
-          Row(children: [
-            JournalDots(accents),
-            const Spacer(),
-            if (data.session != null)
-              Text(s.t('сессия ${data.session}', 'session ${data.session}'),
-                  style: TextStyle(
-                      fontFamily: AppType.display,
-                      fontSize: 11.5,
-                      height: 1,
-                      fontWeight: FontWeight.w500,
-                      fontFeatures: AppType.tabular,
-                      color: c.onSurface.withValues(alpha: .45))),
-          ]),
+          _Footer(data),
         ],
       ]),
     );
   }
 }
 
+List<Color> _linkColors(BuildContext context, JournalCardData data) => [
+      for (final k in data.kinds)
+        JournalLook.accent(context, JournalLook.kindAccent(k))
+    ];
+
+/// The names a note is linked to, as dots, and the session it belongs to.
+class _Footer extends StatelessWidget {
+  const _Footer(this.data);
+  final JournalCardData data;
+  @override
+  Widget build(BuildContext context) {
+    final s = JournalStrings(context), c = Theme.of(context).colorScheme;
+    return Row(children: [
+      JournalDots(_linkColors(context, data)),
+      const Spacer(),
+      if (data.session != null)
+        Text(s.t('сессия ${data.session}', 'session ${data.session}'),
+            style: TextStyle(
+                fontFamily: AppType.display,
+                fontSize: 11.5,
+                height: 1,
+                fontWeight: FontWeight.w500,
+                fontFeatures: AppType.tabular,
+                color: c.onSurface.withValues(alpha: .45))),
+    ]);
+  }
+}
+
 class _PinFace extends StatelessWidget {
   const _PinFace(this.data);
   final JournalCardData data;
+
+  /// Pinned notes stand side by side at one height, with room for the
+  /// title, a few lines of text and the links and session at the foot.
+  static const double height = 172;
+
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).colorScheme;
     final a = JournalLook.accent(context, JournalLook.categoryAccent(data.category));
+    final footer = _linkColors(context, data).isNotEmpty || data.session != null;
     return Container(
       width: 210,
-      padding: const EdgeInsets.fromLTRB(16, 15, 16, 15),
+      height: height,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(26),
         gradient: LinearGradient(
@@ -821,12 +854,26 @@ class _PinFace extends StatelessWidget {
         _Kicker(data, pinned: true),
         const SizedBox(height: 6),
         Text(data.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: _titleStyle(context)),
-        if (data.text.isNotEmpty) ...[
-          const SizedBox(height: 6),
-          Text(data.text,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: _textStyle(context)),
+        // The text takes the lines that are left and ends with an ellipsis.
+        Expanded(
+          child: data.text.isEmpty
+              ? const SizedBox()
+              : LayoutBuilder(builder: (context, box) {
+                  final line = 13 * 1.45 * MediaQuery.textScalerOf(context).scale(1);
+                  final lines = ((box.maxHeight - 6) / line).floor();
+                  if (lines < 1) return const SizedBox();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(data.text,
+                        maxLines: lines,
+                        overflow: TextOverflow.ellipsis,
+                        style: _textStyle(context)),
+                  );
+                }),
+        ),
+        if (footer) ...[
+          const SizedBox(height: 10),
+          _Footer(data),
         ],
       ]),
     );
