@@ -1,9 +1,5 @@
 import '../../../core/magic/spellbook_state.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '../../../shared/widgets/spell_details_sheet.dart';
-import '../../../core/ui/sheet_drag_region.dart';
-import '../../../core/utils/spell_utils.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/character_feature.dart';
@@ -23,6 +19,10 @@ import '../../../core/progression/resource_growth.dart';
 import '../../../core/progression/pact_slot_growth.dart';
 import '../widgets/advancement_choice_card.dart';
 import '../widgets/advancement_selection.dart';
+import '../widgets/advancement_climb.dart';
+import '../widgets/advancement_spells.dart';
+import '../../../core/ui/page_kit.dart';
+import '../../character_sheet/widgets/class_widgets/instrument/instrument_kit.dart' show classSigil;
 import '../widgets/advancement_layout.dart';
 import '../../../core/progression/character_class_rules.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
@@ -533,9 +533,9 @@ class _FeaturesStepState extends State<FeaturesStep>
         '${locale == 'ru' ? 'Заклинания' : 'Spells'}: ${_selectedSpells.length}/${widget.spellsToLearnCount}',
     ];
     return Column(children: [
-      Expanded(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      AdvancementStepList(
+          padding: EdgeInsets.fromLTRB(
+              20, 8, 20, 20 + AdvancementDockScope.inset(context)),
           children: [
             AdvancementHeading(
               title: widget.content == FeaturesStepContent.magic
@@ -659,6 +659,7 @@ class _FeaturesStepState extends State<FeaturesStep>
               for (final choice in genericChoices)
                 AdvancementChoiceCard(
                     key: ValueKey('progression-choice-${choice.id}'),
+                    accent: advancementAccent(context, widget.classData.id),
                     choice: choice,
                     character: widget.character,
                     classLevel: widget.nextLevel,
@@ -807,7 +808,6 @@ class _FeaturesStepState extends State<FeaturesStep>
             ],
           ],
         ),
-      ),
       AdvancementFooter(
         label: l10n.continueLabel,
         hint: pending.isNotEmpty
@@ -964,32 +964,16 @@ class _FeaturesStepState extends State<FeaturesStep>
     String locale,
     AppLocalizations l10n,
   ) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    void details() => showResponsiveSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        builder: (_) => SpellDetailsSheet(spell: spell));
     return Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Semantics(
-            checked: isSelected,
-            enabled: isEnabled,
-            child: Material(
-              color: isSelected
-                  ? colors.secondaryContainer.withValues(alpha: .7)
-                  : colors.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                  key: ValueKey('advancement-spell-${spell.id}'),
-                  onLongPress: details,
-                  onTap: !isEnabled
-                      ? null
-                      : () {
-                          HapticFeedback.selectionClick();
-                          setState(() {
+        padding: const EdgeInsets.only(bottom: 6),
+        child: AdvancementSpellRow(
+            key: ValueKey('advancement-spell-${spell.id}'),
+            spell: spell,
+            selected: isSelected,
+            dim: !isEnabled,
+            subtitle: spellLine(context, spell),
+            onTap: () {
+              setState(() {
                             final next = toggleAdvancementSelection(
                                 _selectedSpells,
                                 spell.id,
@@ -999,36 +983,7 @@ class _FeaturesStepState extends State<FeaturesStep>
                               ..addAll(next);
                             widget.onSpellsSelected(_selectedSpells.toList());
                           });
-                        },
-                  child: Padding(
-                      padding: const EdgeInsets.fromLTRB(14, 12, 4, 12),
-                      child: Row(children: [
-                        Icon(
-                            isSelected
-                                ? Icons.check_circle_rounded
-                                : Icons.auto_fix_high_outlined,
-                            size: 24,
-                            color: colors.primary),
-                        const SizedBox(width: 12),
-                        Expanded(
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                              Text(spell.getName(locale),
-                                  style: theme.textTheme.titleSmall),
-                              const SizedBox(height: 4),
-                              Text(
-                                  '${_getLocalizedSchool(l10n, spell.school)} · ${SpellUtils.getLocalizedValue(l10n, spell.castingTime)}',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                      color: colors.onSurfaceVariant)),
-                            ])),
-                        IconButton(
-                            tooltip: l10n.advancementDetails,
-                            onPressed: details,
-                            icon: Icon(Icons.info_outline_rounded,
-                                size: 20, color: colors.onSurfaceVariant)),
-                      ]))),
-            )));
+            }));
   }
 
   Set<String> _getAllProficientSkills() {
@@ -1122,78 +1077,32 @@ class _FeaturesStepState extends State<FeaturesStep>
 
   Widget _buildSubclassChoice(BuildContext context) {
     final locale = Localizations.localeOf(context).languageCode;
+    final accent = advancementAccent(context, widget.classData.id);
+    final glyph = classSigil(widget.classData.id);
     return Column(
       children: [
-        RadioGroup<String>(
-          groupValue: _selections['subclass'] ?? '',
-          onChanged: (value) {
-            if (value == null) return;
-            _selectChoice('subclass', value);
-          },
-          child: Column(
-            children: widget.classData.subclasses.map((subclass) {
-              final isSelected = _selections['subclass'] == subclass.id;
-              final colorScheme = Theme.of(context).colorScheme;
-              return Card(
-                elevation: 0,
-                color: isSelected ? colorScheme.primaryContainer : null,
-                margin: const EdgeInsets.only(bottom: 8),
-                child: InkWell(
-                  onTap: () => _selectChoice('subclass', subclass.id),
-                  borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Radio<String>(
-                          value: subclass.id,
-                          activeColor: colorScheme.primary,
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                subclass.getName(locale),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: isSelected
-                                      ? colorScheme.onPrimaryContainer
-                                      : colorScheme.onSurface,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                subclass.getDescription(locale),
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: isSelected
-                                      ? colorScheme.onPrimaryContainer
-                                          .withValues(alpha: 0.8)
-                                      : colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (isSelected)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: Icon(
-                              Icons.check_circle,
-                              color: colorScheme.primary,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
+        for (final subclass in widget.classData.subclasses)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: AdvancementPick(
+              key: ValueKey('advancement-subclass-${subclass.id}'),
+              selected: _selections['subclass'] == subclass.id,
+              title: subclass.getName(locale),
+              subtitle: advancementGist(subclass.getDescription(locale)),
+              icon: glyph,
+              accent: accent,
+              onTap: () => _selectChoice('subclass', subclass.id),
+              onInfo: () => showAdvancementInfo(
+                  context,
+                  AdvancementInfo(
+                      kicker: Tr(context).t('Подкласс · ${widget.classData.getName(locale)}',
+                          'Subclass · ${widget.classData.getName(locale)}'),
+                      title: subclass.getName(locale),
+                      icon: glyph,
+                      accent: accent,
+                      text: subclass.getDescription(locale))),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -1203,52 +1112,37 @@ class _FeaturesStepState extends State<FeaturesStep>
     CharacterFeature feature,
     AppLocalizations l10n,
   ) {
-    // ... same as before
-
+    final accent = advancementAccent(context, widget.classData.id);
+    void pick(String id) => setState(() {
+          _selections['fighting_style'] = id;
+          widget.onOptionSelected('fighting_style', id);
+        });
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildFeatureCard(context, feature),
         const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-          child: Text(
-            l10n.chooseFightingStyle,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+        for (final style in _getFightingStyles(context))
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: AdvancementPick(
+              selected: _selections['fighting_style'] == style['id'],
+              title: style['name']!,
+              subtitle: style['desc'],
+              icon: 'sword',
+              accent: accent,
+              onTap: () => pick(style['id']!),
+              onInfo: () => showAdvancementInfo(
+                  context,
+                  AdvancementInfo(
+                      kicker: Tr(context).t('Боевой стиль', 'Fighting style'),
+                      title: style['name']!,
+                      icon: 'sword',
+                      accent: accent,
+                      text: style['desc']!)),
+            ),
           ),
-        ),
-        RadioGroup<String>(
-          groupValue: _selections['fighting_style'] ?? '',
-          onChanged: (value) {
-            if (value == null) return;
-            setState(() {
-              _selections['fighting_style'] = value;
-              widget.onOptionSelected('fighting_style', value);
-            });
-          },
-          child: Column(
-            children: _getFightingStyles(context).map((style) {
-              final isSelected = _selections['fighting_style'] == style['id'];
-              return Card(
-                elevation: 0,
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primaryContainer
-                    : null,
-                margin: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
-                child: RadioListTile<String>(
-                  value: style['id']!,
-                  title: Text(
-                    style['name']!,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(style['desc']!),
-                  secondary: const Icon(Icons.sports_martial_arts),
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -1305,110 +1199,76 @@ class _FeaturesStepState extends State<FeaturesStep>
           !characterFeatures.contains(boon['id'] as String);
     }).toList();
 
+    final accent = advancementAccent(context, widget.classData.id);
+    String glyph(String id) => id.contains('blade')
+        ? 'sword'
+        : id.contains('chain')
+            ? 'link'
+            : id.contains('tome')
+                ? 'book'
+                : 'gem';
     return Column(
       children: [
-        RadioGroup<String>(
-          groupValue: _selections['pact_boon'] ?? '',
-          onChanged: (value) {
-            if (value == null) return;
-            setState(() {
-              _selections['pact_boon'] = value;
-              widget.onOptionSelected('pact_boon', value);
-            });
-          },
-          child: Column(
-            children: filteredBoons.map((boon) {
-              final id = boon['id'] as String;
-              final name = locale == 'ru'
-                  ? boon['nameRu'] as String
-                  : boon['nameEn'] as String;
-              final desc = locale == 'ru'
-                  ? boon['descRu'] as String
-                  : boon['descEn'] as String;
-              final icon = boon['icon'] as IconData;
-              final isSelected = _selections['pact_boon'] == id;
-              final colorScheme = Theme.of(context).colorScheme;
-
-              return Card(
-                elevation: 0,
-                color: isSelected ? colorScheme.primaryContainer : null,
-                margin: const EdgeInsets.only(bottom: 8),
-                child: RadioListTile<String>(
-                  value: id,
-                  title: Text(
-                    name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(desc),
-                  secondary: Icon(
-                    icon,
-                    color: isSelected ? colorScheme.primary : null,
-                  ),
-                  activeColor: colorScheme.primary,
-                ),
-              );
-            }).toList(),
-          ),
-        ),
+        for (final boon in filteredBoons)
+          Builder(builder: (context) {
+            final id = boon['id'] as String;
+            final name = locale == 'ru'
+                ? boon['nameRu'] as String
+                : boon['nameEn'] as String;
+            final desc = locale == 'ru'
+                ? boon['descRu'] as String
+                : boon['descEn'] as String;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: AdvancementPick(
+                selected: _selections['pact_boon'] == id,
+                title: name,
+                subtitle: desc,
+                icon: glyph(id),
+                accent: accent,
+                onTap: () => setState(() {
+                  _selections['pact_boon'] = id;
+                  widget.onOptionSelected('pact_boon', id);
+                }),
+                onInfo: () => showAdvancementInfo(
+                    context,
+                    AdvancementInfo(
+                        kicker: Tr(context).t('Предмет договора', 'Pact boon'),
+                        title: name,
+                        icon: glyph(id),
+                        accent: accent,
+                        text: desc)),
+              ),
+            );
+          }),
       ],
     );
   }
 
   Widget _buildLandChoice(BuildContext context, String locale) {
+    final accent = advancementAccent(context, widget.classData.id);
     return Column(
       children: [
-        RadioGroup<String>(
-          groupValue: _selections['land_terrain'] ?? '',
-          onChanged: (value) {
-            if (value == null) return;
-            _selectChoice('land_terrain', value);
-          },
-          child: Column(
-            children: widget.landOptions.map((feature) {
-              final isSelected = _selections['land_terrain'] == feature.id;
-              final colorScheme = Theme.of(context).colorScheme;
-
-              return Card(
-                elevation: 0,
-                color: isSelected ? colorScheme.primaryContainer : null,
-                margin: const EdgeInsets.only(bottom: 8),
-                child: InkWell(
-                  onTap: () => _selectChoice('land_terrain', feature.id),
-                  borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Radio<String>(
-                          value: feature.id,
-                          activeColor: colorScheme.primary,
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                feature.getName(locale),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: isSelected
-                                      ? colorScheme.onPrimaryContainer
-                                      : colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
+        for (final feature in widget.landOptions)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: AdvancementPick(
+              selected: _selections['land_terrain'] == feature.id,
+              title: feature.getName(locale),
+              subtitle: advancementGist(feature.getDescription(locale)),
+              icon: 'peaks',
+              accent: accent,
+              onTap: () => _selectChoice('land_terrain', feature.id),
+              onInfo: () => showAdvancementInfo(
+                  context,
+                  AdvancementInfo(
+                      kicker: Tr(context).t('Круг земли', 'Circle of the Land'),
+                      title: feature.getName(locale),
+                      icon: 'peaks',
+                      accent: accent,
+                      text: feature.getDescription(locale))),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -1632,71 +1492,37 @@ class _FeaturesStepState extends State<FeaturesStep>
       return !characterFeatures.contains(tactic['id']);
     }).toList();
 
+    final accent = advancementAccent(context, widget.classData.id);
     return Column(
       children: [
-        RadioGroup<String>(
-          groupValue: _selections['hunter_tactic'] ?? '',
-          onChanged: (value) {
-            if (value == null) return;
-            setState(() {
-              _selections['hunter_tactic'] = value;
-              widget.onOptionSelected('hunter_tactic', value);
-            });
-          },
-          child: Column(
-            children: filteredTactics.map((tactic) {
-              final id = tactic['id']!;
-              final name = locale == 'ru' ? tactic['ru']! : tactic['en']!;
-              final desc =
-                  locale == 'ru' ? tactic['descRu']! : tactic['descEn']!;
-              final isSelected = _selections['hunter_tactic'] == id;
-              final colorScheme = Theme.of(context).colorScheme;
-
-              return Card(
-                elevation: 0,
-                color: isSelected ? colorScheme.primaryContainer : null,
-                margin: const EdgeInsets.only(bottom: 8),
-                child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      _selections['hunter_tactic'] = id;
-                      widget.onOptionSelected('hunter_tactic', id);
-                    });
-                  },
-                  child: Row(
-                    children: [
-                      Radio<String>(
-                        value: id,
-                        activeColor: colorScheme.primary,
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12.0,
-                            horizontal: 8.0,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(desc),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ),
+        for (final tactic in filteredTactics)
+          Builder(builder: (context) {
+            final id = tactic['id']!;
+            final name = locale == 'ru' ? tactic['ru']! : tactic['en']!;
+            final desc = locale == 'ru' ? tactic['descRu']! : tactic['descEn']!;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: AdvancementPick(
+                selected: _selections['hunter_tactic'] == id,
+                title: name,
+                subtitle: desc,
+                icon: 'target',
+                accent: accent,
+                onTap: () => setState(() {
+                  _selections['hunter_tactic'] = id;
+                  widget.onOptionSelected('hunter_tactic', id);
+                }),
+                onInfo: () => showAdvancementInfo(
+                    context,
+                    AdvancementInfo(
+                        kicker: Tr(context).t('Охотник', 'Hunter'),
+                        title: name,
+                        icon: 'target',
+                        accent: accent,
+                        text: desc)),
+              ),
+            );
+          }),
       ],
     );
   }
@@ -1987,17 +1813,21 @@ class _FeaturesStepState extends State<FeaturesStep>
   }
 
   Widget _buildSectionHeader(BuildContext context, String title) {
+    final c = Theme.of(context).colorScheme;
+    // A group title of the prototype (`.grp6`), in sentence case.
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
+      padding: const EdgeInsets.fromLTRB(2, 6, 2, 10),
       child: Text(
         title == title.toUpperCase() && title.isNotEmpty
             ? title[0] + title.substring(1).toLowerCase()
             : title,
         style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.secondary,
-          letterSpacing: 0,
+          fontFamily: AppType.display,
+          fontSize: 17,
+          height: 1.2,
+          fontWeight: FontWeight.w600,
+          letterSpacing: -.17,
+          color: c.onSurface,
         ),
       ),
     );
@@ -2021,56 +1851,27 @@ class _FeaturesStepState extends State<FeaturesStep>
   Widget _buildFeatureCard(BuildContext context, CharacterFeature feature) {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
-    IconData icon = Icons.star;
-    if (feature.iconName != null) {
-      switch (feature.iconName) {
-        case 'healing':
-          icon = Icons.favorite;
-          break;
-        case 'visibility':
-          icon = Icons.visibility;
-          break;
-        case 'flash_on':
-          icon = Icons.flash_on;
-          break;
-        case 'swords':
-          icon = Icons.shield;
-          break;
-        case 'auto_fix_high':
-          icon = Icons.auto_fix_high;
-          break;
-        case 'health_and_safety':
-          icon = Icons.health_and_safety;
-          break;
-        case 'auto_awesome':
-          icon = Icons.auto_awesome;
-          break;
-      }
-    }
-    final colors = Theme.of(context).colorScheme;
+    final accent = advancementAccent(context, widget.classData.id);
+    final glyph = advancementFeatureGlyph(feature.iconName);
+    // A gained feature opens whole in a sheet; the card keeps a short line.
     return Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Material(
-          color: colors.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-          clipBehavior: Clip.antiAlias,
-          child: ExpansionTile(
-            shape: const Border(),
-            collapsedShape: const Border(),
-            leading: Icon(icon, size: 24, color: colors.primary),
-            title: Text(feature.getName(locale),
-                style: Theme.of(context).textTheme.titleSmall),
-            subtitle: Text(_getFeatureTypeLabel(l10n, feature.type),
-                style: Theme.of(context).textTheme.bodySmall),
-            childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-            children: [
-              Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(feature.getDescription(locale),
-                      style: Theme.of(context).textTheme.bodyMedium))
-            ],
-          ),
-        ));
+      padding: const EdgeInsets.only(bottom: 8),
+      child: AdvancementGain(
+        icon: glyph,
+        title: feature.getName(locale),
+        text: advancementGist(feature.getDescription(locale)),
+        accent: accent,
+        onTap: () => showAdvancementInfo(
+            context,
+            AdvancementInfo(
+                kicker:
+                    '${_getFeatureTypeLabel(l10n, feature.type)} · ${widget.classData.getName(locale)}',
+                title: feature.getName(locale),
+                icon: glyph,
+                accent: accent,
+                text: feature.getDescription(locale))),
+      ),
+    );
   }
 
   Widget _buildOptionalFeatureCard(
@@ -2078,16 +1879,20 @@ class _FeaturesStepState extends State<FeaturesStep>
     CharacterFeature feature,
   ) {
     final locale = Localizations.localeOf(context).languageCode;
-    final colorScheme = Theme.of(context).colorScheme;
+    final accent = advancementAccent(context, widget.classData.id);
     final selected = _selectedOptionalFeatures.contains(feature.id);
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: CheckboxListTile(
-        value: selected,
-        onChanged: (value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: AdvancementPick(
+        selected: selected,
+        multi: true,
+        title: feature.getName(locale),
+        subtitle: advancementGist(feature.getDescription(locale)),
+        icon: 'sliders',
+        accent: accent,
+        onTap: () {
           setState(() {
-            if (value == true) {
+            if (!selected) {
               _selectedOptionalFeatures.add(feature.id);
             } else {
               _selectedOptionalFeatures.remove(feature.id);
@@ -2099,20 +1904,14 @@ class _FeaturesStepState extends State<FeaturesStep>
             });
           });
         },
-        secondary: Icon(
-          Icons.tune_rounded,
-          color: selected ? colorScheme.primary : colorScheme.outline,
-        ),
-        title: Text(
-          feature.getName(locale),
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(
-          feature.getDescription(locale),
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
-        ),
-        controlAffinity: ListTileControlAffinity.leading,
+        onInfo: () => showAdvancementInfo(
+            context,
+            AdvancementInfo(
+                kicker: Tr(context).t('Необязательное умение', 'Optional feature'),
+                title: feature.getName(locale),
+                icon: 'sliders',
+                accent: accent,
+                text: feature.getDescription(locale))),
       ),
     );
   }

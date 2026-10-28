@@ -4,10 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../widgets/advancement_layout.dart';
-import '../../../core/ui/companion_surface.dart';
+import '../../../core/ui/companion_kit.dart';
+import '../../../core/ui/expressive_kit.dart';
+import '../../../core/ui/page_kit.dart';
+import '../../character_sheet/widgets/class_widgets/instrument/instrument_kit.dart';
 import '../../character_sheet/widgets/session/value_editor_dialog.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
 
+/// How the maximum grows (wave 6): a card with the new maximum rolling to
+/// its value beside the hit die, and three ways in a row — the average,
+/// a roll of the die right here, or the die rolled at the table.
 class HpIncreaseStep extends StatefulWidget {
   const HpIncreaseStep(
       {super.key,
@@ -33,44 +39,34 @@ class _HpIncreaseStepState extends State<HpIncreaseStep>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
-  Timer? _animation;
+  Timer? _landing;
   int? _roll;
-  int _display = 1;
+  int _tosses = 0;
   bool _rolling = false;
   String _method = 'average';
   @override
   void dispose() {
-    _animation?.cancel();
+    _landing?.cancel();
     super.dispose();
   }
 
   void _startRoll() {
     if (_rolling) return;
-    HapticFeedback.lightImpact();
+    final reduced = MediaQuery.disableAnimationsOf(context);
+    final result = Random().nextInt(widget.hitDie) + 1;
     setState(() {
       _method = 'roll';
-      _rolling = true;
-      _roll = null;
+      _rolling = !reduced;
+      _roll = result;
+      _tosses++;
     });
-    final random = Random();
-    var ticks = 0;
-    final reduced = MediaQuery.disableAnimationsOf(context);
-    _animation?.cancel();
-    _animation =
-        Timer.periodic(Duration(milliseconds: reduced ? 1 : 65), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      setState(() {
-        _display = random.nextInt(widget.hitDie) + 1;
-        if (reduced || ++ticks >= 10) {
-          timer.cancel();
-          _roll = _display;
-          _rolling = false;
-          HapticFeedback.mediumImpact();
-        }
-      });
+    _landing?.cancel();
+    if (reduced) return;
+    // The maximum moves once the die has landed.
+    _landing = Timer(const Duration(milliseconds: 620), () {
+      if (!mounted) return;
+      setState(() => _rolling = false);
+      if (result == widget.hitDie) HapticFeedback.mediumImpact();
     });
   }
 
@@ -98,135 +94,153 @@ class _HpIncreaseStepState extends State<HpIncreaseStep>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final c = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
-    final die = _method == 'average' ? widget.hitDie ~/ 2 + 1 : _roll;
-    final gain =
-        die == null ? null : max(1, die + widget.conMod) + widget.additionalHp;
-    final motion = MediaQuery.disableAnimationsOf(context)
-        ? Duration.zero
-        : const Duration(milliseconds: 240);
+    final tr = Tr(context);
+    final heal = AppPaletteRoles.heal(context);
+    final avg = widget.hitDie ~/ 2 + 1;
+    final die = _method == 'average' ? avg : _roll;
+    final gain = die == null || _rolling
+        ? null
+        : max(1, die + widget.conMod) + widget.additionalHp;
+    final d = '${tr.t('к', 'd')}${widget.hitDie}';
+    final con = widget.conMod >= 0 ? '+${widget.conMod}' : '−${-widget.conMod}';
     return Column(children: [
-      Expanded(
-          child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      AdvancementStepList(
+              padding: EdgeInsets.fromLTRB(
+                  20, 8, 20, 20 + AdvancementDockScope.inset(context)),
               children: [
             AdvancementHeading(
                 title: l10n.advancementHealthTitle,
                 subtitle: l10n.advancementHealthHint),
-            AnimatedContainer(
-                duration: motion,
-                padding: const EdgeInsets.all(24),
-                decoration: companionDecoration(context,
-                    raised: true,
-                    color: colors.secondaryContainer,
-                    shape:
-                        const CompanionShape(contour: CompanionContour.facet)),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                  Text(l10n.advancementMaximumHp,
-                                      style: theme.textTheme.labelLarge),
-                                  const SizedBox(height: 8),
-                                  AnimatedSwitcher(
-                                      duration: motion,
-                                      child: Text(
-                                          _rolling
-                                              ? '$_display'
-                                              : gain == null
-                                                  ? '—'
-                                                  : '+$gain',
-                                          key: ValueKey(
-                                              '$_rolling:$gain:$_display'),
-                                          style: theme.textTheme.displayMedium
-                                              ?.copyWith(
-                                                  fontWeight: FontWeight.w600,
-                                                  letterSpacing: -1.5))),
-                                ])),
-                            Container(
-                                padding: const EdgeInsets.all(14),
-                                decoration: BoxDecoration(
-                                    color: colors.surface.withValues(alpha: .7),
-                                    borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
-                                child: Column(children: [
-                                  Icon(Icons.casino_outlined,
-                                      color: colors.onSecondaryContainer,
-                                      size: 28),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                      '${Localizations.localeOf(context).languageCode == 'ru' ? 'к' : 'd'}${widget.hitDie}',
-                                      style: theme.textTheme.labelLarge),
-                                ])),
-                          ]),
-                      const SizedBox(height: 16),
-                      if (widget.maximumHp != null && gain != null)
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(28),
+                gradient: LinearGradient(
+                    begin: const Alignment(-.6, -1),
+                    end: const Alignment(.6, 1),
+                    colors: [
+                      pageMix(heal, .16, c.surfaceContainerLow),
+                      c.surfaceContainerLow
+                    ],
+                    stops: const [0, .7]),
+              ),
+              child: Row(children: [
+                Expanded(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        PageCap(l10n.advancementMaximumHp, accent: heal),
+                        const SizedBox(height: 8),
+                        Row(
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              RollingNumber(
+                                  (widget.maximumHp ?? 0) + (gain ?? 0),
+                                  style: TextStyle(
+                                      fontFamily: AppType.display,
+                                      fontSize: 44,
+                                      height: 1,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: -1.3,
+                                      color: c.onSurface)),
+                              const SizedBox(width: 10),
+                              AnimatedSwitcher(
+                                duration:
+                                    AppMotion.of(context, AppMotion.snappySettle),
+                                switchInCurve: AppMotion.snappyCurve,
+                                transitionBuilder: (child, a) =>
+                                    ScaleTransition(scale: a, child: child),
+                                child: Text(gain == null ? '' : '+$gain',
+                                    key: ValueKey(gain),
+                                    style: TextStyle(
+                                        fontFamily: AppType.display,
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w600,
+                                        color: heal)),
+                              ),
+                            ]),
+                        const SizedBox(height: 6),
                         Text(
-                            '${widget.maximumHp} → ${widget.maximumHp! + gain}',
-                            style: theme.textTheme.titleLarge),
-                      const SizedBox(height: 6),
-                      Text(
-                          l10n.advancementConIncluded(
-                              '${widget.conMod >= 0 ? '+' : ''}${widget.conMod}'),
-                          style: theme.textTheme.bodySmall
-                              ?.copyWith(color: colors.onSurfaceVariant)),
-                      if (widget.additionalHp != 0)
-                        Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                                l10n.advancementHpBonus(
-                                    widget.additionalHpLabel ??
-                                        l10n.classFeatures,
-                                    widget.additionalHp),
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                    color: colors.onSurfaceVariant))),
-                    ])),
-            const SizedBox(height: 20),
-            _methodTile(
-                'average',
-                l10n.average,
-                l10n.advancementAverageDie(widget.hitDie ~/ 2 + 1),
-                Icons.balance_rounded, () {
-              _animation?.cancel();
-              setState(() {
-                _method = 'average';
-                _rolling = false;
-              });
-            }),
-            const SizedBox(height: 10),
-            _methodTile(
-                'roll',
-                l10n.roll,
-                _roll == null
-                    ? (l10n.advancementRollHere(widget.hitDie))
-                    : (l10n.advancementRollAgain(_roll!)),
-                Icons.casino_outlined,
-                _startRoll),
-            const SizedBox(height: 10),
-            _methodTile('manual', l10n.advancementOwnDie,
-                l10n.advancementOwnDieHint, Icons.edit_note_rounded, _ownRoll),
-            const SizedBox(height: 20),
+                            tr.t('Кость хитов $d · Телосложение $con',
+                                'Hit die $d · Constitution $con'),
+                            style: TextStyle(
+                                fontSize: 13,
+                                height: 1.3,
+                                fontWeight: FontWeight.w500,
+                                color: c.onSurfaceVariant)),
+                        if (widget.additionalHp != 0)
+                          Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                  l10n.advancementHpBonus(
+                                      widget.additionalHpLabel ??
+                                          l10n.classFeatures,
+                                      widget.additionalHp),
+                                  style: TextStyle(
+                                      fontSize: 12.5,
+                                      color: c.onSurfaceVariant))),
+                      ]),
+                ),
+                const SizedBox(width: 12),
+                TumbleDie(
+                    shape: dieShapeFor(widget.hitDie),
+                    label: _method == 'average' || _roll == null
+                        ? d
+                        : '$_roll',
+                    accent: heal,
+                    rollKey: _tosses,
+                    size: 84,
+                    sides: widget.hitDie,
+                    natural: _method == 'average' ? null : _roll),
+              ]),
+            ),
+            const SizedBox(height: 16),
+            IntrinsicHeight(
+              child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Expanded(
+                    child: _tile('average', l10n.average,
+                        '$avg $con = ${max(1, avg + widget.conMod)}', 'stats',
+                        () {
+                  _landing?.cancel();
+                  setState(() {
+                    _method = 'average';
+                    _rolling = false;
+                  });
+                })),
+                const SizedBox(width: 8),
+                Expanded(
+                    child: _tile(
+                        'roll',
+                        l10n.roll,
+                        _roll == null || _method != 'roll'
+                            ? tr.t('$d в приложении', '$d in the app')
+                            : tr.t('Выпало $_roll · ещё раз',
+                                'Rolled $_roll · again'),
+                        'dice',
+                        _startRoll)),
+                const SizedBox(width: 8),
+                Expanded(
+                    child: _tile('manual', l10n.advancementOwnDie,
+                        tr.t('Бросок за столом', 'Rolled at the table'), 'edit',
+                        _ownRoll)),
+              ]),
+            ),
+            const SizedBox(height: 16),
             Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Icon(Icons.favorite_outline_rounded,
-                  size: 18, color: colors.onSurfaceVariant),
+              LineIcon('heart', size: 18, color: c.onSurfaceVariant),
               const SizedBox(width: 10),
               Expanded(
                   child: Text(
                       widget.currentHp == null
                           ? (l10n.advancementNoHealing)
                           : (l10n.advancementHpPreserved(widget.currentHp!)),
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: colors.onSurfaceVariant)))
+                      style: TextStyle(
+                          fontSize: 13, height: 1.4, color: c.onSurfaceVariant)))
             ]),
-          ])),
+          ]),
       AdvancementFooter(
           label: l10n.continueLabel,
           hint: _rolling ? (l10n.advancementRolling) : null,
@@ -242,51 +256,67 @@ class _HpIncreaseStepState extends State<HpIncreaseStep>
     ]);
   }
 
-  Widget _methodTile(String id, String title, String subtitle, IconData icon,
+  // A method tile (`.mtile`): selected, it squares its corners and fills
+  // its round icon with the secondary colour.
+  Widget _tile(String id, String title, String subtitle, String icon,
       VoidCallback action) {
-    final colors = Theme.of(context).colorScheme;
-    final selected = _method == id;
+    final c = Theme.of(context).colorScheme;
+    final on = _method == id;
+    final dur = AppMotion.of(context, AppMotion.snappySettle);
     return Semantics(
-        selected: selected,
-        child: Material(
-            color: selected
-                ? colors.surfaceContainerHigh
-                : colors.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-                key: ValueKey('hp-method-$id'),
-                onTap: _rolling
-                    ? null
-                    : () {
-                        HapticFeedback.selectionClick();
-                        action();
-                      },
-                child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(children: [
-                      Icon(icon, color: colors.primary),
-                      const SizedBox(width: 14),
-                      Expanded(
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                            Text(title,
-                                style: Theme.of(context).textTheme.titleSmall),
-                            const SizedBox(height: 4),
-                            Text(subtitle,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(color: colors.onSurfaceVariant))
-                          ])),
-                      const SizedBox(width: 12),
-                      Icon(
-                          selected
-                              ? Icons.radio_button_checked_rounded
-                              : Icons.radio_button_off_rounded,
-                          color: selected ? colors.primary : colors.outline,
-                          size: 22),
-                    ])))));
+      selected: on,
+      child: Pressable(
+        key: ValueKey('hp-method-$id'),
+        onTap: _rolling
+            ? null
+            : () {
+                HapticFeedback.selectionClick();
+                action();
+              },
+        scale: .96,
+        child: AnimatedContainer(
+          duration: dur,
+          curve: AppMotion.snappyCurve,
+          constraints: const BoxConstraints(minHeight: 112),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(on ? 16 : 22),
+            color: on
+                ? pageMix(c.secondary, .15, c.surfaceContainerLow)
+                : c.surfaceContainerLow,
+            border: Border.all(
+                color: on
+                    ? c.secondary.withValues(alpha: .5)
+                    : Colors.transparent,
+                width: 1.5),
+          ),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            AnimatedContainer(
+              duration: dur,
+              curve: AppMotion.snappyCurve,
+              width: 38,
+              height: 38,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  color: on ? c.secondary : c.onSurface.withValues(alpha: .07),
+                  borderRadius: BorderRadius.circular(on ? 12 : 19)),
+              child: LineIcon(icon,
+                  size: 20, color: on ? c.surface : c.onSurface),
+            ),
+            const SizedBox(height: 8),
+            Text(title,
+                style: TextStyle(
+                    fontSize: 14,
+                    height: 1.15,
+                    fontWeight: FontWeight.w600,
+                    color: c.onSurface)),
+            const SizedBox(height: 4),
+            Text(subtitle,
+                style: TextStyle(
+                    fontSize: 12, height: 1.3, color: c.onSurfaceVariant)),
+          ]),
+        ),
+      ),
+    );
   }
 }

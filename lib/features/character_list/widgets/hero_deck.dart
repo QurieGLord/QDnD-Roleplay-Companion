@@ -32,6 +32,10 @@ class HeroDeck extends StatefulWidget {
   final void Function(Character character, GlobalKey origin) onOpen;
   final void Function(Character character) onHold;
 
+  /// A hero just created (wave 6): the deck turns to them and their card
+  /// rises into the party.
+  static final arrived = ValueNotifier<String?>(null);
+
   @override
   State<HeroDeck> createState() => _HeroDeckState();
 }
@@ -50,10 +54,30 @@ class _HeroDeckState extends State<HeroDeck> {
   void initState() {
     super.initState();
     _controller.addListener(_tick);
+    HeroDeck.arrived.addListener(_turnToArrival);
+  }
+
+  // The deck turns to a hero who has just joined, once their card exists.
+  void _turnToArrival() {
+    final id = HeroDeck.arrived.value;
+    if (id == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_controller.hasClients) return;
+      final index = widget.characters.indexWhere((h) => h.id == id);
+      if (index < 0) return;
+      _controller.jumpTo(index * _pitch);
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant HeroDeck old) {
+    super.didUpdateWidget(old);
+    if (old.characters.length != widget.characters.length) _turnToArrival();
   }
 
   @override
   void dispose() {
+    HeroDeck.arrived.removeListener(_turnToArrival);
     _controller.removeListener(_tick);
     _controller.dispose();
     _party.dispose();
@@ -145,7 +169,9 @@ class _HeroDeckState extends State<HeroDeck> {
               valueListenable: DeckRevealRoute.hiddenHero,
               builder: (context, hidden, card) =>
                   Opacity(opacity: hidden == heroes[i].id ? 0 : 1, child: card),
-              child: DeckCard(
+              child: _Arrival(
+               id: heroes[i].id,
+               child: DeckCard(
                 key: ValueKey('character-card-${heroes[i].id}'),
                 character: heroes[i],
                 height: geometry.full,
@@ -154,6 +180,7 @@ class _HeroDeckState extends State<HeroDeck> {
                   HapticFeedback.mediumImpact();
                   widget.onHold(heroes[i]);
                 },
+              ),
               ),
             ),
           ),
@@ -290,6 +317,67 @@ class _HeroDeckState extends State<HeroDeck> {
 }
 
 /// Card sizes follow the text scale so large text keeps its room.
+/// A hero who has just joined rises into the deck: from below, a little
+/// smaller, on a spring, after the creation page has gone.
+class _Arrival extends StatefulWidget {
+  const _Arrival({required this.id, required this.child});
+  final String id;
+  final Widget child;
+  @override
+  State<_Arrival> createState() => _ArrivalState();
+}
+
+class _ArrivalState extends State<_Arrival> with SingleTickerProviderStateMixin {
+  late final _t = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 720), value: 1);
+
+  @override
+  void initState() {
+    super.initState();
+    HeroDeck.arrived.addListener(_check);
+    _check();
+  }
+
+  void _check() {
+    if (HeroDeck.arrived.value != widget.id || _t.isAnimating) return;
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+      HeroDeck.arrived.value = null;
+      return;
+    }
+    _t.value = 0;
+    Future<void>.delayed(const Duration(milliseconds: 280), () {
+      if (!mounted) return;
+      HapticFeedback.mediumImpact();
+      _t.forward().whenComplete(() {
+        if (HeroDeck.arrived.value == widget.id) HeroDeck.arrived.value = null;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    HeroDeck.arrived.removeListener(_check);
+    _t.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: _t,
+        child: widget.child,
+        builder: (context, child) {
+          final p = AppMotion.snappyCurve.transform(_t.value);
+          return Opacity(
+            opacity: AppMotion.standard.transform(_t.value),
+            child: Transform.translate(
+              offset: Offset(0, 40 * (1 - p)),
+              child: Transform.scale(scale: .9 + .1 * p, child: child),
+            ),
+          );
+        },
+      );
+}
+
 class _DeckGeometry {
   _DeckGeometry(this.scale);
   final double scale;

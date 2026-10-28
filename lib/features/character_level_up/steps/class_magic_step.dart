@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import '../../../core/models/spell.dart';
 import '../../../core/progression/spell_learning_plan.dart';
 import '../../../core/ui/companion_surface.dart';
-import '../../../core/ui/sheet_drag_region.dart';
-import '../../../core/search/journal_search.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../shared/widgets/spell_details_sheet.dart';
 import '../../spell_almanac/spell_almanac_strings.dart';
 import '../widgets/advancement_layout.dart';
-import '../widgets/advancement_selection.dart';
+import '../widgets/advancement_climb.dart';
+import '../widgets/advancement_spells.dart';
+import '../../../core/theme/app_tokens.dart';
+import '../../../core/theme/app_palettes.dart';
+import '../../../core/ui/companion_kit.dart';
+import '../../../core/ui/expressive_kit.dart';
+import '../../../core/ui/page_kit.dart';
 
 class ClassMagicStep extends StatelessWidget {
   const ClassMagicStep(
@@ -49,31 +52,26 @@ class ClassMagicStep extends StatelessWidget {
         SpellLearningKind.unrestricted =>
           s.t('Заклинание любой школы', 'Spell from any school')
       };
+  // Every option in a sheet of spell rows; «Готово» applies the picks.
   Future<void> _pick(BuildContext context, SpellLearningChoice choice) async {
-    final values = await showResponsiveSheet<List<String>>(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        builder: (_) => _SpellPicker(
-            title: _name(choice.kind, AlmanacStrings(context)),
-            spells: choice.options,
-            limit: choice.count,
-            initial: selected[choice.key] ?? []));
-    if (values != null) onChanged({...selected, choice.key: values});
+    final result = await showSpellChooser(context,
+        title: _name(choice.kind, AlmanacStrings(context)),
+        spells: choice.options,
+        selected: {...?selected[choice.key]},
+        limit: choice.count,
+        school: (spell) => spellLine(context, spell));
+    if (result != null) onChanged({...selected, choice.key: result.toList()});
   }
 
   Future<String?> _single(BuildContext context, String title,
       List<Spell> spells, String? initial) async {
-    final values = await showResponsiveSheet<List<String>>(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        builder: (_) => _SpellPicker(
-            title: title,
-            spells: spells,
-            limit: 1,
-            initial: initial == null ? [] : [initial]));
-    return values?.firstOrNull;
+    final result = await showSpellChooser(context,
+        title: title,
+        spells: spells,
+        selected: {if (initial != null) initial},
+        limit: 1,
+        school: (spell) => spellLine(context, spell));
+    return result == null ? initial : result.firstOrNull;
   }
 
   @override
@@ -93,8 +91,10 @@ class ClassMagicStep extends StatelessWidget {
           'Finish the spell choices. A spell cannot fill two learning choices.');
     }
     return Column(children: [
-      Expanded(
-          child: ListView(padding: const EdgeInsets.all(20), children: [
+      AdvancementStepList(
+              padding: EdgeInsets.fromLTRB(
+                  20, 20, 20, 20 + AdvancementDockScope.inset(context)),
+              children: [
         AdvancementHeading(
             title: s.t('Магия класса', 'Class spellcasting'),
             subtitle: s.t(
@@ -153,49 +153,116 @@ class ClassMagicStep extends StatelessWidget {
                         s.t('Применить выборы книги', 'Use these choices'))),
               ])),
         for (final choice in plan.choices)
-          Padding(
+          Builder(builder: (context) {
+            // The count of the prototype (`.mbar`): how many are picked of
+            // how many this level teaches; the picked ones as capsules.
+            final magic = AppAccents.of(context).at(5);
+            final picked = [
+              for (final id in selected[choice.key] ?? const <String>[])
+                choice.options
+                        .where((v) => v.id == id)
+                        .firstOrNull
+                        ?.getName(s.ru ? 'ru' : 'en') ??
+                    id
+            ];
+            return Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: CompanionSurface(
-                  contour: CompanionContour.focus,
-                  onTap: () => _pick(context, choice),
-                  padding: const EdgeInsets.all(18),
+              child: Pressable(
+                onTap: () => _pick(context, choice),
+                haptic: true,
+                scale: .985,
+                // Once the choice is whole the card warms, squares its
+                // corners and takes a thin ring.
+                child: AnimatedContainer(
+                  duration: AppMotion.of(context, AppMotion.snappySettle),
+                  curve: AppMotion.snappyCurve,
+                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+                  decoration: BoxDecoration(
+                      color: pageMix(
+                          magic,
+                          picked.length >= choice.count ? .16 : .1,
+                          c.surfaceContainerLow),
+                      border: Border.all(
+                          color: picked.length >= choice.count
+                              ? magic.withValues(alpha: .5)
+                              : Colors.transparent,
+                          width: 1.5),
+                      borderRadius: BorderRadius.circular(
+                          picked.length >= choice.count ? 16 : 22)),
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(children: [
+                          RollingNumber(picked.length,
+                              style: TextStyle(
+                                  fontFamily: AppType.display,
+                                  fontSize: 28,
+                                  height: 1,
+                                  fontWeight: FontWeight.w600,
+                                  color: c.onSurface)),
+                          const SizedBox(width: 12),
                           Expanded(
-                              child: Text(_name(choice.kind, s),
-                                  style: t.titleMedium
-                                      ?.copyWith(fontWeight: FontWeight.w800))),
-                          const SizedBox(width: 10),
-                          Text(
-                              '${selected[choice.key]?.length ?? 0}/${choice.count}',
-                              style: t.titleSmall?.copyWith(color: c.secondary))
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                      '${s.t('из', 'of')} ${choice.count} · ${_name(choice.kind, s)}',
+                                      style: TextStyle(
+                                          fontSize: 14.5,
+                                          fontWeight: FontWeight.w600,
+                                          color: c.onSurface)),
+                                  const SizedBox(height: 2),
+                                  AnimatedSwitcher(
+                                    duration: AppMotion.of(
+                                        context, AppMotion.medium),
+                                    child: Text(
+                                        key: ValueKey(picked.isEmpty),
+                                        picked.isEmpty
+                                            ? s.t('Коснитесь, чтобы выбрать',
+                                                'Tap to choose')
+                                            : s.t('Коснитесь, чтобы изменить',
+                                                'Tap to change'),
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            color: c.onSurfaceVariant)),
+                                  ),
+                                ]),
+                          ),
+                          LineIcon('forward',
+                              size: 18, color: c.onSurfaceVariant),
                         ]),
-                        const SizedBox(height: 8),
-                        Text(
-                            (selected[choice.key] ?? [])
-                                    .map((id) =>
-                                        choice.options
-                                            .where((v) => v.id == id)
-                                            .firstOrNull
-                                            ?.getName(s.ru ? 'ru' : 'en') ??
-                                        id)
-                                    .join(' · ')
-                                    .isEmpty
-                                ? s.t('Выбрать заклинания', 'Choose spells')
-                                : (selected[choice.key] ?? [])
-                                    .map((id) =>
-                                        choice.options
-                                            .where((v) => v.id == id)
-                                            .firstOrNull
-                                            ?.getName(s.ru ? 'ru' : 'en') ??
-                                        id)
-                                    .join(' · '),
-                            style: t.bodyMedium),
+                        // The picked spells arrive as capsules; the card
+                        // grows to hold them.
+                        SoftSize(
+                          duration:
+                              AppMotion.of(context, AppMotion.gentleSettle),
+                          curve: AppMotion.standard,
+                          alignment: Alignment.topLeft,
+                          child: picked.isEmpty
+                              ? const SizedBox(width: double.infinity)
+                              : Padding(
+                                  padding: const EdgeInsets.only(top: 12),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: Wrap(
+                                        spacing: 6,
+                                        runSpacing: 6,
+                                        children: [
+                                          for (final (i, name)
+                                              in picked.indexed)
+                                            _Arrive(
+                                                key: ValueKey(name),
+                                                delay: i,
+                                                child: AdvancementFact(name,
+                                                    accent: magic,
+                                                    icon: 'magic')),
+                                        ]),
+                                  ),
+                                ),
+                        ),
                         if (choice.allowedSchools.isNotEmpty)
                           Padding(
-                              padding: const EdgeInsets.only(top: 8),
+                              padding: const EdgeInsets.only(top: 10),
                               child: Text(
                                   s.t('Школы подкласса; свободных выборов другой школы: ${choice.freeSchoolChoices}.',
                                       'Subclass schools; unrestricted choices: ${choice.freeSchoolChoices}.'),
@@ -208,7 +275,11 @@ class ClassMagicStep extends StatelessWidget {
                                       'The library does not contain enough eligible spells.'),
                                   style:
                                       t.bodySmall?.copyWith(color: c.error))),
-                      ]))),
+                      ]),
+                ),
+              ),
+            );
+          }),
         if (plan.replaceable.isNotEmpty)
           Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -267,138 +338,32 @@ class ClassMagicStep extends StatelessWidget {
           Text(s.t(
               'Новых выборов заклинаний на этом уровне нет. Изменения запасов показаны в итогах.',
               'No new spell choices at this level. Pool changes appear in the review.')),
-      ])),
+      ]),
       AdvancementFooter(
           label: l.next, onPressed: ready ? onNext : null, hint: issue)
     ]);
   }
 }
 
-class _SpellPicker extends StatefulWidget {
-  const _SpellPicker(
-      {required this.title,
-      required this.spells,
-      required this.limit,
-      required this.initial});
-  final String title;
-  final List<Spell> spells;
-  final int limit;
-  final List<String> initial;
-  @override
-  State<_SpellPicker> createState() => _SpellPickerState();
-}
-
-class _SpellPickerState extends State<_SpellPicker> {
-  late Set<String> _selected = widget.initial.toSet();
-  String _query = '';
+/// A capsule that rises into place, a moment after its neighbours.
+class _Arrive extends StatelessWidget {
+  const _Arrive({super.key, required this.delay, required this.child});
+  final int delay;
+  final Widget child;
   @override
   Widget build(BuildContext context) {
-    final s = AlmanacStrings(context),
-        l = AppLocalizations.of(context)!,
-        t = Theme.of(context).textTheme;
-    final search = JournalSearch(_query);
-    final spells = widget.spells
-        .where((v) =>
-            search.matches([v.getName(s.ru ? 'ru' : 'en'), v.nameRu, v.nameEn]))
-        .toList()
-      ..sort((a, b) => a.level != b.level
-          ? a.level.compareTo(b.level)
-          : a
-              .getName(s.ru ? 'ru' : 'en')
-              .compareTo(b.getName(s.ru ? 'ru' : 'en')));
-    return DraggableScrollableSheet(
-        initialChildSize: .9,
-        minChildSize: .5,
-        maxChildSize: .96,
-        expand: false,
-        builder: (context, controller) => Column(children: [
-              SheetDragRegion(
-                  child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-                      child: Row(children: [
-                        Expanded(
-                            child: Text(widget.title,
-                                style: t.titleLarge
-                                    ?.copyWith(fontWeight: FontWeight.w800))),
-                        Text('${_selected.length}/${widget.limit}')
-                      ]))),
-              Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: TextField(
-                      autofocus: false,
-                      decoration: InputDecoration(
-                          hintText: l.searchSpells,
-                          prefixIcon: const Icon(Icons.search_rounded)),
-                      onChanged: (v) => setState(() => _query = v))),
-              const SizedBox(height: 10),
-              Expanded(
-                  child: ListView.builder(
-                      controller: controller,
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      itemCount: spells.length,
-                      itemBuilder: (context, i) {
-                        final spell = spells[i],
-                            selected = _selected.contains(spell.id);
-                        return Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: CompanionSurface(
-                                quiet: !selected,
-                                raised: selected,
-                                padding: const EdgeInsets.all(14),
-                                onTap: () => setState(() => _selected =
-                                    toggleAdvancementSelection(
-                                        _selected, spell.id, widget.limit)),
-                                onLongPress: () => showResponsiveSheet<void>(
-                                    context: context,
-                                    isScrollControlled: true,
-                                    useSafeArea: true,
-                                    builder: (_) =>
-                                        SpellDetailsSheet(spell: spell)),
-                                child: Row(children: [
-                                  Icon(selected
-                                      ? Icons.check_circle_rounded
-                                      : Icons.circle_outlined),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                      child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                        Text(spell.getName(s.ru ? 'ru' : 'en'),
-                                            style: t.titleSmall?.copyWith(
-                                                fontWeight: FontWeight.w700)),
-                                        const SizedBox(height: 3),
-                                        Text(
-                                            spell.level == 0
-                                                ? l.cantrips
-                                                : l.levelLabel(spell.level),
-                                            style: t.bodySmall)
-                                      ])),
-                                  IconButton(
-                                      tooltip: s.t('Описание', 'Details'),
-                                      onPressed: () =>
-                                          showResponsiveSheet<void>(
-                                              context: context,
-                                              isScrollControlled: true,
-                                              useSafeArea: true,
-                                              builder: (_) => SpellDetailsSheet(
-                                                  spell: spell)),
-                                      icon: const Icon(
-                                          Icons.info_outline_rounded))
-                                ])));
-                      })),
-              SafeArea(
-                  top: false,
-                  child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),
-                      child: SizedBox(
-                          width: double.infinity,
-                          child: FilledButton(
-                              onPressed: _selected.length == widget.limit
-                                  ? () =>
-                                      Navigator.pop(context, _selected.toList())
-                                  : null,
-                              child: Text(l.apply))))),
-            ]));
+    final total = 420 + delay * 60;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: MediaQuery.disableAnimationsOf(context) ? 1 : 0, end: 1),
+      duration: AppMotion.of(context, Duration(milliseconds: total)),
+      curve: Interval(delay * 60 / total, 1, curve: AppMotion.snappyCurve),
+      builder: (context, t, child) => Opacity(
+        opacity: t.clamp(0, 1),
+        child: Transform.translate(
+            offset: Offset(0, 10 * (1 - t)),
+            child: Transform.scale(scale: .7 + .3 * t, child: child)),
+      ),
+      child: child,
+    );
   }
 }

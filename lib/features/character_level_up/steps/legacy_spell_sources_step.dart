@@ -44,8 +44,10 @@ class LegacySpellSourcesStep extends StatelessWidget {
     }
 
     return Column(children: [
-      Expanded(
-          child: ListView(padding: const EdgeInsets.all(20), children: [
+      AdvancementStepList(
+              padding: EdgeInsets.fromLTRB(
+                  20, 20, 20, 20 + AdvancementDockScope.inset(context)),
+              children: [
         AdvancementHeading(
             title: s.t(
                 'Откуда эти заклинания?', 'Where did these spells come from?'),
@@ -154,7 +156,7 @@ class LegacySpellSourcesStep extends StatelessWidget {
                               onSelected: (_) => choose(id, 'manual')),
                         ]),
                       ]))),
-      ])),
+      ]),
       AdvancementFooter(
           label: l.next,
           hint: assigned == ids.length

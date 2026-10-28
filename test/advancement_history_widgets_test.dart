@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:qd_and_d/core/ui/page_kit.dart';
 import 'package:hive/hive.dart';
 import 'package:qd_and_d/core/models/character.dart';
 import 'package:qd_and_d/core/progression/advancement_history.dart';
@@ -62,12 +63,13 @@ void main() {
       expect(c.level, 2);
       expect(find.text(locale == 'ru' ? 'После отката' : 'After reverting'),
           findsOneWidget);
-      final confirm =
-          find.text(locale == 'ru' ? 'Подтвердить откат' : 'Confirm rollback');
-      await tester.ensureVisible(confirm);
+      // The rollback is held, not tapped; the held button fires its action.
+      final hold = find.byKey(const ValueKey('history-rollback-hold'));
+      await tester.ensureVisible(hold);
       await tester.pumpAndSettle();
       await tester.runAsync(() async {
-        await tester.tap(confirm);
+        tester.widget<PageHold>(hold).onDone();
+        await Future<void>.delayed(const Duration(seconds: 2));
         await GameplayActionsService.serializeCharacter(
             c, () => Hive.box<Character>('characters').flush());
       });
@@ -98,11 +100,12 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Уровень героя 1 → 2'));
     await tester.pumpAndSettle();
-    final confirm = find.text('Подтвердить откат');
-    await tester.ensureVisible(confirm);
+    final hold = find.byKey(const ValueKey('history-rollback-hold'));
+    await tester.ensureVisible(hold);
     await tester.pumpAndSettle();
     await tester.runAsync(() async {
-      await tester.tap(confirm);
+      tester.widget<PageHold>(hold).onDone();
+      await Future<void>.delayed(const Duration(seconds: 2));
       await GameplayActionsService.serializeCharacter(
           c, () => Hive.box<Character>('characters').flush());
     });

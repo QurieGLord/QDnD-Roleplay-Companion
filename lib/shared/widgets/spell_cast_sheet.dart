@@ -18,7 +18,7 @@ import '../../features/spell_almanac/spell_almanac_strings.dart';
 import '../../core/progression/character_class_context.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/ui/companion_kit.dart'
-    show Pressable, SheetGrab, SheetTopFade;
+    show FloatingIsland, Pressable, SheetGrab, SheetTopFade;
 import '../../core/utils/spell_utils.dart';
 import '../../features/character_sheet/widgets/class_widgets/instrument/instrument_kit.dart'
     show classAccent, TumbleDie, dieShapeFor;
@@ -408,7 +408,7 @@ class _SpellCastSheetState extends State<SpellCastSheet> {
                       child: ListView(
                           controller: controller,
                           padding: const EdgeInsets.fromLTRB(
-                              18, SheetGrab.inset, 18, 18),
+                              18, SheetGrab.inset, 18, 56 + 16 + 40),
                           children: [
                             SheetDragRegion(
                                 enabled: !_saving,
@@ -716,10 +716,13 @@ class _SpellCastSheetState extends State<SpellCastSheet> {
                     ),
                     const Positioned(
                         left: 0, right: 0, top: 0, child: SheetGrab()),
-                  ])),
-                  Padding(
-                      padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
-                      child: SizedBox(
+                    // The confirm floats over the list in a glass island.
+                    Positioned(
+                        left: 14,
+                        right: 14,
+                        bottom: 14,
+                        child: FloatingIsland(
+                            child: SizedBox(
                           width: double.infinity,
                           height: 56,
                           child: FilledButton.icon(
@@ -768,7 +771,9 @@ class _SpellCastSheetState extends State<SpellCastSheet> {
                                   style: const TextStyle(
                                       fontFamily: AppType.body,
                                       fontSize: 15,
-                                      fontWeight: FontWeight.w600))))),
+                                      fontWeight: FontWeight.w600)))))),
+                  ])),
+
                 ])));
   }
 

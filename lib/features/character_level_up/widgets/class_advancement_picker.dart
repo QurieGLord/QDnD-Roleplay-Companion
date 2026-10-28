@@ -5,6 +5,7 @@ import '../../../shared/widgets/content_variant_picker.dart';
 import 'package:flutter/material.dart';
 import '../../../core/models/character.dart';
 import '../../../core/models/class_data.dart';
+import '../../../core/models/character_class.dart';
 import '../../../core/progression/multiclass_rules.dart';
 import '../../../core/services/character_data_service.dart';
 import '../../../core/ui/companion_surface.dart';
@@ -25,6 +26,151 @@ Future<AdvancementTarget?> chooseAdvancementClass(
         isScrollControlled: true,
         useSafeArea: true,
         builder: (_) => _ClassPicker(hero: hero));
+
+/// A class the hero could take the next level in: one they have (with its
+/// entry) or a new one, with what stands in the way.
+class AdvancementClassOption {
+  const AdvancementClassOption(
+      {required this.data,
+      required this.family,
+      this.entry,
+      this.unavailable = false});
+  final ClassData data;
+  final ContentFamily<ClassData> family;
+
+  /// The hero's own entry of this class; null for a new class.
+  final CharacterClass? entry;
+
+  /// The saved rules of an owned class need recovery.
+  final bool unavailable;
+
+  bool get owned => entry != null;
+}
+
+/// Every class the next level can go to: the hero's own first, then the
+/// rest by name. A class known in several books appears once.
+List<AdvancementClassOption> advancementClassOptions(
+    Character hero, String locale) {
+  final families = ContentCatalog(CharacterDataService.getAllClasses()
+          .map(ContentRecords.characterClass))
+      .families;
+  final options = <AdvancementClassOption>[];
+  for (final family in families) {
+    final owned = hero.classes
+        .where((entry) =>
+            family.records.any((r) => r.id == entry.id) ||
+            family.aliases.contains(ContentRecord.normalize(
+                FC5ContentIdentityService.canonicalClassId(entry.name))))
+        .firstOrNull;
+    if (owned != null) {
+      try {
+        options.add(AdvancementClassOption(
+            data: CharacterClassRules.resolve(owned).data,
+            family: family,
+            entry: owned));
+      } catch (_) {
+        options.add(AdvancementClassOption(
+            data: family.records.first.entity,
+            family: family,
+            entry: owned,
+            unavailable: true));
+      }
+      continue;
+    }
+    final records = family.records.toList()
+      ..sort((a, b) {
+        if ((a.sourceId == null) != (b.sourceId == null)) {
+          return a.sourceId == null ? -1 : 1;
+        }
+        return a.id.compareTo(b.id);
+      });
+    options.add(AdvancementClassOption(
+        data: records.first.entity, family: family));
+  }
+  options.sort((a, b) {
+    if (a.owned != b.owned) return a.owned ? -1 : 1;
+    return a.data.getName(locale).compareTo(b.data.getName(locale));
+  });
+  return options;
+}
+
+/// Resolves a chosen class into an advancement target: a book variant when
+/// the class comes from several, the rules-edition check, and the GM's
+/// ruling for prerequisites the hero does not meet. Null — nothing chosen.
+Future<AdvancementTarget?> resolveAdvancementClass(BuildContext context,
+    Character hero, AdvancementClassOption option) async {
+  final s = AlmanacStrings(context);
+  if (option.unavailable) {
+    await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+                title: Text(s.t(
+                    'Правила класса недоступны', 'Class rules unavailable')),
+                content: Text(s.t(
+                    'Сохранённые правила этого класса требуют восстановления. Подключи нужную книгу; текущие решения героя сохранены.',
+                    'The saved rules for this class need recovery. Connect its book; your character’s choices are preserved.')),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(s.t('Закрыть', 'Close')))
+                ]));
+    return null;
+  }
+  var data = option.data;
+  if (!option.owned && option.family.variants.length > 1) {
+    final selected = await showContentVariantPicker<ClassData>(
+        context, option.family,
+        title: data.getName(s.ru ? 'ru' : 'en'),
+        summary: (v) =>
+            '${s.t('Правила', 'Rules')}: ${v.rulesEdition == 'unknown' ? s.t('редакция не указана', 'edition not stated') : v.rulesEdition} · ${s.t('кость хитов', 'Hit Die')} d${v.hitDie}',
+        description: (v) => v.getDescription(s.ru ? 'ru' : 'en'));
+    if (selected == null || !context.mounted) return null;
+    data = selected;
+  }
+  if (!{'unknown', '2014'}.contains(data.rulesEdition)) {
+    await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+                title: Text(s.t('Редакция правил', 'Rules edition')),
+                content: Text(s.t(
+                    'Этот срез поддерживает развитие по правилам 2014. Герой не изменён.',
+                    'This slice supports 2014 advancement. The character has not changed.')),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(s.t('Закрыть', 'Close')))
+                ]));
+    return null;
+  }
+  final unmet = MulticlassRules.unmet(hero, data.id);
+  final known = data.rulesEdition == '2014';
+  if (!option.owned && (!known || unmet.isNotEmpty)) {
+    if (!context.mounted) return null;
+    final ok = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+                title: Text(
+                    s.t('Требования мультикласса', 'Multiclass prerequisites')),
+                content: Text(!known
+                    ? s.t(
+                        'Для этой книги нужны явные правила развития. Продолжить с ручной проверкой?',
+                        'This book needs explicit progression rules. Continue with a rules review?')
+                    : s.t(
+                        'Характеристики не соответствуют требованиям классов: ${unmet.map((id) => CharacterDataService.getClassById(id)?.getName('ru') ?? id).join(', ')}. Мастер разрешил исключение?',
+                        'Ability scores do not meet these class prerequisites: ${unmet.join(', ')}. Has your GM allowed an exception?')),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: Text(s.t('Назад', 'Back'))),
+                  FilledButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: Text(s.t('Решение мастера', 'GM ruling')))
+                ]));
+    if (ok != true) return null;
+    return AdvancementTarget(data, tableRuling: true);
+  }
+  return AdvancementTarget(data);
+}
 
 class _ClassPicker extends StatelessWidget {
   const _ClassPicker({required this.hero});

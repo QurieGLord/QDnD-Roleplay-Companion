@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../character_level_up/widgets/advancement_climb.dart';
+import '../../character_level_up/widgets/advancement_spells.dart';
+import '../../../core/ui/companion_kit.dart' show LineIcon;
+import '../../../core/ui/page_kit.dart' show Tr;
+import '../../character_sheet/widgets/class_widgets/instrument/instrument_kit.dart' show classAccent, classSigil;
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
@@ -7,7 +12,6 @@ import '../../../core/models/ability_scores.dart';
 import '../../../core/models/character_feature.dart';
 import '../../../core/services/feature_service.dart';
 import '../../../core/services/spell_service.dart';
-import '../../../core/models/class_data.dart';
 import '../../../core/constants/ranger_options.dart';
 import '../character_creation_state.dart';
 import '../../../ui/widgets/expressive_choice_selector.dart';
@@ -15,7 +19,11 @@ import '../../../core/utils/localization_helper.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class FeaturesSpellsStep extends StatelessWidget {
-  const FeaturesSpellsStep({super.key});
+  const FeaturesSpellsStep({super.key, this.embedded = false});
+
+  /// Inside the «Пролог» page: the chapter asks the question itself, and
+  /// the list leaves room for the island dock.
+  final bool embedded;
 
   static const Map<String, List<String>> _fightingStyleOptions = {
     'fighter': [
@@ -94,50 +102,6 @@ class FeaturesSpellsStep extends StatelessWidget {
     return economy;
   }
 
-  String _getLocalizedSchool(AppLocalizations l10n, String school) {
-    switch (school.toLowerCase()) {
-      case 'abjuration':
-        return l10n.schoolAbjuration;
-      case 'conjuration':
-        return l10n.schoolConjuration;
-      case 'divination':
-        return l10n.schoolDivination;
-      case 'enchantment':
-        return l10n.schoolEnchantment;
-      case 'evocation':
-        return l10n.schoolEvocation;
-      case 'illusion':
-        return l10n.schoolIllusion;
-      case 'necromancy':
-        return l10n.schoolNecromancy;
-      case 'transmutation':
-        return l10n.schoolTransmutation;
-      default:
-        return school;
-    }
-  }
-
-  IconData _getFeatureIcon(String? iconName) {
-    switch (iconName) {
-      case 'healing':
-        return Icons.favorite;
-      case 'visibility':
-        return Icons.visibility;
-      case 'flash_on':
-        return Icons.flash_on;
-      case 'swords':
-        return Icons.shield;
-      case 'auto_fix_high':
-        return Icons.auto_fix_high;
-      case 'health_and_safety':
-        return Icons.health_and_safety;
-      case 'auto_awesome':
-        return Icons.auto_awesome;
-      default:
-        return Icons.star;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<CharacterCreationState>(
@@ -183,11 +147,19 @@ class FeaturesSpellsStep extends StatelessWidget {
         final existingIds = standardFeatures.map((f) => f.id).toSet();
 
         for (var feature in classFeatures) {
-          if (!existingIds.contains(feature.id)) {
+          // The same feature can come from both sources under two ids.
+          if (!existingIds.contains(feature.id) &&
+              !allFeatures.any((f) => f.nameEn == feature.nameEn)) {
             allFeatures.add(feature);
             existingIds.add(feature.id);
           }
         }
+
+        // One card per feature even when two sources name it twice.
+        final seen = <String>{};
+        allFeatures.retainWhere((f) =>
+            seen.add(f.nameEn.trim().toLowerCase()) &
+            seen.add('ru:${f.nameRu.trim().toLowerCase()}'));
 
         // Filter and Categorize Features
         final choiceFeatures = <CharacterFeature>[];
@@ -234,21 +206,29 @@ class FeaturesSpellsStep extends StatelessWidget {
             state.selectedClass!.subclasses.isNotEmpty &&
                 state.selectedClass!.subclassLevel <= 1;
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
+        // Inside the «Пролог» page the chapter scrolls with the page.
+        final scroll = embedded
+            ? (Widget child) => Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 148),
+                child: child)
+            : (Widget child) => SingleChildScrollView(
+                padding: const EdgeInsets.all(16), child: child);
+        return scroll(Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                l10n.featuresStepTitle,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.featuresStepSubtitle(state.selectedClass!.getName(locale)),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 16),
+              if (!embedded) ...[
+                Text(
+                  l10n.featuresStepTitle,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  l10n.featuresStepSubtitle(
+                      state.selectedClass!.getName(locale)),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 16),
+              ],
 
               // 1. Subclass Selector (Highest Priority)
               if (showSubclassSelection) ...[
@@ -329,58 +309,52 @@ class FeaturesSpellsStep extends StatelessWidget {
 
   Widget _buildSubclassSelection(BuildContext context,
       CharacterCreationState state, AppLocalizations l10n, String locale) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadii.md),
-        side: BorderSide(
-            color:
-                Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.stars, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  l10n.selectSubclass,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ExpressiveChoiceSelector<SubclassData>(
-              value: state.selectedSubclass,
-              items: state.selectedClass!.subclasses,
-              placeholder: l10n.choose,
-              title: l10n.selectSubclass,
-              labelBuilder: (subclass) => subclass.getName(locale),
-              onChanged: (value) {
-                if (value != null) {
-                  state.updateSubclass(value);
-                }
-              },
-            ),
-            if (state.selectedSubclass != null) ...[
-              const SizedBox(height: 12),
-              Text(
-                state.selectedSubclass!.getDescription(locale),
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontStyle: FontStyle.italic,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-              ),
-            ],
-          ],
+    // The subclass as choice cards with the whole text behind the «i».
+    final cls = state.selectedClass!;
+    final accent = classAccent(context, cls.id);
+    final glyph = classSigil(cls.id);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      _group(context, l10n.selectSubclass, cls.getName(locale)),
+      for (final sub in cls.subclasses)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: AdvancementPick(
+            selected: state.selectedSubclass?.id == sub.id,
+            title: sub.getName(locale),
+            subtitle: advancementGist(sub.getDescription(locale), max: 120),
+            icon: glyph,
+            accent: accent,
+            onTap: () => state.updateSubclass(sub),
+            onInfo: () => showAdvancementInfo(
+                context,
+                AdvancementInfo(
+                    kicker: '${l10n.selectSubclass} · ${cls.getName(locale)}',
+                    title: sub.getName(locale),
+                    icon: glyph,
+                    accent: accent,
+                    text: sub.getDescription(locale))),
+          ),
         ),
-      ),
+    ]);
+  }
+
+  Widget _group(BuildContext context, String title, [String? note]) {
+    final c = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 6, 2, 10),
+      child: Row(children: [
+        Expanded(
+          child: Text(title,
+              style: TextStyle(
+                  fontFamily: AppType.display,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: c.onSurface)),
+        ),
+        if (note != null)
+          Text(note,
+              style: TextStyle(fontSize: 12.5, color: c.onSurfaceVariant)),
+      ]),
     );
   }
 
@@ -417,88 +391,40 @@ class FeaturesSpellsStep extends StatelessWidget {
 
   Widget _buildFeatureCard(BuildContext context, CharacterFeature feature,
       String locale, AppLocalizations l10n) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.md)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(AppRadii.sm),
-                  ),
-                  child: Icon(
-                    _getFeatureIcon(feature.iconName),
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        feature.getName(locale),
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                      ),
-                      if (feature.actionEconomy != null) ...[
-                        const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondary
-                                .withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(AppRadii.xs),
-                            border: Border.all(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .secondary
-                                  .withValues(alpha: 0.5),
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            _getLocalizedActionEconomy(
-                                    l10n, feature.actionEconomy!)
-                                .toUpperCase(),
-                            style: TextStyle(
-                                fontSize: 10,
-                                color: Theme.of(context).colorScheme.secondary,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              feature.getDescription(locale),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    height: 1.5,
-                  ),
-            ),
-          ],
-        ),
+    // A gained feature as a card with a seal and a short line; the whole
+    // text opens in a sheet (wave 6).
+    final classId =
+        context.read<CharacterCreationState>().selectedClass?.id ?? '';
+    final accent = classAccent(context, classId);
+    final glyph = advancementFeatureGlyph(feature.iconName);
+    final economy = feature.actionEconomy == null
+        ? null
+        : _getLocalizedActionEconomy(l10n, feature.actionEconomy!);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: AdvancementGain(
+        icon: glyph,
+        title: feature.getName(locale),
+        text: [
+          if (economy != null) economy,
+          advancementGist(feature.getDescription(locale), max: 110),
+        ].join(' · '),
+        accent: accent,
+        onTap: () => showAdvancementInfo(
+            context,
+            AdvancementInfo(
+                kicker: [
+                  if (economy != null) economy,
+                  context
+                          .read<CharacterCreationState>()
+                          .selectedClass
+                          ?.getName(locale) ??
+                      '',
+                ].where((e) => e.isNotEmpty).join(' · '),
+                title: feature.getName(locale),
+                icon: glyph,
+                accent: accent,
+                text: feature.getDescription(locale))),
       ),
     );
   }
@@ -547,72 +473,37 @@ class FeaturesSpellsStep extends StatelessWidget {
     final classId = state.selectedClass!.id.toLowerCase();
     final styles =
         _fightingStyleOptions[classId] ?? _fightingStyleOptions['fighter']!;
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadii.md),
-        side: BorderSide(
-            color: Theme.of(context).colorScheme.secondary, width: 2),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.sports_martial_arts,
-                    color: Theme.of(context).colorScheme.secondary),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    feature.getName(locale),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(feature.getDescription(locale)),
-            const SizedBox(height: 16),
-            Text(l10n.chooseFightingStyle,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: styles.map((style) {
-                final featureId = _findFeatureIdForStyle(style, classId);
-                if (featureId == null) {
-                  return const SizedBox.shrink(); // Skip if not found
-                }
-
-                final localized =
-                    LocalizationHelper.getLocalizedFightingStyle(style, l10n);
-                final name = localized.name;
-                final isSelected =
-                    state.selectedFeatureOptions[feature.id] == featureId;
-
-                return ChoiceChip(
-                  label: Text(name),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) {
-                      state.selectFeatureOption(feature.id, featureId);
-                    }
-                  },
-                );
-              }).toList(),
-            ),
-          ],
-        ),
-      ),
-    );
+    final accent = classAccent(context, classId);
+    // The style as choice cards (wave 6): a long press or the «i» reads it.
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      _group(context, feature.getName(locale), l10n.chooseFightingStyle),
+      for (final style in styles)
+        if (_findFeatureIdForStyle(style, classId) case final id?)
+          Builder(builder: (context) {
+            final localized =
+                LocalizationHelper.getLocalizedFightingStyle(style, l10n);
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: AdvancementPick(
+                selected: state.selectedFeatureOptions[feature.id] == id,
+                title: localized.name,
+                subtitle: localized.description,
+                icon: 'sword',
+                accent: accent,
+                onTap: () => state.selectFeatureOption(feature.id, id),
+                onInfo: () => showAdvancementInfo(
+                    context,
+                    AdvancementInfo(
+                        kicker: feature.getName(locale),
+                        title: localized.name,
+                        icon: 'sword',
+                        accent: accent,
+                        text: localized.description)),
+              ),
+            );
+          }),
+      const SizedBox(height: 8),
+    ]);
   }
 
   Widget _buildDraconicAncestryChoice(
@@ -818,275 +709,70 @@ class FeaturesSpellsStep extends StatelessWidget {
 
   Widget _buildSpellSelection(BuildContext context,
       CharacterCreationState state, AppLocalizations l10n, String locale) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.spellsStepTitle,
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          l10n.selectSpellsInstruction,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        const SizedBox(height: 16),
-
-        // Fetch and display spells
-        FutureBuilder<List<dynamic>>(
-            future: Future.wait([Future.value(true)]),
-            builder: (context, snapshot) {
-              // Get available spells
-              final classId = state.selectedClass!.id;
-              final classSpells = SpellService.getSpellsForClass(classId);
-              final level0Spells =
-                  classSpells.where((s) => s.level == 0).toList();
-              final level1Spells =
-                  classSpells.where((s) => s.level == 1).toList();
-
-              // If no cantrips and no level 1 slots (e.g. Paladin Level 1), show message
-              if (!state.hasAnySpellChoicesAtLevel1) {
-                return Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24.0),
-                  decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(AppRadii.lg),
-                  ),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.auto_fix_off, // Different icon for spells
-                        size: 32,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurfaceVariant
-                            .withValues(alpha: 0.8),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        l10n.noSpellsAtLevel1,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              // --- Spell Manager Logic ---
-              final limits = state.getSpellLimits();
-
-              // Count currently selected
-              int selectedCantripsCount = 0;
-              int selectedLvl1Count = 0;
-
-              for (var id in state.selectedSpells) {
-                // We have to check the level of the selected ID.
-                // Since we have the full lists here, we can check containment.
-                if (level0Spells.any((s) => s.id == id)) {
-                  selectedCantripsCount++;
-                }
-                if (level1Spells.any((s) => s.id == id)) selectedLvl1Count++;
-              }
-
-              return DefaultTabController(
-                length: 2,
-                child: Column(
-                  children: [
-                    TabBar(
-                      tabs: [
-                        Tab(
-                          child: Text(
-                            l10n.cantripsTab(
-                                selectedCantripsCount, limits.cantrips),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        Tab(
-                          child: Text(
-                            limits.spellsKnown >= 999
-                                ? l10n.level1TabAll
-                                : l10n.level1TabKnown(
-                                    selectedLvl1Count, limits.spellsKnown),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                      labelColor: Theme.of(context).colorScheme.primary,
-                      unselectedLabelColor:
-                          Theme.of(context).colorScheme.onSurfaceVariant,
-                      indicatorColor: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      height: 400, // Fixed height for scrolling inside tabs
-                      child: TabBarView(
-                        children: [
-                          // Tab 1: Cantrips
-                          level0Spells.isEmpty
-                              ? Center(child: Text(l10n.noSpellsFound))
-                              : ListView(
-                                  padding: const EdgeInsets.only(bottom: 80),
-                                  children: level0Spells.map((spell) {
-                                    final isSelected =
-                                        state.selectedSpells.contains(spell.id);
-                                    // Disable if not selected AND limit reached
-                                    final isEnabled = isSelected ||
-                                        selectedCantripsCount < limits.cantrips;
-
-                                    return _buildSpellCard(
-                                        context, spell, state, locale,
-                                        isEnabled: isEnabled, l10n: l10n);
-                                  }).toList(),
-                                ),
-
-                          // Tab 2: Level 1 Spells
-                          level1Spells.isEmpty
-                              ? Center(child: Text(l10n.noSpellsFound))
-                              : ListView(
-                                  padding: const EdgeInsets.only(bottom: 80),
-                                  children: level1Spells.map((spell) {
-                                    final isSelected =
-                                        state.selectedSpells.contains(spell.id);
-                                    // Disable if not selected AND limit reached (unless unlimited)
-                                    final isEnabled = isSelected ||
-                                        limits.spellsKnown >= 999 ||
-                                        selectedLvl1Count < limits.spellsKnown;
-
-                                    return _buildSpellCard(
-                                        context, spell, state, locale,
-                                        isEnabled: isEnabled, l10n: l10n);
-                                  }).toList(),
-                                ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-      ],
-    );
-  }
-
-  Widget _buildSpellCard(BuildContext context, dynamic spell,
-      CharacterCreationState state, String locale,
-      {bool isEnabled = true, required AppLocalizations l10n}) {
+    final c = Theme.of(context).colorScheme;
+    if (!state.hasAnySpellChoicesAtLevel1) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+            color: c.surfaceContainerLow, borderRadius: BorderRadius.circular(20)),
+        child: Row(children: [
+          LineIcon('magic', size: 20, color: c.onSurfaceVariant),
+          const SizedBox(width: 12),
+          Expanded(
+              child: Text(l10n.noSpellsAtLevel1,
+                  style: TextStyle(fontSize: 14, height: 1.4, color: c.onSurfaceVariant))),
+        ]),
+      );
+    }
+    final classSpells = SpellService.getSpellsForClass(state.selectedClass!.id);
+    final cantrips = classSpells.where((s) => s.level == 0).toList()
+      ..sort((a, b) => a.getName(locale).compareTo(b.getName(locale)));
+    final firsts = classSpells.where((s) => s.level == 1).toList()
+      ..sort((a, b) => a.getName(locale).compareTo(b.getName(locale)));
     final limits = state.getSpellLimits();
-    final isAllSpellsKnown = limits.spellsKnown >= 999 && spell.level > 0;
+    // Over the limit a new pick takes the place of the earliest one of the
+    // same circle.
+    void pick(String id, List<dynamic> pool, int limit) {
+      if (!state.selectedSpells.contains(id) && limit > 0 && limit < 999) {
+        final mine = state.selectedSpells
+            .where((s) => pool.any((p) => p.id == s))
+            .toList();
+        if (mine.length >= limit) state.toggleSpell(mine.first);
+      }
+      state.toggleSpell(id);
+    }
 
-    // If all spells are known, forcibly select and disable interaction.
-    final isSelected =
-        isAllSpellsKnown ? true : state.selectedSpells.contains(spell.id);
-    final canInteract = isAllSpellsKnown ? false : isEnabled;
-
-    final theme = Theme.of(context);
-    final cardColor = canInteract
-        ? (isSelected
-            ? theme.colorScheme.primaryContainer
-            : theme.colorScheme.surfaceContainerHighest)
-        : (isSelected
-            ? theme.colorScheme.primaryContainer.withValues(alpha: 0.5)
-            : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5));
-
-    final textColor = canInteract
-        ? theme.colorScheme.onSurface
-        : theme.colorScheme.onSurface.withValues(alpha: 0.4);
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      elevation: isSelected ? 3 : 0,
-      color: isSelected ? null : theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadii.md),
-        side: isSelected
-            ? BorderSide(color: theme.colorScheme.primary, width: 2)
-            : BorderSide(
-                color: theme.colorScheme.outline.withValues(alpha: 0.2)),
-      ),
-      child: InkWell(
-        onTap: canInteract ? () => state.toggleSpell(spell.id) : null,
-        borderRadius: BorderRadius.circular(AppRadii.md),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Opacity(
-            opacity: canInteract || isAllSpellsKnown ? 1.0 : 0.5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: cardColor,
-                        borderRadius: BorderRadius.circular(AppRadii.sm),
-                      ),
-                      child: Icon(
-                        isAllSpellsKnown ? Icons.lock : Icons.auto_fix_high,
-                        color: isSelected && !isAllSpellsKnown
-                            ? theme.colorScheme.onPrimaryContainer
-                            : theme.colorScheme.onSurfaceVariant,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            spell.getName(locale),
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: isSelected && canInteract
-                                  ? theme.colorScheme.primary
-                                  : textColor,
-                            ),
-                          ),
-                          Text(
-                            _getLocalizedSchool(l10n, spell.school),
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: textColor.withValues(alpha: 0.7),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (isAllSpellsKnown)
-                      Icon(Icons.check_circle,
-                          color:
-                              theme.colorScheme.primary.withValues(alpha: 0.5))
-                    else
-                      Checkbox(
-                        value: isSelected,
-                        onChanged: canInteract
-                            ? (val) => state.toggleSpell(spell.id)
-                            : null,
-                        activeColor: theme.colorScheme.primary,
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  spell.getDescription(locale),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: textColor.withValues(alpha: 0.8),
-                  ),
-                ),
-              ],
-            ),
-          ),
+    Set<String> picked(List<dynamic> pool) => {
+          for (final id in state.selectedSpells)
+            if (pool.any((p) => p.id == id)) id
+        };
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      if (cantrips.isNotEmpty && limits.cantrips > 0) ...[
+        AdvancementSpellList(
+          title: l10n.cantrips,
+          spells: cantrips.cast(),
+          selected: picked(cantrips),
+          limit: limits.cantrips,
+          school: (s) => spellLine(context, s),
+          onToggle: (id) => pick(id, cantrips, limits.cantrips),
         ),
-      ),
-    );
+        const SizedBox(height: 18),
+      ],
+      if (firsts.isNotEmpty && limits.spellsKnown > 0)
+        AdvancementSpellList(
+          title: Tr(context).t('Заклинания 1-го круга', 'Level 1 spells'),
+          spells: firsts.cast(),
+          selected: picked(firsts),
+          limit: limits.spellsKnown >= 999 ? 0 : limits.spellsKnown,
+          note: limits.spellsKnown >= 999
+              ? Tr(context).t(
+                  'Класс готовит заклинания из всего списка каждый день — выбирать сейчас не обязательно.',
+                  'The class prepares from its whole list each day — no need to pick now.')
+              : null,
+          school: (s) => spellLine(context, s),
+          onToggle: (id) => pick(id, firsts, limits.spellsKnown),
+        ),
+    ]);
   }
+
 }

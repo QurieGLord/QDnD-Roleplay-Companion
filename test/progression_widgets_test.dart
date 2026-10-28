@@ -133,6 +133,10 @@ void main() {
   testWidgets(
       'A level with only ASI goes directly to ability choices without a duplicate class-feature page',
       (tester) async {
+    // A phone-tall screen: the island dock floats over the page's end.
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final c = fixtures.hero()..level = 3;
     c.classes.single.level = 3;
     c.classes.single.subclass = 'champion';
@@ -143,7 +147,7 @@ void main() {
     expect(find.byType(AsiStep), findsOneWidget);
     expect(
         tester.widget<AdvancementRoute>(find.byType(AdvancementRoute)).labels,
-        ['HP', 'Abilities', 'Review']);
+        ['Class', 'HP', 'Abilities', 'Review']);
     expect(find.byType(FeaturesStep), findsNothing);
     expect(c.level, 3);
     await tester.tap(find.byKey(const ValueKey('asi-ability-strength')));
@@ -513,9 +517,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(
         find.text('18/35'), findsOneWidget); // CON 0 + average 4 + Draconic 1.
+    // The summary scrolls with the whole level-up page.
     final summaryScroll = find
         .descendant(
-            of: find.byType(SummaryStep), matching: find.byType(Scrollable))
+            of: find.byKey(const ValueKey('advancement-scroll')),
+            matching: find.byType(Scrollable))
         .first;
     await tester.scrollUntilVisible(
         find.byKey(ValueKey('progression-learned-${spell.id}')), 160,
@@ -533,7 +539,7 @@ void main() {
     await tester.drag(summaryScroll, const Offset(0, 1800));
     await tester.pumpAndSettle();
     final before = QdndBundleCodec.characterToJson(c);
-    await tester.tap(find.byKey(const ValueKey('advancement-route-1')));
+    await tester.tap(find.byKey(const ValueKey('advancement-route-2')));
     await tester.pumpAndSettle();
     final retained = tester.widget<AdvancementChoiceCard>(
         find.byKey(const ValueKey('progression-choice-metamagic-1')));
@@ -556,7 +562,9 @@ void main() {
     expect(find.text('18/35'), findsOneWidget);
     expect(QdndBundleCodec.characterToJson(c), before);
     await tester.runAsync(() async {
-      await tester.tap(find.text('Confirm level-up'));
+      // The island's forward button reads «Level up to 3» on the summary.
+      expect(find.text('Level up to 3'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('advancement-island-next')));
       await GameplayActionsService.serializeCharacter(
           c, () => Hive.box<Character>('characters').flush());
     });

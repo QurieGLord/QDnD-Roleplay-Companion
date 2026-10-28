@@ -35,8 +35,10 @@ class EntryTrainingStep extends StatelessWidget {
     final ready = (available.isEmpty || skill != null) &&
         (data.id != 'bard' || (instrument?.trim().isNotEmpty ?? false));
     return Column(children: [
-      Expanded(
-          child: ListView(padding: const EdgeInsets.all(20), children: [
+      AdvancementStepList(
+              padding: EdgeInsets.fromLTRB(
+                  20, 20, 20, 20 + AdvancementDockScope.inset(context)),
+              children: [
         AdvancementHeading(
             title: s.t('Новые владения', 'New proficiencies'),
             subtitle: s.t(
@@ -70,7 +72,7 @@ class EntryTrainingStep extends StatelessWidget {
         Text(s.t(
             'Начальные спасброски, снаряжение и полный набор навыков первого класса не выдаются повторно.',
             'Starting saving throws, equipment and the first-class skill package are not granted again.')),
-      ])),
+      ]),
       AdvancementFooter(label: l.next, onPressed: ready ? onNext : null)
     ]);
   }

@@ -12,6 +12,7 @@ import '../../../core/models/character_class.dart';
 import '../../../core/progression/multiclass_rules.dart';
 import '../../../core/progression/magic_slot_growth.dart';
 import 'widgets/class_advancement_picker.dart';
+import 'steps/class_choice_step.dart';
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
@@ -22,6 +23,10 @@ import '../../../core/utils/localization_helper.dart';
 import 'steps/hp_increase_step.dart';
 import 'widgets/class_rules_review.dart';
 import 'widgets/advancement_layout.dart';
+import 'widgets/advancement_climb.dart';
+import '../../../core/theme/app_tokens.dart';
+import '../../../core/ui/page_kit.dart';
+import '../journal/journal_kit.dart';
 import '../../../core/ui/sheet_drag_region.dart';
 import 'steps/features_step.dart';
 import 'steps/asi_step.dart';
@@ -54,7 +59,20 @@ class LevelUpScreen extends StatefulWidget {
 }
 
 class _LevelUpScreenState extends State<LevelUpScreen> {
-  final PageController _pageController = PageController();
+  // The class this level goes to, chosen on the first step.
+  late String? _classId = widget.classId;
+  late ClassData? _newClass = widget.newClass;
+  late bool _tableRuling = widget.tableRuling;
+  // A new class choice rebuilds the steps after the first.
+  int _round = 0;
+
+  // One scroll for the head, the route and the current step.
+  final _scroll = ScrollController();
+  // The level opens on its first own step; «0 · Класс» stands before it.
+  int _dir = 1, _reached = 1;
+  final _dock = AdvancementDockController();
+  bool _hpChosen = false, _celebrating = false;
+  late final int _levelBefore = widget.character.level;
 
   late int _nextLevel;
   late ClassData _classData;
@@ -67,7 +85,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
   late ProgressionCatalogStamp _catalog;
   int _hpDieValue = 1;
   bool _saving = false;
-  int _currentStep = 0;
+  int _currentStep = 1;
   String? _error;
   String? _entrySkill, _entryInstrument;
   Map<String, List<String>> _magicSelections = {};
@@ -89,7 +107,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
   }
 
   bool get _hasEntryTrainingStep =>
-      widget.newClass != null &&
+      _newClass != null &&
       {'bard', 'ranger', 'rogue'}.contains(_classData.id);
 
   // Step 1: HP
@@ -124,17 +142,17 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
 
     // 2. Get Class Data
     try {
-      final selectedClass = widget.newClass != null
+      final selectedClass = _newClass != null
           ? CharacterClass(
-              id: widget.newClass!.id,
-              name: widget.newClass!.getName('en'),
+              id: _newClass!.id,
+              name: _newClass!.getName('en'),
               level: 0)
           : widget.character.classes.firstWhere(
               (c) =>
-                  widget.classId != null ? c.id == widget.classId : c.isPrimary,
+                  _classId != null ? c.id == _classId : c.isPrimary,
               orElse: () => widget.character.classes.first);
-      if (widget.newClass != null &&
-          !widget.tableRuling &&
+      if (_newClass != null &&
+          !_tableRuling &&
           MulticlassRules.unmet(widget.character, selectedClass.id)
               .isNotEmpty) {
         throw StateError('prerequisites');
@@ -142,8 +160,8 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       _pinningRules =
           selectedClass.rulesSnapshot == null || _reviewedRules != null;
       _rules = _reviewedRules ??
-          (widget.newClass != null
-              ? CharacterClassRules.capture(widget.newClass!)
+          (_newClass != null
+              ? CharacterClassRules.capture(_newClass!)
               : CharacterClassRules.resolve(selectedClass));
       _classData = _rules.data;
       _classSubclass = selectedClass.subclass ??
@@ -168,7 +186,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       }
       _draft = LevelUpDraft.begin(widget.character,
           classId: selectedClass.id,
-          newClassName: widget.newClass?.getName('en'));
+          newClassName: _newClass?.getName('en'));
       _catalog = ProgressionCatalogStamp.capture();
       _automaticLegacySources =
           LegacySpellAllocation.unambiguous(widget.character);
@@ -216,7 +234,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       allFeatures.removeWhere((f) => f.id.startsWith('circle-of-the-land-'));
     }
 
-    if (widget.newClass != null &&
+    if (_newClass != null &&
         widget.character.features.any((f) =>
             f.id == 'barbarian-unarmored-defense' ||
             f.id == 'monk-unarmored-defense')) {
@@ -249,6 +267,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
 
   void _onHpRolled(int roll) {
     setState(() {
+      _hpChosen = true;
       _hpDieValue = roll;
       _hpIncrease = roll + _conMod;
       if (_hpIncrease < 1) _hpIncrease = 1;
@@ -258,6 +277,7 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
 
   void _onHpAverageTaken() {
     setState(() {
+      _hpChosen = true;
       // Formula: (Hit Die / 2) + 1 + CON
       // Example d10: (10/2) + 1 = 6.
       int avgBase = (_classData.hitDie / 2).floor() + 1;
@@ -331,8 +351,8 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       throw StateError('Incomplete expertise choice.');
     }
     final char = _draft.classPreview;
-    if (widget.newClass != null) {
-      if (!widget.tableRuling &&
+    if (_newClass != null) {
+      if (!_tableRuling &&
           MulticlassRules.unmet(widget.character, _classData.id).isNotEmpty) {
         throw StateError('prerequisites');
       }
@@ -764,7 +784,8 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
           baseline: _draft,
           result: result,
           validateContext: _catalog.verifyContent);
-      if (mounted) Navigator.pop(context, true);
+      // The level is saved; the ceremony draws it, then the sheet returns.
+      if (mounted) setState(() => _celebrating = true);
     } catch (error) {
       if (mounted) {
         setState(() {
@@ -779,7 +800,8 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
 
   @override
   void dispose() {
-    _pageController.dispose();
+    _scroll.dispose();
+    _dock.dispose();
     super.dispose();
   }
 
@@ -907,27 +929,50 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
 
   void _goTo(int index) {
     FocusScope.of(context).unfocus();
-    if (MediaQuery.disableAnimationsOf(context)) {
-      _pageController.jumpToPage(index);
-      return;
+    if (index == _currentStep) return;
+    setState(() {
+      _dir = index > _currentStep ? 1 : -1;
+      _currentStep = index;
+      if (index > _reached) _reached = index;
+    });
+    // Every step opens from the top, under the head.
+    if (_scroll.hasClients && _scroll.offset > 0) {
+      if (MediaQuery.disableAnimationsOf(context)) {
+        _scroll.jumpTo(0);
+      } else {
+        // In step with the pager: the page rises while the steps slide.
+        _scroll.animateTo(0,
+            duration: const Duration(milliseconds: 560),
+            curve: AppMotion.standard);
+      }
     }
-    _pageController.animateToPage(index,
-        duration: Duration(
-            milliseconds:
-                300 + 50 * ((index - _currentStep).abs() - 1).clamp(0, 3)),
-        curve: Curves.easeInOutCubic);
   }
 
-  Future<void> _chooseClass() async {
-    final target = await chooseAdvancementClass(context, widget.character);
-    if (!mounted || target == null) return;
+  /// The first step chose a class: every later step starts over for it, on
+  /// the same screen.
+  void _chooseClass(AdvancementTarget target) {
     final exists = widget.character.classes.any((c) => c.id == target.data.id);
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (_) => LevelUpScreen(
-            character: widget.character,
-            classId: target.data.id,
-            newClass: exists ? null : target.data,
-            tableRuling: target.tableRuling)));
+    setState(() {
+      _classId = target.data.id;
+      _newClass = exists ? null : target.data;
+      _tableRuling = target.tableRuling;
+      _round++;
+      _reached = 0;
+      _hpChosen = false;
+      _selectedOptions.clear();
+      _selectedOptionalFeatureIds.clear();
+      _selectedExpertise.clear();
+      _selectedNewSkills.clear();
+      _asiAllocations = {};
+      _magicSelections = {};
+      _manualSpellCounts = null;
+      _replaceOld = null;
+      _replaceNew = null;
+      _entrySkill = null;
+      _entryInstrument = null;
+      _error = null;
+    });
+    _initializeLevelUp();
   }
 
   void _showRules() {
@@ -1032,8 +1077,11 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
     }
     final locale = Localizations.localeOf(context).languageCode;
     final l10n = AppLocalizations.of(context)!;
+    final tr = Tr(context);
+    final accent = advancementAccent(context, _classData.id);
 
     final route = [
+      locale == 'ru' ? 'Класс' : 'Class',
       if (_legacyChoices.isNotEmpty)
         locale == 'ru' ? 'Чьи заклинания?' : 'Spell origins',
       if (_hasEntryTrainingStep) locale == 'ru' ? 'Владения' : 'Proficiencies',
@@ -1043,169 +1091,306 @@ class _LevelUpScreenState extends State<LevelUpScreen> {
       if (_hasAsi) l10n.advancementRouteAbilities,
       l10n.advancementRouteReview
     ];
+    final pages = <Widget>[
+      ClassChoiceStep(
+          hero: widget.character,
+          selectedId: _classData.id,
+          onChoose: _chooseClass,
+          onNext: _nextPage),
+      if (_legacyChoices.isNotEmpty)
+        LegacySpellSourcesStep(
+            before: widget.character,
+            preview: _magicContext,
+            ids: _legacyChoices,
+            selected: _legacySources,
+            onChanged: (v) => setState(
+                () => _legacySources = {..._automaticLegacySources, ...v}),
+            onNext: _nextPage),
+      if (_hasEntryTrainingStep)
+        EntryTrainingStep(
+            hero: widget.character,
+            data: _classData,
+            skill: _entrySkill,
+            instrument: _entryInstrument,
+            onSkill: (v) => setState(() => _entrySkill = v),
+            onInstrument: (v) => setState(() => _entryInstrument = v),
+            onNext: _nextPage),
+      HpIncreaseStep(
+        hitDie: _classData.hitDie,
+        conMod: _conMod,
+        onRoll: _onHpRolled,
+        onAverage: _onHpAverageTaken,
+        currentHp: widget.character.currentHp,
+        maximumHp: widget.character.maxHp,
+        additionalHpLabel:
+            _rules.feature('draconic-resilience')?.getName(locale),
+        additionalHp: _classData.id == 'sorcerer' &&
+                widget.character.hasFeatureId('draconic-resilience')
+            ? 1
+            : 0,
+      ),
+      if (_showFeatureStep) _choices(FeaturesStepContent.features),
+      if (_hasMagicStep)
+        ClassMagicStep(
+            key: const ValueKey(FeaturesStepContent.magic),
+            plan: _learningPlan,
+            selected: _magicSelections,
+            onChanged: (v) => setState(() => _magicSelections = v),
+            onNext: _nextPage,
+            replaceOld: _replaceOld,
+            replaceNew: _replaceNew,
+            onReplace: (a, b) => setState(() {
+                  _replaceOld = a;
+                  _replaceNew = b;
+                }),
+            manualCounts: _manualSpellCounts,
+            onManualCounts: (v) => setState(() => _manualSpellCounts = v)),
+      if (_hasAsi)
+        AsiStep(
+          currentScores: widget.character.abilityScores,
+          accent: accent,
+          onAllocationChanged: (allocs) {
+            setState(() => _asiAllocations = allocs);
+          },
+          onNext: _nextPage,
+        ),
+      SummaryStep(
+        character: widget.character,
+        nextLevel: _draft.characterLevelAfter,
+        hpIncrease: _hpIncrease,
+        newFeatures: _newFeatures
+            .where((feature) =>
+                !feature.isOptional ||
+                _selectedOptionalFeatureIds.contains(feature.id))
+            .toList(growable: false),
+        onConfirm: _finishLevelUp,
+        previewBuilder: _calculateResult,
+        saving: _saving,
+        accent: accent,
+        unavailableMessage: (_error == 'catalog' || !_catalog.isCurrent())
+            ? (locale == 'ru'
+                ? 'Источники изменились во время выбора. Закрой повышение и открой его заново, чтобы проверить обновлённые варианты. Герой не изменён.'
+                : 'Sources changed during development. Close and reopen it to review the updated choices. Your character is unchanged.')
+            : null,
+        error: _error == 'save'
+            ? (locale == 'ru'
+                ? 'Не удалось сохранить повышение. Герой сохранён в прежнем состоянии. Можно повторить попытку.'
+                : 'Could not save development. The original character is preserved. You can retry.')
+            : null,
+      ),
+    ];
+    final last = _currentStep == pages.length - 1;
+    final to = _draft.characterLevelAfter;
+    final c = Theme.of(context).colorScheme;
     return PopScope(
-        canPop: !_saving && _currentStep == 0,
+        // Back closes from the first own step; from the class step it
+        // returns to the level, from later steps it goes one step back.
+        canPop: !_saving && _currentStep == 1,
         onPopInvokedWithResult: (didPop, result) {
-          if (!didPop && !_saving && _currentStep > 0) _goTo(_currentStep - 1);
+          if (didPop || _saving) return;
+          _goTo(_currentStep == 0 ? 1 : _currentStep - 1);
         },
         child: Scaffold(
-          appBar: AppBar(
-            title: Row(children: [
-              Expanded(
-                  child: Text(_classData.getName(locale),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w600))),
-              const SizedBox(width: 8),
-              Text('${_draft.classLevelBefore} → ${_draft.classLevelAfter}',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(color: Theme.of(context).colorScheme.primary)),
-            ]),
-            actions: [
-              IconButton(
-                  key: const ValueKey('advancement-choose-class'),
-                  tooltip: locale == 'ru'
-                      ? 'Выбрать класс повышения'
-                      : 'Choose advancement class',
-                  icon: const Icon(Icons.swap_horiz_rounded),
-                  onPressed: _saving ? null : _chooseClass),
-              IconButton(
-                  tooltip: l10n.advancementRulesTitle,
-                  icon: const Icon(Icons.auto_stories_outlined),
-                  onPressed: _saving ? null : _showRules),
-              if (_currentStep > 0)
-                IconButton(
-                    icon: const Icon(Icons.close_rounded),
-                    tooltip: l10n.cancel,
-                    onPressed: _saving ? null : () => Navigator.pop(context)),
-            ],
-            leading: IconButton(
-              icon: Icon(
-                  _currentStep == 0 ? Icons.close : Icons.arrow_back_rounded),
-              onPressed: _saving
-                  ? null
-                  : () {
-                      if (_currentStep == 0) {
-                        Navigator.pop(context);
-                      } else {
-                        _goTo(_currentStep - 1);
-                      }
-                    },
-            ),
-          ),
-          body: Align(
+          backgroundColor: c.surface,
+          body: Stack(children: [
+            Align(
               alignment: Alignment.topCenter,
               child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 720),
-                  child: Column(children: [
-                    AdvancementRoute(
-                        labels: route,
-                        current: _currentStep,
-                        enabled: !_saving,
-                        onBackTo: _goTo),
-                    Expanded(
-                        child: PageView(
-                      controller: _pageController,
-                      onPageChanged: (index) =>
-                          setState(() => _currentStep = index),
-                      physics:
-                          const NeverScrollableScrollPhysics(), // Disable swipe
-                      children: [
-                        if (_legacyChoices.isNotEmpty)
-                          LegacySpellSourcesStep(
-                              before: widget.character,
-                              preview: _magicContext,
-                              ids: _legacyChoices,
-                              selected: _legacySources,
-                              onChanged: (v) => setState(() => _legacySources =
-                                  {..._automaticLegacySources, ...v}),
-                              onNext: _nextPage),
-                        if (_hasEntryTrainingStep)
-                          EntryTrainingStep(
-                              hero: widget.character,
-                              data: _classData,
-                              skill: _entrySkill,
-                              instrument: _entryInstrument,
-                              onSkill: (v) => setState(() => _entrySkill = v),
-                              onInstrument: (v) =>
-                                  setState(() => _entryInstrument = v),
-                              onNext: _nextPage),
-                        HpIncreaseStep(
-                          hitDie: _classData.hitDie,
-                          conMod: _conMod,
-                          onRoll: _onHpRolled,
-                          onAverage: _onHpAverageTaken,
-                          currentHp: widget.character.currentHp,
-                          maximumHp: widget.character.maxHp,
-                          additionalHpLabel: _rules
-                              .feature('draconic-resilience')
-                              ?.getName(locale),
-                          additionalHp: _classData.id == 'sorcerer' &&
-                                  widget.character
-                                      .hasFeatureId('draconic-resilience')
-                              ? 1
-                              : 0,
-                        ),
-                        if (_showFeatureStep)
-                          _choices(FeaturesStepContent.features),
-                        if (_hasMagicStep)
-                          ClassMagicStep(
-                              key: const ValueKey(FeaturesStepContent.magic),
-                              plan: _learningPlan,
-                              selected: _magicSelections,
-                              onChanged: (v) =>
-                                  setState(() => _magicSelections = v),
-                              onNext: _nextPage,
-                              replaceOld: _replaceOld,
-                              replaceNew: _replaceNew,
-                              onReplace: (a, b) => setState(() {
-                                    _replaceOld = a;
-                                    _replaceNew = b;
-                                  }),
-                              manualCounts: _manualSpellCounts,
-                              onManualCounts: (v) =>
-                                  setState(() => _manualSpellCounts = v)),
-                        if (_hasAsi)
-                          AsiStep(
-                            currentScores: widget.character.abilityScores,
-                            onAllocationChanged: (allocs) {
-                              setState(() => _asiAllocations = allocs);
-                            },
-                            onNext: _nextPage,
+                constraints: const BoxConstraints(maxWidth: 720),
+                child: CustomScrollView(
+                  key: const ValueKey('advancement-scroll'),
+                  controller: _scroll,
+                  slivers: [
+                    SliverToBoxAdapter(
+                        child: SizedBox(
+                            height: MediaQuery.paddingOf(context).top +
+                                JournalTopBar.height)),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 14),
+                      sliver: SliverToBoxAdapter(
+                        child: RepaintBoundary(
+                          child: ListenableBuilder(
+                            listenable: _dock,
+                            builder: (context, _) => AdvancementClimb(
+                                name: widget.character.name,
+                                accent: accent,
+                                classLine: _classLine(locale),
+                                from: _levelBefore,
+                                to: to,
+                                progress: _ladderProgress(pages.length),
+                                changes: _changes(tr, locale)),
                           ),
-                        SummaryStep(
-                          character: widget.character,
-                          nextLevel: _draft.characterLevelAfter,
-                          hpIncrease: _hpIncrease,
-                          newFeatures: _newFeatures
-                              .where((feature) =>
-                                  !feature.isOptional ||
-                                  _selectedOptionalFeatureIds
-                                      .contains(feature.id))
-                              .toList(growable: false),
-                          onConfirm: _finishLevelUp,
-                          previewBuilder: _calculateResult,
-                          saving: _saving,
-                          unavailableMessage: (_error == 'catalog' ||
-                                  !_catalog.isCurrent())
-                              ? (locale == 'ru'
-                                  ? 'Источники изменились во время выбора. Закрой повышение и открой его заново, чтобы проверить обновлённые варианты. Герой не изменён.'
-                                  : 'Sources changed during development. Close and reopen it to review the updated choices. Your character is unchanged.')
-                              : null,
-                          error: _error == 'save'
-                              ? (locale == 'ru'
-                                  ? 'Не удалось сохранить повышение. Герой сохранён в прежнем состоянии. Можно повторить попытку.'
-                                  : 'Could not save development. The original character is preserved. You can retry.')
-                              : null,
                         ),
-                      ],
-                    )),
-                  ]))),
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: AdvancementRoute(
+                          labels: route,
+                          current: _currentStep,
+                          enabled: !_saving,
+                          accent: accent,
+                          firstNumber: 0,
+                          onBackTo: _goTo),
+                    ),
+                    SliverToBoxAdapter(
+                      child: AdvancementPager(
+                        index: _currentStep,
+                        direction: _dir,
+                        children: [
+                          for (var i = 0; i < pages.length; i++)
+                            AdvancementDockScope(
+                                controller: _dock,
+                                index: i,
+                                // A step is built once it is reached.
+                                child: i <= _reached
+                                    ? KeyedSubtree(
+                                        key: ValueKey('$_round:$i'),
+                                        child: pages[i])
+                                    : const SizedBox.shrink()),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 0,
+              child: JournalTopBar(
+                titled: true,
+                title: tr.t('Повышение уровня', 'Level up'),
+                leading: JournalRound(
+                    icon: 'x',
+                    label: l10n.cancel,
+                    onTap: _saving ? null : () => Navigator.pop(context)),
+                actions: [
+                  JournalRound(
+                      icon: 'book',
+                      label: l10n.advancementRulesTitle,
+                      onTap: _saving ? null : _showRules),
+                ],
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 560),
+                  child: ListenableBuilder(
+                    listenable: _dock,
+                    builder: (context, _) => AdvancementIsland(
+                      action: _dock[_currentStep],
+                      canGoBack: _currentStep > 1 && !_saving,
+                      onBack: () => _goTo(_currentStep - 1),
+                      accent: accent,
+                      last: last,
+                      labelOverride: last
+                          ? tr.t('Повысить до $to', 'Level up to $to')
+                          : null,
+                      hintOverride: last &&
+                              _dock[_currentStep]?.hint == null &&
+                              _error == null
+                          ? tr.t(
+                              '${widget.character.name} станет героем $to-го уровня',
+                              '${widget.character.name} becomes level $to')
+                          : null,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (_celebrating)
+              Positioned.fill(
+                child: AdvancementCeremony(
+                  accent: accent,
+                  from: _levelBefore,
+                  to: to,
+                  title: tr.t('${widget.character.name} · $to-й уровень',
+                      '${widget.character.name} · level $to'),
+                  subtitle: _classLine(locale, done: true),
+                  onDone: () {
+                    if (mounted) Navigator.pop(context, true);
+                  },
+                ),
+              ),
+          ]),
         ));
+  }
+
+  /// «Воин 3 → 4», or «Воин 4 + Плут 1» when the level opens a new class.
+  String _classLine(String locale, {bool done = false}) {
+    final name = _classData.getName(locale);
+    if (_newClass != null) {
+      final primary = widget.character.classes.isEmpty
+          ? null
+          : widget.character.classes.first;
+      return primary == null
+          ? '$name 1'
+          : '${primary.name} ${primary.level} + $name 1';
+    }
+    return done
+        ? '$name ${_draft.classLevelAfter}'
+        : '$name ${_draft.classLevelBefore} → ${_draft.classLevelAfter}';
+  }
+
+  /// How much of the new rung is full: settled steps out of all choices,
+  /// the last part only on the summary.
+  double _ladderProgress(int steps) {
+    final choices = steps - 1;
+    final ready = _dock[_currentStep]?.onPressed != null;
+    final done = _currentStep >= choices
+        ? choices + 1
+        : _currentStep + (ready ? 1 : 0);
+    return done / (choices + 1);
+  }
+
+  List<AdvancementChange> _changes(Tr tr, String locale) {
+    final before = _levelBefore, after = _draft.characterLevelAfter;
+    int prof(int level) => 2 + (level - 1) ~/ 4;
+    final die = '${locale == 'ru' ? 'к' : 'd'}${_classData.hitDie}';
+    final spent = _asiAllocations.values.fold<int>(0, (a, b) => a + b);
+    String short(String key) => switch (key) {
+          'strength' => tr.t('СИЛ', 'STR'),
+          'dexterity' => tr.t('ЛОВ', 'DEX'),
+          'constitution' => tr.t('ТЕЛ', 'CON'),
+          'intelligence' => tr.t('ИНТ', 'INT'),
+          'wisdom' => tr.t('МДР', 'WIS'),
+          _ => tr.t('ХАР', 'CHA'),
+        };
+    final subclassStep = _nextLevel == _classData.subclassLevel &&
+        _classData.subclasses.isNotEmpty;
+    final subclassId = _selectedOptions['subclass'];
+    final subclass = subclassId == null
+        ? null
+        : _classData.subclasses.where((s) => s.id == subclassId).firstOrNull;
+    final picked = _magicSelections.values.fold<int>(0, (a, b) => a + b.length);
+    return [
+      AdvancementChange('heart', tr.t('ОЗ', 'HP'),
+          _hpChosen ? '+$_hpIncrease' : null),
+      AdvancementChange('dice', tr.t('Кость хитов', 'Hit die'), die),
+      if (prof(after) != prof(before))
+        AdvancementChange('star', tr.t('Мастерство', 'Proficiency'),
+            '+${prof(after)}'),
+      if (_hasAsi)
+        AdvancementChange(
+            'stats',
+            tr.t('Характеристики', 'Abilities'),
+            spent == 2
+                ? [
+                    for (final e in _asiAllocations.entries)
+                      if (e.value > 0) '${short(e.key)} +${e.value}'
+                  ].join(' ')
+                : null),
+      if (subclassStep)
+        AdvancementChange(
+            'shield', tr.t('Подкласс', 'Subclass'), subclass?.getName(locale)),
+      if (_learningPlan.choices.isNotEmpty)
+        AdvancementChange('magic', tr.t('Заклинания', 'Spells'),
+            picked > 0 ? '$picked' : null),
+    ];
   }
 }

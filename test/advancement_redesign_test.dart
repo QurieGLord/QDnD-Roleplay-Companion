@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:qd_and_d/core/ui/expressive_kit.dart';
 import 'package:qd_and_d/core/models/character_feature.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import 'package:qd_and_d/features/character_level_up/widgets/advancement_choice_captions.dart';
@@ -45,7 +46,9 @@ void main() {
         maximumHp: 30,
         onAverage: () => averages++,
         onRoll: rolls.add)));
-    expect(find.text('30 → 35'), findsOneWidget);
+    // The new maximum rolls to 35 beside the gain.
+    expect(tester.widget<RollingNumber>(find.byType(RollingNumber)).value, 35);
+    expect(find.text('+5'), findsOneWidget);
     await tester.ensureVisible(find.byKey(const ValueKey('hp-method-roll')));
     await tester.tap(find.byKey(const ValueKey('hp-method-roll')));
     await tester.pump(const Duration(seconds: 1));
@@ -78,7 +81,8 @@ void main() {
     await tester.tap(find.text('Use result'));
     await tester.pumpAndSettle();
     expect(rolls, isEmpty);
-    expect(find.text('20 → 26'), findsOneWidget);
+    expect(tester.widget<RollingNumber>(find.byType(RollingNumber)).value, 26);
+    expect(find.text('+6'), findsOneWidget);
     await tester.tap(find.text('Continue'));
     expect(rolls, [7]);
     expect(tester.takeException(), isNull);

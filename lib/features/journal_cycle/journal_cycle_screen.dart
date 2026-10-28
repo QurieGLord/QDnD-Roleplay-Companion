@@ -1,3 +1,4 @@
+import '../../core/ui/companion_kit.dart' show FloatingGrab;
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/core/ui/sheet_drag_region.dart' show SheetSafeArea;
 import 'package:flutter/services.dart';
@@ -481,11 +482,11 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
     _touch();
     final result = await showModalBottomSheet<String>(
       context: context,
-      showDragHandle: true,
+      showDragHandle: false,
       sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
           ? AnimationStyle.noAnimation
           : null,
-      builder: (context) => SheetSafeArea(child: SafeArea(
+      builder: (context) => FloatingGrab(child: SheetSafeArea(child: SafeArea(
           child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
         child: Column(
@@ -505,7 +506,7 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
                   onTap: () => Navigator.pop(context, id),
                 ),
             ]),
-      ))),
+      )))),
     );
     if (result != null && mounted) {
       _touch();
@@ -938,11 +939,11 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
     final saved = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      showDragHandle: true,
+      showDragHandle: false,
       sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
           ? AnimationStyle.noAnimation
           : null,
-      builder: (context) => SheetSafeArea(child: Padding(
+      builder: (context) => FloatingGrab(child: SheetSafeArea(child: Padding(
         padding: EdgeInsets.fromLTRB(
             24, 0, 24, MediaQuery.viewInsetsOf(context).bottom + 24),
         child: SafeArea(
@@ -992,7 +993,7 @@ class _JournalCycleScreenState extends State<JournalCycleScreen> {
                                   },
                                   child: Text(t('Сохранить', 'Save')))),
                         ])))),
-      )),
+      ))),
     );
     if (saved == true && mounted) {
       _touch();

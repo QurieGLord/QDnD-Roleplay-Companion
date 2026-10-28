@@ -1,8 +1,4 @@
-import 'dart:ui' show lerpDouble;
-
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:qd_and_d/core/ui/app_snack_bar.dart';
 import 'package:uuid/uuid.dart';
@@ -18,16 +14,11 @@ import '../../core/services/storage_service.dart';
 import '../../core/services/item_service.dart';
 import '../../core/services/feature_service.dart';
 import 'character_creation_state.dart';
-import 'steps/basic_info_step.dart';
-import 'steps/race_class_step.dart';
-import 'steps/ability_scores_step.dart';
-import 'steps/features_spells_step.dart';
-import 'steps/equipment_step.dart';
-import 'steps/background_step.dart';
-import 'steps/skills_step.dart';
-import 'steps/review_step.dart';
-import 'package:qd_and_d/core/theme/app_tokens.dart';
+import 'prologue.dart';
+import '../character_list/widgets/hero_deck.dart' show HeroDeck;
 
+/// Character creation (wave 6, «Пролог»): the chapters live in
+/// [Prologue]; this wizard holds their state and turns it into a hero.
 class CharacterCreationWizard extends StatefulWidget {
   const CharacterCreationWizard({super.key});
 
@@ -37,255 +28,58 @@ class CharacterCreationWizard extends StatefulWidget {
 }
 
 class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
-  static const int _stepCount = 8;
-  static const Duration _fastMotion = Duration(milliseconds: 160);
-  static const Duration _revealMotion = Duration(milliseconds: 220);
-
-  int _currentStep = 0;
   bool _isSaving = false;
-  double _fabMorphProgress = 0;
   final _state = CharacterCreationState();
 
-  String _getStepTitle(int index, AppLocalizations l10n) {
-    switch (index) {
-      case 0:
-        return l10n.stepBasicInfo;
-      case 1:
-        return l10n.stepRaceClass;
-      case 2:
-        return l10n.stepAbilities;
-      case 3:
-        return l10n.stepFeatures;
-      case 4:
-        return l10n.stepEquipment;
-      case 5:
-        return l10n.stepBackground;
-      case 6:
-        return l10n.stepSkills;
-      case 7:
-        return l10n.stepReview;
-      default:
-        return '';
-    }
+  @override
+  void dispose() {
+    _state.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final currentTitle = _getStepTitle(_currentStep, l10n);
-    final nextTitle = _currentStep < _stepCount - 1
-        ? _getStepTitle(_currentStep + 1, l10n)
-        : null;
-
     return ChangeNotifierProvider.value(
       value: _state,
-      child: Scaffold(
-        body: Column(
-          children: [
-            SafeArea(
-              bottom: false,
-              child: _WizardHeader(
-                currentStep: _currentStep,
-                stepCount: _stepCount,
-                title: currentTitle,
-                nextTitle: nextTitle,
-                isSaving: _isSaving,
-                onClose: () {
-                  _playNavigationHaptic();
-                  Navigator.of(context).pop();
-                },
-              ),
-            ),
-            Expanded(
-              child: IgnorePointer(
-                ignoring: _isSaving,
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: _handleStepScrollNotification,
-                  child: AnimatedSwitcher(
-                    duration: _motionDuration(context, _revealMotion),
-                    switchInCurve: AppMotion.standard,
-                    switchOutCurve: AppMotion.standard,
-                    transitionBuilder: (child, animation) {
-                      final curved = CurvedAnimation(
-                        parent: animation,
-                        curve: AppMotion.standard,
-                      );
-                      return FadeTransition(
-                        opacity: curved,
-                        child: SlideTransition(
-                          position: Tween<Offset>(
-                            begin: const Offset(0.025, 0),
-                            end: Offset.zero,
-                          ).animate(curved),
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: KeyedSubtree(
-                      key: ValueKey<int>(_currentStep),
-                      child: _buildStep(_currentStep),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: _WizardFloatingActions(
-          currentStep: _currentStep,
-          lastStep: _stepCount - 1,
-          isSaving: _isSaving,
-          morphProgress: _fabMorphProgress,
-          onBack: _currentStep > 0 ? _prevStep : null,
-          onNext: () => _nextStep(context),
-        ),
+      child: Prologue(
+        saving: _isSaving,
+        compose: _compose,
+        onCreate: () => _create(context),
       ),
     );
   }
 
-  Widget _buildStep(int step) {
-    switch (step) {
-      case 0:
-        return const BasicInfoStep();
-      case 1:
-        return const RaceClassStep();
-      case 2:
-        return const AbilityScoresStep();
-      case 3:
-        return const FeaturesSpellsStep();
-      case 4:
-        return const EquipmentStep();
-      case 5:
-        return const BackgroundStep();
-      case 6:
-        return const SkillsStep();
-      case 7:
-        return const ReviewStep();
-      default:
-        return const SizedBox.shrink();
-    }
-  }
-
-  void _prevStep() {
-    if (_currentStep > 0) {
-      _playNavigationHaptic();
-      setState(() {
-        _currentStep--;
-        _fabMorphProgress = 0;
-      });
-    }
-  }
-
-  void _nextStep(BuildContext context) async {
+  Future<void> _create(BuildContext context) async {
+    if (_isSaving) return;
     final l10n = AppLocalizations.of(context)!;
-    if (_currentStep < _stepCount - 1) {
-      // STRICT MODE VALIDATION
-      if (!_state.isStepValid(_currentStep)) {
-        AppSnackBar.warning(context, l10n.errorMissingFields);
-        return; // BLOCK PROGRESSION
-      }
-
-      _playNavigationHaptic();
-      setState(() {
-        _currentStep++;
-        _fabMorphProgress = 0;
-      });
-    } else {
-      // Create character
-      if (_isSaving) return;
-
-      _playNavigationHaptic();
-      setState(() {
-        _isSaving = true;
-      });
-
-      try {
-        await _createCharacter();
-
-        if (!context.mounted) return;
-        Navigator.of(context).pop();
-        AppSnackBar.success(context, l10n.characterCreated);
-      } catch (e) {
-        if (!context.mounted) return;
-        AppSnackBar.error(context, l10n.errorCreatingCharacter(e.toString()));
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isSaving = false;
-          });
-        }
-      }
-    }
-  }
-
-  static Duration _motionDuration(BuildContext context, Duration duration) {
-    return MediaQuery.of(context).disableAnimations ? Duration.zero : duration;
-  }
-
-  bool _handleStepScrollNotification(ScrollNotification notification) {
-    if (notification.metrics.axis != Axis.vertical) {
-      return false;
-    }
-
-    final nextProgress = _fabProgressFromExtentAfter(
-      notification.metrics.maxScrollExtent <= 0
-          ? double.infinity
-          : notification.metrics.extentAfter,
-    );
-    if ((nextProgress - _fabMorphProgress).abs() > 0.01) {
-      setState(() {
-        _fabMorphProgress = nextProgress;
-      });
-    }
-
-    return false;
-  }
-
-  static double _fabProgressFromExtentAfter(double extentAfter) {
-    const compactAfter = 160.0;
-    const extendedAfter = 24.0;
-
-    if (extentAfter <= extendedAfter) return 1;
-    if (extentAfter >= compactAfter) return 0;
-
-    return ((compactAfter - extentAfter) / (compactAfter - extendedAfter))
-        .clamp(0.0, 1.0);
-  }
-
-  static void _playNavigationHaptic() {
-    if (!kIsWeb) {
-      HapticFeedback.lightImpact();
-    }
-  }
-
-  Future<void> _createCharacter() async {
+    setState(() => _isSaving = true);
     try {
+      final hero = await _createCharacter();
+      if (!context.mounted) return;
+      // The lobby turns to the new hero and their card rises into the party.
+      HeroDeck.arrived.value = hero.id;
+      Navigator.of(context).pop();
+      AppSnackBar.success(context, l10n.characterCreated);
+    } catch (e) {
+      if (!context.mounted) return;
+      AppSnackBar.error(context, l10n.errorCreatingCharacter(e.toString()));
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  /// The hero as the chapters describe it, not yet saved: the finale
+  /// reads its numbers from here, and creation saves exactly this.
+  Character _compose() {
+    {
       if (!{'unknown', '2014'}.contains(_state.selectedClass?.rulesEdition)) {
         throw StateError('Unsupported class rules profile.');
       }
       // 1. Calculate final ability scores WITH racial bonuses
       final finalScores = <String, int>{};
       _state.abilityScores.forEach((ability, baseScore) {
-        int total = baseScore;
-
-        // Add racial bonuses
-        if (_state.selectedRace != null) {
-          final raceBonus = _state.selectedRace!.abilityScoreIncreases;
-          if (raceBonus.containsKey(ability)) {
-            total += raceBonus[ability]!;
-          }
-        }
-
-        // Add subrace bonuses (if any)
-        if (_state.selectedSubrace != null) {
-          final subraceBonus = _state.selectedSubrace!.additionalAbilityScores;
-          if (subraceBonus.containsKey(ability)) {
-            total += subraceBonus[ability]!;
-          }
-        }
-
-        finalScores[ability] = total;
+        // The people's bonuses, an «all» bonus included.
+        finalScores[ability] = baseScore + _state.racialBonus(ability);
       });
 
       // Recalculate modifiers based on FINAL scores
@@ -507,10 +301,10 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       // 6. Add starting equipment if selected
       if (_state.selectedEquipmentPackage == 'custom') {
         // Add custom equipment
-        await _addCustomEquipment(character, _state.customEquipmentQuantities);
+        _addCustomEquipment(character, _state.customEquipmentQuantities);
       } else if (_state.selectedEquipmentPackage != null) {
         // Add standard/alternative package
-        await _addStartingEquipment(character, _state.selectedClass!.id,
+        _addStartingEquipment(character, _state.selectedClass!.id,
             _state.selectedEquipmentPackage!);
       }
 
@@ -522,19 +316,24 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
       }
       character.spellbookData = book.toJson();
       ClassSpellGrants.apply(character, _state.selectedClass!.id);
-      await StorageService.saveCharacter(character);
+      return character;
+    }
+  }
 
-      // Navigation is now handled by _nextStep
+  Future<Character> _createCharacter() async {
+    try {
+      final hero = _compose();
+      await StorageService.saveCharacter(hero);
+      return hero;
     } catch (e) {
-      // Re-throw to let _nextStep handle the error UI
       throw Exception(e.toString());
     }
   }
 
   /// Add starting equipment based on class and selected package
-  Future<void> _addStartingEquipment(
-      Character character, String classId, String packageId) async {
-    final equipment = _getEquipmentForPackage(classId, packageId);
+  void _addStartingEquipment(
+      Character character, String classId, String packageId) {
+    final equipment = starterEquipment(classId, packageId);
 
     for (var itemId in equipment) {
       try {
@@ -551,8 +350,8 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
   }
 
   /// Add custom equipment from item IDs with quantities
-  Future<void> _addCustomEquipment(
-      Character character, Map<String, int> itemQuantities) async {
+  void _addCustomEquipment(
+      Character character, Map<String, int> itemQuantities) {
     for (var entry in itemQuantities.entries) {
       final itemId = entry.key;
       final quantity = entry.value;
@@ -610,511 +409,89 @@ class _CharacterCreationWizardState extends State<CharacterCreationWizard> {
     // Recalculate AC after equipment changes, including barbarian unarmored defense.
     character.recalculateAC();
   }
-
-  /// Get equipment item IDs for a specific class and package
-  List<String> _getEquipmentForPackage(String classId, String packageId) {
-    // Standard vs Alternative packages
-    final isAlternative = packageId == 'alternative';
-
-    switch (classId) {
-      case 'paladin':
-        return isAlternative
-            ? [
-                'scale_mail',
-                'longsword',
-                'javelin',
-                'holy_symbol',
-                'priests_pack'
-              ]
-            : [
-                'chain_mail',
-                'longsword',
-                'shield',
-                'holy_symbol',
-                'explorers_pack'
-              ];
-      case 'wizard':
-        return isAlternative
-            ? ['dagger', 'dagger', 'arcane_focus', 'scholars_pack']
-            : ['quarterstaff', 'dagger', 'component_pouch', 'scholars_pack'];
-      case 'fighter':
-        return isAlternative
-            ? [
-                'leather_armor',
-                'longbow',
-                'shortsword',
-                'shortsword',
-                'dungeons_pack'
-              ]
-            : [
-                'chain_mail',
-                'longsword',
-                'shield',
-                'crossbow_light',
-                'explorers_pack'
-              ];
-      case 'rogue':
-        return isAlternative
-            ? [
-                'leather_armor',
-                'rapier',
-                'shortbow',
-                'thieves_tools',
-                'dungeons_pack'
-              ]
-            : [
-                'leather_armor',
-                'shortsword',
-                'dagger',
-                'thieves_tools',
-                'burglars_pack'
-              ];
-      case 'cleric':
-        return isAlternative
-            ? [
-                'scale_mail',
-                'warhammer',
-                'shield',
-                'holy_symbol',
-                'explorers_pack'
-              ]
-            : ['chain_mail', 'mace', 'shield', 'holy_symbol', 'priests_pack'];
-      case 'ranger':
-        return isAlternative
-            ? [
-                'scale_mail',
-                'shortsword',
-                'shortsword',
-                'longbow',
-                'dungeons_pack'
-              ]
-            : ['leather_armor', 'longbow', 'shortsword', 'explorers_pack'];
-      default:
-        return ['leather_armor', 'dagger', 'explorers_pack'];
-    }
-  }
 }
 
-class _WizardHeader extends StatelessWidget {
-  const _WizardHeader({
-    required this.currentStep,
-    required this.stepCount,
-    required this.title,
-    required this.nextTitle,
-    required this.isSaving,
-    required this.onClose,
-  });
+/// The item templates of a class's starting set: «standard» or
+/// «alternative».
+/// Get equipment item IDs for a specific class and package
+List<String> starterEquipment(String classId, String packageId) {
+  // Standard vs Alternative packages
+  final isAlternative = packageId == 'alternative';
 
-  final int currentStep;
-  final int stepCount;
-  final String title;
-  final String? nextTitle;
-  final bool isSaving;
-  final VoidCallback onClose;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context)!;
-    final duration = _CharacterCreationWizardState._motionDuration(
-      context,
-      _CharacterCreationWizardState._revealMotion,
-    );
-
-    return Material(
-      color: colorScheme.surface,
-      surfaceTintColor: colorScheme.surfaceTint,
-      elevation: 1,
-      shadowColor: colorScheme.shadow.withValues(alpha: 0.12),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.45),
-            ),
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 14),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  IconButton.filledTonal(
-                    tooltip: MaterialLocalizations.of(context).closeButtonLabel,
-                    onPressed: isSaving ? null : onClose,
-                    icon: const Icon(Icons.close_rounded),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: AnimatedSwitcher(
-                      duration: duration,
-                      switchInCurve: AppMotion.standard,
-                      switchOutCurve: AppMotion.standard,
-                      transitionBuilder: (child, animation) {
-                        return FadeTransition(
-                          opacity: animation,
-                          child: SizeTransition(
-                            sizeFactor: animation,
-                            alignment: Alignment.topCenter,
-                            child: child,
-                          ),
-                        );
-                      },
-                      child: _WizardHeaderTitle(
-                        key: ValueKey<String>(title),
-                        stepLabel: '${currentStep + 1} / $stepCount',
-                        title: title,
-                        nextLabel: nextTitle == null
-                            ? null
-                            : '${l10n.next}: $nextTitle',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              _StepSegmentedRail(
-                currentStep: currentStep,
-                stepCount: stepCount,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _WizardHeaderTitle extends StatelessWidget {
-  const _WizardHeaderTitle({
-    super.key,
-    required this.stepLabel,
-    required this.title,
-    required this.nextLabel,
-  });
-
-  final String stepLabel;
-  final String title;
-  final String? nextLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(AppRadii.pill),
-              ),
-              child: Text(
-                stepLabel,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-            if (nextLabel != null) ...[
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  nextLabel!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-        const SizedBox(height: 5),
-        Text(
-          title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: colorScheme.onSurface,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _StepSegmentedRail extends StatelessWidget {
-  const _StepSegmentedRail({
-    required this.currentStep,
-    required this.stepCount,
-  });
-
-  final int currentStep;
-  final int stepCount;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final duration = _CharacterCreationWizardState._motionDuration(
-      context,
-      _CharacterCreationWizardState._fastMotion,
-    );
-
-    return TweenAnimationBuilder<double>(
-      tween: Tween<double>(end: currentStep.toDouble()),
-      duration: duration,
-      curve: AppMotion.standard,
-      builder: (context, value, child) {
-        return Row(
-          children: List.generate(stepCount, (index) {
-            final isComplete = value >= index;
-            final isCurrent = currentStep == index;
-            final color = isComplete
-                ? colorScheme.primary
-                : colorScheme.surfaceContainerHighest;
-            final borderColor = isCurrent
-                ? colorScheme.primary
-                : colorScheme.outlineVariant.withValues(alpha: 0.55);
-
-            return Expanded(
-              child: Padding(
-                padding: EdgeInsetsDirectional.only(
-                  start: index == 0 ? 0 : 3,
-                  end: index == stepCount - 1 ? 0 : 3,
-                ),
-                child: AnimatedContainer(
-                  duration: duration,
-                  curve: AppMotion.standard,
-                  height: isCurrent ? 10 : 8,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(AppRadii.pill),
-                    border: Border.all(color: borderColor),
-                    boxShadow: isCurrent
-                        ? [
-                            BoxShadow(
-                              color:
-                                  colorScheme.primary.withValues(alpha: 0.22),
-                              blurRadius: 10,
-                              offset: const Offset(0, 3),
-                            ),
-                          ]
-                        : null,
-                  ),
-                ),
-              ),
-            );
-          }),
-        );
-      },
-    );
-  }
-}
-
-class _WizardFloatingActions extends StatelessWidget {
-  const _WizardFloatingActions({
-    required this.currentStep,
-    required this.lastStep,
-    required this.isSaving,
-    required this.morphProgress,
-    required this.onBack,
-    required this.onNext,
-  });
-
-  final int currentStep;
-  final int lastStep;
-  final bool isSaving;
-  final double morphProgress;
-  final VoidCallback? onBack;
-  final VoidCallback onNext;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context)!;
-    final isLastStep = currentStep == lastStep;
-    final fabLabel = isLastStep ? l10n.finish : l10n.next;
-
-    return SafeArea(
-      minimum: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      child: SizedBox(
-        width: MediaQuery.sizeOf(context).width,
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                AnimatedSwitcher(
-                  duration: _CharacterCreationWizardState._motionDuration(
-                    context,
-                    _CharacterCreationWizardState._fastMotion,
-                  ),
-                  switchInCurve: AppMotion.standard,
-                  switchOutCurve: AppMotion.standard,
-                  child: onBack == null
-                      ? const SizedBox(
-                          key: ValueKey('back-empty'),
-                          width: 56,
-                          height: 56,
-                        )
-                      : Material(
-                          key: const ValueKey('back-button'),
-                          color: colorScheme.secondaryContainer,
-                          elevation: 3,
-                          shadowColor:
-                              colorScheme.shadow.withValues(alpha: 0.18),
-                          borderRadius: BorderRadius.circular(AppRadii.lgPlus),
-                          clipBehavior: Clip.antiAlias,
-                          child: IconButton(
-                            tooltip: l10n.back,
-                            onPressed: isSaving ? null : onBack,
-                            icon: Icon(
-                              Icons.arrow_back_rounded,
-                              color: colorScheme.onSecondaryContainer,
-                            ),
-                          ),
-                        ),
-                ),
-                const Spacer(),
-                _MorphingNextFab(
-                  progress: morphProgress,
-                  isSaving: isSaving,
-                  isLastStep: isLastStep,
-                  label: fabLabel,
-                  onPressed: isSaving ? null : onNext,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MorphingNextFab extends StatelessWidget {
-  const _MorphingNextFab({
-    required this.progress,
-    required this.isSaving,
-    required this.isLastStep,
-    required this.label,
-    required this.onPressed,
-  });
-
-  final double progress;
-  final bool isSaving;
-  final bool isLastStep;
-  final String label;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final duration = _CharacterCreationWizardState._motionDuration(
-      context,
-      const Duration(milliseconds: 240),
-    );
-
-    return TweenAnimationBuilder<double>(
-      tween: Tween<double>(end: progress.clamp(0.0, 1.0)),
-      duration: duration,
-      curve: AppMotion.standard,
-      builder: (context, value, child) {
-        final eased = value.clamp(0.0, 1.0);
-        final width = lerpDouble(56, isLastStep ? 150 : 132, eased)!;
-        final radius = lerpDouble(28, 22, eased)!;
-        final iconOpacity = isSaving ? 0.0 : (1 - eased).clamp(0.0, 1.0);
-        final labelOpacity = isSaving ? 0.0 : eased.clamp(0.0, 1.0);
-        final labelWidth = lerpDouble(0, isLastStep ? 94 : 76, eased)!;
-        final translateY = lerpDouble(-4, 0, eased)!;
-
-        return Transform.translate(
-          offset: Offset(0, translateY),
-          child: Material(
-            key: const Key('character_creation_next_fab'),
-            color: colorScheme.primaryContainer,
-            elevation: 5,
-            shadowColor: colorScheme.shadow.withValues(alpha: 0.22),
-            borderRadius: BorderRadius.circular(radius),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: onPressed,
-              borderRadius: BorderRadius.circular(radius),
-              child: SizedBox(
-                width: width,
-                height: 56,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Opacity(
-                      opacity: iconOpacity,
-                      child: Icon(
-                        isLastStep
-                            ? Icons.check_rounded
-                            : Icons.arrow_forward_rounded,
-                        key: const Key(
-                          'character_creation_next_fab_compact_icon',
-                        ),
-                        color: colorScheme.onPrimaryContainer,
-                      ),
-                    ),
-                    Offstage(
-                      offstage: labelWidth <= 0.5 || isSaving,
-                      child: SizedBox(
-                        width: labelWidth,
-                        child: Opacity(
-                          opacity: labelOpacity,
-                          child: Text(
-                            label,
-                            key: const Key(
-                              'character_creation_next_fab_extended_label',
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.fade,
-                            softWrap: false,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge
-                                ?.copyWith(
-                                  color: colorScheme.onPrimaryContainer,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (isSaving)
-                      SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.4,
-                          color: colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
+  switch (classId) {
+    case 'paladin':
+      return isAlternative
+          ? [
+              'scale_mail',
+              'longsword',
+              'javelin',
+              'holy_symbol',
+              'priests_pack'
+            ]
+          : [
+              'chain_mail',
+              'longsword',
+              'shield',
+              'holy_symbol',
+              'explorers_pack'
+            ];
+    case 'wizard':
+      return isAlternative
+          ? ['dagger', 'dagger', 'arcane_focus', 'scholars_pack']
+          : ['quarterstaff', 'dagger', 'component_pouch', 'scholars_pack'];
+    case 'fighter':
+      return isAlternative
+          ? [
+              'leather_armor',
+              'longbow',
+              'shortsword',
+              'shortsword',
+              'dungeons_pack'
+            ]
+          : [
+              'chain_mail',
+              'longsword',
+              'shield',
+              'crossbow_light',
+              'explorers_pack'
+            ];
+    case 'rogue':
+      return isAlternative
+          ? [
+              'leather_armor',
+              'rapier',
+              'shortbow',
+              'thieves_tools',
+              'dungeons_pack'
+            ]
+          : [
+              'leather_armor',
+              'shortsword',
+              'dagger',
+              'thieves_tools',
+              'burglars_pack'
+            ];
+    case 'cleric':
+      return isAlternative
+          ? [
+              'scale_mail',
+              'warhammer',
+              'shield',
+              'holy_symbol',
+              'explorers_pack'
+            ]
+          : ['chain_mail', 'mace', 'shield', 'holy_symbol', 'priests_pack'];
+    case 'ranger':
+      return isAlternative
+          ? [
+              'scale_mail',
+              'shortsword',
+              'shortsword',
+              'longbow',
+              'dungeons_pack'
+            ]
+          : ['leather_armor', 'longbow', 'shortsword', 'explorers_pack'];
+    default:
+      return ['leather_armor', 'dagger', 'explorers_pack'];
   }
 }

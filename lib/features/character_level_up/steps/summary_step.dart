@@ -1,6 +1,5 @@
 import '../../../core/progression/character_training.dart';
 import '../../../core/magic/magic_slots.dart';
-import '../../../core/ui/companion_surface.dart';
 import 'package:flutter/material.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 import '../../../core/models/character.dart';
@@ -10,7 +9,9 @@ import '../../../core/services/spell_service.dart';
 import '../../../core/progression/feature_evolution.dart';
 import '../../../core/progression/proficiency_identity.dart';
 import '../widgets/advancement_layout.dart';
-import '../../../core/ui/sheet_drag_region.dart';
+import '../widgets/advancement_climb.dart';
+import '../widgets/advancement_spells.dart';
+import '../../../core/ui/companion_kit.dart';
 import 'package:qd_and_d/core/theme/app_tokens.dart';
 
 class SummaryStep extends StatelessWidget {
@@ -23,6 +24,7 @@ class SummaryStep extends StatelessWidget {
   final bool saving;
   final String? error;
   final String? unavailableMessage;
+  final Color? accent;
 
   const SummaryStep(
       {super.key,
@@ -34,14 +36,15 @@ class SummaryStep extends StatelessWidget {
       this.previewBuilder,
       this.saving = false,
       this.error,
-      this.unavailableMessage});
+      this.unavailableMessage,
+      this.accent});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final ru = Localizations.localeOf(context).languageCode == 'ru';
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final colors = Theme.of(context).colorScheme;
+    final tone = accent ?? colors.primary;
     Character? next;
     try {
       next = previewBuilder?.call() ??
@@ -66,22 +69,13 @@ class SummaryStep extends StatelessWidget {
             .toList() ??
         [];
     return Column(children: [
-      Expanded(
-          child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      AdvancementStepList(
+              padding: EdgeInsets.fromLTRB(
+                  20, 12, 20, 24 + AdvancementDockScope.inset(context)),
               children: [
             AdvancementHeading(
               title: l10n.advancementReviewTitle,
               subtitle: l10n.advancementReviewHint,
-              trailing: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                      color: colors.secondaryContainer,
-                      borderRadius: BorderRadius.circular(AppRadii.lgPlus)),
-                  child: Text(
-                      '${character.level} → ${proposed?.level ?? nextLevel}',
-                      style: theme.textTheme.titleMedium)),
             ),
             if (proposed == null)
               _message(
@@ -95,27 +89,30 @@ class SummaryStep extends StatelessWidget {
               _section(context, ru ? 'Изменения листа' : 'Sheet changes', [
                 _row(
                     context,
+                    icon: 'up',
+                    ru ? 'Уровень героя' : 'Hero level',
+                    '${character.level}',
+                    '${proposed.level}'),
+                _row(
+                    context,
+                    icon: 'heart',
                     ru ? 'ОЗ' : 'HP',
                     '${character.currentHp}/${character.maxHp}',
                     '${proposed.currentHp}/${proposed.maxHp}',
                     key: const ValueKey('progression-summary-health')),
                 _row(
                     context,
+                    icon: 'star',
                     l10n.proficiencyBonusLabel,
                     _bonus(character.proficiencyBonus),
                     _bonus(proposed.proficiencyBonus),
                     key: const ValueKey('progression-summary-proficiency')),
                 _row(
                     context,
+                    icon: 'dice',
                     ru ? 'Кости хитов' : 'Hit Dice',
                     '${character.hitDice.fold<int>(0, (a, b) => a + b)}/${character.maxHitDice}',
                     '${proposed.hitDice.fold<int>(0, (a, b) => a + b)}/${proposed.maxHitDice}'),
-                Text(
-                    ru
-                        ? 'Текущие ОЗ и отмеченные состояния сохраняются.'
-                        : 'Current HP and marked conditions stay unchanged.',
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: colors.onSurfaceVariant)),
               ]),
               if (proposed.abilityScores.toJson().toString() !=
                   character.abilityScores.toJson().toString())
@@ -125,6 +122,7 @@ class SummaryStep extends StatelessWidget {
                         character.abilityScores.toJson()[entry.key])
                       _row(
                           context,
+                          icon: 'stats',
                           _ability(l10n, entry.key),
                           '${character.abilityScores.toJson()[entry.key]}',
                           '${entry.value}')
@@ -145,54 +143,60 @@ class SummaryStep extends StatelessWidget {
                       Padding(
                           padding: const EdgeInsets.symmetric(vertical: 6),
                           child: Text(_skill(l10n, skill),
-                              style: theme.textTheme.bodyMedium))
+                              style: TextStyle(
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.w500,
+                                  color: colors.onSurface)))
                   ]),
               if (added.isNotEmpty)
-                _section(context, l10n.classFeatures, [
+                _group(context, l10n.classFeatures, '${added.length}', [
                   for (final feature in added)
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(Icons.check_circle_outline_rounded,
-                          color: colors.primary, size: 22),
-                      title: Text(feature.getName(ru ? 'ru' : 'en'),
-                          style: theme.textTheme.titleSmall),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () => showResponsiveSheet<void>(
-                          context: context,
-                          isScrollControlled: true,
-                          useSafeArea: true,
-                          builder: (context) => SingleChildScrollView(
-                              padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
-                              child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(feature.getName(ru ? 'ru' : 'en'),
-                                        style: theme.textTheme.headlineSmall),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                        feature
-                                            .getDescription(ru ? 'ru' : 'en'),
-                                        style: theme.textTheme.bodyLarge),
-                                  ]))),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: AdvancementGain(
+                        icon: advancementFeatureGlyph(feature.iconName),
+                        title: feature.getName(ru ? 'ru' : 'en'),
+                        text: advancementGist(
+                            feature.getDescription(ru ? 'ru' : 'en'),
+                            max: 90),
+                        accent: tone,
+                        small: true,
+                        onTap: () => showAdvancementInfo(
+                            context,
+                            AdvancementInfo(
+                                kicker: l10n.classFeatures,
+                                title: feature.getName(ru ? 'ru' : 'en'),
+                                icon: advancementFeatureGlyph(feature.iconName),
+                                accent: tone,
+                                text: feature
+                                    .getDescription(ru ? 'ru' : 'en'))),
+                      ),
                     ),
                 ]),
               if (proposed.knownSpells
                   .any((id) => !character.knownSpells.contains(id)))
-                _section(
-                    context, ru ? 'Изученные заклинания' : 'Learned spells', [
+                _group(
+                    context, ru ? 'Изученные заклинания' : 'Learned spells', null, [
                   for (final id in proposed.knownSpells
                       .where((id) => !character.knownSpells.contains(id)))
                     Padding(
                         key: ValueKey('progression-learned-$id'),
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Text(
-                            SpellService.getSpellById(id)
-                                    ?.getName(ru ? 'ru' : 'en') ??
-                                (ru
-                                    ? 'Заклинание из источника'
-                                    : 'Spell from an installed source'),
-                            style: theme.textTheme.bodyMedium)),
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Builder(builder: (context) {
+                          final spell = SpellService.getSpellById(id);
+                          return AdvancementGain(
+                              icon: 'magic',
+                              title: spell?.getName(ru ? 'ru' : 'en') ??
+                                  (ru
+                                      ? 'Заклинание из источника'
+                                      : 'Spell from an installed source'),
+                              text: spell == null ? '' : spellLine(context, spell),
+                              accent: tone,
+                              small: true,
+                              onTap: spell == null
+                                  ? null
+                                  : () => showSpellDetails(context, spell));
+                        })),
                 ]),
               if (proposed.features.any((f) =>
                   f.resourcePool != null &&
@@ -234,24 +238,34 @@ class SummaryStep extends StatelessWidget {
                     for (final value in entry.entryProficiencies)
                       Text(CharacterTraining.label(value, ru ? 'ru' : 'en')),
                   ]),
-              if (proposed.spellSlots.isNotEmpty)
+              // Only circles whose slots this level changes; a hero without
+              // shared slots (Pact Magic alone) shows nothing here.
+              if (_slotRows(character, proposed).isNotEmpty)
                 _section(context, ru ? 'Ячейки заклинаний' : 'Spell slots', [
-                  for (var i = 0; i < proposed.spellSlots.length; i++)
-                    if (proposed.spellSlots[i] > 0 ||
-                        i < proposed.maxSpellSlots.length &&
-                            proposed.maxSpellSlots[i] > 0)
-                      _row(context, ru ? '${i + 1} круг' : 'Circle ${i + 1}',
-                          _slot(character, i), _slot(proposed, i)),
-                  Text(
-                      ru
-                          ? 'Повышение не восстанавливает потраченные ячейки.'
-                          : 'Levelling does not restore spent spell slots.',
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: colors.onSurfaceVariant))
+                  for (final i in _slotRows(character, proposed))
+                    _row(context, icon: 'magic',
+                        ru ? '${i + 1}-й круг' : 'Circle ${i + 1}',
+                        _slot(character, i), _slot(proposed, i)),
                 ]),
             ],
+            if (proposed != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  LineIcon('info', size: 18, color: colors.onSurfaceVariant),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                        ru
+                            ? 'Журнал, имущество и текущие ОЗ не меняются, потраченные ячейки не восстанавливаются. Повышение запишется в историю — его можно откатить.'
+                            : 'The journal, belongings and current HP stay as they are; spent slots are not restored. The level-up goes into the history and can be rolled back.',
+                        style: TextStyle(
+                            fontSize: 13, height: 1.4, color: colors.onSurfaceVariant)),
+                  ),
+                ]),
+              ),
             if (error != null) _message(context, error!),
-          ])),
+          ]),
       AdvancementFooter(
         label:
             saving ? (ru ? 'Сохраняем…' : 'Saving…') : (l10n.advancementApply),
@@ -284,6 +298,11 @@ class SummaryStep extends StatelessWidget {
         _ => value
       };
   static String _bonus(int value) => value >= 0 ? '+$value' : '$value';
+  static List<int> _slotRows(Character before, Character after) => [
+        for (var i = 0; i < after.maxSpellSlots.length; i++)
+          if (after.maxSpellSlots[i] > 0 && _slot(before, i) != _slot(after, i))
+            i
+      ];
   static String _slot(Character c, int i) =>
       '${i < c.spellSlots.length ? c.spellSlots[i] : 0}/${i < c.maxSpellSlots.length ? c.maxSpellSlots[i] : 0}';
   static String _ability(AppLocalizations l10n, String key) => switch (key) {
@@ -299,62 +318,103 @@ class SummaryStep extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Text(text,
           style: TextStyle(color: Theme.of(context).colorScheme.error)));
+  /// A titled group (`.grp6`) over a card of changes (`.sum6`).
   Widget _section(BuildContext context, String title, List<Widget> children) =>
-      Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: CompanionSurface(
-              quiet: true,
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800, letterSpacing: -.4)),
-                    const SizedBox(height: 12),
-                    ...children,
-                  ])));
+      _group(context, title, null, [
+        Container(
+            padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(24)),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: children)),
+      ]);
+
+  Widget _group(BuildContext context, String title, String? note,
+      List<Widget> children) {
+    final c = Theme.of(context).colorScheme;
+    return Padding(
+        padding: const EdgeInsets.only(bottom: 18),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(2, 0, 2, 10),
+            child: Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Expanded(
+                    child: Text(title,
+                        style: TextStyle(
+                            fontFamily: AppType.display,
+                            fontSize: 17,
+                            height: 1.2,
+                            fontWeight: FontWeight.w600,
+                            color: c.onSurface)),
+                  ),
+                  if (note != null)
+                    Text(note,
+                        style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w500,
+                            color: c.onSurfaceVariant)),
+                ]),
+          ),
+          ...children,
+        ]));
+  }
+
+  /// A change row (`.drow`): glyph, what, the old value, an arrow and the
+  /// new value in the accent.
   Widget _row(
       BuildContext context, String label, String oldValue, String newValue,
-      {Key? key}) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+      {Key? key, String? icon}) {
+    final c = Theme.of(context).colorScheme;
+    final tone = accent ?? c.primary;
     final unchanged = oldValue == newValue;
     final values = Wrap(
+        alignment: WrapAlignment.end,
         crossAxisAlignment: WrapCrossAlignment.center,
         spacing: 8,
         runSpacing: 4,
         children: [
           if (!unchanged) ...[
             Text(oldValue,
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(color: colors.onSurfaceVariant)),
-            Icon(Icons.arrow_forward_rounded,
-                size: 14, color: colors.onSurfaceVariant)
+                style: TextStyle(
+                    fontFamily: AppType.display,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: c.onSurfaceVariant)),
+            LineIcon('forward', size: 14, color: c.onSurfaceVariant),
           ],
           Text(newValue,
-              style: theme.textTheme.titleSmall?.copyWith(
-                  color: unchanged ? colors.onSurface : colors.primary,
-                  fontWeight: FontWeight.w600)),
+              style: TextStyle(
+                  fontFamily: AppType.display,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: unchanged ? c.onSurface : Color.lerp(c.onSurface, tone, .8))),
         ]);
+    final name = Text(label,
+        style: TextStyle(
+            fontSize: 14, height: 1.2, fontWeight: FontWeight.w500, color: c.onSurface));
     return Padding(
         key: key,
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
         child: LayoutBuilder(builder: (context, size) {
           if (MediaQuery.textScalerOf(context).scale(1) > 1.25 ||
               size.maxWidth < 300) {
             return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label, style: theme.textTheme.bodyMedium),
-                  const SizedBox(height: 6),
-                  values
-                ]);
+                children: [name, const SizedBox(height: 6), values]);
           }
           return Row(children: [
-            Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
+            if (icon != null) ...[
+              LineIcon(icon, size: 18, color: c.onSurfaceVariant),
+              const SizedBox(width: 10),
+            ],
+            Expanded(child: name),
             const SizedBox(width: 16),
-            Flexible(child: values)
+            values
           ]);
         }));
   }

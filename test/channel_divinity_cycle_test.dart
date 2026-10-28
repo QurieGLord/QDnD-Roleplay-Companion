@@ -210,6 +210,7 @@ void main() {
             child: const Text('Open level up')))));
     await tester.tap(find.text('Open level up'));
     await tester.pumpAndSettle();
+
     // Exercise the actual callbacks wired by the level-up screen.
     tester.widget<HpIncreaseStep>(find.byType(HpIncreaseStep)).onAverage();
     await tester.pumpAndSettle();
@@ -224,7 +225,8 @@ void main() {
         .onNext();
     await tester.pumpAndSettle();
     await tester.runAsync(() async {
-      await tester.tap(find.text('Confirm level-up'));
+      // The island's forward button confirms on the summary.
+      await tester.tap(find.byKey(const ValueKey('advancement-island-next')));
       await GameplayActionsService.serializeCharacter(
           c, () => Hive.box<Character>('characters').flush());
     });

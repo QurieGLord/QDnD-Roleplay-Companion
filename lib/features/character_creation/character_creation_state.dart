@@ -46,6 +46,131 @@ class CharacterCreationState extends ChangeNotifier {
   };
   String allocationMethod = 'standard_array';
 
+  // Wave 6 «Пролог»: the values placed on each ability before the people's
+  // bonuses, the six rolled values once the dice are thrown, and the
+  // point-buy budget (every ability starts at 8).
+  Map<String, int> assignedScores = {};
+  List<int>? rolledScores;
+  Map<String, int> pointBuy = {
+    for (final key in abilityKeys) key: 8,
+  };
+
+  static const abilityKeys = [
+    'strength',
+    'dexterity',
+    'constitution',
+    'intelligence',
+    'wisdom',
+    'charisma'
+  ];
+  static const standardArray = [15, 14, 13, 12, 10, 8];
+  static const pointBuyCost = {8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9};
+
+  /// The values in the tray: the standard array, or the rolled six.
+  List<int> get scorePool => allocationMethod == 'roll'
+      ? (rolledScores ?? const [])
+      : standardArray;
+
+  int get pointBuyLeft =>
+      27 - pointBuy.values.fold<int>(0, (sum, v) => sum + (pointBuyCost[v] ?? 0));
+
+  /// Every ability has its value: placed from the tray, or bought.
+  bool get abilitiesComplete => allocationMethod == 'point_buy'
+      ? pointBuyLeft >= 0
+      : abilityKeys.every(assignedScores.containsKey);
+
+  /// The people's bonus to an ability (an «all» bonus counts for each).
+  int racialBonus(String ability) =>
+      (selectedRace?.abilityScoreIncreases[ability] ??
+          selectedRace?.abilityScoreIncreases['all'] ??
+          0) +
+      (selectedSubrace?.additionalAbilityScores[ability] ?? 0);
+
+  int? baseScore(String ability) => allocationMethod == 'point_buy'
+      ? pointBuy[ability]
+      : assignedScores[ability];
+
+  int? finalScore(String ability) {
+    final base = baseScore(ability);
+    return base == null ? null : base + racialBonus(ability);
+  }
+
+  void _syncScores() {
+    for (final key in abilityKeys) {
+      abilityScores[key] = baseScore(key) ?? 10;
+    }
+  }
+
+  void setAllocationMethod(String method) {
+    allocationMethod = method;
+    assignedScores = {};
+    if (method != 'roll') rolledScores = null;
+    _syncScores();
+    notifyListeners();
+  }
+
+  void assignScore(String ability, int? value) {
+    if (value == null) {
+      assignedScores.remove(ability);
+    } else {
+      assignedScores[ability] = value;
+    }
+    _syncScores();
+    notifyListeners();
+  }
+
+  void clearAssignedScores() {
+    assignedScores = {};
+    _syncScores();
+    notifyListeners();
+  }
+
+  void setRolledScores(List<int>? values) {
+    rolledScores = values;
+    assignedScores = {};
+    _syncScores();
+    notifyListeners();
+  }
+
+  void setPointBuy(String ability, int value) {
+    pointBuy[ability] = value;
+    _syncScores();
+    notifyListeners();
+  }
+
+  /// A class skill picked over the limit takes the place of the earliest.
+  void pickSkill(String skill) {
+    if (selectedSkills.contains(skill)) {
+      selectedSkills.remove(skill);
+    } else if (selectedClass != null) {
+      final limit = selectedClass!.skillProficiencies.choose;
+      if (limit <= 0) return;
+      if (selectedSkills.length >= limit) selectedSkills.removeAt(0);
+      selectedSkills.add(skill);
+    }
+    notifyListeners();
+  }
+
+  /// Expertise over the limit gives way the same way.
+  void pickExpertise(String skill) {
+    if (selectedExpertise.contains(skill)) {
+      selectedExpertise.remove(skill);
+    } else {
+      final limit = requiredExpertiseCount;
+      if (limit <= 0) return;
+      if (selectedExpertise.length >= limit) {
+        selectedExpertise.remove(selectedExpertise.first);
+      }
+      selectedExpertise.add(skill);
+    }
+    notifyListeners();
+  }
+
+  void updateSubrace(SubraceData? subrace) {
+    selectedSubrace = subrace;
+    notifyListeners();
+  }
+
   // HP Selection
   String hpSelectionMethod = 'max'; // 'max', 'average', 'roll'
   int? rolledHp; // Stored when user rolls for HP
@@ -422,9 +547,14 @@ class CharacterCreationState extends ChangeNotifier {
   }
 
   void updateClass(ClassData classData) {
+    if (selectedClass?.id != classData.id) {
+      selectedSubclass = null;
+      selectedSkills.clear();
+      selectedExpertise.clear();
+      selectedSpells.clear();
+      selectedFeatureOptions.clear();
+    }
     selectedClass = classData;
-    selectedSubclass = null;
-    selectedSkills.clear();
     notifyListeners();
   }
 
@@ -486,6 +616,8 @@ class CharacterCreationState extends ChangeNotifier {
 
   void updateBackground(BackgroundData background) {
     selectedBackground = background;
+    // A skill the background already gives frees its class pick.
+    selectedSkills.removeWhere(background.skillProficiencies.contains);
     notifyListeners();
   }
 

@@ -1,3 +1,4 @@
+import '../../core/ui/companion_kit.dart' show FloatingGrab;
 import '../../core/ui/sheet_drag_region.dart';
 import 'package:flutter/material.dart';
 import '../../core/journal/journal_graph.dart';
@@ -30,9 +31,9 @@ Future<String?> chooseSelectionStory(
   final s = JournalStrings(context);
   return showResponsiveSheet<String>(
       context: context,
-      showDragHandle: true,
+      showDragHandle: false,
       isScrollControlled: true,
-      builder: (context) => SafeArea(
+      builder: (context) => FloatingGrab(child: SafeArea(
           child: SizedBox(
               height: MediaQuery.sizeOf(context).height * .6,
               child: ListView(
@@ -53,5 +54,5 @@ Future<String?> chooseSelectionStory(
                               ? null
                               : Text(entity.description),
                           onTap: () => Navigator.pop(context, entity.id)),
-                  ]))));
+                  ])))));
 }

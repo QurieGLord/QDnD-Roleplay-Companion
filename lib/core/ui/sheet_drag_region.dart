@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'companion_kit.dart';
 
 /// A broad header target. Closing never commits a draft, and is blocked during saves.
 class SheetDragRegion extends StatefulWidget {
@@ -91,11 +92,20 @@ Future<T?> showResponsiveSheet<T>(
         context: context,
         requestFocus: false,
         isScrollControlled: isScrollControlled,
-        showDragHandle: showDragHandle,
+        // The handle floats over the content (see [FloatingGrab]) instead
+        // of standing in a band of its own.
+        showDragHandle: false,
         useSafeArea: useSafeArea,
         sheetAnimationStyle: sheetAnimationStyle,
-        builder: (context) =>
-            SheetScrollDismiss(child: SheetSafeArea(child: builder(context))));
+        builder: (context) {
+          // Full width however short the content (a sheet otherwise
+          // shrinks to it).
+          final body = SizedBox(
+              width: double.infinity,
+              child: SheetScrollDismiss(
+                  child: SheetSafeArea(child: builder(context))));
+          return showDragHandle ? FloatingGrab(child: body) : body;
+        });
 
 /// A modal sheet keeps its last buttons above the gesture bar (Flutter's
 /// sheets only guard the top) and rises with the keyboard, so a text field

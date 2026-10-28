@@ -46,6 +46,9 @@ class LineIcon extends StatelessWidget {
     'back': 'M15 5l-7 7 7 7',
     'forward': 'M9 5l7 7-7 7',
     'plus': 'M12 5v14M5 12h14',
+    'swap': 'M7 7h11l-3-3M17 17H6l3 3',
+    'key':
+        'M10.5 12a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0zM10.5 12H20.5M17 12v3.5M20.5 12v2.5',
     'moon': 'M19 14.5A7.5 7.5 0 1 1 9.5 5a6 6 0 0 0 9.5 9.5z',
     'cup':
         'M5 9h11v5a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3v3M11 3v3',
@@ -749,8 +752,10 @@ Future<T?> showCompanionSheet<T>(BuildContext context,
     // the lift depends on the keyboard, the content is never rebuilt by it.
     builder: (context) => KeyboardPadding(
       // The handle floats over the content: no band of sheet colour cuts
-      // what scrolls up beneath it.
+      // what scrolls up beneath it. The sheet keeps its full width however
+      // little the content says.
       child: Stack(children: [
+        const SizedBox(width: double.infinity),
         SheetTopFade(
           // Pulling the content down from its top closes the sheet too.
           child: SheetScrollDismiss(
@@ -805,6 +810,60 @@ class SheetGrab extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A bottom action floating over a scrolling list as a glass island, like
+/// the journal's dock: a [GlassSurface] pill holds the action, the list
+/// scrolls on beneath it and pads by [room]. No strip, no bare button.
+class FloatingFooter extends StatelessWidget {
+  const FloatingFooter(
+      {super.key,
+      required this.child,
+      required this.action,
+      this.inset = const EdgeInsets.fromLTRB(14, 0, 14, 14)});
+  final Widget child, action;
+  final EdgeInsets inset;
+
+  /// Bottom padding a list under the island leaves for its last rows.
+  static double room(BuildContext context) =>
+      56 + 16 + 40 + MediaQuery.viewPaddingOf(context).bottom;
+
+  @override
+  Widget build(BuildContext context) => Stack(children: [
+        Positioned.fill(child: child),
+        Positioned(
+          left: inset.left,
+          right: inset.right,
+          bottom: inset.bottom + MediaQuery.viewPaddingOf(context).bottom,
+          child: FloatingIsland(child: action),
+        ),
+      ]);
+}
+
+/// The glass island of floating actions (journal, combat, level-up docks):
+/// a frosted pill with its own soft shadow and the actions inside.
+class FloatingIsland extends StatelessWidget {
+  const FloatingIsland({super.key, required this.child});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => GlassSurface(
+        borderRadius: BorderRadius.circular(36),
+        child: Padding(padding: const EdgeInsets.all(8), child: child),
+      );
+}
+
+/// A sheet's content under a floating [SheetGrab]: the handle has no band
+/// of its own, so what scrolls beneath it is never cut by a strip.
+class FloatingGrab extends StatelessWidget {
+  const FloatingGrab({super.key, required this.child});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => Stack(children: [
+        Padding(
+            padding: const EdgeInsets.only(top: SheetGrab.inset - 6),
+            child: child),
+        const Positioned(left: 0, right: 0, top: 0, child: SheetGrab()),
+      ]);
 }
 
 /// Content scrolling up under a floating handle fades out over its last

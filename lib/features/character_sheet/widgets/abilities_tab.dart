@@ -36,7 +36,8 @@ import 'abilities/sections/resources_section.dart';
 import 'abilities/sections/spell_level_group.dart';
 import 'class_panels.dart';
 import 'session/value_editor_dialog.dart';
-import '../../../core/ui/companion_kit.dart' show Pressable, SheetPageInset;
+import '../../../core/ui/companion_kit.dart'
+    show FloatingGrab, Pressable, SheetPageInset;
 import '../../../core/magic/spellbook_state.dart';
 import '../../../core/progression/class_spellcasting_profile.dart';
 import '../../../core/services/magic_resource_actions_service.dart';
@@ -398,9 +399,9 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      showDragHandle: true,
+      showDragHandle: false,
       builder: (context) =>
-          SheetSafeArea(child: FeatureDetailsSheet(feature: feature)),
+          FloatingGrab(child: SheetSafeArea(child: FeatureDetailsSheet(feature: feature))),
     );
   }
 
@@ -409,8 +410,8 @@ class _AbilitiesTabState extends State<AbilitiesTab>
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      showDragHandle: true,
-      builder: (context) => SheetSafeArea(
+      showDragHandle: false,
+      builder: (context) => FloatingGrab(child: SheetSafeArea(
           child: SpellDetailsSheet(
         spell: spell,
         character: widget.character,
@@ -418,7 +419,7 @@ class _AbilitiesTabState extends State<AbilitiesTab>
         onChanged: () {
           if (mounted) setState(() {});
         },
-      )),
+      ))),
     );
   }
 

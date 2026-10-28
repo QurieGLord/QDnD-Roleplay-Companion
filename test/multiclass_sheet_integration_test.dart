@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qd_and_d/features/character_level_up/steps/class_choice_step.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qd_and_d/core/ui/companion_kit.dart' show Pressable;
 import 'package:hive/hive.dart';
@@ -142,15 +143,15 @@ void main() {
             child: const Text('Open')))));
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('advancement-choose-class')));
+    // «0 · Класс» stands before HP; there the wizard card opens a new class.
+    await tester.tap(find.byKey(const ValueKey('advancement-route-0')));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Wizard'), 300,
-        scrollable: find
-            .descendant(
-                of: find.byType(DraggableScrollableSheet),
-                matching: find.byType(Scrollable))
-            .first);
-    await tester.tap(find.text('Wizard'));
+    final wizard = find.byKey(const ValueKey('advancement-class-wizard'));
+    await tester.ensureVisible(wizard);
+    await tester.pumpAndSettle();
+    await tester.tap(wizard);
+    await tester.pumpAndSettle();
+    tester.widget<ClassChoiceStep>(find.byType(ClassChoiceStep)).onNext();
     await tester.pumpAndSettle();
     tester.widget<HpIncreaseStep>(find.byType(HpIncreaseStep)).onAverage();
     await tester.pumpAndSettle();

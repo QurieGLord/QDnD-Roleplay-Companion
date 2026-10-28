@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "strategy_options": {
+    "checkpoint_remote": {
+      "provider": "github",
+      "repo": "QurieGLord/QDnD-Roleplay-Companion-sessions"
+    }
+  },
+  "telemetry": false,
+  "checkpoints": {
+    "primary": {
+      "type": "git-refs"
+    }
+  },
+  "commit_linking": "always"
+}

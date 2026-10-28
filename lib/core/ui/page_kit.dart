@@ -481,9 +481,14 @@ class PageHold extends StatefulWidget {
       {super.key,
       required this.label,
       required this.onDone,
-      this.icon = 'trash'});
+      this.icon = 'trash',
+      this.detail});
   final String label, icon;
   final VoidCallback onDone;
+
+  /// A second line under the label; the button then reads from the left,
+  /// with its glyph first (the rollback of the advancement history).
+  final String? detail;
   @override
   State<PageHold> createState() => _PageHoldState();
 }
@@ -532,11 +537,15 @@ class _PageHoldState extends State<PageHold>
         onPointerUp: (_) => _stop(),
         onPointerCancel: (_) => _stop(),
         child: Container(
-          height: 50,
+          height: widget.detail == null ? 50 : null,
+          constraints: widget.detail == null
+              ? null
+              : const BoxConstraints(minHeight: 62),
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
               color: a.withValues(alpha: .1),
-              borderRadius: BorderRadius.circular(25)),
+              borderRadius:
+                  BorderRadius.circular(widget.detail == null ? 25 : 24)),
           child: Stack(children: [
             Positioned.fill(
               child: AnimatedBuilder(
@@ -551,20 +560,50 @@ class _PageHoldState extends State<PageHold>
                 ),
               ),
             ),
-            Center(
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                LineIcon(widget.icon, size: 18, color: a),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(widget.label,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: a)),
-                ),
-              ]),
-            ),
+            if (widget.detail != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(children: [
+                  LineIcon(widget.icon, size: 22, color: a),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(widget.label,
+                              style: TextStyle(
+                                  fontSize: 14.5,
+                                  height: 1.2,
+                                  fontWeight: FontWeight.w600,
+                                  color: a)),
+                          const SizedBox(height: 2),
+                          Text(widget.detail!,
+                              style: TextStyle(
+                                  fontSize: 12.5,
+                                  height: 1.3,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color.lerp(a,
+                                      Theme.of(context).colorScheme.onSurface, .3))),
+                        ]),
+                  ),
+                ]),
+              )
+            else
+              Center(
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  LineIcon(widget.icon, size: 18, color: a),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(widget.label,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: a)),
+                  ),
+                ]),
+              ),
           ]),
         ),
       ),

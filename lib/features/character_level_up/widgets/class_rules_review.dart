@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/ui/companion_kit.dart' show FloatingFooter;
 import 'package:flutter/services.dart';
 import '../../../core/magic/spell_preparation_rules.dart';
 import '../../../shared/widgets/spell_preparation_rules_editor.dart';
@@ -102,8 +103,46 @@ class _ClassRulesReviewState extends State<ClassRulesReview> {
           };
     return Column(children: [
       Expanded(
-          child: ListView(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+          // «Use for this hero» floats over the list, without a strip.
+          child: FloatingFooter(
+              inset: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+              action: SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: FilledButton.icon(
+                      key: const ValueKey('class-rules-apply'),
+                      icon: const Icon(Icons.check_rounded),
+                      label: Text(
+                          ru ? 'Использовать для героя' : 'Use for this hero'),
+                      onPressed: !ready
+                          ? null
+                          : () {
+                              final json =
+                                  QdndBundleCodec.classToJson(widget.data);
+                              json['hitDie'] = _die;
+                              json['spellcasting'] = _caster == 'none'
+                                  ? null
+                                  : {'type': _caster, 'ability': _ability};
+                              json['rulesMetadata'] = {
+                                ...widget.data.rulesMetadata,
+                                'edition': '2014',
+                                if (_caster != 'none')
+                                  'spellPreparation': _preparation!.toJson(),
+                                'selectedByPlayer': true,
+                                'declaredFields': {
+                                  ...?(widget
+                                          .data.rulesMetadata['declaredFields']
+                                      as List?),
+                                  'hitDie',
+                                  'spellcasting'
+                                }.toList()
+                              };
+                              widget.onResolved(
+                                  QdndBundleCodec.classFromJson(json));
+                            })),
+              child: ListView(
+              padding: EdgeInsets.fromLTRB(
+                  24, 16, 24, FloatingFooter.room(context)),
               children: [
             Align(
                 alignment: Alignment.centerLeft,
@@ -183,44 +222,8 @@ class _ClassRulesReviewState extends State<ClassRulesReview> {
                 style: theme.textTheme.bodySmall
                     ?.copyWith(color: colors.onSurfaceVariant)),
             const SizedBox(height: 24),
-          ])),
-      SafeArea(
-          top: false,
-          child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
-              child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                      key: const ValueKey('class-rules-apply'),
-                      icon: const Icon(Icons.check_rounded),
-                      label: Text(
-                          ru ? 'Использовать для героя' : 'Use for this hero'),
-                      onPressed: !ready
-                          ? null
-                          : () {
-                              final json =
-                                  QdndBundleCodec.classToJson(widget.data);
-                              json['hitDie'] = _die;
-                              json['spellcasting'] = _caster == 'none'
-                                  ? null
-                                  : {'type': _caster, 'ability': _ability};
-                              json['rulesMetadata'] = {
-                                ...widget.data.rulesMetadata,
-                                'edition': '2014',
-                                if (_caster != 'none')
-                                  'spellPreparation': _preparation!.toJson(),
-                                'selectedByPlayer': true,
-                                'declaredFields': {
-                                  ...?(widget
-                                          .data.rulesMetadata['declaredFields']
-                                      as List?),
-                                  'hitDie',
-                                  'spellcasting'
-                                }.toList()
-                              };
-                              widget.onResolved(
-                                  QdndBundleCodec.classFromJson(json));
-                            }))))
+          ]))),
+
     ]);
   }
 }

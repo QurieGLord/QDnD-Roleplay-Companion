@@ -195,8 +195,8 @@ class _WizardMagicWidgetState extends State<WizardMagicWidget> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      showDragHandle: true,
-      builder: (_) => SheetSafeArea(
+      showDragHandle: false,
+      builder: (_) => FloatingGrab(child: SheetSafeArea(
           child: SpellDetailsSheet(
               spell: spell,
               character: _hero,
@@ -205,7 +205,7 @@ class _WizardMagicWidgetState extends State<WizardMagicWidget> {
                 refresh();
                 if (mounted) setState(() {});
                 widget.onStateChanged();
-              })),
+              }))),
     );
   }
 

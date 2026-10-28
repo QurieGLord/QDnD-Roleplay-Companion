@@ -14,6 +14,7 @@ import '../../core/services/character_data_service.dart';
 import '../../core/services/spell_eligibility_service.dart';
 import '../../core/services/spell_service.dart';
 import '../../core/services/storage_service.dart';
+import '../../core/ui/companion_kit.dart' show FloatingFooter;
 import '../../core/ui/companion_motion.dart';
 import '../../core/ui/companion_surface.dart';
 import '../../core/ui/sheet_drag_region.dart';
@@ -727,10 +728,16 @@ class _FilterSheetState extends State<_FilterSheet> {
               ),
             ),
           ),
-          Expanded(
-            child: ListView(
+Expanded(child: FloatingFooter(inset: const EdgeInsets.fromLTRB(24, 0, 24, 16), action:           SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: FilledButton(
+                  onPressed: () => Navigator.pop(context, _draft),
+                  child: Text(l.apply),
+                ),
+              ), child: ListView(
               controller: controller,
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: EdgeInsets.fromLTRB(24, 0, 24, FloatingFooter.room(context)),
               children: [
                 section(l.filterSchool, [
                   chip(
@@ -812,21 +819,8 @@ class _FilterSheetState extends State<_FilterSheet> {
                 ),
                 const SizedBox(height: 20),
               ],
-            ),
-          ),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => Navigator.pop(context, _draft),
-                  child: Text(l.apply),
-                ),
-              ),
-            ),
-          ),
+            ))),
+
         ],
       ),
     );
