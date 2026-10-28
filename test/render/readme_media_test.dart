@@ -27,6 +27,13 @@ import 'package:provider/provider.dart';
 import 'package:qd_and_d/features/expressive_cycle/custom_class_fixture.dart';
 import 'package:qd_and_d/features/expressive_cycle/cycle_fixture.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
+import 'package:qd_and_d/core/progression/level_up_commit.dart';
+import 'package:qd_and_d/core/progression/level_up_draft.dart';
+import 'package:qd_and_d/features/character_creation/character_creation_state.dart';
+import 'package:qd_and_d/features/character_creation/character_creation_wizard.dart';
+import 'package:qd_and_d/features/character_creation/prologue.dart';
+import 'package:qd_and_d/features/character_level_up/level_up_screen.dart';
+import 'package:qd_and_d/shared/widgets/advancement_history_sheet.dart';
 import 'package:qd_and_d/shared/widgets/spell_cast_sheet.dart';
 
 final _out = Platform.environment['QDND_MEDIA_DIR'];
@@ -278,6 +285,91 @@ void main() {
           w.key is ValueKey<String> && (w.key as ValueKey<String>).value == 'cast-rung-sharedSlot-$circle'));
       await reel.hold(24);
     }
+    addTearDown(tester.view.reset);
+  });
+
+  testWidgets('climb: the ladder fills as the level settles', (tester) async {
+    if (_out == null || !_clips.contains('climb')) return;
+    final hero = await put(tester, veterans().firstWhere((h) => h.characterClass == 'fighter'));
+    final key = await phone(tester, LevelUpScreen(character: hero));
+    final reel = _Reel(tester, key, 'climb');
+    // The hero's own levels fill rung by rung on the way in.
+    await reel.hold(80);
+    await tester.tap(find.byKey(const ValueKey('hp-method-roll')));
+    await reel.hold(36);
+    await tester.tap(find.byKey(const ValueKey('advancement-island-next')));
+    await reel.hold(40);
+    // Two points into Dexterity: the gems fly, the tile and chip update.
+    for (var i = 0; i < 2; i++) {
+      await tester.tap(find.byKey(const ValueKey('asi-ability-dexterity')));
+      await reel.hold(22);
+    }
+    await reel.hold(30);
+    addTearDown(tester.view.reset);
+  });
+
+  testWidgets('dice: six dice for the abilities', (tester) async {
+    if (_out == null || !_clips.contains('dice')) return;
+    final key = await phone(tester, const CharacterCreationWizard());
+    final state = tester.element(find.byType(Prologue)).read<CharacterCreationState>();
+    Future<void> forward() async {
+      // Let the chapter see its new choice before the island is tapped.
+      await tester.pump(_frame);
+      await tester.tap(find.byKey(const ValueKey('advancement-island-next')).last);
+      for (var i = 0; i < 30; i++) {
+        await tester.pump(_frame);
+      }
+    }
+
+    await tester.enterText(find.byKey(const ValueKey('prologue-name')), 'Лира');
+    await tester.pump(_frame);
+    await forward();
+    state.updateRace(CharacterDataService.shelfRaces().firstWhere((r) => r.id == 'human'));
+    await forward();
+    state.updateClass(CharacterDataService.getAllClasses().firstWhere((c) => c.id == 'paladin'));
+    await forward();
+    await tester.tap(find.byKey(const ValueKey('prologue-method-roll')));
+    for (var i = 0; i < 20; i++) {
+      await tester.pump(_frame);
+    }
+    final reel = _Reel(tester, key, 'dice');
+    await reel.hold(8);
+    await tester.tap(find.byKey(const ValueKey('prologue-roll')));
+    await reel.hold(140);
+    await tester.tap(find.text('Расставить по классу'));
+    await reel.hold(40);
+    reel.crop(Rect.fromLTWH(0, tester.getRect(find.byKey(const ValueKey('prologue-method-roll'))).top - 70, 390, 560));
+    addTearDown(tester.view.reset);
+  });
+
+  testWidgets('history: rungs that can be taken back', (tester) async {
+    if (_out == null || !_clips.contains('history')) return;
+    // A paladin of level 4 with two recorded level-ups: the whole ladder
+    // and the rollback fit one screen.
+    final hero = await put(
+        tester,
+        buildExpressiveCycleCharacters(levels: {'paladin': 4}, idPrefix: 'readme-')
+            .firstWhere((h) => h.characterClass == 'paladin'));
+    await tester.runAsync(() async {
+      for (var i = 0; i < 2; i++) {
+        final d = LevelUpDraft.begin(hero, classId: 'paladin')..chooseHealth(6);
+        await LevelUpCommit.apply(hero, baseline: d, result: d.preview, write: (_) async {});
+      }
+    });
+    final key = await phone(
+        tester,
+        Scaffold(
+            body: Builder(
+                builder: (context) => Center(
+                    child: TextButton(
+                        onPressed: () => showAdvancementHistory(context, hero),
+                        child: const Text('open'))))));
+    final reel = _Reel(tester, key, 'history');
+    await tester.tap(find.text('open'));
+    await reel.hold(60);
+    await tester.tap(find.textContaining('→ ${hero.level - 1}').first);
+    await reel.hold(70);
+
     addTearDown(tester.view.reset);
   });
 

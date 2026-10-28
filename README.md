@@ -14,7 +14,7 @@
 </div>
 
 > [!NOTE]
-> **`main` is a development snapshot, not a release.** The code here is far ahead of the published APK and PWA: the redesign shown below, magic and multiclassing, the level-up wizard with rollback, the linked journal and the shared content catalog all arrived after the last release. Progress and decisions are tracked in [`docs/`](docs/) (in Russian), starting with the [redesign course](docs/REDESIGN_COURSE_2026-10-21.md).
+> **`main` is a development snapshot, not a release.** The code here is far ahead of the published APK and PWA: the whole redesign shown below (waves 0–6), magic and multiclassing, the level-up flow with a class step and rollback, the new character creation, the linked journal, the library shelf and hero transfer all arrived after the last release. Progress and decisions are tracked in [`docs/`](docs/) (in Russian), starting with the [redesign course](docs/REDESIGN_COURSE_2026-10-21.md).
 
 ## A sheet that plays back
 
@@ -56,14 +56,29 @@ Every class has its own panel, scaled from level 1 to 20 by the class's own leve
 
 Classes from third-party books or your own homebrew are drawn by a **universal kit** built from their data: uses become tokens of the class motif, reserves become bars, dice roll in place, modes count rounds, and passives turn into badges.
 
+## From level 1 to 20
+
+<table>
+<tr>
+<td width="50%"><img src="docs/media/climb.webp" alt="Level-up climb"><br><b>08 · Level-up.</b> The «Climb» head shows the jump in big numbers over a ladder of twenty rungs. The hero's own levels fill on the way in, and the new rung fills as each step is settled. Steps slide by a whole page, the class comes first as step 0, and every new class says what it needs and what the hero has.</td>
+<td width="50%"><img src="docs/media/dice.webp" alt="Rolling abilities"><br><b>09 · Creation.</b> «Prologue» builds the hero card as you go. Roll for abilities and six dice rise out of the button, spin down one by one, warm with a soft halo, then their values drift into the tray.</td>
+</tr>
+<tr>
+<td colspan="2"><img src="docs/media/history.webp" alt="Advancement history" width="50%" align="right"><b>10 · History.</b> Every confirmed level-up is a rung. Tap one to see what a rollback would take away, then hold to roll back: the rungs slide off and the hero returns to that level. The journal, belongings and current HP stay.</td>
+</tr>
+</table>
+
 ## What's inside
 
 - **Character sheet:** HP with temporary HP and death saves, conditions, weapons and attacks, abilities, saves and skills.
+- **Session and combat:** turns, initiative and class actions on one shared action path, so the sheet and combat always agree and a failed save never leaves half a change.
 - **Magic and multiclassing:** shared and Pact slots, preparation by class, rituals, concentration, Mystic Arcanum, Spell Mastery and Signature Spells, plus an almanac of spells.
-- **Level-up wizard:** per-class choices, subclasses, feats and spells, with an advancement history you can roll back.
-- **Journal:** notes, quests, people and places linked into an atlas.
-- **Content libraries:** import FC5 (Fight Club 5) XML and QDND bundles. The SRD and your homebrew live in one catalog, and bilingual texts are split automatically.
-- **Themes:** Monokai, Gruvbox, Catppuccin and more, in light and dark, with large-text support and reduced motion.
+- **Level-up:** a class step with multiclass prerequisites, hit points, ability score improvements, subclasses, per-class choices and spells, a summary of every change, and an advancement history you can roll back.
+- **Character creation:** name, people, class, abilities (standard set, point buy or a roll), background, skills, features and gear, ending on a full sheet preview.
+- **Journal:** a pin board, a tape of sessions, manuscript pages, and people, places and quests linked into a living atlas.
+- **Content libraries:** a shelf with the built-in SRD 5.1 (2014), which you can switch off but not delete, and your books beside it. Import FC5 (Fight Club 5) XML or ZIP and QDND bundles; when your book overlaps the base one, you choose which wins.
+- **Hero transfer:** a full `.qdnd` copy with your own content inside, or a sheet as XML.
+- **Themes:** Monokai, Gruvbox, Catppuccin and more, in light and dark, with a quieter Basic mode, large text and reduced motion.
 
 ## Getting started
 
@@ -82,19 +97,19 @@ flutter run
 
 ## Where it's heading
 
-The redesign campaign takes every finished screen to the new design code wave by wave, each time with an interactive prototype first:
+The redesign campaign took every finished screen to the new design code wave by wave, each time with an interactive prototype first:
 
 | | Wave | |
 |:-:|---|:-:|
 | 0 | Living components and sheet performance | ✅ |
 | 1 | Lobby and hero sheet | ✅ |
 | 2 | Magic, class instruments, lobby roster | ✅ |
-| 3 | Session and combat | ⏳ |
-| 4 | Journal | |
-| 5 | Settings and libraries | |
-| 6 | Level-up and character creation | |
+| 3 | Session and combat | ✅ |
+| 4 | Journal | ✅ |
+| 5 | Settings and libraries | ✅ |
+| 6 | Level-up and character creation | ✅ |
 
-After that come the inventory, the Forge and quest rewards, and then a stable 1.0.
+Next comes a shared content model (stable identities for every book entry, items on the same model), then the inventory, the Forge and quest rewards, and then a stable 1.0.
 
 ## License and credits
 

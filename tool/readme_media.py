@@ -42,6 +42,9 @@ CLIPS = {
     'volley': ('05', 'lavender', 'block', None),
     'druid': ('06', 'green', 'block', None),
     'cast': ('07', 'cyan', 'block', (0, 176, 390, 668)),
+    'climb': ('08', 'cyan', 'phone', None),
+    'dice': ('09', 'yellow', 'block', None),
+    'history': ('10', 'pink', 'phone', None),
 }
 FPS = 30
 SCALE = 2  # frames are recorded at twice the logical size
