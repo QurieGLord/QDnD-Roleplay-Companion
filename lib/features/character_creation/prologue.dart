@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:qd_and_d/l10n/app_localizations.dart';
 
+import '../../core/content/content_catalog.dart';
+import '../../core/content/shelf_choices.dart';
 import '../../core/models/background_data.dart';
 import '../../core/models/character.dart';
 import '../../core/models/character_feature.dart';
@@ -24,6 +26,7 @@ import '../character_level_up/widgets/advancement_climb.dart';
 import '../character_level_up/widgets/advancement_layout.dart';
 import '../character_sheet/widgets/class_widgets/instrument/instrument_kit.dart';
 import '../journal/journal_kit.dart';
+import '../../shared/widgets/content_variant_picker.dart';
 import 'character_creation_state.dart';
 import 'character_creation_wizard.dart' show starterEquipment;
 import 'prologue_abilities.dart';
@@ -1029,6 +1032,35 @@ void _raceInfo(BuildContext context, RaceData r) {
           featsTitle: tr.t('Особенности', 'Traits')));
 }
 
+/// C04 · the card's source line: a concept several books carry says how many
+/// books and versions; a single library record says it is the library's.
+String? _shelfSource<T>(
+        BuildContext context, Tr tr, ShelfChoice<T> choice, String? sourceId) =>
+    choice.manyBooks
+        ? contentFamilySummary(context, choice.family)
+        : sourceId == null
+            ? null
+            : tr.t('Библиотека', 'Library');
+
+/// A tap on a concept card takes its lead version (the shelf setting picks
+/// it) without a question; a tap on the chosen card with other versions
+/// lists them to switch. Returns the record to take, or null.
+Future<T?> _shelfPick<T>(BuildContext context, ShelfChoice<T> choice,
+    {required bool held,
+    required String? heldId,
+    required String title,
+    required String Function(T) summary,
+    required String Function(T) description}) async {
+  if (!held) return choice.lead;
+  if (!choice.hasVersions) return null;
+  return showContentVariantPicker<T>(context, choice.family,
+      title: title,
+      summary: summary,
+      description: description,
+      preferredIds: {if (held && heldId != null) heldId},
+      preferredLabel: Tr(context).t('Выбрано сейчас', 'Chosen now'));
+}
+
 class _RaceChapter extends StatelessWidget {
   const _RaceChapter();
   @override
@@ -1036,7 +1068,8 @@ class _RaceChapter extends StatelessWidget {
     final s = context.watch<CharacterCreationState>();
     final tr = Tr(context);
     final locale = tr.ru ? 'ru' : 'en';
-    final races = CharacterDataService.shelfRaces();
+    final races =
+        shelfChoices(CharacterDataService.shelfRaces(), ContentRecords.race);
     final race = s.selectedRace;
     final look = race == null ? null : raceLook(race.id);
     return Padding(
@@ -1044,9 +1077,11 @@ class _RaceChapter extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         _Deck(
           count: races.length,
-          selected: races.indexWhere((r) => r.id == race?.id),
+          selected: races.indexWhere((c) => c.holds(race?.id, race?.sourceId)),
           builder: (context, i, reveal) {
-            final r = races[i];
+            final choice = races[i];
+            final held = choice.holds(race?.id, race?.sourceId);
+            final r = held ? race! : choice.lead;
             final l = raceLook(r.id);
             return _DeckCard(
               title: r.getName(locale),
@@ -1058,11 +1093,25 @@ class _RaceChapter extends StatelessWidget {
               ],
               glyph: l.$1,
               accent: AppAccents.of(context).at(l.$2),
-              selected: race?.id == r.id,
-              source: r.sourceId == null ? null : tr.t('Библиотека', 'Library'),
-              onTap: () {
-                if (race?.id != r.id) s.updateRace(r);
-                reveal();
+              selected: held,
+              source: _shelfSource(context, tr, choice, r.sourceId),
+              onTap: () async {
+                final picked = await _shelfPick<RaceData>(context, choice,
+                    held: held,
+                    heldId: r.id,
+                    title: r.getName(locale),
+                    summary: (v) => [
+                          if (_bonusText(tr, v.abilityScoreIncreases).isNotEmpty)
+                            _bonusText(tr, v.abilityScoreIncreases),
+                          tr.t('скорость ${v.speed}', 'speed ${v.speed}'),
+                          tr.t('черт: ${v.traits.length}', 'traits: ${v.traits.length}'),
+                        ].join(' · '),
+                    description: (v) => v.getDescription(locale));
+                if (picked != null &&
+                    (picked.id != race?.id || picked.sourceId != race?.sourceId)) {
+                  s.updateRace(picked);
+                }
+                if (held || picked != null) reveal();
               },
               onInfo: () => _raceInfo(context, r),
             );
@@ -1071,8 +1120,9 @@ class _RaceChapter extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            PrologueHint(tr.t('Листайте колоду. Удержание карточки — все особенности народа.',
-                'Swipe the deck. Hold a card for all of the people\'s traits.')),
+            PrologueHint(tr.t(
+                'Листайте колоду. Удержание карточки — все особенности народа. Если народ есть в нескольких книгах, повторное нажатие покажет их версии.',
+                'Swipe the deck. Hold a card for all of the people\'s traits. When several books carry a people, tap it again for their versions.')),
             // The subraces unfold under the deck when the people has them.
             PageReveal(
               open: race != null && race.subraces.isNotEmpty,
@@ -1206,15 +1256,19 @@ class _ClassChapter extends StatelessWidget {
     final tr = Tr(context);
     final l = AppLocalizations.of(context)!;
     final locale = tr.ru ? 'ru' : 'en';
-    final classes = CharacterDataService.getAllClasses();
+    final classes = shelfChoices(
+        CharacterDataService.getAllClasses(), ContentRecords.characterClass);
+    final chosen = s.selectedClass;
     return Padding(
       padding: const EdgeInsets.only(bottom: prologueDockRoom),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         _Deck(
           count: classes.length,
-          selected: classes.indexWhere((c) => c.id == s.selectedClass?.id),
+          selected: classes.indexWhere((c) => c.holds(chosen?.id, chosen?.sourceId)),
           builder: (context, i, reveal) {
-            final cls = classes[i];
+            final choice = classes[i];
+            final held = choice.holds(chosen?.id, chosen?.sourceId);
+            final cls = held ? chosen! : choice.lead;
             return _DeckCard(
               title: cls.getName(locale),
               text: advancementGist(cls.getDescription(locale), max: 160),
@@ -1230,11 +1284,28 @@ class _ClassChapter extends StatelessWidget {
               ],
               glyph: classSigil(cls.id),
               accent: classAccent(context, cls.id),
-              selected: s.selectedClass?.id == cls.id,
-              source: cls.sourceId == null ? null : tr.t('Библиотека', 'Library'),
-              onTap: () {
-                s.updateClass(cls);
-                reveal();
+              selected: held,
+              source: _shelfSource(context, tr, choice, cls.sourceId),
+              onTap: () async {
+                final picked = await _shelfPick<ClassData>(context, choice,
+                    held: held,
+                    heldId: cls.id,
+                    title: cls.getName(locale),
+                    summary: (v) => [
+                          tr.t('Правила: ', 'Rules: ') +
+                              (v.rulesEdition == 'unknown'
+                                  ? tr.t('редакция не указана', 'edition not stated')
+                                  : v.rulesEdition),
+                          tr.t('к${v.hitDie}', 'd${v.hitDie}'),
+                          tr.t('подклассов: ${v.subclasses.length}',
+                              'subclasses: ${v.subclasses.length}'),
+                        ].join(' · '),
+                    description: (v) => advancementGist(v.getDescription(locale), max: 220));
+                if (picked != null &&
+                    (picked.id != chosen?.id || picked.sourceId != chosen?.sourceId)) {
+                  s.updateClass(picked);
+                }
+                if (held || picked != null) reveal();
               },
               onInfo: () => showClassInfo(context, cls),
             );
@@ -1243,8 +1314,8 @@ class _ClassChapter extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: PrologueHint(tr.t(
-              'Удержание карточки — доспехи, оружие, навыки и умения 1-го уровня. Класс из вашей библиотеки стоит в той же колоде.',
-              'Hold a card for armour, weapons, skills and level 1 features. Classes from your library are in the same deck.')),
+              'Удержание карточки — доспехи, оружие, навыки и умения 1-го уровня. Класс из вашей библиотеки стоит в той же колоде; повторное нажатие на выбранный класс покажет другие версии.',
+              'Hold a card for armour, weapons, skills and level 1 features. Classes from your library are in the same deck; tap a chosen class again for its other versions.')),
         ),
       ]),
     );
@@ -1291,15 +1362,19 @@ class _BackgroundChapter extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final locale = tr.ru ? 'ru' : 'en';
     final accent = AppAccents.of(context).at(5);
-    final backgrounds = CharacterDataService.shelfBackgrounds();
+    final backgrounds = shelfChoices(
+        CharacterDataService.shelfBackgrounds(), ContentRecords.background);
+    final chosen = s.selectedBackground;
     return _ChapterList(children: [
-      for (final (i, b) in backgrounds.indexed)
+      for (final (i, choice) in backgrounds.indexed)
+        if (choice.holds(chosen?.id, chosen?.sourceId) ? chosen! : choice.lead
+            case final b)
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: PageEntrance(
             index: i,
             child: AdvancementPick(
-              selected: s.selectedBackground?.id == b.id,
+              selected: identical(b, chosen),
               title: b.getName(locale),
               subtitle: advancementGist(b.getDescription(locale), max: 110),
               icon: 'book',
@@ -1308,8 +1383,23 @@ class _BackgroundChapter extends StatelessWidget {
                 for (final sk in b.skillProficiencies) skillName(l, sk),
                 b.feature.getName(locale),
               ],
-              source: b.sourceId == null ? null : tr.t('Библиотека', 'Library'),
-              onTap: () => s.updateBackground(b),
+              source: _shelfSource(context, tr, choice, b.sourceId),
+              onTap: () async {
+                final picked = await _shelfPick<BackgroundData>(context, choice,
+                    held: identical(b, chosen),
+                    heldId: b.id,
+                    title: b.getName(locale),
+                    summary: (v) => [
+                          for (final sk in v.skillProficiencies) skillName(l, sk),
+                          v.feature.getName(locale),
+                        ].join(' · '),
+                    description: (v) => v.getDescription(locale));
+                if (picked != null &&
+                    (picked.id != chosen?.id || picked.sourceId != chosen?.sourceId)) {
+                  HapticFeedback.selectionClick();
+                  s.updateBackground(picked);
+                }
+              },
               onInfo: () => _backgroundInfo(context, b),
             ),
           ),

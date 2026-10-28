@@ -33,7 +33,8 @@ Future<T?> showContentVariantPicker<T>(
         {required String title,
         required String Function(T) summary,
         required String Function(T) description,
-        Set<String> preferredIds = const {}}) =>
+        Set<String> preferredIds = const {},
+        String? preferredLabel}) =>
     showResponsiveSheet<T>(
         context: context,
         isScrollControlled: true,
@@ -98,9 +99,10 @@ Future<T?> showContentVariantPicker<T>(
                                                 padding: const EdgeInsets.only(
                                                     bottom: 8),
                                                 child: Text(
-                                                    ru
-                                                        ? 'Уже в листе'
-                                                        : 'Already on your sheet',
+                                                    preferredLabel ??
+                                                        (ru
+                                                            ? 'Уже в листе'
+                                                            : 'Already on your sheet'),
                                                     style: t
                                                         .textTheme.labelMedium
                                                         ?.copyWith(
