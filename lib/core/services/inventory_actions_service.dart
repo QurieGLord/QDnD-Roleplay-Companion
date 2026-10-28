@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:uuid/uuid.dart';
+import '../content/item_references.dart';
 import '../models/character.dart';
 import '../models/item.dart';
 import 'gameplay_actions_service.dart';
@@ -255,6 +256,29 @@ class InventoryActionsService {
           }
         }
       }
+    }, write: write);
+  }
+
+  /// C02 · takes the book's newer version into a personal stack. Quantity,
+  /// equipment, attunement and the stack itself stay the hero's.
+  static Future<void> adoptBookVersion(
+      Character c, InventoryTarget target, Item version,
+      {required Item expected, Future<void> Function(Character)? write}) {
+    final baseline = jsonEncode(expected.toJson());
+    return _item(c, target, (items, index) {
+      final own = items[index];
+      final actual = clone(own)..instanceId = expected.instanceId;
+      if (jsonEncode(actual.toJson()) != baseline) {
+        throw StateError('Item changed before the update');
+      }
+      items[index] = ItemReferences.stamp(
+          clone(version)
+            ..instanceId = own.instanceId
+            ..quantity = own.quantity
+            ..isEquipped = own.isEquipped
+            ..isAttuned = own.isAttuned && version.requiresAttunement
+            ..customImagePath = own.customImagePath ?? version.customImagePath,
+          version);
     }, write: write);
   }
 

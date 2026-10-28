@@ -37,13 +37,15 @@ class ItemAdapter extends TypeAdapter<Item> {
       sourceId: fields[17] as String?,
       instanceId: fields[18] as String?,
       requiresAttunement: fields[19] as bool? ?? false,
+      familyId: fields[20] as String?,
+      variantId: fields[21] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Item obj) {
     writer
-      ..writeByte(20)
+      ..writeByte(22)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -83,7 +85,11 @@ class ItemAdapter extends TypeAdapter<Item> {
       ..writeByte(18)
       ..write(obj.instanceId)
       ..writeByte(19)
-      ..write(obj.requiresAttunement);
+      ..write(obj.requiresAttunement)
+      ..writeByte(20)
+      ..write(obj.familyId)
+      ..writeByte(21)
+      ..write(obj.variantId);
   }
 
   @override

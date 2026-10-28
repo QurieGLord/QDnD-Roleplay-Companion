@@ -9,6 +9,7 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../content/item_references.dart';
 import '../models/background_data.dart';
 import '../models/character.dart';
 import '../models/character_feature.dart';
@@ -581,7 +582,7 @@ class QdndBundleImportService {
   }
 
   static Item _mergeItemState(Item template, Item state) {
-    return Item(
+    return ItemReferences.stamp(Item(
       id: template.id,
       nameEn: template.nameEn,
       nameRu: template.nameRu,
@@ -602,7 +603,7 @@ class QdndBundleImportService {
       sourceId: template.sourceId,
       instanceId: state.instanceId,
       requiresAttunement: state.requiresAttunement || template.requiresAttunement,
-    );
+    ), template);
   }
 
   static CharacterFeature _mergeFeatureState(

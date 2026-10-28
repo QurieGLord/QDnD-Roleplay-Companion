@@ -67,6 +67,17 @@ class Item extends HiveObject {
   @HiveField(19, defaultValue: false)
   bool requiresAttunement;
 
+  /// C02 · the catalogue family of a personal instance (see
+  /// ContentIdentityRegistry). Null on definitions and unlinked instances.
+  @HiveField(20)
+  String? familyId;
+
+  /// The book variant this instance's definition was copied from. While the
+  /// copy is unchanged and the book's record moves on, the item sheet offers
+  /// the new version; a personally edited copy is left alone.
+  @HiveField(21)
+  String? variantId;
+
   Item({
     required this.id,
     required this.nameEn,
@@ -88,6 +99,8 @@ class Item extends HiveObject {
     this.sourceId,
     this.instanceId,
     this.requiresAttunement = false,
+    this.familyId,
+    this.variantId,
   });
 
   String getName(String locale) {
@@ -129,6 +142,9 @@ class Item extends HiveObject {
       'sourceId': sourceId,
       'instanceId': instanceId,
       'requiresAttunement': requiresAttunement,
+      // Written only when set, so catalogue definitions keep their signature.
+      if (familyId != null) 'familyId': familyId,
+      if (variantId != null) 'variantId': variantId,
     };
   }
 
@@ -164,6 +180,8 @@ class Item extends HiveObject {
       sourceId: json['sourceId'],
       instanceId: json['instanceId'] as String?,
       requiresAttunement: json['requiresAttunement'] == true,
+      familyId: json['familyId'] as String?,
+      variantId: json['variantId'] as String?,
     );
   }
 }

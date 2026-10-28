@@ -166,7 +166,9 @@ class ContentRecords {
       ..remove('instanceId')
       ..remove('quantity')
       ..remove('isEquipped')
-      ..remove('isAttuned');
+      ..remove('isAttuned')
+      ..remove('familyId')
+      ..remove('variantId');
     return ContentRecord(
         kind: ContentKind.item,
         id: i.id,

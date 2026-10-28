@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../models/item.dart';
+import '../content/item_references.dart';
 import '../content/library_policy.dart';
 import 'storage_service.dart';
 
@@ -149,8 +150,8 @@ class ItemService {
       return null;
     }
 
-    // Create a new Item instance from the template
-    return Item(
+    // Create a new Item instance from the template, linked to its variant.
+    return ItemReferences.stamp(Item(
       id: template.id,
       instanceId: const Uuid().v4(),
       nameEn: template.nameEn,
@@ -193,7 +194,7 @@ class ItemService {
       customImagePath: template.customImagePath,
       sourceId: template.sourceId,
       requiresAttunement: template.requiresAttunement,
-    );
+    ), template);
   }
 
   /// Check if service is initialized

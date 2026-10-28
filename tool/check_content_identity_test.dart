@@ -57,11 +57,28 @@ void main() {
       }
     }
 
+    // C02 · the author's hero, saved after the books: its inventory links on
+    // the next refresh where a copy is an exact book definition.
+    final heroFile = Directory(input)
+        .listSync()
+        .whereType<File>()
+        .singleWhere((f) => f.path.endsWith('.xml'));
+    final hero = (await ImportService.importCharactersFromFC5File(heroFile))
+        .characters
+        .single;
+    await StorageService.saveCharacter(hero);
+
     // Every module import has already reconciled; this is the launch path.
     final watch = Stopwatch()..start();
     await ContentIdentityService.refresh();
     final first = watch.elapsedMilliseconds;
     final registry = ContentIdentityService.current;
+    final savedHero = StorageService.getCharacter(hero.id)!;
+    final heroItems = [
+      savedHero.inventory.length,
+      savedHero.inventory.where((i) => i.variantId != null).length,
+      savedHero.inventory.where((i) => i.familyId != null).length,
+    ];
     final stored = StorageService.getSetting(ContentIdentityService.storageKey);
     final spells =
         ContentCatalog(SpellService.getAllSpells().map(ContentRecords.spell));
@@ -127,6 +144,7 @@ void main() {
       'variantsAllKinds': registry.variantCount,
       'storedBytes': (stored as String).length,
       'prologueRowsCardsVersioned': prologue,
+      'heroItemsAllLinkedWithFamily': heroItems,
       'firstRefreshMs': first,
       'secondRefreshMs': second,
       'removedSpells': removedSpells.length,

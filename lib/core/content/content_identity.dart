@@ -7,6 +7,7 @@ import '../services/item_service.dart';
 import '../services/spell_service.dart';
 import '../services/storage_service.dart';
 import 'content_catalog.dart';
+import 'item_references.dart';
 
 /// C01 · persistent identities of catalogue entities (see
 /// docs/CONTENT_MODEL_C01_C04_2026-10-29.md).
@@ -310,5 +311,8 @@ abstract final class ContentIdentityService {
     if (changed) {
       await StorageService.saveSetting(storageKey, jsonEncode(registry.toJson()));
     }
+    // C02 · saved inventories follow the registry: exact copies get their
+    // references, linked ones follow merges.
+    await ItemReferences.linkStoredCharacters(registry);
   }
 }

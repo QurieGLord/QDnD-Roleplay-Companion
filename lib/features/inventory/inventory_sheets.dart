@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../core/content/item_references.dart';
 import '../../core/models/character.dart';
 import '../../core/models/item.dart';
 import '../../core/services/inventory_actions_service.dart';
+import '../../core/ui/companion_kit.dart';
 import '../../core/ui/companion_surface.dart';
+import '../../core/ui/page_kit.dart';
+import '../../shared/widgets/content_variant_picker.dart' show contentSourceName;
 import '../../core/ui/sheet_drag_region.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/item_details_sheet.dart';
@@ -172,6 +176,28 @@ class _OwnedItemSheetState extends State<_OwnedItemSheet> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // C02 · a newer book version is offered, never applied
+                  // behind the player's back.
+                  Builder(builder: (context) {
+                    final update = ItemReferences.bookUpdate(item);
+                    return PageReveal(
+                        open: update != null,
+                        child: update == null
+                            ? const SizedBox(width: double.infinity)
+                            : _BookUpdateNotice(
+                                item: item,
+                                update: update,
+                                busy: busy,
+                                onUpdate: () => act(() async {
+                                      await InventoryActionsService
+                                          .adoptBookVersion(widget.hero,
+                                              InventoryTarget(item), update,
+                                              expected:
+                                                  InventoryActionsService.clone(
+                                                      item));
+                                      return true;
+                                    })));
+                  }),
                   IgnorePointer(
                       ignoring: busy,
                       child: ItemDetailsContent(
@@ -278,6 +304,84 @@ class _OwnedItemSheetState extends State<_OwnedItemSheet> {
                         padding: EdgeInsets.all(16),
                         child: LinearProgressIndicator()),
                 ])));
+  }
+}
+
+/// «В книге новая версия»: what changed, from which book, and one tap to
+/// take it. The stack's quantity, equipment and attunement stay.
+class _BookUpdateNotice extends StatelessWidget {
+  const _BookUpdateNotice(
+      {required this.item,
+      required this.update,
+      required this.busy,
+      required this.onUpdate});
+  final Item item, update;
+  final bool busy;
+  final VoidCallback onUpdate;
+
+  static String _field(BuildContext context, String key) => switch (key) {
+        'nameRu' || 'nameEn' => inventoryText(context, 'название', 'name'),
+        'descriptionRu' ||
+        'descriptionEn' =>
+          inventoryText(context, 'описание', 'description'),
+        'weight' => inventoryText(context, 'вес', 'weight'),
+        'valueInCopper' => inventoryText(context, 'цена', 'price'),
+        'weaponProperties' =>
+          inventoryText(context, 'свойства оружия', 'weapon properties'),
+        'armorProperties' =>
+          inventoryText(context, 'свойства доспеха', 'armour properties'),
+        'rarity' => inventoryText(context, 'редкость', 'rarity'),
+        'type' => inventoryText(context, 'тип', 'type'),
+        'isMagical' ||
+        'requiresAttunement' =>
+          inventoryText(context, 'магия и настройка', 'magic and attunement'),
+        _ => inventoryText(context, 'детали', 'details'),
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context), c = t.colorScheme;
+    final changed = {
+      for (final key in ItemReferences.changes(item, update))
+        _field(context, key)
+    }.join(', ');
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 4, 24, 12),
+      child: CompanionSurface(
+        key: const ValueKey('item-book-update'),
+        quiet: true,
+        contour: CompanionContour.focus,
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: LineIcon('book', size: 20, color: c.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(inventoryText(context, 'В книге новая версия', 'A new version in the book'),
+                  style: t.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+              const SizedBox(height: 4),
+              Text(
+                  inventoryText(
+                      context,
+                      '${contentSourceName(context, update.sourceId)} · изменились: $changed. Количество, экипировка и настройка останутся.',
+                      '${contentSourceName(context, update.sourceId)} · changed: $changed. Quantity, equipment and attunement stay.'),
+                  style: t.textTheme.bodySmall?.copyWith(color: c.onSurfaceVariant, height: 1.35)),
+              const SizedBox(height: 10),
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: FilledButton.tonal(
+                    key: const ValueKey('item-book-update-apply'),
+                    onPressed: busy ? null : onUpdate,
+                    child: Text(inventoryText(context, 'Обновить', 'Update'))),
+              ),
+            ]),
+          ),
+        ]),
+      ),
+    );
   }
 }
 
