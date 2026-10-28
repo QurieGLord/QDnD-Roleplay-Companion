@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/content/content_identity.dart';
 import '../../core/content/content_reference_repair.dart';
 import '../../core/content/library_policy.dart';
 import '../../core/models/compendium_source.dart';
@@ -77,6 +78,7 @@ class _LibraryManagerScreenState extends State<LibraryManagerScreen> {
     await SpellService.reload();
     await ContentReferenceRepair.repairStoredCharacters();
     await CharacterDataService.reload();
+    await ContentIdentityService.refresh();
   }
 
   Future<void> _removeBook(ShelfBook book) async {

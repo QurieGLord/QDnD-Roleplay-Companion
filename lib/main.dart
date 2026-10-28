@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'core/content/content_identity.dart';
 import 'core/content/content_reference_repair.dart';
 // ignore_for_file: avoid_print
 import 'package:flutter/foundation.dart';
@@ -51,6 +53,9 @@ void main() async {
     // Load items database
     await ItemService.loadItems();
     await ContentReferenceRepair.repairStoredCharacters();
+    // Nothing reads the registry on the way to the first frame yet; the
+    // reconcile (about half a second on a full shelf) runs alongside it.
+    unawaited(ContentIdentityService.refresh());
     if (const bool.fromEnvironment('QDND_EXPRESSIVE_CYCLE')) {
       await seedExpressiveCycle();
     }

@@ -1,3 +1,4 @@
+import '../content/content_identity.dart';
 import '../content/content_reference_repair.dart';
 import 'imported_progression_service.dart';
 // ignore_for_file: avoid_print
@@ -286,6 +287,7 @@ class ImportService {
       // CharacterDataService handles races/classes usually, now needs to handle backgrounds/feats too
       await CharacterDataService.reload();
       final repaired = await ContentReferenceRepair.repairStoredCharacters();
+      await ContentIdentityService.refresh();
       if (repaired.repaired > 0) {
         parseResult.diagnostics.info('character_spell_links_repaired',
             'Restored unambiguous saved spell references without reimporting characters.',
@@ -315,6 +317,7 @@ class ImportService {
     await SpellService.reload();
     await CharacterDataService.reload();
     await ContentReferenceRepair.repairStoredCharacters();
+    await ContentIdentityService.refresh();
   }
 
   static Future<CompendiumSource?> _findDuplicateSource(
