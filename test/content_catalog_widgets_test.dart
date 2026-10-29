@@ -88,7 +88,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(SpellDetailsSheet), findsNothing);
     expect(find.text('Changed homebrew effect'), findsOneWidget);
+    // A tap selects the version; the sheet's island takes it.
     await tester.tap(find.text('Changed homebrew effect'));
+    await tester.pumpAndSettle();
+    expect(find.byType(SpellDetailsSheet), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('content-variant-take')));
     await tester.pumpAndSettle();
     expect(find.byType(SpellDetailsSheet), findsOneWidget);
     expect(find.text('Changed homebrew effect'), findsOneWidget);

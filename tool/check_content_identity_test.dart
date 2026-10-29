@@ -63,9 +63,14 @@ void main() {
         .listSync()
         .whereType<File>()
         .singleWhere((f) => f.path.endsWith('.xml'));
-    final hero = (await ImportService.importCharactersFromFC5File(heroFile))
-        .characters
-        .single;
+    final heroImport =
+        await ImportService.importCharactersFromFC5File(heroFile);
+    final hero = heroImport.characters.single;
+    // C03 · what the reconciliation step lists for this hero.
+    final ambiguous = heroImport.ambiguities[hero.id] ?? const [];
+    final heroSpellsResolved = hero.knownSpells
+        .where((id) => SpellService.getSpellById(id) != null)
+        .length;
     await StorageService.saveCharacter(hero);
 
     // Every module import has already reconciled; this is the launch path.
@@ -145,6 +150,14 @@ void main() {
       'storedBytes': (stored as String).length,
       'prologueRowsCardsVersioned': prologue,
       'heroItemsAllLinkedWithFamily': heroItems,
+      'heroSpellsKnownResolved': [hero.knownSpells.length, heroSpellsResolved],
+      'heroAmbiguities': {
+        for (final kind in ambiguous.map((a) => a.kind.name).toSet())
+          kind: [
+            for (final a in ambiguous.where((a) => a.kind.name == kind))
+              a.family.variants.length
+          ]
+      },
       'firstRefreshMs': first,
       'secondRefreshMs': second,
       'removedSpells': removedSpells.length,

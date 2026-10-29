@@ -77,6 +77,10 @@ class ContentReferenceRepair {
     return result;
   }
 
+  /// Points every spell list of [c] from one ID to another.
+  static void remapSpells(Character c, Map<String, String> mapping) =>
+      _remap(c, mapping);
+
   static void _remap(Character c, Map<String, String> mapping) {
     String map(String id) => mapping[id] ?? id;
     c.knownSpells = c.knownSpells.map(map).toSet().toList();

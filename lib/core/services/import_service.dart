@@ -1,4 +1,5 @@
 import '../content/content_identity.dart';
+import '../content/hero_reconciliation.dart';
 import '../content/content_reference_repair.dart';
 import 'imported_progression_service.dart';
 // ignore_for_file: avoid_print
@@ -33,9 +34,14 @@ class CharacterImportResult {
   final List<Character> characters;
   final FC5ParseDiagnostics diagnostics;
 
+  /// C03 · per hero ID, the entries the libraries know in several versions;
+  /// each already refers to its lead, the player may choose another.
+  final Map<String, List<HeroAmbiguity>> ambiguities;
+
   CharacterImportResult({
     required this.characters,
     required this.diagnostics,
+    this.ambiguities = const {},
   });
 
   bool get hasWarnings => diagnostics.hasWarnings;
@@ -117,8 +123,14 @@ class ImportService {
     }
 
     final imported = <Character>[];
+    final ambiguities = <String, List<HeroAmbiguity>>{};
     for (final candidate in parseResult.candidates) {
       final character = candidate.character;
+      // Names in the file become the libraries' versions before anything
+      // reads the hero's classes or spells.
+      final found = HeroReconciliation.settle(character,
+          spellNames: candidate.spellNames);
+      if (found.isNotEmpty) ambiguities[character.id] = found;
       await FC5MediaImportService.materializeCharacterMedia(
         character: character,
         media: candidate.media,
@@ -138,6 +150,7 @@ class ImportService {
     return CharacterImportResult(
       characters: imported,
       diagnostics: parseResult.diagnostics,
+      ambiguities: ambiguities,
     );
   }
 

@@ -70,3 +70,18 @@ int _firstIndex<T>(ShelfChoice<T> choice, Map<int, int> order) => choice
     .reduce((a, b) => a < b ? a : b);
 
 final _cache = <Type, (int, List<ShelfChoice>)>{};
+
+/// The lead of records outside a shelf list (an imported hero's matches):
+/// the built-in record when the base book wins, the library's otherwise,
+/// then by ID — never the order books happened to load in.
+ContentRecord<T> leadRecord<T>(Iterable<ContentRecord<T>> records) {
+  final mineFirst = LibraryPolicy.overlap == LibraryOverlap.mine;
+  return (records.toList()
+        ..sort((a, b) {
+          if ((a.sourceId == null) != (b.sourceId == null)) {
+            return (a.sourceId == null) != mineFirst ? -1 : 1;
+          }
+          return a.id.compareTo(b.id);
+        }))
+      .first;
+}

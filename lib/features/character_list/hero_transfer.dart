@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'hero_reconciliation_page.dart';
 
 import '../../core/models/character.dart';
 import '../../core/services/fc5_export_service.dart';
@@ -727,6 +728,13 @@ Future<Character?> importHero(BuildContext context, {bool? qdnd}) async {
       if (!context.mounted) return null;
       HapticFeedback.mediumImpact();
       final first = result.characters.first;
+      // C03 · versions to confirm come first; the hero is already saved
+      // with the lead ones.
+      final found = result.ambiguities[first.id];
+      if (found != null && found.isNotEmpty) {
+        await showHeroReconciliation(context, first, found);
+        if (!context.mounted) return first;
+      }
       AppSnackBar.success(context,
           s.t('${first.name} в отряде', '${first.name} joined the party'));
       return first;

@@ -142,6 +142,11 @@ class FC5CharacterImportCandidate {
     required this.diagnostics,
     this.media = const [],
   });
+
+  /// The spell names as the file wrote them, by the ID each first resolved
+  /// to; C03 settles them against the libraries' versions.
+  Map<String, List<String>> get spellNames =>
+      FC5Parser.originalSpellNames[character] ?? const {};
 }
 
 class FC5EmbeddedMedia {
@@ -186,6 +191,10 @@ class FC5CharacterParseResult {
 
 class FC5Parser {
   static const Uuid _uuid = Uuid();
+
+  /// C03 · original spell names of a parsed hero, kept beside it rather than
+  /// in its saved data until the import settles them.
+  static final originalSpellNames = Expando<Map<String, List<String>>>();
   static const String _separator = '---RU---';
   static const String _defaultSourceId = 'fc5_import';
 
@@ -970,6 +979,7 @@ class FC5Parser {
       updatedAt: DateTime.now(),
     );
 
+    originalSpellNames[character] = spellInfo.names;
     character.recalculateAC();
     return character;
   }
@@ -1333,20 +1343,22 @@ class FC5Parser {
   ) {
     final known = <String>[];
     final prepared = <String>[];
+    final names = <String, List<String>>{};
 
     for (final spellNode in node.findElements('spell')) {
-      _addCharacterSpell(spellNode, known, prepared, diagnostics);
+      _addCharacterSpell(spellNode, known, prepared, diagnostics, names);
     }
 
     for (final classNode in node.findElements('class')) {
       for (final spellNode in classNode.findElements('spell')) {
-        _addCharacterSpell(spellNode, known, prepared, diagnostics);
+        _addCharacterSpell(spellNode, known, prepared, diagnostics, names);
       }
     }
 
     return _ParsedSpellSelection(
       knownSpells: known,
       preparedSpells: prepared,
+      names: names,
       maxPreparedSpells: prepared.length,
     );
   }
@@ -1356,6 +1368,7 @@ class FC5Parser {
     List<String> known,
     List<String> prepared,
     FC5ParseDiagnostics diagnostics,
+    Map<String, List<String>> names,
   ) {
     final name = _getTag(spellNode, 'name');
     if (name.isEmpty) {
@@ -1368,6 +1381,7 @@ class FC5Parser {
 
     final id = _resolveSpellId(name);
     _addUnique(known, id);
+    _addUnique(names.putIfAbsent(id, () => []), name);
 
     final preparedValue = _getTag(spellNode, 'prepared');
     if (_parseBool(preparedValue) == true) {
@@ -3396,11 +3410,13 @@ class _ParsedSpellSelection {
   final List<String> knownSpells;
   final List<String> preparedSpells;
   final int maxPreparedSpells;
+  final Map<String, List<String>> names;
 
   const _ParsedSpellSelection({
     required this.knownSpells,
     required this.preparedSpells,
     required this.maxPreparedSpells,
+    this.names = const {},
   });
 }
 
