@@ -300,14 +300,22 @@ class _GameplayStateEditorState extends State<GameplayStateEditor> {
       return;
     }
     _readValues();
-    final before = _clone(widget.character);
     setState(() => _saving = true);
     try {
-      _copyState(_draft, widget.character);
-      await StorageService.saveCharacter(widget.character);
+      // In the hero's write queue, after any action still being written.
+      await GameplayActionsService.serializeCharacter(widget.character,
+          () async {
+        final before = _clone(widget.character);
+        _copyState(_draft, widget.character);
+        try {
+          await StorageService.saveCharacter(widget.character);
+        } catch (_) {
+          _copyState(before, widget.character);
+          rethrow;
+        }
+      });
       if (mounted) Navigator.of(context).pop(true);
     } catch (_) {
-      _copyState(before, widget.character);
       if (mounted) {
         setState(() => _saving = false);
         AppSnackBar.error(

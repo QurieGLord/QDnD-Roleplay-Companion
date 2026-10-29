@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:qd_and_d/core/models/character_class.dart';
 import 'package:qd_and_d/core/models/character_feature.dart';
 import 'package:qd_and_d/core/services/feature_service.dart';
 import 'package:qd_and_d/core/services/spell_service.dart';
+import 'package:qd_and_d/core/services/gameplay_actions_service.dart';
 import 'package:qd_and_d/core/services/storage_service.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/gameplay_state_editor.dart';
 import 'package:qd_and_d/features/character_sheet/widgets/overview_tab.dart';
@@ -500,6 +502,29 @@ void main() {
     expect(c.arcaneRecoveryUsed, isFalse);
     expect(StorageService.getCharacter(c.id)!.naturalRecoveryUsed, isTrue);
   });
+
+  testWidgets('saving waits behind an action of the hero still being written',
+      (tester) async {
+    final c = hero();
+    await tester.runAsync(() => StorageService.saveCharacter(c));
+    await open(tester, c);
+    await tester.enterText(field('hp'), '31');
+    await tester.runAsync(() async {
+      final gate = Completer<void>();
+      final held =
+          GameplayActionsService.serializeCharacter(c, () => gate.future);
+      await tester.tap(find.byKey(const ValueKey('game-state-save')));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      // The editor's write has not jumped the queue.
+      expect(c.currentHp, 17);
+      gate.complete();
+      await held;
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    });
+    await tester.pumpAndSettle();
+    expect(c.currentHp, 31);
+    expect(StorageService.getCharacter(c.id)!.currentHp, 31);
+  }, timeout: const Timeout(Duration(seconds: 30)));
 
   // Keep this last: it deliberately closes the backing box to exercise failure.
   testWidgets(

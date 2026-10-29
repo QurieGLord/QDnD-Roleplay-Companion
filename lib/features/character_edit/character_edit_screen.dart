@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/models/character.dart';
+import '../../core/services/gameplay_actions_service.dart';
 import '../../core/services/storage_service.dart';
 import '../../core/theme/app_palettes.dart';
 import '../../core/theme/app_tokens.dart';
@@ -145,27 +146,52 @@ class _CharacterEditScreenState extends State<CharacterEditScreen> {
     // An emptied name keeps the old one rather than blocking the save.
     final typed = _name.text.trim();
     final name = typed.isEmpty ? h.name : typed;
-    h
-      ..name = name
-      ..avatarPath = _avatar
-      ..age = _nums[_Num.age]?.toString()
-      ..height = _nums[_Num.height] == null
-          ? null
-          : '${_nums[_Num.height]} ${s.t('см', 'cm')}'
-      ..weight = _nums[_Num.weight] == null
-          ? null
-          : '${_nums[_Num.weight]} ${s.t('кг', 'kg')}'
-      ..eyes = _looks[_Look.eyes]
-      ..skin = _looks[_Look.skin]
-      ..hair = _looks[_Look.hair]
-      ..backstory = _story.text.trim()
-      ..personalityTraits = _sides[_Side.traits]!.text.trim()
-      ..ideals = _sides[_Side.ideals]!.text.trim()
-      ..bonds = _sides[_Side.bonds]!.text.trim()
-      ..flaws = _sides[_Side.flaws]!.text.trim()
-      ..updatedAt = DateTime.now();
     try {
-      await StorageService.saveCharacter(h);
+      // In the hero's write queue; a failed write puts the card back as it was.
+      await GameplayActionsService.serializeCharacter(h, () async {
+        final before = (h.name, h.avatarPath, h.age, h.height, h.weight, h.eyes,
+            h.skin, h.hair, h.backstory, h.personalityTraits, h.ideals, h.bonds,
+            h.flaws, h.updatedAt);
+        h
+          ..name = name
+          ..avatarPath = _avatar
+          ..age = _nums[_Num.age]?.toString()
+          ..height = _nums[_Num.height] == null
+              ? null
+              : '${_nums[_Num.height]} ${s.t('см', 'cm')}'
+          ..weight = _nums[_Num.weight] == null
+              ? null
+              : '${_nums[_Num.weight]} ${s.t('кг', 'kg')}'
+          ..eyes = _looks[_Look.eyes]
+          ..skin = _looks[_Look.skin]
+          ..hair = _looks[_Look.hair]
+          ..backstory = _story.text.trim()
+          ..personalityTraits = _sides[_Side.traits]!.text.trim()
+          ..ideals = _sides[_Side.ideals]!.text.trim()
+          ..bonds = _sides[_Side.bonds]!.text.trim()
+          ..flaws = _sides[_Side.flaws]!.text.trim()
+          ..updatedAt = DateTime.now();
+        try {
+          await StorageService.saveCharacter(h);
+        } catch (_) {
+          h
+            ..name = before.$1
+            ..avatarPath = before.$2
+            ..age = before.$3
+            ..height = before.$4
+            ..weight = before.$5
+            ..eyes = before.$6
+            ..skin = before.$7
+            ..hair = before.$8
+            ..backstory = before.$9
+            ..personalityTraits = before.$10
+            ..ideals = before.$11
+            ..bonds = before.$12
+            ..flaws = before.$13
+            ..updatedAt = before.$14;
+          rethrow;
+        }
+      });
       if (!mounted) return;
       HapticFeedback.mediumImpact();
       _dirty = false;
