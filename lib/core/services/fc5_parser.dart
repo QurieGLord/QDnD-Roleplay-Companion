@@ -1681,11 +1681,15 @@ class FC5Parser {
   static Item _parseItem(XmlElement node, String? sourceId) {
     final rawNameEn = _getTag(node, 'name').ifEmpty('Unnamed Item');
     final rawNameRu = _getTag(node, 'name_ru');
-    final nameEn = FC5ImportedNameNormalizer.normalizedDisplayName(rawNameEn)
+    // The ID keeps an edition tag («Fireball [5.5e]»); the name drops it.
+    final idNameEn = FC5ImportedNameNormalizer.normalizedDisplayName(rawNameEn)
         .ifEmpty(rawNameEn);
+    final nameEn =
+        FC5ImportedNameNormalizer.withoutEdition(idNameEn).ifEmpty(idNameEn);
     final nameRu = rawNameRu.isEmpty
         ? ''
-        : FC5ImportedNameNormalizer.normalizedDisplayName(rawNameRu)
+        : FC5ImportedNameNormalizer.withoutEdition(
+                FC5ImportedNameNormalizer.normalizedDisplayName(rawNameRu))
             .ifEmpty(rawNameRu);
     final descEn = _getText(node);
     final descRu = _getText(node, suffix: '_ru');
@@ -1741,7 +1745,7 @@ class FC5Parser {
     }
 
     return Item(
-      id: _entityId(nameEn, 'item', sourceId),
+      id: _entityId(idNameEn, 'item', sourceId),
       nameEn: nameEn,
       nameRu: nameRu.isNotEmpty ? nameRu : nameEn,
       descriptionEn: descEn,
@@ -1771,11 +1775,15 @@ class FC5Parser {
   static Spell _parseSpell(XmlElement node, String sourceId) {
     final rawNameEn = _getTag(node, 'name').ifEmpty('Unnamed Spell');
     final rawNameRu = _getTag(node, 'name_ru');
-    final nameEn = FC5ImportedNameNormalizer.normalizedDisplayName(rawNameEn)
+    // The ID keeps an edition tag («Fireball [5.5e]»); the name drops it.
+    final idNameEn = FC5ImportedNameNormalizer.normalizedDisplayName(rawNameEn)
         .ifEmpty(rawNameEn);
+    final nameEn =
+        FC5ImportedNameNormalizer.withoutEdition(idNameEn).ifEmpty(idNameEn);
     final nameRu = rawNameRu.isEmpty
         ? ''
-        : FC5ImportedNameNormalizer.normalizedDisplayName(rawNameRu)
+        : FC5ImportedNameNormalizer.withoutEdition(
+                FC5ImportedNameNormalizer.normalizedDisplayName(rawNameRu))
             .ifEmpty(rawNameRu);
     final levelStr = _getTag(node, 'level');
     final time = _getTag(node, 'time');
@@ -1789,7 +1797,8 @@ class FC5Parser {
     final classNames = <String>[];
     final classesRaw = _splitBilingual(_getTag(node, 'classes'))['en'] ?? '';
     for(final token in [...SpellClassMembership.split(classesRaw),...node.findElements('sclass').map((n)=>n.innerText)]) {
-      final match=RegExp(r'^\s*([^(:]+?)\s*(?:\((.*)\)|:(.*))?\s*$').firstMatch(token);
+      // «Druid [5.5e] (Circle of the Land)» lists the druid, of any edition.
+      final match=RegExp(r'^\s*([^(:]+?)\s*(?:\((.*)\)|:(.*))?\s*$').firstMatch(FC5ImportedNameNormalizer.withoutEdition(token));
       if(match==null)continue;
       final base=_canonicalClassName(match.group(1)!).toLowerCase();
       final scope=(match.group(2)??match.group(3)??'').trim();
@@ -1797,7 +1806,7 @@ class FC5Parser {
     }
 
     return Spell(
-      id: _entityId(nameEn, 'spell', sourceId),
+      id: _entityId(idNameEn, 'spell', sourceId),
       nameEn: nameEn,
       nameRu: nameRu.isNotEmpty ? nameRu : nameEn,
       level: _parseInt(levelStr) ?? 0,
@@ -1821,11 +1830,15 @@ class FC5Parser {
   static RaceData _parseRace(XmlElement node, String sourceId) {
     final rawNameEn = _getTag(node, 'name').ifEmpty('Unnamed Race');
     final rawNameRu = _getTag(node, 'name_ru');
-    final nameEn = FC5ImportedNameNormalizer.normalizedDisplayName(rawNameEn)
+    // The ID keeps an edition tag («Fireball [5.5e]»); the name drops it.
+    final idNameEn = FC5ImportedNameNormalizer.normalizedDisplayName(rawNameEn)
         .ifEmpty(rawNameEn);
+    final nameEn =
+        FC5ImportedNameNormalizer.withoutEdition(idNameEn).ifEmpty(idNameEn);
     final nameRu = rawNameRu.isEmpty
         ? ''
-        : FC5ImportedNameNormalizer.normalizedDisplayName(rawNameRu)
+        : FC5ImportedNameNormalizer.withoutEdition(
+                FC5ImportedNameNormalizer.normalizedDisplayName(rawNameRu))
             .ifEmpty(rawNameRu);
     final size = _sizeFromText(_getTag(node, 'size'));
     final speed =
@@ -1862,7 +1875,7 @@ class FC5Parser {
     }
 
     return RaceData(
-      id: _entityId(nameEn, 'race', sourceId),
+      id: _entityId(idNameEn, 'race', sourceId),
       name: {'en': nameEn, 'ru': nameRu.isNotEmpty ? nameRu : nameEn},
       description: {
         'en': _getText(node),
@@ -1893,10 +1906,17 @@ class FC5Parser {
     final nameRuParts = rawNameRu.isEmpty
         ? const _ClassNameParts(base: '')
         : _splitClassName(rawNameRu);
+    // IDs and features keep a tagged name («Barbarian [5.5e]») as they always
+    // have; the class shows the plain one and carries the edition instead.
     final baseNameEn = _canonicalClassName(nameParts.base);
-    final baseNameRu = nameRuParts.base.isNotEmpty
-        ? nameRuParts.base
-        : _localizedClassName(baseNameEn, fallback: nameParts.base);
+    final shownNameEn = _canonicalClassName(
+        FC5ImportedNameNormalizer.withoutEdition(nameParts.base));
+    final baseNameRu = FC5ImportedNameNormalizer.withoutEdition(
+        nameRuParts.base.isNotEmpty
+            ? nameRuParts.base
+            : _localizedClassName(shownNameEn, fallback: nameParts.base));
+    final edition = FC5ImportedNameNormalizer.splitEdition(rawName).edition ??
+        _sourceEdition(node);
     final classSubclassName = nameParts.subclass == null
         ? null
         : _canonicalSubclassName(nameParts.subclass!);
@@ -2078,7 +2098,7 @@ class FC5Parser {
 
     return ClassData(
       id: _entityId(baseNameEn, 'class', sourceId),
-      name: {'en': baseNameEn, 'ru': baseNameRu},
+      name: {'en': shownNameEn, 'ru': baseNameRu},
       description: {
         'en': _getText(node),
         'ru': _getText(node, suffix: '_ru').ifEmpty(_getText(node)),
@@ -2099,12 +2119,12 @@ class FC5Parser {
           ? null
           : SpellcastingInfo(
               ability: spellAbility,
-              type: _spellcastingTypeForClass(baseNameEn),
+              type: _spellcastingTypeForClass(shownNameEn),
             ),
       sourceId: sourceId,
       rulesMetadata: {
         'referenceAdapterVersion': 1,
-        'edition': 'unknown',
+        'edition': edition == '2024' ? '2024' : 'unknown',
         'declaredFields': [
           if (hdText.isNotEmpty) 'hitDie',
           if (spellAbility != null) 'spellcasting',
@@ -2495,11 +2515,15 @@ class FC5Parser {
   static BackgroundData _parseBackground(XmlElement node, String sourceId) {
     final rawNameEn = _getTag(node, 'name').ifEmpty('Unnamed Background');
     final rawNameRu = _getTag(node, 'name_ru');
-    final nameEn = FC5ImportedNameNormalizer.normalizedDisplayName(rawNameEn)
+    // The ID keeps an edition tag («Fireball [5.5e]»); the name drops it.
+    final idNameEn = FC5ImportedNameNormalizer.normalizedDisplayName(rawNameEn)
         .ifEmpty(rawNameEn);
+    final nameEn =
+        FC5ImportedNameNormalizer.withoutEdition(idNameEn).ifEmpty(idNameEn);
     final nameRu = rawNameRu.isEmpty
         ? ''
-        : FC5ImportedNameNormalizer.normalizedDisplayName(rawNameRu)
+        : FC5ImportedNameNormalizer.withoutEdition(
+                FC5ImportedNameNormalizer.normalizedDisplayName(rawNameRu))
             .ifEmpty(rawNameRu);
     var skillStr = _getTag(node, 'skill');
     if (skillStr.isEmpty) {
@@ -2553,7 +2577,7 @@ class FC5Parser {
     ].where((part) => part.trim().isNotEmpty).join('\n\n');
 
     return BackgroundData(
-      id: _entityId(nameEn, 'background', sourceId),
+      id: _entityId(idNameEn, 'background', sourceId),
       name: {'en': nameEn, 'ru': nameRu.isNotEmpty ? nameRu : nameEn},
       description: {
         'en': descriptionEn,
@@ -2584,8 +2608,12 @@ class FC5Parser {
     final normalizedNameRu = rawNameRu.isEmpty
         ? null
         : FC5ImportedNameNormalizer.normalize(rawNameRu);
-    final nameEn = normalizedNameEn.displayName.ifEmpty(rawNameEn);
-    final nameRu = normalizedNameRu?.displayName.ifEmpty(rawNameRu) ?? '';
+    // The ID keeps an edition tag («Alert [5.5e]»); the name drops it.
+    final idNameEn = normalizedNameEn.displayName.ifEmpty(rawNameEn);
+    final nameEn =
+        FC5ImportedNameNormalizer.withoutEdition(idNameEn).ifEmpty(idNameEn);
+    final nameRu = FC5ImportedNameNormalizer.withoutEdition(
+            normalizedNameRu?.displayName.ifEmpty(rawNameRu) ?? '');
     final textEn = _getText(node);
     final textRu = _getText(node, suffix: '_ru');
     final prerequisiteEn = _getTag(node, 'prerequisite');
@@ -2607,7 +2635,7 @@ class FC5Parser {
     ].where((part) => part.trim().isNotEmpty).join('\n\n');
 
     return CharacterFeature(
-      id: _entityId(nameEn, 'feat', sourceId),
+      id: _entityId(idNameEn, 'feat', sourceId),
       nameEn: nameEn,
       nameRu: nameRu.isNotEmpty ? nameRu : nameEn,
       descriptionEn: descEn,
@@ -2939,6 +2967,28 @@ class FC5Parser {
     if (trimmed.isEmpty) return trimmed;
     final normalized = _normalizeLoose(trimmed);
     return _subclassNameMap[normalized] ?? _titleCase(trimmed);
+  }
+
+  /// '2024' when an untagged class cites newer rules as its own source, as
+  /// FC5 compilations do in the class description or its level 1 features
+  /// («Source: Player's Handbook (2024)», «Source: System Reference Document
+  /// v5.2.1»); null otherwise. Later levels are not read: a book may add
+  /// newer subclasses to an older class.
+  static String? _sourceEdition(XmlElement node) {
+    final newer = RegExp(
+        r'^\s*Source:.*(\(2024\)|\b5\.5e\b|System Reference Document v?5\.2|\bSRD 5\.2)',
+        caseSensitive: false,
+        multiLine: true);
+    final own = [
+      ...node.findElements('trait'),
+      for (final level in node.findElements('autolevel'))
+        if (level.getAttribute('level')?.trim() == '1')
+          ...level.findElements('feature'),
+    ];
+    for (final text in own.expand((e) => e.findElements('text'))) {
+      if (newer.hasMatch(text.innerText)) return '2024';
+    }
+    return null;
   }
 
   static _ClassNameParts _splitClassName(String text) {

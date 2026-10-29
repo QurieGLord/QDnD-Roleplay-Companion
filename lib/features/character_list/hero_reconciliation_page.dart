@@ -58,6 +58,17 @@ class _HeroReconciliationPageState extends State<HeroReconciliationPage> {
         preferredIds: {shown.id},
         preferredLabel: tr.t('Выбрано сейчас', 'Chosen now'));
     if (picked == null || !mounted) return;
+    if (picked is ClassData && !picked.rulesPlayable) {
+      // TEMPORARY STOPGAP until built-in 2024 rules (see
+      // ClassData.rulesPlayable).
+      HapticFeedback.lightImpact();
+      AppSnackBar.info(
+          context,
+          tr.t(
+              'По правилам ${picked.rulesEdition} героя пока не вести — оставлена прежняя версия.',
+              'Heroes can’t follow the ${picked.rulesEdition} rules yet — the previous version stays.'));
+      return;
+    }
     final record = a.family.records.firstWhere((r) => identical(r.entity, picked));
     HapticFeedback.selectionClick();
     setState(() {

@@ -54,6 +54,29 @@ class FC5ImportedNameNormalizer {
 
   static String normalizedDisplayName(String raw) => normalize(raw).displayName;
 
+  /// FC5 compilations tag newer-rules entries in the name itself, as
+  /// «Fireball [5.5e]» or «Druid [5.5e] (Circle of the Sea)»; earlier builds
+  /// wrote «[2024]». The tag names the rules edition, not the entry.
+  static final RegExp _editionTag = RegExp(
+    r'\s*\[(5\.5e|2024|5e|2014)\](?=\s|$|[(:,])',
+    caseSensitive: false,
+  );
+
+  /// [raw] without its edition tags, and the edition they name: '2024' or
+  /// '2014', null when untagged. IDs keep being built from the tagged name.
+  static ({String name, String? edition}) splitEdition(String raw) {
+    String? edition;
+    final name = raw.replaceAllMapped(_editionTag, (m) {
+      final tag = m.group(1)!.toLowerCase();
+      edition ??= tag == '5.5e' || tag == '2024' ? '2024' : '2014';
+      return '';
+    });
+    return (name: _collapseWhitespace(name), edition: edition);
+  }
+
+  /// The display name of a tagged entry: [splitEdition] without the edition.
+  static String withoutEdition(String raw) => splitEdition(raw).name;
+
   static String _collapseWhitespace(String value) {
     return value.replaceAll(RegExp(r'\s+'), ' ').trim();
   }

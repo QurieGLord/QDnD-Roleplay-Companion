@@ -19,6 +19,7 @@ import '../../core/services/feature_service.dart';
 import '../../core/services/item_service.dart';
 import '../../core/theme/app_palettes.dart';
 import '../../core/theme/app_tokens.dart';
+import '../../core/ui/app_snack_bar.dart';
 import '../../core/ui/companion_kit.dart';
 import '../../core/ui/expressive_kit.dart';
 import '../../core/ui/page_kit.dart';
@@ -1257,7 +1258,8 @@ class _ClassChapter extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final locale = tr.ru ? 'ru' : 'en';
     final classes = shelfChoices(
-        CharacterDataService.getAllClasses(), ContentRecords.characterClass);
+        CharacterDataService.getAllClasses(), ContentRecords.characterClass,
+        usable: (c) => c.rulesPlayable);
     final chosen = s.selectedClass;
     return Padding(
       padding: const EdgeInsets.only(bottom: prologueDockRoom),
@@ -1301,6 +1303,19 @@ class _ClassChapter extends StatelessWidget {
                               'subclasses: ${v.subclasses.length}'),
                         ].join(' · '),
                     description: (v) => advancementGist(v.getDescription(locale), max: 220));
+                if (picked != null && !picked.rulesPlayable) {
+                  // TEMPORARY STOPGAP until built-in 2024 rules (see
+                  // ClassData.rulesPlayable): the book stays on the shelf.
+                  if (context.mounted) {
+                    HapticFeedback.lightImpact();
+                    AppSnackBar.info(
+                        context,
+                        tr.t(
+                            'По правилам ${picked.rulesEdition} героя пока не создать — книга на полке, возьмите другую версию.',
+                            'Heroes can’t be built on the ${picked.rulesEdition} rules yet — the book stays on the shelf; take another version.'));
+                  }
+                  return;
+                }
                 if (picked != null &&
                     (picked.id != chosen?.id || picked.sourceId != chosen?.sourceId)) {
                   s.updateClass(picked);

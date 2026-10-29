@@ -76,7 +76,7 @@ Classes from third-party books or your own homebrew are drawn by a **universal k
 - **Level-up:** a class step with multiclass prerequisites, hit points, ability score improvements, subclasses, per-class choices and spells, a summary of every change, and an advancement history you can roll back.
 - **Character creation:** name, people, class, abilities (standard set, point buy or a roll), background, skills, features and gear, ending on a full sheet preview.
 - **Journal:** a pin board, a tape of sessions, manuscript pages, and people, places and quests linked into a living atlas.
-- **Content libraries:** a shelf with the built-in SRD 5.1 (2014), which you can switch off but not delete, and your books beside it. Import FC5 (Fight Club 5) XML or ZIP and QDND bundles; when your book overlaps the base one, you choose which wins.
+- **Content libraries:** a shelf with the built-in SRD 5.1 (2014), which you can switch off but not delete, and your books beside it. Import FC5 (Fight Club 5) XML or ZIP and QDND bundles; when your book overlaps the base one, you choose which wins. The same spell, class or people from several books is one entry with its versions, and a book never rewrites the built-in rules: compendiums that mark 2024 rules (such as «Fireball [5.5e]») are read as found and kept as versions.
 - **Hero transfer:** a full `.qdnd` copy with your own content inside, or a sheet as XML.
 - **Themes:** Monokai, Gruvbox, Catppuccin and more, in light and dark, with a quieter Basic mode, large text and reduced motion.
 
@@ -109,7 +109,7 @@ The redesign campaign took every finished screen to the new design code wave by 
 | 5 | Settings and libraries | ✅ |
 | 6 | Level-up and character creation | ✅ |
 
-Next comes a shared content model (stable identities for every book entry, items on the same model), then the inventory, the Forge and quest rewards, and then a stable 1.0.
+The first part of a shared content model is in: every book entry has a stable identity, creation shows one card per concept with its versions, items remember which version of a book they came from, and a hero brought in from FC5 is matched against your libraries. Next come the inventory, the Forge and quest rewards, and then a stable 1.0. The built-in SRD 5.2 (2024), with a choice of edition, comes in a later release.
 
 ## License and credits
 

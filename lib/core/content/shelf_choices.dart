@@ -23,12 +23,16 @@ class ShelfChoice<T> {
 
 /// Groups a shelf list (already settled by [LibraryPolicy]) into concepts, in
 /// the order the shelf lists them. The lead follows the overlap setting: the
-/// built-in record when the base book wins, the library's otherwise.
+/// built-in record when the base book wins, the library's otherwise — among
+/// the [usable] records first, when some are not (a class of rules the app
+/// cannot build heroes on yet).
 List<ShelfChoice<T>> shelfChoices<T>(
-    List<T> listed, ContentRecord<T> Function(T) record) {
+    List<T> listed, ContentRecord<T> Function(T) record,
+    {bool Function(T)? usable}) {
   final key = Object.hashAll([
     T,
     LibraryPolicy.overlap,
+    usable != null,
     for (final e in listed) identityHashCode(e),
   ]);
   final cached = _cache[T];
@@ -44,6 +48,8 @@ List<ShelfChoice<T>> shelfChoices<T>(
       for (final family in families)
         ShelfChoice(family, (family.records.toList()
               ..sort((a, b) {
+                final byUse = _byUse(a, b, usable);
+                if (byUse != 0) return byUse;
                 if ((a.sourceId == null) != (b.sourceId == null)) {
                   return (a.sourceId == null) != mineFirst ? -1 : 1;
                 }
@@ -71,13 +77,22 @@ int _firstIndex<T>(ShelfChoice<T> choice, Map<int, int> order) => choice
 
 final _cache = <Type, (int, List<ShelfChoice>)>{};
 
+int _byUse<T>(ContentRecord<T> a, ContentRecord<T> b, bool Function(T)? usable) {
+  if (usable == null) return 0;
+  final ua = usable(a.entity), ub = usable(b.entity);
+  return ua == ub ? 0 : (ua ? -1 : 1);
+}
+
 /// The lead of records outside a shelf list (an imported hero's matches):
 /// the built-in record when the base book wins, the library's otherwise,
 /// then by ID — never the order books happened to load in.
-ContentRecord<T> leadRecord<T>(Iterable<ContentRecord<T>> records) {
+ContentRecord<T> leadRecord<T>(Iterable<ContentRecord<T>> records,
+    {bool Function(T)? usable}) {
   final mineFirst = LibraryPolicy.overlap == LibraryOverlap.mine;
   return (records.toList()
         ..sort((a, b) {
+          final byUse = _byUse(a, b, usable);
+          if (byUse != 0) return byUse;
           if ((a.sourceId == null) != (b.sourceId == null)) {
             return (a.sourceId == null) != mineFirst ? -1 : 1;
           }

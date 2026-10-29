@@ -60,6 +60,17 @@ class ClassData {
       : sourceId == null;
   String get rulesEdition => rulesMetadata['edition'] as String? ?? 'unknown';
 
+  /// Whether heroes can be built on these rules yet: the 2014 engine, or a
+  /// book that does not say.
+  ///
+  /// TEMPORARY STOPGAP: the app has no built-in 2024 rules yet, so a class a
+  /// book marks as 2024 can be listed but not played. When SRD 5.2 (2024) is
+  /// built in, with the player's choice of edition, this check goes: replace
+  /// it with the chosen edition, and drop the guards that use it (Prologue
+  /// class pick, hero reconciliation, shelf leads). See
+  /// docs/WORKING_VERSION_TODO.md, «Временная затычка 2024».
+  bool get rulesPlayable => rulesEdition == 'unknown' || rulesEdition == '2014';
+
   ClassData({
     required this.id,
     required this.name,

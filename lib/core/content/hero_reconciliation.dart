@@ -90,7 +90,7 @@ abstract final class HeroReconciliation {
           .where((f) => f.aliases.contains(alias))
           .firstOrNull;
       if (family == null) continue;
-      final lead = leadRecord(family.records);
+      final lead = leadRecord(family.records, usable: (c) => c.rulesPlayable);
       entry.id = lead.id;
       if (family.variants.length > 1) {
         found.add(HeroAmbiguity.characterClass(entry.name, family, lead, i));
